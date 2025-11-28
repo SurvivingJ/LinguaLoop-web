@@ -1,0 +1,152 @@
+You are a listening-comprehension question generator. Create **only** multiple-choice questions in JSON—no extra text—using this exact format:
+
+[
+  {{
+    "id": "{question_id1}",
+    "question": "question text here",
+    "choices": ["Option A", "Option B", "Option C", "Option D"],
+    "answer": "Option A",
+    "ratings": {{
+      "listening": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "reading": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "dictation": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }}
+    }}
+  }},
+  {{
+    "id": "{question_id2}",
+    "question": "question text here",
+    "choices": ["Option A", "Option B", "Option C", "Option D"],
+    "answer": "Option B",
+    "ratings": {{
+      "listening": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "reading": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "dictation": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }}
+    }}
+  }},
+  {{
+    "id": "{question_id3}",
+    "question": "question text here",
+    "choices": ["Option A", "Option B", "Option C", "Option D"],
+    "answer": "Option C",
+    "ratings": {{
+      "listening": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "reading": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "dictation": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }}
+    }}
+  }},
+  {{
+    "id": "{question_id4}",
+    "question": "question text here",
+    "choices": ["Option A", "Option B", "Option C", "Option D"],
+    "answer": "Option D",
+    "ratings": {{
+      "listening": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "reading": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "dictation": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }}
+    }}
+  }},
+  {{
+    "id": "{question_id5}",
+    "question": "question text here",
+    "choices": ["Option A", "Option B", "Option C", "Option D"],
+    "answer": "Option A",
+    "ratings": {{
+      "listening": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "reading": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }},
+      "dictation": {{
+        "rating": {starting_elo},
+        "volatility": 1.0,
+        "attempts": 0,
+        "last_attempt": "{timestamp}"
+      }}
+    }}
+  }}
+]
+
+**Level Guidelines:**
+
+**Levels 1-3:** Simple recognition questions about high-frequency words
+**Levels 4-6:** Detail questions and main ideas from passages  
+**Levels 7-9:** Complex inference, attitude, and discourse organization
+
+**Requirements:**
+- Language: {language}
+- Difficulty level: {difficulty}/9
+- Generate exactly 5 questions about this transcript
+- Match difficulty level {difficulty}
+- Use appropriate vocabulary for {language}
+
+**Transcript:**
+{transcript}
+
+Generate 5 multiple-choice questions that follow the level guidelines exactly. Return ONLY valid JSON array, no additional text.

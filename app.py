@@ -1,495 +1,524 @@
 """
-LinguaLoop Flask Application
-Main entry point for the web application
+Flask Backend for LinguaLoop Language Learning Platform
+Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify, Response, make_response, render_template, redirect, url_for, session
 from flask_cors import CORS
-from flask_session import Session
-from functools import wraps
-import os
+from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
+from datetime import datetime, timezone
+import stripe
+from supabase import create_client
+import requests
 import logging
-from datetime import datetime, timedelta
-import jwt
+import traceback
+import os
 
-# Initialize Flask app
-app = Flask(__name__)
+# Internal imports
+from .config import Config
+from .services.service_factory import ServiceFactory
+from .services.r2_service import R2Service
+from .services.prompt_service import PromptService
+from .services.auth_service import AuthService
+from .middleware.auth import AuthMiddleware
+from .utils.auth import supabase_jwt_required
 
-# ============================================
-# Configuration
-# ============================================
+# Import blueprints
+from .routes.auth import auth_bp
+from .routes.tests import tests_bp
 
-class Config:
-    """Flask configuration"""
-    # Secret key for session management
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+def create_app(config_class=Config):
+    """Create and configure Flask application"""
+    app = Flask(__name__)
+    app.config.from_object(config_class)
     
-    # Session configuration
-    SESSION_TYPE = 'filesystem'
-    SESSION_PERMANENT = False
-    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    # Set secret key for sessions
+    app.secret_key = config_class.SECRET_KEY if hasattr(config_class, 'SECRET_KEY') else os.urandom(24)
     
-    # JWT configuration
-    JWT_SECRET = os.environ.get('JWT_SECRET', 'jwt-secret-key-change-in-production')
-    JWT_ALGORITHM = 'HS256'
-    JWT_EXPIRATION_HOURS = 24
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO if not config_class.DEBUG else logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # API configuration
-    API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:5000')
+    # Initialize JWT
+    JWTManager(app)
     
-    # Database
-    SUPABASE_URL = os.environ.get('SUPABASE_URL')
-    SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+    # Setup CORS
+    _setup_cors(app)
     
-    # Storage (Cloudflare R2)
-    R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
-    R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY')
-    R2_SECRET_KEY = os.environ.get('R2_SECRET_KEY')
-    R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', 'lingualoop')
+    # Initialize all services
+    _initialize_services(app)
     
-    # OpenAI
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+    # Register blueprints
+    _register_blueprints(app)
     
-    # Environment
-    ENV = os.environ.get('FLASK_ENV', 'development')
-    DEBUG = ENV == 'development'
+    # Register error handlers
+    _register_error_handlers(app)
+    
+    # Register core routes (API + Web pages)
+    _register_core_routes(app)
+    _register_web_routes(app)
+    
+    app.logger.info("✅ LinguaLoop application initialized successfully")
+    return app
 
-app.config.from_object(Config)
-Session(app)
-CORS(app)
 
-# ============================================
-# Logging Setup
-# ============================================
+def _setup_cors(app):
+    """Configure CORS with proper settings"""
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": Config.CORS_ORIGINS,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"],
+            "supports_credentials": True,
+            "max_age": 86400
+        }
+    })
+    
+    @app.before_request
+    def handle_preflight():
+        """Handle CORS preflight requests"""
+        if request.method == 'OPTIONS':
+            origin = request.headers.get('Origin', '')
+            response = make_response()
+            
+            if origin in Config.CORS_ORIGINS or "*" in Config.CORS_ORIGINS:
+                response.headers['Access-Control-Allow-Origin'] = origin
+            elif Config.CORS_ORIGINS:
+                response.headers['Access-Control-Allow-Origin'] = Config.CORS_ORIGINS[0]
+            
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type, Accept'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Max-Age'] = '86400'
+            return response
 
-logging.basicConfig(
-    level=logging.INFO if Config.ENV == 'production' else logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-# ============================================
-# Authentication Decorators
-# ============================================
+def _initialize_services(app):
+    """Initialize all external services with error handling"""
+    
+    # Supabase initialization
+    try:
+        if Config.SUPABASE_URL and Config.SUPABASE_KEY:
+            app.supabase = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+            app.auth_service = AuthService(app.supabase)
+            
+            # Service role client for admin operations
+            if Config.SUPABASE_SERVICE_ROLE_KEY:
+                app.supabase_service = create_client(
+                    Config.SUPABASE_URL,
+                    Config.SUPABASE_SERVICE_ROLE_KEY
+                )
+                app.logger.info("✅ Supabase clients initialized (anon + service role)")
+            else:
+                app.supabase_service = None
+                app.logger.warning("⚠️ Service role key not provided")
+        else:
+            raise ValueError("Missing Supabase credentials")
+    except Exception as e:
+        app.logger.error(f"❌ Supabase initialization failed: {e}")
+        app.supabase = None
+        app.supabase_service = None
+        app.auth_service = None
+    
+    # Service factory (OpenAI, etc.)
+    try:
+        service_factory = ServiceFactory(Config)
+        app.service_factory = service_factory
+        app.openai_service = service_factory.openai_service if Config.OPENAI_API_KEY else None
+        app.logger.info(f"✅ OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
+    except Exception as e:
+        app.logger.error(f"❌ Service factory error: {e}")
+        app.openai_service = None
+    
+    # R2 storage service
+    try:
+        app.r2_service = R2Service(Config) if Config.R2_ACCESS_KEY_ID else None
+        app.logger.info(f"✅ R2 service: {'enabled' if app.r2_service else 'disabled'}")
+    except Exception as e:
+        app.logger.error(f"❌ R2 service error: {e}")
+        app.r2_service = None
+    
+    # Stripe payment service
+    try:
+        if Config.STRIPE_SECRET_KEY:
+            stripe.api_key = Config.STRIPE_SECRET_KEY
+            app.logger.info("✅ Stripe configured")
+        else:
+            app.logger.warning("⚠️ Stripe not configured")
+    except Exception as e:
+        app.logger.error(f"❌ Stripe initialization error: {e}")
+    
+    # Prompt service
+    try:
+        app.prompt_service = PromptService()
+        app.logger.info("✅ Prompt service initialized")
+    except Exception as e:
+        app.logger.error(f"❌ Prompt service error: {e}")
+        app.prompt_service = None
 
-def token_required(f):
-    """Decorator to require valid JWT token"""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
+
+def _register_blueprints(app):
+    """Register all application blueprints"""
+    # Inject dependencies into blueprints
+    auth_middleware = AuthMiddleware(app.supabase)
+    auth_bp.auth_service = app.auth_service
+    auth_bp.auth_middleware = auth_middleware
+    
+    # Register blueprints
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(tests_bp, url_prefix='/api/tests')
+    
+    app.logger.info("✅ Blueprints registered")
+
+
+def _register_error_handlers(app):
+    """Register global error handlers"""
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        # Check if it's an API request
+        if request.path.startswith('/api/'):
+            return jsonify({
+                "error": "Endpoint not found",
+                "status": "not_found"
+            }), 404
+        # Otherwise, redirect to login or show 404 page
+        return redirect(url_for('login'))
+    
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({
+            "error": "Method not allowed",
+            "status": "method_not_allowed"
+        }), 405
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error(f"Internal server error: {error}")
+        app.logger.error(traceback.format_exc())
         
-        # Check for token in Authorization header
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            try:
-                token = auth_header.split(" ")[1]
-            except IndexError:
-                return jsonify({'success': False, 'error': 'Invalid token format'}), 401
-        
-        if not token:
-            return jsonify({'success': False, 'error': 'Token is missing'}), 401
-        
+        if request.path.startswith('/api/'):
+            return jsonify({
+                "error": "Internal server error",
+                "status": "internal_error"
+            }), 500
+        return render_template('error.html', error="Internal server error"), 500
+
+
+def _register_web_routes(app):
+    """Register web page routes (HTML rendering)"""
+    
+    @app.route('/')
+    def index():
+        """Root route - redirect to login or dashboard based on auth"""
+        # Check if user is logged in (check session or JWT)
+        if 'user_email' in session or request.cookies.get('access_token'):
+            return redirect(url_for('language_selection'))
+        return redirect(url_for('login'))
+    
+    @app.route('/login')
+    def login():
+        """Render login page"""
+        return render_template('login.html')
+    
+    @app.route('/signup')
+    def signup():
+        """Render signup page (uses same login.html template)"""
+        return render_template('login.html')
+    
+    @app.route('/language-selection')
+    def language_selection():
+        """Render language selection page"""
+        # Optional: Check if user is authenticated
+        return render_template('language_selection.html')
+    
+    @app.route('/tests')
+    def tests():
+        """Render test list page"""
+        return render_template('test_list.html')
+    
+    @app.route('/logout')
+    def logout():
+        """Handle logout"""
+        session.clear()
+        response = make_response(redirect(url_for('login')))
+        response.delete_cookie('access_token')
+        return response
+
+
+def _register_core_routes(app):
+    """Register core application API routes"""
+    
+    @app.route('/api/health', methods=['GET'])
+    def health_check():
+        """Health check endpoint for monitoring"""
+        return jsonify({
+            "status": "healthy",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "version": "2.2.0",
+            "services": {
+                "openai": app.openai_service is not None,
+                "supabase": app.supabase is not None,
+                "auth": app.auth_service is not None,
+                "r2": app.r2_service is not None,
+                "stripe": Config.STRIPE_SECRET_KEY is not None
+            }
+        })
+    
+    @app.route('/api/config', methods=['GET'])
+    def get_config():
+        """Get public configuration"""
+        return jsonify({
+            "features": {
+                "ai_generation": app.openai_service is not None,
+                "database": app.supabase is not None,
+                "payments": Config.STRIPE_SECRET_KEY is not None,
+                "audio_generation": app.openai_service is not None
+            },
+            "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
+            "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
+        })
+    
+    # =========================================================================
+    # USER MANAGEMENT ENDPOINTS
+    # =========================================================================
+    
+    @app.route('/api/users/elo', methods=['GET'])
+    @supabase_jwt_required
+    def get_user_elo_ratings():
+        """Get user's ELO ratings across all languages and skills"""
         try:
-            data = jwt.decode(token, Config.JWT_SECRET, algorithms=[Config.JWT_ALGORITHM])
-            request.user_id = data['user_id']
-            request.user_email = data['email']
-        except jwt.ExpiredSignatureError:
-            return jsonify({'success': False, 'error': 'Token has expired'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': 'Invalid token'}), 401
-        
-        return f(*args, **kwargs)
-    
-    return decorated
-
-def login_required(f):
-    """Decorator for routes that require authenticated user"""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    
-    return decorated
-
-# ============================================
-# Helper Functions
-# ============================================
-
-def create_jwt_token(user_id: str, email: str) -> str:
-    """Create JWT token for user"""
-    payload = {
-        'user_id': user_id,
-        'email': email,
-        'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(hours=Config.JWT_EXPIRATION_HOURS)
-    }
-    token = jwt.encode(payload, Config.JWT_SECRET, algorithm=Config.JWT_ALGORITHM)
-    return token
-
-def api_response(success: bool, data=None, error=None, status_code=200):
-    """Standardized API response"""
-    response = {
-        'success': success,
-        'data': data,
-        'error': error,
-        'timestamp': datetime.utcnow().isoformat()
-    }
-    return jsonify(response), status_code
-
-# ============================================
-# Routes - Pages
-# ============================================
-
-@app.route('/')
-def index():
-    """Login page"""
-    if 'user_id' in session:
-        return redirect(url_for('home'))
-    return render_template('login.html', hide_navbar=True)
-
-@app.route('/language-selection')
-@login_required
-def language_selection():
-    """Language selection page"""
-    return render_template('language_selection.html')
-
-@app.route('/home')
-@login_required
-def home():
-    """Home/dashboard page"""
-    user_data = {
-        'email': session.get('email'),
-        'id': session.get('user_id')
-    }
-    return render_template('home.html', user_data=user_data)
-
-@app.route('/test-list')
-@login_required
-def test_list():
-    """Browse tests page"""
-    selected_language = request.args.get('language', '')
-    return render_template('test_list.html', selected_language=selected_language)
-
-@app.route('/test-preview')
-@login_required
-def test_preview():
-    """Test preview page"""
-    test_id = request.args.get('id')
-    if not test_id:
-        return redirect(url_for('test_list'))
-    return render_template('test_preview.html', test_id=test_id)
-
-@app.route('/test')
-@login_required
-def take_test():
-    """Active test page"""
-    test_id = request.args.get('id')
-    if not test_id:
-        return redirect(url_for('test_list'))
-    return render_template('test.html', test_id=test_id)
-
-@app.route('/results')
-@login_required
-def results():
-    """Test results page"""
-    attempt_id = request.args.get('id')
-    if not attempt_id:
-        return redirect(url_for('home'))
-    return render_template('results.html', attempt_id=attempt_id)
-
-@app.route('/generate-test')
-@login_required
-def generate_test():
-    """Generate test page"""
-    return render_template('generate_test.html')
-
-@app.route('/profile')
-@login_required
-def profile():
-    """User profile page"""
-    return render_template('profile.html')
-
-# ============================================
-# Routes - API
-# ============================================
-
-@app.route('/api/auth/send-otp', methods=['POST'])
-def send_otp():
-    """Send OTP to user email"""
-    try:
-        data = request.get_json()
-        email = data.get('email', '').strip().lower()
-        is_registration = data.get('is_registration', False)
-        
-        # Validate email
-        if not email or '@' not in email:
-            return api_response(False, error='Invalid email address', status_code=400)
-        
-        # TODO: Implement OTP sending logic
-        logger.info(f"OTP requested for email: {email}")
-        
-        return api_response(
-            True,
-            data={'message': 'OTP sent successfully'},
-            status_code=200
-        )
-    except Exception as e:
-        logger.error(f"Error sending OTP: {str(e)}")
-        return api_response(False, error='Failed to send OTP', status_code=500)
-
-@app.route('/api/auth/verify-otp', methods=['POST'])
-def verify_otp():
-    """Verify OTP and authenticate user"""
-    try:
-        data = request.get_json()
-        email = data.get('email', '').strip().lower()
-        token = data.get('token', '').strip()
-        
-        # Validate input
-        if not email or not token:
-            return api_response(False, error='Email and token required', status_code=400)
-        
-        if len(token) != 6 or not token.isdigit():
-            return api_response(False, error='Invalid OTP format', status_code=400)
-        
-        # TODO: Implement OTP verification logic
-        # For now, create test user
-        user_id = f"user_{email.replace('@', '_')}"
-        session['user_id'] = user_id
-        session['email'] = email
-        
-        jwt_token = create_jwt_token(user_id, email)
-        
-        logger.info(f"User authenticated: {email}")
-        
-        return api_response(
-            True,
-            data={
-                'jwt_token': jwt_token,
-                'user': {
-                    'id': user_id,
-                    'email': email,
-                    'created_at': datetime.utcnow().isoformat()
+            current_user_email = get_jwt_identity()
+            
+            user_result = app.supabase.table('users')\
+                .select('id')\
+                .eq('email', current_user_email)\
+                .single()\
+                .execute()
+            
+            if not user_result.data:
+                return jsonify({"error": "User not found"}), 404
+            
+            user_id = user_result.data['id']
+            
+            ratings_result = app.supabase.table('user_skill_ratings')\
+                .select('*')\
+                .eq('user_id', user_id)\
+                .execute()
+            
+            ratings = {}
+            for rating in ratings_result.data or []:
+                language = rating['language']
+                skill_type = rating['skill_type']
+                
+                if language not in ratings:
+                    ratings[language] = {}
+                
+                ratings[language][skill_type] = {
+                    'elo_rating': rating['elo_rating'],
+                    'tests_taken': rating['tests_taken'],
+                    'last_test_date': rating.get('last_test_date'),
+                    'volatility': rating.get('volatility', 100)
                 }
+            
+            return jsonify({
+                'status': 'success',
+                'ratings': ratings
+            })
+        except Exception as e:
+            app.logger.error(f"Error getting user ELO: {e}")
+            return jsonify({'error': 'Failed to get ELO ratings'}), 500
+    
+    @app.route('/api/users/tokens', methods=['GET'])
+    @supabase_jwt_required
+    def get_token_balance():
+        """Get user's current token balance"""
+        try:
+            current_user_email = get_jwt_identity()
+            
+            user_result = app.supabase.table('users')\
+                .select('tokens, last_free_token_date')\
+                .eq('email', current_user_email)\
+                .single()\
+                .execute()
+            
+            if not user_result.data:
+                return jsonify({"error": "User not found"}), 404
+            
+            tokens = user_result.data.get('tokens', 0)
+            last_free_date = user_result.data.get('last_free_token_date')
+            
+            # Check if user should get daily free tokens
+            today = datetime.now(timezone.utc).date().isoformat()
+            free_tokens_today = Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
+            
+            if last_free_date != today and free_tokens_today > 0:
+                # Grant daily free tokens
+                new_tokens = tokens + free_tokens_today
+                app.supabase.table('users')\
+                    .update({
+                        'tokens': new_tokens,
+                        'last_free_token_date': today
+                    })\
+                    .eq('email', current_user_email)\
+                    .execute()
+                tokens = new_tokens
+            
+            return jsonify({
+                "total_tokens": tokens,
+                "free_tokens_today": free_tokens_today,
+                "last_free_token_date": last_free_date or today,
+                "status": "success"
+            })
+        except Exception as e:
+            app.logger.error(f"Token balance error: {e}")
+            return jsonify({"error": "Failed to get token balance", "status": "error"}), 500
+    
+    @app.route('/api/users/profile', methods=['GET'])
+    @supabase_jwt_required
+    def get_user_profile():
+        """Get user profile information"""
+        try:
+            current_user_email = get_jwt_identity()
+            
+            user_result = app.supabase.table('users')\
+                .select('*')\
+                .eq('email', current_user_email)\
+                .single()\
+                .execute()
+            
+            if not user_result.data:
+                return jsonify({"error": "User not found"}), 404
+            
+            profile = user_result.data
+            # Remove sensitive fields
+            profile.pop('password_hash', None)
+            
+            return jsonify({
+                "profile": profile,
+                "status": "success"
+            })
+        except Exception as e:
+            app.logger.error(f"Profile error: {e}")
+            return jsonify({"error": "Failed to get profile"}), 500
+    
+    # =========================================================================
+    # PAYMENT ENDPOINTS
+    # =========================================================================
+    
+    @app.route('/api/payments/token-packages', methods=['GET'])
+    def get_token_packages():
+        """Get available token packages"""
+        packages = {
+            'starter_10': {
+                'tokens': 10,
+                'price_cents': 199,
+                'price_dollars': 1.99,
+                'description': 'Starter pack - try the platform'
             },
-            status_code=200
-        )
-    except Exception as e:
-        logger.error(f"Error verifying OTP: {str(e)}")
-        return api_response(False, error='Failed to verify OTP', status_code=500)
-
-@app.route('/api/auth/logout', methods=['POST'])
-@token_required
-def logout():
-    """Logout user"""
-    session.clear()
-    return api_response(True, data={'message': 'Logged out successfully'})
-
-@app.route('/api/tests', methods=['GET'])
-@token_required
-def get_tests():
-    """Get list of tests with optional filters"""
-    try:
-        language = request.args.get('language', '').lower()
-        test_type = request.args.get('test_type', '').lower()
-        difficulty = request.args.get('difficulty', type=int)
-        limit = request.args.get('limit', 50, type=int)
-        
-        # TODO: Implement test fetching from database
-        tests = []
-        
-        logger.info(f"Tests fetched for user {request.user_id}")
-        
-        return api_response(
-            True,
-            data={'tests': tests, 'total': len(tests)},
-            status_code=200
-        )
-    except Exception as e:
-        logger.error(f"Error fetching tests: {str(e)}")
-        return api_response(False, error='Failed to fetch tests', status_code=500)
-
-@app.route('/api/tests/<test_id>', methods=['GET'])
-@token_required
-def get_test_detail(test_id):
-    """Get detailed test information"""
-    try:
-        # TODO: Implement test detail fetching
-        test = {}
-        
-        if not test:
-            return api_response(False, error='Test not found', status_code=404)
-        
-        return api_response(True, data=test)
-    except Exception as e:
-        logger.error(f"Error fetching test detail: {str(e)}")
-        return api_response(False, error='Failed to fetch test', status_code=500)
-
-@app.route('/api/tests/<test_id>/submit', methods=['POST'])
-@token_required
-def submit_test(test_id):
-    """Submit test responses and get results"""
-    try:
-        data = request.get_json()
-        responses = data.get('responses', [])
-        
-        # Validate responses
-        if not responses or not isinstance(responses, list):
-            return api_response(False, error='Invalid responses format', status_code=400)
-        
-        # TODO: Implement test evaluation and scoring
-        result = {
-            'score': 0,
-            'total': len(responses),
-            'elo_change': 0,
-            'new_elo': 0
-        }
-        
-        logger.info(f"Test submitted by user {request.user_id}: {test_id}")
-        
-        return api_response(True, data=result)
-    except Exception as e:
-        logger.error(f"Error submitting test: {str(e)}")
-        return api_response(False, error='Failed to submit test', status_code=500)
-
-@app.route('/api/users/profile', methods=['GET'])
-@token_required
-def get_user_profile():
-    """Get user profile and stats"""
-    try:
-        # TODO: Implement user profile fetching
-        profile = {
-            'id': request.user_id,
-            'email': request.user_email,
-            'tests_taken': 0,
-            'current_elo': 1200,
-            'tokens_remaining': 100,
-            'languages': []
-        }
-        
-        return api_response(True, data=profile)
-    except Exception as e:
-        logger.error(f"Error fetching user profile: {str(e)}")
-        return api_response(False, error='Failed to fetch profile', status_code=500)
-
-@app.route('/api/tests/generate', methods=['POST'])
-@token_required
-def generate_test_route():
-    """Generate a custom test using AI"""
-    try:
-        data = request.get_json()
-        language = data.get('language', '').strip()
-        topic = data.get('topic', '').strip()
-        difficulty = data.get('difficulty', 5, type=int)
-        test_type = data.get('test_type', 'reading').lower()
-        
-        # Validate input
-        if not language or not topic:
-            return api_response(False, error='Language and topic required', status_code=400)
-        
-        if difficulty < 1 or difficulty > 9:
-            return api_response(False, error='Difficulty must be between 1-9', status_code=400)
-        
-        # TODO: Implement AI test generation
-        logger.info(f"Test generation requested by user {request.user_id}")
-        
-        return api_response(
-            True,
-            data={
-                'test_id': 'new_test_id',
-                'status': 'generating',
-                'message': 'Generating your custom test...'
+            'popular_50': {
+                'tokens': 50,
+                'price_cents': 799,
+                'price_dollars': 7.99,
+                'description': 'Most popular - great value'
             },
-            status_code=200
-        )
-    except Exception as e:
-        logger.error(f"Error generating test: {str(e)}")
-        return api_response(False, error='Failed to generate test', status_code=500)
+            'premium_200': {
+                'tokens': 200,
+                'price_cents': 1999,
+                'price_dollars': 19.99,
+                'description': 'Premium pack - best value'
+            }
+        }
+        return jsonify({"packages": packages, "status": "success"})
+    
+    @app.route('/api/payments/create-intent', methods=['POST'])
+    @supabase_jwt_required
+    def create_payment_intent():
+        """Create Stripe PaymentIntent for token purchase"""
+        try:
+            if not stripe.api_key:
+                return jsonify({"error": "Payment system not configured"}), 500
+            
+            data = request.get_json()
+            package_id = data.get('package_id')
+            
+            # Package mapping
+            packages = {
+                'starter_10': {'tokens': 10, 'amount': 199},
+                'popular_50': {'tokens': 50, 'amount': 799},
+                'premium_200': {'tokens': 200, 'amount': 1999}
+            }
+            
+            if package_id not in packages:
+                return jsonify({"error": "Invalid package"}), 400
+            
+            package = packages[package_id]
+            current_user_email = get_jwt_identity()
+            
+            # Create payment intent
+            intent = stripe.PaymentIntent.create(
+                amount=package['amount'],
+                currency='usd',
+                metadata={
+                    'user_email': current_user_email,
+                    'package_id': package_id,
+                    'tokens': package['tokens']
+                }
+            )
+            
+            return jsonify({
+                "client_secret": intent.client_secret,
+                "amount": package['amount'],
+                "tokens": package['tokens'],
+                "status": "success"
+            })
+        except Exception as e:
+            app.logger.error(f"Payment intent error: {e}")
+            return jsonify({"error": str(e)}), 500
+    
+    # =========================================================================
+    # AUDIO SERVING
+    # =========================================================================
+    
+    @app.route('/audio/<filename>', methods=['GET'])
+    def serve_audio(filename):
+        """Stream audio from R2 storage"""
+        try:
+            slug = filename.replace('.mp3', '')
+            r2_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
+            
+            response = requests.get(r2_url, stream=True, timeout=10)
+            
+            if response.status_code == 200:
+                def generate():
+                    for chunk in response.iter_content(chunk_size=8192):
+                        yield chunk
+                
+                return Response(
+                    generate(),
+                    mimetype='audio/mpeg',
+                    headers={
+                        'Content-Type': 'audio/mpeg',
+                        'Accept-Ranges': 'bytes',
+                        'Cache-Control': 'public, max-age=3600'
+                    }
+                )
+            else:
+                return jsonify({"error": "Audio file not found"}), 404
+        except Exception as e:
+            app.logger.error(f"Audio serving error: {e}")
+            return jsonify({"error": "Failed to serve audio"}), 500
 
-# ============================================
-# Error Handlers
-# ============================================
 
-@app.errorhandler(404)
-def page_not_found(error):
-    """Handle 404 errors"""
-    return render_template('error.html', 
-                         error_code=404, 
-                         error_message='Page not found'), 404
+# =============================================================================
+# APPLICATION ENTRY POINT
+# =============================================================================
 
-@app.errorhandler(500)
-def internal_server_error(error):
-    """Handle 500 errors"""
-    logger.error(f"Internal server error: {str(error)}")
-    return render_template('error.html', 
-                         error_code=500, 
-                         error_message='Internal server error'), 500
-
-@app.errorhandler(403)
-def forbidden(error):
-    """Handle 403 errors"""
-    return render_template('error.html', 
-                         error_code=403, 
-                         error_message='Access forbidden'), 403
-
-# ============================================
-# Context Processors
-# ============================================
-
-@app.context_processor
-def inject_config():
-    """Inject config values into templates"""
-    return {
-        'current_year': datetime.now().year,
-        'app_name': 'LinguaLoop',
-        'app_version': '1.0.0'
-    }
-
-# ============================================
-# Application Initialization
-# ============================================
-
-@app.before_request
-def before_request():
-    """Before request hook"""
-    session.permanent = True
-    app.permanent_session_lifetime = Config.PERMANENT_SESSION_LIFETIME
-    session.modified = True
-
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    """Cleanup on request end"""
-    pass
-
-# ============================================
-# CLI Commands
-# ============================================
-
-@app.cli.command()
-def init_db():
-    """Initialize database"""
-    logger.info("Initializing database...")
-    # TODO: Implement database initialization
-
-@app.cli.command()
-def seed_db():
-    """Seed database with sample data"""
-    logger.info("Seeding database...")
-    # TODO: Implement database seeding
-
-# ============================================
-# Main
-# ============================================
+app = create_app()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    debug = Config.DEBUG
-    
-    logger.info(f"Starting LinguaLoop on port {port} (debug={debug})")
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=debug,
-        use_reloader=debug
-    )
+    app.run(host='0.0.0.0', port=port, debug=Config.DEBUG)

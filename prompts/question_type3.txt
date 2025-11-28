@@ -1,0 +1,37 @@
+You are generating a Type 3 comprehension question: Complex inference, attitude, and discourse organization.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "Question": "question text here",
+  "Answer": "Dragonfruit", 
+  "Options": ["Apples", "Bananas", "Cantalope", "Dragonfruit"]
+}}
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions that are similar to these already generated questions:
+{previous_questions}
+
+**Requirements for Uniqueness:**
+- Focus on DIFFERENT details, causes, effects, or relationships
+- Ask about DIFFERENT parts of the transcript
+- Use COMPLETELY different wording and question structure
+- Ensure your correct answer covers DIFFERENT information
+
+**Type 3 Guidelines:**
+- Focus on implied meaning, speaker attitude, or discourse structure
+- Require complex inference beyond explicitly stated facts
+- Test understanding of tone, purpose, organizational patterns
+- May involve analyzing relationships between different parts of text
+
+**Few-shot Example:**
+Transcript: "While the new policy has clear benefits, I must admit there are some concerns about implementation. However, I believe these challenges can be overcome with proper planning."
+Question: "What is the speaker's overall attitude toward the new policy?"
+Options: ["Completely opposed", "Cautiously optimistic", "Entirely enthusiastic", "Completely uncertain"]
+Answer: "Cautiously optimistic"
+
+**Requirements:**
+- Language: {language}
+- Avoid semantic overlap with these existing questions: {previous_questions}  
+- Base your question on this transcript: {transcript}
+
+Return ONLY the JSON object, no additional text.

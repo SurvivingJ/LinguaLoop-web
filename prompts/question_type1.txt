@@ -1,0 +1,37 @@
+You are generating a Type 1 comprehension question: Simple recognition of high-frequency words.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "Question": "question text here",
+  "Answer": "A", 
+  "Options": ["A", "B", "C", "D"]
+}}
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions that are similar to these already generated questions:
+{previous_questions}
+
+**Requirements for Uniqueness:**
+- Ask about DIFFERENT aspects, topics, or details from the transcript
+- Use DIFFERENT question structures and wording
+- Ensure your answer is DIFFERENT from previous answers
+- Focus on VARIED vocabulary and concepts
+
+**Type 1 Guidelines:**
+- Focus on direct word recognition and simple factual recall
+- Use high-frequency vocabulary appropriate for {language}
+- Test understanding of concrete nouns, basic verbs, simple adjectives
+- Answers should be explicitly stated in the transcript
+
+**Few-shot Example:**
+Transcript: "The weather today is sunny and warm. Many people are walking in the park."
+Question: "What is the weather like today?"
+Options: ["Sunny and warm", "Cold and rainy", "Cloudy and cool", "Windy and dry"]
+Answer: "Sunny and warm"
+
+**Requirements:**
+- Language: {language}
+- Base your question on this transcript: {transcript}
+- MUST be completely different from previous questions in topic and wording
+
+Return ONLY the JSON object, no additional text.
