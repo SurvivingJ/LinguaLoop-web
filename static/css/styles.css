@@ -1,0 +1,665 @@
+/* ============================================
+   LinguaLoop Custom Styles
+   Design System: Educational Focus
+   ============================================ */
+
+/* CSS Variables */
+:root {
+  /* Primary Colors */
+  --primary: #1e40af;
+  --primary-hover: #1e3a8a;
+  --success: #059669;
+  --success-hover: #047857;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --warning: #ea580c;
+  --info: #0284c7;
+  --accent: #f59e0b;
+
+  /* Neutral Slate Scale */
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+
+  /* Semantic Backgrounds */
+  --success-bg: #d1fae5;
+  --danger-bg: #fee2e2;
+  --warning-bg: #fed7aa;
+  --info-bg: #e0f2fe;
+  --selected-bg: #dbeafe;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.15);
+
+  /* Transitions */
+  --transition-fast: all 0.15s ease;
+  --transition-base: all 0.2s ease;
+  --transition-slow: all 0.3s ease;
+}
+
+/* ============================================
+   Base & Global
+   ============================================ */
+body {
+  background: var(--slate-50);
+  color: var(--slate-600);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--slate-900);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 24px; color: var(--slate-800); }
+h3 { font-size: 20px; color: var(--slate-700); }
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: var(--transition-base);
+  border: none;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  background: var(--slate-300);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+}
+
+/* Success Button */
+.btn-success {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background: var(--success-hover);
+  border-color: var(--success-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--slate-100);
+  color: var(--slate-600);
+  border: 1px solid var(--slate-200);
+}
+
+.btn-secondary:hover {
+  background: var(--slate-200);
+  color: var(--slate-600);
+}
+
+/* Danger Button */
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  background: var(--danger-hover);
+  border-color: var(--danger-hover);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+/* Icon Button */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--slate-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: var(--slate-100);
+}
+
+.btn-icon:active {
+  background: var(--slate-200);
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+.card {
+  border-radius: 12px;
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
+}
+
+/* Question Card */
+.question-card {
+  background: white;
+  border: 2px solid var(--slate-200);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.question-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Answer Option */
+.answer-option {
+  background: white;
+  border: 2px solid var(--slate-300);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-bottom: 12px;
+}
+
+.answer-option:hover {
+  border-color: var(--slate-400);
+  background: var(--slate-50);
+}
+
+.answer-option.selected {
+  border-color: var(--primary);
+  border-width: 3px;
+  background: var(--selected-bg);
+  animation: scaleIn 0.15s ease;
+}
+
+.answer-option.correct {
+  border-left: 4px solid var(--success);
+  background: var(--success-bg);
+}
+
+.answer-option.incorrect {
+  border-left: 4px solid var(--danger);
+  background: var(--danger-bg);
+}
+
+/* Dashboard Card */
+.dashboard-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Audio Player Card */
+.audio-player {
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* ============================================
+   Forms
+   ============================================ */
+.form-control {
+  background: white;
+  border: 2px solid var(--slate-300);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  color: var(--slate-900);
+  transition: var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.form-control.is-invalid {
+  border-color: var(--danger);
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Seamless Input Groups */
+.input-group-text {
+  background: white;
+  border: 2px solid var(--slate-300);
+  border-right: none;
+  color: var(--slate-500);
+}
+
+.form-control.border-start-0 {
+  border-left: none;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Radio & Checkbox */
+.form-check-input {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--slate-300);
+}
+
+.form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* ============================================
+   Navigation
+   ============================================ */
+.navbar {
+  background: white;
+  border-bottom: 1px solid var(--slate-200);
+  padding: 16px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link {
+  color: var(--slate-500);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-bottom: 3px solid transparent;
+  transition: var(--transition-base);
+}
+
+.nav-link:hover {
+  color: var(--slate-600);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background: transparent;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.breadcrumb-item a {
+  color: var(--slate-600);
+}
+
+.breadcrumb-item.active {
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+/* ============================================
+   Progress Indicators
+   ============================================ */
+.progress {
+  height: 8px;
+  background: var(--slate-200);
+  border-radius: 4px;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+/* Milestone Marker */
+.milestone {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--slate-200);
+  background: white;
+  display: inline-block;
+  position: relative;
+}
+
+.milestone.completed {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  animation: pulse 0.4s ease;
+}
+
+/* Spinner */
+.spinner {
+  border: 3px solid var(--slate-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 0.6s linear infinite;
+}
+
+.spinner-lg {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+/* ============================================
+   Alerts & Feedback
+   ============================================ */
+.alert {
+  border-radius: 8px;
+  padding: 16px;
+  border-left-width: 4px;
+}
+
+.alert-success {
+  background: var(--success-bg);
+  color: var(--success-hover);
+  border-color: var(--success);
+  border-left-color: var(--success);
+}
+
+.alert-danger {
+  background: var(--danger-bg);
+  color: #991b1b;
+  border-color: var(--danger);
+  border-left-color: var(--danger);
+}
+
+.alert-warning {
+  background: var(--warning-bg);
+  color: #9a3412;
+  border-color: var(--warning);
+  border-left-color: var(--warning);
+}
+
+.alert-info {
+  background: var(--info-bg);
+  color: #075985;
+  border-color: var(--info);
+  border-left-color: var(--info);
+}
+
+/* ============================================
+   Badges & Tags
+   ============================================ */
+.badge {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge-score {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+/* Difficulty Tags */
+.tag-easy {
+  background: var(--success-bg);
+  color: var(--success);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.tag-medium {
+  background: #fef3c7;
+  color: #d97706;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.tag-hard {
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+/* Level Badge */
+.badge-level {
+  background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.badge-level.level-up {
+  animation: burst 0.6s ease;
+}
+
+/* ============================================
+   Modals
+   ============================================ */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--slate-200);
+  padding: 20px 24px;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--slate-200);
+}
+
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+/* ============================================
+   Audio Player
+   ============================================ */
+.audio-play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: var(--transition-base);
+  cursor: pointer;
+}
+
+.audio-play-btn:hover {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.audio-play-btn:active {
+  transform: scale(0.98);
+}
+
+.waveform-bar {
+  width: 3px;
+  background: var(--slate-300);
+  border-radius: 2px;
+  transition: var(--transition-fast);
+  display: inline-block;
+  margin: 0 2px;
+}
+
+.waveform-bar.active {
+  background: #3b82f6;
+}
+
+.audio-timer {
+  font-size: 14px;
+  color: var(--slate-500);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Stats & Data Visualization
+   ============================================ */
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--slate-500);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chart-bar {
+  background: linear-gradient(180deg, var(--primary) 0%, var(--info) 100%);
+  border-radius: 4px 4px 0 0;
+  transition: var(--transition-slow);
+}
+
+.chart-bar:hover {
+  opacity: 0.85;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes burst {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.15) rotate(5deg); }
+  50% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.98); }
+  to { transform: scale(1); }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.text-slate-900 { color: var(--slate-900); }
+.text-slate-600 { color: var(--slate-600); }
+.text-slate-500 { color: var(--slate-500); }
+
+.bg-slate-50 { background: var(--slate-50); }
+.bg-slate-100 { background: var(--slate-100); }
+
+.border-slate-200 { border-color: var(--slate-200); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+
+.transition-fast { transition: var(--transition-fast); }
+.transition-base { transition: var(--transition-base); }
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease;
+}
+
+/* Logo Styling */
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.tagline {
+  font-size: 14px;
+  color: var(--slate-500);
+}
+
+/* Container helpers */
+.login-container {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-card {
+  border: none;
+  border-radius: 12px;
+}

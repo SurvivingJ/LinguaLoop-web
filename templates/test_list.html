@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Tests - LinguaLoop{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: white;
+        border-bottom: 1px solid var(--slate-200);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+    }
+    
+    .filter-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    
+    .filter-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .test-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--slate-200);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        cursor: pointer;
+        overflow: hidden;
+    }
+    
+    .test-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: var(--primary);
+    }
+    
+    .test-card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--slate-100);
+    }
+    
+    .test-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .test-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .badge-difficulty {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+        border: 1px solid;
+    }
+    
+    .badge-beginner {
+        background: var(--success-bg);
+        color: var(--success);
+        border-color: var(--success);
+    }
+    
+    .badge-intermediate {
+        background: #fef3c7;
+        color: #d97706;
+        border-color: #d97706;
+    }
+    
+    .badge-advanced {
+        background: var(--warning-bg);
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+    
+    .badge-expert {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+    
+    .badge-custom {
+        background: var(--selected-bg);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .test-card-body {
+        padding: 1.5rem;
+    }
+    
+    .test-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        font-size: 14px;
+        margin-bottom: 1rem;
+    }
+    
+    .test-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--slate-600);
+    }
+    
+    .test-meta-icon {
+        width: 16px;
+        height: 16px;
+        color: var(--slate-500);
+    }
+    
+    .test-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--slate-100);
+    }
+    
+    .stat {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: var(--slate-500);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .test-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .test-meta {
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+    
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="mb-1">Browse Tests</h1>
+        <p class="text-slate-600 mb-0">Select a test to practice and improve your language skills</p>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h3 class="h6 mb-3">Filter Tests</h3>
+        
+        <form id="filter-form" class="filter-row">
+            <!-- Test Type Filter -->
+            <div>
+                <label for="test-type" class="filter-label">Test Type</label>
+                <select id="test-type" name="test_type" class="form-select" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="reading">📖 Reading</option>
+                    <option value="listening">🎧 Listening</option>
+                    <option value="dictation">⌨️ Dictation</option>
+                </select>
+            </div>
+            
+            <!-- Difficulty Filter -->
+            <div>
+                <label for="difficulty" class="filter-label">Difficulty</label>
+                <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
+                    <option value="">All Levels</option>
+                    <option value="1">Level 1 - Beginner</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                    <option value="6">Level 6</option>
+                    <option value="7">Level 7</option>
+                    <option value="8">Level 8</option>
+                    <option value="9">Level 9 - Expert</option>
+                </select>
+            </div>
+            
+            <!-- Reset Button -->
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+                    Reset
+                </button>
+            </div>
+        </form>
+        
+        <!-- Language Chip (if selected) -->
+        {% if selected_language %}
+        <div class="mt-3 d-inline-block">
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--selected-bg); color: var(--primary); padding: 0.5rem 0.75rem; border-radius: 20px; font-weight: 600; border: 1px solid var(--primary);">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+                {{ selected_language | upper }}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Tests Grid/Loading/Error States -->
+    <div id="content-area">
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-spinner d-none">
+            <div class="spinner"></div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-state" class="d-none">
+            <div class="alert alert-danger" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-5.708 9.7a1.13 1.13 0 0 0 .98 1.733h11.396a1.13 1.13 0 0 0 .98-1.732L8.982 1.566zM8 5a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                    </svg>
+                    <div>
+                        <strong>Error Loading Tests</strong>
+                        <p id="error-message" class="mb-0 mt-2">Failed to load tests. Please try again.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger mt-3" onclick="loadTests()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    Retry
+                </button>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="d-none">
+            <div class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <h3 class="h5 text-slate-900">No Tests Found</h3>
+                <p class="text-slate-600 mb-3">Try adjusting your filters or check back later for new tests.</p>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tests Grid -->
+        <div id="tests-grid" class="test-grid"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global state
+let allTests = [];
+let selectedLanguage = '{{ selected_language or "" }}';
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadTests();
+});
+
+// Load tests from API
+async function loadTests() {
+    showLoading();
+    
+    try {
+        const testType = document.getElementById('test-type').value;
+        const difficulty = document.getElementById('difficulty').value;
+        
+        const params = new URLSearchParams();
+        if (selectedLanguage) params.append('language', selectedLanguage);
+        if (testType) params.append('test_type', testType);
+        if (difficulty) params.append('difficulty', difficulty);
+        
+        const response = await fetch(`/api/tests?${params.toString()}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.tests) {
+            allTests = data.tests;
+            renderTests(allTests);
+        } else {
+            showError(data.error || 'Failed to load tests');
+        }
+    } catch (error) {
+        console.error('Error loading tests:', error);
+        showError(error.message);
+    }
+}
+
+// Render tests
+function renderTests(tests) {
+    const grid = document.getElementById('tests-grid');
+    
+    if (tests.length === 0) {
+        showEmpty();
+        return;
+    }
+    
+    grid.innerHTML = tests.map(test => createTestCard(test)).join('');
+    hideLoading();
+    hideError();
+    hideEmpty();
+}
+
+// Create test card HTML
+function createTestCard(test) {
+    const difficulty = getDifficultyLabel(test.elo_rating);
+    const difficultyClass = `badge-${difficulty.toLowerCase()}`;
+    
+    return `
+        <div class="test-card" onclick="goToTestPreview('${test.id}')">
+            <div class="test-card-header">
+                <div class="test-card-title">
+                    <span>${escapeHtml(test.title)}</span>
+                    <div class="test-badges">
+                        <span class="badge-difficulty ${difficultyClass}">${difficulty}</span>
+                        ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-card-body">
+                <div class="test-meta">
+                    <div class="test-meta-item">
+                        <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
+                        </svg>
+                        <span>${test.language.toUpperCase()}</span>
+                    </div>
+                    
+                    <div class="test-meta-item">
+                        <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11z"/>
+                        </svg>
+                        <span>${escapeHtml(test.topic)}</span>
+                    </div>
+                    
+                    ${test.has_audio ? `
+                    <div class="test-meta-item">
+                        <svg class="test-meta-icon" fill="var(--primary)" viewBox="0 0 16 16">
+                            <path d="M11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                        </svg>
+                        <span>Audio</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="test-stats">
+                    <div class="stat">
+                        <span class="stat-value">${test.elo_rating}</span>
+                        <span class="stat-label">ELO</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">${test.total_attempts || 0}</span>
+                        <span class="stat-label">Attempts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Get difficulty label
+function getDifficultyLabel(rating) {
+    if (rating < 1200) return 'Beginner';
+    if (rating < 1400) return 'Intermediate';
+    if (rating < 1600) return 'Advanced';
+    return 'Expert';
+}
+
+// Apply filters
+function applyFilters() {
+    loadTests();
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('test-type').value = '';
+    document.getElementById('difficulty').value = '';
+    loadTests();
+}
+
+// Navigate to test preview
+function goToTestPreview(testId) {
+    window.location.href = `/test-preview?id=${testId}`;
+}
+
+// UI State helpers
+function showLoading() {
+    document.getElementById('loading-state').classList.remove('d-none');
+    document.getElementById('error-state').classList.add('d-none');
+    document.getElementById('empty-state').classList.add('d-none');
+    document.getElementById('tests-grid').innerHTML = '';
+}
+
+function hideLoading() {
+    document.getElementById('loading-state').classList.add('d-none');
+}
+
+function showError(message) {
+    hideLoading();
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('error-state').classList.remove('d-none');
+    document.getElementById('empty-state').classList.add('d-none');
+    document.getElementById('tests-grid').innerHTML = '';
+}
+
+function hideError() {
+    document.getElementById('error-state').classList.add('d-none');
+}
+
+function showEmpty() {
+    hideLoading();
+    hideError();
+    document.getElementById('empty-state').classList.remove('d-none');
+}
+
+function hideEmpty() {
+    document.getElementById('empty-state').classList.add('d-none');
+}
+
+// Utility function
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+</script>
+{% endblock %}

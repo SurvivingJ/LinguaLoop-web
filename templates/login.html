@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% set hide_navbar = true %}
+
+{% block title %}Login - LinguaLoop{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--slate-50) 0%, #e0f2fe 100%);
+    }
+    
+    .login-card {
+        background: white;
+        border: none;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .logo-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .logo-icon {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+    }
+    
+    .otp-input {
+        text-align: center;
+        font-size: 20px;
+        letter-spacing: 8px;
+        font-weight: 600;
+    }
+    
+    #loading {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center login-page">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4">
+            <div class="card login-card">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- Logo Section -->
+                    <div class="logo-section">
+                        <span class="logo-icon">🎓</span>
+                        <h1 class="logo mb-2">LinguaLoop</h1>
+                        <p class="tagline mb-0">Master any language with active practice</p>
+                    </div>
+                    
+                    <!-- Error Alert (hidden by default) -->
+                    <div id="error-alert" class="alert alert-danger d-none" role="alert">
+                        <span id="error-message"></span>
+                    </div>
+                    
+                    <!-- Email Step -->
+                    <div id="email-step">
+                        <form id="email-form">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    class="form-control" 
+                                    id="email" 
+                                    placeholder="your@email.com"
+                                    autocomplete="email"
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="is-registration"
+                                    >
+                                    <label class="form-check-label text-slate-600" for="is-registration">
+                                        I'm new here (Sign up)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 mb-3">
+                                Send Verification Code
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- OTP Step (hidden by default) -->
+                    <div id="otp-step" class="d-none">
+                        <div class="alert alert-info mb-4">
+                            We sent a 6-digit code to <strong id="email-display"></strong>
+                        </div>
+                        
+                        <form id="otp-form">
+                            <div class="mb-3">
+                                <label for="otp" class="form-label">Verification Code</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control otp-input" 
+                                    id="otp" 
+                                    placeholder="000000"
+                                    pattern="[0-9]{6}"
+                                    maxlength="6"
+                                    inputmode="numeric"
+                                    autocomplete="one-time-code"
+                                    required
+                                >
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success w-100 mb-2">
+                                Verify & Continue
+                            </button>
+                            
+                            <button type="button" id="back-btn" class="btn btn-secondary w-100 mb-3">
+                                ← Back to Email
+                            </button>
+                        </form>
+                        
+                        <div class="text-center">
+                            <small class="text-slate-500">
+                                Didn't receive the code? 
+                                <button id="resend-btn" class="btn btn-link p-0 text-decoration-underline" type="button">
+                                    Resend
+                                </button>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State (hidden by default) -->
+                    <div id="loading" class="d-none py-4">
+                        <div class="spinner mx-auto mb-3"></div>
+                        <p class="text-slate-500 mb-0">Processing...</p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    // DOM Elements
+    const emailStep = document.getElementById('email-step');
+    const otpStep = document.getElementById('otp-step');
+    const loading = document.getElementById('loading');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    
+    const emailInput = document.getElementById('email');
+    const otpInput = document.getElementById('otp');
+    const emailDisplay = document.getElementById('email-display');
+    const isRegistrationCheckbox = document.getElementById('is-registration');
+    
+    const emailForm = document.getElementById('email-form');
+    const otpForm = document.getElementById('otp-form');
+    const backBtn = document.getElementById('back-btn');
+    const resendBtn = document.getElementById('resend-btn');
+    
+    // Utility Functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function hideError() {
+        errorAlert.classList.add('d-none');
+        errorMessage.textContent = '';
+    }
+    
+    function showLoading() {
+        emailStep.classList.add('d-none');
+        otpStep.classList.add('d-none');
+        loading.classList.remove('d-none');
+    }
+    
+    function hideLoading() {
+        loading.classList.add('d-none');
+    }
+    
+    function showEmailStep() {
+        hideError();
+        emailStep.classList.remove('d-none');
+        otpStep.classList.add('d-none');
+        hideLoading();
+    }
+    
+    function showOtpStep() {
+        hideError();
+        emailStep.classList.add('d-none');
+        otpStep.classList.remove('d-none');
+        hideLoading();
+        setTimeout(() => otpInput.focus(), 100);
+    }
+    
+    // Send OTP
+    emailForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = emailInput.value.trim();
+        const isRegistration = isRegistrationCheckbox.checked;
+        
+        if (!email || !emailInput.checkValidity()) {
+            showError('Please enter a valid email address');
+            return;
+        }
+        
+        hideError();
+        showLoading();
+        
+        try {
+            const response = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: email,
+                    is_registration: isRegistration 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                emailDisplay.textContent = email;
+                showOtpStep();
+            } else {
+                showEmailStep();
+                showError(data.error || 'Failed to send verification code. Please try again.');
+            }
+        } catch (error) {
+            console.error('Send OTP error:', error);
+            showEmailStep();
+            showError('Network error. Please check your connection and try again.');
+        }
+    });
+    
+    // Verify OTP
+    otpForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = emailInput.value.trim();
+        const otp = otpInput.value.trim();
+        
+        if (otp.length !== 6) {
+            showError('Please enter a valid 6-digit code');
+            return;
+        }
+        
+        hideError();
+        showLoading();
+        
+        try {
+            const response = await fetch('/api/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: email,
+                    token: otp 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Store JWT and user data
+                localStorage.setItem('jwt_token', data.jwt_token);
+                localStorage.setItem('user_data', JSON.stringify(data.user));
+                
+                // Redirect to language selection
+                window.location.href = '/language-selection';
+            } else {
+                showOtpStep();
+                showError(data.error || 'Invalid verification code. Please try again.');
+                otpInput.value = '';
+            }
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            showOtpStep();
+            showError('Network error. Please check your connection and try again.');
+        }
+    });
+    
+    // Back Button
+    backBtn.addEventListener('click', function() {
+        showEmailStep();
+        otpInput.value = '';
+    });
+    
+    // Resend OTP
+    resendBtn.addEventListener('click', async function() {
+        const email = emailInput.value.trim();
+        const isRegistration = isRegistrationCheckbox.checked;
+        
+        this.disabled = true;
+        this.textContent = 'Sending...';
+        
+        try {
+            const response = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: email,
+                    is_registration: isRegistration 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                hideError();
+                // Visual feedback
+                const infoAlert = otpStep.querySelector('.alert-info');
+                infoAlert.style.animation = 'pulse 0.4s ease';
+                setTimeout(() => infoAlert.style.animation = '', 400);
+            } else {
+                showError(data.error || 'Failed to resend code');
+            }
+        } catch (error) {
+            console.error('Resend OTP error:', error);
+            showError('Network error. Please try again.');
+        } finally {
+            this.disabled = false;
+            this.textContent = 'Resend';
+        }
+    });
+    
+    // Auto-format OTP input
+    otpInput.addEventListener('input', function(e) {
+        // Only allow numbers
+        this.value = this.value.replace(/[^0-9]/g, '');
+        
+        // Auto-submit when 6 digits entered
+        if (this.value.length === 6) {
+            otpForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Check if already logged in
+    if (localStorage.getItem('jwt_token')) {
+        window.location.href = '/home';
+    }
+})();
+</script>
+{% endblock %}

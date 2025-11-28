@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Select Language - LinguaLoop{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 80px);">
+    <div class="row w-100 justify-content-center">
+        <div class="col-12" style="max-width: 500px;">
+            <div class="px-3 py-4">
+                
+                <!-- Header Section -->
+                <div class="text-center mb-4">
+                    <h2 class="mb-3" style="color: var(--slate-900); font-weight: 600;">
+                        Choose your language to practice
+                    </h2>
+                    <p class="mb-0" style="color: var(--slate-500); font-size: 16px;">
+                        This will be used for all tests and content
+                    </p>
+                </div>
+
+                <!-- Language Selection Cards -->
+                <div class="language-options mt-5">
+                    
+                    <!-- English -->
+                    <div class="language-card mb-3" data-language="English" data-code="en">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇺🇸</span>
+                            <span class="language-name flex-grow-1">English</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Chinese -->
+                    <div class="language-card mb-3" data-language="Chinese" data-code="zh">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇨🇳</span>
+                            <span class="language-name flex-grow-1">Chinese</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Japanese -->
+                    <div class="language-card mb-3" data-language="Japanese" data-code="ja">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇯🇵</span>
+                            <span class="language-name flex-grow-1">Japanese</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Korean -->
+                    <div class="language-card mb-3" data-language="Korean" data-code="ko">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇰🇷</span>
+                            <span class="language-name flex-grow-1">Korean</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- French -->
+                    <div class="language-card mb-3" data-language="French" data-code="fr">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇫🇷</span>
+                            <span class="language-name flex-grow-1">French</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Continue Button -->
+                <div class="mt-4">
+                    <button id="continue-btn" class="btn btn-primary w-100" disabled>
+                        Continue to Tests
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<style>
+    /* Language Selection Card Styles */
+    .language-card {
+        background: white;
+        border: 2px solid var(--slate-300);
+        border-radius: 12px;
+        padding: 24px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+    }
+
+    .language-card:hover {
+        border-color: var(--slate-400);
+        background: var(--slate-50);
+    }
+
+    .language-card.selected {
+        border-color: var(--primary);
+        border-width: 2px;
+        background: var(--selected-bg);
+        animation: scaleIn 0.15s ease;
+    }
+
+    .language-flag {
+        font-size: 32px;
+        margin-right: 16px;
+        user-select: none;
+    }
+
+    .language-name {
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--slate-700);
+        transition: var(--transition-fast);
+    }
+
+    .language-card.selected .language-name {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .check-icon {
+        color: var(--primary);
+        font-size: 24px;
+        margin-left: 12px;
+    }
+
+    /* Button states */
+    #continue-btn:disabled {
+        background: var(--slate-300);
+        border-color: var(--slate-300);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const languageCards = document.querySelectorAll('.language-card');
+        const continueBtn = document.getElementById('continue-btn');
+        let selectedLanguage = null;
+
+        // Handle language card selection
+        languageCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selection from all cards
+                languageCards.forEach(c => {
+                    c.classList.remove('selected');
+                    c.querySelector('.check-icon').style.display = 'none';
+                });
+
+                // Add selection to clicked card
+                this.classList.add('selected');
+                this.querySelector('.check-icon').style.display = 'block';
+
+                // Store selected language
+                selectedLanguage = {
+                    name: this.dataset.language,
+                    code: this.dataset.code
+                };
+
+                // Enable continue button
+                continueBtn.disabled = false;
+            });
+        });
+
+        // Handle continue button click
+        continueBtn.addEventListener('click', function() {
+            if (selectedLanguage) {
+                // Store selection in localStorage or send to backend
+                localStorage.setItem('selectedLanguage', JSON.stringify(selectedLanguage));
+                
+                // Redirect to home/test page
+                window.location.href = "{{ url_for('home') }}";
+            }
+        });
+
+        // Check if language was previously selected
+        const savedLanguage = localStorage.getItem('selectedLanguage');
+        if (savedLanguage) {
+            const lang = JSON.parse(savedLanguage);
+            const savedCard = document.querySelector(`[data-language="${lang.name}"]`);
+            if (savedCard) {
+                savedCard.click();
+            }
+        }
+    });
+</script>
+{% endblock %}
