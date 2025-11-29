@@ -228,15 +228,15 @@
                 <label for="difficulty" class="filter-label">Difficulty</label>
                 <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
                     <option value="">All Levels</option>
-                    <option value="1">Level 1 - Beginner</option>
-                    <option value="2">Level 2</option>
-                    <option value="3">Level 3</option>
-                    <option value="4">Level 4</option>
-                    <option value="5">Level 5</option>
-                    <option value="6">Level 6</option>
-                    <option value="7">Level 7</option>
-                    <option value="8">Level 8</option>
-                    <option value="9">Level 9 - Expert</option>
+                    <option value="1">Level 1 - Beginner (0-1200)</option>
+                    <option value="2">Level 2 - Elementary (1200-1300)</option>
+                    <option value="3">Level 3 - Intermediate- (1300-1400)</option>
+                    <option value="4">Level 4 - Intermediate (1400-1500)</option>
+                    <option value="5">Level 5 - Intermediate+ (1500-1600)</option>
+                    <option value="6">Level 6 - Advanced- (1600-1700)</option>
+                    <option value="7">Level 7 - Advanced (1700-1800)</option>
+                    <option value="8">Level 8 - Advanced+ (1800-1900)</option>
+                    <option value="9">Level 9 - Expert (1900+)</option>
                 </select>
             </div>
             
@@ -318,40 +318,61 @@
     const loadingSpinner = document.getElementById('loading-spinner');
     const errorAlert = document.getElementById('error-alert');
     const emptyState = document.getElementById('empty-state');
-    const languageFilter = document.getElementById('language-filter');
-    const difficultyFilter = document.getElementById('difficulty-filter');
+    const difficultyFilter = document.getElementById('difficulty');
     const testTypeFilter = document.getElementById('test-type');
-    
+
+    // ELO Range Mapping
+    function getEloRange(difficultyLevel) {
+        const ranges = {
+            '1': { min: 0, max: 1200, label: 'Beginner' },
+            '2': { min: 1200, max: 1300, label: 'Elementary' },
+            '3': { min: 1300, max: 1400, label: 'Intermediate-' },
+            '4': { min: 1400, max: 1500, label: 'Intermediate' },
+            '5': { min: 1500, max: 1600, label: 'Intermediate+' },
+            '6': { min: 1600, max: 1700, label: 'Advanced-' },
+            '7': { min: 1700, max: 1800, label: 'Advanced' },
+            '8': { min: 1800, max: 1900, label: 'Advanced+' },
+            '9': { min: 1900, max: 9999, label: 'Expert' }
+        };
+        return ranges[difficultyLevel] || null;
+    }
+
     // Utility Functions
     function showLoading() {
+        console.log('⏳ Showing loading spinner');
         loadingSpinner?.classList.remove('d-none');
         testsGrid.innerHTML = '';
         hideError();
         hideEmpty();
     }
-    
+
     function hideLoading() {
+        console.log('✅ Hiding loading spinner');
         loadingSpinner?.classList.add('d-none');
     }
-    
+
     function showError(message = 'Failed to load tests. Please try again.') {
+        console.log('❌ Showing error:', message);
         errorAlert?.classList.remove('d-none');
         const errorMsg = errorAlert?.querySelector('#error-message');
         if (errorMsg) errorMsg.textContent = message;
         hideLoading();
     }
-    
+
     function hideError() {
+        console.log('✅ Hiding error');
         errorAlert?.classList.add('d-none');
     }
-    
+
     function showEmpty() {
+        console.log('📭 Showing empty state');
         emptyState?.classList.remove('d-none');
         hideLoading();
         hideError();
     }
-    
+
     function hideEmpty() {
+        console.log('✅ Hiding empty state');
         emptyState?.classList.add('d-none');
     }
     
@@ -434,12 +455,55 @@
     }
     
     function displayTests(tests) {
+        console.log('🎨 displayTests() called with', tests?.length || 0, 'tests');
+
         if (!tests || tests.length === 0) {
+            console.warn('⚠️ No tests to display');
             showEmpty();
             return;
         }
-        
-        testsGrid.innerHTML = tests.map(test => createTestCard(test)).join('');
+
+        // Apply client-side ELO-based difficulty filtering
+        let filteredTests = tests;
+        const selectedDifficulty = difficultyFilter?.value;
+        const selectedTestType = testTypeFilter?.value;
+
+        console.log('🔍 Filters - Difficulty:', selectedDifficulty, 'TestType:', selectedTestType);
+
+        if (selectedDifficulty && selectedDifficulty !== '') {
+            const eloRange = getEloRange(selectedDifficulty);
+            console.log('📊 ELO range for difficulty', selectedDifficulty, ':', eloRange);
+
+            if (eloRange) {
+                const beforeCount = filteredTests.length;
+                filteredTests = filteredTests.filter(test => {
+                    // Get the appropriate ELO rating based on test type
+                    let testElo = test.reading_rating || 1400;
+
+                    if (selectedTestType === 'listening') {
+                        testElo = test.listening_rating || 1400;
+                    } else if (selectedTestType === 'dictation') {
+                        testElo = test.dictation_rating || 1400;
+                    }
+
+                    const matches = testElo >= eloRange.min && testElo < eloRange.max;
+                    return matches;
+                });
+                console.log('🔍 Filtered from', beforeCount, 'to', filteredTests.length, 'tests by ELO');
+            }
+        }
+
+        // Show empty state if no tests match filters
+        if (filteredTests.length === 0) {
+            console.warn('⚠️ No tests match filters');
+            showEmpty();
+            return;
+        }
+
+        console.log('✅ Rendering', filteredTests.length, 'test cards');
+        testsGrid.innerHTML = filteredTests.map(test => createTestCard(test)).join('');
+        console.log('✅ Test cards rendered to DOM');
+
         hideLoading();
         hideError();
         hideEmpty();
@@ -457,28 +521,44 @@
 
     
     async function loadTests() {
+        console.log('🚀 loadTests() called');
         showLoading();
-        
+
         try {
             const token = localStorage.getItem('jwt_token');
+            console.log('🔑 JWT token present:', !!token);
+
             if (!token) {
-                console.error('No JWT token found');
+                console.error('❌ No JWT token found');
                 window.location.href = '/login';
                 return;
             }
-            
-            // Get filter values
-            const language = languageFilter?.value || '';
-            const difficulty = difficultyFilter?.value || '';
-            
-            // Build query string
+
+            // Get selected language from localStorage
+            const savedLanguage = localStorage.getItem('selectedLanguage');
+            console.log('🌐 Raw savedLanguage:', savedLanguage);
+
+            let language = '';
+            if (savedLanguage) {
+                try {
+                    const lang = JSON.parse(savedLanguage);
+                    language = lang.name || lang.code || '';
+                    console.log('✅ Parsed language:', language, 'from object:', lang);
+                } catch (e) {
+                    console.error('❌ Failed to parse savedLanguage:', e);
+                }
+            } else {
+                console.warn('⚠️ No selected language found in localStorage');
+            }
+
+            // Build query string (only language, difficulty filtering is client-side via ELO)
             const params = new URLSearchParams();
             if (language) params.append('language', language);
-            if (difficulty) params.append('difficulty', difficulty);
-            
+
             const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
-            
-            console.log('🔧 Fetching tests from:', url);
+
+            console.log('📡 Fetching tests from:', url);
+            console.log('📋 Query params:', { language });
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -487,28 +567,39 @@
                     'Content-Type': 'application/json'
                 }
             });
-            
+
+            console.log('📨 Response status:', response.status, response.statusText);
+
             if (!response.ok) {
                 if (response.status === 401) {
-                    console.error('Unauthorized - redirecting to login');
+                    console.error('❌ Unauthorized - redirecting to login');
                     localStorage.removeItem('jwt_token');
                     localStorage.removeItem('user_data');
                     window.location.href = '/login';
                     return;
                 }
+                const errorText = await response.text();
+                console.error('❌ HTTP error response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const data = await response.json();
-            console.log('✅ Tests loaded:', data);
-            
+            console.log('✅ Response data:', data);
+            console.log('📊 Tests count:', data.tests ? data.tests.length : 0);
+
             if (data.success && data.tests) {
+                console.log('✅ Calling displayTests with', data.tests.length, 'tests');
+                if (data.tests.length > 0) {
+                    console.log('📋 First test sample:', data.tests[0]);
+                }
                 displayTests(data.tests);
             } else {
+                console.warn('⚠️ No tests in response or success=false');
                 showEmpty();
             }
         } catch (error) {
             console.error('❌ Error loading tests:', error);
+            console.error('❌ Error stack:', error.stack);
             showError('Failed to load tests. Please try again.');
         }
     }
@@ -519,15 +610,14 @@
         loadTests();
     }
     
-    // ✅ NEW: Reset filters function
+    // Reset filters function
     function resetFilters() {
         console.log('🔧 Resetting filters...');
-        
-        // Reset all filter dropdowns to default values
-        if (languageFilter) languageFilter.value = '';
+
+        // Reset filter dropdowns to default values
         if (difficultyFilter) difficultyFilter.value = '';
-        if (testTypeFilter) testTypeFilter.value = 'listening';
-        
+        if (testTypeFilter) testTypeFilter.value = '';
+
         // Reload tests with no filters
         loadTests();
     }
@@ -536,23 +626,7 @@
     window.goToTestPreview = goToTestPreview;
     window.applyFilters = applyFilters;
     window.resetFilters = resetFilters;
-    
-    // Event Listeners for filters (use both inline and programmatic)
-    if (languageFilter) {
-        languageFilter.addEventListener('change', applyFilters);
-    }
-    
-    if (difficultyFilter) {
-        difficultyFilter.addEventListener('change', applyFilters);
-    }
-    
-    if (testTypeFilter) {
-        testTypeFilter.addEventListener('change', function() {
-            console.log('🔧 Test type changed to:', this.value);
-            // Re-render current tests with updated ELO ratings
-            loadTests();
-        });
-    }
+    window.loadTests = loadTests;
     
     // Initial load
     loadTests();

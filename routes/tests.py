@@ -833,29 +833,49 @@ def get_tests_with_ratings():
         language = request.args.get('language')
         difficulty = request.args.get('difficulty')
         limit = int(request.args.get('limit', 50))
-        
+
+        current_app.logger.info(f"📥 GET /api/tests - language={language}, difficulty={difficulty}, limit={limit}")
+        current_app.logger.info(f"🔑 User authenticated: {g.supabase_claims.get('email')}")
+
+        # Check if service client is available
+        if not current_app.supabase_service:
+            current_app.logger.error("❌ Service role client not available!")
+            return jsonify({"error": "Database service not configured"}), 500
+
+        current_app.logger.info("✅ Service role client is available")
+
         # Build query
         query = current_app.supabase_service.table('tests').select(
             'id, slug, title, language, topic, difficulty, style, tier, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts'
         ).eq('is_active', True)
-        
+
         if language:
-            query = query.eq('language', language)
+            # Convert to lowercase to match database storage
+            language_lower = language.lower()
+            current_app.logger.info(f"🔍 Filtering by language: {language} (normalized to: {language_lower})")
+            query = query.eq('language', language_lower)
         if difficulty:
+            current_app.logger.info(f"🔍 Filtering by difficulty: {difficulty}")
             query = query.eq('difficulty', int(difficulty))
-            
+
+        current_app.logger.info(f"🔧 Executing query with limit={limit}")
         tests_result = query.limit(limit).execute()
+        current_app.logger.info(f"✅ Query returned {len(tests_result.data)} tests")
         
         # Get ELO ratings for all tests
         test_ids = [test['id'] for test in tests_result.data]
+        current_app.logger.info(f"🔍 Fetching ratings for {len(test_ids)} tests")
+
+        ratings_by_test = {}
         if test_ids:
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
                 'test_id, skill_type, elo_rating, volatility, total_attempts'
             ).in_('test_id', test_ids).execute()
-            
+
+            current_app.logger.info(f"✅ Got {len(ratings_result.data)} rating records")
+
             # Group ratings by test_id
-            ratings_by_test = {}
             for rating in ratings_result.data:
                 test_id = rating['test_id']
                 if test_id not in ratings_by_test:
@@ -865,7 +885,7 @@ def get_tests_with_ratings():
                     'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
-        
+
         # Combine test data with ratings
         tests_with_ratings = []
         for test in tests_result.data:
@@ -878,14 +898,18 @@ def get_tests_with_ratings():
                 'skill_ratings': test_ratings
             }
             tests_with_ratings.append(test_with_ratings)
-        
+
+        current_app.logger.info(f"📤 Returning {len(tests_with_ratings)} tests with ratings")
+        if tests_with_ratings:
+            current_app.logger.info(f"📋 Sample test: {tests_with_ratings[0].get('title')} ({tests_with_ratings[0].get('language')})")
+
         return jsonify({
             "success": True,
             "tests": tests_with_ratings
         })
-        
+
     except Exception as e:
-        current_app.logger.error(f"❌ Error fetching tests: {e}")
+        current_app.logger.error(f"❌ Error fetching tests: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @tests_bp.route('/<slug>', methods=['GET'])

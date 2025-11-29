@@ -12,7 +12,44 @@
     
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    
+
+    <!-- Language Indicator Styles -->
+    <style>
+        .navbar-language-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-left: 16px;
+        }
+
+        .navbar-language-indicator .language-flag {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .navbar-language-indicator .language-name {
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-language-indicator {
+                margin-left: 8px;
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .navbar-language-indicator .language-flag {
+                font-size: 16px;
+            }
+        }
+    </style>
+
     <!-- Page-specific CSS -->
     {% block extra_css %}{% endblock %}
     
@@ -34,13 +71,19 @@
                 <a href="{{ url_for('index') if current_user else '/' }}" class="logo text-decoration-none">
                     LinguaLoop
                 </a>
-                
+
+                <!-- Language Indicator -->
+                <div class="navbar-language-indicator" id="navLanguageIndicator" style="display: none;">
+                    <span class="language-flag" id="navLanguageFlag"></span>
+                    <span class="language-name" id="navLanguageName"></span>
+                </div>
+
                 <!-- Desktop Navigation -->
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
                         <a href="{{ url_for('index') }}" 
                            class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
-                            Home
+                            Language Selection
                         </a>
                     </li>
                     <li class="nav-item">
@@ -148,10 +191,48 @@
         };
 
         /**
+         * Language Indicator
+         * Display selected language in navbar from localStorage
+         */
+        function updateLanguageIndicator() {
+            const savedLanguage = localStorage.getItem('selectedLanguage');
+            if (savedLanguage) {
+                const lang = JSON.parse(savedLanguage);
+
+                // Language flag emojis map
+                const flagMap = {
+                    'en': '🇺🇸',
+                    'zh': '🇨🇳',
+                    'ja': '🇯🇵',
+                    'ko': '🇰🇷',
+                    'fr': '🇫🇷',
+                    'English': '🇺🇸',
+                    'Chinese': '🇨🇳',
+                    'Japanese': '🇯🇵',
+                    'Korean': '🇰🇷',
+                    'French': '🇫🇷'
+                };
+
+                const indicator = document.getElementById('navLanguageIndicator');
+                const flag = document.getElementById('navLanguageFlag');
+                const name = document.getElementById('navLanguageName');
+
+                if (indicator && flag && name) {
+                    flag.textContent = flagMap[lang.code] || flagMap[lang.name] || '🌐';
+                    name.textContent = lang.name;
+                    indicator.style.display = 'flex';
+                }
+            }
+        }
+
+        /**
          * Logout Handler
          * Clears all authentication data from localStorage and redirects to login
          */
         document.addEventListener('DOMContentLoaded', function() {
+            // Update language indicator
+            updateLanguageIndicator();
+
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function(e) {
