@@ -1,0 +1,670 @@
+{% extends "base.html" %}
+
+{% block title %}Test Preview | LinguaLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Test Preview Specific Styles */
+
+/* Test Type Selector - Custom Radio Buttons */
+.test-type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.test-type-option {
+    position: relative;
+}
+
+.test-type-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.test-type-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 12px;
+    background: white;
+    border: 2px solid var(--slate-300);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-weight: 500;
+    color: var(--slate-600);
+}
+
+.test-type-label:hover {
+    border-color: var(--slate-400);
+    background: var(--slate-50);
+}
+
+.test-type-option input[type="radio"]:checked + .test-type-label {
+    border-color: var(--primary);
+    border-width: 3px;
+    background: var(--selected-bg);
+    color: var(--primary);
+    animation: scaleIn 0.15s ease;
+}
+
+.test-type-label i {
+    font-size: 20px;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.difficulty-badge.beginner {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 2px solid var(--success);
+}
+
+.difficulty-badge.intermediate {
+    background: #fef3c7;
+    color: #d97706;
+    border: 2px solid #d97706;
+}
+
+.difficulty-badge.advanced {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 2px solid var(--warning);
+}
+
+.difficulty-badge.expert {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 2px solid var(--danger);
+}
+
+/* Metadata Icons */
+.metadata-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    color: var(--slate-600);
+    font-size: 15px;
+}
+
+.metadata-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.metadata-item i {
+    color: var(--slate-500);
+    font-size: 16px;
+}
+
+/* Custom Badge */
+.custom-badge {
+    padding: 4px 10px;
+    background: rgba(30, 64, 175, 0.1);
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Start Button Enhancements */
+.start-test-btn {
+    height: 56px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.start-test-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.start-test-btn i {
+    font-size: 24px;
+}
+
+/* Loading Spinner */
+.spinner-btn {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .test-type-selector {
+        grid-template-columns: 1fr;
+    }
+    
+    .metadata-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/tests">Tests</a></li>
+                    <li class="breadcrumb-item active" id="breadcrumbTitle">Test Preview</li>
+                </ol>
+            </nav>
+
+            <!-- Loading State -->
+            <div id="pageLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-slate-600">Loading test details...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="pageError" class="d-none">
+                <div class="alert alert-danger">
+                    <h4>Error Loading Test</h4>
+                    <p id="errorMessage">Failed to load test details. Please try again.</p>
+                    <button class="btn btn-danger" onclick="window.location.href='/tests'">Back to Tests</button>
+                </div>
+            </div>
+
+            <!-- Main Content (hidden until loaded) -->
+            <div id="mainContent" class="d-none">
+                <!-- SECTION 1: Test Info Card -->
+                <div class="card mb-4 animate-slide-up">
+                    <div class="card-body p-4">
+                        <!-- Title Row -->
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <h2 class="mb-0" id="testTitle">Loading...</h2>
+                            <span class="custom-badge d-none" id="customBadge">Custom</span>
+                        </div>
+
+                        <!-- Metadata Row 1: Language, Topic, Audio -->
+                        <div class="metadata-row mb-2">
+                            <div class="metadata-item">
+                                <i class="bi bi-translate"></i>
+                                <span id="testLanguage">-</span>
+                            </div>
+                            <div class="metadata-item">
+                                <i class="bi bi-tag"></i>
+                                <span id="testTopic">-</span>
+                            </div>
+                            <div class="metadata-item d-none" id="audioAvailable">
+                                <i class="bi bi-volume-up text-primary"></i>
+                                <span class="text-primary">Audio Available</span>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Row 2: Difficulty, Attempts -->
+                        <div class="metadata-row">
+                            <div class="metadata-item">
+                                <i class="bi bi-speedometer2"></i>
+                                <span id="testDifficulty">Level -</span>
+                            </div>
+                            <div class="metadata-item d-none" id="attemptsMeta">
+                                <i class="bi bi-people"></i>
+                                <span id="testAttempts">0 attempts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Test Type Selection -->
+                <div class="card mb-4 animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="card-body p-4">
+                        <h3 class="mb-3">Select Test Type</h3>
+
+                        <div class="test-type-selector">
+                            <div class="test-type-option">
+                                <input type="radio"
+                                       name="testType"
+                                       id="listeningOption"
+                                       value="listening"
+                                       onchange="updateDifficultyDisplay('listening')">
+                                <label for="listeningOption" class="test-type-label">
+                                    <i class="bi bi-headphones"></i>
+                                    <span>Listening</span>
+                                </label>
+                            </div>
+
+                            <div class="test-type-option">
+                                <input type="radio"
+                                       name="testType"
+                                       id="readingOption"
+                                       value="reading"
+                                       onchange="updateDifficultyDisplay('reading')">
+                                <label for="readingOption" class="test-type-label">
+                                    <i class="bi bi-book"></i>
+                                    <span>Reading</span>
+                                </label>
+                            </div>
+
+                            <div class="test-type-option">
+                                <input type="radio"
+                                       name="testType"
+                                       id="dictationOption"
+                                       value="dictation"
+                                       onchange="updateDifficultyDisplay('dictation')">
+                                <label for="dictationOption" class="test-type-label">
+                                    <i class="bi bi-keyboard"></i>
+                                    <span>Dictation</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Difficulty Display -->
+                <div class="card mb-4 animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="difficulty-badge" id="difficultyBadge">
+                                    <span id="difficultyLabel">Intermediate</span>
+                                </span>
+                                <span class="text-slate-600" id="eloRating">
+                                    ELO Rating: <strong>1400</strong>
+                                </span>
+                            </div>
+                            <div>
+                                <i class="bi bi-bar-chart-fill" id="difficultyIcon" style="font-size: 32px;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Stats Row (if available) -->
+                        <div class="mt-3 text-slate-500" id="statsRow" style="font-size: 14px; display: none;">
+                            <span id="attemptsText"></span> • <span id="volatilityText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: Start Test Button -->
+                <div class="mb-4 animate-slide-up" style="animation-delay: 0.3s;">
+                    <button type="button"
+                            class="btn btn-primary w-100 start-test-btn"
+                            id="startTestBtn"
+                            onclick="startTest()">
+                        <i class="bi bi-play-circle-fill"></i>
+                        <span id="buttonText">Start Reading Test</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // Global state
+    let testData = null;
+    let skillRatings = null;
+    let selectedTestType = 'listening';
+    let testSlug = null;
+
+    /**
+     * Parse URL parameters
+     */
+    function parseUrlParams() {
+        const pathParts = window.location.pathname.split('/');
+        // URL format: /test/{slug}/preview
+        const slugIndex = pathParts.indexOf('test') + 1;
+        testSlug = pathParts[slugIndex];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        selectedTestType = urlParams.get('type') || 'listening';
+
+        console.log('Parsed URL - Slug:', testSlug, 'Type:', selectedTestType);
+        return { testSlug, selectedTestType };
+    }
+
+    /**
+     * Show error state
+     */
+    function showError(message) {
+        document.getElementById('pageLoading').classList.add('d-none');
+        document.getElementById('mainContent').classList.add('d-none');
+        const errorDiv = document.getElementById('pageError');
+        errorDiv.classList.remove('d-none');
+        document.getElementById('errorMessage').textContent = message;
+    }
+
+    /**
+     * Show main content
+     */
+    function showContent() {
+        document.getElementById('pageLoading').classList.add('d-none');
+        document.getElementById('pageError').classList.add('d-none');
+        document.getElementById('mainContent').classList.remove('d-none');
+    }
+
+    /**
+     * Fetch test data from API
+     */
+    async function fetchTestData(slug) {
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+            console.error('No JWT token found');
+            window.location.href = '/login';
+            return null;
+        }
+
+        try {
+            const response = await fetch(`/api/tests/${slug}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = '/login';
+                    return null;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            console.log('Test data received:', result);
+
+            if (result.status === 'success' && result.test) {
+                return result.test;
+            } else {
+                throw new Error(result.error || 'Invalid response format');
+            }
+        } catch (error) {
+            console.error('Error fetching test:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Fetch skill ratings from API
+     */
+    async function fetchSkillRatings(slug) {
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+            console.error('No JWT token found');
+            return null;
+        }
+
+        try {
+            const response = await fetch(`/api/tests/test/${slug}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.warn('Skill ratings endpoint returned:', response.status);
+                // Return default ratings if endpoint fails
+                return {
+                    listening: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 },
+                    reading: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 },
+                    dictation: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 }
+                };
+            }
+
+            const result = await response.json();
+            console.log('Skill ratings received:', result);
+            return result.skill_ratings || {};
+        } catch (error) {
+            console.warn('Error fetching skill ratings:', error);
+            // Return default ratings
+            return {
+                listening: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 },
+                reading: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 },
+                dictation: { elo_rating: 1400, volatility: 1.0, total_attempts: 0 }
+            };
+        }
+    }
+
+    /**
+     * Populate page with test data
+     */
+    function populateTestInfo(test) {
+        // Title and breadcrumb
+        document.getElementById('testTitle').textContent = test.title || test.topic || 'Untitled Test';
+        document.getElementById('breadcrumbTitle').textContent = test.title || test.topic || 'Test Preview';
+        document.title = `${test.title || 'Test Preview'} | LinguaLoop`;
+
+        // Custom badge
+        if (test.is_custom) {
+            document.getElementById('customBadge').classList.remove('d-none');
+        }
+
+        // Metadata
+        document.getElementById('testLanguage').textContent = (test.language || 'unknown').toUpperCase();
+        document.getElementById('testTopic').textContent = test.topic || 'General';
+        document.getElementById('testDifficulty').textContent = `Level ${test.difficulty || 1}`;
+
+        // Audio availability
+        if (test.audio_generated || test.audio_url) {
+            document.getElementById('audioAvailable').classList.remove('d-none');
+        }
+
+        // Attempts
+        if (test.total_attempts && test.total_attempts > 0) {
+            const attemptsEl = document.getElementById('attemptsMeta');
+            attemptsEl.classList.remove('d-none');
+            const attemptText = test.total_attempts === 1 ? '1 attempt' : `${test.total_attempts} attempts`;
+            document.getElementById('testAttempts').textContent = attemptText;
+        }
+    }
+
+    /**
+     * Get difficulty level and color based on ELO rating
+     */
+    function getDifficultyInfo(rating) {
+        if (rating < 1200) {
+            return { level: 'beginner', label: 'Beginner', color: '#059669' };
+        } else if (rating < 1400) {
+            return { level: 'intermediate', label: 'Intermediate', color: '#d97706' };
+        } else if (rating < 1600) {
+            return { level: 'advanced', label: 'Advanced', color: '#ea580c' };
+        } else {
+            return { level: 'expert', label: 'Expert', color: '#dc2626' };
+        }
+    }
+
+    /**
+     * Update difficulty display when test type changes
+     */
+    function updateDifficultyDisplay(testType) {
+        selectedTestType = testType;
+
+        if (!skillRatings) {
+            console.warn('Skill ratings not loaded yet');
+            return;
+        }
+
+        // Get rating for selected test type
+        const rating = skillRatings[testType];
+
+        if (!rating) {
+            console.error('No rating found for test type:', testType);
+            return;
+        }
+
+        const eloRating = rating.elo_rating || 1400;
+        const difficultyInfo = getDifficultyInfo(eloRating);
+
+        // Update badge
+        const badge = document.getElementById('difficultyBadge');
+        badge.className = `difficulty-badge ${difficultyInfo.level}`;
+
+        // Update label
+        document.getElementById('difficultyLabel').textContent = difficultyInfo.label;
+
+        // Update ELO text
+        document.getElementById('eloRating').innerHTML = `ELO Rating: <strong>${eloRating}</strong>`;
+
+        // Update icon color
+        const icon = document.getElementById('difficultyIcon');
+        icon.style.color = difficultyInfo.color;
+
+        // Update stats if available
+        if (rating.total_attempts > 0) {
+            const statsRow = document.getElementById('statsRow');
+            statsRow.style.display = 'block';
+            document.getElementById('attemptsText').textContent =
+                `Attempts: ${rating.total_attempts}`;
+            document.getElementById('volatilityText').textContent =
+                `Volatility: ${rating.volatility.toFixed(2)}`;
+        } else {
+            document.getElementById('statsRow').style.display = 'none';
+        }
+
+        // Update button text
+        const testTypeCapitalized = testType.charAt(0).toUpperCase() + testType.slice(1);
+        document.getElementById('buttonText').textContent = `Start ${testTypeCapitalized} Test`;
+    }
+
+    /**
+     * Start the test - Navigate to test taking screen
+     */
+    async function startTest() {
+        const btn = document.getElementById('startTestBtn');
+        const buttonText = document.getElementById('buttonText');
+        const originalText = buttonText.textContent;
+
+        // Disable button and show loading
+        btn.disabled = true;
+        buttonText.innerHTML = '<span class="spinner-btn"></span> Loading...';
+
+        try {
+            // Store test data and type in sessionStorage for test screen
+            sessionStorage.setItem('currentTest', JSON.stringify(testData));
+            sessionStorage.setItem('currentTestType', selectedTestType);
+
+            // Navigate to test taking screen
+            window.location.href = `/test/${testSlug}?type=${selectedTestType}`;
+
+        } catch (error) {
+            console.error('Error starting test:', error);
+
+            // Show error alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <strong>Error:</strong> ${error.message || 'Failed to start test. Please try again.'}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            // Insert alert at top of main content
+            const mainContent = document.getElementById('mainContent');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+
+            // Re-enable button
+            btn.disabled = false;
+            buttonText.textContent = originalText;
+        }
+    }
+
+    /**
+     * Initialize the page
+     */
+    async function initializePage() {
+        try {
+            // Parse URL
+            const { testSlug: slug, selectedTestType: initialType } = parseUrlParams();
+
+            if (!slug) {
+                showError('No test specified in URL');
+                return;
+            }
+
+            // Fetch test data and skill ratings in parallel
+            const [test, ratings] = await Promise.all([
+                fetchTestData(slug),
+                fetchSkillRatings(slug)
+            ]);
+
+            if (!test) {
+                showError('Failed to load test data');
+                return;
+            }
+
+            // Store in global state
+            testData = test;
+            skillRatings = ratings;
+            selectedTestType = initialType;
+
+            // Populate page
+            populateTestInfo(test);
+
+            // Set initial test type selection
+            const radioButton = document.getElementById(`${initialType}Option`);
+            if (radioButton) {
+                radioButton.checked = true;
+            }
+
+            // Update difficulty display
+            updateDifficultyDisplay(selectedTestType);
+
+            // Show content
+            showContent();
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showError(error.message || 'Failed to load test preview');
+        }
+    }
+
+    // Make functions globally accessible
+    window.updateDifficultyDisplay = updateDifficultyDisplay;
+    window.startTest = startTest;
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+
+})();
+</script>
+{% endblock %}

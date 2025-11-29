@@ -1,0 +1,1160 @@
+{% extends "base.html" %}
+
+{% block title %}Take Test | LinguaLoop{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Test-specific styles */
+    .test-header {
+        background: white;
+        border-bottom: 2px solid var(--slate-200);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .test-progress-bar {
+        height: 6px;
+        background: var(--slate-200);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    
+    .test-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+        transition: width 0.4s ease;
+    }
+    
+    .transcript-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--slate-200);
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .transcript-text {
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--slate-700);
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 12px;
+    }
+    
+    .transcript-text::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .transcript-text::-webkit-scrollbar-track {
+        background: var(--slate-100);
+        border-radius: 4px;
+    }
+    
+    .transcript-text::-webkit-scrollbar-thumb {
+        background: var(--slate-300);
+        border-radius: 4px;
+    }
+    
+    .transcript-text::-webkit-scrollbar-thumb:hover {
+        background: var(--slate-400);
+    }
+    
+    .audio-player-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid var(--slate-200);
+    }
+    
+    .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .audio-play-button {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: var(--transition-base);
+        flex-shrink: 0;
+    }
+    
+    .audio-play-button:hover {
+        background: var(--primary-hover);
+        transform: scale(1.05);
+    }
+    
+    .audio-play-button:active {
+        transform: scale(0.98);
+    }
+    
+    .audio-play-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .audio-progress-container {
+        flex-grow: 1;
+    }
+    
+    .audio-progress-bar {
+        height: 8px;
+        background: var(--slate-300);
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .audio-progress-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 4px;
+        transition: width 0.1s linear;
+    }
+    
+    .audio-times {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--slate-500);
+        font-variant-numeric: tabular-nums;
+    }
+    
+    .audio-speed-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 2px solid var(--slate-300);
+        background: white;
+        color: var(--slate-600);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        min-width: 60px;
+    }
+    
+    .audio-speed-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .question-navigation {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+    
+    .question-nav-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 2px solid var(--slate-300);
+        background: white;
+        color: var(--slate-600);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .question-nav-btn:hover {
+        border-color: var(--slate-400);
+        background: var(--slate-50);
+    }
+    
+    .question-nav-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+    
+    .question-nav-btn.answered {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+    
+    .question-nav-btn.answered:hover {
+        background: var(--success-hover);
+        border-color: var(--success-hover);
+    }
+    
+    .dictation-input-area {
+        width: 100%;
+        min-height: 200px;
+        padding: 16px;
+        border: 2px solid var(--slate-300);
+        border-radius: 12px;
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--slate-900);
+        resize: vertical;
+        transition: var(--transition-fast);
+    }
+    
+    .dictation-input-area:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .dictation-char-count {
+        text-align: right;
+        font-size: 14px;
+        color: var(--slate-500);
+        margin-top: 8px;
+    }
+    
+    .test-actions {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 2px solid var(--slate-200);
+        padding: 20px;
+        box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .loading-spinner {
+        background: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+    }
+    
+    .spinner-icon {
+        border: 4px solid var(--slate-200);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .results-shown .answer-option.correct {
+        border-left: 4px solid var(--success);
+        background: var(--success-bg);
+    }
+    
+    .results-shown .answer-option.incorrect {
+        border-left: 4px solid var(--danger);
+        background: var(--danger-bg);
+    }
+    
+    .answer-explanation {
+        margin-top: 12px;
+        padding: 12px;
+        background: var(--info-bg);
+        border-left: 4px solid var(--info);
+        border-radius: 8px;
+        color: var(--slate-700);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .test-actions {
+            flex-direction: column;
+        }
+        
+        .test-actions button {
+            width: 100%;
+        }
+        
+        .question-navigation {
+            justify-content: center;
+        }
+    }
+
+        /* Success message styling */
+        #successMessage .alert {
+            border-left: 5px solid var(--success);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Hide question navigation card */
+        #questionNavigationCard {
+            display: none !important;
+        }
+
+        /* Hide prev/next navigation buttons */
+        #prevBtn, #nextBtn {
+            display: none !important;
+        }
+
+        /* Show all questions at once */
+        .question-card {
+            display: block !important;
+            margin-bottom: 24px;
+        }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600">Loading test...</p>
+    </div>
+</div>
+
+<!-- Test Header -->
+<div class="test-header">
+    <div class="container py-3">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-0" id="testTitle">
+                    <i class="fas fa-book-open text-primary me-2"></i>
+                    <span id="testTitleText">Loading...</span>
+                </h5>
+            </div>
+            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                <span class="badge bg-primary me-2" id="testLanguage"></span>
+                <span class="badge bg-secondary me-2" id="testDifficulty"></span>
+                <span class="badge bg-info" id="testType"></span>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="d-flex justify-content-between text-sm text-slate-500">
+                    <span id="progressText">Question 0 of 0</span>
+                    <span id="timerText">
+                        <i class="far fa-clock me-1"></i>
+                        <span id="elapsedTime">00:00</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="test-progress-bar">
+        <div class="test-progress-fill" id="testProgressFill" style="width: 0%"></div>
+    </div>
+</div>
+
+
+    <!-- Success Message (Hidden by default) -->
+    <div id="successMessage" class="container my-3" style="display: none;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle me-3" style="font-size: 24px;"></i>
+                <div class="flex-grow-1">
+                    <h5 class="mb-2">Test submitted successfully!</h5>
+                    <p class="mb-1" id="successScoreText"></p>
+                    <p class="mb-0">Great job! Use the "Back to Test List" button below to continue practicing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+<div class="container my-4" id="testContainer">
+    
+    <!-- Error State -->
+    <div id="errorState" class="alert alert-danger" style="display: none;">
+        <h5><i class="fas fa-exclamation-triangle me-2"></i>Error Loading Test</h5>
+        <p id="errorMessage" class="mb-2"></p>
+        <button class="btn btn-danger" onclick="location.reload()">
+            <i class="fas fa-redo me-2"></i>Retry
+        </button>
+        <a href="/tests" class="btn btn-secondary ms-2">
+            <i class="fas fa-arrow-left me-2"></i>Back to Tests
+        </a>
+    </div>
+    
+    <!-- Transcript Card (Reading Test) -->
+    <div id="transcriptCard" class="transcript-card" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">
+                <i class="fas fa-file-alt text-primary me-2"></i>Reading Passage
+            </h4>
+            <button class="btn btn-sm btn-secondary" id="toggleTranscript">
+                <i class="fas fa-eye me-1"></i>Hide
+            </button>
+        </div>
+        <div class="transcript-text" id="transcriptText"></div>
+    </div>
+    
+    <!-- Audio Player Card (Listening & Dictation Tests) -->
+    <div id="audioPlayerCard" class="audio-player-card" style="display: none;">
+        <h4 class="mb-3">
+            <i class="fas fa-headphones text-primary me-2"></i>Audio
+        </h4>
+        <div class="audio-controls">
+            <button class="audio-play-button" id="audioPlayBtn">
+                <i class="fas fa-play"></i>
+            </button>
+            <div class="audio-progress-container">
+                <div class="audio-progress-bar" id="audioProgressBar">
+                    <div class="audio-progress-fill" id="audioProgressFill"></div>
+                </div>
+                <div class="audio-times">
+                    <span id="audioCurrentTime">0:00</span>
+                    <span id="audioDuration">0:00</span>
+                </div>
+            </div>
+            <button class="audio-speed-btn" id="audioSpeedBtn">1.0x</button>
+        </div>
+        <audio id="audioElement" preload="metadata"></audio>
+    </div>
+    
+    <!-- Question Navigation -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="text-slate-500 mb-3">Questions</h6>
+            <div class="question-navigation" id="questionNavigation"></div>
+        </div>
+    </div>
+    
+    <!-- Dictation Input (Dictation Test Only) -->
+    <div id="dictationCard" class="card mb-4" style="display: none;">
+        <div class="card-body">
+            <h5 class="mb-3">
+                <i class="fas fa-keyboard text-primary me-2"></i>Type what you hear
+            </h5>
+            <textarea 
+                class="dictation-input-area" 
+                id="dictationInput" 
+                placeholder="Start typing the text you hear from the audio..."
+                maxlength="5000"
+            ></textarea>
+            <div class="dictation-char-count">
+                <span id="charCount">0</span> / 5000 characters
+            </div>
+        </div>
+    </div>
+    
+    <!-- Questions Container -->
+    <div id="questionsContainer"></div>
+    
+</div>
+
+<!-- Test Actions (Sticky Footer) -->
+<div class="test-actions" id="testActions">
+    <div>
+        <button class="btn btn-secondary" id="prevBtn" disabled>
+            <i class="fas fa-arrow-left me-2"></i>Previous
+        </button>
+        <button class="btn btn-secondary" id="nextBtn">
+            Next<i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+    <div>
+        <span class="text-slate-500 me-3" id="answeredCount">0/0 answered</span>
+        <button class="btn btn-success" id="submitBtn" disabled>
+            <i class="fas fa-check-circle me-2"></i>Submit Test
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================================================
+// STATE MANAGEMENT
+// ============================================================================
+const testState = {
+    slug: null,
+    testId: null,
+    testType: null, // 'reading', 'listening', 'dictation'
+    testData: null,
+    questions: [],
+    currentQuestionIndex: 0,
+    answers: {}, // { questionId: selectedChoice }
+    dictationText: '',
+    startTime: null,
+    isSubmitted: false,
+    audioElement: null,
+    playbackSpeed: 1.0
+};
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTest();
+});
+
+async function initializeTest() {
+    try {
+        // Get slug and type from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        testState.slug = urlParams.get('slug') || window.location.pathname.split('/').pop();
+        testState.testType = urlParams.get('type') || 'reading';
+        
+        if (!testState.slug) {
+            throw new Error('No test slug provided');
+        }
+        
+        // Show loading
+        showLoading(true);
+        
+        // Load test data
+        await loadTestData();
+        
+        // Initialize UI
+        initializeUI();
+        
+        // Start timer
+        testState.startTime = Date.now();
+        startTimer();
+        
+        // Hide loading
+        showLoading(false);
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError(error.message);
+        showLoading(false);
+    }
+}
+
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+async function loadTestData() {
+    try {
+        const response = await fetch(`/api/tests/test/${testState.slug}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load test: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.test_data || !data.questions_data) {
+            throw new Error('Invalid test data received');
+        }
+        
+        testState.testData = data.test_data;
+        testState.testId = data.test_data.id;
+        testState.questions = data.questions_data.map(q => ({
+            id: q.id,
+            text: q.question_text,
+            choices: Array.isArray(q.choices) ? q.choices : JSON.parse(q.choices || '[]'),
+            correctAnswer: q.correct_answer,
+            explanation: q.answer_explanation,
+            type: q.question_type
+        }));
+        
+        console.log('✅ Test loaded:', testState.testData);
+        console.log('✅ Questions loaded:', testState.questions.length);
+        
+    } catch (error) {
+        console.error('❌ Error loading test:', error);
+        throw error;
+    }
+}
+
+async function submitTest() {
+    try {
+        showLoading(true);
+        
+        // Build responses array
+        const responses = [];
+        
+        if (testState.testType === 'dictation') {
+            // For dictation, compare the user's text with the transcript
+            const userText = testState.dictationText.trim().toLowerCase();
+            const correctText = testState.testData.transcript.trim().toLowerCase();
+            const isCorrect = calculateSimilarity(userText, correctText) >= 0.8; // 80% similarity threshold
+            
+            responses.push({
+                question_id: testState.questions[0]?.id || 'dictation',
+                selected_answer: testState.dictationText,
+                is_correct: isCorrect
+            });
+        } else {
+            // For reading/listening, check each question
+            testState.questions.forEach(question => {
+                const selectedAnswer = testState.answers[question.id];
+                const isCorrect = selectedAnswer === question.correctAnswer;
+                
+                responses.push({
+                    question_id: question.id,
+                    selected_answer: selectedAnswer || '',
+                    is_correct: isCorrect
+                });
+            });
+        }
+        
+        // Calculate time taken
+        const timeTaken = Math.floor((Date.now() - testState.startTime) / 1000);
+        
+        // Submit to API
+        const response = await fetch(`/api/tests/${testState.slug}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            body: JSON.stringify({
+                test_id: testState.testId,
+                test_mode: testState.testType,
+                responses: responses,
+                time_taken: timeTaken
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to submit test');
+        }
+        
+        const result = await response.json();
+        
+        // Mark as submitted
+        testState.isSubmitted = true;
+        
+        // Show results
+        showResults(result);
+        
+        showLoading(false);
+        
+    } catch (error) {
+        console.error('❌ Error submitting test:', error);
+        showLoading(false);
+        alert('Failed to submit test. Please try again.');
+    }
+}
+
+// ============================================================================
+// UI INITIALIZATION
+// ============================================================================
+function initializeUI() {
+    // Set test metadata
+    document.getElementById('testTitleText').textContent = testState.testData.title || testState.testData.topic;
+    document.getElementById('testLanguage').textContent = testState.testData.language.toUpperCase();
+    document.getElementById('testDifficulty').textContent = `Level ${testState.testData.difficulty}`;
+    document.getElementById('testType').textContent = testState.testType.charAt(0).toUpperCase() + testState.testType.slice(1);
+    
+    // Initialize based on test type
+    if (testState.testType === 'reading') {
+        initializeReadingTest();
+    } else if (testState.testType === 'listening') {
+        initializeListeningTest();
+    } else if (testState.testType === 'dictation') {
+        initializeDictationTest();
+    }
+    
+    // Render questions (for reading and listening)
+    if (testState.testType !== 'dictation') {
+        renderQuestions();
+        renderQuestionNavigation();
+    }
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Update progress
+    updateProgress();
+}
+
+function initializeReadingTest() {
+    const transcriptCard = document.getElementById('transcriptCard');
+    const transcriptText = document.getElementById('transcriptText');
+    
+    transcriptCard.style.display = 'block';
+    transcriptText.textContent = testState.testData.transcript;
+}
+
+function initializeListeningTest() {
+    const audioPlayerCard = document.getElementById('audioPlayerCard');
+    audioPlayerCard.style.display = 'block';
+    
+    // Initialize audio
+    testState.audioElement = document.getElementById('audioElement');
+    testState.audioElement.src = testState.testData.audio_url;
+    
+    setupAudioPlayer();
+}
+
+function initializeDictationTest() {
+    const audioPlayerCard = document.getElementById('audioPlayerCard');
+    const dictationCard = document.getElementById('dictationCard');
+    
+    audioPlayerCard.style.display = 'block';
+    dictationCard.style.display = 'block';
+    
+    // Initialize audio
+    testState.audioElement = document.getElementById('audioElement');
+    testState.audioElement.src = testState.testData.audio_url;
+    
+    setupAudioPlayer();
+}
+
+// ============================================================================
+// QUESTION RENDERING
+// ============================================================================
+function renderQuestions() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+    
+    testState.questions.forEach((question, index) => {
+        const questionCard = createQuestionCard(question, index);
+        container.appendChild(questionCard);
+    });
+    
+    // Show only first question
+    showQuestion(0);
+}
+
+function createQuestionCard(question, index) {
+    const card = document.createElement('div');
+    card.className = 'question-card mb-4';
+    card.id = `question-${index}`;
+    card.style.display = 'none';
+    
+    const isAnswered = testState.answers[question.id] !== undefined;
+    const selectedAnswer = testState.answers[question.id];
+    
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-primary">Question ${index + 1} of ${testState.questions.length}</span>
+            ${isAnswered ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>Answered</span>' : ''}
+        </div>
+        <h5 class="mb-4">${question.text}</h5>
+        <div class="answer-options" id="answers-${index}">
+            ${question.choices.map((choice, choiceIndex) => {
+                const choiceLetter = String.fromCharCode(65 + choiceIndex); // A, B, C, D
+                const isSelected = selectedAnswer === choice;
+                return `
+                    <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                         data-question-id="${question.id}" 
+                         data-choice="${choice}">
+                        <input type="radio" 
+                               name="question-${index}" 
+                               id="q${index}-${choiceIndex}" 
+                               value="${choice}"
+                               ${isSelected ? 'checked' : ''}>
+                        <label for="q${index}-${choiceIndex}" class="ms-2 mb-0">
+                            <strong>${choiceLetter}.</strong> ${choice}
+                        </label>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        ${testState.isSubmitted && question.explanation ? `
+            <div class="answer-explanation">
+                <strong><i class="fas fa-lightbulb me-2"></i>Explanation:</strong>
+                ${question.explanation}
+            </div>
+        ` : ''}
+    `;
+    
+    return card;
+}
+
+function renderQuestionNavigation() {
+    const container = document.getElementById('questionNavigation');
+    container.innerHTML = '';
+    
+    testState.questions.forEach((question, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'question-nav-btn';
+        btn.textContent = index + 1;
+        btn.dataset.index = index;
+        
+        if (index === testState.currentQuestionIndex) {
+            btn.classList.add('active');
+        }
+        
+        if (testState.answers[question.id] !== undefined) {
+            btn.classList.add('answered');
+        }
+        
+        btn.addEventListener('click', () => {
+            showQuestion(index);
+        });
+        
+        container.appendChild(btn);
+    });
+}
+
+function showQuestion(index) {
+    // Hide all questions
+    testState.questions.forEach((_, i) => {
+        const questionCard = document.getElementById(`question-${i}`);
+        if (questionCard) {
+            questionCard.style.display = 'none';
+        }
+    });
+    
+    // Show target question
+    const targetCard = document.getElementById(`question-${index}`);
+    if (targetCard) {
+        targetCard.style.display = 'block';
+        testState.currentQuestionIndex = index;
+        
+        // Update navigation
+        updateNavigationButtons();
+        renderQuestionNavigation();
+        updateProgress();
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// ============================================================================
+// AUDIO PLAYER
+// ============================================================================
+function setupAudioPlayer() {
+    const audio = testState.audioElement;
+    const playBtn = document.getElementById('audioPlayBtn');
+    const progressBar = document.getElementById('audioProgressBar');
+    const progressFill = document.getElementById('audioProgressFill');
+    const currentTimeEl = document.getElementById('audioCurrentTime');
+    const durationEl = document.getElementById('audioDuration');
+    const speedBtn = document.getElementById('audioSpeedBtn');
+    
+    // Play/Pause
+    playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audio.pause();
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+    
+    // Update progress
+    audio.addEventListener('timeupdate', () => {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = `${progress}%`;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+    
+    // Set duration
+    audio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audio.duration);
+    });
+    
+    // Seek
+    progressBar.addEventListener('click', (e) => {
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    });
+    
+    // Playback speed
+    speedBtn.addEventListener('click', () => {
+        const speeds = [1.0, 1.25, 1.5, 0.75];
+        const currentIndex = speeds.indexOf(testState.playbackSpeed);
+        const nextIndex = (currentIndex + 1) % speeds.length;
+        testState.playbackSpeed = speeds[nextIndex];
+        audio.playbackRate = testState.playbackSpeed;
+        speedBtn.textContent = `${testState.playbackSpeed}x`;
+    });
+    
+    // Reset play button when audio ends
+    audio.addEventListener('ended', () => {
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    });
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ============================================================================
+// EVENT LISTENERS
+// ============================================================================
+function setupEventListeners() {
+    // Answer selection
+    document.addEventListener('click', function(e) {
+        const answerOption = e.target.closest('.answer-option');
+        if (answerOption && !testState.isSubmitted) {
+            const questionId = answerOption.dataset.questionId;
+            const choice = answerOption.dataset.choice;
+            
+            // Update state
+            testState.answers[questionId] = choice;
+            
+            // Update UI
+            const container = answerOption.parentElement;
+            container.querySelectorAll('.answer-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            answerOption.classList.add('selected');
+            
+            // Update radio button
+            const radio = answerOption.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+            }
+            
+            // Update progress
+            renderQuestionNavigation();
+            updateProgress();
+        }
+    });
+    
+    // Dictation input
+    const dictationInput = document.getElementById('dictationInput');
+    if (dictationInput) {
+        dictationInput.addEventListener('input', function() {
+            testState.dictationText = this.value;
+            document.getElementById('charCount').textContent = this.value.length;
+            updateProgress();
+        });
+    }
+    
+    // Navigation buttons
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (testState.currentQuestionIndex > 0) {
+            showQuestion(testState.currentQuestionIndex - 1);
+        }
+    });
+    
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (testState.currentQuestionIndex < testState.questions.length - 1) {
+            showQuestion(testState.currentQuestionIndex + 1);
+        }
+    });
+    
+    // Submit button
+    document.getElementById('submitBtn').addEventListener('click', confirmSubmit);
+    
+    // Transcript toggle (for reading tests)
+    const toggleBtn = document.getElementById('toggleTranscript');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const transcriptText = document.getElementById('transcriptText');
+            if (transcriptText.style.display === 'none') {
+                transcriptText.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-eye me-1"></i>Hide';
+            } else {
+                transcriptText.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Show';
+            }
+        });
+    }
+}
+
+function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    prevBtn.disabled = testState.currentQuestionIndex === 0;
+    nextBtn.disabled = testState.currentQuestionIndex === testState.questions.length - 1;
+}
+
+// ============================================================================
+// PROGRESS & VALIDATION
+// ============================================================================
+function updateProgress() {
+    let answeredCount = 0;
+    let totalQuestions = testState.questions.length;
+    
+    if (testState.testType === 'dictation') {
+        answeredCount = testState.dictationText.trim().length > 0 ? 1 : 0;
+        totalQuestions = 1;
+    } else {
+        answeredCount = Object.keys(testState.answers).length;
+    }
+    
+    const percentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+    
+    // Update progress bar
+    document.getElementById('testProgressFill').style.width = `${percentage}%`;
+    
+    // Update text
+    document.getElementById('progressText').textContent = 
+        testState.testType === 'dictation' 
+            ? `Dictation ${answeredCount > 0 ? 'in progress' : 'not started'}`
+            : `Question ${testState.currentQuestionIndex + 1} of ${totalQuestions}`;
+    
+    document.getElementById('answeredCount').textContent = `${answeredCount}/${totalQuestions} answered`;
+    
+    // Enable/disable submit button
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = answeredCount < totalQuestions;
+}
+
+function confirmSubmit() {
+    const answeredCount = testState.testType === 'dictation' 
+        ? (testState.dictationText.trim().length > 0 ? 1 : 0)
+        : Object.keys(testState.answers).length;
+    const totalQuestions = testState.testType === 'dictation' ? 1 : testState.questions.length;
+    
+    if (answeredCount < totalQuestions) {
+        alert('Please answer all questions before submitting.');
+        return;
+    }
+    
+    submitTest();
+}
+
+// ============================================================================
+// RESULTS
+// ============================================================================
+function showResults(result) {
+    // Mark test as submitted
+    testState.submitted = true;
+
+    // Show transcript for listening/dictation tests
+    if (testState.testType !== 'reading') {
+        const transcriptCard = document.getElementById('transcriptCard');
+        const transcriptText = document.getElementById('transcriptText');
+        transcriptCard.style.display = 'block';
+        transcriptText.textContent = testState.testData.transcript;
+    }
+    
+    // Mark correct/incorrect answers
+    if (testState.testType !== 'dictation') {
+        testState.questions.forEach((question, index) => {
+            const answersContainer = document.getElementById(`answers-${index}`);
+            if (answersContainer) {
+                answersContainer.parentElement.parentElement.classList.add('results-shown');
+                
+                answersContainer.querySelectorAll('.answer-option').forEach(option => {
+                    const choice = option.dataset.choice;
+                    if (choice === question.correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (choice === testState.answers[question.id]) {
+                        option.classList.add('incorrect');
+                    }
+                });
+            }
+        });
+    }
+    
+    // Update submit button to "Back to Test List" button
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>Back to Test List';
+    submitBtn.disabled = false;
+    submitBtn.onclick = () => {
+        window.location.href = '/tests';
+    };
+    
+    // Show success message
+    const score = result.result?.score || 0;
+    const total = result.result?.total_questions || testState.questions.length;
+    const percentage = Math.round((score / total) * 100);
+    
+    // Display success message
+    const successMessage = document.getElementById('successMessage');
+    const successScoreText = document.getElementById('successScoreText');
+    successScoreText.textContent = `Score: ${score}/${total} (${percentage}%)`;
+    successMessage.style.display = 'block';
+
+    // Scroll to top to show success message
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+function showLoading(show) {
+    document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+}
+
+function showError(message) {
+    document.getElementById('errorState').style.display = 'block';
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('testContainer').style.display = 'none';
+    document.getElementById('testActions').style.display = 'none';
+}
+
+function startTimer() {
+    setInterval(() => {
+        if (!testState.isSubmitted) {
+            const elapsed = Math.floor((Date.now() - testState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('elapsedTime').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }, 1000);
+}
+
+function calculateSimilarity(str1, str2) {
+    // Simple Levenshtein distance-based similarity
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const editDistance = levenshteinDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+}
+
+function levenshteinDistance(str1, str2) {
+    const matrix = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+    
+    return matrix[str2.length][str1.length];
+}
+</script>
+{% endblock %}

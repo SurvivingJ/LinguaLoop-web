@@ -217,7 +217,6 @@ def get_test_by_slug(supabase, slug):
             supabase.table('questions')
             .select('*')
             .eq('test_id', t['id'])
-            .order('question_order')
             .execute()
         )
         
@@ -347,7 +346,7 @@ def record_flagged_input(supabase, user_email, content, flagged_categories=None)
     except Exception as e:
         print(f"❌ Failed to record flagged input: {e}")
 
-@tests_bp.route('/api/moderate', methods=['POST'])
+@tests_bp.route('/moderate', methods=['POST'])
 @supabase_jwt_required
 def moderate_content():
     print("Authorization header:", request.headers.get("Authorization"), flush=True)
@@ -403,7 +402,7 @@ def moderate_content():
         }), 500
     
 
-@tests_bp.route('/api/generate_test', methods=['POST'])
+@tests_bp.route('/generate_test', methods=['POST'])
 @supabase_jwt_required
 def generate_test():
     """Generate a new test and save to Supabase database - ENHANCED DEBUG VERSION"""
@@ -656,7 +655,7 @@ def generate_test():
             "error_type": type(e).__name__
         }), 500
 
-@tests_bp.route('/api/custom_test', methods=['POST'])
+@tests_bp.route('/custom_test', methods=['POST'])
 @supabase_jwt_required
 def custom_test():
     """Create a custom test with user-provided transcript and save to Supabase"""
@@ -825,7 +824,7 @@ def custom_test():
 
 
 
-@tests_bp.route('/api/tests', methods=['GET'])
+@tests_bp.route('/', methods=['GET'])
 @supabase_jwt_required
 def get_tests_with_ratings():
     """Get tests list with ELO ratings for filtering/preview."""
@@ -882,14 +881,14 @@ def get_tests_with_ratings():
         
         return jsonify({
             "success": True,
-            "data": tests_with_ratings
+            "tests": tests_with_ratings
         })
         
     except Exception as e:
         current_app.logger.error(f"❌ Error fetching tests: {e}")
         return jsonify({"error": str(e)}), 500
 
-@tests_bp.route('/api/tests/<slug>', methods=['GET'])
+@tests_bp.route('/<slug>', methods=['GET'])
 #@supabase_jwt_required
 def get_test(slug):
     """Get a test by slug in the shape expected by the Flutter app."""
@@ -910,16 +909,16 @@ def get_test(slug):
         current_app.logger.error(f"❌ Error in get_test route: {e}")
         return jsonify({"error": str(e), "status": "error"}), 500
         
-@tests_bp.route('/api/tests/<slug>/submit', methods=['POST'])
+@tests_bp.route('/<slug>/submit', methods=['POST'])
 @supabase_jwt_required  # Your custom decorator that populates g.supabase_claims
 def submit_test_attempt(slug):
     """Submit test answers and calculate ELO changes - Supabase Auth Version"""
     try:
         if not current_app.supabase:
             return jsonify({"error": "Database not connected"}), 500
-        
-        # Initialize ELO service
-        elo_service = EloService(current_app.supabase)
+
+        # Initialize ELO service with service role client to bypass RLS
+        elo_service = EloService(current_app.supabase_service or current_app.supabase)
         
         # Get user info from Supabase claims (set by @supabase_jwt_required)
         current_user_id = g.supabase_claims.get('sub')
@@ -989,24 +988,43 @@ def submit_test_attempt(slug):
             'test_id': test_data['id'],
             'score': score,
             'total_questions': total_questions,
-            'percentage': percentage * 100,  # Your schema stores as percentage
+            # 'percentage' is a generated column - don't insert
+            # 'elo_change' is a generated column - don't insert
             'test_mode': test_mode,
             'language': test_data['language'],
             'user_elo_before': elo_results['user_elo_before'],
             'test_elo_before': elo_results['test_elo_before'],
             'user_elo_after': elo_results['user_elo_after'],
             'test_elo_after': elo_results['test_elo_after'],
-            'elo_change': elo_results['user_elo_change'],
             'was_free_test': True,
             'tokens_consumed': 0
         }
         
-        attempt_result = current_app.supabase.table('test_attempts').insert(attempt_data).execute()
-        attempt_id = attempt_result.data[0]['id'] if attempt_result.data else None
-        
-        # Update user stats
-        current_app.supabase.table('users').update({
-            'total_tests_taken': 'total_tests_taken + 1',
+        # ALWAYS use service role client for test attempts - bypasses RLS
+        if not current_app.supabase_service:
+            current_app.logger.error("❌ Service role client not available")
+            return jsonify({"error": "Database service not configured properly"}), 500
+
+        try:
+            attempt_result = current_app.supabase_service.table('test_attempts').insert(attempt_data).execute()
+            attempt_id = attempt_result.data[0]['id'] if attempt_result.data else None
+        except Exception as e:
+            current_app.logger.error(f"❌ Failed to insert test attempt: {e}")
+            current_app.logger.error(f"❌ Attempt data: {attempt_data}")
+            if '42501' in str(e):  # RLS policy violation code
+                current_app.logger.error("❌ RLS POLICY VIOLATION - using wrong client or policy misconfigured")
+            raise
+
+        # Update user stats - get current value first, then increment
+        user_data = current_app.supabase_service.table('users').select('total_tests_taken')\
+            .eq('id', current_user_id).execute()
+
+        current_tests_taken = 0
+        if user_data.data and len(user_data.data) > 0:
+            current_tests_taken = user_data.data[0].get('total_tests_taken', 0)
+
+        current_app.supabase_service.table('users').update({
+            'total_tests_taken': current_tests_taken + 1,
             'last_activity_at': datetime.now().isoformat()
         }).eq('id', current_user_id).execute()
         
@@ -1042,7 +1060,7 @@ def submit_test_attempt(slug):
 
 
 
-@tests_bp.route('/api/test/<slug>', methods=['GET'])
+@tests_bp.route('/test/<slug>', methods=['GET'])
 #@supabase_jwt_required
 def get_test_with_ratings(slug):
     """Get test with ELO ratings for preview/taking."""

@@ -213,10 +213,12 @@ def _register_web_routes(app):
     
     @app.route('/')
     def index():
-        """Root route - redirect to login or dashboard based on auth"""
-        # Check if user is logged in (check session or JWT)
-        if 'user_email' in session or request.cookies.get('access_token'):
-            return redirect(url_for('language_selection'))
+        """
+        Root route - redirect to login page.
+
+        Auth is handled client-side via localStorage (JWT token).
+        The frontend will redirect to appropriate page after checking localStorage.
+        """
         return redirect(url_for('login'))
     
     @app.route('/login')
@@ -239,14 +241,26 @@ def _register_web_routes(app):
     def tests():
         """Render test list page"""
         return render_template('test_list.html')
-    
+
+    @app.route('/test/<slug>/preview')
+    def test_preview(slug):
+        """Render test preview page (client-side rendered)"""
+        return render_template('test_preview.html')
+
+    @app.route('/test/<slug>')
+    def test_page(slug):
+        """Render test taking page (client-side rendered)"""
+        return render_template('test.html')
+
     @app.route('/logout')
     def logout():
-        """Handle logout"""
-        session.clear()
-        response = make_response(redirect(url_for('login')))
-        response.delete_cookie('access_token')
-        return response
+        """
+        Handle logout - redirect to login page.
+
+        Actual logout is handled client-side by clearing localStorage.
+        This route is just for navigation purposes.
+        """
+        return redirect(url_for('login'))
 
 
 def _register_core_routes(app):
@@ -511,7 +525,6 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Audio serving error: {e}")
             return jsonify({"error": "Failed to serve audio"}), 500
-
 
 # =============================================================================
 # APPLICATION ENTRY POINT

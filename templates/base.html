@@ -31,30 +31,32 @@
             <div class="d-flex align-items-center justify-content-between w-100">
                 
                 <!-- Logo -->
-                <a href="{{ url_for('home') if current_user else '/' }}" class="logo text-decoration-none">
+                <a href="{{ url_for('index') if current_user else '/' }}" class="logo text-decoration-none">
                     LinguaLoop
                 </a>
                 
                 <!-- Desktop Navigation -->
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
-                        <a href="{{ url_for('home') }}" 
+                        <a href="{{ url_for('index') }}" 
                            class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
                             Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url_for('test_list') }}" 
+                        <a href="{{ url_for('tests') }}" 
                            class="nav-link {% if request.endpoint == 'test_list' %}active{% endif %}">
                             Browse Tests
                         </a>
                     </li>
+                    <!--
                     <li class="nav-item">
-                        <a href="{{ url_for('generate_test') }}" 
+                        <a href="#"  {# TODO #}>
                            class="nav-link {% if request.endpoint == 'generate_test' %}active{% endif %}">
                             Create Test
                         </a>
                     </li>
+                -->
                 </ul>
                 
                 <!-- User Menu -->
@@ -71,7 +73,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md border-slate-200" aria-labelledby="userMenuButton">
                         <li>
-                            <a class="dropdown-item" href="{{ url_for('profile') }}">
+                            <a class="dropdown-item" href="#"  {# TODO #}>
                                 <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                                 </svg>
@@ -138,21 +140,29 @@
     
     <!-- Core JavaScript -->
     <script>
-        // Global configuration
+        // Global configuration - accessible from all pages
         window.LINGUALOOP = {
-            API_BASE: '{{ url_for("index") }}',
+            API_BASE: "{{ url_for('index') }}",
             JWT_TOKEN: localStorage.getItem('jwt_token'),
             USER_DATA: JSON.parse(localStorage.getItem('user_data') || '{}')
         };
-        
-        // Logout handler
+
+        /**
+         * Logout Handler
+         * Clears all authentication data from localStorage and redirects to login
+         */
         document.addEventListener('DOMContentLoaded', function() {
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function() {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Clear all auth-related localStorage items
                     localStorage.removeItem('jwt_token');
                     localStorage.removeItem('user_data');
-                    window.location.href = '/';
+
+                    // Redirect to login page
+                    window.location.href = '/login';
                 });
             }
         });

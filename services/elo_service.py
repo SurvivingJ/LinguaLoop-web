@@ -99,34 +99,57 @@ class EloService:
             self.logger.error(f"Error getting test ELO: {e}")
             return self.DEFAULT_TEST_ELO
     
-    def update_user_elo(self, user_id: str, language: str, skill_type: str, 
+    def update_user_elo(self, user_id: str, language: str, skill_type: str,
                        new_elo: float, tests_taken_increment: int = 1):
         """Update user ELO rating - uses your schema structure"""
         try:
+            # Get current tests_taken value
+            current_data = self.supabase.table('user_skill_ratings').select('tests_taken')\
+                .eq('user_id', user_id)\
+                .eq('language', language.lower())\
+                .eq('skill_type', skill_type.lower())\
+                .execute()
+
+            current_tests_taken = 0
+            if current_data.data and len(current_data.data) > 0:
+                current_tests_taken = current_data.data[0].get('tests_taken', 0)
+
+            # Upsert with incremented value
             self.supabase.table('user_skill_ratings').upsert({
                 'user_id': user_id,
                 'language': language.lower(),
                 'skill_type': skill_type.lower(),
                 'elo_rating': max(400, min(3000, int(new_elo))),  # Respect constraints
-                'tests_taken': f'tests_taken + {tests_taken_increment}',
+                'tests_taken': current_tests_taken + tests_taken_increment,
                 'last_test_date': datetime.now().date().isoformat(),
                 'updated_at': datetime.now().isoformat()
-            }, on_conflict=['user_id', 'language', 'skill_type']).execute()
-            
+            }, on_conflict='user_id,language,skill_type').execute()
+
         except Exception as e:
             self.logger.error(f"Error updating user ELO: {e}")
     
     def update_test_elo(self, test_id: str, skill_type: str, new_elo: float):
         """Update test ELO rating - uses your schema structure"""
         try:
+            # Get current total_attempts value
+            current_data = self.supabase.table('test_skill_ratings').select('total_attempts')\
+                .eq('test_id', test_id)\
+                .eq('skill_type', skill_type.lower())\
+                .execute()
+
+            current_attempts = 0
+            if current_data.data and len(current_data.data) > 0:
+                current_attempts = current_data.data[0].get('total_attempts', 0)
+
+            # Upsert with incremented value
             self.supabase.table('test_skill_ratings').upsert({
                 'test_id': test_id,
                 'skill_type': skill_type.lower(),
                 'elo_rating': max(400, min(3000, int(new_elo))),  # Respect constraints
-                'total_attempts': 'total_attempts + 1',
+                'total_attempts': current_attempts + 1,
                 'updated_at': datetime.now().isoformat()
-            }, on_conflict=['test_id', 'skill_type']).execute()
-            
+            }, on_conflict='test_id,skill_type').execute()
+
         except Exception as e:
             self.logger.error(f"Error updating test ELO: {e}")
     

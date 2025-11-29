@@ -310,190 +310,259 @@
 
 {% block extra_js %}
 <script>
-// Global state
-let allTests = [];
-let selectedLanguage = '{{ selected_language or "" }}';
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    loadTests();
-});
-
-// Load tests from API
-async function loadTests() {
-    showLoading();
+(function() {
+    'use strict';
     
-    try {
-        const testType = document.getElementById('test-type').value;
-        const difficulty = document.getElementById('difficulty').value;
+    // DOM Elements
+    const testsGrid = document.getElementById('tests-grid');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const errorAlert = document.getElementById('error-alert');
+    const emptyState = document.getElementById('empty-state');
+    const languageFilter = document.getElementById('language-filter');
+    const difficultyFilter = document.getElementById('difficulty-filter');
+    const testTypeFilter = document.getElementById('test-type');
+    
+    // Utility Functions
+    function showLoading() {
+        loadingSpinner?.classList.remove('d-none');
+        testsGrid.innerHTML = '';
+        hideError();
+        hideEmpty();
+    }
+    
+    function hideLoading() {
+        loadingSpinner?.classList.add('d-none');
+    }
+    
+    function showError(message = 'Failed to load tests. Please try again.') {
+        errorAlert?.classList.remove('d-none');
+        const errorMsg = errorAlert?.querySelector('#error-message');
+        if (errorMsg) errorMsg.textContent = message;
+        hideLoading();
+    }
+    
+    function hideError() {
+        errorAlert?.classList.add('d-none');
+    }
+    
+    function showEmpty() {
+        emptyState?.classList.remove('d-none');
+        hideLoading();
+        hideError();
+    }
+    
+    function hideEmpty() {
+        emptyState?.classList.add('d-none');
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Get the appropriate ELO rating based on selected test type
+    function getTestEloRating(test) {
+        const selectedType = testTypeFilter?.value || 'listening';
         
-        const params = new URLSearchParams();
-        if (selectedLanguage) params.append('language', selectedLanguage);
-        if (testType) params.append('test_type', testType);
-        if (difficulty) params.append('difficulty', difficulty);
-        
-        const response = await fetch(`/api/tests?${params.toString()}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.tests) {
-            allTests = data.tests;
-            renderTests(allTests);
-        } else {
-            showError(data.error || 'Failed to load tests');
+        switch(selectedType.toLowerCase()) {
+            case 'listening':
+                return test.listening_rating || 1400;
+            case 'reading':
+                return test.reading_rating || 1400;
+            case 'dictation':
+                return test.dictation_rating || 1400;
+            default:
+                return test.listening_rating || 1400;
         }
-    } catch (error) {
-        console.error('Error loading tests:', error);
-        showError(error.message);
-    }
-}
-
-// Render tests
-function renderTests(tests) {
-    const grid = document.getElementById('tests-grid');
-    
-    if (tests.length === 0) {
-        showEmpty();
-        return;
     }
     
-    grid.innerHTML = tests.map(test => createTestCard(test)).join('');
-    hideLoading();
-    hideError();
-    hideEmpty();
-}
-
-// Create test card HTML
-function createTestCard(test) {
-    const difficulty = getDifficultyLabel(test.elo_rating);
-    const difficultyClass = `badge-${difficulty.toLowerCase()}`;
+    function getDifficultyLabel(elo) {
+        if (elo < 1200) return 'Beginner';
+        if (elo < 1400) return 'Elementary';
+        if (elo < 1600) return 'Intermediate';
+        if (elo < 1800) return 'Advanced';
+        return 'Expert';
+    }
     
-    return `
-        <div class="test-card" onclick="goToTestPreview('${test.id}')">
-            <div class="test-card-header">
-                <div class="test-card-title">
-                    <span>${escapeHtml(test.title)}</span>
-                    <div class="test-badges">
-                        <span class="badge-difficulty ${difficultyClass}">${difficulty}</span>
-                        ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
+    function createTestCard(test) {
+        const eloRating = getTestEloRating(test);
+        const difficulty = getDifficultyLabel(eloRating);
+        const difficultyClass = `badge-${difficulty.toLowerCase()}`;
+        
+        return `
+            <div class="test-card" onclick="goToTestPreview('${test.slug}')">
+                <div class="test-card-header">
+                    <div class="test-card-title">
+                        <span>${escapeHtml(test.title || test.topic || 'Untitled Test')}</span>
+                        <div class="test-badges">
+                            <span class="badge-difficulty ${difficultyClass}">${difficulty}</span>
+                            ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
+                            ${test.is_featured ? '<span class="badge-difficulty badge-featured">Featured</span>' : ''}
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="test-card-body">
-                <div class="test-meta">
-                    <div class="test-meta-item">
-                        <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
-                        </svg>
-                        <span>${test.language.toUpperCase()}</span>
-                    </div>
-                    
-                    <div class="test-meta-item">
-                        <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11z"/>
-                        </svg>
-                        <span>${escapeHtml(test.topic)}</span>
-                    </div>
-                    
-                    ${test.has_audio ? `
-                    <div class="test-meta-item">
-                        <svg class="test-meta-icon" fill="var(--primary)" viewBox="0 0 16 16">
-                            <path d="M11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
-                        </svg>
-                        <span>Audio</span>
-                    </div>
-                    ` : ''}
                 </div>
                 
-                <div class="test-stats">
-                    <div class="stat">
-                        <span class="stat-value">${test.elo_rating}</span>
-                        <span class="stat-label">ELO</span>
+                <div class="test-card-body">
+                    <div class="test-meta">
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
+                            </svg>
+                            <span>${escapeHtml(test.language?.toUpperCase() || 'N/A')}</span>
+                        </div>
+                        
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5H3z"/>
+                            </svg>
+                            <span>ELO: ${eloRating}</span>
+                        </div>
+                        
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                            <span>${test.total_attempts || 0} attempts</span>
+                        </div>
                     </div>
-                    <div class="stat">
-                        <span class="stat-value">${test.total_attempts || 0}</span>
-                        <span class="stat-label">Attempts</span>
-                    </div>
+                    
+                    ${test.topic ? `<p class="test-description">${escapeHtml(test.topic)}</p>` : ''}
                 </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
+    
+    function displayTests(tests) {
+        if (!tests || tests.length === 0) {
+            showEmpty();
+            return;
+        }
+        
+        testsGrid.innerHTML = tests.map(test => createTestCard(test)).join('');
+        hideLoading();
+        hideError();
+        hideEmpty();
+    }
+    
+    function goToTestPreview(slug) {
+    if (slug) {
+        // Get selected test type for preview
+        const testType = testTypeFilter?.value || 'listening';
+        
+        // Redirect to preview page with test type query parameter
+        window.location.href = `/test/${slug}/preview?type=${testType}`;
+        }
+    }
 
-// Get difficulty label
-function getDifficultyLabel(rating) {
-    if (rating < 1200) return 'Beginner';
-    if (rating < 1400) return 'Intermediate';
-    if (rating < 1600) return 'Advanced';
-    return 'Expert';
-}
-
-// Apply filters
-function applyFilters() {
+    
+    async function loadTests() {
+        showLoading();
+        
+        try {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                console.error('No JWT token found');
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Get filter values
+            const language = languageFilter?.value || '';
+            const difficulty = difficultyFilter?.value || '';
+            
+            // Build query string
+            const params = new URLSearchParams();
+            if (language) params.append('language', language);
+            if (difficulty) params.append('difficulty', difficulty);
+            
+            const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
+            
+            console.log('🔧 Fetching tests from:', url);
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.error('Unauthorized - redirecting to login');
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('user_data');
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ Tests loaded:', data);
+            
+            if (data.success && data.tests) {
+                displayTests(data.tests);
+            } else {
+                showEmpty();
+            }
+        } catch (error) {
+            console.error('❌ Error loading tests:', error);
+            showError('Failed to load tests. Please try again.');
+        }
+    }
+    
+    // ✅ NEW: Apply filters function
+    function applyFilters() {
+        console.log('🔧 Applying filters...');
+        loadTests();
+    }
+    
+    // ✅ NEW: Reset filters function
+    function resetFilters() {
+        console.log('🔧 Resetting filters...');
+        
+        // Reset all filter dropdowns to default values
+        if (languageFilter) languageFilter.value = '';
+        if (difficultyFilter) difficultyFilter.value = '';
+        if (testTypeFilter) testTypeFilter.value = 'listening';
+        
+        // Reload tests with no filters
+        loadTests();
+    }
+    
+    // Make functions globally accessible for inline event handlers
+    window.goToTestPreview = goToTestPreview;
+    window.applyFilters = applyFilters;
+    window.resetFilters = resetFilters;
+    
+    // Event Listeners for filters (use both inline and programmatic)
+    if (languageFilter) {
+        languageFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (difficultyFilter) {
+        difficultyFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (testTypeFilter) {
+        testTypeFilter.addEventListener('change', function() {
+            console.log('🔧 Test type changed to:', this.value);
+            // Re-render current tests with updated ELO ratings
+            loadTests();
+        });
+    }
+    
+    // Initial load
     loadTests();
-}
-
-// Reset filters
-function resetFilters() {
-    document.getElementById('test-type').value = '';
-    document.getElementById('difficulty').value = '';
-    loadTests();
-}
-
-// Navigate to test preview
-function goToTestPreview(testId) {
-    window.location.href = `/test-preview?id=${testId}`;
-}
-
-// UI State helpers
-function showLoading() {
-    document.getElementById('loading-state').classList.remove('d-none');
-    document.getElementById('error-state').classList.add('d-none');
-    document.getElementById('empty-state').classList.add('d-none');
-    document.getElementById('tests-grid').innerHTML = '';
-}
-
-function hideLoading() {
-    document.getElementById('loading-state').classList.add('d-none');
-}
-
-function showError(message) {
-    hideLoading();
-    document.getElementById('error-message').textContent = message;
-    document.getElementById('error-state').classList.remove('d-none');
-    document.getElementById('empty-state').classList.add('d-none');
-    document.getElementById('tests-grid').innerHTML = '';
-}
-
-function hideError() {
-    document.getElementById('error-state').classList.add('d-none');
-}
-
-function showEmpty() {
-    hideLoading();
-    hideError();
-    document.getElementById('empty-state').classList.remove('d-none');
-}
-
-function hideEmpty() {
-    document.getElementById('empty-state').classList.add('d-none');
-}
-
-// Utility function
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
+    
+    // Check authentication
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+        console.error('No authentication token found');
+        window.location.href = '/login';
+    }
+})();
 </script>
 {% endblock %}

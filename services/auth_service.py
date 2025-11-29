@@ -4,22 +4,45 @@ from typing import Dict, Optional
 import logging
 import uuid
 import os
-# DEBUG
+
+
 class AuthService:
+    """
+    Authentication service for handling OTP-based login and user management.
+
+    Uses two Supabase clients:
+    - supabase_admin: Service role client that bypasses RLS, used for:
+      * Sending OTP emails (requires admin auth.admin.* permissions)
+      * Verifying OTPs and creating sessions
+      * Calling RPC functions that need elevated permissions
+    - supabase: Regular anon client for standard queries (respects RLS)
+    """
     def __init__(self, supabase_client: Client):
-        self.supabase = supabase_client  # Keep existing client for regular ops
-        
-        # Add admin client with service role for privileged operations
+        self.supabase = supabase_client  # Regular client for RLS-protected queries
+
+        # Admin client for privileged operations (bypasses RLS)
         self.supabase_admin = create_client(
             os.getenv('SUPABASE_URL'),
-            os.getenv('SUPABASE_SERVICE_ROLE_KEY')  # This bypasses RLS
+            os.getenv('SUPABASE_SERVICE_ROLE_KEY')
         )
         self.logger = logging.getLogger(__name__)
     
     def send_otp(self, email: str, is_registration: bool = False) -> Dict:
-        """Send OTP using admin client to bypass RLS restrictions"""
+        """
+        Send OTP code to user's email.
+
+        Uses admin client because sending OTPs requires admin-level auth permissions
+        that bypass RLS (Row Level Security) restrictions.
+
+        Args:
+            email: User's email address
+            is_registration: If True, creates new user; if False, requires existing user
+
+        Returns:
+            Dict with 'success' boolean and either 'message' or 'error'
+        """
         try:
-            # Use ADMIN client for sending OTP emails
+            # Use ADMIN client for sending OTP emails (requires auth.admin permissions)
             response = self.supabase_admin.auth.sign_in_with_otp({
                 "email": email,
                 "options": {
@@ -56,26 +79,41 @@ class AuthService:
                 }
     
     def verify_otp(self, email: str, token: str) -> Dict:
-        """Verify OTP and return complete user data"""
+        """
+        Verify OTP code and create user session.
+
+        Uses admin client for OTP verification which requires elevated permissions.
+
+        Args:
+            email: User's email address
+            token: 6-digit OTP code from email
+
+        Returns:
+            Dict containing:
+                - success: Boolean indicating verification status
+                - user: Complete user profile data (if successful)
+                - jwt_token: Session access token (if successful)
+                - session: Full Supabase session object (if successful)
+                - error/message: Error details (if failed)
+        """
         try:
-            print(f"🔧 Service: Verifying OTP for {email}")
-            
-            # Use admin client for OTP verification
+            self.logger.info(f"Verifying OTP for {email}")
+
+            # Use admin client for OTP verification (requires elevated permissions)
             response = self.supabase_admin.auth.verify_otp({
                 "email": email,
                 "token": token,
                 "type": "email"
             })
-            
-            print(f"🔧 Service: Supabase response user: {response.user}")
-            print(f"🔧 Service: Supabase response session: {response.session}")
+
+            self.logger.debug(f"OTP verification response - User: {bool(response.user)}, Session: {bool(response.session)}")
             
             if response.user and response.session:
-                # Get complete user data from your users table
+                # Get complete user data from users table
                 user_data = self._get_user_data(response.user.id, email)
-                
-                print(f"🔧 Service: Complete user data: {user_data}")
-                
+
+                self.logger.info(f"OTP verification successful for {email}")
+
                 return {
                     'success': True,
                     'message': 'Verification successful',
@@ -84,15 +122,15 @@ class AuthService:
                     'session': response.session
                 }
             else:
-                print(f"🔧 Service: No user or session in response")
+                self.logger.warning(f"OTP verification failed - no user or session for {email}")
                 return {
                     'success': False,
                     'error': 'Invalid or expired OTP',
                     'message': 'Invalid or expired OTP'
                 }
-                
+
         except Exception as e:
-            print(f"🔧 Service: OTP verification error: {e}")
+            self.logger.error(f"OTP verification error for {email}: {e}")
             return {
                 'success': False,
                 'error': f'Verification failed: {str(e)}',
@@ -100,42 +138,35 @@ class AuthService:
             }
 
     def _get_user_data(self, user_id: str, email: str) -> Dict:
-        """Get complete user data after verification"""
+        """
+        Get complete user data after OTP verification.
+
+        The Supabase trigger should have already created the user record in the users table.
+        This method retrieves that data and adds the token balance.
+        """
         try:
-            # Your trigger should have created the user, so get the data
+            # Query user data from users table
             result = self.supabase.table('users')\
                 .select('*')\
                 .eq('id', user_id)\
                 .execute()
-            
-            print(f"🔧 Service: Users table query result: {result.data}")
-            
+
+            self.logger.info(f"Retrieved user data for {user_id}: {bool(result.data)}")
+
             if result.data:
                 user_data = result.data[0]
-                
-                # Get token balance
+
+                # Get token balance using admin client (RPC requires elevated permissions)
                 token_balance = self.supabase_admin.rpc('get_token_balance', {
                     'p_user_id': user_id
                 }).execute()
-                
+
                 user_data['token_balance'] = token_balance.data if token_balance.data else 0
-                
-                # Ensure all fields have safe values
-                return {
-                    'id': user_data.get('id'),
-                    'email': user_data.get('email'),
-                    'subscription_tier': user_data.get('subscription_tier', 'free'),
-                    'email_verified': bool(user_data.get('email_verified', True)),
-                    'token_balance': int(user_data.get('token_balance', 0)),
-                    'total_tests_taken': int(user_data.get('total_tests_taken', 0)),
-                    'total_tests_generated': int(user_data.get('total_tests_generated', 0)),
-                    'created_at': user_data.get('created_at'),
-                    'last_login': user_data.get('last_login')
-                }
+                return self._sanitize_user_data(user_data)
             else:
-                # If trigger didn't create user, create manually using admin client
-                print(f"🔧 Service: No user found, creating manually")
-                
+                # If trigger didn't create user, create manually as fallback
+                self.logger.warning(f"User {user_id} not found, creating manually")
+
                 user_record = {
                     'id': user_id,
                     'email': email,
@@ -145,66 +176,20 @@ class AuthService:
                     'total_tests_generated': 0,
                     'last_login': datetime.now(timezone.utc).isoformat()
                 }
-                
+
                 self.supabase_admin.table('users').insert(user_record).execute()
-                
+
                 # Grant welcome tokens
                 self.supabase_admin.rpc('grant_daily_free_tokens', {
                     'p_user_id': user_id
                 }).execute()
-                
+
                 user_record['token_balance'] = 2  # Default welcome tokens
                 return user_record
-                
-        except Exception as e:
-            print(f"🔧 Service: Get user data error: {e}")
-            # Return safe minimal data
-            return {
-                'id': user_id,
-                'email': email,
-                'subscription_tier': 'free',
-                'email_verified': True,
-                'token_balance': 0,
-                'total_tests_taken': 0,
-                'total_tests_generated': 0,
-                'last_login': datetime.now(timezone.utc).isoformat()
-            }
 
-
-    def _get_user_data(self, user_id: str, email: str) -> Dict:
-        """Get user data after trigger has created the record"""
-        try:
-            # Use regular client - RLS will ensure user can only see their own data
-            result = self.supabase.table('users')\
-                .select('*')\
-                .eq('id', user_id)\
-                .execute()
-            
-            if result.data:
-                user_data = result.data[0]
-                
-                # Get token balance using admin client
-                token_balance = self.supabase_admin.rpc('get_token_balance', {
-                    'p_user_id': user_id
-                }).execute()
-                
-                user_data['token_balance'] = token_balance.data if token_balance.data else 0
-                return self._sanitize_user_data(user_data)
-            else:
-                # Return safe defaults if user not found
-                return {
-                    'id': user_id,
-                    'email': email,
-                    'subscription_tier': 'free',
-                    'email_verified': True,
-                    'token_balance': 0,
-                    'total_tests_taken': 0,
-                    'total_tests_generated': 0,
-                    'last_login': datetime.now(timezone.utc).isoformat()
-                }
-                
         except Exception as e:
             self.logger.error(f'Get user data error: {e}')
+            # Return safe defaults on error
             return {
                 'id': user_id,
                 'email': email,
@@ -215,64 +200,6 @@ class AuthService:
                 'total_tests_generated': 0,
                 'last_login': datetime.now(timezone.utc).isoformat()
             }
-        
-    def _ensure_user_setup(self, user_id: str, email: str) -> Dict:
-        """Verify user setup and get user data (trigger handles creation)"""
-        try:
-            # Just get the user data - trigger should have created it
-            result = self.supabase.table('users')\
-                .select('*')\
-                .eq('id', user_id)\
-                .execute()
-            
-            if result.data:
-                user_data = result.data[0]
-                
-                # Get token balance
-                token_balance = self.supabase.rpc('get_token_balance', {
-                    'p_user_id': user_id
-                }).execute()
-                
-                user_data['token_balance'] = token_balance.data if token_balance.data else 0
-                return self._sanitize_user_data(user_data)
-            else:
-                # If trigger didn't work, return safe defaults
-                return {
-                    'id': user_id,
-                    'email': email,
-                    'subscription_tier': 'free',
-                    'email_verified': True,
-                    'token_balance': 0,
-                    'total_tests_taken': 0,
-                    'total_tests_generated': 0,
-                    'last_login': datetime.now(timezone.utc).isoformat()
-                }
-                
-        except Exception as e:
-            self.logger.error(f'User setup verification error: {e}')
-            return {
-                'id': user_id,
-                'email': email,
-                'subscription_tier': 'free',
-                'email_verified': True,
-                'token_balance': 0,
-                'total_tests_taken': 0,
-                'total_tests_generated': 0,
-                'last_login': datetime.now(timezone.utc).isoformat()
-            }
-
-    
-    def _safe_bool(self, value, default=False):
-        """Safely convert value to boolean, handling null cases"""
-        if value is None:
-            return default
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, str):
-            return value.lower() in ('true', '1', 'yes', 'on')
-        if isinstance(value, (int, float)):
-            return bool(value)
-        return default
 
     def _sanitize_user_data(self, user_data: Dict) -> Dict:
         """Ensure all user data fields have proper types"""

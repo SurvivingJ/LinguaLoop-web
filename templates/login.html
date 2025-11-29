@@ -170,46 +170,44 @@
     const loading = document.getElementById('loading');
     const errorAlert = document.getElementById('error-alert');
     const errorMessage = document.getElementById('error-message');
-    
     const emailInput = document.getElementById('email');
     const otpInput = document.getElementById('otp');
     const emailDisplay = document.getElementById('email-display');
     const isRegistrationCheckbox = document.getElementById('is-registration');
-    
     const emailForm = document.getElementById('email-form');
     const otpForm = document.getElementById('otp-form');
     const backBtn = document.getElementById('back-btn');
     const resendBtn = document.getElementById('resend-btn');
-    
+
     // Utility Functions
     function showError(message) {
         errorMessage.textContent = message;
         errorAlert.classList.remove('d-none');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
+
     function hideError() {
         errorAlert.classList.add('d-none');
         errorMessage.textContent = '';
     }
-    
+
     function showLoading() {
         emailStep.classList.add('d-none');
         otpStep.classList.add('d-none');
         loading.classList.remove('d-none');
     }
-    
+
     function hideLoading() {
         loading.classList.add('d-none');
     }
-    
+
     function showEmailStep() {
         hideError();
         emailStep.classList.remove('d-none');
         otpStep.classList.add('d-none');
         hideLoading();
     }
-    
+
     function showOtpStep() {
         hideError();
         emailStep.classList.add('d-none');
@@ -217,7 +215,7 @@
         hideLoading();
         setTimeout(() => otpInput.focus(), 100);
     }
-    
+
     // Send OTP
     emailForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -237,9 +235,9 @@
             const response = await fetch('/api/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     email: email,
-                    is_registration: isRegistration 
+                    is_registration: isRegistration
                 })
             });
             
@@ -280,7 +278,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     email: email,
-                    token: otp 
+                    otp_code: otp 
                 })
             });
             
@@ -295,7 +293,7 @@
                 window.location.href = '/language-selection';
             } else {
                 showOtpStep();
-                showError(data.error || 'Invalid verification code. Please try again.');
+                showError(data.error || data.message || 'Invalid verification code. Please try again.');
                 otpInput.value = '';
             }
         } catch (error) {
@@ -323,9 +321,9 @@
             const response = await fetch('/api/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     email: email,
-                    is_registration: isRegistration 
+                    is_registration: isRegistration
                 })
             });
             
@@ -356,13 +354,20 @@
         
         // Auto-submit when 6 digits entered
         if (this.value.length === 6) {
-            otpForm.dispatchEvent(new Event('submit'));
+            // Use requestSubmit for proper form submission
+            if (otpForm.requestSubmit) {
+                otpForm.requestSubmit();
+            } else {
+                // Fallback for older browsers
+                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                otpForm.dispatchEvent(submitEvent);
+            }
         }
     });
     
     // Check if already logged in
     if (localStorage.getItem('jwt_token')) {
-        window.location.href = '/home';
+        window.location.href = '/language-selection';
     }
 })();
 </script>
