@@ -61,7 +61,7 @@ def create_app(config_class=Config):
     _register_core_routes(app)
     _register_web_routes(app)
     
-    app.logger.info("✅ LinguaLoop application initialized successfully")
+    app.logger.info("LinguaLoop application initialized successfully")
     return app
 
 
@@ -105,73 +105,66 @@ def _initialize_services(app):
             app.supabase = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
             app.auth_service = AuthService(app.supabase)
             
-            # Service role client for admin operations
             if Config.SUPABASE_SERVICE_ROLE_KEY:
                 app.supabase_service = create_client(
                     Config.SUPABASE_URL,
                     Config.SUPABASE_SERVICE_ROLE_KEY
                 )
-                app.logger.info("✅ Supabase clients initialized (anon + service role)")
+                app.logger.info("Supabase clients initialized (anon + service role)")
             else:
                 app.supabase_service = None
-                app.logger.warning("⚠️ Service role key not provided")
+                app.logger.warning("Service role key not provided")
         else:
             raise ValueError("Missing Supabase credentials")
     except Exception as e:
-        app.logger.error(f"❌ Supabase initialization failed: {e}")
+        app.logger.error(f"Supabase initialization failed: {e}")
         app.supabase = None
         app.supabase_service = None
         app.auth_service = None
-    
-    # Service factory (OpenAI, etc.)
+
     try:
         service_factory = ServiceFactory(Config)
         app.service_factory = service_factory
         app.openai_service = service_factory.openai_service if Config.OPENAI_API_KEY else None
-        app.logger.info(f"✅ OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
+        app.logger.info(f"OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
     except Exception as e:
-        app.logger.error(f"❌ Service factory error: {e}")
+        app.logger.error(f"Service factory error: {e}")
         app.openai_service = None
-    
-    # R2 storage service
+
     try:
         app.r2_service = R2Service(Config) if Config.R2_ACCESS_KEY_ID else None
-        app.logger.info(f"✅ R2 service: {'enabled' if app.r2_service else 'disabled'}")
+        app.logger.info(f"R2 service: {'enabled' if app.r2_service else 'disabled'}")
     except Exception as e:
-        app.logger.error(f"❌ R2 service error: {e}")
+        app.logger.error(f"R2 service error: {e}")
         app.r2_service = None
-    
-    # Stripe payment service
+
     try:
         if Config.STRIPE_SECRET_KEY:
             stripe.api_key = Config.STRIPE_SECRET_KEY
-            app.logger.info("✅ Stripe configured")
+            app.logger.info("Stripe configured")
         else:
-            app.logger.warning("⚠️ Stripe not configured")
+            app.logger.warning("Stripe not configured")
     except Exception as e:
-        app.logger.error(f"❌ Stripe initialization error: {e}")
-    
-    # Prompt service
+        app.logger.error(f"Stripe initialization error: {e}")
+
     try:
         app.prompt_service = PromptService()
-        app.logger.info("✅ Prompt service initialized")
+        app.logger.info("Prompt service initialized")
     except Exception as e:
-        app.logger.error(f"❌ Prompt service error: {e}")
+        app.logger.error(f"Prompt service error: {e}")
         app.prompt_service = None
 
 
 def _register_blueprints(app):
     """Register all application blueprints"""
-    # Inject dependencies into blueprints
     auth_middleware = AuthMiddleware(app.supabase)
     auth_bp.auth_service = app.auth_service
     auth_bp.auth_middleware = auth_middleware
-    
-    # Register blueprints
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tests_bp, url_prefix='/api/tests')
-    
-    app.logger.info("✅ Blueprints registered")
+
+    app.logger.info("Blueprints registered")
 
 
 def _register_error_handlers(app):
@@ -213,12 +206,7 @@ def _register_web_routes(app):
     
     @app.route('/')
     def index():
-        """
-        Root route - redirect to login page.
-
-        Auth is handled client-side via localStorage (JWT token).
-        The frontend will redirect to appropriate page after checking localStorage.
-        """
+        """Root route - redirect to login page"""
         return redirect(url_for('login'))
     
     @app.route('/login')
@@ -234,7 +222,6 @@ def _register_web_routes(app):
     @app.route('/language-selection')
     def language_selection():
         """Render language selection page"""
-        # Optional: Check if user is authenticated
         return render_template('language_selection.html')
     
     @app.route('/tests')
@@ -254,18 +241,13 @@ def _register_web_routes(app):
 
     @app.route('/logout')
     def logout():
-        """
-        Handle logout - redirect to login page.
-
-        Actual logout is handled client-side by clearing localStorage.
-        This route is just for navigation purposes.
-        """
+        """Handle logout - redirect to login page"""
         return redirect(url_for('login'))
 
 
 def _register_core_routes(app):
     """Register core application API routes"""
-    
+
     @app.route('/api/health', methods=['GET'])
     def health_check():
         """Health check endpoint for monitoring"""
@@ -295,11 +277,7 @@ def _register_core_routes(app):
             "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
             "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
         })
-    
-    # =========================================================================
-    # USER MANAGEMENT ENDPOINTS
-    # =========================================================================
-    
+
     @app.route('/api/users/elo', methods=['GET'])
     @supabase_jwt_required
     def get_user_elo_ratings():
@@ -418,11 +396,7 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Profile error: {e}")
             return jsonify({"error": "Failed to get profile"}), 500
-    
-    # =========================================================================
-    # PAYMENT ENDPOINTS
-    # =========================================================================
-    
+
     @app.route('/api/payments/token-packages', methods=['GET'])
     def get_token_packages():
         """Get available token packages"""
@@ -492,11 +466,7 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Payment intent error: {e}")
             return jsonify({"error": str(e)}), 500
-    
-    # =========================================================================
-    # AUDIO SERVING
-    # =========================================================================
-    
+
     @app.route('/audio/<filename>', methods=['GET'])
     def serve_audio(filename):
         """Stream audio from R2 storage"""
@@ -525,10 +495,6 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Audio serving error: {e}")
             return jsonify({"error": "Failed to serve audio"}), 500
-
-# =============================================================================
-# APPLICATION ENTRY POINT
-# =============================================================================
 
 app = create_app()
 

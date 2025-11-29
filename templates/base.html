@@ -6,14 +6,9 @@
     <meta name="description" content="LinguaLoop - Active language learning platform with listening tests">
     <meta name="theme-color" content="#1e40af">
     <title>{% block title %}LinguaLoop{% endblock %}</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
-    <!-- Language Indicator Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         .navbar-language-indicator {
             display: flex;
@@ -50,35 +45,27 @@
         }
     </style>
 
-    <!-- Page-specific CSS -->
     {% block extra_css %}{% endblock %}
-    
-    <!-- Favicon -->
+
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>🎓</text></svg>">
 </head>
 <body class="{% block body_class %}bg-slate-50{% endblock %}">
-    
-    <!-- Skip to main content (Accessibility) -->
+
     <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
-    
-    <!-- Navigation Bar (hidden on login page) -->
+
     {% if not hide_navbar %}
     <nav class="navbar sticky-top">
         <div class="container-fluid px-3 px-md-4">
             <div class="d-flex align-items-center justify-content-between w-100">
-                
-                <!-- Logo -->
+
                 <a href="{{ url_for('index') if current_user else '/' }}" class="logo text-decoration-none">
                     LinguaLoop
                 </a>
-
-                <!-- Language Indicator -->
                 <div class="navbar-language-indicator" id="navLanguageIndicator" style="display: none;">
                     <span class="language-flag" id="navLanguageFlag"></span>
                     <span class="language-name" id="navLanguageName"></span>
                 </div>
 
-                <!-- Desktop Navigation -->
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
                         <a href="{{ url_for('index') }}" 
@@ -92,17 +79,7 @@
                             Browse Tests
                         </a>
                     </li>
-                    <!--
-                    <li class="nav-item">
-                        <a href="#"  {# TODO #}>
-                           class="nav-link {% if request.endpoint == 'generate_test' %}active{% endif %}">
-                            Create Test
-                        </a>
-                    </li>
-                -->
                 </ul>
-                
-                <!-- User Menu -->
                 <div class="dropdown">
                     <button class="btn btn-icon" 
                             type="button" 
@@ -116,7 +93,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md border-slate-200" aria-labelledby="userMenuButton">
                         <li>
-                            <a class="dropdown-item" href="#"  {# TODO #}>
+                            <a class="dropdown-item" href="#">
                                 <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                                 </svg>
@@ -139,8 +116,7 @@
         </div>
     </nav>
     {% endif %}
-    
-    <!-- Flash Messages -->
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="container mt-3" role="alert" aria-live="polite">
@@ -153,13 +129,11 @@
             </div>
         {% endif %}
     {% endwith %}
-    
-    <!-- Main Content -->
+
     <main id="main-content" class="{% block main_class %}container py-4{% endblock %}">
         {% block content %}{% endblock %}
     </main>
-    
-    <!-- Footer -->
+
     {% if not hide_footer %}
     <footer class="mt-auto py-4 border-top border-slate-200 bg-white">
         <div class="container">
@@ -177,11 +151,9 @@
         </div>
     </footer>
     {% endif %}
-    
-    <!-- Bootstrap 5 JS Bundle -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Core JavaScript -->
+
     <script>
         // Global configuration - accessible from all pages
         window.LINGUALOOP = {
@@ -190,16 +162,11 @@
             USER_DATA: JSON.parse(localStorage.getItem('user_data') || '{}')
         };
 
-        /**
-         * Language Indicator
-         * Display selected language in navbar from localStorage
-         */
         function updateLanguageIndicator() {
             const savedLanguage = localStorage.getItem('selectedLanguage');
             if (savedLanguage) {
                 const lang = JSON.parse(savedLanguage);
 
-                // Language flag emojis map
                 const flagMap = {
                     'en': '🇺🇸',
                     'zh': '🇨🇳',
@@ -225,12 +192,7 @@
             }
         }
 
-        /**
-         * Logout Handler
-         * Clears all authentication data from localStorage and redirects to login
-         */
         document.addEventListener('DOMContentLoaded', function() {
-            // Update language indicator
             updateLanguageIndicator();
 
             const logoutBtn = document.getElementById('logout-btn');
@@ -238,18 +200,15 @@
                 logoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    // Clear all auth-related localStorage items
                     localStorage.removeItem('jwt_token');
                     localStorage.removeItem('user_data');
 
-                    // Redirect to login page
                     window.location.href = '/login';
                 });
             }
         });
     </script>
-    
-    <!-- Page-specific JavaScript -->
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

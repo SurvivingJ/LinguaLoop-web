@@ -6,47 +6,37 @@ load_dotenv()
 
 class Config:
     """Application configuration class"""
-    # Flask settings
     SECRET_KEY = os.environ.get('SECRET_KEY', 'temp-secret-change-in-production')
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    
-    # JWT settings
+
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-change-in-production')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_TOKEN_LOCATION = ["headers", "cookies"]
 
-    # OpenAI settings
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-    
-    # Supabase settings
+
     SUPABASE_URL = os.environ.get('SUPABASE_URL')
     SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
     SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 
-    # Stripe settings
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-    
-    # AWS settings (for future cloud storage)
+
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_S3_BUCKET = os.environ.get('AWS_S3_BUCKET')
-    
-    # Application settings
+
     TOKEN_COSTS = {
         'take_test': 1,
         'generate_test': 5
     }
     DAILY_FREE_TOKENS = 200
-    
-    # CORS settings (update for production)
-    # Local dev + production site
+
     CORS_ORIGINS = [
-        "http://localhost:49640"         # add any others you need
+        "http://localhost:49640"
     ]
 
-    # Cloudflare Audio Storage
     R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')
-    R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY') 
+    R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
     R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
     R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', 'lingualoopaudio')
     R2_ENDPOINT_URL = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if R2_ACCOUNT_ID else None

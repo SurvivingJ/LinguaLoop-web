@@ -1,6 +1,6 @@
 # routes/tests.py
 
-from flask import Flask, request, jsonify, redirect, Response, make_response, g  # Added 'g'
+from flask import Flask, request, jsonify, redirect, Response, make_response, g
 from flask_cors import CORS, cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
@@ -27,10 +27,6 @@ from ..services.database_service import DatabaseService
 tests_bp = Blueprint("tests", __name__)
 
 
-# =============================================================================
-# DATABASE HELPER FUNCTIONS
-# =============================================================================
-
 def save_test_to_database(supabase_service_client, test_data):
     """Save generated test data using service role client (bypasses RLS)."""
     if not supabase_service_client:
@@ -39,14 +35,12 @@ def save_test_to_database(supabase_service_client, test_data):
     print(f"TEST DATA: {test_data}", flush=True)
     
     try:
-        # IMPORTANT: Still validate user authentication first
         if not hasattr(g, 'supabase_claims') or not g.supabase_claims.get('sub'):
             raise Exception("User not authenticated")
-        
-        # Build tests row using only fields that exist in the actual schema
+
         tests_row = {
-            "slug": test_data["slug"],  # required
-            "language": test_data["language"],  # required
+            "slug": test_data["slug"],
+            "language": test_data["language"],
             "topic": test_data.get("topic", ""),
             "difficulty": int(test_data.get("difficulty", 1)),
             "style": test_data.get("style", ""),
@@ -60,56 +54,43 @@ def save_test_to_database(supabase_service_client, test_data):
             "is_custom": test_data.get("is_custom", False),
             "generation_model": test_data.get("generation_model", "gpt-4"),
             "audio_generated": test_data.get("audio_generated", False),
-            "gen_user": test_data.get("gen_user", ""),  # UUID from validated JWT
+            "gen_user": test_data.get("gen_user", ""),
         }
 
-        print(f"🔧 Inserting test record with service role client: {tests_row}")
-        
-        # Use service role client - bypasses RLS
         test_result = supabase_service_client.table('tests').insert(tests_row).execute()
-        
+
         if not test_result.data:
             raise Exception("No data returned from test insert")
-        
+
         test_id = test_result.data[0]['id']
-        print(f"✅ Test inserted with ID: {test_id}")
-        
-        # Build questions rows using only fields that exist in the actual schema
         question_rows = []
         for i, q in enumerate(test_data.get('questions', []), start=1):
-            # Ensure choices and correct_answer are properly formatted for JSONB
             choices = q.get('choices', [])
             if isinstance(choices, str):
                 try:
                     choices = json.loads(choices)
                 except json.JSONDecodeError:
-                    choices = [choices]  # Convert single string to array
-            
+                    choices = [choices]
+
             correct_answer = q.get('answer', '')
-            
+
             question_row = {
                 'test_id': test_id,
                 'question_id': q.get('id') or str(uuid4()),
                 'question_text': q.get('question', ''),
-                'question_type': q.get('question_type', 'multiple_choice'),  # default type
-                'choices': choices,  # JSONB field
-                'correct_answer': correct_answer,  # JSONB field
+                'question_type': q.get('question_type', 'multiple_choice'),
+                'choices': choices,
+                'correct_answer': correct_answer,
                 'answer_explanation': q.get('explanation', ''),
-                'points': q.get('points', 1),  # default 1 point per question
+                'points': q.get('points', 1),
                 'audio_url': q.get('audio_url', ''),
             }
             question_rows.append(question_row)
-        
+
         if question_rows:
-            print(f"🔧 Inserting {len(question_rows)} questions with service role client")
-            
-            # Use service role client for questions too
             questions_result = supabase_service_client.table('questions').insert(question_rows).execute()
-            print(f"✅ Questions inserted successfully")
-        else:
-            print("⚠️ No questions to insert")
-        
-        initial_elo = 1400  # Starting ELO
+
+        initial_elo = 1400
         skill_ratings = [
             {
                 'test_id': test_id,
@@ -139,18 +120,14 @@ def save_test_to_database(supabase_service_client, test_data):
                 'updated_at': datetime.now(timezone.utc).isoformat(),
             }
         ]
-        
-        # Insert skill ratings
-        print(f"🔧 Inserting {len(skill_ratings)} skill ratings")
-        ratings_result = supabase_service_client.table('test_skill_ratings').insert(skill_ratings).execute()
-        print(f"✅ Skill ratings inserted successfully")
 
-        print(f"✅ Saved test to database: {test_data['slug']} ({test_id})")
+        ratings_result = supabase_service_client.table('test_skill_ratings').insert(skill_ratings).execute()
+
         return test_id
-        
+
     except Exception as e:
-        print(f"❌ Error saving test to database: {e}", flush=True)
-        print(f"❌ Full traceback: {traceback.format_exc()}")
+        print(f"Error saving test to database: {e}", flush=True)
+        print(f"Full traceback: {traceback.format_exc()}")
         raise
 
 
@@ -158,9 +135,8 @@ def get_tests_from_database(supabase, test_type='reading', limit=20, language=No
     """Fetch tests list with optional filters; order by ELO of requested test type."""
     if not supabase:
         return []
-    
+
     try:
-        # Select only fields the FE may need in lists
         query = supabase.table('tests').select(
             'id, slug, language, topic, difficulty, '
             'listening_rating, reading_rating, dictation_rating, created_at'
@@ -170,8 +146,7 @@ def get_tests_from_database(supabase, test_type='reading', limit=20, language=No
             query = query.eq('language', language)
         if difficulty is not None:
             query = query.eq('difficulty', str(int(difficulty)))
-        
-        # Map test type to sort column
+
         type_key = (test_type or 'reading').lower()
         order_col = 'reading_rating'
         if type_key in ('listening', 'reading', 'dictation'):
@@ -180,8 +155,7 @@ def get_tests_from_database(supabase, test_type='reading', limit=20, language=No
         query = query.order(order_col, desc=True).limit(limit)
         result = query.execute()
         data = result.data or []
-        
-        # Normalize difficulty to int for FE
+
         for t in data:
             try:
                 if t.get('difficulty') is not None:
@@ -199,29 +173,22 @@ def get_test_by_slug(supabase, slug):
     """Get a single test by slug with its questions, formatted for the Flutter app."""
     if not supabase:
         return None
-    
+
     try:
-        print(f"🔍 Getting test by slug: {slug}", flush=True)
-        
-        # Get test record
         t_res = supabase.table('tests').select('*').eq('slug', slug).limit(1).execute()
         if not t_res.data:
-            print(f"❌ No test found for slug: {slug}", flush=True)
             return None
-        
+
         t = t_res.data[0]
-        print(f"✅ Found test: {t['id']}", flush=True)
-        
-        # Get questions for this test
+
         q_res = (
             supabase.table('questions')
             .select('*')
             .eq('test_id', t['id'])
             .execute()
         )
-        
+
         q_rows = q_res.data or []
-        print(f"✅ Found {len(q_rows)} questions", flush=True)
         
         def _parse_choices(raw):
             if isinstance(raw, list):
@@ -242,8 +209,7 @@ def get_test_by_slug(supabase, slug):
                 'choices': _parse_choices(q.get('choices')),
                 'answer': q.get('correct_answer', ''),
             })
-        
-        # Normalize difficulty to int
+
         difficulty_value = t.get('difficulty', 1)
         try:
             difficulty_value = int(difficulty_value)
@@ -258,16 +224,15 @@ def get_test_by_slug(supabase, slug):
             'title': t.get('topic') or f"{t.get('language','').capitalize()} Test (Level {difficulty_value})",
             'difficulty': difficulty_value,
             'transcript': t.get('transcript') or '',
-            'questions': questions,  # ← THIS IS CRUCIAL
+            'questions': questions,
             'created_at': t.get('created_at'),
         }
-        
-        print(f"✅ Returning test with {len(questions)} questions")
+
         return formatted
-        
+
     except Exception as e:
-        print(f"❌ Error fetching test by slug: {e}", flush=True)
-        print(f"❌ Full traceback: {traceback.format_exc()}", flush=True)
+        print(f"Error fetching test by slug: {e}", flush=True)
+        print(f"Full traceback: {traceback.format_exc()}", flush=True)
         return None
 
 def record_test_attempt(supabase, user_id, test_id, responses, test_mode, time_taken=None):
@@ -298,8 +263,7 @@ def record_test_attempt(supabase, user_id, test_id, responses, test_mode, time_t
         
         attempt_result = supabase.table('test_attempts').insert(attempt_record).execute()
         attempt_id = attempt_result.data[0]['id']
-        
-        # Insert individual responses
+
         responses_to_insert = []
         for response in responses:
             response_record = {
@@ -320,16 +284,16 @@ def record_test_attempt(supabase, user_id, test_id, responses, test_mode, time_t
             'total_questions': total_questions,
             'percentage': (correct_count / total_questions) * 100
         }
-        
+
     except Exception as e:
-        print(f"❌ Error recording test attempt: {e}")
+        print(f"Error recording test attempt: {e}")
         raise e
 
 def record_flagged_input(supabase, user_email, content, flagged_categories=None):
     """Record flagged input for analytics with category information"""
     if not supabase:
         return
-    
+
     try:
         import hashlib
         record = {
@@ -340,16 +304,14 @@ def record_flagged_input(supabase, user_email, content, flagged_categories=None)
             'flagged_categories': json.dumps(flagged_categories or []),
             'content_length': len(content),
         }
-        
+
         supabase.table('flagged_inputs').insert(record).execute()
-        print(f"📊 Recorded flagged input: {flagged_categories}")
     except Exception as e:
-        print(f"❌ Failed to record flagged input: {e}")
+        print(f"Failed to record flagged input: {e}")
 
 @tests_bp.route('/moderate', methods=['POST'])
 @supabase_jwt_required
 def moderate_content():
-    print("Authorization header:", request.headers.get("Authorization"), flush=True)
     """Check content using OpenAI moderation API via OpenAI service"""
     try:
         if not current_app.openai_service:
@@ -367,17 +329,13 @@ def moderate_content():
                 "status": "error"
             }), 400
         
-        # Use OpenAI service for moderation
         moderation_result = current_app.openai_service.moderate_content(content)
-        
-        # Handle service errors
+
         if moderation_result.get('error'):
-            print(f"⚠️ Moderation service error: {moderation_result['error']}")
-            # Continue with fail-safe response
-        
+            print(f"Moderation service error: {moderation_result['error']}")
+
         is_safe = moderation_result['is_safe']
-        
-        # Record flagged content for analytics
+
         if not is_safe:
             current_user_email = g.supabase_claims.get('email')
             record_flagged_input(
@@ -386,126 +344,90 @@ def moderate_content():
                 content,
                 moderation_result.get('flagged_categories', [])
             )
-            print(f"🚨 Flagged content from {current_user_email}: {moderation_result['flagged_categories']}")
-        
+
         return jsonify({
             "is_safe": is_safe,
             "flagged_categories": moderation_result.get('flagged_categories', []),
             "status": "success"
         }), 200
-        
+
     except Exception as e:
-        print(f"❌ Moderation endpoint error: {e}")
+        print(f"Moderation endpoint error: {e}")
         return jsonify({
             "error": f"Moderation failed: {str(e)}",
             "status": "error"
         }), 500
-    
+
 
 @tests_bp.route('/generate_test', methods=['POST'])
 @supabase_jwt_required
 def generate_test():
-    """Generate a new test and save to Supabase database - ENHANCED DEBUG VERSION"""
+    """Generate a new test and save to Supabase database"""
     try:
-        current_app.logger.info("🔧 STEP 1: Generate test request received")
-        
-        # Get current user from Supabase JWT claims (stored by your custom decorator)
-        current_user_id = g.supabase_claims.get('sub')  # 'sub' is typically the user ID
-        current_user_email = g.supabase_claims.get('email')  # Email if you need it
-        current_app.logger.info(f"🔧 STEP 1: Current user ID: {current_user_id}, Email: {current_user_email}")
-        
-        # Validate services
+        current_user_id = g.supabase_claims.get('sub')
+        current_user_email = g.supabase_claims.get('email')
+
         if not current_app.openai_service:
-            current_app.logger.error("❌ STEP 1 FAILED: OpenAI service not available")
             return jsonify({
                 "error": "AI service not available",
                 "status": "error"
             }), 503
-            
-        current_app.logger.info("🔧 STEP 1 SUCCESS: OpenAI service available")
-            
+
         if not current_app.supabase_service:
-            current_app.logger.error("❌ STEP 1 FAILED: Database service not connected")
             return jsonify({
                 "error": "Database service not connected",
                 "status": "error"
             }), 503
-            
-        current_app.logger.info("🔧 STEP 1 SUCCESS: Database service connected")
-        
+
         if request.method == 'OPTIONS':
-            current_app.logger.info("🔧 STEP 1: Handling OPTIONS preflight")
             response = make_response()
             response.headers['Access-Control-Allow-Origin'] = ','.join(Config.CORS_ORIGINS)
             response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
             return response
-        
-        # Get and validate request data
-        current_app.logger.info("🔧 STEP 2: Parsing request data")
+
         data = request.get_json()
-        
+
         if not data:
-            current_app.logger.error("❌ STEP 2 FAILED: No JSON data provided")
             return jsonify({
                 "error": "No JSON data provided",
                 "status": "error"
             }), 400
-            
-        current_app.logger.info(f"🔧 STEP 2 SUCCESS: Request data received: {data}")
-        
-        # Validate required fields
-        current_app.logger.info("🔧 STEP 3: Validating required fields")
+
         language = data.get('language')
         difficulty = data.get('difficulty')
         topic = data.get('topic')
         style = data.get('style', 'academic')
-        tier = data.get('tier', 'free-tier')  # Default to free-tier
-        
-        current_app.logger.info(f"🔧 STEP 3: Parsed fields - Language: {language}, Difficulty: {difficulty}, Topic: {topic}, Style: {style}")
-        
+        tier = data.get('tier', 'free-tier')
+
         if not all([language, difficulty, topic]):
-            current_app.logger.error(f"❌ STEP 3 FAILED: Missing required fields - Language: {language}, Difficulty: {difficulty}, Topic: {topic}")
             return jsonify({
                 "error": "Missing required fields: language, difficulty, topic",
                 "status": "error"
             }), 400
-            
-        current_app.logger.info(f"✅ STEP 3 SUCCESS: All required fields present")
-        
-        # Generate transcript
-        current_app.logger.info("🔧 STEP 4: Starting OpenAI transcript generation")
         try:
             transcript = current_app.openai_service.generate_transcript(language, topic, difficulty, style)
-            current_app.logger.info(f"✅ STEP 4 SUCCESS: Transcript generated ({len(transcript)} chars)")
         except Exception as e:
-            current_app.logger.error(f"❌ STEP 4 FAILED: Transcript generation error: {e}")
-            current_app.logger.error(f"❌ STEP 4 TRACEBACK: {traceback.format_exc()}")
+            current_app.logger.error(f"Transcript generation error: {e}")
+            current_app.logger.error(f"Traceback: {traceback.format_exc()}")
             return jsonify({
                 "error": f"Failed to generate transcript: {str(e)}",
                 "status": "error",
                 "step": "transcript_generation"
             }), 500
-        
-        # Generate questions
-        current_app.logger.info("🔧 STEP 5: Starting question generation")
+
         try:
             questions = current_app.openai_service.generate_questions(transcript, language, difficulty)
-            current_app.logger.info(f"✅ STEP 5 SUCCESS: Generated {len(questions)} questions")
         except Exception as e:
-            current_app.logger.error(f"❌ STEP 5 FAILED: Question generation error: {e}")
-            current_app.logger.error(f"❌ STEP 5 TRACEBACK: {traceback.format_exc()}")
+            current_app.logger.error(f"Question generation error: {e}")
+            current_app.logger.error(f"Traceback: {traceback.format_exc()}")
             return jsonify({
                 "error": f"Failed to generate questions: {str(e)}",
                 "status": "error",
                 "step": "question_generation"
             }), 500
-        
-        # Create test data structure
-        current_app.logger.info("🔧 STEP 6: Creating test data structure")
+
         slug = str(uuid4())
-        
-        # Generate a meaningful title
         title = data.get('title') or f"{topic}"
         
         test_data = {
@@ -517,75 +439,55 @@ def generate_test():
             'tier': tier,
             'title': title,
             'transcript': transcript,
-            'audio_url': '',  # Will be updated after audio generation
+            'audio_url': '',
             'total_attempts': 0,
             'is_active': True,
             'is_featured': data.get('is_featured', False),
-            'is_custom': False,  # This is a generated test, not custom
+            'is_custom': False,
             'generation_model': data.get('generation_model', 'gpt-4'),
-            'audio_generated': False,  # Will be updated after audio generation
-            'gen_user': current_user_id,  # User who generated the test (use Supabase user ID)
+            'audio_generated': False,
+            'gen_user': current_user_id,
             'questions': questions,
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
-        
-        current_app.logger.info(f"✅ STEP 6 SUCCESS: Test data structure created with slug: {slug}")
-        
-        # Save to database using service role client
-        current_app.logger.info("🔧 STEP 7: Saving test to database")
+
         try:
             test_id = save_test_to_database(current_app.supabase_service, test_data)
-            current_app.logger.info(f"✅ STEP 7 SUCCESS: Test saved to database with ID: {test_id}")
         except Exception as e:
-            current_app.logger.error(f"❌ STEP 7 FAILED: Database save error: {e}")
-            current_app.logger.error(f"❌ STEP 7 TRACEBACK: {traceback.format_exc()}")
+            current_app.logger.error(f"Database save error: {e}")
+            current_app.logger.error(f"Traceback: {traceback.format_exc()}")
             return jsonify({
                 "error": f"Failed to save test: {str(e)}",
                 "status": "error",
                 "step": "database_save"
             }), 500
-        
-        # Generate audio (optional)
-        current_app.logger.info("🔧 STEP 8: Starting audio generation (optional)")
         audio_success = False
         audio_url = ""
-        
+
         try:
             if current_app.openai_service and hasattr(current_app.openai_service, 'generate_audio'):
                 audio_result = current_app.openai_service.generate_audio(transcript, slug)
                 if audio_result:
                     audio_success = True
-                    audio_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"  # Or whatever URL structure you use
-                    
-                    # Update the test record with audio information using service role client
+                    audio_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
                     current_app.supabase_service.table('tests').update({
                         'audio_generated': True,
                         'audio_url': audio_url,
                         'updated_at': datetime.now(timezone.utc).isoformat()
                     }).eq('id', test_id).execute()
-                    
-                current_app.logger.info(f"✅ STEP 8: Audio generation result: {audio_success}")
-            else:
-                current_app.logger.info("🔧 STEP 8: Audio generation not available or not implemented")
         except Exception as e:
-            current_app.logger.warning(f"⚠️ STEP 8: Audio generation failed (non-critical): {e}")
-        
-        # Fetch complete test summary with ELO ratings for response
-        current_app.logger.info("🔧 STEP 9: Fetching complete test summary")
+            current_app.logger.warning(f"Audio generation failed (non-critical): {e}")
         try:
-            # Get the saved test with all fields for frontend
             saved_test_result = current_app.supabase_service.table('tests').select(
                 'id, slug, title, language, topic, difficulty, style, tier, '
                 'audio_url, audio_generated, is_custom, is_featured, total_attempts'
             ).eq('id', test_id).execute()
-            
-            # Get the skill ratings
+
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
                 'skill_type, elo_rating, volatility, total_attempts'
             ).eq('test_id', test_id).execute()
-            
-            # Transform ratings
+
             skill_ratings = {}
             flat_ratings = {}
             for rating in ratings_result.data:
@@ -596,14 +498,14 @@ def generate_test():
                     'total_attempts': rating['total_attempts']
                 }
                 flat_ratings[f'{skill_type}_rating'] = rating['elo_rating']
-            
+
             if saved_test_result.data:
                 test_summary = {
                     **saved_test_result.data[0],
                     'skill_ratings': skill_ratings,
-                    **flat_ratings,  # Add flat ratings for compatibility
+                    **flat_ratings,
                 }
-                
+
                 return jsonify({
                     "slug": slug,
                     "test_id": test_id,
@@ -613,15 +515,9 @@ def generate_test():
                     "audio_url": audio_url if audio_success else None,
                     "test_summary": test_summary,
                 })
-            else:
-                # Fallback if we can't fetch the saved test
-                current_app.logger.warning("⚠️ Could not fetch saved test, using fallback response")
-                
+
         except Exception as e:
-            current_app.logger.warning(f"⚠️ Could not fetch complete test summary: {e}")
-        
-        # Fallback response
-        current_app.logger.info("🔧 STEP 9: Preparing fallback response")
+            current_app.logger.warning(f"Could not fetch complete test summary: {e}")
         response_data = {
             "slug": slug,
             "test_id": test_id,
@@ -640,14 +536,13 @@ def generate_test():
                 "is_custom": False
             }
         }
-        
-        current_app.logger.info(f"✅ STEP 9 SUCCESS: Returning successful response for test {slug}")
+
         return jsonify(response_data)
-        
+
     except Exception as e:
-        current_app.logger.error(f"❌ UNEXPECTED ERROR in generate_test: {e}")
-        current_app.logger.error(f"❌ UNEXPECTED ERROR TYPE: {type(e).__name__}")
-        current_app.logger.error(f"❌ UNEXPECTED ERROR TRACEBACK: {traceback.format_exc()}")
+        current_app.logger.error(f"UNEXPECTED ERROR in generate_test: {e}")
+        current_app.logger.error(f"UNEXPECTED ERROR TYPE: {type(e).__name__}")
+        current_app.logger.error(f"UNEXPECTED ERROR TRACEBACK: {traceback.format_exc()}")
         return jsonify({
             "error": f"Test generation failed: {str(e)}",
             "status": "error",
@@ -660,10 +555,8 @@ def generate_test():
 def custom_test():
     """Create a custom test with user-provided transcript and save to Supabase"""
     try:
-        # Get current user from Supabase JWT claims
         current_user_id = g.supabase_claims.get('sub')
         current_user_email = g.supabase_claims.get('email')
-        current_app.logger.info(f"🔧 Custom test request from user ID: {current_user_id}, Email: {current_user_email}")
         
         data = request.get_json()
         if not data:
@@ -687,19 +580,12 @@ def custom_test():
 
         topic = data.get('topic', 'Custom Topic').strip()
         style = data.get('style', 'custom')
-        tier = data.get('tier', 'premium-tier')  # Custom tests might be premium feature
+        tier = data.get('tier', 'premium-tier')
 
-        # Generate questions using OpenAI service
-        current_app.logger.info("🔧 Generating questions for custom test")
         questions = current_app.openai_service.generate_questions(transcript, language, difficulty)
-        current_app.logger.info(f"✅ Generated {len(questions)} questions for custom test")
 
         slug = str(uuid4())
-        
-        # Generate a meaningful title
         title = data.get('title') or f"Custom {language.capitalize()}: {topic}"
-
-        # Prepare test data structure matching the database schema
         test_data = {
             'slug': slug,
             'language': language,
@@ -709,49 +595,38 @@ def custom_test():
             'tier': tier,
             'title': title,
             'transcript': transcript,
-            'audio_url': '',  # Will be updated after audio generation
+            'audio_url': '',
             'total_attempts': 0,
             'is_active': True,
             'is_featured': data.get('is_featured', False),
-            'is_custom': True,  # This is a custom test
+            'is_custom': True,
             'generation_model': data.get('generation_model', 'gpt-4'),
-            'audio_generated': False,  # Will be updated after audio generation
-            'gen_user': current_user_id,  # User who created the custom test (use Supabase user ID)
+            'audio_generated': False,
+            'gen_user': current_user_id,
             'questions': questions,
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
 
-        # Save test to Supabase database using service role client
-        current_app.logger.info("🔧 Saving custom test to database")
         test_id = save_test_to_database(current_app.supabase_service, test_data)
-        current_app.logger.info(f"✅ Custom test saved with ID: {test_id}")
-
-        # Generate audio using service (optional)
         audio_success = False
         audio_url = ""
-        
+
         try:
             if current_app.openai_service and hasattr(current_app.openai_service, 'generate_audio'):
-                current_app.logger.info("🔧 Generating audio for custom test")
                 audio_result = current_app.openai_service.generate_audio(transcript, slug)
-                
+
                 if audio_result:
                     audio_success = True
                     audio_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
-                    
-                    # Update the test record with audio information using service role client
+
                     current_app.supabase_service.table('tests').update({
                         'audio_generated': True,
                         'audio_url': audio_url,
                         'updated_at': datetime.now(timezone.utc).isoformat()
                     }).eq('id', test_id).execute()
-                    
-                current_app.logger.info(f"✅ Audio generation result: {audio_success}")
         except Exception as e:
-            current_app.logger.warning(f"⚠️ Audio generation failed (non-critical): {e}")
-
-        # Fetch complete test summary with ELO ratings for response
+            current_app.logger.warning(f"Audio generation failed (non-critical): {e}")
         try:
             # Get the saved test with all fields for frontend
             saved_test_result = current_app.supabase_service.table('tests').select(
@@ -829,43 +704,27 @@ def custom_test():
 def get_tests_with_ratings():
     """Get tests list with ELO ratings for filtering/preview."""
     try:
-        # Get query parameters
         language = request.args.get('language')
         difficulty = request.args.get('difficulty')
         limit = int(request.args.get('limit', 50))
 
-        current_app.logger.info(f"📥 GET /api/tests - language={language}, difficulty={difficulty}, limit={limit}")
-        current_app.logger.info(f"🔑 User authenticated: {g.supabase_claims.get('email')}")
-
-        # Check if service client is available
         if not current_app.supabase_service:
-            current_app.logger.error("❌ Service role client not available!")
             return jsonify({"error": "Database service not configured"}), 500
 
-        current_app.logger.info("✅ Service role client is available")
-
-        # Build query
         query = current_app.supabase_service.table('tests').select(
             'id, slug, title, language, topic, difficulty, style, tier, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts'
         ).eq('is_active', True)
 
         if language:
-            # Convert to lowercase to match database storage
             language_lower = language.lower()
-            current_app.logger.info(f"🔍 Filtering by language: {language} (normalized to: {language_lower})")
             query = query.eq('language', language_lower)
         if difficulty:
-            current_app.logger.info(f"🔍 Filtering by difficulty: {difficulty}")
             query = query.eq('difficulty', int(difficulty))
 
-        current_app.logger.info(f"🔧 Executing query with limit={limit}")
         tests_result = query.limit(limit).execute()
-        current_app.logger.info(f"✅ Query returned {len(tests_result.data)} tests")
-        
-        # Get ELO ratings for all tests
+
         test_ids = [test['id'] for test in tests_result.data]
-        current_app.logger.info(f"🔍 Fetching ratings for {len(test_ids)} tests")
 
         ratings_by_test = {}
         if test_ids:
@@ -873,9 +732,6 @@ def get_tests_with_ratings():
                 'test_id, skill_type, elo_rating, volatility, total_attempts'
             ).in_('test_id', test_ids).execute()
 
-            current_app.logger.info(f"✅ Got {len(ratings_result.data)} rating records")
-
-            # Group ratings by test_id
             for rating in ratings_result.data:
                 test_id = rating['test_id']
                 if test_id not in ratings_by_test:
@@ -886,7 +742,6 @@ def get_tests_with_ratings():
                     'total_attempts': rating['total_attempts']
                 }
 
-        # Combine test data with ratings
         tests_with_ratings = []
         for test in tests_result.data:
             test_ratings = ratings_by_test.get(test['id'], {})
@@ -899,17 +754,13 @@ def get_tests_with_ratings():
             }
             tests_with_ratings.append(test_with_ratings)
 
-        current_app.logger.info(f"📤 Returning {len(tests_with_ratings)} tests with ratings")
-        if tests_with_ratings:
-            current_app.logger.info(f"📋 Sample test: {tests_with_ratings[0].get('title')} ({tests_with_ratings[0].get('language')})")
-
         return jsonify({
             "success": True,
             "tests": tests_with_ratings
         })
 
     except Exception as e:
-        current_app.logger.error(f"❌ Error fetching tests: {e}", exc_info=True)
+        current_app.logger.error(f"Error fetching tests: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @tests_bp.route('/<slug>', methods=['GET'])
@@ -923,46 +774,39 @@ def get_test(slug):
         test_data = get_test_by_slug(current_app.supabase, slug)
         if not test_data:
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
-        
-        # Provide audio URL for listening/dictation
+
         test_data['audio_url'] = f"https://229f11834e90e4438de8d1a9ba872d0f.r2.cloudflarestorage.com/lingualoopaudio/{slug}.mp3"
         print(test_data, flush=True)
         return jsonify({"test": test_data, "status": "success"})
-        
+
     except Exception as e:
-        current_app.logger.error(f"❌ Error in get_test route: {e}")
+        current_app.logger.error(f"Error in get_test route: {e}")
         return jsonify({"error": str(e), "status": "error"}), 500
         
 @tests_bp.route('/<slug>/submit', methods=['POST'])
-@supabase_jwt_required  # Your custom decorator that populates g.supabase_claims
+@supabase_jwt_required
 def submit_test_attempt(slug):
-    """Submit test answers and calculate ELO changes - Supabase Auth Version"""
+    """Submit test answers and calculate ELO changes"""
     try:
         if not current_app.supabase:
             return jsonify({"error": "Database not connected"}), 500
 
-        # Initialize ELO service with service role client to bypass RLS
         elo_service = EloService(current_app.supabase_service or current_app.supabase)
-        
-        # Get user info from Supabase claims (set by @supabase_jwt_required)
+
         current_user_id = g.supabase_claims.get('sub')
         current_user_email = g.supabase_claims.get('email')
-        
+
         if not current_user_id:
             return jsonify({"error": "User authentication failed"}), 401
-        
-        current_app.logger.info(f"Test submission from user: {current_user_email} ({current_user_id})")
-        
-        # Parse request
+
         data = request.get_json() or {}
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
         time_taken = data.get('time_taken_seconds', 0)
-        
+
         if not responses:
             return jsonify({"error": "No responses provided"}), 400
-        
-        # Get test with questions using existing helper function
+
         test_data = get_test_by_slug(current_app.supabase, slug)
         if not test_data:
             return jsonify({"error": f"Test not found. DATA: {test_data} || SLUG: {slug} || SUPABASE: {current_app.supabase}"}), 404
@@ -970,8 +814,7 @@ def submit_test_attempt(slug):
         questions = test_data.get('questions', [])
         if not questions:
             return jsonify({"error": "No questions found for this test"}), 404
-        
-        # Calculate score and question results
+
         response_map = {r['question_id']: r['selected_answer'] for r in responses}
         
         score = 0
@@ -994,10 +837,9 @@ def submit_test_attempt(slug):
         
         total_questions = len(questions)
         percentage = score / total_questions if total_questions > 0 else 0.0
-        
-        # Calculate ELO changes
+
         elo_results = elo_service.process_test_submission(
-            user_id=current_user_id,  # Use Supabase user ID
+            user_id=current_user_id,
             test_id=test_data['id'],
             language=test_data['language'],
             skill_type=test_mode,
@@ -1005,15 +847,12 @@ def submit_test_attempt(slug):
             responses=question_results,
             percentage=percentage
         )
-        
-        # Record test attempt in your schema
+
         attempt_data = {
-            'user_id': current_user_id,  # Use Supabase user ID
+            'user_id': current_user_id,
             'test_id': test_data['id'],
             'score': score,
             'total_questions': total_questions,
-            # 'percentage' is a generated column - don't insert
-            # 'elo_change' is a generated column - don't insert
             'test_mode': test_mode,
             'language': test_data['language'],
             'user_elo_before': elo_results['user_elo_before'],
@@ -1133,7 +972,7 @@ def get_test_with_ratings(slug):
         }
         
         return jsonify(response_data)
-        
+
     except Exception as e:
-        current_app.logger.error(f"❌ Error fetching test {slug}: {e}")
+        current_app.logger.error(f"Error fetching test {slug}: {e}")
         return jsonify({"error": str(e)}), 500
