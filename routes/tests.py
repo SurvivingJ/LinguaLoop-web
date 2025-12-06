@@ -14,6 +14,7 @@ import requests
 import logging
 import sys
 import traceback
+import random
 from flask import Blueprint, request, jsonify, current_app
 from ..config import Config
 from ..services.openai_service import OpenAIService
@@ -358,6 +359,25 @@ def moderate_content():
             "status": "error"
         }), 500
 
+@tests_bp.route('/random', methods=['GET'])
+@supabase_jwt_required
+def get_random_test():
+    user_id = g.supabase_claims.get('sub')
+    language = request.args.get('language', 'chinese')
+    skill_type = request.args.get('skill_type', 'listening')
+    
+    result = current_app.supabase_service.rpc('get_random_test_for_user', {
+        'p_user_id': user_id,
+        'p_language': language,
+        'p_skill_type': skill_type
+    }).execute()
+    
+    candidates = result.data
+    if not candidates:
+        return jsonify({"error": "No tests available"}), 404
+    
+    random_test = random.choice(candidates)
+    return jsonify({"test": random_test, "status": "success"})
 
 @tests_bp.route('/generate_test', methods=['POST'])
 @supabase_jwt_required
