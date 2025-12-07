@@ -1,4 +1,4 @@
-from .openai_service import OpenAIService
+from .ai_service import AIService
 from .prompt_service import PromptService
 from ..config import Config
 from .r2_service import R2Service
@@ -6,7 +6,7 @@ from .r2_service import R2Service
 class ServiceFactory:
     def __init__(self, config):
         self.config = config
-        self._openai_service = None
+        self._ai_service = None
         self._prompt_service = None
         self._r2_service = None
     
@@ -26,9 +26,31 @@ class ServiceFactory:
     
     @property
     def openai_service(self):
-        if self._openai_service is None:
-            if self.config.OPENAI_API_KEY:
+        """Initialize AI service with OpenRouter support"""
+        if self._ai_service is None:
+            use_openrouter = getattr(self.config, 'USE_OPENROUTER', False)
+
+            if use_openrouter and getattr(self.config, 'OPENROUTER_API_KEY', None):
+                # Use OpenRouter with language-specific models
+                from openai import OpenAI
+                openai_client = OpenAI(
+                    api_key=self.config.OPENROUTER_API_KEY,
+                    base_url="https://openrouter.ai/api/v1"
+                )
+                self._ai_service = AIService(
+                    openai_client,
+                    self.config,
+                    self.prompt_service,
+                    use_openrouter=True
+                )
+            elif self.config.OPENAI_API_KEY:
+                # Use OpenAI with default models
                 from openai import OpenAI
                 openai_client = OpenAI(api_key=self.config.OPENAI_API_KEY)
-                self._openai_service = OpenAIService(openai_client, self.config)
-        return self._openai_service
+                self._ai_service = AIService(
+                    openai_client,
+                    self.config,
+                    self.prompt_service,
+                    use_openrouter=False
+                )
+        return self._ai_service

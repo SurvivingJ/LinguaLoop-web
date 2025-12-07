@@ -17,12 +17,10 @@ import traceback
 import random
 from flask import Blueprint, request, jsonify, current_app
 from ..config import Config
-from ..services.openai_service import OpenAIService
 from ..services.service_factory import ServiceFactory
 from ..services.r2_service import R2Service
 from ..services.prompt_service import PromptService
 from ..utils.auth import supabase_jwt_required
-from ..services.elo_service import EloService
 from ..services.database_service import DatabaseService
 
 tests_bp = Blueprint("tests", __name__)
@@ -387,6 +385,12 @@ def generate_test():
         current_user_id = g.supabase_claims.get('sub')
         current_user_email = g.supabase_claims.get('email')
 
+        # Handle batch operations using service role key
+        # Replace 'service-account' with a special UUID for batch-generated tests
+        if current_user_id == 'service-account':
+            # Use a well-known UUID for batch operations (00000000-0000-0000-0000-000000000001)
+            current_user_id = '00000000-0000-0000-0000-000000000001'
+
         if not current_app.openai_service:
             return jsonify({
                 "error": "AI service not available",
@@ -577,7 +581,13 @@ def custom_test():
     try:
         current_user_id = g.supabase_claims.get('sub')
         current_user_email = g.supabase_claims.get('email')
-        
+
+        # Handle batch operations using service role key
+        # Replace 'service-account' with a special UUID for batch-generated tests
+        if current_user_id == 'service-account':
+            # Use a well-known UUID for batch operations (00000000-0000-0000-0000-000000000001)
+            current_user_id = '00000000-0000-0000-0000-000000000001'
+
         data = request.get_json()
         if not data:
             return jsonify({"error": "No JSON data provided", "status": "error"}), 400
@@ -808,97 +818,72 @@ def get_test(slug):
 def submit_test_attempt(slug):
     """Submit test answers and calculate ELO changes"""
     try:
-        if not current_app.supabase:
-            return jsonify({"error": "Database not connected"}), 500
-
-        elo_service = EloService(current_app.supabase_service or current_app.supabase)
+        if not current_app.supabase_service:
+            return jsonify({"error": "Database service not configured"}), 500
 
         current_user_id = g.supabase_claims.get('sub')
-        current_user_email = g.supabase_claims.get('email')
-
         if not current_user_id:
             return jsonify({"error": "User authentication failed"}), 401
 
         data = request.get_json() or {}
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
-        time_taken = data.get('time_taken_seconds', 0)
 
         if not responses:
             return jsonify({"error": "No responses provided"}), 400
 
         test_data = get_test_by_slug(current_app.supabase, slug)
         if not test_data:
-            return jsonify({"error": f"Test not found. DATA: {test_data} || SLUG: {slug} || SUPABASE: {current_app.supabase}"}), 404
-        
+            return jsonify({"error": f"Test not found: {slug}"}), 404
+
         questions = test_data.get('questions', [])
         if not questions:
             return jsonify({"error": "No questions found for this test"}), 404
 
         response_map = {r['question_id']: r['selected_answer'] for r in responses}
-        
+
         score = 0
         question_results = []
-        
+
         for question in questions:
             selected = response_map.get(str(question['id']), '')
             correct = question.get('answer', '')
             is_correct = selected == correct
-            
+
             if is_correct:
                 score += 1
-            
+
             question_results.append({
                 'question_id': str(question['id']),
                 'selected_answer': selected,
                 'correct_answer': correct,
                 'is_correct': is_correct
             })
-        
+
         total_questions = len(questions)
         percentage = score / total_questions if total_questions > 0 else 0.0
 
-        elo_results = elo_service.process_test_submission(
-            user_id=current_user_id,
-            test_id=test_data['id'],
-            language=test_data['language'],
-            skill_type=test_mode,
-            questions_data=questions,
-            responses=question_results,
-            percentage=percentage
-        )
+        # Call database RPC for ELO calculation and attempt recording
+        rpc_result = current_app.supabase_service.rpc('process_test_submission', {
+            'p_user_id': current_user_id,
+            'p_test_id': test_data['id'],
+            'p_language': test_data['language'],
+            'p_skill_type': test_mode,
+            'p_score': score,
+            'p_total_questions': total_questions,
+            'p_test_mode': test_mode,
+            'p_tokens_consumed': 0,
+            'p_was_free_test': True
+        }).execute()
 
-        attempt_data = {
-            'user_id': current_user_id,
-            'test_id': test_data['id'],
-            'score': score,
-            'total_questions': total_questions,
-            'test_mode': test_mode,
-            'language': test_data['language'],
-            'user_elo_before': elo_results['user_elo_before'],
-            'test_elo_before': elo_results['test_elo_before'],
-            'user_elo_after': elo_results['user_elo_after'],
-            'test_elo_after': elo_results['test_elo_after'],
-            'was_free_test': True,
-            'tokens_consumed': 0
-        }
-        
-        # ALWAYS use service role client for test attempts - bypasses RLS
-        if not current_app.supabase_service:
-            current_app.logger.error("❌ Service role client not available")
-            return jsonify({"error": "Database service not configured properly"}), 500
+        if not rpc_result.data or not rpc_result.data.get('success'):
+            error_msg = rpc_result.data.get('error', 'Unknown error') if rpc_result.data else 'RPC failed'
+            current_app.logger.error(f"ELO RPC failed: {error_msg}")
+            return jsonify({"error": "Failed to process test submission"}), 500
 
-        try:
-            attempt_result = current_app.supabase_service.table('test_attempts').insert(attempt_data).execute()
-            attempt_id = attempt_result.data[0]['id'] if attempt_result.data else None
-        except Exception as e:
-            current_app.logger.error(f"❌ Failed to insert test attempt: {e}")
-            current_app.logger.error(f"❌ Attempt data: {attempt_data}")
-            if '42501' in str(e):  # RLS policy violation code
-                current_app.logger.error("❌ RLS POLICY VIOLATION - using wrong client or policy misconfigured")
-            raise
+        elo_results = rpc_result.data
 
-        # Update user stats - get current value first, then increment
+        # Update user stats
         user_data = current_app.supabase_service.table('users').select('total_tests_taken')\
             .eq('id', current_user_id).execute()
 
@@ -931,7 +916,7 @@ def submit_test_attempt(slug):
                 },
                 'test_mode': test_mode,
                 'language': test_data['language'],
-                'attempt_id': str(attempt_id) if attempt_id else None
+                'attempt_id': str(elo_results.get('attempt_id')) if elo_results.get('attempt_id') else None
             }
         })
         

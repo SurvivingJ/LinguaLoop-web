@@ -13,6 +13,9 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_TOKEN_LOCATION = ["headers", "cookies"]
 
+    # AI Service Configuration
+    USE_OPENROUTER = os.getenv('USE_OPENROUTER', 'false').lower() == 'true'
+    OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
     SUPABASE_URL = os.environ.get('SUPABASE_URL')

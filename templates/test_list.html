@@ -195,6 +195,156 @@
             gap: 1rem;
         }
     }
+
+    /* Suggested Tests Section */
+    .suggested-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .suggested-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Suggested Card Base */
+    .suggested-card {
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 1.25rem;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease;
+    }
+
+    /* Skeleton Cards (Placeholder) */
+    .skeleton-card {
+        position: relative;
+        overflow: hidden;
+        opacity: 0.6;
+    }
+
+    .skeleton-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent
+        );
+        animation: skeleton-loading 1.5s infinite;
+    }
+
+    @keyframes skeleton-loading {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .skeleton-badge {
+        width: 80px;
+        height: 20px;
+        background: #cbd5e1;
+        border-radius: 4px;
+        margin-bottom: 0.75rem;
+    }
+
+    .skeleton-title {
+        width: 100%;
+        height: 24px;
+        background: #cbd5e1;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .skeleton-meta {
+        width: 60%;
+        height: 16px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .skeleton-button {
+        width: 100%;
+        height: 36px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        margin-top: auto;
+    }
+
+    /* Random Test Card */
+    .random-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .random-test-btn {
+        width: 100%;
+        height: 100%;
+        background: none;
+        border: none;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .random-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .random-test-btn:hover .random-icon {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    .random-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .random-subtext {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    .random-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Loading State for Random Button */
+    .random-test-btn.loading .random-icon {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .suggested-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -647,6 +797,66 @@
             showError('Failed to load tests. Please try again.');
         }
     }
+
+    /**
+     * Get a random test based on user's ELO and skill type
+     */
+    async function getRandomTest() {
+        const btn = document.getElementById('randomTestBtn');
+        const icon = btn.querySelector('.random-icon');
+        
+        try {
+            // Add loading state
+            btn.disabled = true;
+            icon.classList.add('loading');
+            
+            // Get current filter values for context
+            const testType = document.getElementById('test-type').value || 'listening';
+            const token = localStorage.getItem('jwt_token');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Get user's selected language from localStorage or default
+            const selectedLanguage = localStorage.getItem('selected_language') || 'chinese';
+            
+            console.log('🎲 Fetching random test...', { testType, selectedLanguage });
+            
+            const response = await fetch(`/api/tests/random?language=${selectedLanguage}&skill_type=${testType}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch random test: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('✅ Random test received:', result);
+            
+            if (result.test && result.test.slug) {
+                // Navigate to the test preview page
+                window.location.href = `/test/${result.test.slug}/preview?type=${testType}`;
+            } else {
+                throw new Error('Invalid response format');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error getting random test:', error);
+            
+            // Remove loading state
+            btn.disabled = false;
+            icon.classList.remove('loading');
+            
+            // Show error message
+            alert('Failed to get random test. Please try again.');
+        }
+    }
     
     // ✅ NEW: Apply filters function
     function applyFilters() {
@@ -671,6 +881,7 @@
     window.applyFilters = applyFilters;
     window.resetFilters = resetFilters;
     window.loadTests = loadTests;
+    window.getRandomTest = getRandomTest;
     
     // Initial load
     loadTests();

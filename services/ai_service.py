@@ -11,14 +11,37 @@ from botocore.exceptions import BotoCoreError, ClientError
 from .prompt_service import PromptService
 from ..utils.question_validator import QuestionValidator
 
-class OpenAIService:
-    def __init__(self, openai_client, config, prompt_service=None):
+class AIService:
+    """AI generation service supporting OpenAI and OpenRouter"""
+
+    # Language-specific model configuration for OpenRouter
+    MODEL_CONFIG = {
+        'english': {
+            'transcript': 'google/gemini-2.0-flash-001',
+            'questions': 'google/gemini-2.0-flash-001'
+        },
+        'chinese': {
+            'transcript': 'deepseek/deepseek-chat',
+            'questions': 'deepseek/deepseek-chat'
+        },
+        'japanese': {
+            'transcript': 'qwen/qwen-2.5-72b-instruct',
+            'questions': 'qwen/qwen-2.5-72b-instruct'
+        }
+    }
+
+    def __init__(self, openai_client, config, prompt_service=None, use_openrouter=False):
         self.client = openai_client
         self.r2_client = self._create_r2_client(config)
         self.r2_bucket = 'lingualoopaudio'
-        
+
         # Initialize PromptService
         self.prompt_service = prompt_service if prompt_service else PromptService()
+
+        # OpenRouter configuration
+        self.use_openrouter = use_openrouter
+        self.default_transcript_model = "gpt-4o-mini"
+        self.default_question_model = "gpt-4o-mini"
     
     def _create_r2_client(self, config):
         """Create Cloudflare R2 client using boto3"""
@@ -29,9 +52,18 @@ class OpenAIService:
             aws_secret_access_key=config.R2_SECRET_ACCESS_KEY,
             region_name='auto'
         )
-    
+
+    def _get_model_for_language(self, language: str, task: str) -> str:
+        """Get optimal model for language and task (transcript or questions)"""
+        if not self.use_openrouter:
+            return self.default_transcript_model if task == 'transcript' else self.default_question_model
+
+        language_key = language.lower()
+        config = self.MODEL_CONFIG.get(language_key, self.MODEL_CONFIG.get('english'))
+        return config.get(task, self.MODEL_CONFIG['english'][task])
+
     def generate_transcript(self, language, topic, difficulty, style):
-        """Generate listening comprehension transcript using OpenAI"""
+        """Generate listening comprehension transcript using language-specific models"""
         try:
             safe_language = language or "english"
             safe_topic = topic or "any suitable topic"
@@ -45,31 +77,34 @@ class OpenAIService:
                 topic=safe_topic,
                 style=safe_style
             )
-            
+
+            # Select appropriate model for language and task
+            model = self._get_model_for_language(safe_language, 'transcript')
+
             response = self.client.chat.completions.create(
-                model="gpt-5-nano",
+                model=model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=1
             )
 
             if not response.choices:
-                raise Exception("No choices returned from OpenAI API")
+                raise Exception("No choices returned from API")
 
             raw_content = response.choices[0].message.content
 
             if raw_content is None:
-                raise Exception("OpenAI returned None content")
+                raise Exception("API returned None content")
 
             transcript = raw_content.strip()
 
+            # Handle JSON-wrapped responses (some models return {"transcript": "..."})
             if transcript.startswith('{') and transcript.endswith('}'):
                 try:
-                    import json
                     transcript_data = json.loads(transcript)
                     if isinstance(transcript_data, dict) and 'transcript' in transcript_data:
                         transcript = transcript_data['transcript']
                 except json.JSONDecodeError:
-                    pass
+                    pass  # Use raw content if JSON parsing fails
 
             return transcript
 
@@ -122,7 +157,7 @@ class OpenAIService:
 
     def _generate_single_question(self, transcript: str, language: str,
                                 question_type: int, previous_questions: List[str]) -> Dict:
-        """Generate a single question of specified type"""
+        """Generate a single question of specified type using language-specific model"""
 
         previous_text = "; ".join(previous_questions) if previous_questions else "None"
 
@@ -133,17 +168,54 @@ class OpenAIService:
             previous_questions=previous_text
         )
 
+        # Select appropriate model for language and task
+        model = self._get_model_for_language(language, 'questions')
+
         response = self.client.chat.completions.create(
-            model="gpt-5-nano",
+            model=model,
             messages=[{"role": "user", "content": prompt}],
             temperature=1,
             timeout=30
         )
 
         if not response.choices:
-            raise Exception("No response from OpenAI")
+            raise Exception("No response from API")
 
-        content = response.choices[0].message.content.strip()
+        # DEBUG: Log response metadata
+        choice = response.choices[0]
+        print(f"🔍 DEBUG - Question Type {question_type}, Language: {language}, Model: {model}", flush=True)
+        print(f"  - Finish reason: {choice.finish_reason}", flush=True)
+        print(f"  - Message role: {choice.message.role}", flush=True)
+
+        # Get raw content
+        raw_content = choice.message.content
+        print(f"  - Raw content type: {type(raw_content)}", flush=True)
+        print(f"  - Raw content is None: {raw_content is None}", flush=True)
+
+        if raw_content is None:
+            print(f"  ❌ ERROR: Model returned None content!", flush=True)
+            print(f"  - Full response object: {response}", flush=True)
+            raise Exception(f"Model {model} returned None content for question type {question_type}")
+
+        # Strip and clean content
+        content = raw_content.strip()
+        print(f"  - Content length: {len(content)} chars", flush=True)
+
+        if not content:
+            print(f"  ❌ ERROR: Content is empty after stripping!", flush=True)
+            print(f"  - Original raw_content: '{raw_content}'", flush=True)
+            raise Exception(f"Model {model} returned empty content for question type {question_type}")
+
+        # Show preview of content
+        preview_len = min(200, len(content))
+        print(f"  - Content preview ({preview_len} chars): {content[:preview_len]}...", flush=True)
+
+        # Try to clean JSON formatting if needed
+        cleaned_content = self._clean_json_response(content)
+        if cleaned_content != content:
+            print(f"  - Content was cleaned (removed markdown/extra text)", flush=True)
+            print(f"  - Cleaned content preview: {cleaned_content[:200]}...", flush=True)
+            content = cleaned_content
 
         try:
             question_data = json.loads(content)
@@ -155,6 +227,7 @@ class OpenAIService:
             ):
                 pass
 
+            print(f"  ✅ Question generated successfully", flush=True)
             return {
                 'id': str(uuid4()),
                 'question': validated_question["Question"],
@@ -163,10 +236,12 @@ class OpenAIService:
             }
 
         except json.JSONDecodeError as e:
-            print(e, flush=True)
+            print(f"  ❌ JSON Parse Error: {e}", flush=True)
+            print(f"  - Failed content: '{content}'", flush=True)
+            print(f"  - Content bytes: {content.encode('utf-8')[:500]}", flush=True)
             raise Exception(f"Invalid JSON response: {e}")
         except ValueError as e:
-            print(e, flush=True)
+            print(f"  ❌ Validation Error: {e}", flush=True)
             raise Exception(f"Question validation failed: {e}")
 
 
@@ -184,15 +259,18 @@ class OpenAIService:
 
         content = content.strip()
 
-        start_idx = content.find('[')
-        end_idx = content.rfind(']')
+        # Check for objects {...} FIRST (before arrays)
+        # This is important because question responses are objects containing arrays
+        start_idx = content.find('{')
+        end_idx = content.rfind('}')
 
         if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
             json_part = content[start_idx:end_idx+1]
             return json_part
 
-        start_idx = content.find('{')
-        end_idx = content.rfind('}')
+        # Only check for arrays [...] if no object found
+        start_idx = content.find('[')
+        end_idx = content.rfind(']')
 
         if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
             json_part = content[start_idx:end_idx+1]
