@@ -728,31 +728,23 @@
                 return;
             }
 
-            // Get selected language from localStorage
-            const savedLanguage = localStorage.getItem('selectedLanguage');
-            console.log('🌐 Raw savedLanguage:', savedLanguage);
+            // Get selected language ID from localStorage
+            const languageId = localStorage.getItem('selectedLanguageId');
+            console.log('🌐 selectedLanguageId:', languageId);
 
-            let language = '';
-            if (savedLanguage) {
-                try {
-                    const lang = JSON.parse(savedLanguage);
-                    language = lang.name || lang.code || '';
-                    console.log('✅ Parsed language:', language, 'from object:', lang);
-                } catch (e) {
-                    console.error('❌ Failed to parse savedLanguage:', e);
-                }
-            } else {
-                console.warn('⚠️ No selected language found in localStorage');
+            if (!languageId) {
+                console.warn('⚠️ No selected language found, redirecting to language selection');
+                window.location.href = '/language-selection';
+                return;
             }
 
-            // Build query string (only language, difficulty filtering is client-side via ELO)
+            // Build query string with language_id
             const params = new URLSearchParams();
-            if (language) params.append('language', language);
+            params.append('language_id', languageId);
 
             const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
 
             console.log('📡 Fetching tests from:', url);
-            console.log('📋 Query params:', { language });
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -819,12 +811,16 @@
                 return;
             }
             
-            // Get user's selected language from localStorage or default
-            const selectedLanguage = localStorage.getItem('selected_language') || 'chinese';
-            
-            console.log('🎲 Fetching random test...', { testType, selectedLanguage });
-            
-            const response = await fetch(`/api/tests/random?language=${selectedLanguage}&skill_type=${testType}`, {
+            // Get user's selected language ID from localStorage
+            const languageId = localStorage.getItem('selectedLanguageId');
+            if (!languageId) {
+                window.location.href = '/language-selection';
+                return;
+            }
+
+            console.log('🎲 Fetching random test...', { testType, languageId });
+
+            const response = await fetch(`/api/tests/random?language_id=${languageId}&skill_type=${testType}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

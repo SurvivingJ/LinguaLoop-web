@@ -32,6 +32,9 @@ def create_app(config_class=Config):
     """Create and configure Flask application"""
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    # Disable strict slashes to prevent 308 redirects from /api/tests to /api/tests/
+    app.url_map.strict_slashes = False
     
     # Set secret key for sessions
     app.secret_key = config_class.SECRET_KEY if hasattr(config_class, 'SECRET_KEY') else os.urandom(24)
@@ -277,6 +280,34 @@ def _register_core_routes(app):
             "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
             "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
         })
+
+    @app.route('/api/metadata', methods=['GET'])
+    def get_metadata():
+        """Return available languages and test types from dimension tables"""
+        try:
+            if not app.supabase:
+                return jsonify({"error": "Database not connected"}), 500
+
+            languages = app.supabase.table('dim_languages')\
+                .select('id, language_code, language_name, native_name')\
+                .eq('is_active', True)\
+                .order('display_order')\
+                .execute()
+
+            test_types = app.supabase.table('dim_test_types')\
+                .select('id, type_code, type_name, requires_audio')\
+                .eq('is_active', True)\
+                .order('display_order')\
+                .execute()
+
+            return jsonify({
+                'languages': languages.data or [],
+                'test_types': test_types.data or [],
+                'status': 'success'
+            })
+        except Exception as e:
+            app.logger.error(f"Metadata endpoint error: {e}")
+            return jsonify({'error': str(e), 'status': 'error'}), 500
 
     @app.route('/api/users/elo', methods=['GET'])
     @supabase_jwt_required

@@ -23,17 +23,8 @@
                 <!-- Language Selection Cards -->
                 <div class="language-options mt-5">
                     
-                    <!-- English -->
-                    <div class="language-card mb-3" data-language="English" data-code="en">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇺🇸</span>
-                            <span class="language-name flex-grow-1">English</span>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
-
-                    <!-- Chinese -->
-                    <div class="language-card mb-3" data-language="Chinese" data-code="zh">
+                    <!-- Chinese (id=1) -->
+                    <div class="language-card mb-3" data-id="1">
                         <div class="d-flex align-items-center">
                             <span class="language-flag">🇨🇳</span>
                             <span class="language-name flex-grow-1">Chinese</span>
@@ -41,29 +32,20 @@
                         </div>
                     </div>
 
-                    <!-- Japanese -->
-                    <div class="language-card mb-3" data-language="Japanese" data-code="ja">
+                    <!-- English (id=2) -->
+                    <div class="language-card mb-3" data-id="2">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇺🇸</span>
+                            <span class="language-name flex-grow-1">English</span>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Japanese (id=3) -->
+                    <div class="language-card mb-3" data-id="3">
                         <div class="d-flex align-items-center">
                             <span class="language-flag">🇯🇵</span>
                             <span class="language-name flex-grow-1">Japanese</span>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
-
-                    <!-- Korean -->
-                    <div class="language-card mb-3" data-language="Korean" data-code="ko">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇰🇷</span>
-                            <span class="language-name flex-grow-1">Korean</span>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
-
-                    <!-- French -->
-                    <div class="language-card mb-3" data-language="French" data-code="fr">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇫🇷</span>
-                            <span class="language-name flex-grow-1">French</span>
                             <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
                         </div>
                     </div>
@@ -162,10 +144,9 @@
                 this.classList.add('selected');
                 this.querySelector('.check-icon').style.display = 'block';
 
-                // Store selected language
+                // Store selected language ID
                 selectedLanguage = {
-                    name: this.dataset.language,
-                    code: this.dataset.code
+                    id: parseInt(this.dataset.id)
                 };
 
                 // Enable continue button
@@ -176,19 +157,18 @@
         // Handle continue button click
         continueBtn.addEventListener('click', function() {
             if (selectedLanguage) {
-                // Store selection in localStorage or send to backend
-                localStorage.setItem('selectedLanguage', JSON.stringify(selectedLanguage));
-                
+                // Store the language ID (1=Chinese, 2=English, 3=Japanese)
+                localStorage.setItem('selectedLanguageId', selectedLanguage.id.toString());
+
                 // Redirect to home/test page
                 window.location.href = "{{ url_for('tests') }}";
             }
         });
 
         // Check if language was previously selected
-        const savedLanguage = localStorage.getItem('selectedLanguage');
-        if (savedLanguage) {
-            const lang = JSON.parse(savedLanguage);
-            const savedCard = document.querySelector(`[data-language="${lang.name}"]`);
+        const savedLanguageId = localStorage.getItem('selectedLanguageId');
+        if (savedLanguageId) {
+            const savedCard = document.querySelector(`[data-id="${savedLanguageId}"]`);
             if (savedCard) {
                 savedCard.click();
             }

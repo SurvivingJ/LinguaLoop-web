@@ -26,6 +26,99 @@ from ..services.database_service import DatabaseService
 tests_bp = Blueprint("tests", __name__)
 
 
+# --- Dimension Table Helper Functions ---
+
+def get_language_id_by_code(supabase_client, language_code):
+    """Map language code (cn, en, jp) to dim_languages.id"""
+    if not supabase_client or not language_code:
+        return None
+    try:
+        result = supabase_client.table('dim_languages')\
+            .select('id')\
+            .eq('language_code', language_code.lower())\
+            .eq('is_active', True)\
+            .limit(1)\
+            .execute()
+        return result.data[0]['id'] if result.data else None
+    except Exception as e:
+        print(f"Error fetching language ID for '{language_code}': {e}")
+        return None
+
+
+def get_test_type_id_by_code(supabase_client, type_code):
+    """Map test type code (listening, reading, dictation) to dim_test_types.id"""
+    if not supabase_client or not type_code:
+        return None
+    try:
+        result = supabase_client.table('dim_test_types')\
+            .select('id')\
+            .eq('type_code', type_code.lower())\
+            .eq('is_active', True)\
+            .limit(1)\
+            .execute()
+        return result.data[0]['id'] if result.data else None
+    except Exception as e:
+        print(f"Error fetching test type ID for '{type_code}': {e}")
+        return None
+
+
+def get_all_test_types(supabase_client):
+    """Fetch all test types from dim_test_types and return mappings."""
+    if not supabase_client:
+        return {}, {}
+    try:
+        result = supabase_client.table('dim_test_types')\
+            .select('id, type_code')\
+            .eq('is_active', True)\
+            .execute()
+
+        code_to_id = {row['type_code']: row['id'] for row in result.data}
+        id_to_code = {row['id']: row['type_code'] for row in result.data}
+        return code_to_id, id_to_code
+    except Exception as e:
+        print(f"Error fetching test types: {e}")
+        return {}, {}
+
+
+def get_test_type_code_by_id(supabase_client, type_id):
+    """Map test type ID to type_code (listening, reading, etc.)"""
+    if not supabase_client or not type_id:
+        return None
+    try:
+        result = supabase_client.table('dim_test_types')\
+            .select('type_code')\
+            .eq('id', type_id)\
+            .limit(1)\
+            .execute()
+        return result.data[0]['type_code'] if result.data else None
+    except Exception as e:
+        print(f"Error fetching test type code for ID '{type_id}': {e}")
+        return None
+
+
+# Language ID mapping (matches dim_languages table)
+# Chinese=1, English=2, Japanese=3
+VALID_LANGUAGE_IDS = {1, 2, 3}
+
+LANGUAGE_ID_TO_NAME = {
+    1: 'chinese',
+    2: 'english',
+    3: 'japanese',
+}
+
+
+def parse_language_id(language_id_input):
+    """Parse and validate language_id - only accepts integer IDs"""
+    if language_id_input is None:
+        return None
+
+    try:
+        lang_id = int(language_id_input)
+        return lang_id if lang_id in VALID_LANGUAGE_IDS else None
+    except (ValueError, TypeError):
+        return None
+
+
 def save_test_to_database(supabase_service_client, test_data):
     """Save generated test data using service role client (bypasses RLS)."""
     if not supabase_service_client:
@@ -37,14 +130,19 @@ def save_test_to_database(supabase_service_client, test_data):
         if not hasattr(g, 'supabase_claims') or not g.supabase_claims.get('sub'):
             raise Exception("User not authenticated")
 
+        # Get and validate language_id
+        language_id = parse_language_id(test_data.get("language_id"))
+        if not language_id:
+            language_id = 1  # Default to Chinese
+
         tests_row = {
             "slug": test_data["slug"],
-            "language": test_data["language"],
+            "language_id": language_id,
             "topic": test_data.get("topic", ""),
             "difficulty": int(test_data.get("difficulty", 1)),
             "style": test_data.get("style", ""),
             "tier": test_data.get("tier", "free"),
-            "title": test_data.get("title") or test_data.get("topic") or f"{test_data['language'].capitalize()} Test",
+            "title": test_data.get("title") or test_data.get("topic") or f"Language Test",
             "transcript": test_data.get("transcript", ""),
             "audio_url": test_data.get("audio_url", ""),
             "total_attempts": test_data.get("total_attempts", 0),
@@ -90,10 +188,16 @@ def save_test_to_database(supabase_service_client, test_data):
             questions_result = supabase_service_client.table('questions').insert(question_rows).execute()
 
         initial_elo = 1400
+
+        # Get test type IDs from database
+        listening_id = get_test_type_id_by_code(supabase_service_client, 'listening')
+        reading_id = get_test_type_id_by_code(supabase_service_client, 'reading')
+        dictation_id = get_test_type_id_by_code(supabase_service_client, 'dictation')
+
         skill_ratings = [
             {
                 'test_id': test_id,
-                'skill_type': 'listening',
+                'test_type_id': listening_id,
                 'elo_rating': initial_elo,
                 'volatility': 1.0,
                 'total_attempts': 0,
@@ -102,7 +206,7 @@ def save_test_to_database(supabase_service_client, test_data):
             },
             {
                 'test_id': test_id,
-                'skill_type': 'reading',
+                'test_type_id': reading_id,
                 'elo_rating': initial_elo,
                 'volatility': 1.0,
                 'total_attempts': 0,
@@ -111,7 +215,7 @@ def save_test_to_database(supabase_service_client, test_data):
             },
             {
                 'test_id': test_id,
-                'skill_type': 'dictation',
+                'test_type_id': dictation_id,
                 'elo_rating': initial_elo,
                 'volatility': 1.0,
                 'total_attempts': 0,
@@ -130,19 +234,21 @@ def save_test_to_database(supabase_service_client, test_data):
         raise
 
 
-def get_tests_from_database(supabase, test_type='reading', limit=20, language=None, difficulty=None):
+def get_tests_from_database(supabase, test_type='reading', limit=20, language_id=None, difficulty=None):
     """Fetch tests list with optional filters; order by ELO of requested test type."""
     if not supabase:
         return []
 
     try:
         query = supabase.table('tests').select(
-            'id, slug, language, topic, difficulty, '
+            'id, slug, language_id, topic, difficulty, '
             'listening_rating, reading_rating, dictation_rating, created_at'
         )
-        
-        if language:
-            query = query.eq('language', language)
+
+        if language_id:
+            lang_id = parse_language_id(language_id)
+            if lang_id:
+                query = query.eq('language_id', lang_id)
         if difficulty is not None:
             query = query.eq('difficulty', str(int(difficulty)))
 
@@ -215,12 +321,17 @@ def get_test_by_slug(supabase, slug):
         except Exception:
             difficulty_value = 1
         
+        # Get language_id and convert to name for backwards compatibility
+        language_id = t.get('language_id')
+        language_name = LANGUAGE_ID_TO_NAME.get(language_id, 'unknown')
+
         formatted = {
             'id': t['id'],
             'slug': t['slug'],
-            'language': t.get('language'),
+            'language_id': language_id,
+            'language': language_name,  # backwards compat
             'topic': t.get('topic') or '',
-            'title': t.get('topic') or f"{t.get('language','').capitalize()} Test (Level {difficulty_value})",
+            'title': t.get('topic') or f"{language_name.capitalize()} Test (Level {difficulty_value})",
             'difficulty': difficulty_value,
             'transcript': t.get('transcript') or '',
             'questions': questions,
@@ -361,9 +472,17 @@ def moderate_content():
 @supabase_jwt_required
 def get_random_test():
     user_id = g.supabase_claims.get('sub')
-    language = request.args.get('language', 'chinese')
+    language_id_param = request.args.get('language_id')
     skill_type = request.args.get('skill_type', 'listening')
-    
+
+    # Parse and validate language_id
+    language_id = parse_language_id(language_id_param)
+    if not language_id:
+        return jsonify({"error": "Invalid or missing language_id parameter"}), 400
+
+    # Get language name for RPC
+    language = LANGUAGE_ID_TO_NAME.get(language_id, 'chinese')
+
     result = current_app.supabase_service.rpc('get_random_test_for_user', {
         'p_user_id': user_id,
         'p_language': language,
@@ -504,28 +623,35 @@ def generate_test():
             current_app.logger.warning(f"Audio generation failed (non-critical): {e}")
         try:
             saved_test_result = current_app.supabase_service.table('tests').select(
-                'id, slug, title, language, topic, difficulty, style, tier, '
-                'audio_url, audio_generated, is_custom, is_featured, total_attempts'
+                'id, slug, title, language_id, topic, difficulty, style, tier, '
+                'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
+                'dim_languages(language_code, language_name)'
             ).eq('id', test_id).execute()
 
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'skill_type, elo_rating, volatility, total_attempts'
+                'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
             ).eq('test_id', test_id).execute()
 
             skill_ratings = {}
             flat_ratings = {}
             for rating in ratings_result.data:
-                skill_type = rating['skill_type']
-                skill_ratings[skill_type] = {
+                type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
+                skill_ratings[type_code] = {
                     'elo_rating': rating['elo_rating'],
                     'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
-                flat_ratings[f'{skill_type}_rating'] = rating['elo_rating']
+                flat_ratings[f'{type_code}_rating'] = rating['elo_rating']
 
             if saved_test_result.data:
+                test_data = saved_test_result.data[0]
+                # Add language name for backwards compatibility
+                lang_info = test_data.pop('dim_languages', {}) or {}
+                test_data['language'] = lang_info.get('language_code', 'unknown')
+                test_data['language_name'] = lang_info.get('language_name', 'Unknown')
+
                 test_summary = {
-                    **saved_test_result.data[0],
+                    **test_data,
                     'skill_ratings': skill_ratings,
                     **flat_ratings,
                 }
@@ -660,34 +786,41 @@ def custom_test():
         try:
             # Get the saved test with all fields for frontend
             saved_test_result = current_app.supabase_service.table('tests').select(
-                'id, slug, title, language, topic, difficulty, style, tier, '
-                'audio_url, audio_generated, is_custom, is_featured, total_attempts'
+                'id, slug, title, language_id, topic, difficulty, style, tier, '
+                'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
+                'dim_languages(language_code, language_name)'
             ).eq('id', test_id).execute()
-            
-            # Get the skill ratings
+
+            # Get the skill ratings with FK join to dim_test_types
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'skill_type, elo_rating, volatility, total_attempts'
+                'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
             ).eq('test_id', test_id).execute()
-            
+
             # Transform ratings
             skill_ratings = {}
             flat_ratings = {}
             for rating in ratings_result.data:
-                skill_type = rating['skill_type']
-                skill_ratings[skill_type] = {
+                type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
+                skill_ratings[type_code] = {
                     'elo_rating': rating['elo_rating'],
                     'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
-                flat_ratings[f'{skill_type}_rating'] = rating['elo_rating']
-            
+                flat_ratings[f'{type_code}_rating'] = rating['elo_rating']
+
             if saved_test_result.data:
+                test_data = saved_test_result.data[0]
+                # Add language name for backwards compatibility
+                lang_info = test_data.pop('dim_languages', {}) or {}
+                test_data['language'] = lang_info.get('language_code', 'unknown')
+                test_data['language_name'] = lang_info.get('language_name', 'Unknown')
+
                 test_summary = {
-                    **saved_test_result.data[0],
+                    **test_data,
                     'skill_ratings': skill_ratings,
                     **flat_ratings,  # Add flat ratings for compatibility
                 }
-                
+
                 return jsonify({
                     "slug": slug,
                     "test_id": test_id,
@@ -734,7 +867,7 @@ def custom_test():
 def get_tests_with_ratings():
     """Get tests list with ELO ratings for filtering/preview."""
     try:
-        language = request.args.get('language')
+        language_id_param = request.args.get('language_id')
         difficulty = request.args.get('difficulty')
         limit = int(request.args.get('limit', 50))
 
@@ -742,13 +875,14 @@ def get_tests_with_ratings():
             return jsonify({"error": "Database service not configured"}), 500
 
         query = current_app.supabase_service.table('tests').select(
-            'id, slug, title, language, topic, difficulty, style, tier, '
+            'id, slug, title, language_id, topic, difficulty, style, tier, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts'
         ).eq('is_active', True)
 
-        if language:
-            language_lower = language.lower()
-            query = query.eq('language', language_lower)
+        # Parse and validate language_id
+        language_id = parse_language_id(language_id_param)
+        if language_id:
+            query = query.eq('language_id', language_id)
         if difficulty:
             query = query.eq('difficulty', int(difficulty))
 
@@ -759,14 +893,15 @@ def get_tests_with_ratings():
         ratings_by_test = {}
         if test_ids:
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'test_id, skill_type, elo_rating, volatility, total_attempts'
+                'test_id, test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
             ).in_('test_id', test_ids).execute()
 
             for rating in ratings_result.data:
                 test_id = rating['test_id']
+                type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
                 if test_id not in ratings_by_test:
                     ratings_by_test[test_id] = {}
-                ratings_by_test[test_id][rating['skill_type']] = {
+                ratings_by_test[test_id][type_code] = {
                     'elo_rating': rating['elo_rating'],
                     'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
@@ -867,7 +1002,7 @@ def submit_test_attempt(slug):
         rpc_result = current_app.supabase_service.rpc('process_test_submission', {
             'p_user_id': current_user_id,
             'p_test_id': test_data['id'],
-            'p_language': test_data['language'],
+            'p_language_id': test_data['language_id'],
             'p_skill_type': test_mode,
             'p_score': score,
             'p_total_questions': total_questions,
@@ -935,33 +1070,39 @@ def get_test_with_ratings(slug):
     try:
         if not current_app.supabase_service:
             return jsonify({"error": "Service not available"}), 503
-        
-        # Get test basic info
+
+        # Get test basic info with FK join to dim_languages
         test_result = current_app.supabase_service.table('tests').select(
-            'id, slug, title, language, topic, difficulty, style, tier, transcript, '
-            'audio_url, audio_generated, is_custom, is_featured, total_attempts'
+            'id, slug, title, language_id, topic, difficulty, style, tier, transcript, '
+            'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
+            'dim_languages(language_code, language_name)'
         ).eq('slug', slug).eq('is_active', True).execute()
-        
+
         if not test_result.data:
             return jsonify({"error": "Test not found"}), 404
-            
+
         test = test_result.data[0]
         test_id = test['id']
-        
+
+        # Add language info for backwards compatibility
+        lang_info = test.pop('dim_languages', {}) or {}
+        test['language'] = lang_info.get('language_code', 'unknown')
+        test['language_name'] = lang_info.get('language_name', 'Unknown')
+
         # Get questions
         questions_result = current_app.supabase_service.table('questions').select(
             'id, question_id, question_text, question_type, choices, '
             'correct_answer, answer_explanation, points, audio_url'
         ).eq('test_id', test_id).execute()
-        
-        # Get ELO ratings
+
+        # Get ELO ratings with FK join to dim_test_types
         ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-            'skill_type, elo_rating, volatility, total_attempts'
+            'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
         ).eq('test_id', test_id).execute()
-        
+
         # Transform ratings into a dictionary
         ratings = {
-            rating['skill_type']: {
+            rating.get('dim_test_types', {}).get('type_code', 'unknown'): {
                 'elo_rating': rating['elo_rating'],
                 'volatility': rating['volatility'],
                 'total_attempts': rating['total_attempts']
