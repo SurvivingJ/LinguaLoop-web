@@ -352,7 +352,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         selectedTestType = urlParams.get('type') || 'listening';
 
-        console.log('Parsed URL - Slug:', testSlug, 'Type:', selectedTestType);
+        debugLog('Parsed URL - Slug:', testSlug, 'Type:', selectedTestType);
         return { testSlug, selectedTestType };
     }
 
@@ -406,7 +406,7 @@
             }
 
             const result = await response.json();
-            console.log('Test data received:', result);
+            debugLog('Test data received:', result);
 
             if (result.status === 'success' && result.test) {
                 return result.test;
@@ -449,7 +449,7 @@
             }
 
             const result = await response.json();
-            console.log('Skill ratings received:', result);
+            debugLog('Skill ratings received:', result);
             return result.skill_ratings || {};
         } catch (error) {
             console.warn('Error fetching skill ratings:', error);

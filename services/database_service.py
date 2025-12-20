@@ -1,5 +1,8 @@
+import logging
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 class DatabaseService:
     """Centralized database operations for ELO and test management"""
@@ -29,7 +32,7 @@ class DatabaseService:
                 'last_updated': datetime.now(timezone.utc).isoformat()
             }).execute()
         except Exception as e:
-            print(f"Error updating user ELO: {e}")
+            logger.error(f"Error updating user ELO: {e}")
     
     def get_test_with_questions(self, slug: str) -> Optional[Dict]:
         """Get test with questions by slug"""
@@ -47,7 +50,7 @@ class DatabaseService:
             
             return test
         except Exception as e:
-            print(f"Error getting test: {e}")
+            logger.error(f"Error getting test: {e}")
             return None
     
     def record_test_attempt(self, attempt_data: Dict) -> str:
@@ -56,7 +59,7 @@ class DatabaseService:
             result = self.supabase.table('test_attempts').insert(attempt_data).execute()
             return result.data[0]['id'] if result.data else None
         except Exception as e:
-            print(f"Error recording test attempt: {e}")
+            logger.error(f"Error recording test attempt: {e}")
             return None
     
     def update_question_elos(self, question_updates: List[Dict]):
@@ -69,4 +72,4 @@ class DatabaseService:
                     'last_attempt_date': datetime.now().date().isoformat()
                 }).eq('id', update['question_id']).execute()
         except Exception as e:
-            print(f"Error updating question ELOs: {e}")
+            logger.error(f"Error updating question ELOs: {e}")

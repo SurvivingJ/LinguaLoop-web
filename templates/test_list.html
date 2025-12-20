@@ -533,7 +533,7 @@
 
     // Utility Functions
     function showLoading() {
-        console.log('⏳ Showing loading spinner');
+        debugLog('⏳ Showing loading spinner');
         loadingSpinner?.classList.remove('d-none');
         testsGrid.innerHTML = '';
         hideError();
@@ -541,12 +541,12 @@
     }
 
     function hideLoading() {
-        console.log('✅ Hiding loading spinner');
+        debugLog('✅ Hiding loading spinner');
         loadingSpinner?.classList.add('d-none');
     }
 
     function showError(message = 'Failed to load tests. Please try again.') {
-        console.log('❌ Showing error:', message);
+        debugLog('❌ Showing error:', message);
         errorAlert?.classList.remove('d-none');
         const errorMsg = errorAlert?.querySelector('#error-message');
         if (errorMsg) errorMsg.textContent = message;
@@ -554,19 +554,19 @@
     }
 
     function hideError() {
-        console.log('✅ Hiding error');
+        debugLog('✅ Hiding error');
         errorAlert?.classList.add('d-none');
     }
 
     function showEmpty() {
-        console.log('📭 Showing empty state');
+        debugLog('📭 Showing empty state');
         emptyState?.classList.remove('d-none');
         hideLoading();
         hideError();
     }
 
     function hideEmpty() {
-        console.log('✅ Hiding empty state');
+        debugLog('✅ Hiding empty state');
         emptyState?.classList.add('d-none');
     }
     
@@ -649,7 +649,7 @@
     }
     
     function displayTests(tests) {
-        console.log('🎨 displayTests() called with', tests?.length || 0, 'tests');
+        debugLog('🎨 displayTests() called with', tests?.length || 0, 'tests');
 
         if (!tests || tests.length === 0) {
             console.warn('⚠️ No tests to display');
@@ -662,11 +662,11 @@
         const selectedDifficulty = difficultyFilter?.value;
         const selectedTestType = testTypeFilter?.value;
 
-        console.log('🔍 Filters - Difficulty:', selectedDifficulty, 'TestType:', selectedTestType);
+        debugLog('🔍 Filters - Difficulty:', selectedDifficulty, 'TestType:', selectedTestType);
 
         if (selectedDifficulty && selectedDifficulty !== '') {
             const eloRange = getEloRange(selectedDifficulty);
-            console.log('📊 ELO range for difficulty', selectedDifficulty, ':', eloRange);
+            debugLog('📊 ELO range for difficulty', selectedDifficulty, ':', eloRange);
 
             if (eloRange) {
                 const beforeCount = filteredTests.length;
@@ -683,7 +683,7 @@
                     const matches = testElo >= eloRange.min && testElo < eloRange.max;
                     return matches;
                 });
-                console.log('🔍 Filtered from', beforeCount, 'to', filteredTests.length, 'tests by ELO');
+                debugLog('🔍 Filtered from', beforeCount, 'to', filteredTests.length, 'tests by ELO');
             }
         }
 
@@ -694,9 +694,9 @@
             return;
         }
 
-        console.log('✅ Rendering', filteredTests.length, 'test cards');
+        debugLog('✅ Rendering', filteredTests.length, 'test cards');
         testsGrid.innerHTML = filteredTests.map(test => createTestCard(test)).join('');
-        console.log('✅ Test cards rendered to DOM');
+        debugLog('✅ Test cards rendered to DOM');
 
         hideLoading();
         hideError();
@@ -715,12 +715,12 @@
 
     
     async function loadTests() {
-        console.log('🚀 loadTests() called');
+        debugLog('🚀 loadTests() called');
         showLoading();
 
         try {
             const token = localStorage.getItem('jwt_token');
-            console.log('🔑 JWT token present:', !!token);
+            debugLog('🔑 JWT token present:', !!token);
 
             if (!token) {
                 console.error('❌ No JWT token found');
@@ -730,7 +730,7 @@
 
             // Get selected language ID from localStorage
             const languageId = localStorage.getItem('selectedLanguageId');
-            console.log('🌐 selectedLanguageId:', languageId);
+            debugLog('🌐 selectedLanguageId:', languageId);
 
             if (!languageId) {
                 console.warn('⚠️ No selected language found, redirecting to language selection');
@@ -744,7 +744,7 @@
 
             const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
 
-            console.log('📡 Fetching tests from:', url);
+            debugLog('📡 Fetching tests from:', url);
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -754,7 +754,7 @@
                 }
             });
 
-            console.log('📨 Response status:', response.status, response.statusText);
+            debugLog('📨 Response status:', response.status, response.statusText);
 
             if (!response.ok) {
                 if (response.status === 401) {
@@ -770,13 +770,13 @@
             }
 
             const data = await response.json();
-            console.log('✅ Response data:', data);
-            console.log('📊 Tests count:', data.tests ? data.tests.length : 0);
+            debugLog('✅ Response data:', data);
+            debugLog('📊 Tests count:', data.tests ? data.tests.length : 0);
 
             if (data.success && data.tests) {
-                console.log('✅ Calling displayTests with', data.tests.length, 'tests');
+                debugLog('✅ Calling displayTests with', data.tests.length, 'tests');
                 if (data.tests.length > 0) {
-                    console.log('📋 First test sample:', data.tests[0]);
+                    debugLog('📋 First test sample:', data.tests[0]);
                 }
                 displayTests(data.tests);
             } else {
@@ -818,7 +818,7 @@
                 return;
             }
 
-            console.log('🎲 Fetching random test...', { testType, languageId });
+            debugLog('🎲 Fetching random test...', { testType, languageId });
 
             const response = await fetch(`/api/tests/random?language_id=${languageId}&skill_type=${testType}`, {
                 method: 'GET',
@@ -833,7 +833,7 @@
             }
             
             const result = await response.json();
-            console.log('✅ Random test received:', result);
+            debugLog('✅ Random test received:', result);
             
             if (result.test && result.test.slug) {
                 // Navigate to the test preview page
@@ -856,13 +856,13 @@
     
     // ✅ NEW: Apply filters function
     function applyFilters() {
-        console.log('🔧 Applying filters...');
+        debugLog('🔧 Applying filters...');
         loadTests();
     }
     
     // Reset filters function
     function resetFilters() {
-        console.log('🔧 Resetting filters...');
+        debugLog('🔧 Resetting filters...');
 
         // Reset filter dropdowns to default values
         if (difficultyFilter) difficultyFilter.value = '';

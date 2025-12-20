@@ -3,6 +3,7 @@ Payment Service for Language Learning Platform
 Handles token-based pay-as-you-go payments via Stripe
 """
 
+import logging
 import stripe
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple
@@ -10,6 +11,8 @@ from enum import Enum
 from supabase import Client
 
 from ..config import Config
+
+logger = logging.getLogger(__name__)
 
 
 class TokenAction(Enum):
@@ -97,7 +100,7 @@ class PaymentService:
             }
             
         except Exception as e:
-            print(f"Error getting token balance: {e}")
+            logger.error(f"Error getting token balance: {e}")
             return {'error': 'Failed to retrieve token balance'}
     
     def can_perform_action(self, user_id: str, action: TokenAction) -> Tuple[bool, str]:
@@ -174,7 +177,7 @@ class PaymentService:
             }
             
         except Exception as e:
-            print(f"Error consuming tokens: {e}")
+            logger.error(f"Error consuming tokens: {e}")
             return {'success': False, 'error': 'Failed to consume tokens'}
     
     def create_payment_intent(self, user_id: str, package_id: str) -> Dict:
@@ -215,7 +218,7 @@ class PaymentService:
             }
             
         except Exception as e:
-            print(f"Error creating payment intent: {e}")
+            logger.error(f"Error creating payment intent: {e}")
             return {'error': 'Failed to create payment intent'}
     
     def handle_successful_payment(self, payment_intent_id: str) -> Dict:
@@ -271,7 +274,7 @@ class PaymentService:
             }
             
         except Exception as e:
-            print(f"Error handling successful payment: {e}")
+            logger.error(f"Error handling successful payment: {e}")
             return {'error': 'Failed to process payment'}
     
     def get_token_packages(self) -> Dict:
@@ -314,7 +317,7 @@ class PaymentService:
             }
             
         except Exception as e:
-            print(f"Error getting transaction history: {e}")
+            logger.error(f"Error getting transaction history: {e}")
             return {'error': 'Failed to retrieve transaction history'}
     
     def _create_user_token_record(self, user_id: str, initial_purchased_tokens: int = 0):
@@ -362,7 +365,7 @@ class PaymentService:
                 'created_at': datetime.utcnow().isoformat()
             }).execute()
         except Exception as e:
-            print(f"Error logging transaction: {e}")
+            logger.error(f"Error logging transaction: {e}")
 
 # Usage example for your Flask routes
 def get_payment_service(config) -> PaymentService:

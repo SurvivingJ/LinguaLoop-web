@@ -584,8 +584,8 @@ async function loadTestData() {
             type: q.question_type
         }));
         
-        console.log('✅ Test loaded:', testState.testData);
-        console.log('✅ Questions loaded:', testState.questions.length);
+        debugLog('✅ Test loaded:', testState.testData);
+        debugLog('✅ Questions loaded:', testState.questions.length);
         
     } catch (error) {
         console.error('❌ Error loading test:', error);

@@ -7,6 +7,8 @@ import mimetypes
 from typing import Optional, Dict, List
 import logging
 
+logger = logging.getLogger(__name__)
+
 class R2Service:
     """
     Cloudflare R2 Storage Service
@@ -24,8 +26,7 @@ class R2Service:
         if self._has_required_credentials():
             self._initialize_client()
         else:
-            print("❌ Warning: R2 credentials not fully configured")
-            print("Required: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ACCOUNT_ID")
+            logger.warning("R2 credentials not fully configured. Required: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ACCOUNT_ID")
     
     def _has_required_credentials(self) -> bool:
         """Check if all required R2 credentials are present"""
@@ -33,7 +34,7 @@ class R2Service:
         
         for attr in required_attrs:
             if not hasattr(self.config, attr) or not getattr(self.config, attr):
-                print(f"❌ Missing required credential: {attr}")
+                logger.warning(f"Missing required R2 credential: {attr}")
                 return False
         return True
     
@@ -56,10 +57,10 @@ class R2Service:
             
             # Test the connection
             self._test_connection()
-            print(f"✅ R2 client initialized successfully for bucket: {self.bucket_name}")
-            
+            logger.info(f"R2 client initialized successfully for bucket: {self.bucket_name}")
+
         except Exception as e:
-            print(f"❌ Failed to initialize R2 client: {e}")
+            logger.error(f"Failed to initialize R2 client: {e}")
             self.r2_client = None
     
     def _test_connection(self):
@@ -69,7 +70,7 @@ class R2Service:
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == 'NoSuchBucket':
-                print(f"⚠️ Warning: Bucket '{self.bucket_name}' does not exist")
+                logger.warning(f"Bucket '{self.bucket_name}' does not exist")
             else:
                 raise e
     
@@ -85,12 +86,11 @@ class R2Service:
             bool: True if successful, False otherwise
         """
         if not self.r2_client:
-            print("❌ R2 client not initialized")
+            logger.error("R2 client not initialized")
             return False
-        
+
         try:
-            print(f"🔧 Uploading {filename} to R2 bucket: {self.bucket_name}")
-            print(f"🔧 File size: {len(audio_data)} bytes")
+            logger.debug(f"Uploading {filename} to R2 bucket: {self.bucket_name} ({len(audio_data)} bytes)")
             
             # Upload to bucket root (not in subdirectory)
             self.r2_client.put_object(
@@ -105,24 +105,24 @@ class R2Service:
                 }
             )
             
-            print(f"✅ Successfully uploaded {filename} to R2")
-            
+            logger.info(f"Successfully uploaded {filename} to R2")
+
             # Log the public URL if available
             if self.public_url:
                 public_url = f"{self.public_url}/{filename}"
-                print(f"🌐 Public URL: {public_url}")
-            
+                logger.debug(f"Public URL: {public_url}")
+
             return True
-            
+
         except ClientError as e:
             error_code = e.response['Error']['Code']
-            print(f"❌ AWS ClientError uploading {filename}: {error_code} - {e}")
+            logger.error(f"AWS ClientError uploading {filename}: {error_code} - {e}")
             return False
         except BotoCoreError as e:
-            print(f"❌ BotoCoreError uploading {filename}: {e}")
+            logger.error(f"BotoCoreError uploading {filename}: {e}")
             return False
         except Exception as e:
-            print(f"❌ Unexpected error uploading {filename}: {e}")
+            logger.error(f"Unexpected error uploading {filename}: {e}")
             return False
     
     def download_audio(self, filename: str) -> Optional[bytes]:
@@ -136,11 +136,11 @@ class R2Service:
             bytes: Audio data if successful, None otherwise
         """
         if not self.r2_client:
-            print("❌ R2 client not initialized")
+            logger.error("R2 client not initialized")
             return None
-        
+
         try:
-            print(f"📥 Downloading {filename} from R2")
+            logger.debug(f"Downloading {filename} from R2")
             
             response = self.r2_client.get_object(
                 Bucket=self.bucket_name,
@@ -148,18 +148,18 @@ class R2Service:
             )
             
             audio_data = response['Body'].read()
-            print(f"✅ Downloaded {filename} ({len(audio_data)} bytes)")
+            logger.debug(f"Downloaded {filename} ({len(audio_data)} bytes)")
             return audio_data
-            
+
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == 'NoSuchKey':
-                print(f"❌ File not found: {filename}")
+                logger.warning(f"File not found: {filename}")
             else:
-                print(f"❌ Error downloading {filename}: {error_code} - {e}")
+                logger.error(f"Error downloading {filename}: {error_code} - {e}")
             return None
         except Exception as e:
-            print(f"❌ Unexpected error downloading {filename}: {e}")
+            logger.error(f"Unexpected error downloading {filename}: {e}")
             return None
     
     def delete_audio(self, filename: str) -> bool:
@@ -173,25 +173,25 @@ class R2Service:
             bool: True if successful, False otherwise
         """
         if not self.r2_client:
-            print("❌ R2 client not initialized")
+            logger.error("R2 client not initialized")
             return False
-        
+
         try:
-            print(f"🗑️ Deleting {filename} from R2")
-            
+            logger.debug(f"Deleting {filename} from R2")
+
             self.r2_client.delete_object(
                 Bucket=self.bucket_name,
                 Key=filename
             )
-            
-            print(f"✅ Successfully deleted {filename} from R2")
+
+            logger.info(f"Successfully deleted {filename} from R2")
             return True
-            
+
         except ClientError as e:
-            print(f"❌ Error deleting {filename}: {e}")
+            logger.error(f"Error deleting {filename}: {e}")
             return False
         except Exception as e:
-            print(f"❌ Unexpected error deleting {filename}: {e}")
+            logger.error(f"Unexpected error deleting {filename}: {e}")
             return False
     
     def file_exists(self, filename: str) -> bool:
@@ -215,10 +215,10 @@ class R2Service:
             if error_code == '404':
                 return False
             else:
-                print(f"❌ Error checking file existence: {e}")
+                logger.error(f"Error checking file existence: {e}")
                 return False
         except Exception as e:
-            print(f"❌ Unexpected error checking file: {e}")
+            logger.error(f"Unexpected error checking file: {e}")
             return False
     
     def list_audio_files(self, prefix: str = '', max_keys: int = 100) -> List[Dict]:
@@ -233,7 +233,7 @@ class R2Service:
             List[Dict]: List of file information dictionaries
         """
         if not self.r2_client:
-            print("❌ R2 client not initialized")
+            logger.error("R2 client not initialized")
             return []
         
         try:
@@ -253,14 +253,14 @@ class R2Service:
                         'etag': obj['ETag'].strip('"')
                     })
             
-            print(f"📋 Found {len(files)} files with prefix '{prefix}'")
+            logger.debug(f"Found {len(files)} files with prefix '{prefix}'")
             return files
-            
+
         except ClientError as e:
-            print(f"❌ Error listing files: {e}")
+            logger.error(f"Error listing files: {e}")
             return []
         except Exception as e:
-            print(f"❌ Unexpected error listing files: {e}")
+            logger.error(f"Unexpected error listing files: {e}")
             return []
     
     def get_audio_url(self, slug: str) -> str:
@@ -313,10 +313,10 @@ class R2Service:
             if error_code == 'NoSuchKey':
                 return None
             else:
-                print(f"❌ Error getting file info: {e}")
+                logger.error(f"Error getting file info: {e}")
                 return None
         except Exception as e:
-            print(f"❌ Unexpected error getting file info: {e}")
+            logger.error(f"Unexpected error getting file info: {e}")
             return None
     
     def upload_from_url(self, filename: str, url: str) -> bool:
@@ -332,24 +332,24 @@ class R2Service:
         """
         try:
             import requests
-            
-            print(f"📥 Downloading from URL: {url}")
+
+            logger.debug(f"Downloading from URL: {url}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
-            
+
             audio_data = response.content
-            print(f"✅ Downloaded {len(audio_data)} bytes from URL")
-            
+            logger.debug(f"Downloaded {len(audio_data)} bytes from URL")
+
             return self.upload_audio(filename, audio_data)
-            
+
         except ImportError:
-            print("❌ requests library not available for URL download")
+            logger.error("requests library not available for URL download")
             return False
         except requests.RequestException as e:
-            print(f"❌ Error downloading from URL: {e}")
+            logger.error(f"Error downloading from URL: {e}")
             return False
         except Exception as e:
-            print(f"❌ Unexpected error in upload_from_url: {e}")
+            logger.error(f"Unexpected error in upload_from_url: {e}")
             return False
     
     def get_bucket_stats(self) -> Dict:

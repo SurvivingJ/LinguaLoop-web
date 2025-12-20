@@ -46,7 +46,7 @@ def moderate_content():
         moderation_result = current_app.openai_service.moderate_content(content)
 
         if moderation_result.get('error'):
-            print(f"Moderation service error: {moderation_result['error']}")
+            logger.warning(f"Moderation service error: {moderation_result['error']}")
 
         is_safe = moderation_result['is_safe']
 
@@ -66,7 +66,7 @@ def moderate_content():
         }), 200
 
     except Exception as e:
-        print(f"Moderation endpoint error: {e}")
+        logger.error(f"Moderation endpoint error: {e}")
         return jsonify({
             "error": f"Moderation failed: {str(e)}",
             "status": "error"
@@ -545,7 +545,7 @@ def get_test(slug):
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
 
         test_data['audio_url'] = f"https://229f11834e90e4438de8d1a9ba872d0f.r2.cloudflarestorage.com/lingualoopaudio/{slug}.mp3"
-        print(test_data, flush=True)
+        logger.debug(f"Returning test data for slug: {slug}")
         return jsonify({"test": test_data, "status": "success"})
 
     except Exception as e:

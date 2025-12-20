@@ -1,15 +1,18 @@
 from openai import OpenAI
 import os
 import json
+import logging
+import traceback
 from datetime import datetime, timezone
 from uuid import uuid4
-from typing import Protocol, List, Dict
+from typing import List, Dict
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
-# Import your PromptService
 from .prompt_service import PromptService
 from ..utils.question_validator import QuestionValidator
+
+logger = logging.getLogger(__name__)
 
 class AIService:
     """AI generation service supporting OpenAI and OpenRouter"""
@@ -89,11 +92,9 @@ class AIService:
             return transcript
 
         except Exception as e:
-            import traceback
-            error_msg = f"Transcript generation failed: {e}"
-            print(f"Error: {error_msg}")
-            print(f"Traceback: {traceback.format_exc()}")
-            raise Exception(error_msg)
+            logger.error(f"Transcript generation failed: {e}")
+            logger.debug(traceback.format_exc())
+            raise Exception(f"Transcript generation failed: {e}")
 
     
     def generate_questions(self, transcript, language, difficulty):
@@ -117,7 +118,7 @@ class AIService:
             return generated_questions
 
         except Exception as e:
-            print(f"Question generation failed: {e}", flush=True)
+            logger.error(f"Question generation failed: {e}")
             raise Exception(f"Question generation failed: {str(e)}")
 
     def _get_question_type_distribution(self, difficulty: int) -> List[int]:
@@ -161,53 +162,32 @@ class AIService:
         if not response.choices:
             raise Exception("No response from API")
 
-        # DEBUG: Log response metadata
         choice = response.choices[0]
-        print(f"🔍 DEBUG - Question Type {question_type}, Language: {language}, Model: {model}", flush=True)
-        print(f"  - Finish reason: {choice.finish_reason}", flush=True)
-        print(f"  - Message role: {choice.message.role}", flush=True)
+        logger.debug(f"Question Type {question_type}, Language: {language}, Model: {model}")
 
-        # Get raw content
         raw_content = choice.message.content
-        print(f"  - Raw content type: {type(raw_content)}", flush=True)
-        print(f"  - Raw content is None: {raw_content is None}", flush=True)
-
         if raw_content is None:
-            print(f"  ❌ ERROR: Model returned None content!", flush=True)
-            print(f"  - Full response object: {response}", flush=True)
+            logger.error(f"Model {model} returned None content for question type {question_type}")
             raise Exception(f"Model {model} returned None content for question type {question_type}")
 
-        # Strip and clean content
         content = raw_content.strip()
-        print(f"  - Content length: {len(content)} chars", flush=True)
-
         if not content:
-            print(f"  ❌ ERROR: Content is empty after stripping!", flush=True)
-            print(f"  - Original raw_content: '{raw_content}'", flush=True)
+            logger.error(f"Model {model} returned empty content for question type {question_type}")
             raise Exception(f"Model {model} returned empty content for question type {question_type}")
 
-        # Show preview of content
-        preview_len = min(200, len(content))
-        print(f"  - Content preview ({preview_len} chars): {content[:preview_len]}...", flush=True)
+        logger.debug(f"Content length: {len(content)} chars")
 
-        # Try to clean JSON formatting if needed
         cleaned_content = self._clean_json_response(content)
         if cleaned_content != content:
-            print(f"  - Content was cleaned (removed markdown/extra text)", flush=True)
-            print(f"  - Cleaned content preview: {cleaned_content[:200]}...", flush=True)
+            logger.debug("Content cleaned (removed markdown/extra text)")
             content = cleaned_content
 
         try:
             question_data = json.loads(content)
             validated_question = QuestionValidator.validate_question_format(question_data)
+            QuestionValidator.check_semantic_overlap(validated_question["Question"], previous_questions)
 
-            if QuestionValidator.check_semantic_overlap(
-                validated_question["Question"],
-                previous_questions
-            ):
-                pass
-
-            print(f"  ✅ Question generated successfully", flush=True)
+            logger.debug(f"Question generated successfully for type {question_type}")
             return {
                 'id': str(uuid4()),
                 'question': validated_question["Question"],
@@ -216,12 +196,10 @@ class AIService:
             }
 
         except json.JSONDecodeError as e:
-            print(f"  ❌ JSON Parse Error: {e}", flush=True)
-            print(f"  - Failed content: '{content}'", flush=True)
-            print(f"  - Content bytes: {content.encode('utf-8')[:500]}", flush=True)
+            logger.error(f"JSON Parse Error: {e}, content: {content[:200]}")
             raise Exception(f"Invalid JSON response: {e}")
         except ValueError as e:
-            print(f"  ❌ Validation Error: {e}", flush=True)
+            logger.error(f"Validation Error: {e}")
             raise Exception(f"Question validation failed: {e}")
 
 
@@ -324,7 +302,7 @@ class AIService:
 
         except Exception as e:
             error_msg = f"Audio upload failed for {slug}: {e}"
-            print(f"Error: {error_msg}")
+            logger.error(error_msg)
             raise Exception(error_msg)
         
     def get_starting_elo(self, difficulty):
@@ -369,7 +347,7 @@ class AIService:
 
         except Exception as e:
             error_msg = f"Content moderation error: {e}"
-            print(f"Error: {error_msg}")
+            logger.error(error_msg)
             return {
                 'is_safe': True,
                 'flagged_categories': [],
