@@ -1,39 +1,38 @@
+# routes/auth.py
+"""Authentication routes for OTP-based login."""
+
 from flask import Blueprint, request, jsonify, g
-from ..services.auth_service import AuthService
 from ..utils.validation import validate_email
-from supabase import create_client
-from ..config import Config
+from ..middleware.auth import jwt_required
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-# Initialize services directly (avoid dependency injection complexity)
-supabase = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
-auth_service = AuthService(supabase)
+# Services are initialized via app context - see _register_blueprints in app.py
+# auth_bp.auth_service is set there
 
-# Import middleware class and create instance
-from ..middleware.auth import AuthMiddleware
-auth_middleware = AuthMiddleware(supabase)
 
 @auth_bp.route('/send-otp', methods=['POST'])
 def send_otp():
+    """Send OTP to user's email for authentication."""
     try:
         data = request.get_json()
         email = data.get('email', '').strip().lower()
         is_registration = data.get('is_registration', False)
-        
+
         if not email or not validate_email(email):
             return jsonify({'error': 'Valid email is required'}), 400
-        
-        result = auth_service.send_otp(email, is_registration)
-        
+
+        result = auth_bp.auth_service.send_otp(email, is_registration)
+
         if result['success']:
             return jsonify(result), 200
         else:
             return jsonify(result), 400
-            
+
     except Exception as e:
         return jsonify({'error': 'Server error occurred'}), 500
+
 
 @auth_bp.route('/verify-otp', methods=['POST'])
 def verify_otp():
@@ -61,7 +60,7 @@ def verify_otp():
             }), 400
 
         # Verify OTP via auth service
-        result = auth_service.verify_otp(email, token)
+        result = auth_bp.auth_service.verify_otp(email, token)
 
         if result.get('success'):
             user_data = result.get('user', {})
@@ -105,31 +104,33 @@ def verify_otp():
         }), 500
 
 
-
 @auth_bp.route('/profile', methods=['GET'])
-@auth_middleware.jwt_required  # Now this works!
+@jwt_required
 def get_profile():
+    """Get user profile - requires JWT authentication."""
     try:
-        result = auth_service.get_user_profile(g.current_user_id)
-        
+        result = auth_bp.auth_service.get_user_profile(g.current_user_id)
+
         if result['success']:
             return jsonify(result), 200
         else:
             return jsonify(result), 404
-            
+
     except Exception as e:
         return jsonify({'error': 'Server error occurred'}), 500
 
+
 @auth_bp.route('/logout', methods=['POST'])
-@auth_middleware.jwt_required
+@jwt_required
 def logout():
+    """Logout user - requires JWT authentication."""
     try:
-        result = auth_service.logout(g.current_user_id)
-        
+        result = auth_bp.auth_service.logout(g.current_user_id)
+
         if result['success']:
             return jsonify(result), 200
         else:
             return jsonify(result), 400
-            
+
     except Exception as e:
         return jsonify({'error': 'Server error occurred'}), 500

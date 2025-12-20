@@ -1,423 +1,27 @@
 # routes/tests.py
+"""Test routes - handles test CRUD, generation, and submission."""
 
-from flask import Flask, request, jsonify, redirect, Response, make_response, g
-from flask_cors import CORS, cross_origin
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, request, jsonify, current_app, make_response, g
 from uuid import uuid4
-import os
-import json
-import time
 from datetime import datetime, timezone
-import stripe
-from supabase import create_client, Client
-import requests
-import logging
-import sys
 import traceback
 import random
-from flask import Blueprint, request, jsonify, current_app
-from ..config import Config
-from ..services.service_factory import ServiceFactory
-from ..services.r2_service import R2Service
-from ..services.prompt_service import PromptService
-from ..utils.auth import supabase_jwt_required
-from ..services.database_service import DatabaseService
+import logging
 
+from ..config import Config
+from ..middleware.auth import jwt_required as supabase_jwt_required
+from ..services.test_service import (
+    TestService, DimensionService, get_test_service,
+    parse_language_id, LANGUAGE_ID_TO_NAME, VALID_LANGUAGE_IDS
+)
+
+logger = logging.getLogger(__name__)
 tests_bp = Blueprint("tests", __name__)
 
 
-# --- Dimension Table Helper Functions ---
-
-def get_language_id_by_code(supabase_client, language_code):
-    """Map language code (cn, en, jp) to dim_languages.id"""
-    if not supabase_client or not language_code:
-        return None
-    try:
-        result = supabase_client.table('dim_languages')\
-            .select('id')\
-            .eq('language_code', language_code.lower())\
-            .eq('is_active', True)\
-            .limit(1)\
-            .execute()
-        return result.data[0]['id'] if result.data else None
-    except Exception as e:
-        print(f"Error fetching language ID for '{language_code}': {e}")
-        return None
-
-
-def get_test_type_id_by_code(supabase_client, type_code):
-    """Map test type code (listening, reading, dictation) to dim_test_types.id"""
-    if not supabase_client or not type_code:
-        return None
-    try:
-        result = supabase_client.table('dim_test_types')\
-            .select('id')\
-            .eq('type_code', type_code.lower())\
-            .eq('is_active', True)\
-            .limit(1)\
-            .execute()
-        return result.data[0]['id'] if result.data else None
-    except Exception as e:
-        print(f"Error fetching test type ID for '{type_code}': {e}")
-        return None
-
-
-def get_all_test_types(supabase_client):
-    """Fetch all test types from dim_test_types and return mappings."""
-    if not supabase_client:
-        return {}, {}
-    try:
-        result = supabase_client.table('dim_test_types')\
-            .select('id, type_code')\
-            .eq('is_active', True)\
-            .execute()
-
-        code_to_id = {row['type_code']: row['id'] for row in result.data}
-        id_to_code = {row['id']: row['type_code'] for row in result.data}
-        return code_to_id, id_to_code
-    except Exception as e:
-        print(f"Error fetching test types: {e}")
-        return {}, {}
-
-
-def get_test_type_code_by_id(supabase_client, type_id):
-    """Map test type ID to type_code (listening, reading, etc.)"""
-    if not supabase_client or not type_id:
-        return None
-    try:
-        result = supabase_client.table('dim_test_types')\
-            .select('type_code')\
-            .eq('id', type_id)\
-            .limit(1)\
-            .execute()
-        return result.data[0]['type_code'] if result.data else None
-    except Exception as e:
-        print(f"Error fetching test type code for ID '{type_id}': {e}")
-        return None
-
-
-# Language ID mapping (matches dim_languages table)
-# Chinese=1, English=2, Japanese=3
-VALID_LANGUAGE_IDS = {1, 2, 3}
-
-LANGUAGE_ID_TO_NAME = {
-    1: 'chinese',
-    2: 'english',
-    3: 'japanese',
-}
-
-
-def parse_language_id(language_id_input):
-    """Parse and validate language_id - only accepts integer IDs"""
-    if language_id_input is None:
-        return None
-
-    try:
-        lang_id = int(language_id_input)
-        return lang_id if lang_id in VALID_LANGUAGE_IDS else None
-    except (ValueError, TypeError):
-        return None
-
-
-def save_test_to_database(supabase_service_client, test_data):
-    """Save generated test data using service role client (bypasses RLS)."""
-    if not supabase_service_client:
-        raise Exception("Supabase service client not initialized")
-    
-    print(f"TEST DATA: {test_data}", flush=True)
-    
-    try:
-        if not hasattr(g, 'supabase_claims') or not g.supabase_claims.get('sub'):
-            raise Exception("User not authenticated")
-
-        # Get and validate language_id
-        language_id = parse_language_id(test_data.get("language_id"))
-        if not language_id:
-            language_id = 1  # Default to Chinese
-
-        tests_row = {
-            "slug": test_data["slug"],
-            "language_id": language_id,
-            "topic": test_data.get("topic", ""),
-            "difficulty": int(test_data.get("difficulty", 1)),
-            "style": test_data.get("style", ""),
-            "tier": test_data.get("tier", "free"),
-            "title": test_data.get("title") or test_data.get("topic") or f"Language Test",
-            "transcript": test_data.get("transcript", ""),
-            "audio_url": test_data.get("audio_url", ""),
-            "total_attempts": test_data.get("total_attempts", 0),
-            "is_active": test_data.get("is_active", True),
-            "is_featured": test_data.get("is_featured", False),
-            "is_custom": test_data.get("is_custom", False),
-            "generation_model": test_data.get("generation_model", "gpt-4"),
-            "audio_generated": test_data.get("audio_generated", False),
-            "gen_user": test_data.get("gen_user", ""),
-        }
-
-        test_result = supabase_service_client.table('tests').insert(tests_row).execute()
-
-        if not test_result.data:
-            raise Exception("No data returned from test insert")
-
-        test_id = test_result.data[0]['id']
-        question_rows = []
-        for i, q in enumerate(test_data.get('questions', []), start=1):
-            choices = q.get('choices', [])
-            if isinstance(choices, str):
-                try:
-                    choices = json.loads(choices)
-                except json.JSONDecodeError:
-                    choices = [choices]
-
-            correct_answer = q.get('answer', '')
-
-            question_row = {
-                'test_id': test_id,
-                'question_id': q.get('id') or str(uuid4()),
-                'question_text': q.get('question', ''),
-                'question_type': q.get('question_type', 'multiple_choice'),
-                'choices': choices,
-                'correct_answer': correct_answer,
-                'answer_explanation': q.get('explanation', ''),
-                'points': q.get('points', 1),
-                'audio_url': q.get('audio_url', ''),
-            }
-            question_rows.append(question_row)
-
-        if question_rows:
-            questions_result = supabase_service_client.table('questions').insert(question_rows).execute()
-
-        initial_elo = 1400
-
-        # Get test type IDs from database
-        listening_id = get_test_type_id_by_code(supabase_service_client, 'listening')
-        reading_id = get_test_type_id_by_code(supabase_service_client, 'reading')
-        dictation_id = get_test_type_id_by_code(supabase_service_client, 'dictation')
-
-        skill_ratings = [
-            {
-                'test_id': test_id,
-                'test_type_id': listening_id,
-                'elo_rating': initial_elo,
-                'volatility': 1.0,
-                'total_attempts': 0,
-                'created_at': datetime.now(timezone.utc).isoformat(),
-                'updated_at': datetime.now(timezone.utc).isoformat(),
-            },
-            {
-                'test_id': test_id,
-                'test_type_id': reading_id,
-                'elo_rating': initial_elo,
-                'volatility': 1.0,
-                'total_attempts': 0,
-                'created_at': datetime.now(timezone.utc).isoformat(),
-                'updated_at': datetime.now(timezone.utc).isoformat(),
-            },
-            {
-                'test_id': test_id,
-                'test_type_id': dictation_id,
-                'elo_rating': initial_elo,
-                'volatility': 1.0,
-                'total_attempts': 0,
-                'created_at': datetime.now(timezone.utc).isoformat(),
-                'updated_at': datetime.now(timezone.utc).isoformat(),
-            }
-        ]
-
-        ratings_result = supabase_service_client.table('test_skill_ratings').insert(skill_ratings).execute()
-
-        return test_id
-
-    except Exception as e:
-        print(f"Error saving test to database: {e}", flush=True)
-        print(f"Full traceback: {traceback.format_exc()}")
-        raise
-
-
-def get_tests_from_database(supabase, test_type='reading', limit=20, language_id=None, difficulty=None):
-    """Fetch tests list with optional filters; order by ELO of requested test type."""
-    if not supabase:
-        return []
-
-    try:
-        query = supabase.table('tests').select(
-            'id, slug, language_id, topic, difficulty, '
-            'listening_rating, reading_rating, dictation_rating, created_at'
-        )
-
-        if language_id:
-            lang_id = parse_language_id(language_id)
-            if lang_id:
-                query = query.eq('language_id', lang_id)
-        if difficulty is not None:
-            query = query.eq('difficulty', str(int(difficulty)))
-
-        type_key = (test_type or 'reading').lower()
-        order_col = 'reading_rating'
-        if type_key in ('listening', 'reading', 'dictation'):
-            order_col = f'{type_key}_rating'
-        
-        query = query.order(order_col, desc=True).limit(limit)
-        result = query.execute()
-        data = result.data or []
-
-        for t in data:
-            try:
-                if t.get('difficulty') is not None:
-                    t['difficulty'] = int(t['difficulty'])
-            except Exception:
-                pass
-        
-        return data
-        
-    except Exception as e:
-        print(f"Error fetching tests from database: {e}")
-        return []
-
-def get_test_by_slug(supabase, slug):
-    """Get a single test by slug with its questions, formatted for the Flutter app."""
-    if not supabase:
-        return None
-
-    try:
-        t_res = supabase.table('tests').select('*').eq('slug', slug).limit(1).execute()
-        if not t_res.data:
-            return None
-
-        t = t_res.data[0]
-
-        q_res = (
-            supabase.table('questions')
-            .select('*')
-            .eq('test_id', t['id'])
-            .execute()
-        )
-
-        q_rows = q_res.data or []
-        
-        def _parse_choices(raw):
-            if isinstance(raw, list):
-                return raw
-            if isinstance(raw, str):
-                try:
-                    parsed = json.loads(raw)
-                    return parsed if isinstance(parsed, list) else [raw]
-                except Exception:
-                    return [raw]
-            return []
-        
-        questions = []
-        for q in q_rows:
-            questions.append({
-                'id': q['id'],
-                'question': q['question_text'],
-                'choices': _parse_choices(q.get('choices')),
-                'answer': q.get('correct_answer', ''),
-            })
-
-        difficulty_value = t.get('difficulty', 1)
-        try:
-            difficulty_value = int(difficulty_value)
-        except Exception:
-            difficulty_value = 1
-        
-        # Get language_id and convert to name for backwards compatibility
-        language_id = t.get('language_id')
-        language_name = LANGUAGE_ID_TO_NAME.get(language_id, 'unknown')
-
-        formatted = {
-            'id': t['id'],
-            'slug': t['slug'],
-            'language_id': language_id,
-            'language': language_name,  # backwards compat
-            'topic': t.get('topic') or '',
-            'title': t.get('topic') or f"{language_name.capitalize()} Test (Level {difficulty_value})",
-            'difficulty': difficulty_value,
-            'transcript': t.get('transcript') or '',
-            'questions': questions,
-            'created_at': t.get('created_at'),
-        }
-
-        return formatted
-
-    except Exception as e:
-        print(f"Error fetching test by slug: {e}", flush=True)
-        print(f"Full traceback: {traceback.format_exc()}", flush=True)
-        return None
-
-def record_test_attempt(supabase, user_id, test_id, responses, test_mode, time_taken=None):
-    """Record a user's test attempt and individual responses"""
-    if not supabase:
-        raise Exception("Supabase client not initialized")
-    
-    try:
-        # Calculate score
-        total_questions = len(responses)
-        correct_count = sum(1 for r in responses if r['is_correct'])
-        
-        # TODO: Get user ELO before attempt (implement ELO system)
-        user_elo_before = 1200  # Default starting ELO
-        user_elo_after = 1200   # Will be calculated by ELO function
-        
-        # Insert test attempt
-        attempt_record = {
-            'user_id': user_id,
-            'test_id': test_id,
-            'score': correct_count,
-            'total_questions': total_questions,
-            'test_mode': test_mode,
-            'time_taken_seconds': time_taken,
-            'user_elo_before': user_elo_before,
-            'user_elo_after': user_elo_after
-        }
-        
-        attempt_result = supabase.table('test_attempts').insert(attempt_record).execute()
-        attempt_id = attempt_result.data[0]['id']
-
-        responses_to_insert = []
-        for response in responses:
-            response_record = {
-                'attempt_id': attempt_id,
-                'question_id': response['question_id'],
-                'selected_answer': response['selected_answer'],
-                'is_correct': response['is_correct'],
-                'response_time_ms': response.get('response_time_ms')
-            }
-            responses_to_insert.append(response_record)
-        
-        if responses_to_insert:
-            supabase.table('attempt_responses').insert(responses_to_insert).execute()
-        
-        return {
-            'attempt_id': attempt_id,
-            'score': correct_count,
-            'total_questions': total_questions,
-            'percentage': (correct_count / total_questions) * 100
-        }
-
-    except Exception as e:
-        print(f"Error recording test attempt: {e}")
-        raise e
-
-def record_flagged_input(supabase, user_email, content, flagged_categories=None):
-    """Record flagged input for analytics with category information"""
-    if not supabase:
-        return
-
-    try:
-        import hashlib
-        record = {
-            'user_email': user_email,
-            'content_hash': hashlib.sha256(content.encode()).hexdigest()[:32],
-            'flagged_at': datetime.now(timezone.utc).isoformat(),
-            'content_type': 'test_generation',
-            'flagged_categories': json.dumps(flagged_categories or []),
-            'content_length': len(content),
-        }
-
-        supabase.table('flagged_inputs').insert(record).execute()
-    except Exception as e:
-        print(f"Failed to record flagged input: {e}")
+# ============================================================================
+# ROUTES
+# ============================================================================
 
 @tests_bp.route('/moderate', methods=['POST'])
 @supabase_jwt_required
@@ -448,8 +52,8 @@ def moderate_content():
 
         if not is_safe:
             current_user_email = g.supabase_claims.get('email')
-            record_flagged_input(
-                current_app.supabase,
+            test_service = get_test_service()
+            test_service.record_flagged_input(
                 current_user_email,
                 content,
                 moderation_result.get('flagged_categories', [])
@@ -596,7 +200,8 @@ def generate_test():
         }
 
         try:
-            test_id = save_test_to_database(current_app.supabase_service, test_data)
+            test_service = get_test_service()
+            test_id = test_service.save_test(test_data, current_user_id)
         except Exception as e:
             current_app.logger.error(f"Database save error: {e}")
             current_app.logger.error(f"Traceback: {traceback.format_exc()}")
@@ -764,7 +369,8 @@ def custom_test():
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
 
-        test_id = save_test_to_database(current_app.supabase_service, test_data)
+        test_service = get_test_service()
+        test_id = test_service.save_test(test_data, current_user_id)
         audio_success = False
         audio_url = ""
 
@@ -933,10 +539,8 @@ def get_tests_with_ratings():
 def get_test(slug):
     """Get a test by slug in the shape expected by the Flutter app."""
     try:
-        if not current_app.supabase:
-            return jsonify({"error": "Database not connected", "status": "error"}), 500
-        
-        test_data = get_test_by_slug(current_app.supabase, slug)
+        test_service = get_test_service()
+        test_data = test_service.get_test_by_slug(slug)
         if not test_data:
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
 
@@ -967,7 +571,8 @@ def submit_test_attempt(slug):
         if not responses:
             return jsonify({"error": "No responses provided"}), 400
 
-        test_data = get_test_by_slug(current_app.supabase, slug)
+        test_service = get_test_service()
+        test_data = test_service.get_test_by_slug(slug)
         if not test_data:
             return jsonify({"error": f"Test not found: {slug}"}), 404
 

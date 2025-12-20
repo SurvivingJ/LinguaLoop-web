@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc -l:*)"
+      "Bash(wc -l:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m py_compile:*)"
     ]
   }
 }

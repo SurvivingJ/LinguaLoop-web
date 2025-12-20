@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 from datetime import datetime, timezone
 import stripe
-from supabase import create_client
+from .services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
 import requests
 import logging
 import traceback
@@ -20,8 +20,7 @@ from .services.service_factory import ServiceFactory
 from .services.r2_service import R2Service
 from .services.prompt_service import PromptService
 from .services.auth_service import AuthService
-from .middleware.auth import AuthMiddleware
-from .utils.auth import supabase_jwt_required
+from .middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
 
 # Import blueprints
 from .routes.auth import auth_bp
@@ -101,22 +100,19 @@ def _setup_cors(app):
 
 def _initialize_services(app):
     """Initialize all external services with error handling"""
-    
-    # Supabase initialization
+
+    # Supabase initialization via centralized factory
     try:
         if Config.SUPABASE_URL and Config.SUPABASE_KEY:
-            app.supabase = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+            SupabaseFactory.initialize(
+                supabase_url=Config.SUPABASE_URL,
+                supabase_key=Config.SUPABASE_KEY,
+                service_role_key=Config.SUPABASE_SERVICE_ROLE_KEY
+            )
+            app.supabase = get_supabase()
+            app.supabase_service = get_supabase_admin()
             app.auth_service = AuthService(app.supabase)
-            
-            if Config.SUPABASE_SERVICE_ROLE_KEY:
-                app.supabase_service = create_client(
-                    Config.SUPABASE_URL,
-                    Config.SUPABASE_SERVICE_ROLE_KEY
-                )
-                app.logger.info("Supabase clients initialized (anon + service role)")
-            else:
-                app.supabase_service = None
-                app.logger.warning("Service role key not provided")
+            app.logger.info("Supabase clients initialized via SupabaseFactory")
         else:
             raise ValueError("Missing Supabase credentials")
     except Exception as e:
