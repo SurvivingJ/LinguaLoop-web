@@ -285,31 +285,13 @@ def _register_core_routes(app):
 
     @app.route('/api/metadata', methods=['GET'])
     def get_metadata():
-        """Return available languages and test types from dimension tables"""
-        try:
-            if not app.supabase:
-                return jsonify({"error": "Database not connected"}), 500
-
-            languages = app.supabase.table('dim_languages')\
-                .select('id, language_code, language_name, native_name')\
-                .eq('is_active', True)\
-                .order('display_order')\
-                .execute()
-
-            test_types = app.supabase.table('dim_test_types')\
-                .select('id, type_code, type_name, requires_audio')\
-                .eq('is_active', True)\
-                .order('display_order')\
-                .execute()
-
-            return jsonify({
-                'languages': languages.data or [],
-                'test_types': test_types.data or [],
-                'status': 'success'
-            })
-        except Exception as e:
-            app.logger.error(f"Metadata endpoint error: {e}")
-            return jsonify({'error': str(e), 'status': 'error'}), 500
+        """Return available languages and test types from cached dimension tables"""
+        from .services.test_service import DimensionService
+        return jsonify({
+            'languages': DimensionService.get_all_languages(),
+            'test_types': DimensionService.get_all_test_types(),
+            'status': 'success'
+        })
 
     @app.route('/api/users/elo', methods=['GET'])
     @supabase_jwt_required

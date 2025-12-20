@@ -36,6 +36,8 @@ class DimensionService:
 
     _language_cache: Dict[str, int] = {}
     _test_type_cache: Dict[str, int] = {}
+    _languages_metadata: List[Dict] = []
+    _test_types_metadata: List[Dict] = []
     _initialized: bool = False
 
     @classmethod
@@ -46,25 +48,39 @@ class DimensionService:
             return
 
         try:
-            # Cache languages
+            # Cache languages with full metadata
             langs = client.table('dim_languages')\
-                .select('id, language_code')\
+                .select('id, language_code, language_name, native_name')\
                 .eq('is_active', True)\
+                .order('display_order')\
                 .execute()
-            cls._language_cache = {r['language_code']: r['id'] for r in langs.data}
+            cls._languages_metadata = langs.data or []
+            cls._language_cache = {r['language_code']: r['id'] for r in cls._languages_metadata}
 
-            # Cache test types
+            # Cache test types with full metadata
             types = client.table('dim_test_types')\
-                .select('id, type_code')\
+                .select('id, type_code, type_name, requires_audio')\
                 .eq('is_active', True)\
+                .order('display_order')\
                 .execute()
-            cls._test_type_cache = {r['type_code']: r['id'] for r in types.data}
+            cls._test_types_metadata = types.data or []
+            cls._test_type_cache = {r['type_code']: r['id'] for r in cls._test_types_metadata}
 
             cls._initialized = True
             logger.info(f"DimensionService initialized: {len(cls._language_cache)} languages, {len(cls._test_type_cache)} test types")
 
         except Exception as e:
             logger.error(f"Failed to initialize DimensionService: {e}")
+
+    @classmethod
+    def get_all_languages(cls) -> List[Dict]:
+        """Return cached language metadata for /api/metadata endpoint."""
+        return cls._languages_metadata
+
+    @classmethod
+    def get_all_test_types(cls) -> List[Dict]:
+        """Return cached test type metadata for /api/metadata endpoint."""
+        return cls._test_types_metadata
 
     @classmethod
     def get_language_id(cls, language_code: str, supabase_client=None) -> Optional[int]:
