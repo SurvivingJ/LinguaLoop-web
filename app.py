@@ -113,6 +113,12 @@ def _initialize_services(app):
             app.supabase_service = get_supabase_admin()
             app.auth_service = AuthService(app.supabase)
             app.logger.info("Supabase clients initialized via SupabaseFactory")
+
+            # Initialize dimension table cache for fast lookups
+            from .services.test_service import DimensionService, get_test_service
+            DimensionService.initialize(app.supabase)
+            app.test_service = get_test_service()  # Singleton for reuse
+            app.logger.info("DimensionService cache and TestService initialized")
         else:
             raise ValueError("Missing Supabase credentials")
     except Exception as e:

@@ -555,9 +555,15 @@ class TestService:
 
 
 # ============================================================================
-# CONVENIENCE FUNCTIONS
+# SINGLETON INSTANCE
 # ============================================================================
 
+_test_service_instance: TestService = None
+
+
 def get_test_service() -> TestService:
-    """Get a TestService instance with default clients."""
-    return TestService()
+    """Get the singleton TestService instance."""
+    global _test_service_instance
+    if _test_service_instance is None:
+        _test_service_instance = TestService()
+    return _test_service_instance
