@@ -4,65 +4,43 @@ Handles token-based pay-as-you-go payments via Stripe
 """
 
 import stripe
-import os
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple
 from enum import Enum
-from dataclasses import dataclass
 from supabase import Client
+
+from ..config import Config
+
 
 class TokenAction(Enum):
     """Actions that consume tokens"""
     TAKE_TEST = 'take_test'
     GENERATE_TEST = 'generate_test'
 
-@dataclass
-class TokenPackage:
-    """Token package configuration"""
-    id: str
-    tokens: int
-    price_cents: int  # Price in cents for Stripe
-    description: str
-    
-    @property
-    def price_dollars(self) -> float:
-        return self.price_cents / 100
 
 class PaymentService:
     """
-    Handles all payment and token-related operations
+    Handles all payment and token-related operations.
+    Uses Config as single source of truth for costs and packages.
     """
-    
-    # Token costs for different actions
-    TOKEN_COSTS = {
-        TokenAction.TAKE_TEST: 1,
-        TokenAction.GENERATE_TEST: 5
-    }
-    
-    # Daily free token allowance
-    DAILY_FREE_TOKENS = 2
-    
-    # Available token packages
-    TOKEN_PACKAGES = {
-        'starter_10': TokenPackage(
-            id='starter_10',
-            tokens=10,
-            price_cents=199,  # $1.99
-            description='Starter pack - try the platform'
-        ),
-        'popular_50': TokenPackage(
-            id='popular_50', 
-            tokens=50,
-            price_cents=799,  # $7.99 (≈$0.16/token)
-            description='Most popular - great value'
-        ),
-        'premium_200': TokenPackage(
-            id='premium_200',
-            tokens=200,
-            price_cents=1999,  # $19.99 (≈$0.10/token)
-            description='Premium pack - best value for serious learners'
-        )
-    }
+
+    @property
+    def TOKEN_COSTS(self):
+        """Get token costs from Config"""
+        return {
+            TokenAction.TAKE_TEST: Config.TOKEN_COSTS['take_test'],
+            TokenAction.GENERATE_TEST: Config.TOKEN_COSTS['generate_test']
+        }
+
+    @property
+    def DAILY_FREE_TOKENS(self):
+        """Get daily free tokens from Config"""
+        return Config.DAILY_FREE_TOKENS
+
+    @property
+    def TOKEN_PACKAGES(self):
+        """Get token packages from Config"""
+        return Config.TOKEN_PACKAGES
     
     def __init__(self, supabase_client: Client, stripe_secret_key: str):
         """

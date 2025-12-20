@@ -14,34 +14,17 @@ from ..utils.question_validator import QuestionValidator
 class AIService:
     """AI generation service supporting OpenAI and OpenRouter"""
 
-    # Language-specific model configuration for OpenRouter
-    MODEL_CONFIG = {
-        'english': {
-            'transcript': 'google/gemini-2.0-flash-001',
-            'questions': 'google/gemini-2.0-flash-001'
-        },
-        'chinese': {
-            'transcript': 'deepseek/deepseek-chat',
-            'questions': 'deepseek/deepseek-chat'
-        },
-        'japanese': {
-            'transcript': 'qwen/qwen-2.5-72b-instruct',
-            'questions': 'qwen/qwen-2.5-72b-instruct'
-        }
-    }
-
     def __init__(self, openai_client, config, prompt_service=None, use_openrouter=False):
         self.client = openai_client
+        self.config = config
         self.r2_client = self._create_r2_client(config)
-        self.r2_bucket = 'lingualoopaudio'
+        self.r2_bucket = config.R2_BUCKET_NAME
 
         # Initialize PromptService
         self.prompt_service = prompt_service if prompt_service else PromptService()
 
-        # OpenRouter configuration
+        # OpenRouter configuration - use Config as source of truth
         self.use_openrouter = use_openrouter
-        self.default_transcript_model = "gpt-4o-mini"
-        self.default_question_model = "gpt-4o-mini"
     
     def _create_r2_client(self, config):
         """Create Cloudflare R2 client using boto3"""
@@ -55,12 +38,9 @@ class AIService:
 
     def _get_model_for_language(self, language: str, task: str) -> str:
         """Get optimal model for language and task (transcript or questions)"""
-        if not self.use_openrouter:
-            return self.default_transcript_model if task == 'transcript' else self.default_question_model
-
-        language_key = language.lower()
-        config = self.MODEL_CONFIG.get(language_key, self.MODEL_CONFIG.get('english'))
-        return config.get(task, self.MODEL_CONFIG['english'][task])
+        # Use Config as single source of truth for model selection
+        from ..config import Config
+        return Config.get_model_for_language(language, task)
 
     def generate_transcript(self, language, topic, difficulty, style):
         """Generate listening comprehension transcript using language-specific models"""

@@ -18,16 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================================
-# CONSTANTS
+# CONSTANTS - Import from Config (single source of truth)
 # ============================================================================
+from ..config import Config
 
-# Language ID mapping (matches dim_languages table)
-VALID_LANGUAGE_IDS = {1, 2, 3}
-LANGUAGE_ID_TO_NAME = {
-    1: 'chinese',
-    2: 'english',
-    3: 'japanese',
-}
+VALID_LANGUAGE_IDS = Config.VALID_LANGUAGE_IDS
+LANGUAGE_ID_TO_NAME = Config.LANGUAGE_ID_TO_NAME
 LANGUAGE_NAME_TO_ID = {v: k for k, v in LANGUAGE_ID_TO_NAME.items()}
 
 
