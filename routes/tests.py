@@ -555,7 +555,7 @@ def get_test(slug):
 @tests_bp.route('/<slug>/submit', methods=['POST'])
 @supabase_jwt_required
 def submit_test_attempt(slug):
-    """Submit test answers and calculate ELO changes"""
+    """Submit test answers and calculate ELO changes with idempotency support"""
     try:
         if not current_app.supabase_service:
             return jsonify({"error": "Database service not configured"}), 500
@@ -580,6 +580,12 @@ def submit_test_attempt(slug):
         if not questions:
             return jsonify({"error": "No questions found for this test"}), 404
 
+        # Get test_type_id from the test_mode using DimensionService cache
+        test_type_id = DimensionService.get_test_type_id(test_mode)
+        if not test_type_id:
+            logger.warning(f"Unknown test_mode '{test_mode}', defaulting to reading")
+            test_type_id = DimensionService.get_test_type_id('reading') or 1
+
         response_map = {r['question_id']: r['selected_answer'] for r in responses}
 
         score = 0
@@ -603,17 +609,19 @@ def submit_test_attempt(slug):
         total_questions = len(questions)
         percentage = score / total_questions if total_questions > 0 else 0.0
 
+        # Generate idempotency key to prevent duplicate submissions
+        idempotency_key = str(uuid4())
+
         # Call database RPC for ELO calculation and attempt recording
         rpc_result = current_app.supabase_service.rpc('process_test_submission', {
             'p_user_id': current_user_id,
             'p_test_id': test_data['id'],
             'p_language_id': test_data['language_id'],
-            'p_skill_type': test_mode,
+            'p_test_type_id': test_type_id,
             'p_score': score,
             'p_total_questions': total_questions,
-            'p_test_mode': test_mode,
-            'p_tokens_consumed': 0,
-            'p_was_free_test': True
+            'p_was_free_test': True,
+            'p_idempotency_key': idempotency_key
         }).execute()
 
         if not rpc_result.data or not rpc_result.data.get('success'):
@@ -622,20 +630,22 @@ def submit_test_attempt(slug):
             return jsonify({"error": "Failed to process test submission"}), 500
 
         elo_results = rpc_result.data
+        is_first_attempt = elo_results.get('is_first_attempt', True)
 
-        # Update user stats
-        user_data = current_app.supabase_service.table('users').select('total_tests_taken')\
-            .eq('id', current_user_id).execute()
+        # Update user stats (only on first attempt to avoid inflating counts)
+        if is_first_attempt:
+            user_data = current_app.supabase_service.table('users').select('total_tests_taken')\
+                .eq('id', current_user_id).execute()
 
-        current_tests_taken = 0
-        if user_data.data and len(user_data.data) > 0:
-            current_tests_taken = user_data.data[0].get('total_tests_taken', 0)
+            current_tests_taken = 0
+            if user_data.data and len(user_data.data) > 0:
+                current_tests_taken = user_data.data[0].get('total_tests_taken', 0)
 
-        current_app.supabase_service.table('users').update({
-            'total_tests_taken': current_tests_taken + 1,
-            'last_activity_at': datetime.now().isoformat()
-        }).eq('id', current_user_id).execute()
-        
+            current_app.supabase_service.table('users').update({
+                'total_tests_taken': current_tests_taken + 1,
+                'last_activity_at': datetime.now().isoformat()
+            }).eq('id', current_user_id).execute()
+
         # Return comprehensive result
         return jsonify({
             'status': 'success',
@@ -644,6 +654,7 @@ def submit_test_attempt(slug):
                 'total_questions': total_questions,
                 'percentage': percentage,
                 'question_results': question_results,
+                'is_first_attempt': is_first_attempt,
                 'user_elo_change': {
                     'before': elo_results['user_elo_before'],
                     'after': elo_results['user_elo_after'],
@@ -659,7 +670,7 @@ def submit_test_attempt(slug):
                 'attempt_id': str(elo_results.get('attempt_id')) if elo_results.get('attempt_id') else None
             }
         })
-        
+
     except Exception as e:
         current_app.logger.error(f"Test submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
