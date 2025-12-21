@@ -3,7 +3,7 @@ Flask Backend for LinguaLoop Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, request, jsonify, Response, make_response, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, Response, make_response, render_template, redirect, url_for, session, g
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 from datetime import datetime, timezone
@@ -298,18 +298,10 @@ def _register_core_routes(app):
     def get_user_elo_ratings():
         """Get user's ELO ratings across all languages and skills"""
         try:
-            current_user_email = get_jwt_identity()
-            
-            user_result = app.supabase.table('users')\
-                .select('id')\
-                .eq('email', current_user_email)\
-                .single()\
-                .execute()
-            
-            if not user_result.data:
-                return jsonify({"error": "User not found"}), 404
-            
-            user_id = user_result.data['id']
+            # Get user_id from JWT claims (set by middleware) instead of querying by email
+            user_id = g.supabase_claims.get('sub')
+            if not user_id:
+                return jsonify({"error": "User ID not found in token"}), 401
             
             ratings_result = app.supabase.table('user_skill_ratings')\
                 .select('*')\
@@ -344,24 +336,27 @@ def _register_core_routes(app):
     def get_token_balance():
         """Get user's current token balance"""
         try:
-            current_user_email = get_jwt_identity()
-            
+            # Get user_id from JWT claims instead of querying by email
+            user_id = g.supabase_claims.get('sub')
+            if not user_id:
+                return jsonify({"error": "User ID not found in token"}), 401
+
             user_result = app.supabase.table('users')\
                 .select('tokens, last_free_token_date')\
-                .eq('email', current_user_email)\
+                .eq('id', user_id)\
                 .single()\
                 .execute()
-            
+
             if not user_result.data:
                 return jsonify({"error": "User not found"}), 404
-            
+
             tokens = user_result.data.get('tokens', 0)
             last_free_date = user_result.data.get('last_free_token_date')
-            
+
             # Check if user should get daily free tokens
             today = datetime.now(timezone.utc).date().isoformat()
             free_tokens_today = Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
-            
+
             if last_free_date != today and free_tokens_today > 0:
                 # Grant daily free tokens
                 new_tokens = tokens + free_tokens_today
@@ -370,7 +365,7 @@ def _register_core_routes(app):
                         'tokens': new_tokens,
                         'last_free_token_date': today
                     })\
-                    .eq('email', current_user_email)\
+                    .eq('id', user_id)\
                     .execute()
                 tokens = new_tokens
             
@@ -389,14 +384,17 @@ def _register_core_routes(app):
     def get_user_profile():
         """Get user profile information"""
         try:
-            current_user_email = get_jwt_identity()
-            
+            # Get user_id from JWT claims instead of querying by email
+            user_id = g.supabase_claims.get('sub')
+            if not user_id:
+                return jsonify({"error": "User ID not found in token"}), 401
+
             user_result = app.supabase.table('users')\
                 .select('*')\
-                .eq('email', current_user_email)\
+                .eq('id', user_id)\
                 .single()\
                 .execute()
-            
+
             if not user_result.data:
                 return jsonify({"error": "User not found"}), 404
             

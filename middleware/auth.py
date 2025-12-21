@@ -22,7 +22,7 @@ def _extract_token(req):
 
 def _get_supabase_client():
     """Get Supabase client from factory (lazy import to avoid circular deps)"""
-    from ..services.supabase_factory import get_supabase
+    from ..services.supabase_factory import get_supabase, get_supabase_admin
     return get_supabase()
 
 
@@ -108,14 +108,19 @@ def admin_required(f):
             g.current_user_id = user_response.user.id
             g.current_user = user_response.user
 
-            # Check admin status
-            result = supabase.table('users')\
+            # Check admin status using admin client to bypass RLS
+            logger.debug(f"[AUTH] Checking admin status for user_id={user_response.user.id}")
+            supabase_admin = get_supabase_admin()
+            result = supabase_admin.table('users')\
                 .select('subscription_tier')\
                 .eq('id', user_response.user.id)\
                 .execute()
 
             if not result.data or result.data[0]['subscription_tier'] not in ['admin', 'moderator']:
+                logger.warning(f"[AUTH] Admin access denied for user_id={user_response.user.id}")
                 return jsonify({'error': 'Admin access required'}), 403
+
+            logger.info(f"[AUTH] Admin access granted for user_id={user_response.user.id}")
 
         except Exception as e:
             logger.error(f'Admin auth failed: {e}')
@@ -148,14 +153,19 @@ def tier_required(required_tiers: list):
 
                 g.current_user_id = user_response.user.id
 
-                # Check tier
-                result = supabase.table('users')\
+                # Check tier using admin client to bypass RLS
+                logger.debug(f"[AUTH] Checking tier for user_id={user_response.user.id}, required_tiers={required_tiers}")
+                supabase_admin = get_supabase_admin()
+                result = supabase_admin.table('users')\
                     .select('subscription_tier')\
                     .eq('id', user_response.user.id)\
                     .execute()
 
                 if not result.data or result.data[0]['subscription_tier'] not in required_tiers:
+                    logger.warning(f"[AUTH] Tier access denied for user_id={user_response.user.id}, has tier={result.data[0]['subscription_tier'] if result.data else 'unknown'}")
                     return jsonify({'error': f'Requires {" or ".join(required_tiers)} access'}), 403
+
+                logger.info(f"[AUTH] Tier access granted for user_id={user_response.user.id}")
 
             except Exception as e:
                 logger.error(f'Tier auth failed: {e}')
@@ -178,6 +188,8 @@ class AuthMiddleware:
 
     def __init__(self, supabase_client):
         self.supabase = supabase_client
+        # Get admin client from factory for privileged operations
+        self.supabase_admin = get_supabase_admin()
 
     def jwt_required(self, f):
         """Decorator for endpoints requiring authentication"""
@@ -209,13 +221,18 @@ class AuthMiddleware:
                 user = self.supabase.auth.get_user(token)
                 g.current_user_id = user.user.id
 
-                result = self.supabase.table('users')\
+                # Check admin status using admin client to bypass RLS
+                logger.debug(f"[AUTH] Class-based admin check for user_id={user.user.id}")
+                result = self.supabase_admin.table('users')\
                     .select('subscription_tier')\
                     .eq('id', user.user.id)\
                     .execute()
 
                 if not result.data or result.data[0]['subscription_tier'] not in ['admin', 'moderator']:
+                    logger.warning(f"[AUTH] Admin access denied for user_id={user.user.id}")
                     return jsonify({'error': 'Admin access required'}), 403
+
+                logger.info(f"[AUTH] Admin access granted (class-based) for user_id={user.user.id}")
 
             except Exception as e:
                 return jsonify({'error': 'Access denied'}), 403
@@ -236,13 +253,18 @@ class AuthMiddleware:
                     user = self.supabase.auth.get_user(token)
                     g.current_user_id = user.user.id
 
-                    result = self.supabase.table('users')\
+                    # Check tier using admin client to bypass RLS
+                    logger.debug(f"[AUTH] Class-based tier check for user_id={user.user.id}, required_tiers={required_tiers}")
+                    result = self.supabase_admin.table('users')\
                         .select('subscription_tier')\
                         .eq('id', user.user.id)\
                         .execute()
 
                     if not result.data or result.data[0]['subscription_tier'] not in required_tiers:
+                        logger.warning(f"[AUTH] Tier access denied for user_id={user.user.id}, has tier={result.data[0]['subscription_tier'] if result.data else 'unknown'}")
                         return jsonify({'error': f'Requires {" or ".join(required_tiers)} access'}), 403
+
+                    logger.info(f"[AUTH] Tier access granted (class-based) for user_id={user.user.id}")
 
                 except Exception as e:
                     return jsonify({'error': 'Access denied'}), 403

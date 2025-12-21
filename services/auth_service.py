@@ -145,13 +145,16 @@ class AuthService:
         This method retrieves that data and adds the token balance.
         """
         try:
-            # Query user data from users table
-            result = self.supabase.table('users')\
+            self.logger.info(f"[AUTH] Fetching user data for user_id={user_id}, email={email}")
+
+            # Query user data from users table using admin client
+            # CRITICAL: Must use admin client here because user doesn't have auth session context yet during OTP flow
+            result = self.supabase_admin.table('users')\
                 .select('*')\
                 .eq('id', user_id)\
                 .execute()
 
-            self.logger.info(f"Retrieved user data for {user_id}: {bool(result.data)}")
+            self.logger.info(f"[AUTH] User data query result: found={bool(result.data)}, count={len(result.data) if result.data else 0}")
 
             if result.data:
                 user_data = result.data[0]
@@ -219,18 +222,22 @@ class AuthService:
     def logout(self, user_id: str) -> Dict:
         """Handle user logout"""
         try:
+            self.logger.info(f"[AUTH] Logging out user_id={user_id}")
+
             # Sign out from Supabase
             self.supabase.auth.sign_out()
-            
-            # Update last activity
-            self.supabase.table('users').update({
+
+            # Update last activity using admin client
+            # CRITICAL: Use admin client because session may be invalidated before update completes
+            self.supabase_admin.table('users').update({
                 'last_activity_at': datetime.now(timezone.utc).isoformat()
             }).eq('id', user_id).execute()
-            
+
+            self.logger.info(f"[AUTH] Successfully logged out user_id={user_id}")
             return {'success': True, 'message': 'Logged out successfully'}
-            
+
         except Exception as e:
-            self.logger.error(f'Logout error: {e}')
+            self.logger.error(f'[AUTH] Logout error for user_id={user_id}: {e}')
             return {'success': False, 'error': 'Logout failed'}
     
     def get_user_profile(self, user_id: str) -> Dict:
