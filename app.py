@@ -298,37 +298,67 @@ def _register_core_routes(app):
     def get_user_elo_ratings():
         """Get user's ELO ratings across all languages and skills"""
         try:
-            # Get user_id from JWT claims (set by middleware) instead of querying by email
+            # Get user_id from JWT claims
             user_id = g.supabase_claims.get('sub')
             if not user_id:
                 return jsonify({"error": "User ID not found in token"}), 401
             
+            # ✅ FIXED: Query with correct schema and FK joins
             ratings_result = app.supabase.table('user_skill_ratings')\
-                .select('*')\
+                .select('''
+                    user_id,
+                    language_id,
+                    test_type_id,
+                    elo_rating,
+                    tests_taken,
+                    last_test_date,
+                    volatility,
+                    dim_languages(language_code, language_name),
+                    dim_test_types(type_code, type_name)
+                ''')\
                 .eq('user_id', user_id)\
                 .execute()
             
+            # ✅ FIXED: Build response with correct field names
             ratings = {}
             for rating in ratings_result.data or []:
-                language = rating['language']
-                skill_type = rating['skill_type']
+                # Get language info from FK join
+                lang_info = rating.get('dim_languages') or {}
+                language_code = lang_info.get('language_code', 'unknown')
+                language_name = lang_info.get('language_name', 'Unknown')
                 
-                if language not in ratings:
-                    ratings[language] = {}
+                # Get test type info from FK join
+                type_info = rating.get('dim_test_types') or {}
+                test_type_code = type_info.get('type_code', 'unknown')
+                test_type_name = type_info.get('type_name', 'Unknown')
                 
-                ratings[language][skill_type] = {
+                # Nest by language code
+                if language_code not in ratings:
+                    ratings[language_code] = {
+                        'language_name': language_name,
+                        'language_id': rating['language_id'],
+                        'skills': {}
+                    }
+                
+                # Add skill rating
+                ratings[language_code]['skills'][test_type_code] = {
                     'elo_rating': rating['elo_rating'],
                     'tests_taken': rating['tests_taken'],
                     'last_test_date': rating.get('last_test_date'),
-                    'volatility': rating.get('volatility', 100)
+                    'volatility': rating.get('volatility', 100),
+                    'skill_name': test_type_name,
+                    'test_type_id': rating['test_type_id']
                 }
             
             return jsonify({
                 'status': 'success',
                 'ratings': ratings
             })
+        
         except Exception as e:
             app.logger.error(f"Error getting user ELO: {e}")
+            import traceback
+            app.logger.error(traceback.format_exc())
             return jsonify({'error': 'Failed to get ELO ratings'}), 500
     
     @app.route('/api/users/tokens', methods=['GET'])

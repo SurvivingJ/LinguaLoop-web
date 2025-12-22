@@ -609,44 +609,58 @@ def submit_test_attempt(slug):
         total_questions = len(questions)
         percentage = score / total_questions if total_questions > 0 else 0.0
 
-        # Generate idempotency key to prevent duplicate submissions
-        idempotency_key = str(uuid4())
-
         # Call database RPC for ELO calculation and attempt recording
-        rpc_result = current_app.supabase_service.rpc('process_test_submission', {
-            'p_user_id': current_user_id,
-            'p_test_id': test_data['id'],
-            'p_language_id': test_data['language_id'],
-            'p_test_type_id': test_type_id,
-            'p_score': score,
-            'p_total_questions': total_questions,
-            'p_was_free_test': True,
-            'p_idempotency_key': idempotency_key
-        }).execute()
+        try:
+            response = current_app.supabase_service.rpc('process_test_submission', {
+                'p_user_id': current_user_id,
+                'p_test_id': test_data['id'],
+                'p_language_id': test_data['language_id'],  # Language ID (smallint)
+                'p_test_type_id': test_type_id,             # Test type ID (smallint)
+                'p_score': score,
+                'p_total_questions': total_questions,
+                'p_was_free_test': True,
+                'p_idempotency_key': str(uuid4())           # For duplicate prevention
+            }).execute()
+            
+            # Extract JSONB result from response.data
+            rpc_result = response.data
+            
+        except Exception as e:
+            # The Supabase Python client throws APIError for JSONB responses
+            # Parse the response which is actually in the exception
+            error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
+            
+            # Check if it's actually a successful JSONB response
+            if isinstance(error_data, dict) and error_data.get('success'):
+                rpc_result = error_data
+                current_app.logger.info(f"RPC succeeded (JSONB response): attempt_id={rpc_result.get('attempt_id')}")
+            else:
+                # Actual error
+                current_app.logger.error(f"RPC call failed: {error_data}")
+                return jsonify({"error": "Failed to process test submission"}), 500
 
-        if not rpc_result.data or not rpc_result.data.get('success'):
-            error_msg = rpc_result.data.get('error', 'Unknown error') if rpc_result.data else 'RPC failed'
-            current_app.logger.error(f"ELO RPC failed: {error_msg}")
-            return jsonify({"error": "Failed to process test submission"}), 500
+        # Validate the result
+        if not rpc_result or not rpc_result.get('success'):
+            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
+            error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
+            current_app.logger.error(f"ELO RPC failed: {error_msg} (detail: {error_detail})")
+            return jsonify({
+                "error": "Failed to process test submission",
+                "details": error_msg
+            }), 500
 
-        elo_results = rpc_result.data
-        is_first_attempt = elo_results.get('is_first_attempt', True)
-
-        # Update user stats (only on first attempt to avoid inflating counts)
-        if is_first_attempt:
-            user_data = current_app.supabase_service.table('users').select('total_tests_taken')\
-                .eq('id', current_user_id).execute()
-
-            current_tests_taken = 0
-            if user_data.data and len(user_data.data) > 0:
-                current_tests_taken = user_data.data[0].get('total_tests_taken', 0)
-
-            current_app.supabase_service.table('users').update({
-                'total_tests_taken': current_tests_taken + 1,
-                'last_activity_at': datetime.now().isoformat()
-            }).eq('id', current_user_id).execute()
+        # Extract ELO results
+        is_first_attempt = rpc_result.get('is_first_attempt', True)
+        attempt_id = rpc_result.get('attempt_id')
+        
+        current_app.logger.info(
+            f"Test submitted successfully: user={current_user_id}, "
+            f"test={test_data['id']}, attempt={attempt_id}, "
+            f"score={score}/{total_questions}, first_attempt={is_first_attempt}"
+        )
 
         # Return comprehensive result
+        # Note: RPC function already handles all state updates atomically
         return jsonify({
             'status': 'success',
             'result': {
@@ -656,27 +670,27 @@ def submit_test_attempt(slug):
                 'question_results': question_results,
                 'is_first_attempt': is_first_attempt,
                 'user_elo_change': {
-                    'before': elo_results['user_elo_before'],
-                    'after': elo_results['user_elo_after'],
-                    'change': elo_results['user_elo_change']
+                    'before': rpc_result.get('user_elo_before'),
+                    'after': rpc_result.get('user_elo_after'),
+                    'change': rpc_result.get('user_elo_change', 0)
                 },
                 'test_elo_change': {
-                    'before': elo_results['test_elo_before'],
-                    'after': elo_results['test_elo_after'],
-                    'change': elo_results['test_elo_change']
+                    'before': rpc_result.get('test_elo_before'),
+                    'after': rpc_result.get('test_elo_after'),
+                    'change': rpc_result.get('test_elo_change', 0)
                 },
                 'test_mode': test_mode,
-                'language': test_data['language'],
-                'attempt_id': str(elo_results.get('attempt_id')) if elo_results.get('attempt_id') else None
+                'language': test_data.get('language'),
+                'attempt_id': str(attempt_id) if attempt_id else None,
+                'tokens_consumed': rpc_result.get('tokens_cost', 0),
+                'message': rpc_result.get('message', '')
             }
-        })
+        }), 200
 
     except Exception as e:
         current_app.logger.error(f"Test submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit test'}), 500
-
-
+        return jsonify({'error': 'Failed to submit test', 'details': str(e)}), 500
 
 
 @tests_bp.route('/test/<slug>', methods=['GET'])

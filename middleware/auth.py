@@ -22,8 +22,14 @@ def _extract_token(req):
 
 def _get_supabase_client():
     """Get Supabase client from factory (lazy import to avoid circular deps)"""
-    from ..services.supabase_factory import get_supabase, get_supabase_admin
+    from ..services.supabase_factory import get_supabase
     return get_supabase()
+
+
+def _get_supabase_admin():
+    """Get admin Supabase client from factory (lazy import to avoid circular deps)"""
+    from ..services.supabase_factory import get_supabase_admin
+    return get_supabase_admin()
 
 
 # ============================================================================
@@ -110,7 +116,7 @@ def admin_required(f):
 
             # Check admin status using admin client to bypass RLS
             logger.debug(f"[AUTH] Checking admin status for user_id={user_response.user.id}")
-            supabase_admin = get_supabase_admin()
+            supabase_admin = _get_supabase_admin()
             result = supabase_admin.table('users')\
                 .select('subscription_tier')\
                 .eq('id', user_response.user.id)\
@@ -155,7 +161,7 @@ def tier_required(required_tiers: list):
 
                 # Check tier using admin client to bypass RLS
                 logger.debug(f"[AUTH] Checking tier for user_id={user_response.user.id}, required_tiers={required_tiers}")
-                supabase_admin = get_supabase_admin()
+                supabase_admin = _get_supabase_admin()
                 result = supabase_admin.table('users')\
                     .select('subscription_tier')\
                     .eq('id', user_response.user.id)\
@@ -189,7 +195,7 @@ class AuthMiddleware:
     def __init__(self, supabase_client):
         self.supabase = supabase_client
         # Get admin client from factory for privileged operations
-        self.supabase_admin = get_supabase_admin()
+        self.supabase_admin = _get_supabase_admin()
 
     def jwt_required(self, f):
         """Decorator for endpoints requiring authentication"""
