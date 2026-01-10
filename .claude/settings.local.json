@@ -5,7 +5,13 @@
       "Bash(python -c:*)",
       "Bash(python -m py_compile:*)",
       "Bash(grep:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(python -m scripts.run_topic_generation:*)",
+      "Bash(source:*)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(python -m services.test_generation.orchestrator:*)",
+      "Bash(python -m scripts.run_test_generation:*)"
     ]
   }
 }

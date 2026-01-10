@@ -8,7 +8,6 @@ Supports 6 semantic question types.
 import json
 import logging
 from typing import List, Dict, Optional
-from uuid import uuid4
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -82,6 +81,7 @@ class QuestionGenerator:
         prose: str,
         language_name: str,
         question_type_codes: List[str],
+        difficulty: int = 5,
         prompt_templates: Optional[Dict[str, str]] = None,
         model_override: Optional[str] = None
     ) -> List[Dict]:
@@ -92,6 +92,7 @@ class QuestionGenerator:
             prose: The prose/transcript text
             language_name: Target language name
             question_type_codes: List of question type codes to generate
+            difficulty: Difficulty level 1-9 (for template)
             prompt_templates: Dict of type_code -> template (optional)
             model_override: Override model for these calls
 
@@ -101,24 +102,23 @@ class QuestionGenerator:
         questions = []
         previous_questions = []
 
-        for i, type_code in enumerate(question_type_codes):
+        for type_code in question_type_codes:
             try:
                 question = self._generate_single_question(
                     prose=prose,
                     language_name=language_name,
                     question_type_code=type_code,
+                    difficulty=difficulty,
                     previous_questions=previous_questions,
                     prompt_template=prompt_templates.get(type_code) if prompt_templates else None,
                     model_override=model_override
                 )
 
                 questions.append({
-                    'id': str(uuid4()),
                     'question': question['Question'],
                     'choices': question['Options'],
                     'answer': question['Answer'],
-                    'type_code': type_code,
-                    'display_order': i + 1
+                    'type_code': type_code
                 })
 
                 previous_questions.append(question['Question'])
@@ -142,6 +142,7 @@ class QuestionGenerator:
         prose: str,
         language_name: str,
         question_type_code: str,
+        difficulty: int,
         previous_questions: List[str],
         prompt_template: Optional[str] = None,
         model_override: Optional[str] = None
@@ -153,6 +154,7 @@ class QuestionGenerator:
             prose: The prose/transcript text
             language_name: Target language
             question_type_code: Type of question to generate
+            difficulty: Difficulty level 1-9
             previous_questions: Previously generated questions (for diversity)
             prompt_template: Custom prompt template (optional)
             model_override: Override model for this call
@@ -164,12 +166,17 @@ class QuestionGenerator:
 
         # Build prompt
         if prompt_template:
+            # Use placeholder names that match actual database templates:
+            # {prose}, {difficulty}, {previous_questions}, {language}
+            logger.info(f"Using DATABASE template for {question_type_code}")
             prompt = prompt_template.format(
-                transcript=prose,
-                language=language_name,
-                previous_questions='; '.join(previous_questions) if previous_questions else 'None'
+                prose=prose,
+                difficulty=difficulty,
+                previous_questions='; '.join(previous_questions) if previous_questions else 'None',
+                language=language_name
             )
         else:
+            logger.info(f"Using FALLBACK template for {question_type_code}")
             prompt = self._build_question_prompt(
                 prose,
                 language_name,
@@ -194,6 +201,10 @@ class QuestionGenerator:
             if not content:
                 raise Exception("Empty response from LLM")
 
+            # DEBUG: Log raw LLM response
+            logger.info(f"RAW LLM RESPONSE for {question_type_code}:")
+            logger.info(f"{content[:500]}")
+
             # Parse JSON response
             question_data = self._parse_question_response(content.strip())
 
@@ -202,6 +213,7 @@ class QuestionGenerator:
 
         except Exception as e:
             logger.error(f"Question generation failed for {question_type_code}: {e}")
+            logger.error(f"LLM Response was: {content[:200] if 'content' in locals() else 'No response'}")
             raise
 
     def _build_question_prompt(
@@ -256,18 +268,81 @@ Return ONLY valid JSON in this exact format:
 
         content = content.strip()
 
-        # Find JSON object
+        # Find JSON object - use a smarter approach for nested braces
         start_idx = content.find('{')
-        end_idx = content.rfind('}')
-
-        if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
-            json_str = content[start_idx:end_idx + 1]
-            try:
-                data = json.loads(json_str)
-            except json.JSONDecodeError:
-                raise ValueError(f"Invalid JSON in response: {json_str[:100]}...")
-        else:
+        if start_idx == -1:
+            logger.error(f"No opening brace found in response: {content[:200]}")
             raise ValueError(f"No JSON object found in response: {content[:100]}...")
+
+        # Find matching closing brace by counting braces (ignores braces in strings)
+        brace_count = 0
+        in_string = False
+        escape_next = False
+        end_idx = -1
+
+        for i in range(start_idx, len(content)):
+            char = content[i]
+
+            if escape_next:
+                escape_next = False
+                continue
+
+            if char == '\\':
+                escape_next = True
+                continue
+
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+
+            if not in_string:
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_idx = i
+                        break
+
+        if end_idx == -1:
+            logger.error(f"No matching closing brace found. Content: {content[:300]}")
+            logger.error(f"Final brace_count: {brace_count}, in_string: {in_string}")
+            raise ValueError(f"No matching JSON object closing brace in response")
+
+        json_str = content[start_idx:end_idx + 1]
+        logger.debug(f"Extracted JSON string: {json_str[:200]}...")
+
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            logger.error(f"Failed JSON: {json_str}")
+            raise ValueError(f"Invalid JSON: {str(e)}")
+
+        # Normalize field names - LLMs sometimes use alternative names
+        field_mappings = {
+            # question_text variants -> Question
+            'question_text': 'Question',
+            'question': 'Question',
+            'questionText': 'Question',
+            # choices variants -> Options
+            'choices': 'Options',
+            'options': 'Options',
+            'answers': 'Options',
+            # correct_answer variants -> Answer
+            'correct_answer': 'Answer',
+            'correctAnswer': 'Answer',
+            'answer': 'Answer',
+        }
+
+        logger.debug(f"Raw JSON keys before normalization: {list(data.keys())}")
+
+        for old_key, new_key in field_mappings.items():
+            if old_key in data and new_key not in data:
+                data[new_key] = data[old_key]
+                logger.debug(f"Normalized field '{old_key}' -> '{new_key}'")
+
+        logger.debug(f"Normalized JSON keys: {list(data.keys())}")
 
         # Validate required fields
         required = ['Question', 'Options', 'Answer']

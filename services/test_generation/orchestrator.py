@@ -12,7 +12,7 @@ import time
 import logging
 from datetime import datetime
 from typing import List, Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from .config import test_gen_config
 from .database_client import (
@@ -25,6 +25,7 @@ from .database_client import (
     TestGenMetrics
 )
 from .agents import (
+    TopicTranslator,
     ProseWriter,
     QuestionGenerator,
     QuestionValidator,
@@ -52,6 +53,7 @@ class TestGenerationOrchestrator:
         self.db = TestDatabaseClient()
 
         # Initialize agents
+        self.topic_translator = TopicTranslator()
         self.prose_writer = ProseWriter()
         self.question_generator = QuestionGenerator()
         self.question_validator = QuestionValidator()
@@ -217,8 +219,10 @@ class TestGenerationOrchestrator:
         logger.info(f"Generating test: difficulty={difficulty}")
 
         # Get CEFR config
+        cefr_config = self.db.get_cefr_config(difficulty)
         word_min, word_max = self.db.get_word_count_range(difficulty)
         initial_elo = self.db.get_initial_elo(difficulty)
+        cefr_level = cefr_config.cefr_code if cefr_config else 'B1'
 
         # Get question distribution
         question_types = self.db.get_question_distribution(difficulty)
@@ -232,19 +236,34 @@ class TestGenerationOrchestrator:
 
         logger.debug(f"Test slug: {slug}")
 
+        # Step 0: Translate topic to target language (skip for English)
+        if self.topic_translator.should_translate(lang_config.language_code):
+            translated_topic, translated_keywords = self.topic_translator.translate(
+                topic_concept=topic.concept_english,
+                keywords=topic.keywords,
+                target_language=lang_config.language_name,
+                model_override=lang_config.prose_model
+            )
+            logger.info(f"Translated topic to {lang_config.language_name}")
+        else:
+            translated_topic = topic.concept_english
+            translated_keywords = topic.keywords
+
         # Step 1: Generate prose
         prose_template = self.db.get_prompt_template(
             'prose_generation',
-            lang_config.language_code
+            lang_config.id  # Use language_id, not language_code
         )
 
         prose = self.prose_writer.generate_prose(
-            topic_concept=topic.concept_english,
+            topic_concept=translated_topic,  # Use translated topic
             language_name=lang_config.language_name,
             language_code=lang_config.language_code,
             difficulty=difficulty,
             word_count_min=word_min,
             word_count_max=word_max,
+            keywords=translated_keywords,  # Use translated keywords
+            cefr_level=cefr_level,
             prompt_template=prose_template,
             model_override=lang_config.prose_model
         )
@@ -256,7 +275,7 @@ class TestGenerationOrchestrator:
         for type_code in set(question_types):
             template = self.db.get_prompt_template(
                 f'question_{type_code}',
-                lang_config.language_code
+                lang_config.id  # Use language_id, not language_code
             )
             if template:
                 question_templates[type_code] = template
@@ -265,6 +284,7 @@ class TestGenerationOrchestrator:
             prose=prose,
             language_name=lang_config.language_name,
             question_type_codes=question_types,
+            difficulty=difficulty,  # Pass difficulty for templates
             prompt_templates=question_templates,
             model_override=lang_config.question_model
         )
@@ -283,47 +303,55 @@ class TestGenerationOrchestrator:
                 f"Too few valid questions: {len(valid_questions)}/5"
             )
 
+        # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
+        test_id = uuid4()
+
         # Step 4: Generate audio
         voice = self.audio_synthesizer.select_voice(
             voice_ids=lang_config.tts_voice_ids,
             language_code=lang_config.language_code
         )
 
+        audio_url = ""
         if not test_gen_config.dry_run:
-            self.audio_synthesizer.generate_and_upload(
+            audio_url = self.audio_synthesizer.generate_and_upload(
                 text=prose,
-                slug=slug,
+                file_id=str(test_id),
                 voice=voice,
                 speed=lang_config.tts_speed
             )
         else:
-            logger.info(f"[DRY RUN] Would generate audio: {slug}")
+            logger.info(f"[DRY RUN] Would generate audio: {test_id}.mp3")
 
         # Step 5: Save to database
         if not test_gen_config.dry_run:
             # Insert test
             test = GeneratedTest(
+                id=test_id,
                 slug=slug,
                 language_id=lang_config.id,
+                language_name=lang_config.language_name,
                 topic_id=topic.id,
+                topic_name=topic.concept_english,
                 difficulty=difficulty,
                 transcript=prose,
                 gen_user=test_gen_config.system_user_id,
-                initial_elo=initial_elo
+                initial_elo=initial_elo,
+                audio_url=audio_url
             )
             self.db.insert_test(test)
 
             # Insert questions
             db_questions = []
-            for q in valid_questions:
+            for i, q in enumerate(valid_questions):
                 type_id = self.db.get_question_type_id(q.get('type_code', ''))
                 db_questions.append(GeneratedQuestion(
-                    test_slug=slug,
+                    test_id=test_id,
+                    question_id=f"{slug}-q{i+1}",
                     question_text=q['question'],
                     choices=q['choices'],
                     answer=q['answer'],
-                    question_type_id=type_id,
-                    display_order=q.get('display_order', 1)
+                    question_type_id=type_id
                 ))
             self.db.insert_questions(db_questions)
 

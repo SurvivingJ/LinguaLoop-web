@@ -228,7 +228,7 @@ def generate_test():
             current_app.logger.warning(f"Audio generation failed (non-critical): {e}")
         try:
             saved_test_result = current_app.supabase_service.table('tests').select(
-                'id, slug, title, language_id, topic, difficulty, style, tier, '
+                'id, slug, title, language_id, topic_id, difficulty, style, tier, '
                 'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
                 'dim_languages(language_code, language_name)'
             ).eq('id', test_id).execute()
@@ -392,7 +392,7 @@ def custom_test():
         try:
             # Get the saved test with all fields for frontend
             saved_test_result = current_app.supabase_service.table('tests').select(
-                'id, slug, title, language_id, topic, difficulty, style, tier, '
+                'id, slug, title, language_id, topic_id, difficulty, style, tier, '
                 'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
                 'dim_languages(language_code, language_name)'
             ).eq('id', test_id).execute()
@@ -481,7 +481,7 @@ def get_tests_with_ratings():
             return jsonify({"error": "Database service not configured"}), 500
 
         query = current_app.supabase_service.table('tests').select(
-            'id, slug, title, language_id, topic, difficulty, style, tier, '
+            'id, slug, title, language_id, topic_id, difficulty, style, tier, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts'
         ).eq('is_active', True)
 
@@ -571,14 +571,19 @@ def submit_test_attempt(slug):
         if not responses:
             return jsonify({"error": "No responses provided"}), 400
 
-        test_service = get_test_service()
-        test_data = test_service.get_test_by_slug(slug)
-        if not test_data:
+        # Lightweight test lookup (just id and language_id, no questions)
+        test_lookup = current_app.supabase_service.table('tests')\
+            .select('id, language_id')\
+            .eq('slug', slug)\
+            .eq('is_active', True)\
+            .single()\
+            .execute()
+
+        if not test_lookup.data:
             return jsonify({"error": f"Test not found: {slug}"}), 404
 
-        questions = test_data.get('questions', [])
-        if not questions:
-            return jsonify({"error": "No questions found for this test"}), 404
+        test_id = test_lookup.data['id']
+        language_id = test_lookup.data['language_id']
 
         # Get test_type_id from the test_mode using DimensionService cache
         test_type_id = DimensionService.get_test_type_id(test_mode)
@@ -586,40 +591,26 @@ def submit_test_attempt(slug):
             logger.warning(f"Unknown test_mode '{test_mode}', defaulting to reading")
             test_type_id = DimensionService.get_test_type_id('reading') or 1
 
-        response_map = {r['question_id']: r['selected_answer'] for r in responses}
+        # Transform responses: strip 'is_correct' field (DB will calculate)
+        # question_id is questions.id (UUID), not questions.question_id (text)
+        db_responses = [
+            {
+                "question_id": str(r['question_id']),
+                "selected_answer": r['selected_answer']
+            }
+            for r in responses
+        ]
 
-        score = 0
-        question_results = []
-
-        for question in questions:
-            selected = response_map.get(str(question['id']), '')
-            correct = question.get('answer', '')
-            is_correct = selected == correct
-
-            if is_correct:
-                score += 1
-
-            question_results.append({
-                'question_id': str(question['id']),
-                'selected_answer': selected,
-                'correct_answer': correct,
-                'is_correct': is_correct
-            })
-
-        total_questions = len(questions)
-        percentage = score / total_questions if total_questions > 0 else 0.0
-
-        # Call database RPC for ELO calculation and attempt recording
+        # Call database RPC for validation, ELO calculation and attempt recording
         try:
             response = current_app.supabase_service.rpc('process_test_submission', {
                 'p_user_id': current_user_id,
-                'p_test_id': test_data['id'],
-                'p_language_id': test_data['language_id'],  # Language ID (smallint)
-                'p_test_type_id': test_type_id,             # Test type ID (smallint)
-                'p_score': score,
-                'p_total_questions': total_questions,
+                'p_test_id': test_id,
+                'p_language_id': language_id,
+                'p_test_type_id': test_type_id,
+                'p_responses': db_responses,                # Database validates answers
                 'p_was_free_test': True,
-                'p_idempotency_key': str(uuid4())           # For duplicate prevention
+                'p_idempotency_key': str(uuid4())
             }).execute()
             
             # Extract JSONB result from response.data
@@ -649,25 +640,27 @@ def submit_test_attempt(slug):
                 "details": error_msg
             }), 500
 
-        # Extract ELO results
+        # Extract results from database
         is_first_attempt = rpc_result.get('is_first_attempt', True)
         attempt_id = rpc_result.get('attempt_id')
-        
+        score = rpc_result.get('score', 0)
+        total_questions = rpc_result.get('total_questions', 0)
+
         current_app.logger.info(
             f"Test submitted successfully: user={current_user_id}, "
-            f"test={test_data['id']}, attempt={attempt_id}, "
+            f"test={test_id}, attempt={attempt_id}, "
             f"score={score}/{total_questions}, first_attempt={is_first_attempt}"
         )
 
         # Return comprehensive result
-        # Note: RPC function already handles all state updates atomically
+        # Note: RPC function handles validation, ELO updates atomically
         return jsonify({
             'status': 'success',
             'result': {
-                'score': score,
-                'total_questions': total_questions,
-                'percentage': percentage,
-                'question_results': question_results,
+                'score': rpc_result.get('score'),
+                'total_questions': rpc_result.get('total_questions'),
+                'percentage': rpc_result.get('percentage'),
+                'question_results': rpc_result.get('question_results', []),
                 'is_first_attempt': is_first_attempt,
                 'user_elo_change': {
                     'before': rpc_result.get('user_elo_before'),
@@ -680,10 +673,7 @@ def submit_test_attempt(slug):
                     'change': rpc_result.get('test_elo_change', 0)
                 },
                 'test_mode': test_mode,
-                'language': test_data.get('language'),
-                'attempt_id': str(attempt_id) if attempt_id else None,
-                'tokens_consumed': rpc_result.get('tokens_cost', 0),
-                'message': rpc_result.get('message', '')
+                'attempt_id': str(attempt_id) if attempt_id else None
             }
         }), 200
 
@@ -703,7 +693,7 @@ def get_test_with_ratings(slug):
 
         # Get test basic info with FK join to dim_languages
         test_result = current_app.supabase_service.table('tests').select(
-            'id, slug, title, language_id, topic, difficulty, style, tier, transcript, '
+            'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
             'dim_languages(language_code, language_name)'
         ).eq('slug', slug).eq('is_active', True).execute()
@@ -721,8 +711,8 @@ def get_test_with_ratings(slug):
 
         # Get questions
         questions_result = current_app.supabase_service.table('questions').select(
-            'id, question_id, question_text, question_type, choices, '
-            'correct_answer, answer_explanation, points, audio_url'
+            'id, question_id, question_text, question_type_id, choices, '
+            'answer, answer_explanation, points, audio_url'
         ).eq('test_id', test_id).execute()
 
         # Get ELO ratings with FK join to dim_test_types

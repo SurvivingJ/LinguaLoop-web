@@ -1050,18 +1050,31 @@ function showResults(result) {
         transcriptText.textContent = testState.testData.transcript;
     }
     
-    // Mark correct/incorrect answers
+    // Mark correct/incorrect answers using question_results from backend
     if (testState.testType !== 'dictation') {
+        // Build lookup map from question_results returned by backend
+        const resultsMap = new Map(
+            (result.result?.question_results || []).map(qr => [qr.question_id, qr])
+        );
+
         testState.questions.forEach((question, index) => {
             const answersContainer = document.getElementById(`answers-${index}`);
             if (answersContainer) {
                 answersContainer.parentElement.parentElement.classList.add('results-shown');
-                
+
+                const qResult = resultsMap.get(question.id);
+                if (!qResult) return; // Skip if no result for this question
+
                 answersContainer.querySelectorAll('.answer-option').forEach(option => {
                     const choice = option.dataset.choice;
-                    if (choice === question.correctAnswer) {
+
+                    // Always highlight the correct answer in green
+                    if (choice === qResult.correct_answer) {
                         option.classList.add('correct');
-                    } else if (choice === testState.answers[question.id]) {
+                    }
+
+                    // If user selected wrong answer, highlight it in red
+                    if (choice === qResult.selected_answer && !qResult.is_correct) {
                         option.classList.add('incorrect');
                     }
                 });

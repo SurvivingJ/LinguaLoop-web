@@ -82,24 +82,28 @@ class QuestionType:
 @dataclass
 class GeneratedTest:
     """Data for inserting a generated test."""
+    id: UUID
     slug: str
     language_id: int
+    language_name: str
     topic_id: UUID
+    topic_name: str
     difficulty: int
     transcript: str
     gen_user: str
     initial_elo: int
+    audio_url: str
 
 
 @dataclass
 class GeneratedQuestion:
     """Data for inserting a generated question."""
-    test_slug: str
+    test_id: UUID
+    question_id: str
     question_text: str
     choices: List[str]
     answer: str
     question_type_id: Optional[int] = None
-    display_order: int = 1
 
 
 @dataclass
@@ -495,28 +499,51 @@ class TestDatabaseClient:
     def get_prompt_template(
         self,
         task_name: str,
-        language_code: str = 'default'
+        language_id: int
     ) -> Optional[str]:
         """
-        Fetch prompt template with language fallback.
+        Fetch prompt template by task name and language ID.
+
+        Uses language_id (integer) to match actual prompt_templates table structure.
+        Falls back to English (language_id=2) if not found for specific language.
 
         Args:
             task_name: Template name (e.g., 'prose_generation', 'question_literal_detail')
-            language_code: ISO code or 'default'
+            language_id: Language ID from dim_languages (1=Chinese, 2=English, 3=Japanese)
 
         Returns:
             Template text or None
         """
-        response = self.client.rpc('get_prompt_template', {
-            'p_task_name': task_name,
-            'p_language_code': language_code
-        }).execute()
+        # Try language-specific template first
+        response = self.client.table('prompt_templates') \
+            .select('template_text') \
+            .eq('task_name', task_name) \
+            .eq('language_id', language_id) \
+            .eq('is_active', True) \
+            .order('version', desc=True) \
+            .limit(1) \
+            .execute()
 
         if response.data:
-            logger.debug(f"Loaded prompt template: {task_name}")
-            return response.data
+            logger.debug(f"Loaded prompt template: {task_name} for language_id={language_id}")
+            return response.data[0]['template_text']
 
-        logger.warning(f"Prompt template not found: {task_name}")
+        # Fallback to English (language_id=2) if not found
+        if language_id != 2:
+            response = self.client.table('prompt_templates') \
+                .select('template_text') \
+                .eq('task_name', task_name) \
+                .eq('language_id', 2) \
+                .eq('is_active', True) \
+                .order('version', desc=True) \
+                .limit(1) \
+                .execute()
+
+            if response.data:
+                logger.debug(f"Loaded fallback English prompt template: {task_name}")
+                return response.data[0]['template_text']
+
+        logger.warning(f"Prompt template not found: {task_name} for language_id={language_id}")
         return None
 
     # ============================================================
@@ -534,13 +561,14 @@ class TestDatabaseClient:
             str: The test slug
         """
         data = {
+            'id': str(test.id),
             'slug': test.slug,
             'language_id': test.language_id,
             'topic_id': str(test.topic_id),
             'difficulty': test.difficulty,
             'transcript': test.transcript,
             'gen_user': test.gen_user,
-            'created_at': datetime.utcnow().isoformat()
+            'audio_url': test.audio_url
         }
 
         self.client.table('tests') \
@@ -567,11 +595,11 @@ class TestDatabaseClient:
         for q in questions:
             row = {
                 'id': str(uuid4()),
-                'test_slug': q.test_slug,
-                'question': q.question_text,
+                'test_id': str(q.test_id),
+                'question_id': q.question_id,
+                'question_text': q.question_text,
                 'choices': q.choices,
-                'answer': q.answer,
-                'display_order': q.display_order
+                'answer': q.answer
             }
             if q.question_type_id:
                 row['question_type_id'] = q.question_type_id
@@ -582,7 +610,7 @@ class TestDatabaseClient:
             .execute()
 
         count = len(response.data) if response.data else 0
-        logger.info(f"Inserted {count} questions for test {questions[0].test_slug}")
+        logger.info(f"Inserted {count} questions for test {questions[0].test_id}")
         return count
 
     def insert_test_skill_ratings(

@@ -151,22 +151,26 @@ ALTER TABLE production_queue
 -- ============================================================
 
 -- prose_generation prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'prose_generation',
-    'default',
+    2,  -- English (universal fallback)
     'Generate a natural, engaging prose passage for language learners.
 
-TOPIC: {topic}
+TOPIC: {topic_concept}
 TARGET LANGUAGE: {language}
+LANGUAGE CODE: {language_code}
 DIFFICULTY: {difficulty}/9
-WORD COUNT: {word_count_min}-{word_count_max} words
+CEFR LEVEL: {cefr_level}
+WORD COUNT: {min_words}-{max_words} words
+KEYWORDS: {keywords}
 
 Requirements:
 - Write ONLY in {language}
-- Use vocabulary and grammar appropriate for the difficulty level
+- Use vocabulary and grammar appropriate for the CEFR {cefr_level} level
 - Create natural, flowing prose suitable for listening comprehension
 - Include clear main ideas with supporting details
+- Incorporate keywords when possible: {keywords}
 - Avoid overly complex vocabulary for lower levels
 - For higher levels, include nuanced expressions and complex structures
 
@@ -179,18 +183,19 @@ Style:
 Return ONLY the prose text, with no additional commentary or formatting.',
     'Main prompt for generating prose/transcript content'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_literal_detail prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_literal_detail',
-    'default',
+    2,  -- English (universal fallback)
     'Generate a LITERAL DETAIL comprehension question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -198,6 +203,7 @@ Instructions:
 - The answer should be directly findable in the passage
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -207,18 +213,19 @@ Return ONLY valid JSON:
 }}',
     'Literal detail question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_vocabulary_context prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_vocabulary_context',
-    'default',
+    2,  -- English (universal fallback)
     'Generate a VOCABULARY IN CONTEXT question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -226,6 +233,7 @@ Instructions:
 - Focus on how context shapes meaning
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -235,18 +243,19 @@ Return ONLY valid JSON:
 }}',
     'Vocabulary in context question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_main_idea prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_main_idea',
-    'default',
+    2,  -- English (universal fallback)
     'Generate a MAIN IDEA question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -254,6 +263,7 @@ Instructions:
 - Focus on what the passage is primarily about
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -263,18 +273,19 @@ Return ONLY valid JSON:
 }}',
     'Main idea question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_supporting_detail prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_supporting_detail',
-    'default',
+    2,  -- English (universal fallback)
     'Generate a SUPPORTING DETAIL question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -282,6 +293,7 @@ Instructions:
 - Focus on details that provide evidence or examples
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -291,18 +303,19 @@ Return ONLY valid JSON:
 }}',
     'Supporting detail question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_inference prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_inference',
-    'default',
+    2,  -- English (universal fallback)
     'Generate an INFERENCE question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -310,6 +323,7 @@ Instructions:
 - Require the reader to "read between the lines"
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -319,18 +333,19 @@ Return ONLY valid JSON:
 }}',
     'Inference question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 -- question_author_purpose prompt
-INSERT INTO prompt_templates (task_name, language_code, template_text, description) VALUES
+INSERT INTO prompt_templates (task_name, language_id, template_text, description) VALUES
 (
     'question_author_purpose',
-    'default',
+    2,  -- English (universal fallback)
     'Generate an AUTHOR PURPOSE/TONE question in {language}.
 
 PASSAGE:
-{transcript}
+{prose}
 
+DIFFICULTY: {difficulty}/9
 PREVIOUSLY ASKED: {previous_questions}
 
 Instructions:
@@ -338,6 +353,7 @@ Instructions:
 - Or ask about the author''s attitude, tone, or intended effect
 - Create 4 plausible answer options
 - Only one option should be correct
+- Make sure the question and all options are in {language}
 
 Return ONLY valid JSON:
 {{
@@ -347,7 +363,7 @@ Return ONLY valid JSON:
 }}',
     'Author purpose/tone question type prompt'
 )
-ON CONFLICT (task_name, language_code, version) DO NOTHING;
+ON CONFLICT (task_name, language_id, version) DO NOTHING;
 
 
 -- ============================================================

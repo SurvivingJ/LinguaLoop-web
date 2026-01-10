@@ -96,23 +96,23 @@ class AudioSynthesizer:
     def generate_and_upload(
         self,
         text: str,
-        slug: str,
+        file_id: str,
         voice: str = None,
         speed: float = None,
         model: str = None
-    ) -> bool:
+    ) -> str:
         """
         Generate TTS audio and upload to R2.
 
         Args:
             text: Text to synthesize
-            slug: File name (without .mp3 extension)
+            file_id: UUID to use as file name (without .mp3 extension)
             voice: TTS voice (default: alloy)
             speed: Playback speed (default: 1.0)
             model: TTS model (default: tts-1)
 
         Returns:
-            bool: True if successful
+            str: R2 public URL for the uploaded audio
         """
         voice = voice or test_gen_config.default_tts_voice
         speed = speed or test_gen_config.default_tts_speed
@@ -120,7 +120,7 @@ class AudioSynthesizer:
 
         try:
             # Generate audio
-            logger.debug(f"Generating TTS for {slug} with voice '{voice}'")
+            logger.debug(f"Generating TTS for {file_id} with voice '{voice}'")
 
             response = self.openai_client.audio.speech.create(
                 model=model,
@@ -139,15 +139,17 @@ class AudioSynthesizer:
             logger.debug(f"Generated {len(audio_data)} bytes of audio")
 
             # Upload to R2
-            success = self._upload_to_r2(slug, audio_data)
+            success = self._upload_to_r2(file_id, audio_data)
 
             if success:
-                logger.info(f"Successfully generated and uploaded audio: {slug}.mp3")
+                logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
+                # Return R2 public URL
+                return f"https://pub-7ub5xm3b.r2.dev/lingualoopaudio/{file_id}.mp3"
 
-            return success
+            raise Exception(f"Failed to upload audio for {file_id}")
 
         except Exception as e:
-            logger.error(f"Audio generation/upload failed for {slug}: {e}")
+            logger.error(f"Audio generation/upload failed for {file_id}: {e}")
             raise
 
     def _upload_to_r2(self, slug: str, audio_data: bytes) -> bool:

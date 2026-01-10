@@ -370,27 +370,50 @@ class TopicDatabaseClient:
     # PROMPT QUERIES
     # ============================================================
 
-    def get_prompt_template(self, task_name: str, language_code: str = 'default') -> Optional[str]:
+    def get_prompt_template(self, task_name: str, language_id: int = 2) -> Optional[str]:
         """
-        Fetch prompt template with language fallback.
+        Fetch prompt template by task name and language ID.
+
+        Uses language_id (integer) to match actual prompt_templates table structure.
+        Falls back to English (language_id=2) if not found for specific language.
 
         Args:
             task_name: 'explorer_ideation' or 'gatekeeper_check'
-            language_code: ISO code or 'default'
+            language_id: Language ID from dim_languages (1=Chinese, 2=English, 3=Japanese)
 
         Returns:
             str: Template text with {placeholders}, or None if not found
         """
-        response = self.client.rpc('get_prompt_template', {
-            'p_task_name': task_name,
-            'p_language_code': language_code
-        }).execute()
+        # Try language-specific template first
+        response = self.client.table('prompt_templates') \
+            .select('template_text') \
+            .eq('task_name', task_name) \
+            .eq('language_id', language_id) \
+            .eq('is_active', True) \
+            .order('version', desc=True) \
+            .limit(1) \
+            .execute()
 
         if response.data:
-            logger.debug(f"Loaded prompt template: {task_name}")
-            return response.data
+            logger.debug(f"Loaded prompt template: {task_name} for language_id={language_id}")
+            return response.data[0]['template_text']
 
-        logger.warning(f"Prompt template not found: {task_name}")
+        # Fallback to English (language_id=2) if not found
+        if language_id != 2:
+            response = self.client.table('prompt_templates') \
+                .select('template_text') \
+                .eq('task_name', task_name) \
+                .eq('language_id', 2) \
+                .eq('is_active', True) \
+                .order('version', desc=True) \
+                .limit(1) \
+                .execute()
+
+            if response.data:
+                logger.debug(f"Loaded fallback English prompt template: {task_name}")
+                return response.data[0]['template_text']
+
+        logger.warning(f"Prompt template not found: {task_name} for language_id={language_id}")
         return None
 
     # ============================================================

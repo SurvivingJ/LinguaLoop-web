@@ -56,6 +56,8 @@ class ProseWriter:
         difficulty: int,
         word_count_min: int,
         word_count_max: int,
+        keywords: Optional[list] = None,
+        cefr_level: Optional[str] = None,
         prompt_template: Optional[str] = None,
         model_override: Optional[str] = None
     ) -> str:
@@ -63,12 +65,14 @@ class ProseWriter:
         Generate prose content for a test.
 
         Args:
-            topic_concept: Topic/subject of the prose
+            topic_concept: Topic/subject of the prose (in target language)
             language_name: Target language name (e.g., "Spanish")
             language_code: ISO language code (e.g., "es")
             difficulty: Difficulty level 1-9
             word_count_min: Minimum word count
             word_count_max: Maximum word count
+            keywords: List of keywords related to topic (in target language)
+            cefr_level: CEFR level code (e.g., "A1", "B2")
             prompt_template: Custom prompt template (optional)
             model_override: Override model for this call
 
@@ -77,15 +81,34 @@ class ProseWriter:
         """
         model = model_override or self.model
 
+        # Format keywords for template
+        keywords_str = ', '.join(keywords) if keywords else ''
+
+        # Determine CEFR level if not provided
+        if not cefr_level:
+            cefr_map = {
+                1: 'A1', 2: 'A1',
+                3: 'A2', 4: 'A2',
+                5: 'B1',
+                6: 'B2',
+                7: 'C1',
+                8: 'C2', 9: 'C2'
+            }
+            cefr_level = cefr_map.get(difficulty, 'B1')
+
         # Build prompt
         if prompt_template:
+            # Use placeholder names that match actual database templates:
+            # {topic_concept}, {keywords}, {cefr_level}, {min_words}, {max_words}
             prompt = prompt_template.format(
-                topic=topic_concept,
+                topic_concept=topic_concept,
+                keywords=keywords_str,
+                cefr_level=cefr_level,
+                min_words=word_count_min,
+                max_words=word_count_max,
                 language=language_name,
                 language_code=language_code,
-                difficulty=difficulty,
-                word_count_min=word_count_min,
-                word_count_max=word_count_max
+                difficulty=difficulty
             )
         else:
             prompt = self._build_default_prompt(
@@ -115,15 +138,14 @@ class ProseWriter:
 
             prose = self._clean_response(content.strip())
 
-            # Validate word count
-            word_count = len(prose.split())
+            # Log prose length (character count works better for CJK languages)
+            # Don't validate word count since Chinese/Japanese don't use spaces
+            char_count = len(prose)
+            word_count_estimate = len(prose.split())
             logger.info(
-                f"Generated prose: {word_count} words "
-                f"(target: {word_count_min}-{word_count_max})"
+                f"Generated prose: {char_count} chars, ~{word_count_estimate} words "
+                f"(target: {word_count_min}-{word_count_max} words)"
             )
-
-            if word_count < word_count_min * 0.7:
-                logger.warning(f"Prose too short: {word_count} words")
 
             return prose
 
