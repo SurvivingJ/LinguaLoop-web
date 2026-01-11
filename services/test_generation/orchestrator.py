@@ -27,6 +27,7 @@ from .database_client import (
 from .agents import (
     TopicTranslator,
     ProseWriter,
+    TitleGenerator,
     QuestionGenerator,
     QuestionValidator,
     AudioSynthesizer
@@ -55,6 +56,7 @@ class TestGenerationOrchestrator:
         # Initialize agents
         self.topic_translator = TopicTranslator()
         self.prose_writer = ProseWriter()
+        self.title_generator = TitleGenerator()
         self.question_generator = QuestionGenerator()
         self.question_validator = QuestionValidator()
         self.audio_synthesizer = AudioSynthesizer()
@@ -270,6 +272,29 @@ class TestGenerationOrchestrator:
 
         logger.debug(f"Generated prose: {len(prose.split())} words")
 
+        # Step 1.5: Generate title
+        title_template = self.db.get_prompt_template(
+            'title_generation',
+            lang_config.id
+        )
+
+        title = None
+        try:
+            title = self.title_generator.generate_title(
+                prose=prose,
+                topic_concept=translated_topic,
+                difficulty=difficulty,
+                cefr_level=cefr_level,
+                language_name=lang_config.language_name,
+                language_code=lang_config.language_code,
+                prompt_template=title_template,
+                model_override=lang_config.question_model
+            )
+            logger.info(f"Generated title: {title[:50]}...")
+        except Exception as e:
+            logger.warning(f"Title generation failed, continuing with NULL title: {e}")
+            title = None
+
         # Step 2: Generate questions
         question_templates = {}
         for type_code in set(question_types):
@@ -337,7 +362,8 @@ class TestGenerationOrchestrator:
                 transcript=prose,
                 gen_user=test_gen_config.system_user_id,
                 initial_elo=initial_elo,
-                audio_url=audio_url
+                audio_url=audio_url,
+                title=title
             )
             self.db.insert_test(test)
 

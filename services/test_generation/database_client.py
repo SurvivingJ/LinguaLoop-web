@@ -93,6 +93,7 @@ class GeneratedTest:
     gen_user: str
     initial_elo: int
     audio_url: str
+    title: Optional[str] = None
 
 
 @dataclass
@@ -570,6 +571,10 @@ class TestDatabaseClient:
             'gen_user': test.gen_user,
             'audio_url': test.audio_url
         }
+
+        # Add title if provided (NULL if not generated)
+        if test.title:
+            data['title'] = test.title
 
         self.client.table('tests') \
             .insert(data) \
