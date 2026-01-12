@@ -218,7 +218,7 @@ def generate_test():
                 audio_result = current_app.openai_service.generate_audio(transcript, slug)
                 if audio_result:
                     audio_success = True
-                    audio_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
+                    audio_url = current_app.r2_service.get_audio_url(slug)
                     current_app.supabase_service.table('tests').update({
                         'audio_generated': True,
                         'audio_url': audio_url,
@@ -380,7 +380,7 @@ def custom_test():
 
                 if audio_result:
                     audio_success = True
-                    audio_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
+                    audio_url = current_app.r2_service.get_audio_url(slug)
 
                     current_app.supabase_service.table('tests').update({
                         'audio_generated': True,
@@ -544,7 +544,7 @@ def get_test(slug):
         if not test_data:
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
 
-        test_data['audio_url'] = f"https://229f11834e90e4438de8d1a9ba872d0f.r2.cloudflarestorage.com/lingualoopaudio/{slug}.mp3"
+        test_data['audio_url'] = current_app.r2_service.get_audio_url(slug)
         logger.debug(f"Returning test data for slug: {slug}")
         return jsonify({"test": test_data, "status": "success"})
 
