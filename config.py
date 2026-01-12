@@ -110,7 +110,7 @@ class Config:
     R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
     R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', 'lingualoopaudio')
     R2_ENDPOINT_URL = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if R2_ACCOUNT_ID else None
-    R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', 'https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev')
+    R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', 'https://audio.linguadojo.com')
 
     # ==========================================================================
     # LEGACY AWS (kept for backwards compatibility)

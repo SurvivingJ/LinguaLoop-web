@@ -13,6 +13,7 @@ from botocore.config import Config as BotoConfig
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from ..config import test_gen_config
+from ....config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -143,8 +144,8 @@ class AudioSynthesizer:
 
             if success:
                 logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
-                # Return R2 public URL
-                return f"https://pub-7ub5xm3b.r2.dev/lingualoopaudio/{file_id}.mp3"
+                # Return R2 public URL using Config
+                return Config.get_audio_url(file_id)
 
             raise Exception(f"Failed to upload audio for {file_id}")
 

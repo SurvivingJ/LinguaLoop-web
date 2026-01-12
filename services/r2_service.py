@@ -262,58 +262,25 @@ class R2Service:
         except Exception as e:
             logger.error(f"Unexpected error listing files: {e}")
             return []
-    
-    def generate_presigned_url(self, filename: str, expiration: int = 3600) -> str:
+
+    def get_audio_url(self, slug: str) -> str:
         """
-        Generate a presigned URL for temporary authenticated access
-
-        Args:
-            filename: Name of the file (e.g., "test-slug.mp3")
-            expiration: URL validity in seconds (default: 3600 = 1 hour)
-
-        Returns:
-            str: Presigned URL or empty string if failed
-        """
-        if not self.r2_client:
-            logger.error("R2 client not initialized")
-            return ""
-
-        try:
-            presigned_url = self.r2_client.generate_presigned_url(
-                'get_object',
-                Params={
-                    'Bucket': self.bucket_name,
-                    'Key': filename
-                },
-                ExpiresIn=expiration
-            )
-            logger.debug(f"Generated presigned URL for {filename} (expires in {expiration}s)")
-            return presigned_url
-        except Exception as e:
-            logger.error(f"Failed to generate presigned URL for {filename}: {e}")
-            return ""
-
-    def get_audio_url(self, slug: str, use_presigned: bool = True, expiration: int = 3600) -> str:
-        """
-        Get URL for audio file
+        Get public URL for audio file
 
         Args:
             slug: Test slug (filename without extension)
-            use_presigned: Generate presigned URL for private buckets (default: True)
-            expiration: Presigned URL validity in seconds (default: 3600 = 1 hour)
 
         Returns:
-            str: Audio file URL (presigned or public)
+            str: Public URL for the audio file
         """
         filename = f"{slug}.mp3"
 
-        if use_presigned:
-            return self.generate_presigned_url(filename, expiration)
-        elif self.public_url:
+        if self.public_url:
             return f"{self.public_url}/{filename}"
         else:
-            # Fallback (won't work for private buckets)
-            return f"https://pub-{self.bucket_name}.r2.dev/{filename}"
+            # Fallback if public_url not configured
+            logger.warning("R2_PUBLIC_URL not configured, using default")
+            return f"https://audio.linguadojo.com/{filename}"
 
     def get_file_info(self, filename: str) -> Optional[Dict]:
         """

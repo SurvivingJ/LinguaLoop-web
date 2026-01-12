@@ -544,7 +544,11 @@ def get_test(slug):
         if not test_data:
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
 
-        test_data['audio_url'] = current_app.r2_service.get_audio_url(slug)
+        # Only set audio_url if missing from database
+        if not test_data.get('audio_url'):
+            from config import Config
+            test_data['audio_url'] = Config.get_audio_url(slug)
+
         logger.debug(f"Returning test data for slug: {slug}")
         return jsonify({"test": test_data, "status": "success"})
 

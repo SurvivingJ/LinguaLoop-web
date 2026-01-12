@@ -3,13 +3,12 @@ Flask Backend for LinguaLoop Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, request, jsonify, Response, make_response, render_template, redirect, url_for, session, g
+from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, g
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 from datetime import datetime, timezone
 import stripe
 from .services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
-import requests
 import logging
 import traceback
 import os
@@ -509,35 +508,6 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Payment intent error: {e}")
             return jsonify({"error": str(e)}), 500
-
-    @app.route('/audio/<filename>', methods=['GET'])
-    def serve_audio(filename):
-        """Stream audio from R2 storage"""
-        try:
-            slug = filename.replace('.mp3', '')
-            r2_url = f"https://pub-6397ec15ed7943bda657f81f246f7c4b.r2.dev/{slug}.mp3"
-            
-            response = requests.get(r2_url, stream=True, timeout=10)
-            
-            if response.status_code == 200:
-                def generate():
-                    for chunk in response.iter_content(chunk_size=8192):
-                        yield chunk
-                
-                return Response(
-                    generate(),
-                    mimetype='audio/mpeg',
-                    headers={
-                        'Content-Type': 'audio/mpeg',
-                        'Accept-Ranges': 'bytes',
-                        'Cache-Control': 'public, max-age=3600'
-                    }
-                )
-            else:
-                return jsonify({"error": "Audio file not found"}), 404
-        except Exception as e:
-            app.logger.error(f"Audio serving error: {e}")
-            return jsonify({"error": "Failed to serve audio"}), 500
 
 app = create_app()
 
