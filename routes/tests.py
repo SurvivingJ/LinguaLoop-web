@@ -713,6 +713,17 @@ def get_test_with_ratings(slug):
         test['language'] = lang_info.get('language_code', 'unknown')
         test['language_name'] = lang_info.get('language_name', 'Unknown')
 
+        # Normalize audio_url to full URL
+        audio_url = test.get('audio_url', '')
+        if audio_url:
+            # If it's just a filename (no protocol), construct full URL
+            if not audio_url.startswith('http'):
+                slug_part = audio_url.replace('.mp3', '')
+                test['audio_url'] = Config.get_audio_url(slug_part)
+        else:
+            # No audio_url, generate from slug
+            test['audio_url'] = Config.get_audio_url(slug)
+
         # Get questions
         questions_result = current_app.supabase_service.table('questions').select(
             'id, question_id, question_text, question_type_id, choices, '
