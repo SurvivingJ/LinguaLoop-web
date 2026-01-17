@@ -24,6 +24,7 @@ from middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_require
 # Import blueprints
 from routes.auth import auth_bp
 from routes.tests import tests_bp
+from routes.reports import reports_bp
 
 
 def create_app(config_class=Config):
@@ -167,6 +168,7 @@ def _register_blueprints(app):
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tests_bp, url_prefix='/api/tests')
+    app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
     app.logger.info("Blueprints registered")
 

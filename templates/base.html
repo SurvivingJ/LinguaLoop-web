@@ -75,9 +75,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url_for('tests') }}" 
+                        <a href="{{ url_for('tests') }}"
                            class="nav-link {% if request.endpoint == 'test_list' %}active{% endif %}">
                             Browse Tests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="fas fa-flag"></i><span class="d-none d-lg-inline ms-1">Report</span>
                         </a>
                     </li>
                 </ul>
@@ -208,8 +213,119 @@
                     window.location.href = '/login';
                 });
             }
+
+            // Report submission
+            const submitReportBtn = document.getElementById('submitReportBtn');
+            if (submitReportBtn) {
+                submitReportBtn.addEventListener('click', async function() {
+                    const btn = this;
+                    const form = document.getElementById('reportForm');
+                    const category = document.getElementById('reportCategory').value;
+                    const description = document.getElementById('reportDescription').value.trim();
+
+                    if (!category || description.length < 10) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+                    document.getElementById('reportError').classList.add('d-none');
+
+                    try {
+                        const token = localStorage.getItem('jwt_token');
+                        if (!token) throw new Error('Please log in');
+
+                        const res = await fetch('/api/reports/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({
+                                report_category: category,
+                                description: description,
+                                current_page: window.location.pathname,
+                                test_id: window.location.pathname.match(/\/test\/([^\/]+)/)?.[1] || null,
+                                user_agent: navigator.userAgent,
+                                screen_resolution: `${screen.width}x${screen.height}`
+                            })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+                        document.getElementById('reportForm').classList.add('d-none');
+                        document.getElementById('reportFooter').classList.add('d-none');
+                        document.getElementById('reportSuccess').classList.remove('d-none');
+                        setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide(), 1500);
+
+                    } catch (e) {
+                        document.getElementById('reportError').textContent = e.message;
+                        document.getElementById('reportError').classList.remove('d-none');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit';
+                    }
+                });
+            }
+
+            // Reset modal on close
+            const reportModal = document.getElementById('reportModal');
+            if (reportModal) {
+                reportModal.addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('reportForm').classList.remove('d-none');
+                    document.getElementById('reportFooter').classList.remove('d-none');
+                    document.getElementById('reportSuccess').classList.add('d-none');
+                    document.getElementById('reportError').classList.add('d-none');
+                    const btn = document.getElementById('submitReportBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit';
+                });
+            }
         });
     </script>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title"><i class="fas fa-flag text-primary me-2"></i>Report Issue / 报告问题</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Issue Type / 问题类型</label>
+                            <select class="form-select" id="reportCategory" required>
+                                <option value="">Select / 选择</option>
+                                <option value="test_answer_incorrect">Test answer incorrect / 测试答案不正确</option>
+                                <option value="test_load_error">Test won't load / 测试无法加载</option>
+                                <option value="website_crash">Website crashed / 网站崩溃</option>
+                                <option value="improvement_idea">Improvement idea / 改进建议</option>
+                                <option value="audio_quality">Audio quality poor / 音频质量差</option>
+                                <option value="other">Other / 其他</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description / 描述</label>
+                            <textarea class="form-control" id="reportDescription" rows="4" required minlength="10"
+                                placeholder="Describe the issue... / 请描述问题..."></textarea>
+                            <div class="form-text">Min 10 characters</div>
+                        </div>
+                    </form>
+                    <div id="reportSuccess" class="alert alert-success d-none">
+                        <i class="fas fa-check-circle me-2"></i>Report submitted! / 已提交！
+                    </div>
+                    <div id="reportError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer border-0" id="reportFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitReportBtn">
+                        <i class="fas fa-paper-plane me-1"></i>Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% block extra_js %}{% endblock %}
 </body>
