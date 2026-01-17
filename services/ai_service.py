@@ -9,8 +9,8 @@ from typing import List, Dict
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
-from .prompt_service import PromptService
-from ..utils.question_validator import QuestionValidator
+from services.prompt_service import PromptService
+from utils.question_validator import QuestionValidator
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class AIService:
     def _get_model_for_language(self, language: str, task: str) -> str:
         """Get optimal model for language and task (transcript or questions)"""
         # Use Config as single source of truth for model selection
-        from ..config import Config
+        from config import Config
         return Config.get_model_for_language(language, task)
 
     def generate_transcript(self, language, topic, difficulty, style):

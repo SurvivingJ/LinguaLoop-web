@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, List, Any, Tuple
 from uuid import uuid4
 
-from .supabase_factory import get_supabase, get_supabase_admin
+from services.supabase_factory import get_supabase, get_supabase_admin
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # CONSTANTS - Import from Config (single source of truth)
 # ============================================================================
-from ..config import Config
+from config import Config
 
 VALID_LANGUAGE_IDS = Config.VALID_LANGUAGE_IDS
 LANGUAGE_ID_TO_NAME = Config.LANGUAGE_ID_TO_NAME

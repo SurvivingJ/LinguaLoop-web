@@ -8,22 +8,22 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 from datetime import datetime, timezone
 import stripe
-from .services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
+from services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
 import logging
 import traceback
 import os
 
 # Internal imports
-from .config import Config
-from .services.service_factory import ServiceFactory
-from .services.r2_service import R2Service
-from .services.prompt_service import PromptService
-from .services.auth_service import AuthService
-from .middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
+from config import Config
+from services.service_factory import ServiceFactory
+from services.r2_service import R2Service
+from services.prompt_service import PromptService
+from services.auth_service import AuthService
+from middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
 
 # Import blueprints
-from .routes.auth import auth_bp
-from .routes.tests import tests_bp
+from routes.auth import auth_bp
+from routes.tests import tests_bp
 
 
 def create_app(config_class=Config):
@@ -114,7 +114,7 @@ def _initialize_services(app):
             app.logger.info("Supabase clients initialized via SupabaseFactory")
 
             # Initialize dimension table cache for fast lookups
-            from .services.test_service import DimensionService, get_test_service
+            from services.test_service import DimensionService, get_test_service
             DimensionService.initialize(app.supabase)
             app.test_service = get_test_service()  # Singleton for reuse
             app.logger.info("DimensionService cache and TestService initialized")
@@ -285,7 +285,7 @@ def _register_core_routes(app):
     @app.route('/api/metadata', methods=['GET'])
     def get_metadata():
         """Return available languages and test types from cached dimension tables"""
-        from .services.test_service import DimensionService
+        from services.test_service import DimensionService
         return jsonify({
             'languages': DimensionService.get_all_languages(),
             'test_types': DimensionService.get_all_test_types(),

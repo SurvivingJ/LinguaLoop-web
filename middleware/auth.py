@@ -22,13 +22,13 @@ def _extract_token(req):
 
 def _get_supabase_client():
     """Get Supabase client from factory (lazy import to avoid circular deps)"""
-    from ..services.supabase_factory import get_supabase
+    from services.supabase_factory import get_supabase
     return get_supabase()
 
 
 def _get_supabase_admin():
     """Get admin Supabase client from factory (lazy import to avoid circular deps)"""
-    from ..services.supabase_factory import get_supabase_admin
+    from services.supabase_factory import get_supabase_admin
     return get_supabase_admin()
 
 

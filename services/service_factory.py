@@ -1,7 +1,7 @@
-from .ai_service import AIService
-from .prompt_service import PromptService
-from ..config import Config
-from .r2_service import R2Service
+from services.ai_service import AIService
+from services.prompt_service import PromptService
+from config import Config
+from services.r2_service import R2Service
 
 class ServiceFactory:
     def __init__(self, config):

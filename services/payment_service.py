@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple
 from enum import Enum
 from supabase import Client
 
-from ..config import Config
+from config import Config
 
 logger = logging.getLogger(__name__)
 

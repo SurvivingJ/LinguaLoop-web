@@ -2,8 +2,8 @@
 """Authentication routes for OTP-based login."""
 
 from flask import Blueprint, request, jsonify, g
-from ..utils.validation import validate_email
-from ..middleware.auth import jwt_required
+from utils.validation import validate_email
+from middleware.auth import jwt_required
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')

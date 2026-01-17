@@ -8,9 +8,9 @@ import traceback
 import random
 import logging
 
-from ..config import Config
-from ..middleware.auth import jwt_required as supabase_jwt_required
-from ..services.test_service import (
+from config import Config
+from middleware.auth import jwt_required as supabase_jwt_required
+from services.test_service import (
     TestService, DimensionService, get_test_service,
     parse_language_id, LANGUAGE_ID_TO_NAME, VALID_LANGUAGE_IDS
 )
