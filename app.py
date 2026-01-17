@@ -235,6 +235,11 @@ def _register_web_routes(app):
         """Render test list page"""
         return render_template('test_list.html')
 
+    @app.route('/profile')
+    def profile():
+        """Render user profile page"""
+        return render_template('profile.html')
+
     @app.route('/test/<slug>/preview')
     def test_preview(slug):
         """Render test preview page (client-side rendered)"""
@@ -297,65 +302,117 @@ def _register_core_routes(app):
     @app.route('/api/users/elo', methods=['GET'])
     @supabase_jwt_required
     def get_user_elo_ratings():
-        """Get user's ELO ratings across all languages and skills"""
+        """Get user's ELO ratings across all languages and skills by aggregating test attempts"""
         try:
             # Get user_id from JWT claims
             user_id = g.supabase_claims.get('sub')
             if not user_id:
                 return jsonify({"error": "User ID not found in token"}), 401
-            
-            # ✅ FIXED: Query with correct schema and FK joins
-            ratings_result = app.supabase.table('user_skill_ratings')\
-                .select('''
-                    user_id,
-                    language_id,
-                    test_type_id,
-                    elo_rating,
-                    tests_taken,
-                    last_test_date,
-                    volatility,
-                    dim_languages(language_code, language_name),
-                    dim_test_types(type_code, type_name)
-                ''')\
+
+            # Get all test attempts for this user (ordered by most recent)
+            client = app.supabase_service or app.supabase 
+        
+            attempts_result = client.table('test_attempts')\
+                .select('language_id, test_type_id, user_elo_after, created_at')\
                 .eq('user_id', user_id)\
+                .order('created_at', desc=True)\
                 .execute()
-            
-            # ✅ FIXED: Build response with correct field names
+
+            if not attempts_result.data:
+                # No attempts yet - return empty but valid response
+                return jsonify({
+                    'status': 'success',
+                    'ratings': {}
+                })
+
+            # Try to load dimension tables for friendly names
+            lang_map = {}
+            type_map = {}
+
+            try:
+                langs = app.supabase.table('dim_languages').select('id, language_code, language_name').execute()
+                for lang in langs.data or []:
+                    lang_map[lang['id']] = {
+                        'code': lang['language_code'],
+                        'name': lang['language_name']
+                    }
+            except Exception as e:
+                app.logger.warning(f"Could not load dim_languages: {e}")
+
+            try:
+                types = app.supabase.table('dim_test_types').select('id, type_code, type_name').execute()
+                for test_type in types.data or []:
+                    type_map[test_type['id']] = {
+                        'code': test_type['type_code'],
+                        'name': test_type['type_name']
+                    }
+            except Exception as e:
+                app.logger.warning(f"Could not load dim_test_types: {e}")
+
+            # Aggregate attempts by language_id and test_type_id
+            skill_stats = {}
+            for attempt in attempts_result.data:
+                language_id = attempt['language_id']
+                test_type_id = attempt['test_type_id']
+                key = (language_id, test_type_id)
+
+                if key not in skill_stats:
+                    # First time seeing this combination - this is the most recent
+                    skill_stats[key] = {
+                        'language_id': language_id,
+                        'test_type_id': test_type_id,
+                        'elo_rating': attempt['user_elo_after'],
+                        'last_test_date': attempt['created_at'],
+                        'tests_taken': 1
+                    }
+                else:
+                    # Increment test count (attempts are ordered newest first)
+                    skill_stats[key]['tests_taken'] += 1
+
+            # Build response with proper structure
             ratings = {}
-            for rating in ratings_result.data or []:
-                # Get language info from FK join
-                lang_info = rating.get('dim_languages') or {}
-                language_code = lang_info.get('language_code', 'unknown')
-                language_name = lang_info.get('language_name', 'Unknown')
-                
-                # Get test type info from FK join
-                type_info = rating.get('dim_test_types') or {}
-                test_type_code = type_info.get('type_code', 'unknown')
-                test_type_name = type_info.get('type_name', 'Unknown')
-                
+            for (language_id, test_type_id), stats in skill_stats.items():
+                # Get language info with fallback
+                if language_id in lang_map:
+                    language_code = lang_map[language_id]['code']
+                    language_name = lang_map[language_id]['name']
+                else:
+                    language_code = f"lang_{language_id}"
+                    language_name = f"Language {language_id}"
+                    app.logger.warning(f"No dimension data for language_id={language_id}, using fallback")
+
+                # Get test type info with fallback
+                if test_type_id in type_map:
+                    test_type_code = type_map[test_type_id]['code']
+                    test_type_name = type_map[test_type_id]['name']
+                else:
+                    test_type_code = f"type_{test_type_id}"
+                    test_type_name = f"Type {test_type_id}"
+                    app.logger.warning(f"No dimension data for test_type_id={test_type_id}, using fallback")
+
                 # Nest by language code
                 if language_code not in ratings:
                     ratings[language_code] = {
                         'language_name': language_name,
-                        'language_id': rating['language_id'],
+                        'language_id': language_id,
                         'skills': {}
                     }
-                
+
                 # Add skill rating
                 ratings[language_code]['skills'][test_type_code] = {
-                    'elo_rating': rating['elo_rating'],
-                    'tests_taken': rating['tests_taken'],
-                    'last_test_date': rating.get('last_test_date'),
-                    'volatility': rating.get('volatility', 100),
+                    'elo_rating': stats['elo_rating'],
+                    'tests_taken': stats['tests_taken'],
+                    'last_test_date': stats['last_test_date'],
+                    'volatility': 100,  # Default volatility
                     'skill_name': test_type_name,
-                    'test_type_id': rating['test_type_id']
+                    'test_type_id': test_type_id
                 }
-            
+
             return jsonify({
                 'status': 'success',
                 'ratings': ratings
             })
-        
+
         except Exception as e:
             app.logger.error(f"Error getting user ELO: {e}")
             import traceback
@@ -440,6 +497,94 @@ def _register_core_routes(app):
         except Exception as e:
             app.logger.error(f"Profile error: {e}")
             return jsonify({"error": "Failed to get profile"}), 500
+
+    @app.route('/api/tests/history', methods=['GET'])
+    @supabase_jwt_required
+    def get_test_history():
+        """Get user's test attempt history with manual join"""
+        try:
+            user_id = g.supabase_claims.get('sub')
+            if not user_id:
+                return jsonify({"error": "User ID not found"}), 401
+
+            # Pagination & Filtering params
+            language_id = request.args.get('language_id', type=int)
+            test_type_id = request.args.get('test_type_id', type=int)
+            limit = min(int(request.args.get('limit', 25)), 100)
+            offset = int(request.args.get('offset', 0))
+
+            # 1. Fetch Attempts (using admin client to be safe, but user client works too)
+            client = app.supabase_service or app.supabase
+            
+            # Select simple columns, NO joins here to avoid RLS issues
+            query = client.table('test_attempts')\
+                .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id')\
+                .eq('user_id', user_id)\
+                .order('created_at', desc=True)\
+                .range(offset, offset + limit - 1)
+
+            if language_id:
+                query = query.eq('language_id', language_id)
+            if test_type_id:
+                query = query.eq('test_type_id', test_type_id)
+
+            attempts_result = query.execute()
+            attempts = attempts_result.data or []
+
+            if not attempts:
+                return jsonify({'status': 'success', 'tests': []}), 200
+
+            # 2. Extract unique Test IDs
+            test_ids = list(set(a['test_id'] for a in attempts))
+
+            # 3. Fetch Test Details (MUST use Service Client to bypass RLS)
+            tests_map = {}
+            if test_ids and app.supabase_service:
+                tests_result = app.supabase_service.table('tests')\
+                    .select('id, title, slug')\
+                    .in_('id', test_ids)\
+                    .execute()
+                
+                for t in tests_result.data or []:
+                    tests_map[t['id']] = t
+
+            # 4. Fetch Test Types (optional, for type_name)
+            # Using DimensionService if available, or a quick DB lookup
+            type_map = {}
+            try:
+                types_res = client.table('dim_test_types').select('id, type_name').execute()
+                for t in types_res.data or []:
+                    type_map[t['id']] = t['type_name']
+            except:
+                pass # Fallback to Unknown if this fails
+
+            # 5. Merge Data
+            history = []
+            for attempt in attempts:
+                test_id = attempt['test_id']
+                test_detail = tests_map.get(test_id, {})
+                type_name = type_map.get(attempt['test_type_id'], 'Unknown')
+                
+                history.append({
+                    'id': attempt['id'],
+                    'test_id': test_id,
+                    'test_title': test_detail.get('title', 'Unknown Test'),
+                    'test_slug': test_detail.get('slug', ''),
+                    'test_type': type_name,
+                    'test_type_id': attempt['test_type_id'],
+                    'score': attempt['score'],
+                    'total_questions': attempt['total_questions'],
+                    'percentage': attempt['percentage'],
+                    'user_elo_after': attempt['user_elo_after'],
+                    'created_at': attempt['created_at']
+                })
+
+            return jsonify({'status': 'success', 'tests': history}), 200
+
+        except Exception as e:
+            app.logger.error(f"Error getting test history: {e}")
+            app.logger.error(traceback.format_exc())
+            return jsonify({'error': 'Failed to get test history'}), 500
 
     @app.route('/api/payments/token-packages', methods=['GET'])
     def get_token_packages():

@@ -85,20 +85,7 @@
                                     required
                                 >
                             </div>
-                            
-                            <div class="mb-4">
-                                <div class="form-check">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        id="is-registration"
-                                    >
-                                    <label class="form-check-label text-slate-600" for="is-registration">
-                                        I'm new here (Sign up)
-                                    </label>
-                                </div>
-                            </div>
-                            
+
                             <button type="submit" class="btn btn-primary w-100 mb-3">
                                 Send Verification Code
                             </button>
@@ -173,7 +160,6 @@
     const emailInput = document.getElementById('email');
     const otpInput = document.getElementById('otp');
     const emailDisplay = document.getElementById('email-display');
-    const isRegistrationCheckbox = document.getElementById('is-registration');
     const emailForm = document.getElementById('email-form');
     const otpForm = document.getElementById('otp-form');
     const backBtn = document.getElementById('back-btn');
@@ -219,10 +205,10 @@
     // Send OTP
     emailForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const email = emailInput.value.trim();
-        const isRegistration = isRegistrationCheckbox.checked;
-        
+        const isRegistration = false;
+
         if (!email || !emailInput.checkValidity()) {
             showError('Please enter a valid email address');
             return;
@@ -312,8 +298,8 @@
     // Resend OTP
     resendBtn.addEventListener('click', async function() {
         const email = emailInput.value.trim();
-        const isRegistration = isRegistrationCheckbox.checked;
-        
+        const isRegistration = false;
+
         this.disabled = true;
         this.textContent = 'Sending...';
         
