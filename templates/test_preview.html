@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Test Preview | LinguaLoop{% endblock %}
+{% block title %}Test Preview | Linguadojo{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -282,6 +282,7 @@
                                 <label for="dictationOption" class="test-type-label">
                                     <i class="bi bi-keyboard"></i>
                                     <span>Dictation</span>
+                                    <span class="badge bg-secondary ms-2" style="font-size: 10px;">Coming Soon</span>
                                 </label>
                             </div>
                         </div>
@@ -319,7 +320,7 @@
                             id="startTestBtn"
                             onclick="startTest()">
                         <i class="bi bi-play-circle-fill"></i>
-                        <span id="buttonText">Start Reading Test</span>
+                        <span id="buttonText">Start Test</span>
                     </button>
                 </div>
             </div>
@@ -469,7 +470,7 @@
         // Title and breadcrumb
         document.getElementById('testTitle').textContent = test.title || test.topic || 'Untitled Test';
         document.getElementById('breadcrumbTitle').textContent = test.title || test.topic || 'Test Preview';
-        document.title = `${test.title || 'Test Preview'} | LinguaLoop`;
+        document.title = `${test.title || 'Test Preview'} | Linguadojo`;
 
         // Custom badge
         if (test.is_custom) {
@@ -561,6 +562,16 @@
         // Update button text
         const testTypeCapitalized = testType.charAt(0).toUpperCase() + testType.slice(1);
         document.getElementById('buttonText').textContent = `Start ${testTypeCapitalized} Test`;
+
+        // Disable button for dictation (coming soon)
+        const startBtn = document.getElementById('startTestBtn');
+        if (testType === 'dictation') {
+            startBtn.disabled = true;
+            startBtn.title = 'Dictation tests coming soon';
+        } else {
+            startBtn.disabled = false;
+            startBtn.title = '';
+        }
     }
 
     /**

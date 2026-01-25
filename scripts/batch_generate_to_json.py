@@ -47,7 +47,7 @@ class LocalTestGenerator(BaseTestGenerator):
     """Generates tests locally using AI services"""
 
     def __init__(self):
-        super().__init__(name="LinguaLoop Batch Test Generation (JSON)")
+        super().__init__(name="Linguadojo Batch Test Generation (JSON)")
         self.prompt_service = PromptService()
         self.client = None
         self.use_openrouter = False

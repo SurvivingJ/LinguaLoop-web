@@ -58,7 +58,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     logger.info("=" * 70)
-    logger.info("  LinguaLoop Topic Generation")
+    logger.info("  Linguadojo Topic Generation")
     logger.info(f"  Started: {datetime.now().isoformat()}")
     logger.info("=" * 70)
 

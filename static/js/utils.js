@@ -1,5 +1,5 @@
 /**
- * LinguaLoop Shared Utilities
+ * Linguadojo Shared Utilities
  * Common functions used across templates - import to avoid duplication.
  */
 
@@ -7,7 +7,7 @@
 // CONSTANTS
 // =============================================================================
 
-const LINGUALOOP = window.LINGUALOOP || {};
+const LINGUADOJO = window.LINGUADOJO || {};
 
 // ELO difficulty ranges
 const ELO_RANGES = {
@@ -146,7 +146,7 @@ function toggle(el, visible) {
  * @returns {Object} Headers object with Authorization
  */
 function getAuthHeaders() {
-    const token = localStorage.getItem('jwt_token') || LINGUALOOP.jwt_token;
+    const token = localStorage.getItem('jwt_token') || LINGUADOJO.jwt_token;
     return {
         'Content-Type': 'application/json',
         'Authorization': token ? `Bearer ${token}` : ''

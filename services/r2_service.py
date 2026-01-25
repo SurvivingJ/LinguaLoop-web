@@ -19,7 +19,7 @@ class R2Service:
         """Initialize R2 service with configuration"""
         self.config = config
         self.r2_client = None  # ✅ FIXED: Use consistent attribute name
-        self.bucket_name = getattr(config, 'R2_BUCKET_NAME', 'lingualoopaudio')
+        self.bucket_name = getattr(config, 'R2_BUCKET_NAME', 'linguadojoaudio')
         self.public_url = getattr(config, 'R2_PUBLIC_URL', None)
         
         # Initialize client if credentials are available
@@ -100,7 +100,7 @@ class R2Service:
                 ContentType='audio/mpeg',
                 CacheControl='public, max-age=31536000',  # Cache for 1 year
                 Metadata={
-                    'uploaded-by': 'lingualoop-backend',
+                    'uploaded-by': 'linguadojo-backend',
                     'content-type': 'audio/mpeg'
                 }
             )

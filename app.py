@@ -1,5 +1,5 @@
 """
-Flask Backend for LinguaLoop Language Learning Platform
+Flask Backend for Linguadojo Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
@@ -63,7 +63,7 @@ def create_app(config_class=Config):
     _register_core_routes(app)
     _register_web_routes(app)
     
-    app.logger.info("LinguaLoop application initialized successfully")
+    app.logger.info("Linguadojo application initialized successfully")
     return app
 
 
@@ -337,7 +337,8 @@ def _register_core_routes(app):
             try:
                 langs = app.supabase.table('dim_languages').select('id, language_code, language_name').execute()
                 for lang in langs.data or []:
-                    lang_map[lang['id']] = {
+                    # Use int keys for consistent lookup
+                    lang_map[int(lang['id'])] = {
                         'code': lang['language_code'],
                         'name': lang['language_name']
                     }
@@ -347,7 +348,8 @@ def _register_core_routes(app):
             try:
                 types = app.supabase.table('dim_test_types').select('id, type_code, type_name').execute()
                 for test_type in types.data or []:
-                    type_map[test_type['id']] = {
+                    # Use int keys for consistent lookup
+                    type_map[int(test_type['id'])] = {
                         'code': test_type['type_code'],
                         'name': test_type['type_name']
                     }
@@ -377,19 +379,23 @@ def _register_core_routes(app):
             # Build response with proper structure
             ratings = {}
             for (language_id, test_type_id), stats in skill_stats.items():
+                # Convert to int for consistent lookup with lang_map/type_map keys
+                lang_id_int = int(language_id) if language_id is not None else None
+                type_id_int = int(test_type_id) if test_type_id is not None else None
+
                 # Get language info with fallback
-                if language_id in lang_map:
-                    language_code = lang_map[language_id]['code']
-                    language_name = lang_map[language_id]['name']
+                if lang_id_int in lang_map:
+                    language_code = lang_map[lang_id_int]['code']
+                    language_name = lang_map[lang_id_int]['name']
                 else:
                     language_code = f"lang_{language_id}"
                     language_name = f"Language {language_id}"
                     app.logger.warning(f"No dimension data for language_id={language_id}, using fallback")
 
                 # Get test type info with fallback
-                if test_type_id in type_map:
-                    test_type_code = type_map[test_type_id]['code']
-                    test_type_name = type_map[test_type_id]['name']
+                if type_id_int in type_map:
+                    test_type_code = type_map[type_id_int]['code']
+                    test_type_name = type_map[type_id_int]['name']
                 else:
                     test_type_code = f"type_{test_type_id}"
                     test_type_name = f"Type {test_type_id}"
