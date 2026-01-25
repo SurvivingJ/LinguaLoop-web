@@ -28,7 +28,7 @@ class APITestGenerator(BaseTestGenerator):
     """Generates tests via Flask API"""
 
     def __init__(self):
-        super().__init__(name="Linguadojo Batch Test Generation (API)")
+        super().__init__(name="LinguaDojo Batch Test Generation (API)")
         self.session = requests.Session()
         self.token = None
 
@@ -95,7 +95,7 @@ def main():
     if not BATCH_AUTH_TOKEN:
         print("ERROR: BATCH_AUTH_TOKEN not set!")
         print("\nTo obtain a JWT token:")
-        print("1. Login to Linguadojo via the web app")
+        print("1. Login to LinguaDojo via the web app")
         print("2. Open browser DevTools > Network tab")
         print("3. Look for the /verify-otp request")
         print("4. Copy the 'jwt_token' from the response")

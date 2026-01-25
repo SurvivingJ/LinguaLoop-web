@@ -1,7 +1,7 @@
 """
 Topic Generation Module
 
-AI-powered topic generation system for Linguadojo.
+AI-powered topic generation system for LinguaDojo.
 Generates diverse, semantically deduplicated topics using a multi-agent pipeline.
 """
 

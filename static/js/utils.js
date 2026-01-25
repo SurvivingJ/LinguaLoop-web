@@ -1,5 +1,5 @@
 /**
- * Linguadojo Shared Utilities
+ * LinguaDojo Shared Utilities
  * Common functions used across templates - import to avoid duplication.
  */
 

@@ -1,5 +1,5 @@
 """
-Flask Backend for Linguadojo Language Learning Platform
+Flask Backend for LinguaDojo Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
@@ -63,7 +63,7 @@ def create_app(config_class=Config):
     _register_core_routes(app)
     _register_web_routes(app)
     
-    app.logger.info("Linguadojo application initialized successfully")
+    app.logger.info("LinguaDojo application initialized successfully")
     return app
 
 

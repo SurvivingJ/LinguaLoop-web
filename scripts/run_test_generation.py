@@ -278,7 +278,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     logger.info("=" * 70)
-    logger.info("  Linguadojo Test Generation")
+    logger.info("  LinguaDojo Test Generation")
     logger.info(f"  Started: {datetime.now().isoformat()}")
     logger.info(f"  Debug Mode: {DEBUG_MODE}")
     logger.info("=" * 70)
