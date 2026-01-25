@@ -89,6 +89,9 @@
                             <button type="submit" class="btn btn-primary w-100 mb-3">
                                 Send Verification Code
                             </button>
+                            <p class="text-center text-muted mb-0">
+                                <small>New here? Just enter your email to create an account.</small>
+                            </p>
                         </form>
                     </div>
                     
@@ -207,23 +210,22 @@
         e.preventDefault();
 
         const email = emailInput.value.trim();
-        const isRegistration = false;
 
         if (!email || !emailInput.checkValidity()) {
             showError('Please enter a valid email address');
             return;
         }
-        
+
         hideError();
         showLoading();
-        
+
         try {
             const response = await fetch('/api/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    is_registration: isRegistration
+                    is_registration: true
                 })
             });
             
@@ -274,9 +276,13 @@
                 // Store JWT and user data
                 localStorage.setItem('jwt_token', data.jwt_token);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
-                
-                // Redirect to language selection
-                window.location.href = '/language-selection';
+
+                // Redirect new users to welcome page, returning users to language selection
+                if (data.user.totalTestsTaken === 0) {
+                    window.location.href = '/welcome';
+                } else {
+                    window.location.href = '/language-selection';
+                }
             } else {
                 showOtpStep();
                 showError(data.error || data.message || 'Invalid verification code. Please try again.');
@@ -298,18 +304,17 @@
     // Resend OTP
     resendBtn.addEventListener('click', async function() {
         const email = emailInput.value.trim();
-        const isRegistration = false;
 
         this.disabled = true;
         this.textContent = 'Sending...';
-        
+
         try {
             const response = await fetch('/api/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
-                    is_registration: isRegistration
+                    is_registration: true
                 })
             });
             

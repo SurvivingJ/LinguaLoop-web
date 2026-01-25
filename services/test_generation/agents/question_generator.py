@@ -7,6 +7,7 @@ Supports 6 semantic question types.
 
 import json
 import logging
+import traceback
 from typing import List, Dict, Optional
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -99,6 +100,19 @@ class QuestionGenerator:
         Returns:
             List of question dicts with keys: id, question, choices, answer, type_code
         """
+        # DEBUG: Log all inputs
+        logger.info("=" * 80)
+        logger.info("QUESTION GENERATION DEBUG - generate_questions() called")
+        logger.info("=" * 80)
+        logger.info(f"Language: {language_name}")
+        logger.info(f"Question types requested: {question_type_codes}")
+        logger.info(f"Difficulty: {difficulty}")
+        logger.info(f"Model override: {model_override}")
+        logger.info(f"Prompt templates provided: {list(prompt_templates.keys()) if prompt_templates else 'None'}")
+        logger.info(f"Prose length: {len(prose)} chars")
+        logger.info(f"Prose preview (first 300 chars): {prose[:300]}")
+        logger.info("-" * 80)
+
         questions = []
         previous_questions = []
 
@@ -124,11 +138,22 @@ class QuestionGenerator:
                 previous_questions.append(question['Question'])
 
             except Exception as e:
-                logger.error(f"Failed to generate question type {type_code}: {e}")
+                logger.error("!" * 80)
+                logger.error(f"DEBUG: Failed to generate question type {type_code}")
+                logger.error(f"DEBUG: Error: {e}")
+                logger.error("!" * 80)
                 # Continue with remaining questions
                 continue
 
-        logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
+        logger.info("=" * 80)
+        logger.info(f"DEBUG: QUESTION GENERATION COMPLETE")
+        logger.info(f"DEBUG: Generated {len(questions)}/{len(question_type_codes)} questions")
+        if questions:
+            for i, q in enumerate(questions):
+                logger.info(f"DEBUG: Question {i+1} ({q['type_code']}): {q['question'][:100]}...")
+        else:
+            logger.error("DEBUG: NO QUESTIONS WERE GENERATED!")
+        logger.info("=" * 80)
         return questions
 
     @retry(
@@ -164,17 +189,30 @@ class QuestionGenerator:
         """
         model = model_override or self.model
 
+        # DEBUG: Log question generation attempt
+        logger.info("+" * 60)
+        logger.info(f"DEBUG: _generate_single_question() for type: {question_type_code}")
+        logger.info(f"DEBUG: Model being used: {model}")
+        logger.info(f"DEBUG: Language: {language_name}")
+        logger.info(f"DEBUG: Previous questions count: {len(previous_questions)}")
+        logger.info(f"DEBUG: Has prompt_template: {prompt_template is not None}")
+
         # Build prompt
         if prompt_template:
             # Use placeholder names that match actual database templates:
             # {prose}, {difficulty}, {previous_questions}, {language}
             logger.info(f"Using DATABASE template for {question_type_code}")
+            logger.info(f"PROSE: {prose}")
+            logger.info(f"Difficulty: {difficulty}")
+            logger.info(f"Prev: {previous_questions}")
+            logger.info(f"Language: {language_name}")
             prompt = prompt_template.format(
                 prose=prose,
                 difficulty=difficulty,
                 previous_questions='; '.join(previous_questions) if previous_questions else 'None',
                 language=language_name
             )
+            logger.info(f"DEBUG: Template preview (first 500 chars): {prompt}")
         else:
             logger.info(f"Using FALLBACK template for {question_type_code}")
             prompt = self._build_question_prompt(
@@ -183,6 +221,15 @@ class QuestionGenerator:
                 question_type_code,
                 previous_questions
             )
+
+        # DEBUG: Log the FULL prepared prompt
+        logger.info("-" * 60)
+        logger.info(f"DEBUG: FULL PREPARED PROMPT for {question_type_code}:")
+        logger.info("-" * 60)
+        logger.info(prompt)
+        logger.info("-" * 60)
+        logger.info(f"DEBUG: Prompt length: {len(prompt)} chars")
+        logger.info(f"DEBUG: Sending request to OpenRouter...")
 
         try:
             response = self.client.chat.completions.create(
@@ -193,27 +240,41 @@ class QuestionGenerator:
             )
 
             self.api_call_count += 1
+            logger.info(f"DEBUG: Received response from OpenRouter (API call #{self.api_call_count})")
 
             if not response.choices:
+                logger.error("DEBUG: response.choices is empty!")
                 raise Exception("No response from LLM")
 
             content = response.choices[0].message.content
             if not content:
+                logger.error("DEBUG: response content is empty/None!")
                 raise Exception("Empty response from LLM")
 
-            # DEBUG: Log raw LLM response
-            logger.info(f"RAW LLM RESPONSE for {question_type_code}:")
-            logger.info(f"{content[:500]}")
+            # DEBUG: Log FULL raw LLM response
+            logger.info("=" * 60)
+            logger.info(f"DEBUG: FULL RAW LLM RESPONSE for {question_type_code}:")
+            logger.info("=" * 60)
+            logger.info(content)
+            logger.info("=" * 60)
+            logger.info(f"DEBUG: Response length: {len(content)} chars")
 
             # Parse JSON response
+            logger.info(f"DEBUG: Parsing LLM response...")
             question_data = self._parse_question_response(content.strip())
 
-            logger.debug(f"Generated {question_type_code} question successfully")
+            logger.info(f"DEBUG: Successfully generated {question_type_code} question!")
+            logger.info("+" * 60)
             return question_data
 
         except Exception as e:
-            logger.error(f"Question generation failed for {question_type_code}: {e}")
-            logger.error(f"LLM Response was: {content[:200] if 'content' in locals() else 'No response'}")
+            logger.error("!" * 60)
+            logger.error(f"DEBUG: EXCEPTION in question generation for {question_type_code}")
+            logger.error(f"DEBUG: Exception type: {type(e).__name__}")
+            logger.error(f"DEBUG: Exception message: {e}")
+            logger.error(f"DEBUG: LLM Response was: {content if 'content' in locals() else 'No response received'}")
+            logger.error("!" * 60)
+            logger.error(f"DEBUG: Full traceback:\n{traceback.format_exc()}")
             raise
 
     def _build_question_prompt(
@@ -259,19 +320,31 @@ Return ONLY valid JSON in this exact format:
 
     def _parse_question_response(self, content: str) -> Dict:
         """Parse and validate question response from LLM."""
+        logger.info("DEBUG: _parse_question_response() called")
+        logger.info(f"DEBUG: Input content length: {len(content)} chars")
+        logger.info(f"DEBUG: Content starts with: {repr(content[:100])}")
+        logger.info(f"DEBUG: Content ends with: {repr(content[-100:])}")
+
         # Clean markdown code blocks
         if content.startswith('```'):
+            logger.info("DEBUG: Content starts with ``` - cleaning markdown code blocks")
             content = content.replace('```json', '', 1)
             content = content.replace('```', '', 1)
         if content.endswith('```'):
+            logger.info("DEBUG: Content ends with ``` - removing trailing markdown")
             content = content.rsplit('```', 1)[0]
 
         content = content.strip()
+        logger.info(f"DEBUG: After cleanup, content length: {len(content)} chars")
+        logger.info(f"DEBUG: Cleaned content preview: {repr(content[:200])}")
 
         # Find JSON object - use a smarter approach for nested braces
         start_idx = content.find('{')
+        logger.info(f"DEBUG: Looking for opening brace, found at index: {start_idx}")
+
         if start_idx == -1:
             logger.error(f"No opening brace found in response: {content[:200]}")
+            logger.error(f"DEBUG: Full content for inspection: {repr(content)}")
             raise ValueError(f"No JSON object found in response: {content[:100]}...")
 
         # Find matching closing brace by counting braces (ignores braces in strings)
@@ -304,19 +377,31 @@ Return ONLY valid JSON in this exact format:
                         end_idx = i
                         break
 
+        logger.info(f"DEBUG: Brace matching complete - end_idx: {end_idx}, final brace_count: {brace_count}")
+
         if end_idx == -1:
             logger.error(f"No matching closing brace found. Content: {content[:300]}")
             logger.error(f"Final brace_count: {brace_count}, in_string: {in_string}")
+            logger.error(f"DEBUG: Full content for inspection: {repr(content)}")
             raise ValueError(f"No matching JSON object closing brace in response")
 
         json_str = content[start_idx:end_idx + 1]
-        logger.debug(f"Extracted JSON string: {json_str[:200]}...")
+        logger.info(f"DEBUG: Extracted JSON string ({len(json_str)} chars):")
+        logger.info(f"DEBUG: {json_str}")
 
         try:
+            logger.info("DEBUG: Attempting json.loads()...")
             data = json.loads(json_str)
+            logger.info(f"DEBUG: JSON parsed successfully! Keys: {list(data.keys())}")
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error: {e}")
-            logger.error(f"Failed JSON: {json_str}")
+            logger.error(f"DEBUG: Error position: line {e.lineno}, col {e.colno}, pos {e.pos}")
+            logger.error(f"DEBUG: Failed JSON string: {repr(json_str)}")
+            # Try to show context around the error position
+            if e.pos is not None and e.pos < len(json_str):
+                start = max(0, e.pos - 50)
+                end = min(len(json_str), e.pos + 50)
+                logger.error(f"DEBUG: Context around error: ...{repr(json_str[start:end])}...")
             raise ValueError(f"Invalid JSON: {str(e)}")
 
         # Normalize field names - LLMs sometimes use alternative names
@@ -348,33 +433,57 @@ Return ONLY valid JSON in this exact format:
         required = ['Question', 'Options', 'Answer']
         for field in required:
             if field not in data:
+                logger.error(f"DEBUG: Missing required field: {field}")
+                logger.error(f"DEBUG: Available fields: {list(data.keys())}")
+                logger.error(f"DEBUG: Full data: {data}")
                 raise ValueError(f"Missing required field: {field}")
+
+        logger.info(f"DEBUG: All required fields present")
+        logger.info(f"DEBUG: Question: {data['Question']}")
+        logger.info(f"DEBUG: Options type: {type(data['Options'])}, value: {data['Options']}")
+        logger.info(f"DEBUG: Answer: {data['Answer']}")
 
         # Validate options
         if not isinstance(data['Options'], list) or len(data['Options']) != 4:
+            logger.error(f"DEBUG: Options validation failed!")
+            logger.error(f"DEBUG: Options is list: {isinstance(data['Options'], list)}")
+            logger.error(f"DEBUG: Options length: {len(data['Options']) if isinstance(data['Options'], list) else 'N/A'}")
             raise ValueError("Options must be a list of exactly 4 items")
 
         # Validate answer is in options
         answer = data['Answer'].strip()
         options = [opt.strip() for opt in data['Options']]
 
+        logger.info(f"DEBUG: Stripped answer: {repr(answer)}")
+        logger.info(f"DEBUG: Stripped options: {options}")
+        logger.info(f"DEBUG: Answer in options: {answer in options}")
+
         if answer not in options:
+            logger.warning(f"DEBUG: Answer not in options, attempting recovery...")
             # Try to match by letter (A, B, C, D)
             if answer in ['A', 'B', 'C', 'D']:
                 idx = ord(answer) - ord('A')
                 if 0 <= idx < 4:
+                    logger.info(f"DEBUG: Answer was letter '{answer}', mapping to option index {idx}")
                     data['Answer'] = options[idx]
             else:
                 # Find closest match
-                for opt in options:
+                for i, opt in enumerate(options):
                     if answer.lower() in opt.lower() or opt.lower() in answer.lower():
+                        logger.info(f"DEBUG: Found partial match at index {i}: {opt}")
                         data['Answer'] = opt
                         break
                 else:
-                    logger.warning(f"Answer '{answer}' not in options, using first option")
+                    logger.warning(f"DEBUG: No match found! Answer '{answer}' not in options {options}")
+                    logger.warning(f"DEBUG: Falling back to first option")
                     data['Answer'] = options[0]
 
         data['Options'] = options
+        logger.info(f"DEBUG: Final parsed question data:")
+        logger.info(f"DEBUG:   Question: {data['Question']}")
+        logger.info(f"DEBUG:   Options: {data['Options']}")
+        logger.info(f"DEBUG:   Answer: {data['Answer']}")
+        logger.info("+" * 60)
         return data
 
     def reset_call_count(self) -> None:

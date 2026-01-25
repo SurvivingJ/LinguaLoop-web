@@ -13,7 +13,7 @@ from botocore.config import Config as BotoConfig
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from ..config import test_gen_config
-from ....config import Config
+from config import Config
 
 logger = logging.getLogger(__name__)
 

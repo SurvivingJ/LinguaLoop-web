@@ -144,7 +144,7 @@ class TestDatabaseClient:
 
     def get_pending_queue_items(self, limit: int = 50) -> List[QueueItem]:
         """
-        Fetch pending items from production_queue.
+        Fetch pending items from production_queue for active languages only.
 
         Args:
             limit: Maximum number of items to fetch
@@ -154,15 +154,30 @@ class TestDatabaseClient:
         """
         pending_status_id = self._get_status_id('pending')
 
+        # Get active language IDs first
+        active_langs = self.client.table('dim_languages') \
+            .select('id') \
+            .eq('is_active', True) \
+            .execute()
+
+        active_lang_ids = [lang['id'] for lang in active_langs.data] if active_langs.data else []
+
+        if not active_lang_ids:
+            logger.warning("No active languages found - skipping test generation")
+            return []
+
+        logger.info(f"Active language IDs: {active_lang_ids}")
+
         response = self.client.table('production_queue') \
             .select('*') \
             .eq('status_id', pending_status_id) \
+            .in_('language_id', active_lang_ids) \
             .order('created_at') \
             .limit(limit) \
             .execute()
 
         if not response.data:
-            logger.info("No pending queue items found")
+            logger.info("No pending queue items found for active languages")
             return []
 
         items = [

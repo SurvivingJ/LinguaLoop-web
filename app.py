@@ -225,6 +225,11 @@ def _register_web_routes(app):
         """Render signup page (uses same login.html template)"""
         return render_template('login.html')
     
+    @app.route('/welcome')
+    def welcome():
+        """Render onboarding page for new users"""
+        return render_template('onboarding.html')
+
     @app.route('/language-selection')
     def language_selection():
         """Render language selection page"""
