@@ -7,12 +7,11 @@ Generates TTS audio and uploads to R2 storage.
 import logging
 import random
 from typing import Optional, List
-from openai import OpenAI
+import azure.cognitiveservices.speech as speechsdk
 import boto3
 from botocore.config import Config as BotoConfig
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
-from ..config import test_gen_config
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -23,14 +22,16 @@ class AudioSynthesizer:
 
     def __init__(
         self,
-        openai_api_key: str = None,
+        speech_key: str = None,
+        service_region: str = None,
         r2_config: dict = None
     ):
         """
         Initialize the Audio Synthesizer.
 
         Args:
-            openai_api_key: OpenAI API key for TTS
+            speech_key: Azure Speech Service subscription key
+            service_region: Azure Speech Service region (e.g., 'eastus', 'westeurope')
             r2_config: Dict with R2 configuration:
                 - account_id
                 - access_key_id
@@ -39,11 +40,13 @@ class AudioSynthesizer:
         """
         import os
 
-        self.openai_api_key = openai_api_key or test_gen_config.openai_api_key
+        # Azure Speech Service Configuration
+        self.speech_key = speech_key or os.getenv('SPEECH_KEY')
+        self.service_region = service_region or os.getenv('SPEECH_REGION')
         self.api_call_count = 0
 
-        # Initialize OpenAI client
-        self.openai_client = OpenAI(api_key=self.openai_api_key)
+        if not self.speech_key or not self.service_region:
+            logger.warning("Azure Speech Service credentials not configured - TTS will fail")
 
         # Initialize R2 client
         self.r2_config = r2_config or {
@@ -56,7 +59,7 @@ class AudioSynthesizer:
         self.r2_client = None
         self._initialize_r2_client()
 
-        logger.info("AudioSynthesizer initialized")
+        logger.info("AudioSynthesizer initialized with Azure Speech Services")
 
     def _initialize_r2_client(self) -> None:
         """Initialize the R2 client using boto3."""
@@ -103,51 +106,75 @@ class AudioSynthesizer:
         model: str = None
     ) -> str:
         """
-        Generate TTS audio and upload to R2.
+        Generate TTS audio using Azure Speech Services and upload to R2.
 
         Args:
             text: Text to synthesize
             file_id: UUID to use as file name (without .mp3 extension)
-            voice: TTS voice (default: alloy)
-            speed: Playback speed (default: 1.0)
-            model: TTS model (default: tts-1)
+            voice: Azure Neural Voice name (default: en-US-AvaMultilingualNeural)
+            speed: Playback speed (currently not supported by Azure SDK in same way as OpenAI)
+            model: Deprecated parameter (Azure uses voices directly)
 
         Returns:
             str: R2 public URL for the uploaded audio
         """
-        voice = voice or test_gen_config.default_tts_voice
-        speed = speed or test_gen_config.default_tts_speed
-        model = model or test_gen_config.default_tts_model
+        # Default to Azure Neural Voice if not specified
+        selected_voice = voice or "en-US-AvaMultilingualNeural"
 
         try:
-            # Generate audio
-            logger.debug(f"Generating TTS for {file_id} with voice '{voice}'")
+            # Generate audio using Azure Speech SDK
+            logger.debug(f"Generating TTS for {file_id} with Azure voice '{selected_voice}'")
 
-            response = self.openai_client.audio.speech.create(
-                model=model,
-                voice=voice,
-                input=text,
-                response_format="mp3",
-                speed=speed
+            # 1. Configure Speech Service
+            speech_config = speechsdk.SpeechConfig(
+                subscription=self.speech_key,
+                region=self.service_region
             )
+            speech_config.speech_synthesis_voice_name = selected_voice
+
+            # 2. Set Output Format to MP3 (crucial for web playback and file size)
+            speech_config.set_speech_synthesis_output_format(
+                speechsdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3
+            )
+
+            # 3. Create Synthesizer (audio_config=None keeps data in memory)
+            synthesizer = speechsdk.SpeechSynthesizer(
+                speech_config=speech_config,
+                audio_config=None
+            )
+
+            # 4. Generate audio
+            result = synthesizer.speak_text_async(text).get()
 
             self.api_call_count += 1
 
-            audio_data = response.content
-            if not audio_data:
-                raise Exception("Empty audio response from TTS API")
+            # 5. Process Result
+            if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                audio_data = result.audio_data
 
-            logger.debug(f"Generated {len(audio_data)} bytes of audio")
+                if not audio_data:
+                    raise Exception("Empty audio response from Azure TTS")
 
-            # Upload to R2
-            success = self._upload_to_r2(file_id, audio_data)
+                logger.debug(f"Generated {len(audio_data)} bytes of audio")
 
-            if success:
-                logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
-                # Return R2 public URL using Config
-                return Config.get_audio_url(file_id)
+                # Upload to R2
+                success = self._upload_to_r2(file_id, audio_data)
 
-            raise Exception(f"Failed to upload audio for {file_id}")
+                if success:
+                    logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
+                    # Return R2 public URL using Config
+                    return Config.get_audio_url(file_id)
+
+                raise Exception(f"Failed to upload audio for {file_id}")
+
+            elif result.reason == speechsdk.ResultReason.Canceled:
+                cancellation_details = result.cancellation_details
+                error_msg = f"Azure TTS Error: {cancellation_details.reason}"
+                if cancellation_details.error_details:
+                    error_msg += f" - {cancellation_details.error_details}"
+                raise Exception(error_msg)
+            else:
+                raise Exception(f"Unexpected result reason: {result.reason}")
 
         except Exception as e:
             logger.error(f"Audio generation/upload failed for {file_id}: {e}")
@@ -203,14 +230,19 @@ class AudioSynthesizer:
             language_code: Language code (for future language-specific selection)
 
         Returns:
-            str: Selected voice ID
+            str: Selected voice ID (Azure Neural Voice name)
         """
         if voice_ids and len(voice_ids) > 0:
             # Random selection for variety
             return random.choice(voice_ids)
 
-        # Default voices
-        default_voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+        # Default Azure Neural Voices - high quality multilingual voices
+        default_voices = [
+            'en-US-AvaMultilingualNeural',      # Balanced female
+            'en-US-AndrewMultilingualNeural',   # Balanced male
+            'en-US-BrianMultilingualNeural',    # Deep male
+            'en-US-EmmaMultilingualNeural'      # Professional female
+        ]
         return random.choice(default_voices)
 
     def check_audio_exists(self, slug: str) -> bool:
