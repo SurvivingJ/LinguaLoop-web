@@ -517,13 +517,35 @@
     function updateDifficultyDisplay(testType) {
         selectedTestType = testType;
 
+        // --- NEW LOCATION: Update Button UI Immediately ---
+        const testTypeCapitalized = testType.charAt(0).toUpperCase() + testType.slice(1);
+        const buttonTextEl = document.getElementById('buttonText');
+
+        if (buttonTextEl) {
+            buttonTextEl.textContent = `Start ${testTypeCapitalized} Test`;
+        }
+
+        // Handle Dictation button state
+        const startBtn = document.getElementById('startTestBtn');
+        if (startBtn) {
+            if (testType === 'dictation') {
+                startBtn.disabled = true;
+                startBtn.title = 'Dictation tests coming soon';
+            } else {
+                startBtn.disabled = false;
+                startBtn.title = '';
+            }
+        }
+        // --------------------------------------------------
+
         if (!skillRatings) {
             console.warn('Skill ratings not loaded yet');
             return;
         }
 
-        // Get rating for selected test type
-        const rating = skillRatings[testType];
+        // Get rating for selected test type (with case-insensitive fallback)
+        const rating = skillRatings[testType] ||
+                       skillRatings[Object.keys(skillRatings).find(k => k.toLowerCase() === testType.toLowerCase())];
 
         if (!rating) {
             console.error('No rating found for test type:', testType);
@@ -557,20 +579,6 @@
                 `Volatility: ${rating.volatility.toFixed(2)}`;
         } else {
             document.getElementById('statsRow').style.display = 'none';
-        }
-
-        // Update button text
-        const testTypeCapitalized = testType.charAt(0).toUpperCase() + testType.slice(1);
-        document.getElementById('buttonText').textContent = `Start ${testTypeCapitalized} Test`;
-
-        // Disable button for dictation (coming soon)
-        const startBtn = document.getElementById('startTestBtn');
-        if (testType === 'dictation') {
-            startBtn.disabled = true;
-            startBtn.title = 'Dictation tests coming soon';
-        } else {
-            startBtn.disabled = false;
-            startBtn.title = '';
         }
     }
 
