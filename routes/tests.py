@@ -5,7 +5,6 @@ from flask import Blueprint, request, jsonify, current_app, make_response, g
 from uuid import uuid4
 from datetime import datetime, timezone
 import traceback
-import random
 import logging
 
 from config import Config
@@ -77,28 +76,52 @@ def moderate_content():
 def get_random_test():
     user_id = g.supabase_claims.get('sub')
     language_id_param = request.args.get('language_id')
-    skill_type = request.args.get('skill_type', 'listening')
 
     # Parse and validate language_id
     language_id = parse_language_id(language_id_param)
     if not language_id:
         return jsonify({"error": "Invalid or missing language_id parameter"}), 400
 
-    # Get language name for RPC
+    # Call the get_recommended_test RPC which handles ELO matching
+    result = current_app.supabase_service.rpc('get_recommended_test', {
+        'p_user_id': user_id,
+        'p_language_id': language_id
+    }).execute()
+
+    test = result.data[0] if result.data else None
+    if not test:
+        return jsonify({"error": "No tests available at your level"}), 404
+
+    return jsonify({"test": test, "status": "success"})
+
+
+@tests_bp.route('/recommended', methods=['GET'])
+@supabase_jwt_required
+def get_recommended_tests():
+    """Get recommended tests based on user's ELO ratings."""
+    user_id = g.supabase_claims.get('sub')
+    language_id_param = request.args.get('language_id')
+
+    language_id = parse_language_id(language_id_param)
+    if not language_id:
+        return jsonify({"error": "Invalid or missing language_id"}), 400
+
     language = LANGUAGE_ID_TO_NAME.get(language_id, 'chinese')
 
-    result = current_app.supabase_service.rpc('get_random_test_for_user', {
-        'p_user_id': user_id,
-        'p_language': language,
-        'p_skill_type': skill_type
-    }).execute()
-    
-    candidates = result.data
-    if not candidates:
-        return jsonify({"error": "No tests available"}), 404
-    
-    random_test = random.choice(candidates)
-    return jsonify({"test": random_test, "status": "success"})
+    try:
+        result = current_app.supabase_service.rpc('get_recommended_tests', {
+            'p_user_id': user_id,
+            'p_language': language
+        }).execute()
+
+        return jsonify({
+            "success": True,
+            "recommended_tests": result.data or []
+        })
+    except Exception as e:
+        logger.error(f"Error fetching recommended tests: {e}")
+        return jsonify({"error": str(e), "success": False}), 500
+
 
 @tests_bp.route('/generate_test', methods=['POST'])
 @supabase_jwt_required
@@ -687,20 +710,30 @@ def submit_test_attempt(slug):
         return jsonify({'error': 'Failed to submit test', 'details': str(e)}), 500
 
 
-@tests_bp.route('/test/<slug>', methods=['GET'])
+@tests_bp.route('/test/<identifier>', methods=['GET'])
 #@supabase_jwt_required
-def get_test_with_ratings(slug):
-    """Get test with ELO ratings for preview/taking."""
+def get_test_with_ratings(identifier):
+    """Get test with ELO ratings for preview/taking. Accepts slug or UUID."""
     try:
         if not current_app.supabase_service:
             return jsonify({"error": "Service not available"}), 503
 
-        # Get test basic info with FK join to dim_languages
-        test_result = current_app.supabase_service.table('tests').select(
+        select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
             'dim_languages(language_code, language_name)'
-        ).eq('slug', slug).eq('is_active', True).execute()
+        )
+
+        # Try lookup by slug first
+        test_result = current_app.supabase_service.table('tests').select(
+            select_columns
+        ).eq('slug', identifier).eq('is_active', True).execute()
+
+        # If not found by slug, try by id (UUID)
+        if not test_result.data:
+            test_result = current_app.supabase_service.table('tests').select(
+                select_columns
+            ).eq('id', identifier).eq('is_active', True).execute()
 
         if not test_result.data:
             return jsonify({"error": "Test not found"}), 404
@@ -722,7 +755,7 @@ def get_test_with_ratings(slug):
                 test['audio_url'] = Config.get_audio_url(slug_part)
         else:
             # No audio_url, generate from slug
-            test['audio_url'] = Config.get_audio_url(slug)
+            test['audio_url'] = Config.get_audio_url(test['slug'])
 
         # Get questions
         questions_result = current_app.supabase_service.table('questions').select(
@@ -755,5 +788,5 @@ def get_test_with_ratings(slug):
         return jsonify(response_data)
 
     except Exception as e:
-        current_app.logger.error(f"Error fetching test {slug}: {e}")
+        current_app.logger.error(f"Error fetching test {identifier}: {e}")
         return jsonify({"error": str(e)}), 500
