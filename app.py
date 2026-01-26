@@ -114,9 +114,9 @@ def _initialize_services(app):
             app.auth_service = AuthService(app.supabase)
             app.logger.info("Supabase clients initialized via SupabaseFactory")
 
-            # Initialize dimension table cache for fast lookups
+            # Initialize dimension table cache for fast lookups (use service client to bypass RLS)
             from services.test_service import DimensionService, get_test_service
-            DimensionService.initialize(app.supabase)
+            DimensionService.initialize(app.supabase_service)
             app.test_service = get_test_service()  # Singleton for reuse
             app.logger.info("DimensionService cache and TestService initialized")
         else:
@@ -330,31 +330,41 @@ def _register_core_routes(app):
                     'ratings': {}
                 })
 
-            # Try to load dimension tables for friendly names
+            # Build Language Lookup Map (Priority: Config -> DimensionService)
             lang_map = {}
-            type_map = {}
 
-            try:
-                langs = app.supabase.table('dim_languages').select('id, language_code, language_name').execute()
-                for lang in langs.data or []:
-                    # Use int keys for consistent lookup
-                    lang_map[int(lang['id'])] = {
-                        'code': lang['language_code'],
-                        'name': lang['language_name']
-                    }
-            except Exception as e:
-                app.logger.warning(f"Could not load dim_languages: {e}")
+            # 1. Initialize with Config fallbacks (guarantees data exists)
+            for lid, data in Config.LANGUAGES.items():
+                lang_map[lid] = {
+                    'code': data.get('code', f'lang_{lid}'),
+                    'name': data.get('display', f'Language {lid}')
+                }
 
-            try:
-                types = app.supabase.table('dim_test_types').select('id, type_code, type_name').execute()
-                for test_type in types.data or []:
-                    # Use int keys for consistent lookup
-                    type_map[int(test_type['id'])] = {
-                        'code': test_type['type_code'],
-                        'name': test_type['type_name']
+            # 2. Overlay with DimensionService cached data
+            from services.test_service import DimensionService
+            for lang in DimensionService.get_all_languages():
+                lang_id = lang.get('id')
+                if lang_id is not None:
+                    lang_map[int(lang_id)] = {
+                        'code': lang.get('language_code', f'lang_{lang_id}'),
+                        'name': lang.get('language_name', f'Language {lang_id}')
                     }
-            except Exception as e:
-                app.logger.warning(f"Could not load dim_test_types: {e}")
+
+            # Build Test Type Lookup Map (with static fallbacks)
+            type_map = {
+                1: {'code': 'listening', 'name': 'Listening'},
+                2: {'code': 'reading', 'name': 'Reading'},
+                3: {'code': 'dictation', 'name': 'Dictation'},
+            }
+
+            # Overlay with DimensionService cached data (defensive access)
+            for tt in DimensionService.get_all_test_types():
+                tt_id = tt.get('id')
+                if tt_id is not None:
+                    type_map[int(tt_id)] = {
+                        'code': tt.get('type_code', f'type_{tt_id}'),
+                        'name': tt.get('type_name', f'Type {tt_id}')
+                    }
 
             # Aggregate attempts by language_id and test_type_id
             skill_stats = {}
@@ -383,23 +393,21 @@ def _register_core_routes(app):
                 lang_id_int = int(language_id) if language_id is not None else None
                 type_id_int = int(test_type_id) if test_type_id is not None else None
 
-                # Get language info with fallback
-                if lang_id_int in lang_map:
-                    language_code = lang_map[lang_id_int]['code']
-                    language_name = lang_map[lang_id_int]['name']
-                else:
-                    language_code = f"lang_{language_id}"
-                    language_name = f"Language {language_id}"
-                    app.logger.warning(f"No dimension data for language_id={language_id}, using fallback")
+                # Get language info (map already has Config fallbacks baked in)
+                lang_info = lang_map.get(lang_id_int, {
+                    'code': str(language_id),
+                    'name': f'Language {language_id}'
+                })
+                language_code = lang_info['code']
+                language_name = lang_info['name']
 
-                # Get test type info with fallback
-                if type_id_int in type_map:
-                    test_type_code = type_map[type_id_int]['code']
-                    test_type_name = type_map[type_id_int]['name']
-                else:
-                    test_type_code = f"type_{test_type_id}"
-                    test_type_name = f"Type {test_type_id}"
-                    app.logger.warning(f"No dimension data for test_type_id={test_type_id}, using fallback")
+                # Get test type info (map already has static fallbacks baked in)
+                type_info = type_map.get(type_id_int, {
+                    'code': str(test_type_id),
+                    'name': f'Type {test_type_id}'
+                })
+                test_type_code = type_info['code']
+                test_type_name = type_info['name']
 
                 # Nest by language code
                 if language_code not in ratings:
