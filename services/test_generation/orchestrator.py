@@ -382,7 +382,11 @@ class TestGenerationOrchestrator:
             self.db.insert_questions(db_questions)
 
             # Insert skill ratings
-            self.db.insert_test_skill_ratings(slug, initial_elo)
+            self.db.insert_test_skill_ratings(
+                test_id=test_id,
+                initial_elo=initial_elo,
+                has_audio=bool(audio_url)
+            )
 
             logger.info(f"Test saved: {slug}")
         else:

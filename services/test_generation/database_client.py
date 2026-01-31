@@ -414,6 +414,20 @@ class TestDatabaseClient:
         }
         return difficulty_to_elo.get(difficulty, 1400)
 
+    def get_active_test_types(self) -> List[dict]:
+        """
+        Fetch active test types from dim_test_types.
+
+        Returns:
+            List of dicts with keys: id, type_code, requires_audio
+        """
+        response = self.client.table('dim_test_types') \
+            .select('id, type_code, requires_audio') \
+            .eq('is_active', True) \
+            .execute()
+
+        return response.data if response.data else []
+
     def get_word_count_range(self, difficulty: int) -> tuple:
         """Get word count range for a difficulty level."""
         cefr = self.get_cefr_config(difficulty)
@@ -635,37 +649,48 @@ class TestDatabaseClient:
 
     def insert_test_skill_ratings(
         self,
-        test_slug: str,
+        test_id: UUID,
         initial_elo: int,
-        skills: List[str] = None
+        has_audio: bool = True
     ) -> None:
         """
         Insert initial skill ratings for a test.
 
         Args:
-            test_slug: Test slug
+            test_id: Test UUID
             initial_elo: Starting ELO rating
-            skills: List of skills (default: listening, reading, dictation)
+            has_audio: Whether the test has audio
         """
-        if skills is None:
-            skills = ['listening', 'reading', 'dictation']
+        # Get active test types from dim_test_types
+        active_types = self.get_active_test_types()
+
+        # Filter based on audio availability
+        types_to_create = [
+            t for t in active_types
+            if not t['requires_audio'] or has_audio
+        ]
+
+        if not types_to_create:
+            logger.warning(f"No skill ratings to create for test {test_id}")
+            return
 
         rows = [
             {
-                'test_slug': test_slug,
-                'skill_type': skill,
+                'test_id': str(test_id),
+                'test_type_id': t['id'],
                 'elo_rating': initial_elo,
                 'volatility': 1.0,
-                'attempts': 0
+                'total_attempts': 0
             }
-            for skill in skills
+            for t in types_to_create
         ]
 
         self.client.table('test_skill_ratings') \
             .insert(rows) \
             .execute()
 
-        logger.debug(f"Inserted skill ratings for test {test_slug}")
+        type_codes = [t['type_code'] for t in types_to_create]
+        logger.debug(f"Inserted skill ratings for test {test_id}: {type_codes}")
 
     # ============================================================
     # METRICS
