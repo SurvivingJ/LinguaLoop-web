@@ -816,8 +816,8 @@
         // Get selected test type for preview
         const testType = testTypeFilter?.value || 'listening';
 
-        // Redirect to test page with test type query parameter
-        window.location.href = `/test/${slug}?type=${testType}`;
+        // Redirect to preview page with test type query parameter
+        window.location.href = `/test/${slug}/preview?type=${testType}`;
         }
     }
 
@@ -1051,7 +1051,7 @@
     function createRecommendedCard(test) {
         const card = document.createElement('div');
         card.className = 'suggested-card recommended-card';
-        card.onclick = () => goToTestPreviewRecommended(test.test_id, test.test_type);
+        card.onclick = () => goToTestPreviewRecommended(test.slug, test.test_type);
 
         const testTypeIcon = getTestTypeIcon(test.test_type);
         const testTypeLabel = capitalizeFirst(test.test_type);
