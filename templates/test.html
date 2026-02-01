@@ -1019,7 +1019,7 @@ function confirmSubmit() {
 // ============================================================================
 function showResults(result) {
     // Mark test as submitted
-    testState.submitted = true;
+    testState.isSubmitted = true;
 
     // Show transcript for listening/dictation tests
     if (testState.testType !== 'reading') {
@@ -1063,9 +1063,14 @@ function showResults(result) {
     
     // Update submit button to "Back to Test List" button
     const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>Back to Test List';
-    submitBtn.disabled = false;
-    submitBtn.onclick = () => {
+
+    // Clone the button to remove all existing event listeners
+    const newBtn = submitBtn.cloneNode(true);
+    submitBtn.replaceWith(newBtn);
+
+    newBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>Back to Test List';
+    newBtn.disabled = false;
+    newBtn.onclick = () => {
         window.location.href = '/tests';
     };
     
