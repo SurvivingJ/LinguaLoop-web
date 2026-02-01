@@ -815,9 +815,9 @@
     if (slug) {
         // Get selected test type for preview
         const testType = testTypeFilter?.value || 'listening';
-        
-        // Redirect to preview page with test type query parameter
-        window.location.href = `/test/${slug}/preview?type=${testType}`;
+
+        // Redirect to test page with test type query parameter
+        window.location.href = `/test/${slug}?type=${testType}`;
         }
     }
 
@@ -944,8 +944,8 @@
             debugLog('✅ Random test received:', result);
             
             if (result.test && result.test.slug) {
-                // Navigate to the test preview page
-                window.location.href = `/test/${result.test.slug}/preview?type=${testType}`;
+                // Navigate to the test page
+                window.location.href = `/test/${result.test.slug}?type=${testType}`;
             } else {
                 throw new Error('Invalid response format');
             }
@@ -1091,7 +1091,7 @@
     }
 
     function goToTestPreviewRecommended(testId, testType) {
-        window.location.href = `/test/${testId}/preview?type=${testType}`;
+        window.location.href = `/test/${testId}?type=${testType}`;
     }
 
     function showRecommendedEmpty() {

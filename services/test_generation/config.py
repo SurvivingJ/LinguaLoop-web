@@ -22,7 +22,7 @@ class TestGenConfig:
         default_factory=lambda: int(os.getenv('TEST_GEN_BATCH_SIZE', '50'))
     )
     target_difficulties: List[int] = field(
-        default_factory=lambda: [1, 2, 3, 4, 5, 6]  # Default: A2, B2, C2
+        default_factory=lambda: [1, 3, 6, 9]  # Default: A2, B2, C2
     )
     questions_per_test: int = field(
         default_factory=lambda: int(os.getenv('TEST_GEN_QUESTIONS', '5'))
