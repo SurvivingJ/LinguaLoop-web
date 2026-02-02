@@ -988,10 +988,10 @@ function updateProgress() {
     document.getElementById('testProgressFill').style.width = `${percentage}%`;
     
     // Update text
-    document.getElementById('progressText').textContent = 
-        testState.testType === 'dictation' 
+    document.getElementById('progressText').textContent =
+        testState.testType === 'dictation'
             ? `Dictation ${answeredCount > 0 ? 'in progress' : 'not started'}`
-            : `Question ${testState.currentQuestionIndex + 1} of ${totalQuestions}`;
+            : `${answeredCount} of ${totalQuestions} answered`;
     
     document.getElementById('answeredCount').textContent = `${answeredCount}/${totalQuestions} answered`;
     
