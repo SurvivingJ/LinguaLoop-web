@@ -65,6 +65,10 @@ def verify_otp():
         if result.get('success'):
             user_data = result.get('user', {})
 
+            # Extract refresh token from session if available
+            session = result.get('session')
+            refresh_token = session.refresh_token if session else None
+
             # Format response with consistent field naming
             response_data = {
                 'success': True,
@@ -78,7 +82,8 @@ def verify_otp():
                     'totalTestsTaken': int(user_data.get('total_tests_taken', 0)),
                     'totalTestsGenerated': int(user_data.get('total_tests_generated', 0))
                 },
-                'jwt_token': result.get('jwt_token')
+                'jwt_token': result.get('jwt_token'),
+                'refresh_token': refresh_token
             }
 
             return jsonify(response_data), 200
@@ -102,6 +107,30 @@ def verify_otp():
             'user': None,
             'jwt_token': None
         }), 500
+
+
+@auth_bp.route('/refresh-token', methods=['POST'])
+def refresh_token():
+    """Refresh JWT token using a refresh token."""
+    try:
+        data = request.get_json() or {}
+        refresh_token = data.get('refresh_token')
+
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token required'}), 400
+
+        result = auth_bp.auth_service.refresh_session(refresh_token)
+
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 401
+
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Exception in refresh_token: {e}", exc_info=True)
+        return jsonify({'error': 'Server error occurred'}), 500
 
 
 @auth_bp.route('/profile', methods=['GET'])

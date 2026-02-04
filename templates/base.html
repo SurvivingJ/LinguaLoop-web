@@ -169,6 +169,82 @@
             USER_DATA: JSON.parse(localStorage.getItem('user_data') || '{}')
         };
 
+        /**
+         * Authenticated fetch wrapper with automatic token refresh.
+         * Use this instead of fetch() for API calls that require authentication.
+         *
+         * @param {string} url - The URL to fetch
+         * @param {object} options - Fetch options (method, body, etc.)
+         * @returns {Promise<Response>} - The fetch response
+         */
+        window.authFetch = async function(url, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+
+            // Set up headers with auth token
+            options.headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+
+            let response = await fetch(url, options);
+
+            // If 401 Unauthorized, try to refresh the token
+            if (response.status === 401) {
+                const refreshToken = localStorage.getItem('refresh_token');
+
+                if (refreshToken) {
+                    try {
+                        console.log('Token expired, attempting refresh...');
+                        const refreshResponse = await fetch('/api/auth/refresh-token', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ refresh_token: refreshToken })
+                        });
+
+                        if (refreshResponse.ok) {
+                            const data = await refreshResponse.json();
+
+                            // Store new tokens
+                            localStorage.setItem('jwt_token', data.jwt_token);
+                            localStorage.setItem('refresh_token', data.refresh_token);
+                            window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+
+                            console.log('Token refreshed successfully, retrying request...');
+
+                            // Retry the original request with new token
+                            options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
+                            response = await fetch(url, options);
+                        } else {
+                            // Refresh failed - clear tokens and redirect to login
+                            console.error('Token refresh failed, redirecting to login');
+                            localStorage.removeItem('jwt_token');
+                            localStorage.removeItem('refresh_token');
+                            localStorage.removeItem('user_data');
+                            window.location.href = '/login';
+                            return response;
+                        }
+                    } catch (e) {
+                        console.error('Token refresh error:', e);
+                        localStorage.removeItem('jwt_token');
+                        localStorage.removeItem('refresh_token');
+                        localStorage.removeItem('user_data');
+                        window.location.href = '/login';
+                        return response;
+                    }
+                } else {
+                    // No refresh token available - redirect to login
+                    console.log('No refresh token, redirecting to login');
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('user_data');
+                    window.location.href = '/login';
+                    return response;
+                }
+            }
+
+            return response;
+        };
+
         function updateLanguageIndicator() {
             const savedLanguage = localStorage.getItem('selectedLanguage');
             if (savedLanguage) {
@@ -208,6 +284,7 @@
                     e.preventDefault();
 
                     localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('refresh_token');
                     localStorage.removeItem('user_data');
 
                     window.location.href = '/login';

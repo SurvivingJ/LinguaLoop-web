@@ -233,6 +233,34 @@ class AuthService:
             self.logger.error(f'Logout error: {e}')
             return {'success': False, 'error': 'Logout failed'}
     
+    def refresh_session(self, refresh_token: str) -> Dict:
+        """
+        Refresh user session using a valid refresh token.
+
+        Args:
+            refresh_token: The refresh token from the previous session
+
+        Returns:
+            Dict with new jwt_token and refresh_token on success
+        """
+        try:
+            # Use admin client to refresh the session
+            response = self.supabase_admin.auth.refresh_session(refresh_token)
+
+            if response.session:
+                self.logger.info("Session refreshed successfully")
+                return {
+                    'success': True,
+                    'jwt_token': response.session.access_token,
+                    'refresh_token': response.session.refresh_token
+                }
+            else:
+                self.logger.warning("Session refresh failed - no session returned")
+                return {'success': False, 'error': 'Failed to refresh session'}
+        except Exception as e:
+            self.logger.error(f'Token refresh error: {e}')
+            return {'success': False, 'error': str(e)}
+
     def get_user_profile(self, user_id: str) -> Dict:
         """Get user profile with token balance"""
         try:

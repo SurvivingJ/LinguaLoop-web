@@ -277,6 +277,11 @@
                 localStorage.setItem('jwt_token', data.jwt_token);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
 
+                // Store refresh token for silent token refresh
+                if (data.refresh_token) {
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                }
+
                 // Redirect new users to welcome page, returning users to language selection
                 if (data.user.totalTestsTaken === 0) {
                     window.location.href = '/welcome';
