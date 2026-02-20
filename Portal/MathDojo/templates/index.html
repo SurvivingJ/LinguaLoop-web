@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon-arcade">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d0d0d">
+    <title>RetroMind Math</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- CRT Scanline Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Main Menu Screen -->
+    <div id="screen-menu" class="screen active">
+        <div class="container">
+            <h1 class="title">RETROMIND<br>MATH</h1>
+            <div class="subtitle">MENTAL ARITHMETIC TRAINER</div>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-label">STREAK</span>
+                    <span class="stat-value" id="streak-display">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">ELO</span>
+                    <span class="stat-value" id="elo-display">1000</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <button class="menu-btn" data-screen="time-trial">TIME TRIAL</button>
+                <button class="menu-btn" data-screen="space-defense">SPACE DEFENSE</button>
+                <button class="menu-btn" data-screen="daily-drill">CUSTOM DRILL</button>
+                <button class="menu-btn" data-screen="financial-drill">FINANCIAL DRILL</button>
+                <button class="menu-btn" data-screen="poker-drill">POKER MATH</button>
+                <button class="menu-btn" data-screen="settings">SETTINGS</button>
+            </nav>
+
+            <div class="footer">v1.0 | NO LOGIN REQUIRED</div>
+        </div>
+    </div>
+
+    <!-- Time Trial Screen -->
+    <div id="screen-time-trial" class="screen">
+        <div class="container">
+            <div class="game-header">
+                <button class="back-btn" data-screen="menu">← MENU</button>
+                <div class="timer" id="timer-display">60</div>
+                <div class="score" id="score-display">0</div>
+            </div>
+
+            <div class="game-area">
+                <div class="equation" id="equation-display">PRESS START</div>
+                <input type="text" id="answer-input" class="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+                <div class="feedback" id="feedback-display"></div>
+            </div>
+
+            <button class="start-btn" id="start-time-trial">START</button>
+        </div>
+    </div>
+
+    <!-- Space Defense Screen -->
+    <div id="screen-space-defense" class="screen">
+        <div class="container">
+            <div class="game-header">
+                <button class="back-btn" data-screen="menu">← MENU</button>
+                <div class="lives" id="lives-display">❤️❤️❤️</div>
+                <div class="score" id="space-score-display">0</div>
+            </div>
+
+            <canvas id="game-canvas"></canvas>
+            <input type="text" id="space-answer-input" class="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+
+            <button class="start-btn" id="start-space-defense">START</button>
+        </div>
+    </div>
+
+    <!-- Custom Drill Config Screen -->
+    <div id="screen-daily-drill" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="menu">← MENU</button>
+
+            <h2 class="screen-title">CUSTOM DRILL</h2>
+
+            <div class="config-section">
+                <div class="config-label">OPERATIONS</div>
+                <div class="op-toggles" id="op-toggles">
+                    <button class="op-toggle active" data-op="addition">+</button>
+                    <button class="op-toggle" data-op="subtraction">−</button>
+                    <button class="op-toggle" data-op="multiplication">×</button>
+                    <button class="op-toggle" data-op="division">÷</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-label">MIX OPERATIONS</div>
+                <div class="config-row">
+                    <span class="config-desc">Multi-op expressions</span>
+                    <button class="toggle-btn" id="mix-toggle">OFF</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-label">DIGITS</div>
+                <div class="setting">
+                    <label>MIN DIGITS</label>
+                    <input type="range" id="min-digits" min="1" max="4" value="1" step="1">
+                    <span id="min-digits-value">1</span>
+                </div>
+                <div class="setting">
+                    <label>MAX DIGITS</label>
+                    <input type="range" id="max-digits" min="1" max="4" value="2" step="1">
+                    <span id="max-digits-value">2</span>
+                </div>
+            </div>
+
+            <button class="start-btn" id="start-custom-drill">START DRILL</button>
+        </div>
+    </div>
+
+    <!-- Custom Drill Game Screen -->
+    <div id="screen-drill-game" class="screen">
+        <div class="container">
+            <div class="game-header">
+                <button class="back-btn" id="drill-back-btn">← BACK</button>
+                <div class="drill-stats-bar">
+                    <span id="drill-correct-display">0</span> ✓
+                    <span id="drill-wrong-display">0</span> ✗
+                    <span id="drill-streak-display">0</span> 🔥
+                    <span id="drill-timer-display">0:00</span>
+                </div>
+            </div>
+
+            <!-- Intervention progress bar (populated by intervention-mode.js) -->
+            <div id="intervention-progress" style="display:none;"></div>
+
+            <div class="game-area">
+                <div class="equation" id="drill-equation-display">PRESS START</div>
+                <input type="text" id="drill-answer-input" class="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+                <div class="feedback" id="drill-feedback-display"></div>
+                <div id="financial-explanation" class="poker-explanation" style="display:none;">
+                    <div class="explanation-answer" id="financial-explanation-answer"></div>
+                    <div class="explanation-steps" id="financial-explanation-steps"></div>
+                    <button class="start-btn" id="financial-next-btn">NEXT</button>
+                </div>
+            </div>
+
+            <button class="start-btn" id="start-drill-level">START</button>
+        </div>
+    </div>
+
+    <!-- Financial Drill Config Screen -->
+    <div id="screen-financial-drill" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="menu">← MENU</button>
+
+            <h2 class="screen-title">FINANCIAL DRILL</h2>
+
+            <div class="config-section">
+                <div class="config-label">CATEGORIES</div>
+                <div class="fin-toggles" id="fin-toggles">
+                    <button class="fin-toggle active" data-cat="rules">72<br>RULES</button>
+                    <button class="fin-toggle" data-cat="interest">INT<br>EST</button>
+                    <button class="fin-toggle" data-cat="ratios">RATIO<br>S</button>
+                    <button class="fin-toggle" data-cat="valuation">VALU<br>ATION</button>
+                    <button class="fin-toggle" data-cat="ggm">GGM</button>
+                    <button class="fin-toggle" data-cat="dcf">DCF</button>
+                    <button class="fin-toggle" data-cat="bonds">BOND<br>S</button>
+                    <button class="fin-toggle" data-cat="breakeven">B/E</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-label">DIFFICULTY</div>
+                <div class="setting">
+                    <label id="fin-difficulty-label">NORMAL</label>
+                    <input type="range" id="fin-difficulty" min="0" max="2" value="1" step="1">
+                </div>
+            </div>
+
+            <button class="menu-btn" data-screen="financial-guides">CALCULATION GUIDES</button>
+            <button class="start-btn" id="start-financial-drill">START DRILL</button>
+        </div>
+    </div>
+
+    <!-- Financial Guides Screen -->
+    <div id="screen-financial-guides" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="financial-drill">← BACK</button>
+            <h2 class="screen-title">CALCULATION GUIDES</h2>
+
+            <div class="guide-card">
+                <div class="guide-title">RULE OF 72 / 114 / 144</div>
+                <div class="guide-body">
+                    <p><strong>Double:</strong> Years = 72 / Rate</p>
+                    <p><strong>Triple:</strong> Years = 114 / Rate</p>
+                    <p><strong>Quadruple:</strong> Years = 144 / Rate</p>
+                    <p><strong>Reverse:</strong> Rate = 72 / Years (or 114, 144)</p>
+                    <p><strong>Trick:</strong> 72 has many factors (2,3,4,6,8,9,12) making division easy. For 114, think 114 = 6 x 19.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">SIMPLE & COMPOUND INTEREST</div>
+                <div class="guide-body">
+                    <p><strong>Simple:</strong> SI = P x r x t</p>
+                    <p><strong>Compound:</strong> Final = P x (1 + r)^t</p>
+                    <p><strong>Trick:</strong> For 2 years compound: multiply by (1+r) twice. Split into parts — e.g. 1000 x 1.08 = 1000 + 80 = 1080, then 1080 x 1.08 = 1080 + 86.4</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">MARGINS & RETURN RATIOS</div>
+                <div class="guide-body">
+                    <p><strong>Gross margin:</strong> (Revenue - COGS) / Revenue</p>
+                    <p><strong>Net margin:</strong> Net Income / Revenue</p>
+                    <p><strong>ROE:</strong> Net Income / Equity</p>
+                    <p><strong>ROA:</strong> Net Income / Assets</p>
+                    <p><strong>Trick:</strong> Think fractions — 30/200 = 15/100 = 15%. Cancel zeros first.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">LIQUIDITY RATIOS</div>
+                <div class="guide-body">
+                    <p><strong>Current ratio:</strong> Current Assets / Current Liabilities</p>
+                    <p><strong>Quick ratio:</strong> (Cash + Receivables) / Current Liabilities</p>
+                    <p><strong>D/E ratio:</strong> Debt / Equity</p>
+                    <p><strong>Trick:</strong> Simplify both numbers by dividing by common factors. 150/100 = 1.5</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">VALUATION SHORTCUTS</div>
+                <div class="guide-body">
+                    <p><strong>Earnings yield:</strong> = 1/PE = 100/PE (as %)</p>
+                    <p><strong>PEG ratio:</strong> = P/E / Growth rate</p>
+                    <p><strong>Rule of 20:</strong> Fair P/E = 20 - Inflation</p>
+                    <p><strong>Stock price:</strong> = EPS x P/E</p>
+                    <p><strong>Trick:</strong> PE of 20 → yield = 5%. PE of 10 → yield = 10%. They're inverses.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">GORDON GROWTH MODEL</div>
+                <div class="guide-body">
+                    <p><strong>Fair price:</strong> P = Dividend / (r - g)</p>
+                    <p><strong>Implied return:</strong> r = (Div / Price) + g</p>
+                    <p><strong>Trick:</strong> Focus on the spread (r - g). If r=10%, g=5%, spread = 5% = 0.05. Then divide: $5 / 0.05 = $100. Move decimal 2 places.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">PERPETUITY & TERMINAL VALUE</div>
+                <div class="guide-body">
+                    <p><strong>Simple perpetuity:</strong> V = CF / r</p>
+                    <p><strong>Growing perpetuity:</strong> V = CF / (r - g)</p>
+                    <p><strong>Terminal value:</strong> TV = FCF / (WACC - g)</p>
+                    <p><strong>Trick:</strong> Same formula! Convert % to decimal, then divide. $10M / 5% = $10M / 0.05 = $200M. Multiply by 20 is the same as dividing by 0.05.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">PRESENT VALUE & CAGR</div>
+                <div class="guide-body">
+                    <p><strong>PV:</strong> CF / (1 + r)^t</p>
+                    <p><strong>CAGR (doubled):</strong> ≈ 72 / years</p>
+                    <p><strong>CAGR (tripled):</strong> ≈ 114 / years</p>
+                    <p><strong>Trick:</strong> For PV, know common powers: 1.1² = 1.21, 1.1³ = 1.331. At 10% discount, $1000 in 2yr ≈ $826.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">BONDS & DURATION</div>
+                <div class="guide-body">
+                    <p><strong>Current yield:</strong> Coupon / Price x 100</p>
+                    <p><strong>Annual coupon:</strong> Par x Coupon rate</p>
+                    <p><strong>Duration impact:</strong> Price Δ ≈ -Duration x Yield Δ</p>
+                    <p><strong>Trick:</strong> Duration 5, yield up 1% → price down ~5%. Yield down → price up. It's a simple multiply.</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">BREAK-EVEN ANALYSIS</div>
+                <div class="guide-body">
+                    <p><strong>BE units:</strong> Fixed Costs / (Price - Variable Cost)</p>
+                    <p><strong>BE revenue:</strong> Fixed Costs / CM%</p>
+                    <p><strong>CM%:</strong> (Price - VC) / Price x 100</p>
+                    <p><strong>Trick:</strong> Find contribution margin per unit first (Price - VC), then divide fixed costs by it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poker Drill Config Screen -->
+    <div id="screen-poker-drill" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="menu">← MENU</button>
+
+            <h2 class="screen-title">POKER MATH</h2>
+
+            <div class="config-section">
+                <div class="config-label">CATEGORIES</div>
+                <div class="poker-toggles" id="poker-toggles">
+                    <button class="poker-toggle active" data-cat="pot_odds">POT<br>ODDS</button>
+                    <button class="poker-toggle" data-cat="auto_profit">BLUFF<br>MATH</button>
+                    <button class="poker-toggle" data-cat="combinatorics">COMB<br>OS</button>
+                    <button class="poker-toggle" data-cat="equity">EQUI<br>TY</button>
+                    <button class="poker-toggle" data-cat="range">RANGE<br>PAINT</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-label">DIFFICULTY</div>
+                <div class="setting">
+                    <label id="poker-difficulty-label">NORMAL</label>
+                    <input type="range" id="poker-difficulty" min="0" max="2" value="1" step="1">
+                </div>
+            </div>
+
+            <button class="start-btn" id="start-poker-drill">START DRILL</button>
+            <button class="menu-btn" data-screen="poker-guides">CALCULATION GUIDES</button>
+        </div>
+    </div>
+
+    <!-- Poker Calculation Guides Screen -->
+    <div id="screen-poker-guides" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="poker-drill">← BACK</button>
+            <h2 class="screen-title">CALCULATION GUIDES</h2>
+
+            <div class="guide-card">
+                <div class="guide-title">POT ODDS</div>
+                <div class="guide-body">
+                    <p><strong>Question:</strong> What % equity do you need to call?</p>
+                    <p><strong>Formula:</strong> Equity = Call / (Pot + Call + Bet)</p>
+                    <p><strong>Example:</strong> Pot $100, villain bets $50.</p>
+                    <p>Call = $50. New pot = $100 + $50 + $50 = $200</p>
+                    <p>Equity needed = $50 / $200 = <strong>25%</strong></p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">BLUFF MATH (AUTO-PROFIT)</div>
+                <div class="guide-body">
+                    <p><strong>Question:</strong> How often must villain fold for your bluff to profit?</p>
+                    <p><strong>Formula:</strong> Break-even = Bet / (Pot + Bet)</p>
+                    <p><strong>Example:</strong> Pot $100, you bet $75.</p>
+                    <p>Break-even = $75 / ($100 + $75) = $75 / $175 = <strong>42.9%</strong></p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">COMBINATORICS</div>
+                <div class="guide-body">
+                    <p><strong>Question:</strong> How many combos of a hand remain?</p>
+                    <p><strong>Pairs:</strong> C(available suits, 2) = n(n-1)/2</p>
+                    <p>4 suits available = 6 combos, 3 = 3, 2 = 1</p>
+                    <p><strong>Suited:</strong> Count suits available in both ranks</p>
+                    <p><strong>Offsuit:</strong> Cross product of available suits, minus suited combos</p>
+                    <p><strong>Tip:</strong> Remove suits blocked by hero hand and board cards</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">EQUITY INTUITION</div>
+                <div class="guide-body">
+                    <p><strong>Question:</strong> Estimate your equity with a draw</p>
+                    <p><strong>Rule of 4 (flop, 2 cards to come):</strong></p>
+                    <p>Equity = Outs x 4 - max(0, Outs - 8)</p>
+                    <p><strong>Rule of 2 (turn, 1 card to come):</strong></p>
+                    <p>Equity = Outs x 2.2</p>
+                    <p><strong>Common draws:</strong> Flush draw = 9 outs, OESD = 8, Gutshot = 4, Overcards = 6</p>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">RANGE PAINTING</div>
+                <div class="guide-body">
+                    <p><strong>Question:</strong> Select all hands in a given range</p>
+                    <p><strong>Grid layout:</strong> Pairs on diagonal, suited above, offsuit below</p>
+                    <p><strong>Scoring:</strong> IoU (Intersection over Union) - need 70%+ match</p>
+                    <p><strong>Tip:</strong> Start with premium pairs, then add broadways, then suited connectors</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poker Game Screen -->
+    <div id="screen-poker-game" class="screen">
+        <div class="container">
+            <div class="game-header">
+                <button class="back-btn" id="poker-back-btn">← BACK</button>
+                <div class="drill-stats-bar">
+                    <span id="poker-correct-display">0</span> ✓
+                    <span id="poker-wrong-display">0</span> ✗
+                    <span id="poker-streak-display">0</span> 🔥
+                    <span id="poker-timer-display">0:00</span>
+                </div>
+            </div>
+
+            <!-- Intervention progress bar (populated by intervention-mode.js) -->
+            <div id="poker-intervention-progress" style="display:none;"></div>
+
+            <div class="game-area">
+                <div class="equation equation-financial" id="poker-equation-display">PRESS START</div>
+
+                <!-- Card rendering area (combos, equity modes) -->
+                <div id="poker-card-area" class="poker-card-area" style="display:none;"></div>
+
+                <!-- Numeric input (pot odds, auto-profit, combos) -->
+                <div id="poker-numeric-area">
+                    <input type="text" id="poker-answer-input" class="answer-input" placeholder="?" inputmode="decimal" autocomplete="off">
+                </div>
+
+                <!-- Equity slider (equity mode) -->
+                <div id="poker-equity-slider-area" style="display:none;">
+                    <div class="equity-slider-wrap">
+                        <input type="range" id="poker-equity-slider" class="equity-slider" min="0" max="100" value="50" step="1">
+                        <div class="equity-slider-value" id="poker-equity-value">50%</div>
+                    </div>
+                    <button class="start-btn" id="poker-equity-submit">SUBMIT</button>
+                </div>
+
+                <!-- Range grid (range mode) -->
+                <div id="poker-range-grid-area" style="display:none;">
+                    <div id="poker-range-grid" class="range-grid"></div>
+                    <button class="start-btn" id="poker-range-submit">SUBMIT RANGE</button>
+                </div>
+
+                <div class="feedback" id="poker-feedback-display"></div>
+
+                <!-- Explanation panel (shown on wrong answer) -->
+                <div id="poker-explanation" class="poker-explanation" style="display:none;">
+                    <div class="explanation-answer" id="poker-explanation-answer"></div>
+                    <div class="explanation-steps" id="poker-explanation-steps"></div>
+                    <button class="start-btn" id="poker-next-btn">NEXT</button>
+                </div>
+            </div>
+
+            <button class="start-btn" id="start-poker-game">START</button>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="screen-settings" class="screen">
+        <div class="container">
+            <button class="back-btn" data-screen="menu">← MENU</button>
+
+            <h2 class="screen-title">SETTINGS</h2>
+
+            <div class="setting">
+                <label>SOUND</label>
+                <button class="toggle-btn" id="sound-toggle">ON</button>
+            </div>
+
+            <div class="setting">
+                <label>DIFFICULTY OFFSET</label>
+                <input type="range" id="difficulty-offset" min="-10" max="10" value="0" step="1">
+                <span id="difficulty-offset-value">0</span>
+            </div>
+
+            <div class="setting">
+                <label>THEME</label>
+                <select id="theme-selector" class="theme-selector"></select>
+            </div>
+
+            <div class="setting">
+                <button class="danger-btn" id="reset-progress">RESET PROGRESS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="screen-results" class="screen">
+        <div class="container">
+            <h2 class="screen-title">RESULTS</h2>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">SCORE</div>
+                    <div class="result-value" id="result-score">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ACCURACY</div>
+                    <div class="result-value" id="result-accuracy">0%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">PROBLEMS/MIN</div>
+                    <div class="result-value" id="result-rate">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">NEW ELO</div>
+                    <div class="result-value" id="result-elo">1000</div>
+                </div>
+            </div>
+
+            <div class="high-score-banner" id="high-score-banner" style="display: none;">
+                🏆 NEW HIGH SCORE! 🏆
+            </div>
+
+            <button class="menu-btn" data-screen="menu">BACK TO MENU</button>
+        </div>
+    </div>
+
+    <!-- Coach Modal -->
+    <div id="coach-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-title">COACH</div>
+            <div class="modal-message" id="coach-message"></div>
+            <button class="menu-btn" id="coach-ok">OK</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/storage-manager.js"></script>
+    <script src="/static/js/screen-manager.js"></script>
+    <script src="/static/js/input-handler.js"></script>
+    <script src="/static/js/game-manager.js"></script>
+    <script src="/static/js/session-coach.js"></script>
+    <script src="/static/js/intervention-mode.js"></script>
+    <script src="/static/js/time-trial.js"></script>
+    <script src="/static/js/space-defense.js"></script>
+    <script src="/static/js/daily-drill.js"></script>
+    <script src="/static/js/financial-drill.js"></script>
+    <script src="/static/js/poker-drill.js"></script>
+    <script src="/static/js/theme-manager.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

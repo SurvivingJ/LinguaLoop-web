@@ -191,9 +191,146 @@ class TopicDatabaseClient:
 
         return self._status_cache.get(status_code, 1)  # Default to 'pending'
 
+    def get_language_by_code(self, language_code: str) -> Optional[Language]:
+        """
+        Lookup language by code (e.g., 'zh', 'ja', 'en').
+
+        Args:
+            language_code: Language code to lookup
+
+        Returns:
+            Language object or None if not found
+        """
+        # Try cache first
+        if self._language_cache is not None:
+            for lang in self._language_cache.values():
+                if lang.language_code.lower() == language_code.lower():
+                    return lang
+
+        # Query database
+        response = self.client.table('dim_languages') \
+            .select('id, language_code, language_name, native_name') \
+            .ilike('language_code', language_code) \
+            .limit(1) \
+            .execute()
+
+        if response.data:
+            return Language(
+                id=response.data[0]['id'],
+                language_code=response.data[0]['language_code'],
+                language_name=response.data[0]['language_name'],
+                native_name=response.data[0]['native_name']
+            )
+        return None
+
+    def get_languages_by_codes(self, codes: List[str]) -> Dict[str, Language]:
+        """
+        Lookup multiple languages by code.
+
+        Args:
+            codes: List of language codes (e.g., ['zh', 'ja', 'en'])
+
+        Returns:
+            Dict mapping code -> Language for found languages
+        """
+        result = {}
+
+        # Try cache first
+        if self._language_cache is not None:
+            for lang in self._language_cache.values():
+                if lang.language_code.lower() in [c.lower() for c in codes]:
+                    result[lang.language_code.lower()] = lang
+
+            if len(result) == len(codes):
+                return result
+
+        # Query database for missing codes
+        missing_codes = [c for c in codes if c.lower() not in result]
+        if missing_codes:
+            response = self.client.table('dim_languages') \
+                .select('id, language_code, language_name, native_name') \
+                .in_('language_code', missing_codes) \
+                .execute()
+
+            for row in response.data or []:
+                lang = Language(
+                    id=row['id'],
+                    language_code=row['language_code'],
+                    language_name=row['language_name'],
+                    native_name=row['native_name']
+                )
+                result[lang.language_code.lower()] = lang
+
+        return result
+
     # ============================================================
     # CATEGORY QUERIES
     # ============================================================
+
+    def get_category_by_name(self, name: str) -> Optional[Category]:
+        """
+        Lookup category by name.
+
+        Args:
+            name: Category name to search for
+
+        Returns:
+            Category object or None if not found
+        """
+        response = self.client.table('categories') \
+            .select('id, name, status_id, target_language_id, last_used_at, cooldown_days') \
+            .eq('name', name) \
+            .limit(1) \
+            .execute()
+
+        if response.data:
+            row = response.data[0]
+            return Category(
+                id=row['id'],
+                name=row['name'],
+                status_id=row['status_id'],
+                target_language_id=row.get('target_language_id'),
+                last_used_at=datetime.fromisoformat(row['last_used_at'].replace('Z', '+00:00'))
+                    if row.get('last_used_at') else None,
+                cooldown_days=row['cooldown_days']
+            )
+        return None
+
+    def create_category(self, name: str, description: str = None) -> Category:
+        """
+        Create a new category for imports.
+
+        Args:
+            name: Category name
+            description: Optional description
+
+        Returns:
+            Created Category object
+        """
+        active_status_id = self._get_status_id('active')
+
+        data = {
+            'name': name,
+            'description': description or f'Imported topics',
+            'status_id': active_status_id,
+            'cooldown_days': 0,  # No cooldown for imported categories
+        }
+
+        response = self.client.table('categories') \
+            .insert(data) \
+            .execute()
+
+        row = response.data[0]
+        logger.info(f"Created category: {name} (id={row['id']})")
+
+        return Category(
+            id=row['id'],
+            name=row['name'],
+            status_id=row['status_id'],
+            target_language_id=row.get('target_language_id'),
+            last_used_at=None,
+            cooldown_days=row['cooldown_days']
+        )
 
     def get_next_category(self) -> Optional[Category]:
         """
