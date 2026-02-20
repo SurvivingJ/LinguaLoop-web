@@ -8,8 +8,8 @@
 <style>
     /* Test-specific styles */
     .test-header {
-        background: white;
-        border-bottom: 2px solid var(--slate-200);
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-default);
         position: sticky;
         top: 0;
         z-index: 100;
@@ -18,7 +18,7 @@
     
     .test-progress-bar {
         height: 6px;
-        background: var(--slate-200);
+        background: var(--border-default);
         position: absolute;
         bottom: 0;
         left: 0;
@@ -32,9 +32,9 @@
     }
     
     .transcript-card {
-        background: white;
+        background: var(--bg-surface);
         border-radius: 12px;
-        border: 1px solid var(--slate-200);
+        border: 1px solid var(--border-default);
         padding: 24px;
         margin-bottom: 24px;
         box-shadow: var(--shadow-sm);
@@ -47,11 +47,11 @@
     }
 
     .audio-player-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 24px;
-        border: 1px solid var(--slate-200);
+        border: 1px solid var(--border-default);
     }
     
     .audio-controls {
@@ -96,7 +96,7 @@
     
     .audio-progress-bar {
         height: 8px;
-        background: var(--slate-300);
+        background: var(--border-strong);
         border-radius: 4px;
         cursor: pointer;
         position: relative;
@@ -122,9 +122,9 @@
     .audio-speed-btn {
         padding: 8px 16px;
         border-radius: 8px;
-        border: 2px solid var(--slate-300);
-        background: white;
-        color: var(--slate-600);
+        border: 2px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
         font-weight: 600;
         cursor: pointer;
         transition: var(--transition-fast);
@@ -147,9 +147,9 @@
         width: 40px;
         height: 40px;
         border-radius: 8px;
-        border: 2px solid var(--slate-300);
-        background: white;
-        color: var(--slate-600);
+        border: 2px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
         font-weight: 600;
         cursor: pointer;
         transition: var(--transition-fast);
@@ -157,10 +157,10 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .question-nav-btn:hover {
         border-color: var(--slate-400);
-        background: var(--slate-50);
+        background: var(--bg-surface-hover);
     }
     
     .question-nav-btn.active {
@@ -184,19 +184,20 @@
         width: 100%;
         min-height: 200px;
         padding: 16px;
-        border: 2px solid var(--slate-300);
+        border: 2px solid var(--border-strong);
         border-radius: 12px;
         font-size: 16px;
         line-height: 1.8;
-        color: var(--slate-900);
+        color: var(--text-primary);
+        background: var(--bg-surface);
         resize: vertical;
         transition: var(--transition-fast);
     }
-    
+
     .dictation-input-area:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        box-shadow: 0 0 0 3px var(--focus-ring);
     }
     
     .dictation-char-count {
@@ -209,8 +210,8 @@
     .test-actions {
         position: sticky;
         bottom: 0;
-        background: white;
-        border-top: 2px solid var(--slate-200);
+        background: var(--bg-surface);
+        border-top: 2px solid var(--border-default);
         padding: 20px;
         box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
         display: flex;
@@ -234,15 +235,15 @@
     }
     
     .loading-spinner {
-        background: white;
+        background: var(--bg-surface);
         padding: 32px;
         border-radius: 12px;
         box-shadow: var(--shadow-lg);
         text-align: center;
     }
-    
+
     .spinner-icon {
-        border: 4px solid var(--slate-200);
+        border: 4px solid var(--border-default);
         border-top-color: var(--primary);
         border-radius: 50%;
         width: 48px;

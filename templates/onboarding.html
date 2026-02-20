@@ -30,17 +30,17 @@
     }
 
     .feature-card {
-        background: white;
+        background: var(--bg-surface);
         border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-sm);
         height: 100%;
         transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .feature-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-md);
     }
 
     .feature-icon {
@@ -54,23 +54,23 @@
         margin-bottom: 1rem;
     }
 
-    .feature-icon.report { background: #fef2f2; color: #dc2626; }
-    .feature-icon.profile { background: #eff6ff; color: #2563eb; }
-    .feature-icon.language { background: #f0fdf4; color: #16a34a; }
+    .feature-icon.report { background: var(--danger-bg); color: var(--danger); }
+    .feature-icon.profile { background: var(--selected-bg); color: var(--primary); }
+    .feature-icon.language { background: var(--success-bg); color: var(--success); }
 
     .info-section {
-        background: white;
+        background: var(--bg-surface);
         border-radius: 12px;
         padding: 1.5rem;
         margin-top: 2rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-sm);
     }
 
     .info-section h3 {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 1rem;
-        color: #1e293b;
+        color: var(--text-primary);
     }
 
     .info-section ul {
@@ -80,7 +80,7 @@
 
     .info-section li {
         margin-bottom: 0.5rem;
-        color: #475569;
+        color: var(--text-secondary);
     }
 
     .info-section li:last-child {

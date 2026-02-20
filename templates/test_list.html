@@ -7,8 +7,8 @@
 {% block extra_css %}
 <style>
     .filter-section {
-        background: white;
-        border-bottom: 1px solid var(--slate-200);
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-default);
         box-shadow: var(--shadow-sm);
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -37,9 +37,9 @@
     }
     
     .test-card {
-        background: white;
+        background: var(--bg-surface);
         border-radius: 12px;
-        border: 1px solid var(--slate-200);
+        border: 1px solid var(--border-default);
         box-shadow: var(--shadow-sm);
         transition: var(--transition-base);
         cursor: pointer;
@@ -90,9 +90,9 @@
     }
     
     .badge-intermediate {
-        background: #fef3c7;
-        color: #d97706;
-        border-color: #d97706;
+        background: var(--warning-bg);
+        color: var(--warning);
+        border-color: var(--warning);
     }
     
     .badge-advanced {
@@ -198,10 +198,10 @@
 
     /* Suggested Tests Section */
     .suggested-section {
-        background: white;
+        background: var(--bg-surface);
         border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
     }
 
     .suggested-grid {
@@ -212,8 +212,8 @@
 
     /* Suggested Card Base */
     .suggested-card {
-        background: #f8fafc;
-        border: 2px dashed #cbd5e1;
+        background: var(--bg-body);
+        border: 2px dashed var(--border-strong);
         border-radius: 8px;
         padding: 1.25rem;
         min-height: 180px;
@@ -253,7 +253,7 @@
     .skeleton-badge {
         width: 80px;
         height: 20px;
-        background: #cbd5e1;
+        background: var(--border-strong);
         border-radius: 4px;
         margin-bottom: 0.75rem;
     }
@@ -261,7 +261,7 @@
     .skeleton-title {
         width: 100%;
         height: 24px;
-        background: #cbd5e1;
+        background: var(--border-strong);
         border-radius: 4px;
         margin-bottom: 0.5rem;
     }
@@ -269,7 +269,7 @@
     .skeleton-meta {
         width: 60%;
         height: 16px;
-        background: #e2e8f0;
+        background: var(--border-default);
         border-radius: 4px;
         margin-bottom: 1rem;
     }
@@ -277,22 +277,22 @@
     .skeleton-button {
         width: 100%;
         height: 36px;
-        background: #e2e8f0;
+        background: var(--border-default);
         border-radius: 6px;
         margin-top: auto;
     }
 
     /* Recommended Test Cards */
     .recommended-card {
-        background: white;
-        border: 2px solid var(--slate-200);
+        background: var(--bg-surface);
+        border: 2px solid var(--border-default);
         cursor: pointer;
         transition: all 0.2s ease;
     }
 
     .recommended-card:hover {
         border-color: var(--primary);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: var(--shadow-md);
         transform: translateY(-2px);
     }
 
@@ -315,18 +315,18 @@
     }
 
     .test-type-badge.listening {
-        background: #e0f2fe;
-        color: #0369a1;
+        background: var(--info-bg);
+        color: var(--info);
     }
 
     .test-type-badge.reading {
-        background: #fef3c7;
-        color: #d97706;
+        background: var(--warning-bg);
+        color: var(--warning);
     }
 
     .test-type-badge.dictation {
-        background: #f3e8ff;
-        color: #7c3aed;
+        background: var(--selected-bg);
+        color: var(--primary);
     }
 
     .tier-badge.premium {

@@ -70,8 +70,8 @@
 <style>
     /* Language Selection Card Styles */
     .language-card {
-        background: white;
-        border: 2px solid var(--slate-300);
+        background: var(--bg-surface);
+        border: 2px solid var(--border-strong);
         border-radius: 12px;
         padding: 24px;
         cursor: pointer;
@@ -80,7 +80,7 @@
 
     .language-card:hover {
         border-color: var(--slate-400);
-        background: var(--slate-50);
+        background: var(--bg-surface-hover);
     }
 
     .language-card.selected {
@@ -116,8 +116,8 @@
 
     /* Button states */
     #continue-btn:disabled {
-        background: var(--slate-300);
-        border-color: var(--slate-300);
+        background: var(--border-strong);
+        border-color: var(--border-strong);
         cursor: not-allowed;
         opacity: 0.6;
     }

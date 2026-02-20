@@ -30,18 +30,18 @@
     justify-content: center;
     gap: 8px;
     padding: 16px 12px;
-    background: white;
-    border: 2px solid var(--slate-300);
+    background: var(--bg-surface);
+    border: 2px solid var(--border-strong);
     border-radius: 8px;
     cursor: pointer;
     transition: var(--transition-fast);
     font-weight: 500;
-    color: var(--slate-600);
+    color: var(--text-secondary);
 }
 
 .test-type-label:hover {
     border-color: var(--slate-400);
-    background: var(--slate-50);
+    background: var(--bg-surface-hover);
 }
 
 .test-type-option input[type="radio"]:checked + .test-type-label {
@@ -74,9 +74,9 @@
 }
 
 .difficulty-badge.intermediate {
-    background: #fef3c7;
-    color: #d97706;
-    border: 2px solid #d97706;
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 2px solid var(--warning);
 }
 
 .difficulty-badge.advanced {
@@ -115,7 +115,7 @@
 /* Custom Badge */
 .custom-badge {
     padding: 4px 10px;
-    background: rgba(30, 64, 175, 0.1);
+    background: var(--focus-ring);
     border: 1px solid var(--primary);
     border-radius: 4px;
     color: var(--primary);
@@ -500,14 +500,15 @@
      * Get difficulty level and color based on ELO rating
      */
     function getDifficultyInfo(rating) {
+        const style = getComputedStyle(document.documentElement);
         if (rating < 1200) {
-            return { level: 'beginner', label: 'Beginner', color: '#059669' };
+            return { level: 'beginner', label: 'Beginner', color: style.getPropertyValue('--success').trim() };
         } else if (rating < 1400) {
-            return { level: 'intermediate', label: 'Intermediate', color: '#d97706' };
+            return { level: 'intermediate', label: 'Intermediate', color: style.getPropertyValue('--warning').trim() };
         } else if (rating < 1600) {
-            return { level: 'advanced', label: 'Advanced', color: '#ea580c' };
+            return { level: 'advanced', label: 'Advanced', color: style.getPropertyValue('--warning').trim() };
         } else {
-            return { level: 'expert', label: 'Expert', color: '#dc2626' };
+            return { level: 'expert', label: 'Expert', color: style.getPropertyValue('--danger').trim() };
         }
     }
 
