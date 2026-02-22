@@ -17,6 +17,13 @@ PROJECTS = [
         "icon": "fa-calculator",
         "tags": ["Math", "Games", "Practice"],
     },
+    {
+        "name": "MusicDojo",
+        "description": "Master rhythm, timing, and guitar technique with 52 exercises",
+        "url": "https://music.linguadojo.com",
+        "icon": "fa-guitar",
+        "tags": ["Music", "Guitar", "Practice"],
+    },
 ]
 
 
