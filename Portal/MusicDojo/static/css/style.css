@@ -30,6 +30,11 @@
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
+
+    /* RGB values for rgba() usage */
+    --primary-rgb: 102, 126, 234;
+    --success-rgb: 72, 187, 120;
+    --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* ===== RESET & BASE ===== */
@@ -771,6 +776,333 @@ canvas {
     color: var(--color-text);
 }
 
+/* ===== DIRECTION TRAINER ===== */
+.instruction-text .up { color: var(--color-success); }
+.instruction-text .down { color: var(--color-danger); }
+.instruction-text .hold { color: var(--color-warning); }
+.instruction-text .motion {
+    color: var(--color-text-secondary);
+    font-size: 0.6em;
+    display: block;
+    margin-top: 8px;
+}
+.instruction-text .warning {
+    color: var(--color-warning);
+    font-size: 0.55em;
+    display: block;
+    margin-top: 6px;
+    animation: pulse-warn 0.5s infinite;
+}
+@keyframes pulse-warn {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ===== SPLIT METRONOME ===== */
+.split-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+.metronome-side {
+    background: var(--color-surface2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    text-align: center;
+}
+.metronome-side h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-secondary);
+    font-size: 1em;
+}
+.visual-indicator {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: var(--spacing-md) auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--color-text);
+    background: var(--color-border);
+    transition: all 0.05s;
+}
+.visual-indicator.a0 { background: var(--color-primary); transform: scale(1.1); }
+.visual-indicator.a1 { background: #805ad5; transform: scale(1.05); }
+.visual-indicator.a2 { background: #9f7aea; }
+.toggle-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+.btn-toggle {
+    padding: 8px 16px;
+    font-size: 0.85em;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-text);
+    transition: all var(--transition-fast);
+}
+.btn-toggle.on { background: var(--color-success); }
+.btn-toggle.off { background: var(--color-border); }
+
+/* ===== TEMPO RAMP ===== */
+.warning-overlay {
+    background: rgba(236, 201, 75, 0.95);
+    color: var(--color-background);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 700;
+    animation: pulse-warn 0.3s ease-in-out;
+    margin-bottom: var(--spacing-md);
+}
+.ramp-progress {
+    width: 100%;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+.ramp-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    transition: width 0.3s;
+    border-radius: 4px;
+}
+
+/* ===== GHOST METRONOME ===== */
+.ghost-canvas-container {
+    background: var(--color-background);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: var(--spacing-md) 0;
+    position: relative;
+    transition: background-color 0.5s;
+}
+.ghost-canvas {
+    display: block;
+    width: 100%;
+    height: 300px;
+}
+.ghost-info {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+.cycle-display {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--color-surface2);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+.cycle-status {
+    font-size: 1.4em;
+    font-weight: 700;
+}
+.cycle-status.active { color: var(--color-success); }
+.cycle-status.ghost { color: var(--color-primary); }
+
+/* ===== IMPROV GENERATOR ===== */
+.instrument-toggle {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+}
+.instrument-btn {
+    padding: 10px 24px;
+    background: var(--color-surface2);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+.instrument-btn.selected {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.improv-main {
+    background: var(--color-surface2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+.pattern-section {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+.pattern-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: var(--spacing-sm);
+}
+.pattern-label {
+    color: var(--color-text-secondary);
+    font-size: 0.9em;
+}
+.pattern-desc {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.85em;
+    margin-bottom: 10px;
+}
+.keyboard.mini { height: 80px; }
+.keyboard.mini .key.white { width: 24px; height: 80px; }
+.keyboard.mini .key.black { width: 16px; height: 50px; margin: 0 -8px; }
+.mini-container { padding: 10px; }
+.key.root {
+    background: linear-gradient(180deg, var(--color-accent), #d69e2e) !important;
+}
+.key.in-pattern {
+    background: linear-gradient(180deg, #718096, #4a5568) !important;
+}
+.key .note-dot {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+.key .note-dot.root-dot {
+    background: var(--color-background);
+    width: 12px;
+    height: 12px;
+}
+/* Guitar fretboard */
+.fretboard-container {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    overflow-x: auto;
+}
+.fretboard { display: flex; flex-direction: column; min-width: 600px; }
+.guitar-string {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    position: relative;
+}
+.string-label {
+    width: 30px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    font-size: 0.9em;
+    text-align: center;
+    flex-shrink: 0;
+}
+.frets-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+    background: linear-gradient(180deg, #8B4513, #654321);
+    border-radius: 4px;
+}
+.fret {
+    width: 45px;
+    height: 100%;
+    border-right: 3px solid #c0c0c0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.fret:first-child {
+    border-left: 6px solid #f5f5dc;
+    background: rgba(0, 0, 0, 0.2);
+}
+.string-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #d4a574, #c0a080);
+    pointer-events: none;
+}
+.guitar-string:nth-child(1) .string-line,
+.guitar-string:nth-child(2) .string-line { height: 1px; }
+.guitar-string:nth-child(5) .string-line { height: 3px; }
+.guitar-string:nth-child(6) .string-line { height: 4px; }
+.fret-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: none;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+    z-index: 1;
+}
+.fret-dot.visible { display: flex; }
+.fret-dot.root {
+    background: var(--color-accent);
+    box-shadow: 0 0 10px rgba(236, 201, 75, 0.5);
+}
+.fret-dot.active-dot {
+    background: var(--color-success);
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(var(--success-rgb), 0.7);
+}
+.fret-markers {
+    display: flex;
+    padding-left: 30px;
+}
+.fret-marker {
+    width: 45px;
+    text-align: center;
+    font-size: 0.7em;
+    color: var(--color-border);
+    flex-shrink: 0;
+}
+.fret-marker.inlay { color: var(--color-text-secondary); }
+/* Tab display */
+.tab-container {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    font-family: 'Courier New', monospace;
+}
+.tab-display { display: flex; flex-direction: column; gap: 2px; }
+.tab-line { display: flex; align-items: center; }
+.tab-string-label {
+    width: 20px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+}
+.tab-content {
+    display: flex;
+    color: var(--color-primary);
+    letter-spacing: 2px;
+}
+.tab-note { width: 24px; text-align: center; }
+.tab-note.active-tab { color: var(--color-success); font-weight: 700; }
+.tab-note.root-tab { color: var(--color-accent); }
+
 /* ===== ADDITIONAL RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 768px) {
     .tempo-display {
@@ -793,6 +1125,17 @@ canvas {
     .stats-row {
         gap: var(--spacing-md);
     }
+
+    .split-container {
+        grid-template-columns: 1fr;
+    }
+
+    .keyboard { height: 90px; }
+    .key.white { width: 24px; height: 90px; }
+    .key.black { width: 18px; height: 55px; margin: 0 -9px; }
+    .keyboard.mini { height: 60px; }
+    .keyboard.mini .key.white { width: 16px; height: 60px; }
+    .keyboard.mini .key.black { width: 10px; height: 38px; margin: 0 -5px; }
 }
 
 /* ===== GUITAR EXERCISES STYLING ===== */
@@ -919,15 +1262,6 @@ canvas {
     animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
-}
-
 .exercise-meta {
     display: flex;
     gap: var(--spacing-md);
@@ -1018,12 +1352,7 @@ canvas {
     margin: var(--spacing-xl) 0;
 }
 
-.tempo-display {
-    font-size: 5em;
-    font-weight: 700;
-    color: var(--color-primary);
-    text-shadow: 0 0 20px rgba(var(--primary-rgb), 0.5);
-}
+/* Guitar practice tempo display uses shared .tempo-display from above */
 
 .subdivision-display {
     font-size: 1.5em;
@@ -1180,15 +1509,6 @@ canvas {
     justify-content: center;
     z-index: 1000;
     animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 }
 
 .modal-content {

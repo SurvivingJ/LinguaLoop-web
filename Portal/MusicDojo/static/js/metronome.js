@@ -420,4 +420,4 @@ class AdvancedMetronome {
 }
 
 // Create instance
-const metronome = new AdvancedMetronome();
+window.metronome = new AdvancedMetronome();

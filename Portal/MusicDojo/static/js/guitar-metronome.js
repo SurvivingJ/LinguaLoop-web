@@ -447,4 +447,4 @@ class GuitarMetronome {
 }
 
 // Create singleton instance
-const guitar_metronome = new GuitarMetronome();
+window.guitar_metronome = new GuitarMetronome();

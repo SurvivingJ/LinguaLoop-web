@@ -5,35 +5,52 @@
 // Global state flag
 window.gameActive = false;
 
+// Debug helper - type debugMusicDojo() in browser console
+window.debugMusicDojo = function() {
+    console.log('=== MusicDojo Debug Info ===');
+    console.log('Current screen:', screenManager?.getCurrentScreen());
+    console.log('Storage data:', storageManager?.loadAll());
+    console.log('Audio context state:', audioManager?.context?.state);
+    console.log('Available modes:', {
+        direction_trainer: !!window.direction_trainer,
+        split_metronome: !!window.split_metronome,
+        polyrhythm: !!window.polyrhythm,
+        swing: !!window.swing,
+        tempo_ramp: !!window.tempo_ramp,
+        improv: !!window.improv,
+        ghost: !!window.ghost,
+        ear_training: !!window.ear_training,
+        rhythm_dictation: !!window.rhythm_dictation,
+        metronome: !!window.metronome,
+        guitar_exercises: !!window.guitar_exercises,
+        guitar_metronome: !!window.guitar_metronome
+    });
+    console.log('=== End Debug Info ===');
+};
+
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('MusicDojo initializing...');
 
-    // Load theme
-    themeManager.loadTheme();
-
-    // Update home screen stats
-    screenManager.updateHomeScreenStats();
-
-    // Update daily streak
-    storageManager.updateStreak();
+    try { themeManager.loadTheme(); } catch(e) { console.error('Theme load failed:', e); }
+    try { screenManager.updateHomeScreenStats(); } catch(e) { console.error('Stats update failed:', e); }
+    try { storageManager.updateStreak(); } catch(e) { console.error('Streak update failed:', e); }
 
     // Initialize audio context on first user interaction
     document.addEventListener('click', () => {
         audioManager.initialize();
     }, { once: true });
 
-    // Setup navigation buttons
-    setupNavigationButtons();
+    // Setup navigation buttons - CRITICAL: must succeed for modes to work
+    try {
+        setupNavigationButtons();
+    } catch(e) {
+        console.error('CRITICAL: Navigation setup failed:', e);
+    }
 
-    // Setup settings screen
-    setupSettingsScreen();
-
-    // Setup stats screen
-    setupStatsScreen();
-
-    // Check for achievements
-    checkAchievements();
+    try { setupSettingsScreen(); } catch(e) { console.error('Settings setup failed:', e); }
+    try { setupStatsScreen(); } catch(e) { console.error('Stats screen setup failed:', e); }
+    try { checkAchievements(); } catch(e) { console.error('Achievement check failed:', e); }
 
     console.log('MusicDojo initialized!');
 });

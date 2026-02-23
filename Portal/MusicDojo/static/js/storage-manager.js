@@ -74,15 +74,17 @@ class StorageManager {
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
             if (!data) {
-                this.resetAll();
-                return this.defaultData;
+                // First time user - initialize with defaults silently
+                this.saveAll(this.defaultData);
+                return JSON.parse(JSON.stringify(this.defaultData));
             }
             const parsed = JSON.parse(data);
             // Merge with defaults to handle new fields
             return this._mergeWithDefaults(parsed);
         } catch (e) {
             console.error('Error loading storage:', e);
-            return this.defaultData;
+            this.saveAll(this.defaultData);
+            return JSON.parse(JSON.stringify(this.defaultData));
         }
     }
 
@@ -258,12 +260,11 @@ class StorageManager {
     }
 
     /**
-     * Reset all data
+     * Reset all data (only called from settings screen)
      */
     resetAll() {
-        const confirmed = confirm('Are you sure you want to reset ALL progress? This cannot be undone.');
-        if (confirmed) {
-            this.saveAll(this.defaultData);
+        if (confirm('Are you sure you want to reset ALL progress? This cannot be undone.')) {
+            this.saveAll(JSON.parse(JSON.stringify(this.defaultData)));
             return true;
         }
         return false;

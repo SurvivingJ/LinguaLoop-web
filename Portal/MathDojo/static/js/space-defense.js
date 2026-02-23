@@ -100,6 +100,9 @@ class SpaceDefense {
         this.inputHandler.clear();
         this.inputHandler.focus();
 
+        // Auto-submit when typed value matches any enemy's answer
+        this.inputHandler.setAutoCheck((val) => this.enemies.some(e => e.answer === val));
+
         // Load problems
         this.problems = await gameManager.fetchBatch(100, this.currentElo);
 

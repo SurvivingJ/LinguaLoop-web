@@ -117,4 +117,4 @@ class ImprovGenerator {
     }
 }
 
-const improv = new ImprovGenerator();
+window.improv = new ImprovGenerator();

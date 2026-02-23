@@ -192,6 +192,10 @@ class ThemeManager {
         root.style.setProperty('--color-warning', colors.warning);
         root.style.setProperty('--color-border', colors.border);
 
+        // Set RGB values for rgba() usage in CSS
+        root.style.setProperty('--primary-rgb', this.hexToRgb(colors.primary));
+        root.style.setProperty('--success-rgb', this.hexToRgb(colors.success));
+
         // Update meta theme color
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
@@ -229,6 +233,17 @@ class ThemeManager {
      */
     getThemeColors() {
         return this.themes[this.currentTheme].colors;
+    }
+
+    /**
+     * Convert hex color to RGB string for CSS variables
+     */
+    hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return `${r}, ${g}, ${b}`;
     }
 
     /**

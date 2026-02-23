@@ -95,6 +95,9 @@ class TimeTrial {
         if (this.equationDisplay) {
             this.equationDisplay.textContent = problem.equation;
         }
+
+        // Auto-submit when typed value matches the correct answer
+        this.inputHandler.setAutoCheck((val) => val === problem.answer);
     }
 
     /**

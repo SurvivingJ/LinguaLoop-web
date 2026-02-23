@@ -364,4 +364,4 @@ class EarTraining {
 }
 
 // Create instance
-const ear_training = new EarTraining();
+window.ear_training = new EarTraining();

@@ -312,6 +312,15 @@ class PokerDrill {
         this.inputHandler.enable();
         this.inputHandler.clear();
         this.inputHandler.focus();
+
+        // Auto-submit when typed value matches the correct answer
+        const tolerance = this.currentProblem?.tolerance || 0;
+        const answer = this.currentProblem?.answer;
+        this.inputHandler.setAutoCheck((val) =>
+            tolerance > 0
+                ? Math.abs(val - answer) <= tolerance
+                : val === answer
+        );
     }
 
     showEquityMode() {

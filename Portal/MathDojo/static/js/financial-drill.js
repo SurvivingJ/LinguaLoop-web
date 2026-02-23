@@ -259,6 +259,14 @@ class FinancialDrill {
             this.equationDisplay.textContent = problem.equation;
         }
 
+        // Auto-submit when typed value matches the correct answer
+        const tolerance = gameManager.currentProblem?.tolerance || 0;
+        this.inputHandler.setAutoCheck((val) =>
+            tolerance > 0
+                ? Math.abs(val - gameManager.currentProblem.answer) <= tolerance
+                : val === gameManager.currentProblem.answer
+        );
+
         // Pre-fetch more if queue running low
         if (gameManager.problemQueue.length < 5 && !this.fetching) {
             this.fetching = true;

@@ -319,4 +319,4 @@ class GuitarExercises {
 }
 
 // Create singleton instance
-const guitar_exercises = new GuitarExercises();
+window.guitar_exercises = new GuitarExercises();

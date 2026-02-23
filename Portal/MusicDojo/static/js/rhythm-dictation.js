@@ -356,4 +356,4 @@ class RhythmDictation {
 }
 
 // Create instance
-const rhythm_dictation = new RhythmDictation();
+window.rhythm_dictation = new RhythmDictation();

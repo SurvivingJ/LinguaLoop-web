@@ -5,7 +5,17 @@ class InputHandler {
     constructor(inputId, onSubmit) {
         this.input = document.getElementById(inputId);
         this.onSubmit = onSubmit;
+        this.autoCheckFn = null;
         this.setupListeners();
+    }
+
+    /**
+     * Set a function that checks if current value should auto-submit.
+     * Called on every keystroke. fn receives the parsed numeric value.
+     * @param {Function|null} fn - (parsedNumber) => boolean
+     */
+    setAutoCheck(fn) {
+        this.autoCheckFn = fn;
     }
 
     /**
@@ -22,9 +32,19 @@ class InputHandler {
             }
         });
 
-        // Numeric only input (allow negative and decimal)
+        // Numeric only input (allow negative and decimal) + auto-check
         this.input.addEventListener('input', (e) => {
             this.input.value = this.input.value.replace(/[^0-9.\-]/g, '');
+
+            if (this.autoCheckFn) {
+                const value = this.input.value.trim();
+                if (value !== '' && value !== '-' && value !== '.') {
+                    const numericValue = value.includes('.') ? parseFloat(value) : parseInt(value, 10);
+                    if (!isNaN(numericValue) && this.autoCheckFn(numericValue)) {
+                        this.submit();
+                    }
+                }
+            }
         });
     }
 
