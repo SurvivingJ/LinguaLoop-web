@@ -13,6 +13,10 @@
     --accent-rgb: 57, 255, 20;
     --danger-rgb: 255, 0, 85;
 
+    /* Font tokens */
+    --font-display: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
+
     /* Button shape tokens */
     --btn-radius: 0px;
     --btn-border-style: solid;
@@ -40,7 +44,7 @@
 }
 
 body {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     background: var(--bg-color);
     color: var(--neon-green);
     overflow-x: hidden;
@@ -158,7 +162,7 @@ body::after {
 
 /* Typography */
 .title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(2rem, 8vw, 4rem);
     text-shadow: var(--title-shadow);
     margin-bottom: 20px;
@@ -173,7 +177,7 @@ body::after {
 }
 
 .screen-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(1.5rem, 5vw, 2.5rem);
     margin-bottom: 30px;
     text-shadow: 0 0 10px var(--neon-green);
@@ -200,13 +204,13 @@ body::after {
 
 .stat-value {
     font-size: 2rem;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     text-shadow: 0 0 10px var(--neon-green);
 }
 
 /* Buttons */
 .menu-btn, .start-btn, .back-btn, .toggle-btn, .danger-btn {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     background: transparent;
     color: var(--neon-green);
     border: var(--btn-border-width) var(--btn-border-style) var(--neon-green);
@@ -269,7 +273,7 @@ nav.menu {
 }
 
 .timer, .score, .lives, .progress {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(1.2rem, 4vw, 2rem);
     text-shadow: 0 0 10px var(--neon-green);
 }
@@ -288,7 +292,7 @@ nav.menu {
 }
 
 .equation {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(2rem, 8vw, 4rem);
     text-shadow: var(--title-shadow);
     min-height: 80px;
@@ -298,7 +302,7 @@ nav.menu {
 }
 
 .answer-input {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: clamp(2rem, 6vw, 3rem);
     background: rgba(var(--accent-rgb), 0.1);
     border: 3px solid var(--neon-green);
@@ -380,7 +384,7 @@ nav.menu {
 }
 
 .config-label {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.9rem;
     color: var(--amber);
     margin-bottom: 12px;
@@ -405,7 +409,7 @@ nav.menu {
 }
 
 .op-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.2rem;
     width: 64px;
     height: 64px;
@@ -441,7 +445,7 @@ nav.menu {
 
 /* Drill Stats Bar */
 .drill-stats-bar {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(0.6rem, 2vw, 0.9rem);
     display: flex;
     gap: 15px;
@@ -460,7 +464,7 @@ nav.menu {
 }
 
 .intervention-header {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.65rem;
     color: var(--amber);
     margin-bottom: 8px;
@@ -470,7 +474,7 @@ nav.menu {
 .intervention-metrics {
     display: flex;
     justify-content: space-between;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     color: var(--neon-green);
     margin-bottom: 8px;
@@ -503,7 +507,7 @@ nav.menu {
 }
 
 .fin-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     width: 80px;
     height: 64px;
@@ -564,13 +568,13 @@ nav.menu {
 }
 
 .result-value {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     text-shadow: 0 0 10px var(--neon-green);
 }
 
 .high-score-banner {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     color: var(--amber);
     text-shadow: 0 0 20px var(--amber);
@@ -602,7 +606,7 @@ input[type="range"] {
 
 /* Theme Selector */
 .theme-selector {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.3rem;
     background: rgba(var(--accent-rgb), 0.1);
     border: var(--btn-border-width) var(--btn-border-style) var(--neon-green);
@@ -655,7 +659,7 @@ input[type="range"] {
 }
 
 .modal-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     margin-bottom: 20px;
     color: var(--amber);
@@ -1038,6 +1042,191 @@ input[type="range"] {
 
 
 /* ===========================
+   THEME: Clean
+   Modern, minimal, no glow
+   =========================== */
+[data-theme="clean"] {
+    --neon-green: #0f172a;
+    --void-black: #f8fafc;
+    --amber: #2563eb;
+    --alert-red: #ef4444;
+    --neon-blue: #3b82f6;
+    --accent-rgb: 15, 23, 42;
+    --danger-rgb: 239, 68, 68;
+
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --btn-radius: 10px;
+    --btn-border-style: solid;
+    --btn-border-width: 1.5px;
+    --btn-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --btn-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.12);
+    --btn-hover-transform: translateY(-1px);
+
+    --transition-speed: 0.15s;
+    --screen-anim: fadeIn;
+    --title-shadow: none;
+    --text-glow: none;
+
+    --bg-color: #f8fafc;
+    --bg-pattern: none;
+}
+/* Hide CRT scanlines */
+[data-theme="clean"] .crt-overlay { display: none; }
+/* Remove all text glow/shadow */
+[data-theme="clean"] .title,
+[data-theme="clean"] .screen-title,
+[data-theme="clean"] .stat-value,
+[data-theme="clean"] .equation,
+[data-theme="clean"] .timer,
+[data-theme="clean"] .score,
+[data-theme="clean"] .lives,
+[data-theme="clean"] .progress,
+[data-theme="clean"] .result-value,
+[data-theme="clean"] .drill-stats-bar,
+[data-theme="clean"] .menu-btn,
+[data-theme="clean"] .start-btn,
+[data-theme="clean"] .back-btn,
+[data-theme="clean"] .toggle-btn,
+[data-theme="clean"] .danger-btn,
+[data-theme="clean"] .poker-hand-label,
+[data-theme="clean"] .poker-vs,
+[data-theme="clean"] .equity-slider-value,
+[data-theme="clean"] .explanation-answer,
+[data-theme="clean"] .high-score-banner { text-shadow: none; }
+/* Title styling */
+[data-theme="clean"] .title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+[data-theme="clean"] .subtitle {
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+/* Button hover */
+[data-theme="clean"] .menu-btn:hover,
+[data-theme="clean"] .start-btn:hover,
+[data-theme="clean"] .back-btn:hover,
+[data-theme="clean"] .toggle-btn:hover {
+    background: var(--neon-green);
+    color: #ffffff;
+    border-color: var(--neon-green);
+}
+/* Active toggles - clean solid fill */
+[data-theme="clean"] .toggle-btn.active,
+[data-theme="clean"] .op-toggle.active,
+[data-theme="clean"] .fin-toggle.active,
+[data-theme="clean"] .poker-toggle.active {
+    box-shadow: none;
+}
+/* Danger button */
+[data-theme="clean"] .danger-btn {
+    text-shadow: none;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.15);
+}
+[data-theme="clean"] .danger-btn:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+/* Answer input - clean focus */
+[data-theme="clean"] .answer-input {
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    border-width: 1.5px;
+}
+[data-theme="clean"] .answer-input:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    border-color: #2563eb;
+    animation: none;
+}
+/* Settings rows */
+[data-theme="clean"] .setting {
+    border-color: #e2e8f0;
+}
+/* Theme selector */
+[data-theme="clean"] .theme-selector {
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+[data-theme="clean"] .theme-selector:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+[data-theme="clean"] .theme-selector:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+[data-theme="clean"] .theme-selector option {
+    background: #ffffff;
+    color: #0f172a;
+}
+/* Result items */
+[data-theme="clean"] .result-item {
+    border-color: #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+/* Modal */
+[data-theme="clean"] .modal {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+}
+[data-theme="clean"] .modal-content {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12);
+}
+/* High score banner - subtle pulse instead of blink */
+[data-theme="clean"] .high-score-banner {
+    color: #2563eb;
+    animation: none;
+}
+/* Intervention bar */
+[data-theme="clean"] .intervention-fill {
+    box-shadow: none;
+}
+/* Canvas */
+[data-theme="clean"] #game-canvas {
+    border-color: #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+/* Poker cards */
+[data-theme="clean"] .poker-card {
+    text-shadow: none;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+    background: #ffffff;
+    border-color: #e2e8f0;
+}
+[data-theme="clean"] .poker-card.suit-s .card-rank,
+[data-theme="clean"] .poker-card.suit-s .card-suit,
+[data-theme="clean"] .poker-card.suit-c .card-rank,
+[data-theme="clean"] .poker-card.suit-c .card-suit {
+    color: #1a1a1a;
+}
+[data-theme="clean"] .poker-vs {
+    color: var(--alert-red);
+}
+/* Explanation panel */
+[data-theme="clean"] .poker-explanation {
+    border-color: #e2e8f0;
+    background: #ffffff;
+}
+/* Equity slider thumb */
+[data-theme="clean"] .equity-slider::-webkit-slider-thumb {
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
+}
+[data-theme="clean"] .equity-slider::-moz-range-thumb {
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
+}
+/* Guide cards */
+[data-theme="clean"] .guide-card {
+    border-color: #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+/* Footer */
+[data-theme="clean"] .footer { color: #94a3b8; }
+
+
+/* ===========================
    Poker Drill Styles
    =========================== */
 
@@ -1049,7 +1238,7 @@ input[type="range"] {
 }
 
 .poker-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     width: 80px;
     height: 64px;
@@ -1097,7 +1286,7 @@ input[type="range"] {
 }
 
 .poker-hand-label {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.5rem;
     color: var(--neon-green);
     opacity: 0.6;
@@ -1110,7 +1299,7 @@ input[type="range"] {
 }
 
 .poker-vs {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.7rem;
     color: var(--alert-red);
     text-shadow: 0 0 8px var(--alert-red);
@@ -1126,7 +1315,7 @@ input[type="range"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.3);
     position: relative;
 }
@@ -1199,7 +1388,7 @@ input[type="range"] {
 }
 
 .equity-slider-value {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.2rem;
     color: var(--neon-green);
     text-shadow: var(--text-glow);
@@ -1221,7 +1410,7 @@ input[type="range"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: clamp(0.5rem, 1.8vw, 0.75rem);
     background: transparent;
     border: 1px solid rgba(var(--accent-rgb), 0.25);
@@ -1267,7 +1456,7 @@ input[type="range"] {
 }
 
 .explanation-answer {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1rem;
     color: var(--alert-red);
     margin-bottom: 12px;
@@ -1275,7 +1464,7 @@ input[type="range"] {
 }
 
 .explanation-steps {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.2rem;
     color: var(--neon-green);
     line-height: 1.6;
@@ -1292,14 +1481,14 @@ input[type="range"] {
 }
 
 .guide-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.8rem;
     color: var(--amber);
     margin-bottom: 10px;
 }
 
 .guide-body {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.1rem;
     line-height: 1.6;
     color: var(--neon-green);

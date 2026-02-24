@@ -99,6 +99,18 @@ class ThemeManager {
                     text: '#e7e3da',
                     star: '#8b0000'
                 }
+            },
+            'clean': {
+                name: 'CLEAN',
+                metaColor: '#f8fafc',
+                colors: {
+                    primary: '#2563eb',
+                    secondary: '#64748b',
+                    background: '#f8fafc',
+                    danger: '#ef4444',
+                    text: '#0f172a',
+                    star: '#94a3b8'
+                }
             }
         };
 
