@@ -367,6 +367,10 @@
             transition: background var(--transition-fast), color var(--transition-fast);
             padding: 1px 2px;
             margin: -1px -2px;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .word-clickable:hover {
@@ -1642,6 +1646,15 @@ const wordPopover = {
             const wordSpan = e.target.closest('.word-clickable');
             if (wordSpan && testState.isSubmitted) {
                 e.stopPropagation();
+                this.show(wordSpan);
+            }
+        });
+
+        // Touch support for mobile (bypasses iOS delegated click quirks)
+        document.getElementById('transcriptText').addEventListener('touchend', (e) => {
+            const wordSpan = e.target.closest('.word-clickable');
+            if (wordSpan && testState.isSubmitted) {
+                e.preventDefault();
                 this.show(wordSpan);
             }
         });
