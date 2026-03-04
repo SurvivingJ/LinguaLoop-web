@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(python -m scripts.run_topic_generation:*)",
+      "Bash(source:*)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(python -m services.test_generation.orchestrator:*)",
+      "Bash(python -m scripts.run_test_generation:*)",
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(ls -la \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\static\\\\js\"\" 2>/dev/null || ls -la \"c:/Users/James/Documents/Coding/LinguaLoop/WebApp/static/js/\" 2>/dev/null || dir \"c:UsersJamesDocumentsCodingLinguaLoopWebAppstaticjs\"\")",
+      "Bash(curl -s http://localhost:5000/api/users/elo -H \"Authorization: Bearer $\\(cat <<''EOF''\n# This won''t work - need actual token\nEOF\n\\)\")",
+      "Bash(xargs ls:*)",
+      "Bash(curl:*)",
+      "Bash(python app.py:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(node -c:*)",
+      "Bash(node --check:*)",
+      "Bash(node -e:*)",
+      "Bash(git -C \"c:/Users/James/Documents/Coding/LinguaLoop/WebApp\" log --oneline)",
+      "Bash(git -C \"c:/Users/James/Documents/Coding/LinguaLoop/WebApp\" rev-list --objects --all)",
+      "Bash(git -C \"c:/Users/James/Documents/Coding/LinguaLoop/WebApp\" cat-file --batch-check='%\\(objecttype\\) %\\(objectname\\) %\\(objectsize\\) %\\(rest\\)')",
+      "Bash(git filter-repo:*)",
+      "Bash(python -m git_filter_repo:*)"
+    ]
+  }
+}

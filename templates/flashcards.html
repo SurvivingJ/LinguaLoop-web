@@ -1,0 +1,782 @@
+{% extends "base.html" %}
+
+{% block title %}Flashcards | LinguaDojo{% endblock %}
+{% block body_class %}bg-slate-50{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Header & Progress */
+    .flashcard-header {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-default);
+        padding: 16px 0;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .flashcard-progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .flashcard-progress-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .flashcard-progress-bar {
+        width: 120px;
+        height: 6px;
+        background: var(--border-default);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .flashcard-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--info, var(--primary)));
+        border-radius: 3px;
+        transition: width 0.4s ease;
+    }
+
+    /* Type Tabs */
+    .flashcard-type-tabs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .flashcard-type-tab {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 2px solid var(--border-default);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+    }
+
+    .flashcard-type-tab:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .flashcard-type-tab.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* 3D Flip Scene */
+    .flashcard-scene {
+        perspective: 1000px;
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .flashcard {
+        width: 100%;
+        height: 420px;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .flashcard.is-flipped {
+        transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 16px;
+        border: 2px solid var(--border-default);
+        background: var(--bg-surface);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        padding: 28px;
+        overflow: hidden;
+    }
+
+    .flashcard-back {
+        transform: rotateY(180deg);
+    }
+
+    /* Type Indicator Pill */
+    .flashcard-type-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        background: var(--focus-ring);
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--primary);
+        align-self: flex-start;
+    }
+
+    .flashcard-type-indicator--back {
+        color: var(--accent, var(--warning));
+        background: var(--warning-bg, rgba(245, 158, 11, 0.1));
+    }
+
+    /* Card Content */
+    .flashcard-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flashcard-word {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    .flashcard-answer {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .flashcard-context {
+        font-size: 15px;
+        color: var(--text-secondary);
+        text-align: center;
+        line-height: 1.6;
+        max-width: 360px;
+    }
+
+    /* Audio Button (Listening Cards) */
+    .flashcard-audio-prompt {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .flashcard-audio-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--info, var(--primary)));
+        border: none;
+        color: white;
+        font-size: 32px;
+        cursor: pointer;
+        transition: var(--transition-base);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flashcard-audio-btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 8px 24px var(--focus-ring);
+    }
+
+    .flashcard-audio-btn:active {
+        transform: scale(0.96);
+    }
+
+    .flashcard-audio-label {
+        font-size: 14px;
+        color: var(--text-muted, var(--text-secondary));
+        font-weight: 500;
+    }
+
+    /* Flip Button */
+    .flashcard-flip-btn {
+        align-self: center;
+        margin-top: auto;
+        min-width: 140px;
+    }
+
+    /* Rating Buttons */
+    .flashcard-rating-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .flashcard-rating-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: var(--transition-base);
+        border: 2px solid transparent;
+        cursor: pointer;
+    }
+
+    .flashcard-rating-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .flashcard-rating-btn:active {
+        transform: translateY(0);
+    }
+
+    .flashcard-rating-label {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .flashcard-rating-hint {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-top: 2px;
+    }
+
+    .flashcard-rating-fail {
+        background: var(--danger-bg, rgba(239, 68, 68, 0.1));
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+    .flashcard-rating-fail:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .flashcard-rating-hard {
+        background: var(--warning-bg, rgba(245, 158, 11, 0.1));
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+    .flashcard-rating-hard:hover {
+        background: var(--warning);
+        color: white;
+    }
+
+    .flashcard-rating-good {
+        background: var(--success-bg, rgba(34, 197, 94, 0.1));
+        color: var(--success);
+        border-color: var(--success);
+    }
+    .flashcard-rating-good:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .flashcard-rating-easy {
+        background: var(--selected-bg, rgba(59, 130, 246, 0.1));
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    .flashcard-rating-easy:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Card Slide Animations */
+    @keyframes flashcardSlideOut {
+        0% { transform: translateX(0) scale(1); opacity: 1; }
+        100% { transform: translateX(80px) scale(0.95); opacity: 0; }
+    }
+
+    @keyframes flashcardSlideIn {
+        0% { transform: translateX(-40px) scale(0.95); opacity: 0; }
+        100% { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    .flashcard-exit {
+        animation: flashcardSlideOut 0.3s ease forwards;
+    }
+
+    .flashcard-enter {
+        animation: flashcardSlideIn 0.3s ease forwards;
+    }
+
+    /* Session Complete */
+    .flashcard-complete-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-md);
+        padding: 48px 32px;
+        max-width: 500px;
+        margin: 0 auto;
+        animation: slideUp 0.3s ease;
+    }
+
+    .flashcard-complete-icon {
+        font-size: 64px;
+        color: var(--success);
+        margin-bottom: 16px;
+    }
+
+    .flashcard-stats {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 16px;
+    }
+
+    .flashcard-stat {
+        text-align: center;
+    }
+
+    .flashcard-stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .flashcard-stat-label {
+        font-size: 13px;
+        color: var(--text-muted, var(--text-secondary));
+    }
+
+    /* Keyboard Hint */
+    .flashcard-keyboard-hint {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .flashcard-keyboard-hint kbd {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-family: inherit;
+        font-weight: 600;
+        color: var(--text-primary);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 5px;
+        box-shadow: 0 2px 0 var(--border-default);
+        margin: 0 2px;
+    }
+
+    /* Mobile */
+    @media (max-width: 576px) {
+        .flashcard-scene {
+            max-width: 100%;
+        }
+
+        .flashcard {
+            height: 380px;
+        }
+
+        .flashcard-face {
+            padding: 24px 20px;
+            border-radius: 12px;
+        }
+
+        .flashcard-word {
+            font-size: 26px;
+        }
+
+        .flashcard-answer {
+            font-size: 22px;
+        }
+
+        .flashcard-rating-buttons {
+            gap: 6px;
+        }
+
+        .flashcard-rating-btn {
+            padding: 10px 4px;
+        }
+
+        .flashcard-rating-label {
+            font-size: 12px;
+        }
+
+        .flashcard-rating-hint {
+            font-size: 10px;
+        }
+
+        .flashcard-audio-btn {
+            width: 64px;
+            height: 64px;
+            font-size: 24px;
+        }
+
+        .flashcard-progress-bar {
+            width: 80px;
+        }
+
+        .flashcard-type-tabs {
+            width: 100%;
+        }
+
+        .flashcard-type-tab {
+            flex: 1;
+            text-align: center;
+        }
+
+        .flashcard-header .d-flex {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .flashcard-keyboard-hint {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header / Progress -->
+<div class="flashcard-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-layer-group text-primary me-2"></i>
+                <span data-i18n="flashcards.title">Flashcards</span>
+            </h4>
+            <div class="flashcard-progress">
+                <span class="flashcard-progress-text">
+                    <span data-i18n="flashcards.card">Card</span>
+                    <span id="currentCardNum">1</span>
+                    <span data-i18n="flashcards.of">of</span>
+                    <span id="totalCards">6</span>
+                </span>
+                <div class="flashcard-progress-bar">
+                    <div class="flashcard-progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Type Tabs -->
+<div class="container mt-3">
+    <div class="flashcard-type-tabs">
+        <button class="flashcard-type-tab active" data-type="reading" id="tabReading">
+            <i class="fas fa-book-open me-1"></i>
+            <span data-i18n="flashcards.reading">Reading</span>
+        </button>
+        <button class="flashcard-type-tab" data-type="listening" id="tabListening">
+            <i class="fas fa-headphones me-1"></i>
+            <span data-i18n="flashcards.listening">Listening</span>
+        </button>
+    </div>
+</div>
+
+<!-- Flashcard -->
+<div class="container mt-4 d-flex justify-content-center">
+    <div class="flashcard-scene" id="flashcardScene">
+        <div class="flashcard" id="flashcard">
+
+            <!-- FRONT -->
+            <div class="flashcard-face flashcard-front">
+                <div class="flashcard-type-indicator" id="cardTypeIndicator">
+                    <i class="fas fa-book-open" id="cardTypeIcon"></i>
+                    <span id="cardTypeLabel" data-i18n="flashcards.reading">Reading</span>
+                </div>
+
+                <div class="flashcard-content">
+                    <div class="flashcard-word" id="frontWord"></div>
+                    <div class="flashcard-audio-prompt" id="frontAudio" style="display: none;">
+                        <button class="flashcard-audio-btn" id="playAudioBtn" type="button">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <span class="flashcard-audio-label" data-i18n="flashcards.tap_to_listen">Tap to listen</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary flashcard-flip-btn" id="flipBtn" type="button">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    <span data-i18n="flashcards.flip">Flip</span>
+                </button>
+            </div>
+
+            <!-- BACK -->
+            <div class="flashcard-face flashcard-back">
+                <div class="flashcard-type-indicator flashcard-type-indicator--back">
+                    <i class="fas fa-lightbulb"></i>
+                    <span data-i18n="flashcards.answer">Answer</span>
+                </div>
+
+                <div class="flashcard-content">
+                    <div class="flashcard-answer" id="backAnswer"></div>
+                    <div class="flashcard-context" id="backContext"></div>
+                </div>
+
+                <div class="flashcard-rating-buttons">
+                    <button class="btn flashcard-rating-btn flashcard-rating-fail" data-rating="fail" type="button">
+                        <span class="flashcard-rating-label" data-i18n="flashcards.fail">Fail</span>
+                        <span class="flashcard-rating-hint" data-i18n="flashcards.fail_hint">&lt; 1 min</span>
+                    </button>
+                    <button class="btn flashcard-rating-btn flashcard-rating-hard" data-rating="hard" type="button">
+                        <span class="flashcard-rating-label" data-i18n="flashcards.hard">Hard</span>
+                        <span class="flashcard-rating-hint" data-i18n="flashcards.hard_hint">~10 min</span>
+                    </button>
+                    <button class="btn flashcard-rating-btn flashcard-rating-good" data-rating="good" type="button">
+                        <span class="flashcard-rating-label" data-i18n="flashcards.good">Good</span>
+                        <span class="flashcard-rating-hint" data-i18n="flashcards.good_hint">~1 day</span>
+                    </button>
+                    <button class="btn flashcard-rating-btn flashcard-rating-easy" data-rating="easy" type="button">
+                        <span class="flashcard-rating-label" data-i18n="flashcards.easy">Easy</span>
+                        <span class="flashcard-rating-hint" data-i18n="flashcards.easy_hint">~4 days</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard Hints -->
+<div class="flashcard-keyboard-hint" id="keyboardHint">
+    <kbd>Space</kbd> to flip &middot; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> to rate
+</div>
+
+<!-- Session Complete -->
+<div class="container mt-4" id="sessionComplete" style="display: none;">
+    <div class="flashcard-complete-card text-center">
+        <i class="fas fa-check-circle flashcard-complete-icon"></i>
+        <h3 data-i18n="flashcards.session_complete">Session Complete!</h3>
+        <p class="text-slate-500" data-i18n="flashcards.session_summary">
+            You reviewed all cards in this session.
+        </p>
+        <div class="flashcard-stats" id="sessionStats"></div>
+        <div class="mt-4">
+            <button class="btn btn-primary" id="restartBtn" type="button">
+                <i class="fas fa-redo me-2"></i>
+                <span data-i18n="flashcards.restart">Review Again</span>
+            </button>
+            <a href="/tests" class="btn btn-secondary ms-2">
+                <i class="fas fa-arrow-left me-2"></i>
+                <span data-i18n="flashcards.back_to_tests">Back to Tests</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // Placeholder data
+    const PLACEHOLDER_CARDS = [
+        { id: 1, type: 'reading', front: 'Bonjour', back: 'Hello / Good day', context: 'Used as a greeting throughout the day.' },
+        { id: 2, type: 'reading', front: 'Merci beaucoup', back: 'Thank you very much', context: 'A polite way to express gratitude.' },
+        { id: 3, type: 'reading', front: 'Comment allez-vous?', back: 'How are you?', context: 'Formal way to ask someone how they are.' },
+        { id: 4, type: 'reading', front: "S'il vous plait", back: 'Please', context: 'Formal/polite form of please.' },
+        { id: 5, type: 'reading', front: 'Au revoir', back: 'Goodbye', context: 'Standard farewell used in most situations.' },
+        { id: 6, type: 'reading', front: 'Excusez-moi', back: 'Excuse me', context: 'Used to get attention or apologize.' },
+        { id: 7, type: 'listening', front: null, back: 'Bonjour', context: 'Hello / Good day - a common greeting.' },
+        { id: 8, type: 'listening', front: null, back: 'Je ne comprends pas', context: "I don't understand - useful when confused." },
+        { id: 9, type: 'listening', front: null, back: "Ou est la gare?", context: 'Where is the train station?' },
+        { id: 10, type: 'listening', front: null, back: "Je voudrais un cafe", context: 'I would like a coffee - ordering at a cafe.' },
+    ];
+
+    // State
+    const state = {
+        allCards: PLACEHOLDER_CARDS,
+        filteredCards: [],
+        currentIndex: 0,
+        currentType: 'reading',
+        isFlipped: false,
+        ratings: {}
+    };
+
+    // DOM refs
+    const els = {
+        flashcard: document.getElementById('flashcard'),
+        scene: document.getElementById('flashcardScene'),
+        frontWord: document.getElementById('frontWord'),
+        frontAudio: document.getElementById('frontAudio'),
+        backAnswer: document.getElementById('backAnswer'),
+        backContext: document.getElementById('backContext'),
+        cardTypeIcon: document.getElementById('cardTypeIcon'),
+        cardTypeLabel: document.getElementById('cardTypeLabel'),
+        currentCardNum: document.getElementById('currentCardNum'),
+        totalCards: document.getElementById('totalCards'),
+        progressFill: document.getElementById('progressFill'),
+        sessionComplete: document.getElementById('sessionComplete'),
+        sessionStats: document.getElementById('sessionStats'),
+        keyboardHint: document.getElementById('keyboardHint'),
+        flipBtn: document.getElementById('flipBtn'),
+        playAudioBtn: document.getElementById('playAudioBtn'),
+        restartBtn: document.getElementById('restartBtn'),
+        tabReading: document.getElementById('tabReading'),
+        tabListening: document.getElementById('tabListening')
+    };
+
+    function filterCards(type) {
+        state.currentType = type;
+        state.filteredCards = state.allCards.filter(c => c.type === type);
+        state.currentIndex = 0;
+        state.isFlipped = false;
+        state.ratings = {};
+
+        // Update tabs
+        els.tabReading.classList.toggle('active', type === 'reading');
+        els.tabListening.classList.toggle('active', type === 'listening');
+
+        // Show card area, hide complete
+        els.scene.style.display = '';
+        els.keyboardHint.style.display = '';
+        els.sessionComplete.style.display = 'none';
+
+        renderCard();
+    }
+
+    function renderCard() {
+        if (state.currentIndex >= state.filteredCards.length) {
+            showSessionComplete();
+            return;
+        }
+
+        const card = state.filteredCards[state.currentIndex];
+
+        // Reset flip
+        state.isFlipped = false;
+        els.flashcard.classList.remove('is-flipped');
+
+        // Front content
+        if (card.type === 'reading') {
+            els.frontWord.textContent = card.front;
+            els.frontWord.style.display = '';
+            els.frontAudio.style.display = 'none';
+            els.cardTypeIcon.className = 'fas fa-book-open';
+            els.cardTypeLabel.textContent = 'Reading';
+        } else {
+            els.frontWord.style.display = 'none';
+            els.frontAudio.style.display = '';
+            els.cardTypeIcon.className = 'fas fa-headphones';
+            els.cardTypeLabel.textContent = 'Listening';
+        }
+
+        // Back content
+        els.backAnswer.textContent = card.back;
+        els.backContext.textContent = card.context || '';
+
+        // Progress
+        els.currentCardNum.textContent = state.currentIndex + 1;
+        els.totalCards.textContent = state.filteredCards.length;
+        els.progressFill.style.width = ((state.currentIndex + 1) / state.filteredCards.length * 100) + '%';
+    }
+
+    function flipCard() {
+        state.isFlipped = !state.isFlipped;
+        els.flashcard.classList.toggle('is-flipped', state.isFlipped);
+    }
+
+    function rateCard(rating) {
+        const card = state.filteredCards[state.currentIndex];
+        state.ratings[card.id] = rating;
+
+        // Slide out animation
+        els.flashcard.classList.add('flashcard-exit');
+
+        setTimeout(function() {
+            state.currentIndex++;
+            state.isFlipped = false;
+            els.flashcard.classList.remove('is-flipped', 'flashcard-exit');
+
+            if (state.currentIndex >= state.filteredCards.length) {
+                showSessionComplete();
+            } else {
+                renderCard();
+                els.flashcard.classList.add('flashcard-enter');
+                setTimeout(function() {
+                    els.flashcard.classList.remove('flashcard-enter');
+                }, 300);
+            }
+        }, 300);
+    }
+
+    function showSessionComplete() {
+        els.scene.style.display = 'none';
+        els.keyboardHint.style.display = 'none';
+        els.sessionComplete.style.display = 'block';
+
+        const counts = { fail: 0, hard: 0, good: 0, easy: 0 };
+        Object.values(state.ratings).forEach(function(r) { counts[r]++; });
+
+        els.sessionStats.innerHTML =
+            '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--danger)">' + counts.fail + '</div><div class="flashcard-stat-label">Fail</div></div>' +
+            '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--warning)">' + counts.hard + '</div><div class="flashcard-stat-label">Hard</div></div>' +
+            '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--success)">' + counts.good + '</div><div class="flashcard-stat-label">Good</div></div>' +
+            '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--primary)">' + counts.easy + '</div><div class="flashcard-stat-label">Easy</div></div>';
+    }
+
+    // Event listeners
+    els.flashcard.addEventListener('click', function(e) {
+        // Don't flip if clicking rating buttons or audio button
+        if (e.target.closest('.flashcard-rating-btn') || e.target.closest('.flashcard-audio-btn')) return;
+        if (!state.isFlipped) {
+            flipCard();
+        }
+    });
+
+    els.flipBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!state.isFlipped) flipCard();
+    });
+
+    // Rating buttons
+    document.querySelectorAll('.flashcard-rating-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            rateCard(this.dataset.rating);
+        });
+    });
+
+    // Audio button
+    els.playAudioBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.style.animation = 'pulse 0.6s ease';
+        var self = this;
+        setTimeout(function() { self.style.animation = ''; }, 600);
+    });
+
+    // Type tabs
+    els.tabReading.addEventListener('click', function() { filterCards('reading'); });
+    els.tabListening.addEventListener('click', function() { filterCards('listening'); });
+
+    // Restart
+    els.restartBtn.addEventListener('click', function() {
+        filterCards(state.currentType);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (els.sessionComplete.style.display !== 'none') return;
+
+        if (e.code === 'Space' || e.code === 'Enter') {
+            e.preventDefault();
+            if (!state.isFlipped) flipCard();
+        }
+
+        if (state.isFlipped) {
+            if (e.code === 'Digit1') rateCard('fail');
+            if (e.code === 'Digit2') rateCard('hard');
+            if (e.code === 'Digit3') rateCard('good');
+            if (e.code === 'Digit4') rateCard('easy');
+        }
+    });
+
+    // Init
+    filterCards('reading');
+})();
+</script>
+{% endblock %}

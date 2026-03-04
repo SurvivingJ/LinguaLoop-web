@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Trainer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:100vh;color:#fff}
+.container{max-width:900px;margin:0 auto;padding:20px;position:relative}
+h1{text-align:center;margin-bottom:20px;font-size:2em;background:linear-gradient(90deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{text-align:center;color:#a0aec0;font-size:1.1em;margin-bottom:20px}
+.home-buttons{display:grid;grid-template-columns:1fr 1fr;gap:15px;max-width:500px;margin:30px auto}
+.btn{padding:16px 28px;font-size:1em;border:none;border-radius:12px;cursor:pointer;transition:all .3s;font-weight:600}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(102,126,234,.4)}
+.btn-secondary{background:#2d3748;color:#fff}
+.btn-secondary:hover{background:#4a5568}
+.btn-danger{background:#e53e3e;color:#fff}
+.btn-danger:hover{background:#c53030}
+.btn-success{background:#38a169;color:#fff}
+.btn-sm{padding:10px 20px;font-size:.9em}
+.btn-toggle{padding:8px 16px;font-size:.85em;border-radius:8px}
+.btn-toggle.on{background:#48bb78}
+.btn-toggle.off{background:#718096}
+.back-btn{position:absolute;top:20px;left:20px;z-index:10}
+.controls{background:#2d3748;border-radius:16px;padding:20px;margin-bottom:15px}
+.control-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.control-row:last-child{margin-bottom:0}
+label{font-weight:500;color:#a0aec0;font-size:.9em}
+input[type=number],input[type=range]{padding:8px;border:2px solid #4a5568;border-radius:8px;background:#1a202c;color:#fff;font-size:1em}
+input[type=number]{width:70px;text-align:center}
+input[type=range]{width:150px;padding:0}
+input[type=number]:focus{outline:none;border-color:#667eea}
+select{padding:8px 12px;border:2px solid #4a5568;border-radius:8px;background:#1a202c;color:#fff;font-size:.9em}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-btn{padding:8px 14px;border:2px solid #4a5568;border-radius:8px;cursor:pointer;transition:all .2s;background:#1a202c;font-size:.9em}
+.radio-btn.selected{border-color:#667eea;background:rgba(102,126,234,.2)}
+.display-area{background:#1a202c;border-radius:16px;padding:30px;text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.instruction-text{font-size:1.5em;font-weight:700;margin-bottom:15px;line-height:1.4}
+.instruction-text .up{color:#48bb78}
+.instruction-text .down{color:#f56565}
+.instruction-text .motion{color:#a0aec0;font-size:.6em;display:block;margin-top:8px}
+.instruction-text .warning{color:#ecc94b;font-size:.55em;display:block;margin-top:6px;animation:pulse-warn .5s infinite}
+.stats-row{display:flex;justify-content:center;gap:30px;margin-top:15px;color:#a0aec0}
+.stat{text-align:center}
+.stat-value{font-size:1.3em;font-weight:700;color:#fff}
+.stat-label{font-size:.8em}
+.beat-indicator{width:18px;height:18px;border-radius:50%;background:#4a5568;transition:all .1s;margin:8px auto}
+.beat-indicator.pulse{background:#667eea;transform:scale(1.3);box-shadow:0 0 20px rgba(102,126,234,.6)}
+.split-container{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.metronome-side{background:#2d3748;border-radius:16px;padding:15px;text-align:center}
+.metronome-side h3{margin-bottom:12px;color:#a0aec0;font-size:1em}
+.visual-indicator{width:70px;height:70px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:700;background:#4a5568;transition:all .05s}
+.visual-indicator.a0{background:#667eea;transform:scale(1.1)}
+.visual-indicator.a1{background:#805ad5;transform:scale(1.05)}
+.visual-indicator.a2{background:#9f7aea}
+.toggle-row{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.action-buttons{display:flex;justify-content:center;gap:12px;margin-top:15px;flex-wrap:wrap}
+.canvas-container{background:#1a202c;border-radius:16px;overflow:hidden;margin-bottom:15px}
+.side-display{display:flex;align-items:center;gap:15px}
+.side-label{color:#a0aec0;font-size:1em}
+.side-label strong{color:#667eea;font-size:1.3em}
+canvas{display:block;width:100%;height:350px}
+.warning-overlay{background:rgba(236,201,75,.95);color:#1a202c;padding:10px 20px;border-radius:10px;font-size:1.1em;font-weight:700;animation:pulse-warn .3s ease-in-out;margin-bottom:15px;display:none}
+.tempo-display{font-size:2em;font-weight:700;color:#667eea}
+.ramp-progress{width:100%;height:8px;background:#4a5568;border-radius:4px;margin-top:10px;overflow:hidden}
+.ramp-progress-bar{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);transition:width .3s}
+.preset-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* Keyboard styles */
+.keyboard-container{background:#1a202c;border-radius:12px;padding:15px;margin:15px 0}
+.mini-container{padding:10px}
+.keyboard{display:flex;position:relative;height:120px;justify-content:center}
+.keyboard.mini{height:80px}
+.key{position:relative;border-radius:0 0 5px 5px;transition:all .15s}
+.key.white{width:32px;height:120px;background:linear-gradient(180deg,#f7f7f7,#e8e8e8);border:1px solid #ccc;margin:0 1px;z-index:1}
+.key.black{width:22px;height:75px;background:linear-gradient(180deg,#333,#111);margin:0 -11px;z-index:2;border-radius:0 0 4px 4px}
+.keyboard.mini .key.white{width:24px;height:80px}
+.keyboard.mini .key.black{width:16px;height:50px;margin:0 -8px}
+.key.highlighted{background:linear-gradient(180deg,#667eea,#5a67d8)!important}
+.key.highlighted.black{background:linear-gradient(180deg,#5a67d8,#4c51bf)!important}
+.key.root{background:linear-gradient(180deg,#ecc94b,#d69e2e)!important}
+.key.active{background:linear-gradient(180deg,#48bb78,#38a169)!important;transform:scale(1.05);box-shadow:0 0 15px rgba(72,187,120,.6)}
+.key.in-pattern{background:linear-gradient(180deg,#a0aec0,#718096)!important}
+.key .dot{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:10px;height:10px;background:#fff;border-radius:50%;box-shadow:0 0 5px rgba(0,0,0,.3)}
+.key .dot.root-dot{background:#1a202c;width:12px;height:12px}
+/* Improv display styles */
+.improv-main{background:#2d3748;border-radius:16px;padding:20px;margin-bottom:15px}
+.scale-display{text-align:center;margin-bottom:10px}
+.scale-name{font-size:2.2em;font-weight:700;background:linear-gradient(90deg,#667eea,#ecc94b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pattern-section{margin-top:20px;padding-top:20px;border-top:1px solid #4a5568}
+.pattern-header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.pattern-label{color:#a0aec0;font-size:.9em}
+.pattern-name{font-size:1.4em;font-weight:700;color:#ecc94b}
+.pattern-desc{text-align:center;color:#a0aec0;font-size:.85em;margin-bottom:10px}
+/* Guitar fretboard styles */
+.fretboard-container{background:#1a202c;border-radius:12px;padding:15px;margin:15px 0;overflow-x:auto}
+.fretboard{display:flex;flex-direction:column;min-width:600px}
+.guitar-string{display:flex;align-items:center;height:28px;position:relative}
+.string-label{width:30px;font-weight:700;color:#a0aec0;font-size:.9em;text-align:center}
+.frets-container{display:flex;flex:1;position:relative;background:linear-gradient(180deg,#8B4513,#654321);border-radius:4px}
+.fret{width:45px;height:100%;border-right:3px solid #c0c0c0;position:relative;display:flex;align-items:center;justify-content:center}
+.fret:first-child{border-left:6px solid #f5f5dc;background:rgba(0,0,0,.2)}
+.fret-number{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:.7em;color:#718096}
+.fret-dot{width:20px;height:20px;border-radius:50%;background:#667eea;display:none;font-size:.75em;font-weight:700;color:#fff;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(102,126,234,.5)}
+.fret-dot.visible{display:flex}
+.fret-dot.root{background:#ecc94b;box-shadow:0 0 10px rgba(236,201,75,.5)}
+.fret-dot.active{background:#48bb78;transform:scale(1.2);box-shadow:0 0 15px rgba(72,187,120,.7)}
+.string-line{position:absolute;top:50%;left:0;right:0;height:2px;background:linear-gradient(90deg,#d4a574,#c0a080);pointer-events:none}
+.guitar-string:nth-child(1) .string-line{height:1px}
+.guitar-string:nth-child(2) .string-line{height:1px}
+.guitar-string:nth-child(5) .string-line{height:3px}
+.guitar-string:nth-child(6) .string-line{height:4px}
+.fret-markers{display:flex;padding-left:30px}
+.fret-marker{width:45px;text-align:center;font-size:.7em;color:#718096}
+.fret-marker.inlay{color:#a0aec0}
+/* Tab display styles */
+.tab-container{background:#1a202c;border-radius:12px;padding:15px;margin:15px 0;font-family:'Courier New',monospace}
+.tab-display{display:flex;flex-direction:column;gap:2px}
+.tab-line{display:flex;align-items:center}
+.tab-string-label{width:20px;font-weight:700;color:#a0aec0}
+.tab-content{display:flex;color:#667eea;letter-spacing:2px}
+.tab-note{width:24px;text-align:center}
+.tab-note.active{color:#48bb78;font-weight:700}
+.tab-note.root{color:#ecc94b}
+.instrument-toggle{display:flex;gap:10px;justify-content:center;margin-bottom:15px}
+.btn-large{padding:20px 50px;font-size:1.3em}
+.hint{text-align:center;color:#718096;font-size:.85em;margin-top:15px}
+kbd{background:#4a5568;padding:3px 8px;border-radius:4px;font-family:monospace}
+/* Ghost Metronome styles */
+.ghost-canvas-container{background:#1a202c;border-radius:16px;overflow:hidden;margin-bottom:15px;position:relative;transition:background-color .5s}
+.ghost-canvas-container.ghost-phase{background:#1a365d}
+.ghost-canvas{display:block;width:100%;height:300px}
+.cycle-display{text-align:center;padding:15px;background:#2d3748;border-radius:12px;margin-bottom:15px}
+.cycle-status{font-size:1.4em;font-weight:700;color:#fff}
+.cycle-status.active{color:#48bb78}
+.cycle-status.ghost{color:#667eea}
+.phase-badge{display:inline-block;padding:5px 15px;border-radius:20px;font-size:.85em;font-weight:600;margin-left:10px}
+.phase-badge.active{background:#48bb78;color:#1a202c}
+.phase-badge.ghost{background:#667eea;color:#fff}
+.progress-ring-container{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .3s}
+.progress-ring-container.visible{opacity:1}
+.progress-ring{transform:rotate(-90deg)}
+.progress-ring-bg{fill:none;stroke:#4a5568;stroke-width:8}
+.progress-ring-fill{fill:none;stroke:#667eea;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .1s}
+.ghost-info{text-align:center;color:#a0aec0;font-size:.9em;margin-top:10px}
+@media(max-width:600px){.split-container,.home-buttons{grid-template-columns:1fr}.instruction-text{font-size:1.2em}h1{font-size:1.5em}canvas{height:300px}.key.white{width:20px;height:90px}.key.black{width:14px;height:55px;margin:0 -7px}.keyboard{height:90px}.keyboard.mini{height:60px}.keyboard.mini .key.white{width:16px;height:60px}.keyboard.mini .key.black{width:10px;height:38px;margin:0 -5px}.scale-name{font-size:1.6em}.ghost-canvas{height:250px}}
+@keyframes pulse-warn{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+// ===== GLOBAL STATE =====
+const appState={currentMode:'home',isSessionActive:false,masterVolume:0.5};
+
+const audioState={context:null,masterGain:null,nextNoteTime:0,scheduleAheadTime:0.1,lookahead:25,schedulerTimerId:null};
+
+const directionTrainerState={tempo:60,noteRange:8,motionType:'similar',isRunning:false,elapsedTime:0,currentBeat:0,lastInstructionBeat:-1,nextInstructionBeat:0,leftHandPosition:1,rightHandPosition:1,currentMotion:'similar',lastBeatPlayed:-1,currentInstruction:null,notesSinceChange:0,pendingChange:null,warningBeat:-1};
+
+const splitMetronomeState={tempoLeft:60,tempoRight:60,isRunning:false,visualEnabledLeft:true,audioEnabledLeft:true,visualEnabledRight:true,audioEnabledRight:true,elapsedTime:0,lastSubLeft:-1,lastSubRight:-1};
+
+const polyrhythmState={tempo:90,ratioLeft:3,ratioRight:2,isRunning:false,cycleStartTime:0,toneFreqLeft:880,toneFreqRight:520,accentFreq:1100,lastCycle:-1};
+
+const canvasState={canvas:null,ctx:null,width:0,height:0,hitLineY:0,scrollSpeed:200,noteRadius:12,laneLeftX:0,laneRightX:0,notes:[],animationFrameId:null,lastTimestamp:0};
+
+const swingState={tempo:100,swingPercentage:50,swingStyle:'straight',isRunning:false,currentBeat:0,beatsPerMeasure:4,lastBeatTime:0,lastSubdivision:-1};
+
+const tempoRampState={startTempo:80,currentTempo:80,maxTempo:160,bpmIncrement:5,rampIntervalSeconds:30,isRunning:false,isWarningActive:false,elapsedSinceLastRamp:0,currentBeat:0,warningTriggeredAtBeat:-1,dropAmount:10,lastBeatTime:0,warningShownAt:0};
+
+const presetsState={presets:[],activePresetId:null};
+
+// Jazz Improv Generator State
+const promptState={currentKey:'C',currentScaleType:'Major',currentPattern:'Block Chords',scaleNotes:[],patternSequence:[],instrument:'piano'};
+const lockState={keyLocked:false,scaleLocked:false,patternLocked:false};
+const settingsState={complexityMode:'beginner',matchVibeEnabled:false,animationSpeed:350};
+const patternAnimationState={isPlaying:false,currentStepIndex:0,animationIntervalId:null,loopCount:0};
+const keyboardDisplayState={startOctave:4,highlightedKeys:[],activePatternKey:null};
+
+// Guitar Data - Standard tuning E A D G B E (low to high)
+const GUITAR_STRINGS=[40,45,50,55,59,64]; // MIDI notes for open strings (E2,A2,D3,G3,B3,E4)
+const GUITAR_FRETS=15; // Number of frets to display
+const GUITAR_PATTERNS={
+  'Fingerpicking':{sequence:[6,3,2,3,1,3,2,3],desc:'Travis picking pattern (bass alternates)',vibe:['folk','country']},
+  'Arpeggio Up':{sequence:[6,5,4,3,2,1],desc:'Low to high string sweep',vibe:['all']},
+  'Arpeggio Down':{sequence:[1,2,3,4,5,6],desc:'High to low string sweep',vibe:['all']},
+  'Block Strum':{sequence:[[6,5,4,3,2,1]],desc:'All strings together',vibe:['all']},
+  'Bass-Strum':{sequence:[6,[4,3,2,1],5,[4,3,2,1]],desc:'Alternating bass with chord strum',vibe:['folk','country']},
+  'Clawhammer':{sequence:[[3,2,1],4,[3,2,1],5],desc:'Banjo-style pattern',vibe:['folk','country']},
+  'Bossa Nova':{sequence:[6,3,2,1,2,3],desc:'Brazilian rhythm pattern',vibe:['latin','jazz']},
+  'Tremolo':{sequence:[1,1,1,1],desc:'Rapid single string',vibe:['classical','dramatic']},
+  'Walking Bass':{sequence:[6,5,6,4],desc:'Jazz walking bass on low strings',vibe:['jazz','swing']}
+};
+
+// Ghost Metronome State
+const ghostMetronomeState={tempo:100,beatsPerBar:4,activeBars:4,ghostBars:2,isRunning:false,currentPhase:'active',currentBar:1,currentBeat:1,cycleCount:0,elapsedTime:0,phaseStartTime:0,lastBeatTime:0,ghostProgress:0};
+const ghostVisualState={backgroundColor:'#1a202c',activeColor:'#1a202c',ghostColor:'#1a365d',noteOpacity:1,isFadingOut:false,isFadingIn:false,fadeProgress:0,progressRingPercent:0};
+const ghostAudioState={isMuted:false,accentFrequency:1000,normalFrequency:700,clickDuration:50};
+const ghostCanvasState={canvas:null,ctx:null,width:0,height:0,hitLineY:0,scrollSpeed:200,notes:[],animationFrameId:null,lastTimestamp:0};
+
+// Music Data
+const CHROMATIC_KEYS=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const SCALE_DEFINITIONS={
+  'Major':[0,2,4,5,7,9,11],'Natural Minor':[0,2,3,5,7,8,10],'Dorian':[0,2,3,5,7,9,10],
+  'Phrygian':[0,1,3,5,7,8,10],'Lydian':[0,2,4,6,7,9,11],'Mixolydian':[0,2,4,5,7,9,10],
+  'Locrian':[0,1,3,5,6,8,10],'Harmonic Minor':[0,2,3,5,7,8,11],'Melodic Minor':[0,2,3,5,7,9,11],
+  'Jazz Minor':[0,2,3,5,7,9,11],'Lydian Dominant':[0,2,4,6,7,9,10],'Altered':[0,1,3,4,6,8,10],
+  'Phrygian Dominant':[0,1,4,5,7,8,10],'Dominant Bebop':[0,2,4,5,7,9,10,11],'Whole Tone':[0,2,4,6,8,10],
+  'Diminished HW':[0,1,3,4,6,7,9,10],'Pentatonic Major':[0,2,4,7,9],'Pentatonic Minor':[0,3,5,7,10],
+  'Blues':[0,3,5,6,7,10],'Arabic':[0,1,4,5,7,8,11],'Persian':[0,1,4,5,6,8,11],
+  'Byzantine':[0,1,4,5,7,8,11],'Hirajoshi':[0,2,3,7,8],'Insen':[0,1,5,7,10],
+  'Hungarian Minor':[0,2,3,6,7,8,11],'Romanian Minor':[0,2,3,6,7,9,10],'Egyptian':[0,2,5,7,10]
+};
+const SCALE_CATEGORIES={
+  beginner:['Major','Natural Minor'],
+  jazz:['Dorian','Lydian','Mixolydian','Altered','Jazz Minor','Lydian Dominant','Whole Tone','Diminished HW','Phrygian Dominant'],
+  exotic:['Arabic','Hirajoshi','Hungarian Minor','Persian','Byzantine','Romanian Minor','Egyptian','Insen'],
+  common:['Major','Natural Minor','Harmonic Minor','Melodic Minor','Pentatonic Major','Pentatonic Minor','Blues']
+};
+const PATTERN_DEFINITIONS={
+  'Block Chords':{sequence:[[1,3,5]],desc:'All chord tones simultaneously',vibe:['all']},
+  'Alberti Bass':{sequence:[1,5,3,5],desc:'Root-fifth-third-fifth pattern',vibe:['classical','beginner']},
+  'Walking Bass':{sequence:[1,2,3,5],desc:'Stepwise ascending movement',vibe:['jazz','swing']},
+  'Stride':{sequence:[1,[3,5,8]],desc:'Low bass then mid-range chord',vibe:['jazz','ragtime']},
+  'Bossa Nova':{sequence:[1,5,8,5,1,5,3,5],desc:'Syncopated Latin rhythm',vibe:['latin','jazz']},
+  'Waltz':{sequence:[1,[3,5],[3,5]],desc:'Classic 3/4 oom-pah-pah',vibe:['classical','romantic']},
+  'Broken Octaves':{sequence:[1,8,1,8],desc:'Alternating root and octave',vibe:['dramatic','classical']},
+  'Arpeggio Up':{sequence:[1,3,5,8],desc:'Rising broken chord',vibe:['all']},
+  'Arpeggio Down':{sequence:[8,5,3,1],desc:'Falling broken chord',vibe:['all']},
+  'Tremolo':{sequence:[1,5,1,5,1,5],desc:'Rapid two-note alternation',vibe:['dramatic','romantic']},
+  'Shell Voicings':{sequence:[[1,3,7]],desc:'Root, third, seventh only',vibe:['jazz']}
+};
+const VIBE_SCALE_MAP={
+  jazz:['Dorian','Mixolydian','Lydian','Jazz Minor','Altered','Blues'],
+  latin:['Dorian','Phrygian','Phrygian Dominant','Natural Minor'],
+  classical:['Major','Natural Minor','Harmonic Minor'],
+  beginner:['Major','Natural Minor','Pentatonic Major','Pentatonic Minor'],
+  exotic:['Hirajoshi','Arabic','Persian','Hungarian Minor','Byzantine'],
+  dramatic:['Harmonic Minor','Phrygian','Locrian','Hungarian Minor'],
+  romantic:['Major','Lydian','Natural Minor','Melodic Minor'],
+  swing:['Mixolydian','Dorian','Blues','Dominant Bebop'],
+  ragtime:['Major','Mixolydian','Blues'],
+  all:null
+};
+
+let startTime=0,animationFrameId=null;
+
+// ===== UTILITY FUNCTIONS =====
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const getRandomInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+const getRandomElement=arr=>arr[Math.floor(Math.random()*arr.length)];
+const formatTime=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+const getBeatDurationMs=tempo=>60000/tempo;
+const getBeatDurationSec=tempo=>60/tempo;
+const calculateCurrentBeat=(elapsedMs,tempo)=>Math.floor(elapsedMs/getBeatDurationMs(tempo));
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const lcm=(a,b)=>a*b/gcd(a,b);
+const generateId=()=>'_'+Math.random().toString(36).substr(2,9);
+
+// ===== AUDIO FUNCTIONS =====
+function initializeAudioContext(){
+  if(!audioState.context)audioState.context=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioState.context.state==='suspended')audioState.context.resume();
+  if(!audioState.masterGain){
+    audioState.masterGain=audioState.context.createGain();
+    audioState.masterGain.gain.value=appState.masterVolume;
+    audioState.masterGain.connect(audioState.context.destination);
+  }
+}
+
+function scheduleNote(time,frequency,duration=0.05,isAccent=false){
+  if(!audioState.context)return;
+  const osc=audioState.context.createOscillator();
+  const gain=audioState.context.createGain();
+  osc.connect(gain);
+  gain.connect(audioState.masterGain);
+  osc.frequency.value=frequency;
+  osc.type='sine';
+  const vol=isAccent?0.4:0.25;
+  gain.gain.setValueAtTime(vol,time);
+  gain.gain.exponentialRampToValueAtTime(0.001,time+duration);
+  osc.start(time);
+  osc.stop(time+duration);
+}
+
+function scheduleChirp(time){
+  if(!audioState.context)return;
+  const osc=audioState.context.createOscillator();
+  const gain=audioState.context.createGain();
+  osc.connect(gain);
+  gain.connect(audioState.masterGain);
+  osc.frequency.setValueAtTime(1200,time);
+  osc.frequency.exponentialRampToValueAtTime(600,time+0.15);
+  osc.type='sine';
+  gain.gain.setValueAtTime(0.3,time);
+  gain.gain.exponentialRampToValueAtTime(0.001,time+0.15);
+  osc.start(time);
+  osc.stop(time+0.15);
+}
+
+function playClick(duration=50,frequency=800){
+  if(!audioState.context)return;
+  scheduleNote(audioState.context.currentTime,frequency,duration/1000,frequency>700);
+}
+
+function speakInstruction(text){
+  if('speechSynthesis'in window){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=1.2;
+    speechSynthesis.speak(u);
+  }
+}
+
+function stopAllAudio(){
+  if('speechSynthesis'in window)speechSynthesis.cancel();
+  if(audioState.schedulerTimerId){
+    clearInterval(audioState.schedulerTimerId);
+    audioState.schedulerTimerId=null;
+  }
+}
+
+// ===== CANVAS FUNCTIONS =====
+function initializeCanvas(){
+  canvasState.canvas=document.getElementById('rhythmCanvas');
+  if(!canvasState.canvas)return;
+  canvasState.ctx=canvasState.canvas.getContext('2d');
+  resizeCanvas();
+}
+
+function resizeCanvas(){
+  if(!canvasState.canvas)return;
+  const rect=canvasState.canvas.getBoundingClientRect();
+  canvasState.canvas.width=rect.width*window.devicePixelRatio;
+  canvasState.canvas.height=rect.height*window.devicePixelRatio;
+  canvasState.ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  canvasState.width=rect.width;
+  canvasState.height=rect.height;
+  canvasState.hitLineY=canvasState.height-40;
+  canvasState.laneLeftX=canvasState.width*0.35;
+  canvasState.laneRightX=canvasState.width*0.65;
+}
+
+function clearCanvas(){
+  if(!canvasState.ctx)return;
+  canvasState.ctx.fillStyle='#1a202c';
+  canvasState.ctx.fillRect(0,0,canvasState.width,canvasState.height);
+}
+
+function drawLanes(){
+  const ctx=canvasState.ctx;
+  if(!ctx)return;
+  ctx.strokeStyle='#4a5568';
+  ctx.lineWidth=2;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  ctx.moveTo(canvasState.laneLeftX,0);
+  ctx.lineTo(canvasState.laneLeftX,canvasState.height);
+  ctx.moveTo(canvasState.laneRightX,0);
+  ctx.lineTo(canvasState.laneRightX,canvasState.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Lane labels
+  ctx.fillStyle='#a0aec0';
+  ctx.font='bold 14px system-ui';
+  ctx.textAlign='center';
+  ctx.fillText(polyrhythmState.ratioLeft.toString(),canvasState.laneLeftX,20);
+  ctx.fillText(polyrhythmState.ratioRight.toString(),canvasState.laneRightX,20);
+}
+
+function drawHitLine(isAligned=false){
+  const ctx=canvasState.ctx;
+  if(!ctx)return;
+  ctx.strokeStyle=isAligned?'#ecc94b':'#667eea';
+  ctx.lineWidth=isAligned?4:3;
+  ctx.shadowColor=isAligned?'#ecc94b':'#667eea';
+  ctx.shadowBlur=isAligned?15:8;
+  ctx.beginPath();
+  ctx.moveTo(0,canvasState.hitLineY);
+  ctx.lineTo(canvasState.width,canvasState.hitLineY);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+}
+
+function drawNote(note){
+  const ctx=canvasState.ctx;
+  if(!ctx)return;
+  const x=note.lane==='left'?canvasState.laneLeftX:canvasState.laneRightX;
+  let color=note.lane==='left'?'#667eea':'#9f7aea';
+  if(note.isAccent)color='#ecc94b';
+  if(note.isAligned)color='#48bb78';
+  ctx.beginPath();
+  ctx.arc(x,note.y,canvasState.noteRadius,0,Math.PI*2);
+  ctx.fillStyle=color;
+  ctx.fill();
+  if(note.isAccent||note.isAligned){
+    ctx.shadowColor=color;
+    ctx.shadowBlur=10;
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+}
+
+function drawWarningOverlay(message){
+  const ctx=canvasState.ctx;
+  if(!ctx)return;
+  ctx.fillStyle='rgba(236,201,75,0.9)';
+  const w=250,h=50;
+  const x=(canvasState.width-w)/2,y=(canvasState.height-h)/2;
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,10);
+  ctx.fill();
+  ctx.fillStyle='#1a202c';
+  ctx.font='bold 18px system-ui';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(message,canvasState.width/2,canvasState.height/2);
+}
+
+function calculateScrollSpeed(tempo){
+  return tempo*2.5;
+}
+
+// ===== POLYRHYTHM FUNCTIONS =====
+function getAlignedBeats(){
+  const l=polyrhythmState.ratioLeft,r=polyrhythmState.ratioRight;
+  const aligned=[];
+  const cycle=lcm(l,r);
+  for(let i=0;i<l;i++){
+    const posL=i/l;
+    for(let j=0;j<r;j++){
+      const posR=j/r;
+      if(Math.abs(posL-posR)<0.001)aligned.push({left:i,right:j,pos:posL});
+    }
+  }
+  return aligned;
+}
+
+function spawnPolyrhythmNotes(){
+  const l=polyrhythmState.ratioLeft,r=polyrhythmState.ratioRight;
+  const cycleDurMs=getBeatDurationMs(polyrhythmState.tempo)*Math.max(l,r);
+  const pxPerMs=canvasState.scrollSpeed/1000;
+  const aligned=getAlignedBeats();
+  const alignedLeft=new Set(aligned.map(a=>a.left));
+  const alignedRight=new Set(aligned.map(a=>a.right));
+  
+  // Left lane: l beats spread across the cycle
+  for(let i=0;i<l;i++){
+    const timeOffset=(i/l)*cycleDurMs;
+    const yOffset=timeOffset*pxPerMs;
+    canvasState.notes.push({
+      lane:'left',beatIndex:i,y:-canvasState.noteRadius-yOffset,
+      spawnTime:performance.now(),
+      isAccent:i===0,isAligned:alignedLeft.has(i)
+    });
+  }
+  // Right lane: r beats spread across the cycle
+  for(let i=0;i<r;i++){
+    const timeOffset=(i/r)*cycleDurMs;
+    const yOffset=timeOffset*pxPerMs;
+    canvasState.notes.push({
+      lane:'right',beatIndex:i,y:-canvasState.noteRadius-yOffset,
+      spawnTime:performance.now(),
+      isAccent:i===0,isAligned:alignedRight.has(i)
+    });
+  }
+}
+
+function startPolyrhythm(){
+  if(polyrhythmState.isRunning)return;
+  initializeAudioContext();
+  polyrhythmState.isRunning=true;
+  polyrhythmState.lastCycle=-1;
+  canvasState.notes=[];
+  canvasState.scrollSpeed=calculateScrollSpeed(polyrhythmState.tempo);
+  appState.isSessionActive=true;
+  appState.currentMode='polyrhythm';
+  startTime=performance.now();
+  canvasState.lastTimestamp=startTime;
+  startPolyrhythmScheduler();
+  polyrhythmAnimationLoop(startTime);
+}
+
+function stopPolyrhythm(){
+  polyrhythmState.isRunning=false;
+  appState.isSessionActive=false;
+  stopAllAudio();
+  canvasState.notes=[];
+  if(canvasState.animationFrameId)cancelAnimationFrame(canvasState.animationFrameId);
+}
+
+function startPolyrhythmScheduler(){
+  const ctx=audioState.context;
+  if(!ctx)return;
+  const l=polyrhythmState.ratioLeft,r=polyrhythmState.ratioRight;
+  const beatDur=getBeatDurationSec(polyrhythmState.tempo);
+  const cycleDur=beatDur*Math.max(l,r);
+  
+  audioState.nextNoteTime=ctx.currentTime;
+  
+  function schedule(){
+    if(!polyrhythmState.isRunning)return;
+    while(audioState.nextNoteTime<ctx.currentTime+audioState.scheduleAheadTime){
+      const cycleStart=audioState.nextNoteTime;
+      // Schedule left lane: l notes spread evenly across cycle
+      for(let i=0;i<l;i++){
+        const t=cycleStart+(i/l)*cycleDur;
+        scheduleNote(t,i===0?polyrhythmState.accentFreq:polyrhythmState.toneFreqLeft,0.06,i===0);
+      }
+      // Schedule right lane: r notes spread evenly across cycle
+      for(let i=0;i<r;i++){
+        const t=cycleStart+(i/r)*cycleDur;
+        scheduleNote(t,i===0?polyrhythmState.accentFreq:polyrhythmState.toneFreqRight,0.06,i===0);
+      }
+      audioState.nextNoteTime+=cycleDur;
+    }
+  }
+  audioState.schedulerTimerId=setInterval(schedule,audioState.lookahead);
+}
+
+function polyrhythmAnimationLoop(timestamp){
+  if(!polyrhythmState.isRunning)return;
+  const delta=(timestamp-canvasState.lastTimestamp)/1000;
+  canvasState.lastTimestamp=timestamp;
+  
+  const elapsed=timestamp-startTime;
+  const l=polyrhythmState.ratioLeft,r=polyrhythmState.ratioRight;
+  const cycleDurMs=getBeatDurationMs(polyrhythmState.tempo)*Math.max(l,r);
+  const currentCycle=Math.floor(elapsed/cycleDurMs);
+  
+  if(currentCycle!==polyrhythmState.lastCycle){
+    polyrhythmState.lastCycle=currentCycle;
+    spawnPolyrhythmNotes();
+  }
+  
+  // Update note positions
+  const speed=canvasState.scrollSpeed;
+  canvasState.notes.forEach(n=>n.y+=speed*delta);
+  
+  // Check for aligned notes at hit line
+  let isAligned=false;
+  canvasState.notes.forEach(n=>{
+    if(n.isAligned&&Math.abs(n.y-canvasState.hitLineY)<15)isAligned=true;
+  });
+  
+  // Remove off-screen notes
+  canvasState.notes=canvasState.notes.filter(n=>n.y<canvasState.height+50);
+  
+  // Draw
+  clearCanvas();
+  drawLanes();
+  drawHitLine(isAligned);
+  canvasState.notes.forEach(drawNote);
+  
+  // Update stats
+  const el=document.getElementById('polyElapsed');
+  if(el)el.textContent=formatTime(elapsed/1000);
+  
+  canvasState.animationFrameId=requestAnimationFrame(polyrhythmAnimationLoop);
+}
+
+function setPolyrhythmRatio(left,right){
+  polyrhythmState.ratioLeft=left;
+  polyrhythmState.ratioRight=right;
+  document.querySelectorAll('.ratio-btn').forEach(b=>{
+    b.classList.toggle('selected',+b.dataset.l===left&&+b.dataset.r===right);
+  });
+  updatePolyrhythmSideDisplay();
+}
+
+function swapPolyrhythmSides(){
+  const temp=polyrhythmState.ratioLeft;
+  polyrhythmState.ratioLeft=polyrhythmState.ratioRight;
+  polyrhythmState.ratioRight=temp;
+  // Also swap the tone frequencies so left/right maintain distinct sounds
+  const tempFreq=polyrhythmState.toneFreqLeft;
+  polyrhythmState.toneFreqLeft=polyrhythmState.toneFreqRight;
+  polyrhythmState.toneFreqRight=tempFreq;
+  updatePolyrhythmSideDisplay();
+  // Clear ratio button selection since we may now have a non-standard arrangement
+  document.querySelectorAll('.ratio-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+function updatePolyrhythmSideDisplay(){
+  const leftEl=document.getElementById('leftRatioDisplay');
+  const rightEl=document.getElementById('rightRatioDisplay');
+  if(leftEl)leftEl.textContent=polyrhythmState.ratioLeft;
+  if(rightEl)rightEl.textContent=polyrhythmState.ratioRight;
+}
+
+// ===== SWING FUNCTIONS =====
+function calculateSwingDelay(swingPct,beatDur){
+  return((swingPct-50)/100)*beatDur;
+}
+
+function getSwingStylePercentage(style){
+  switch(style){
+    case'straight':return 50;
+    case'light':return 58;
+    case'heavy':return 66;
+    case'shuffle':return 75;
+    default:return 50;
+  }
+}
+
+function startSwing(){
+  if(swingState.isRunning)return;
+  initializeAudioContext();
+  swingState.isRunning=true;
+  swingState.currentBeat=0;
+  swingState.lastSubdivision=-1;
+  canvasState.notes=[];
+  canvasState.scrollSpeed=calculateScrollSpeed(swingState.tempo);
+  appState.isSessionActive=true;
+  appState.currentMode='swing';
+  startTime=performance.now();
+  canvasState.lastTimestamp=startTime;
+  startSwingScheduler();
+  swingAnimationLoop(startTime);
+}
+
+function stopSwing(){
+  swingState.isRunning=false;
+  appState.isSessionActive=false;
+  stopAllAudio();
+  canvasState.notes=[];
+  if(canvasState.animationFrameId)cancelAnimationFrame(canvasState.animationFrameId);
+}
+
+function startSwingScheduler(){
+  const ctx=audioState.context;
+  if(!ctx)return;
+  const beatDur=getBeatDurationSec(swingState.tempo);
+  const swingDelay=calculateSwingDelay(swingState.swingPercentage,beatDur);
+  
+  audioState.nextNoteTime=ctx.currentTime;
+  let beatNum=0;
+  
+  function schedule(){
+    if(!swingState.isRunning)return;
+    while(audioState.nextNoteTime<ctx.currentTime+audioState.scheduleAheadTime){
+      const t=audioState.nextNoteTime;
+      // Downbeat
+      scheduleNote(t,beatNum%swingState.beatsPerMeasure===0?1000:700,0.05,beatNum%swingState.beatsPerMeasure===0);
+      // Swung offbeat
+      const offbeatTime=t+(beatDur/2)+swingDelay;
+      scheduleNote(offbeatTime,500,0.04,false);
+      
+      audioState.nextNoteTime+=beatDur;
+      beatNum++;
+    }
+  }
+  audioState.schedulerTimerId=setInterval(schedule,audioState.lookahead);
+}
+
+function spawnSwingNotes(){
+  const beatDur=getBeatDurationMs(swingState.tempo);
+  const swingDelay=calculateSwingDelay(swingState.swingPercentage,beatDur/1000)*1000;
+  const baseSpacing=canvasState.height/4;
+  
+  // Downbeat
+  canvasState.notes.push({
+    lane:'left',y:-canvasState.noteRadius,isAccent:swingState.currentBeat%swingState.beatsPerMeasure===0,isAligned:false,isDownbeat:true
+  });
+  // Offbeat (swung position)
+  const offbeatOffset=(0.5+swingDelay/beatDur)*baseSpacing*0.3;
+  canvasState.notes.push({
+    lane:'left',y:-canvasState.noteRadius-offbeatOffset,isAccent:false,isAligned:false,isDownbeat:false
+  });
+}
+
+function swingAnimationLoop(timestamp){
+  if(!swingState.isRunning)return;
+  const delta=(timestamp-canvasState.lastTimestamp)/1000;
+  canvasState.lastTimestamp=timestamp;
+  
+  const elapsed=timestamp-startTime;
+  const beatDurMs=getBeatDurationMs(swingState.tempo);
+  const currentBeat=Math.floor(elapsed/beatDurMs);
+  
+  if(currentBeat!==swingState.currentBeat){
+    swingState.currentBeat=currentBeat;
+    spawnSwingNotes();
+  }
+  
+  const speed=canvasState.scrollSpeed;
+  canvasState.notes.forEach(n=>n.y+=speed*delta);
+  canvasState.notes=canvasState.notes.filter(n=>n.y<canvasState.height+50);
+  
+  clearCanvas();
+  // Draw single lane for swing
+  const ctx=canvasState.ctx;
+  if(ctx){
+    ctx.strokeStyle='#4a5568';
+    ctx.lineWidth=2;
+    ctx.setLineDash([5,5]);
+    ctx.beginPath();
+    ctx.moveTo(canvasState.width/2,0);
+    ctx.lineTo(canvasState.width/2,canvasState.height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a0aec0';
+    ctx.font='bold 14px system-ui';
+    ctx.textAlign='center';
+    ctx.fillText(`${swingState.swingPercentage}% Swing`,canvasState.width/2,20);
+  }
+  drawHitLine(false);
+  
+  canvasState.notes.forEach(n=>{
+    const x=canvasState.width/2;
+    ctx.beginPath();
+    ctx.arc(x,n.y,n.isDownbeat?14:10,0,Math.PI*2);
+    ctx.fillStyle=n.isAccent?'#ecc94b':(n.isDownbeat?'#667eea':'#9f7aea');
+    ctx.fill();
+  });
+  
+  const el=document.getElementById('swingElapsed');
+  if(el)el.textContent=formatTime(elapsed/1000);
+  const bel=document.getElementById('swingBeat');
+  if(bel)bel.textContent=currentBeat;
+  
+  canvasState.animationFrameId=requestAnimationFrame(swingAnimationLoop);
+}
+
+function setSwingStyle(style){
+  swingState.swingStyle=style;
+  swingState.swingPercentage=getSwingStylePercentage(style);
+  document.querySelectorAll('.swing-style-btn').forEach(b=>b.classList.toggle('selected',b.dataset.style===style));
+  const slider=document.getElementById('swingSlider');
+  if(slider)slider.value=swingState.swingPercentage;
+  const display=document.getElementById('swingPctDisplay');
+  if(display)display.textContent=swingState.swingPercentage+'%';
+}
+
+// ===== TEMPO RAMP FUNCTIONS =====
+function startTempoRamp(){
+  if(tempoRampState.isRunning)return;
+  initializeAudioContext();
+  tempoRampState.isRunning=true;
+  tempoRampState.currentTempo=tempoRampState.startTempo;
+  tempoRampState.elapsedSinceLastRamp=0;
+  tempoRampState.currentBeat=0;
+  tempoRampState.isWarningActive=false;
+  tempoRampState.warningTriggeredAtBeat=-1;
+  appState.isSessionActive=true;
+  appState.currentMode='tempoRamp';
+  startTime=performance.now();
+  tempoRampState.lastBeatTime=startTime;
+  startTempoRampScheduler();
+  tempoRampAnimationLoop(startTime);
+}
+
+function stopTempoRamp(){
+  tempoRampState.isRunning=false;
+  appState.isSessionActive=false;
+  stopAllAudio();
+  if(animationFrameId)cancelAnimationFrame(animationFrameId);
+}
+
+function startTempoRampScheduler(){
+  const ctx=audioState.context;
+  if(!ctx)return;
+  
+  audioState.nextNoteTime=ctx.currentTime;
+  let beatNum=0;
+  
+  function schedule(){
+    if(!tempoRampState.isRunning)return;
+    const beatDur=getBeatDurationSec(tempoRampState.currentTempo);
+    while(audioState.nextNoteTime<ctx.currentTime+audioState.scheduleAheadTime){
+      scheduleNote(audioState.nextNoteTime,beatNum%4===0?900:600,0.05,beatNum%4===0);
+      audioState.nextNoteTime+=beatDur;
+      beatNum++;
+    }
+  }
+  audioState.schedulerTimerId=setInterval(schedule,audioState.lookahead);
+}
+
+function dropTempo(){
+  tempoRampState.currentTempo=Math.max(40,tempoRampState.currentTempo-tempoRampState.dropAmount);
+  tempoRampState.elapsedSinceLastRamp=0;
+  updateTempoRampDisplay();
+}
+
+function triggerRampWarning(){
+  tempoRampState.isWarningActive=true;
+  tempoRampState.warningTriggeredAtBeat=tempoRampState.currentBeat;
+  tempoRampState.warningShownAt=performance.now();
+  scheduleChirp(audioState.context.currentTime);
+}
+
+function executeTempoRamp(){
+  if(tempoRampState.maxTempo===0||tempoRampState.currentTempo<tempoRampState.maxTempo){
+    tempoRampState.currentTempo=Math.min(tempoRampState.maxTempo||999,tempoRampState.currentTempo+tempoRampState.bpmIncrement);
+  }
+  tempoRampState.isWarningActive=false;
+  tempoRampState.elapsedSinceLastRamp=0;
+  updateTempoRampDisplay();
+}
+
+function updateTempoRampDisplay(){
+  const el=document.getElementById('currentTempoDisplay');
+  if(el)el.textContent=tempoRampState.currentTempo+' BPM';
+  const prog=document.getElementById('rampProgressBar');
+  if(prog){
+    const pct=(tempoRampState.elapsedSinceLastRamp/tempoRampState.rampIntervalSeconds)*100;
+    prog.style.width=Math.min(100,pct)+'%';
+  }
+}
+
+function tempoRampAnimationLoop(timestamp){
+  if(!tempoRampState.isRunning)return;
+  
+  const elapsed=timestamp-startTime;
+  const beatDurMs=getBeatDurationMs(tempoRampState.currentTempo);
+  const currentBeat=Math.floor(elapsed/beatDurMs);
+  
+  if(currentBeat!==tempoRampState.currentBeat){
+    tempoRampState.currentBeat=currentBeat;
+    tempoRampState.elapsedSinceLastRamp+=(beatDurMs/1000);
+    
+    // Check for warning (2 beats before ramp)
+    const beatsUntilRamp=(tempoRampState.rampIntervalSeconds-tempoRampState.elapsedSinceLastRamp)/(beatDurMs/1000);
+    if(beatsUntilRamp<=2&&beatsUntilRamp>0&&!tempoRampState.isWarningActive){
+      triggerRampWarning();
+    }
+    
+    // Execute ramp
+    if(tempoRampState.elapsedSinceLastRamp>=tempoRampState.rampIntervalSeconds){
+      executeTempoRamp();
+    }
+    
+    updateTempoRampDisplay();
+  }
+  
+  // Hide warning after 800ms
+  if(tempoRampState.isWarningActive&&timestamp-tempoRampState.warningShownAt>800){
+    tempoRampState.isWarningActive=false;
+  }
+  
+  const el=document.getElementById('rampElapsed');
+  if(el)el.textContent=formatTime(elapsed/1000);
+  const bel=document.getElementById('rampBeat');
+  if(bel)bel.textContent=currentBeat;
+  
+  // Show/hide warning
+  const warn=document.getElementById('rampWarning');
+  if(warn){
+    if(tempoRampState.isWarningActive){
+      warn.style.display='block';
+    }else{
+      warn.style.display='none';
+    }
+  }
+  
+  animationFrameId=requestAnimationFrame(tempoRampAnimationLoop);
+}
+
+// ===== DIRECTION TRAINER (existing) =====
+function startDirectionTrainer(){
+  if(directionTrainerState.isRunning)return;
+  initializeAudioContext();
+  Object.assign(directionTrainerState,{isRunning:true,elapsedTime:0,currentBeat:0,lastInstructionBeat:-1,lastBeatPlayed:-1,leftHandPosition:1,rightHandPosition:1,nextInstructionBeat:0,currentInstruction:null,notesSinceChange:0,pendingChange:null,warningBeat:-1});
+  appState.isSessionActive=true;
+  appState.currentMode='directionTrainer';
+  startTime=performance.now();
+  directionAnimationLoop(startTime);
+}
+
+function stopDirectionTrainer(){
+  directionTrainerState.isRunning=false;
+  appState.isSessionActive=false;
+  stopAllAudio();
+  if(animationFrameId)cancelAnimationFrame(animationFrameId);
+}
+
+function validateHandPosition(hand,dir){
+  const pos=hand==='left'?directionTrainerState.leftHandPosition:directionTrainerState.rightHandPosition;
+  return dir==='UP'?pos<directionTrainerState.noteRange-1:pos>0;
+}
+
+function updateHandPosition(hand,dir){
+  if(hand==='left')directionTrainerState.leftHandPosition+=dir==='UP'?1:-1;
+  else directionTrainerState.rightHandPosition+=dir==='UP'?1:-1;
+}
+
+function getMotionType(){
+  return directionTrainerState.motionType==='mixed'?(Math.random()<.5?'similar':'contrary'):directionTrainerState.motionType;
+}
+
+function canChangeDirection(){return directionTrainerState.notesSinceChange>=3;}
+
+function generateNewDirection(){
+  const s=directionTrainerState,motion=getMotionType();
+  const rUp=validateHandPosition('right','UP'),rDown=validateHandPosition('right','DOWN');
+  const lUp=validateHandPosition('left','UP'),lDown=validateHandPosition('left','DOWN');
+  const currentRight=s.currentInstruction?s.currentInstruction.right:'UP';
+  const preferredRight=currentRight==='UP'?'DOWN':'UP';
+  let rightDir,leftDir;
+  if(motion==='similar'){
+    const canPref=(preferredRight==='UP'&&rUp&&lUp)||(preferredRight==='DOWN'&&rDown&&lDown);
+    const canCurrent=(currentRight==='UP'&&rUp&&lUp)||(currentRight==='DOWN'&&rDown&&lDown);
+    rightDir=canPref?preferredRight:(canCurrent?currentRight:(rUp&&lUp?'UP':'DOWN'));
+    leftDir=rightDir;
+  }else{
+    const canPrefUp=rUp&&lDown,canPrefDown=rDown&&lUp;
+    const canPref=(preferredRight==='UP'&&canPrefUp)||(preferredRight==='DOWN'&&canPrefDown);
+    const canCurrent=(currentRight==='UP'&&canPrefUp)||(currentRight==='DOWN'&&canPrefDown);
+    rightDir=canPref?preferredRight:(canCurrent?currentRight:(canPrefUp?'UP':'DOWN'));
+    leftDir=rightDir==='UP'?'DOWN':'UP';
+  }
+  return{right:rightDir,left:leftDir,motion};
+}
+
+function generateDirectionInstruction(){
+  const s=directionTrainerState;
+  let motion=s.currentMotion,rightDir=s.currentInstruction?s.currentInstruction.right:'UP',leftDir=s.currentInstruction?s.currentInstruction.left:'UP';
+  if(!s.currentInstruction){
+    motion=getMotionType();s.currentMotion=motion;rightDir='UP';
+    leftDir=motion==='similar'?'UP':'DOWN';
+    if(motion==='contrary'&&!validateHandPosition('left','DOWN'))leftDir='UP';
+  }else if(s.pendingChange){
+    rightDir=s.pendingChange.right;leftDir=s.pendingChange.left;motion=s.pendingChange.motion;
+    s.currentMotion=motion;s.pendingChange=null;s.notesSinceChange=0;
+  }
+  if(validateHandPosition('right',rightDir))updateHandPosition('right',rightDir);
+  if(validateHandPosition('left',leftDir))updateHandPosition('left',leftDir);
+  s.notesSinceChange++;
+  return{right:rightDir,left:leftDir,motion};
+}
+
+function handleInstructionBeat(){
+  const s=directionTrainerState;
+  if(s.warningBeat===-1&&canChangeDirection()&&Math.random()<0.3){
+    s.warningBeat=s.currentBeat;s.pendingChange=generateNewDirection();
+    speakInstruction('Change coming');
+    updateDirectionTrainerDisplay(s.currentInstruction,true);
+    s.lastInstructionBeat=s.currentBeat;s.nextInstructionBeat=s.currentBeat+1;return;
+  }
+  if(s.warningBeat!==-1&&s.currentBeat>=s.warningBeat+2)s.warningBeat=-1;
+  const inst=generateDirectionInstruction();
+  s.currentInstruction=inst;
+  updateDirectionTrainerDisplay(inst,false);
+  speakInstruction(`Right ${inst.right}, Left ${inst.left}`);
+  s.lastInstructionBeat=s.currentBeat;s.nextInstructionBeat=s.currentBeat+1;
+}
+
+function updateDirectionTrainerDisplay(inst,isWarning){
+  const el=document.getElementById('instruction');
+  if(el&&inst){
+    let html=`<span class="${inst.right==='UP'?'up':'down'}">R: ${inst.right}</span> | <span class="${inst.left==='UP'?'up':'down'}">L: ${inst.left}</span><span class="motion">${inst.motion.toUpperCase()} MOTION</span>`;
+    if(isWarning)html+=`<span class="warning">⚠ CHANGE COMING</span>`;
+    el.innerHTML=html;
+  }
+}
+
+function displayBeatIndicator(){
+  const el=document.getElementById('beatIndicator');
+  if(el){el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),100);}
+}
+
+function displayElapsedTime(sec){
+  const el=document.getElementById('elapsed'),bc=document.getElementById('beatCount');
+  if(el)el.textContent=formatTime(sec);
+  if(bc)bc.textContent=directionTrainerState.currentBeat;
+}
+
+function directionAnimationLoop(timestamp){
+  if(!directionTrainerState.isRunning)return;
+  const elapsed=timestamp-startTime;
+  const s=directionTrainerState;
+  s.elapsedTime=elapsed/1000;
+  const beat=calculateCurrentBeat(elapsed,s.tempo);
+  if(beat!==s.currentBeat){
+    s.currentBeat=beat;displayBeatIndicator();playClick(50,600);
+    if(beat>=s.nextInstructionBeat)handleInstructionBeat();
+  }
+  displayElapsedTime(s.elapsedTime);
+  animationFrameId=requestAnimationFrame(directionAnimationLoop);
+}
+
+// ===== SPLIT METRONOME (existing) =====
+function startSplitMetronome(){
+  if(splitMetronomeState.isRunning)return;
+  initializeAudioContext();
+  Object.assign(splitMetronomeState,{isRunning:true,elapsedTime:0,lastSubLeft:-1,lastSubRight:-1});
+  appState.isSessionActive=true;appState.currentMode='splitMetronome';
+  startTime=performance.now();
+  splitAnimationLoop(startTime);
+}
+
+function stopSplitMetronome(){
+  splitMetronomeState.isRunning=false;appState.isSessionActive=false;
+  if(animationFrameId)cancelAnimationFrame(animationFrameId);
+}
+
+function getSubdivision(elapsed,tempo,divs){
+  const beatDur=getBeatDurationMs(tempo),subDur=beatDur/divs;
+  return Math.floor((elapsed%beatDur)/subDur);
+}
+
+function updateMetronomeVisualLeft(sub){
+  const el=document.getElementById('visualLeft');
+  if(el)el.className='visual-indicator'+(splitMetronomeState.visualEnabledLeft?' a'+sub:'');
+}
+
+function updateMetronomeVisualRight(sub){
+  const el=document.getElementById('visualRight');
+  if(el)el.className='visual-indicator'+(splitMetronomeState.visualEnabledRight?' a'+sub:'');
+}
+
+function splitAnimationLoop(timestamp){
+  if(!splitMetronomeState.isRunning)return;
+  const elapsed=timestamp-startTime;
+  const s=splitMetronomeState;
+  s.elapsedTime=elapsed/1000;
+  const subL=getSubdivision(elapsed,s.tempoLeft,3),subR=getSubdivision(elapsed,s.tempoRight,2);
+  if(subL!==s.lastSubLeft){
+    s.lastSubLeft=subL;updateMetronomeVisualLeft(subL);
+    if(s.audioEnabledLeft)playClick(40,subL===0?880:660);
+  }
+  if(subR!==s.lastSubRight){
+    s.lastSubRight=subR;updateMetronomeVisualRight(subR);
+    if(s.audioEnabledRight)playClick(40,subR===0?440:330);
+  }
+  const el=document.getElementById('elapsedSplit');
+  if(el)el.textContent=formatTime(s.elapsedTime);
+  animationFrameId=requestAnimationFrame(splitAnimationLoop);
+}
+
+// ===== PRESETS =====
+function loadPresets(){
+  try{
+    const saved=localStorage.getItem('pianoTrainerPresets');
+    if(saved)presetsState.presets=JSON.parse(saved);
+  }catch(e){}
+}
+
+function savePresets(){
+  try{localStorage.setItem('pianoTrainerPresets',JSON.stringify(presetsState.presets));}catch(e){}
+}
+
+function createPreset(name,type){
+  let settings={};
+  switch(type){
+    case'polyrhythm':settings={...polyrhythmState};break;
+    case'swing':settings={...swingState};break;
+    case'tempoRamp':settings={...tempoRampState};break;
+  }
+  const preset={id:generateId(),name,type,settings};
+  presetsState.presets.push(preset);
+  savePresets();
+  return preset;
+}
+
+function applyPreset(presetId){
+  const preset=presetsState.presets.find(p=>p.id===presetId);
+  if(!preset)return;
+  switch(preset.type){
+    case'polyrhythm':Object.assign(polyrhythmState,preset.settings);break;
+    case'swing':Object.assign(swingState,preset.settings);break;
+    case'tempoRamp':Object.assign(tempoRampState,preset.settings);break;
+  }
+  presetsState.activePresetId=presetId;
+}
+
+function deletePreset(presetId){
+  presetsState.presets=presetsState.presets.filter(p=>p.id!==presetId);
+  savePresets();
+}
+
+// ===== UI RENDERING =====
+function renderHomeScreen(){
+  document.getElementById('app').innerHTML=`
+    <h1>🎹 Music Trainer</h1>
+    <h2>Choose a training mode</h2>
+    <div class="home-buttons">
+      <button class="btn btn-primary" id="btnDirection">Direction Trainer</button>
+      <button class="btn btn-primary" id="btnSplit">Split Metronome</button>
+      <button class="btn btn-primary" id="btnPoly">Polyrhythm</button>
+      <button class="btn btn-primary" id="btnSwing">Swing & Shuffle</button>
+      <button class="btn btn-primary" id="btnRamp">Tempo Ramp</button>
+      <button class="btn btn-primary" id="btnImprov">🎷 Jazz Improv</button>
+      <button class="btn btn-primary" id="btnGhost">👻 Ghost Metronome</button>
+    </div>`;
+  document.getElementById('btnDirection').onclick=()=>{appState.currentMode='directionTrainer';renderDirectionTrainerScreen();};
+  document.getElementById('btnSplit').onclick=()=>{appState.currentMode='splitMetronome';renderSplitMetronomeScreen();};
+  document.getElementById('btnPoly').onclick=()=>{appState.currentMode='polyrhythm';renderPolyrhythmScreen();};
+  document.getElementById('btnSwing').onclick=()=>{appState.currentMode='swing';renderSwingScreen();};
+  document.getElementById('btnRamp').onclick=()=>{appState.currentMode='tempoRamp';renderTempoRampScreen();};
+  document.getElementById('btnImprov').onclick=()=>{appState.currentMode='improv';renderImprovScreen();};
+  document.getElementById('btnGhost').onclick=()=>{appState.currentMode='ghostMetronome';renderGhostMetronomeScreen();};
+}
+
+function renderDirectionTrainerScreen(){
+  const s=directionTrainerState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>Direction Trainer</h1>
+    <div class="controls">
+      <div class="control-row"><label>Tempo (BPM)</label><input type="number" id="tempo" value="${s.tempo}" min="40" max="200"></div>
+      <div class="control-row"><label>Note Range</label><input type="number" id="noteRange" value="${s.noteRange}" min="2" max="88"></div>
+      <div class="control-row"><label>Motion Type</label>
+        <div class="radio-group">
+          <div class="radio-btn ${s.motionType==='similar'?'selected':''}" data-m="similar">Similar</div>
+          <div class="radio-btn ${s.motionType==='contrary'?'selected':''}" data-m="contrary">Contrary</div>
+          <div class="radio-btn ${s.motionType==='mixed'?'selected':''}" data-m="mixed">Mixed</div>
+        </div>
+      </div>
+    </div>
+    <div class="display-area">
+      <div class="instruction-text" id="instruction">Press Start to begin</div>
+      <div class="beat-indicator" id="beatIndicator"></div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-value" id="elapsed">00:00</div><div class="stat-label">Time</div></div>
+        <div class="stat"><div class="stat-value" id="beatCount">0</div><div class="stat-label">Beat</div></div>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStart">Start</button>
+      <button class="btn btn-secondary" id="btnStop">Stop</button>
+    </div>`;
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('tempo').onchange=e=>{s.tempo=clamp(+e.target.value||60,40,200);e.target.value=s.tempo;};
+  document.getElementById('noteRange').onchange=e=>{s.noteRange=clamp(+e.target.value||8,2,88);e.target.value=s.noteRange;};
+  document.querySelectorAll('.radio-btn').forEach(b=>b.onclick=()=>{
+    s.motionType=b.dataset.m;
+    document.querySelectorAll('.radio-btn').forEach(x=>x.classList.toggle('selected',x.dataset.m===s.motionType));
+  });
+  document.getElementById('btnStart').onclick=startDirectionTrainer;
+  document.getElementById('btnStop').onclick=stopDirectionTrainer;
+}
+
+function renderSplitMetronomeScreen(){
+  const s=splitMetronomeState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>Split Metronome</h1>
+    <div class="split-container">
+      <div class="metronome-side">
+        <h3>Triplets (3)</h3>
+        <div class="control-row" style="justify-content:center"><label>BPM</label><input type="number" id="tempoLeft" value="${s.tempoLeft}" min="40" max="200"></div>
+        <div class="visual-indicator" id="visualLeft">3</div>
+        <div class="toggle-row">
+          <button class="btn btn-toggle ${s.visualEnabledLeft?'on':'off'}" id="togVisL">Visual</button>
+          <button class="btn btn-toggle ${s.audioEnabledLeft?'on':'off'}" id="togAudL">Audio</button>
+        </div>
+      </div>
+      <div class="metronome-side">
+        <h3>Quavers (2)</h3>
+        <div class="control-row" style="justify-content:center"><label>BPM</label><input type="number" id="tempoRight" value="${s.tempoRight}" min="40" max="200"></div>
+        <div class="visual-indicator" id="visualRight">2</div>
+        <div class="toggle-row">
+          <button class="btn btn-toggle ${s.visualEnabledRight?'on':'off'}" id="togVisR">Visual</button>
+          <button class="btn btn-toggle ${s.audioEnabledRight?'on':'off'}" id="togAudR">Audio</button>
+        </div>
+      </div>
+    </div>
+    <div class="display-area" style="min-height:60px;margin-top:15px">
+      <div class="stat"><div class="stat-value" id="elapsedSplit">00:00</div><div class="stat-label">Elapsed</div></div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStartSplit">Start</button>
+      <button class="btn btn-secondary" id="btnStopSplit">Stop</button>
+    </div>`;
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('tempoLeft').onchange=e=>{s.tempoLeft=clamp(+e.target.value||60,40,200);e.target.value=s.tempoLeft;};
+  document.getElementById('tempoRight').onchange=e=>{s.tempoRight=clamp(+e.target.value||60,40,200);e.target.value=s.tempoRight;};
+  const toggle=(key,id)=>{s[key]=!s[key];const b=document.getElementById(id);b.classList.toggle('on',s[key]);b.classList.toggle('off',!s[key]);};
+  document.getElementById('togVisL').onclick=()=>toggle('visualEnabledLeft','togVisL');
+  document.getElementById('togAudL').onclick=()=>toggle('audioEnabledLeft','togAudL');
+  document.getElementById('togVisR').onclick=()=>toggle('visualEnabledRight','togVisR');
+  document.getElementById('togAudR').onclick=()=>toggle('audioEnabledRight','togAudR');
+  document.getElementById('btnStartSplit').onclick=startSplitMetronome;
+  document.getElementById('btnStopSplit').onclick=stopSplitMetronome;
+}
+
+function renderPolyrhythmScreen(){
+  const s=polyrhythmState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>Polyrhythm Trainer</h1>
+    <div class="controls">
+      <div class="control-row"><label>Tempo (BPM)</label><input type="number" id="polyTempo" value="${s.tempo}" min="40" max="240"></div>
+      <div class="control-row"><label>Ratio</label>
+        <div class="radio-group">
+          <div class="radio-btn ratio-btn ${s.ratioLeft===3&&s.ratioRight===2?'selected':''}" data-l="3" data-r="2">3:2</div>
+          <div class="radio-btn ratio-btn ${s.ratioLeft===4&&s.ratioRight===3?'selected':''}" data-l="4" data-r="3">4:3</div>
+          <div class="radio-btn ratio-btn ${s.ratioLeft===5&&s.ratioRight===4?'selected':''}" data-l="5" data-r="4">5:4</div>
+          <div class="radio-btn ratio-btn ${s.ratioLeft===7&&s.ratioRight===4?'selected':''}" data-l="7" data-r="4">7:4</div>
+        </div>
+      </div>
+      <div class="control-row"><label>Sides</label>
+        <div class="side-display">
+          <span class="side-label">L: <strong id="leftRatioDisplay">${s.ratioLeft}</strong></span>
+          <button class="btn btn-secondary btn-sm" id="btnSwapSides">⇄ Swap</button>
+          <span class="side-label">R: <strong id="rightRatioDisplay">${s.ratioRight}</strong></span>
+        </div>
+      </div>
+    </div>
+    <div class="canvas-container"><canvas id="rhythmCanvas"></canvas></div>
+    <div class="stats-row" style="margin-bottom:15px">
+      <div class="stat"><div class="stat-value" id="polyElapsed">00:00</div><div class="stat-label">Time</div></div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStartPoly">Start</button>
+      <button class="btn btn-secondary" id="btnStopPoly">Stop</button>
+    </div>`;
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('polyTempo').onchange=e=>{s.tempo=clamp(+e.target.value||90,40,240);e.target.value=s.tempo;};
+  document.querySelectorAll('.ratio-btn').forEach(b=>b.onclick=()=>setPolyrhythmRatio(+b.dataset.l,+b.dataset.r));
+  document.getElementById('btnSwapSides').onclick=swapPolyrhythmSides;
+  document.getElementById('btnStartPoly').onclick=()=>{initializeCanvas();startPolyrhythm();};
+  document.getElementById('btnStopPoly').onclick=stopPolyrhythm;
+  setTimeout(initializeCanvas,50);
+}
+
+function renderSwingScreen(){
+  const s=swingState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>Swing & Shuffle</h1>
+    <div class="controls">
+      <div class="control-row"><label>Tempo (BPM)</label><input type="number" id="swingTempo" value="${s.tempo}" min="40" max="240"></div>
+      <div class="control-row"><label>Style</label>
+        <div class="radio-group">
+          <div class="radio-btn swing-style-btn ${s.swingStyle==='straight'?'selected':''}" data-style="straight">Straight</div>
+          <div class="radio-btn swing-style-btn ${s.swingStyle==='light'?'selected':''}" data-style="light">Light</div>
+          <div class="radio-btn swing-style-btn ${s.swingStyle==='heavy'?'selected':''}" data-style="heavy">Heavy</div>
+          <div class="radio-btn swing-style-btn ${s.swingStyle==='shuffle'?'selected':''}" data-style="shuffle">Shuffle</div>
+        </div>
+      </div>
+      <div class="control-row"><label>Swing %: <span id="swingPctDisplay">${s.swingPercentage}%</span></label>
+        <input type="range" id="swingSlider" min="50" max="80" value="${s.swingPercentage}">
+      </div>
+    </div>
+    <div class="canvas-container"><canvas id="rhythmCanvas"></canvas></div>
+    <div class="stats-row" style="margin-bottom:15px">
+      <div class="stat"><div class="stat-value" id="swingElapsed">00:00</div><div class="stat-label">Time</div></div>
+      <div class="stat"><div class="stat-value" id="swingBeat">0</div><div class="stat-label">Beat</div></div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStartSwing">Start</button>
+      <button class="btn btn-secondary" id="btnStopSwing">Stop</button>
+    </div>`;
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('swingTempo').onchange=e=>{s.tempo=clamp(+e.target.value||100,40,240);e.target.value=s.tempo;};
+  document.querySelectorAll('.swing-style-btn').forEach(b=>b.onclick=()=>setSwingStyle(b.dataset.style));
+  document.getElementById('swingSlider').oninput=e=>{
+    s.swingPercentage=+e.target.value;
+    document.getElementById('swingPctDisplay').textContent=s.swingPercentage+'%';
+    s.swingStyle='custom';
+    document.querySelectorAll('.swing-style-btn').forEach(b=>b.classList.remove('selected'));
+  };
+  document.getElementById('btnStartSwing').onclick=()=>{initializeCanvas();startSwing();};
+  document.getElementById('btnStopSwing').onclick=stopSwing;
+  setTimeout(initializeCanvas,50);
+}
+
+function renderTempoRampScreen(){
+  const s=tempoRampState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>Tempo Ramp</h1>
+    <div class="controls">
+      <div class="control-row"><label>Start BPM</label><input type="number" id="startBpm" value="${s.startTempo}" min="40" max="200"></div>
+      <div class="control-row"><label>Max BPM (0=none)</label><input type="number" id="maxBpm" value="${s.maxTempo}" min="0" max="300"></div>
+      <div class="control-row"><label>+BPM per Ramp</label><input type="number" id="bpmInc" value="${s.bpmIncrement}" min="1" max="20"></div>
+      <div class="control-row"><label>Seconds between</label><input type="number" id="rampInterval" value="${s.rampIntervalSeconds}" min="5" max="120"></div>
+      <div class="control-row"><label>Drop Amount</label><input type="number" id="dropAmt" value="${s.dropAmount}" min="5" max="30"></div>
+    </div>
+    <div class="display-area">
+      <div id="rampWarning" class="warning-overlay">⚡ GET READY: +${s.bpmIncrement} BPM</div>
+      <div class="tempo-display" id="currentTempoDisplay">${s.currentTempo} BPM</div>
+      <div class="ramp-progress"><div class="ramp-progress-bar" id="rampProgressBar" style="width:0%"></div></div>
+      <div class="stats-row" style="margin-top:15px">
+        <div class="stat"><div class="stat-value" id="rampElapsed">00:00</div><div class="stat-label">Time</div></div>
+        <div class="stat"><div class="stat-value" id="rampBeat">0</div><div class="stat-label">Beat</div></div>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStartRamp">Start</button>
+      <button class="btn btn-danger" id="btnDropTempo">Drop Tempo</button>
+      <button class="btn btn-secondary" id="btnStopRamp">Stop</button>
+    </div>`;
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('startBpm').onchange=e=>{s.startTempo=clamp(+e.target.value||80,40,200);e.target.value=s.startTempo;};
+  document.getElementById('maxBpm').onchange=e=>{s.maxTempo=clamp(+e.target.value||0,0,300);e.target.value=s.maxTempo;};
+  document.getElementById('bpmInc').onchange=e=>{s.bpmIncrement=clamp(+e.target.value||5,1,20);e.target.value=s.bpmIncrement;};
+  document.getElementById('rampInterval').onchange=e=>{s.rampIntervalSeconds=clamp(+e.target.value||30,5,120);e.target.value=s.rampIntervalSeconds;};
+  document.getElementById('dropAmt').onchange=e=>{s.dropAmount=clamp(+e.target.value||10,5,30);e.target.value=s.dropAmount;};
+  document.getElementById('btnStartRamp').onclick=startTempoRamp;
+  document.getElementById('btnDropTempo').onclick=dropTempo;
+  document.getElementById('btnStopRamp').onclick=stopTempoRamp;
+}
+
+// ===== JAZZ IMPROV GENERATOR FUNCTIONS =====
+function getRootMidiNote(key,octave=4){
+  const idx=CHROMATIC_KEYS.indexOf(key);
+  return idx>=0?(octave+1)*12+idx:60;
+}
+
+function getScaleNotes(key,scaleType){
+  const root=getRootMidiNote(key,3);
+  const intervals=SCALE_DEFINITIONS[scaleType]||SCALE_DEFINITIONS['Major'];
+  const notes=[];
+  for(let oct=0;oct<2;oct++){
+    intervals.forEach(i=>notes.push(root+i+oct*12));
+  }
+  return notes;
+}
+
+function isBlackKey(midi){
+  const n=midi%12;
+  return[1,3,6,8,10].includes(n);
+}
+
+function getScaleDegreeNote(rootMidi,intervals,degree){
+  const oct=Math.floor((degree-1)/intervals.length);
+  const idx=(degree-1)%intervals.length;
+  return rootMidi+intervals[idx]+oct*12;
+}
+
+function getAvailableScales(mode){
+  if(mode==='all')return Object.keys(SCALE_DEFINITIONS);
+  if(mode==='beginner')return SCALE_CATEGORIES.beginner;
+  if(mode==='jazz')return[...SCALE_CATEGORIES.beginner,...SCALE_CATEGORIES.jazz,...SCALE_CATEGORIES.common];
+  if(mode==='exotic')return[...SCALE_CATEGORIES.beginner,...SCALE_CATEGORIES.exotic];
+  return SCALE_CATEGORIES.beginner;
+}
+
+function getPatternMidiNotes(patternName,key,scaleType){
+  const pattern=PATTERN_DEFINITIONS[patternName];
+  if(!pattern)return[];
+  const root=getRootMidiNote(key,3);
+  const intervals=SCALE_DEFINITIONS[scaleType]||[0,2,4,5,7,9,11];
+  return pattern.sequence.map(step=>{
+    if(Array.isArray(step))return step.map(d=>getScaleDegreeNote(root,intervals,d));
+    return getScaleDegreeNote(root,intervals,step);
+  });
+}
+
+function getCompatibleScalesForPattern(patternName){
+  const pattern=PATTERN_DEFINITIONS[patternName];
+  if(!pattern||pattern.vibe.includes('all'))return null;
+  let scales=[];
+  pattern.vibe.forEach(v=>{
+    if(VIBE_SCALE_MAP[v])scales=scales.concat(VIBE_SCALE_MAP[v]);
+  });
+  return[...new Set(scales)];
+}
+
+function getCompatiblePatternsForScale(scaleType){
+  const patterns=[];
+  const scaleVibes=[];
+  Object.entries(VIBE_SCALE_MAP).forEach(([vibe,scales])=>{
+    if(scales&&scales.includes(scaleType))scaleVibes.push(vibe);
+  });
+  const patternDefs=promptState.instrument==='guitar'?GUITAR_PATTERNS:PATTERN_DEFINITIONS;
+  Object.entries(patternDefs).forEach(([name,def])=>{
+    if(def.vibe.includes('all')||def.vibe.some(v=>scaleVibes.includes(v)))patterns.push(name);
+  });
+  return patterns.length?patterns:Object.keys(patternDefs);
+}
+
+function getGuitarScalePositions(key,scaleType){
+  const rootNote=CHROMATIC_KEYS.indexOf(key);
+  const intervals=SCALE_DEFINITIONS[scaleType]||SCALE_DEFINITIONS['Major'];
+  const positions=[];
+  
+  for(let string=0;string<6;string++){
+    const openNote=GUITAR_STRINGS[string];
+    const stringPositions=[];
+    for(let fret=0;fret<=GUITAR_FRETS;fret++){
+      const midiNote=openNote+fret;
+      const noteInOctave=midiNote%12;
+      const intervalFromRoot=(noteInOctave-rootNote+12)%12;
+      if(intervals.includes(intervalFromRoot)){
+        stringPositions.push({
+          fret,
+          midi:midiNote,
+          isRoot:intervalFromRoot===0,
+          interval:intervals.indexOf(intervalFromRoot)+1
+        });
+      }
+    }
+    positions.push(stringPositions);
+  }
+  return positions;
+}
+
+function getGuitarPatternSequence(patternName){
+  const pattern=GUITAR_PATTERNS[patternName];
+  if(!pattern)return[];
+  return pattern.sequence;
+}
+
+function setInstrument(instrument){
+  promptState.instrument=instrument;
+  // Reset pattern to appropriate default
+  if(instrument==='guitar'){
+    promptState.currentPattern='Arpeggio Up';
+  }else{
+    promptState.currentPattern='Block Chords';
+  }
+  updateInstrumentToggle();
+  applyGeneratedPrompt(promptState.currentKey,promptState.currentScaleType,promptState.currentPattern);
+}
+
+function updateInstrumentToggle(){
+  document.querySelectorAll('.instrument-btn').forEach(b=>{
+    b.classList.toggle('selected',b.dataset.instrument===promptState.instrument);
+  });
+}
+
+function generatePrompt(){
+  let newKey=promptState.currentKey;
+  let newScale=promptState.currentScaleType;
+  let newPattern=promptState.currentPattern;
+  
+  if(!lockState.keyLocked)newKey=getRandomElement(CHROMATIC_KEYS);
+  
+  if(!lockState.scaleLocked){
+    const available=getAvailableScales(settingsState.complexityMode);
+    if(settingsState.matchVibeEnabled&&!lockState.patternLocked){
+      const compatible=getCompatibleScalesForPattern(newPattern);
+      const filtered=compatible?available.filter(s=>compatible.includes(s)):available;
+      newScale=getRandomElement(filtered.length?filtered:available);
+    }else{
+      newScale=getRandomElement(available);
+    }
+  }
+  
+  if(!lockState.patternLocked){
+    const patternDefs=promptState.instrument==='guitar'?GUITAR_PATTERNS:PATTERN_DEFINITIONS;
+    const patternNames=Object.keys(patternDefs);
+    if(settingsState.matchVibeEnabled){
+      const compatible=getCompatiblePatternsForScale(newScale);
+      newPattern=getRandomElement(compatible.length?compatible:patternNames);
+    }else{
+      newPattern=getRandomElement(patternNames);
+    }
+  }
+  
+  applyGeneratedPrompt(newKey,newScale,newPattern);
+}
+
+function applyGeneratedPrompt(key,scale,pattern){
+  promptState.currentKey=key;
+  promptState.currentScaleType=scale;
+  promptState.currentPattern=pattern;
+  promptState.scaleNotes=getScaleNotes(key,scale);
+  if(promptState.instrument==='piano'){
+    promptState.patternSequence=getPatternMidiNotes(pattern,key,scale);
+  }else{
+    promptState.patternSequence=getGuitarPatternSequence(pattern);
+  }
+  updateImprovDisplay();
+  restartPatternAnimation();
+}
+
+function toggleKeyLock(){lockState.keyLocked=!lockState.keyLocked;updateLockButtons();}
+function toggleScaleLock(){lockState.scaleLocked=!lockState.scaleLocked;updateLockButtons();}
+function togglePatternLock(){lockState.patternLocked=!lockState.patternLocked;updateLockButtons();}
+
+function updateLockButtons(){
+  const kl=document.getElementById('keyLock'),sl=document.getElementById('scaleLock'),pl=document.getElementById('patternLock');
+  if(kl){kl.classList.toggle('on',lockState.keyLocked);kl.classList.toggle('off',!lockState.keyLocked);kl.textContent=lockState.keyLocked?'🔒 Key':'🔓 Key';}
+  if(sl){sl.classList.toggle('on',lockState.scaleLocked);sl.classList.toggle('off',!lockState.scaleLocked);sl.textContent=lockState.scaleLocked?'🔒 Scale':'🔓 Scale';}
+  if(pl){pl.classList.toggle('on',lockState.patternLocked);pl.classList.toggle('off',!lockState.patternLocked);pl.textContent=lockState.patternLocked?'🔒 Pattern':'🔓 Pattern';}
+}
+
+function setComplexityMode(mode){
+  settingsState.complexityMode=mode;
+  document.querySelectorAll('.complexity-btn').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
+}
+
+function toggleMatchVibe(){
+  settingsState.matchVibeEnabled=!settingsState.matchVibeEnabled;
+  const btn=document.getElementById('matchVibeBtn');
+  if(btn){btn.classList.toggle('on',settingsState.matchVibeEnabled);btn.classList.toggle('off',!settingsState.matchVibeEnabled);}
+}
+
+function startPatternAnimation(){
+  stopPatternAnimation();
+  patternAnimationState.isPlaying=true;
+  patternAnimationState.currentStepIndex=0;
+  patternAnimationState.loopCount=0;
+  advancePatternStep();
+  patternAnimationState.animationIntervalId=setInterval(advancePatternStep,settingsState.animationSpeed);
+}
+
+function stopPatternAnimation(){
+  patternAnimationState.isPlaying=false;
+  if(patternAnimationState.animationIntervalId){
+    clearInterval(patternAnimationState.animationIntervalId);
+    patternAnimationState.animationIntervalId=null;
+  }
+}
+
+function restartPatternAnimation(){
+  if(patternAnimationState.isPlaying||document.getElementById('patternKeyboard')){
+    startPatternAnimation();
+  }
+}
+
+function advancePatternStep(){
+  const seq=promptState.patternSequence;
+  if(!seq.length)return;
+  patternAnimationState.currentStepIndex=(patternAnimationState.currentStepIndex+1)%seq.length;
+  if(patternAnimationState.currentStepIndex===0)patternAnimationState.loopCount++;
+  if(promptState.instrument==='piano'){
+    renderPatternKeyboard();
+  }else{
+    renderGuitarTab();
+  }
+}
+
+function updateImprovDisplay(){
+  const nameEl=document.getElementById('scaleNameDisplay');
+  if(nameEl)nameEl.textContent=`${promptState.currentKey} ${promptState.currentScaleType}`;
+  const patternEl=document.getElementById('patternNameDisplay');
+  if(patternEl)patternEl.textContent=promptState.currentPattern;
+  const descEl=document.getElementById('patternDesc');
+  const patternDefs=promptState.instrument==='guitar'?GUITAR_PATTERNS:PATTERN_DEFINITIONS;
+  if(descEl)descEl.textContent=patternDefs[promptState.currentPattern]?.desc||'';
+  
+  const patternLabel=document.getElementById('patternLabel');
+  if(patternLabel)patternLabel.textContent=promptState.instrument==='guitar'?'Picking Pattern:':'Left Hand Pattern:';
+  
+  if(promptState.instrument==='piano'){
+    renderMainKeyboard();
+    renderPatternKeyboard();
+  }else{
+    renderGuitarFretboard();
+    renderGuitarTab();
+  }
+}
+
+function renderMainKeyboard(){
+  const container=document.getElementById('mainKeyboard');
+  if(!container)return;
+  container.style.display='block';
+  const guitarContainer=document.getElementById('guitarFretboard');
+  if(guitarContainer)guitarContainer.style.display='none';
+  
+  const startMidi=getRootMidiNote('C',3);
+  const numKeys=29;
+  let html='<div class="keyboard">';
+  for(let i=0;i<numKeys;i++){
+    const midi=startMidi+i;
+    const isBlack=isBlackKey(midi);
+    const isInScale=promptState.scaleNotes.includes(midi);
+    const isRoot=(midi%12)===CHROMATIC_KEYS.indexOf(promptState.currentKey);
+    html+=`<div class="key ${isBlack?'black':'white'} ${isInScale?'highlighted':''} ${isRoot?'root':''}" data-midi="${midi}">`;
+    if(isInScale)html+=`<span class="dot ${isRoot?'root-dot':''}"></span>`;
+    html+=`</div>`;
+  }
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderPatternKeyboard(){
+  const container=document.getElementById('patternKeyboard');
+  if(!container)return;
+  container.style.display='block';
+  const tabContainer=document.getElementById('guitarTab');
+  if(tabContainer)tabContainer.style.display='none';
+  
+  const seq=promptState.patternSequence;
+  if(!seq.length)return;
+  const currentNotes=seq[patternAnimationState.currentStepIndex];
+  const allPatternNotes=[...new Set(seq.flat())];
+  const minNote=Math.min(...allPatternNotes)-2;
+  const maxNote=Math.max(...allPatternNotes)+2;
+  
+  let html='<div class="keyboard mini">';
+  for(let midi=minNote;midi<=maxNote;midi++){
+    const isBlack=isBlackKey(midi);
+    const isActive=Array.isArray(currentNotes)?currentNotes.includes(midi):currentNotes===midi;
+    const isInPattern=allPatternNotes.includes(midi);
+    html+=`<div class="key ${isBlack?'black':'white'} ${isActive?'active':''} ${isInPattern&&!isActive?'in-pattern':''}" data-midi="${midi}"></div>`;
+  }
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderGuitarFretboard(){
+  const container=document.getElementById('guitarFretboard');
+  if(!container)return;
+  container.style.display='block';
+  const pianoContainer=document.getElementById('mainKeyboard');
+  if(pianoContainer)pianoContainer.style.display='none';
+  
+  const positions=getGuitarScalePositions(promptState.currentKey,promptState.currentScaleType);
+  const stringNames=['E','B','G','D','A','E'];
+  const inlayFrets=[3,5,7,9,12,15];
+  
+  let html='<div class="fretboard">';
+  
+  // Strings (high E at top)
+  for(let s=0;s<6;s++){
+    html+=`<div class="guitar-string">`;
+    html+=`<div class="string-label">${stringNames[s]}</div>`;
+    html+=`<div class="frets-container"><div class="string-line"></div>`;
+    
+    for(let f=0;f<=GUITAR_FRETS;f++){
+      const pos=positions[5-s].find(p=>p.fret===f);
+      html+=`<div class="fret" data-string="${5-s}" data-fret="${f}">`;
+      if(pos){
+        html+=`<div class="fret-dot visible ${pos.isRoot?'root':''}">${f}</div>`;
+      }
+      html+=`</div>`;
+    }
+    html+=`</div></div>`;
+  }
+  
+  // Fret markers
+  html+=`<div class="fret-markers"><div class="fret-marker"></div>`;
+  for(let f=1;f<=GUITAR_FRETS;f++){
+    html+=`<div class="fret-marker ${inlayFrets.includes(f)?'inlay':''}">${inlayFrets.includes(f)?'•':''}</div>`;
+  }
+  html+=`</div>`;
+  
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderGuitarTab(){
+  const container=document.getElementById('guitarTab');
+  if(!container)return;
+  container.style.display='block';
+  const pianoPattern=document.getElementById('patternKeyboard');
+  if(pianoPattern)pianoPattern.style.display='none';
+  
+  const positions=getGuitarScalePositions(promptState.currentKey,promptState.currentScaleType);
+  const seq=promptState.patternSequence;
+  const currentStep=seq[patternAnimationState.currentStepIndex];
+  const stringNames=['e','B','G','D','A','E'];
+  
+  // Build tab for the pattern
+  let html='<div class="tab-display">';
+  
+  for(let s=0;s<6;s++){
+    const stringIdx=5-s; // Reverse for display (high E at top)
+    html+=`<div class="tab-line">`;
+    html+=`<div class="tab-string-label">${stringNames[s]}</div>`;
+    html+=`<div class="tab-content">`;
+    html+=`<div class="tab-note">|</div>`;
+    
+    // Show pattern sequence
+    for(let i=0;i<seq.length;i++){
+      const step=seq[i];
+      const strings=Array.isArray(step)?step:[step];
+      const isActive=i===patternAnimationState.currentStepIndex;
+      
+      if(strings.includes(stringIdx+1)){
+        // Find a good fret for this string in the scale
+        const stringPositions=positions[stringIdx];
+        const fret=stringPositions.length>0?stringPositions[Math.floor(stringPositions.length/2)].fret:0;
+        const isRoot=stringPositions.find(p=>p.fret===fret)?.isRoot;
+        html+=`<div class="tab-note ${isActive?'active':''} ${isRoot?'root':''}">${fret}</div>`;
+      }else{
+        html+=`<div class="tab-note ${isActive?'active':''}">-</div>`;
+      }
+    }
+    
+    html+=`<div class="tab-note">|</div>`;
+    html+=`</div></div>`;
+  }
+  
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderImprovScreen(){
+  const patternDefs=promptState.instrument==='guitar'?GUITAR_PATTERNS:PATTERN_DEFINITIONS;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>🎷 Improv Generator</h1>
+    <div class="instrument-toggle">
+      <div class="radio-btn instrument-btn ${promptState.instrument==='piano'?'selected':''}" data-instrument="piano">🎹 Piano</div>
+      <div class="radio-btn instrument-btn ${promptState.instrument==='guitar'?'selected':''}" data-instrument="guitar">🎸 Guitar</div>
+    </div>
+    <div class="improv-main">
+      <div class="scale-display">
+        <div class="scale-name" id="scaleNameDisplay">${promptState.currentKey} ${promptState.currentScaleType}</div>
+      </div>
+      <div id="mainKeyboard" class="keyboard-container" style="display:${promptState.instrument==='piano'?'block':'none'}"></div>
+      <div id="guitarFretboard" class="fretboard-container" style="display:${promptState.instrument==='guitar'?'block':'none'}"></div>
+      <div class="pattern-section">
+        <div class="pattern-header">
+          <span class="pattern-label" id="patternLabel">${promptState.instrument==='guitar'?'Picking Pattern:':'Left Hand Pattern:'}</span>
+          <span class="pattern-name" id="patternNameDisplay">${promptState.currentPattern}</span>
+        </div>
+        <div class="pattern-desc" id="patternDesc">${patternDefs[promptState.currentPattern]?.desc||''}</div>
+        <div id="patternKeyboard" class="keyboard-container mini-container" style="display:${promptState.instrument==='piano'?'block':'none'}"></div>
+        <div id="guitarTab" class="tab-container" style="display:${promptState.instrument==='guitar'?'block':'none'}"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="control-row">
+        <label>Locks:</label>
+        <div class="toggle-row">
+          <button class="btn btn-toggle ${lockState.keyLocked?'on':'off'}" id="keyLock">${lockState.keyLocked?'🔒':'🔓'} Key</button>
+          <button class="btn btn-toggle ${lockState.scaleLocked?'on':'off'}" id="scaleLock">${lockState.scaleLocked?'🔒':'🔓'} Scale</button>
+          <button class="btn btn-toggle ${lockState.patternLocked?'on':'off'}" id="patternLock">${lockState.patternLocked?'🔒':'🔓'} Pattern</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Complexity:</label>
+        <div class="radio-group">
+          <div class="radio-btn complexity-btn ${settingsState.complexityMode==='beginner'?'selected':''}" data-mode="beginner">Beginner</div>
+          <div class="radio-btn complexity-btn ${settingsState.complexityMode==='jazz'?'selected':''}" data-mode="jazz">Jazz</div>
+          <div class="radio-btn complexity-btn ${settingsState.complexityMode==='exotic'?'selected':''}" data-mode="exotic">Exotic</div>
+          <div class="radio-btn complexity-btn ${settingsState.complexityMode==='all'?'selected':''}" data-mode="all">All</div>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Match Vibe:</label>
+        <button class="btn btn-toggle ${settingsState.matchVibeEnabled?'on':'off'}" id="matchVibeBtn">${settingsState.matchVibeEnabled?'ON':'OFF'}</button>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-large" id="btnGenerate">🎲 Generate (Space)</button>
+    </div>
+    <p class="hint">Press <kbd>Space</kbd> to generate a new prompt</p>`;
+  
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.querySelectorAll('.instrument-btn').forEach(b=>b.onclick=()=>setInstrument(b.dataset.instrument));
+  document.getElementById('keyLock').onclick=toggleKeyLock;
+  document.getElementById('scaleLock').onclick=toggleScaleLock;
+  document.getElementById('patternLock').onclick=togglePatternLock;
+  document.querySelectorAll('.complexity-btn').forEach(b=>b.onclick=()=>setComplexityMode(b.dataset.mode));
+  document.getElementById('matchVibeBtn').onclick=toggleMatchVibe;
+  document.getElementById('btnGenerate').onclick=generatePrompt;
+  
+  document.onkeydown=e=>{
+    if(e.code==='Space'&&appState.currentMode==='improv'){
+      e.preventDefault();
+      generatePrompt();
+    }
+  };
+  
+  updateImprovDisplay();
+  startPatternAnimation();
+}
+
+// ===== GHOST METRONOME FUNCTIONS =====
+function calculateGhostBeatDuration(){
+  return 60000/ghostMetronomeState.tempo;
+}
+
+function calculateGhostBarDuration(){
+  return calculateGhostBeatDuration()*ghostMetronomeState.beatsPerBar;
+}
+
+function getCycleTotalBars(){
+  return ghostMetronomeState.activeBars+ghostMetronomeState.ghostBars;
+}
+
+function getBarPositionInCycle(absoluteBar){
+  const cycle=getCycleTotalBars();
+  const posInCycle=absoluteBar%cycle;
+  if(posInCycle<ghostMetronomeState.activeBars){
+    return{phase:'active',barInPhase:posInCycle+1};
+  }
+  return{phase:'ghost',barInPhase:posInCycle-ghostMetronomeState.activeBars+1};
+}
+
+function calculateGhostProgress(){
+  if(ghostMetronomeState.currentPhase!=='ghost')return 0;
+  const barsIntoGhost=ghostMetronomeState.currentBar-1;
+  const beatsIntoBar=ghostMetronomeState.currentBeat-1;
+  const totalGhostBeats=ghostMetronomeState.ghostBars*ghostMetronomeState.beatsPerBar;
+  const currentGhostBeat=barsIntoGhost*ghostMetronomeState.beatsPerBar+beatsIntoBar;
+  return currentGhostBeat/totalGhostBeats;
+}
+
+function transitionToActivePhase(){
+  ghostMetronomeState.currentPhase='active';
+  ghostMetronomeState.currentBar=1;
+  ghostMetronomeState.currentBeat=1;
+  ghostAudioState.isMuted=false;
+  ghostVisualState.isFadingIn=true;
+  ghostVisualState.isFadingOut=false;
+  ghostVisualState.fadeProgress=0;
+  ghostVisualState.noteOpacity=0;
+  ghostVisualState.progressRingPercent=0;
+  updateCycleDisplay();
+}
+
+function transitionToGhostPhase(){
+  ghostMetronomeState.currentPhase='ghost';
+  ghostMetronomeState.currentBar=1;
+  ghostMetronomeState.currentBeat=1;
+  ghostMetronomeState.cycleCount++;
+  ghostAudioState.isMuted=true;
+  ghostVisualState.isFadingOut=true;
+  ghostVisualState.isFadingIn=false;
+  ghostVisualState.fadeProgress=0;
+  updateCycleDisplay();
+}
+
+function handlePhaseTransition(){
+  const s=ghostMetronomeState;
+  if(s.currentPhase==='active'&&s.currentBar>s.activeBars){
+    transitionToGhostPhase();
+  }else if(s.currentPhase==='ghost'&&s.currentBar>s.ghostBars){
+    transitionToActivePhase();
+  }
+}
+
+function incrementGhostBeat(){
+  const s=ghostMetronomeState;
+  s.currentBeat++;
+  if(s.currentBeat>s.beatsPerBar){
+    s.currentBeat=1;
+    s.currentBar++;
+    handlePhaseTransition();
+  }
+  updateCycleDisplay();
+}
+
+function updateGhostFadeProgress(delta){
+  const fadeSpeed=3;
+  if(ghostVisualState.isFadingOut){
+    ghostVisualState.fadeProgress=Math.min(1,ghostVisualState.fadeProgress+delta*fadeSpeed);
+    ghostVisualState.noteOpacity=1-ghostVisualState.fadeProgress;
+    if(ghostVisualState.fadeProgress>=1)ghostVisualState.isFadingOut=false;
+  }
+  if(ghostVisualState.isFadingIn){
+    ghostVisualState.fadeProgress=Math.min(1,ghostVisualState.fadeProgress+delta*fadeSpeed);
+    ghostVisualState.noteOpacity=ghostVisualState.fadeProgress;
+    if(ghostVisualState.fadeProgress>=1)ghostVisualState.isFadingIn=false;
+  }
+}
+
+function interpolateColor(c1,c2,factor){
+  const hex=s=>parseInt(s,16);
+  const r1=hex(c1.slice(1,3)),g1=hex(c1.slice(3,5)),b1=hex(c1.slice(5,7));
+  const r2=hex(c2.slice(1,3)),g2=hex(c2.slice(3,5)),b2=hex(c2.slice(5,7));
+  const r=Math.round(r1+(r2-r1)*factor);
+  const g=Math.round(g1+(g2-g1)*factor);
+  const b=Math.round(b1+(b2-b1)*factor);
+  return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+function updateGhostBackgroundColor(){
+  const targetColor=ghostMetronomeState.currentPhase==='ghost'?ghostVisualState.ghostColor:ghostVisualState.activeColor;
+  ghostVisualState.backgroundColor=targetColor;
+  const container=document.getElementById('ghostCanvasContainer');
+  if(container)container.style.backgroundColor=targetColor;
+}
+
+function initializeGhostCanvas(){
+  ghostCanvasState.canvas=document.getElementById('ghostCanvas');
+  if(!ghostCanvasState.canvas)return;
+  ghostCanvasState.ctx=ghostCanvasState.canvas.getContext('2d');
+  resizeGhostCanvas();
+}
+
+function resizeGhostCanvas(){
+  if(!ghostCanvasState.canvas)return;
+  const rect=ghostCanvasState.canvas.getBoundingClientRect();
+  ghostCanvasState.canvas.width=rect.width*window.devicePixelRatio;
+  ghostCanvasState.canvas.height=rect.height*window.devicePixelRatio;
+  ghostCanvasState.ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  ghostCanvasState.width=rect.width;
+  ghostCanvasState.height=rect.height;
+  ghostCanvasState.hitLineY=ghostCanvasState.height-50;
+}
+
+function clearGhostCanvas(){
+  const ctx=ghostCanvasState.ctx;
+  if(!ctx)return;
+  ctx.fillStyle=ghostVisualState.backgroundColor;
+  ctx.fillRect(0,0,ghostCanvasState.width,ghostCanvasState.height);
+}
+
+function drawGhostHitLine(){
+  const ctx=ghostCanvasState.ctx;
+  if(!ctx)return;
+  const isActive=ghostMetronomeState.currentPhase==='active';
+  ctx.strokeStyle=isActive?'#48bb78':'#667eea';
+  ctx.lineWidth=3;
+  ctx.shadowColor=isActive?'#48bb78':'#667eea';
+  ctx.shadowBlur=10;
+  ctx.beginPath();
+  ctx.moveTo(0,ghostCanvasState.hitLineY);
+  ctx.lineTo(ghostCanvasState.width,ghostCanvasState.hitLineY);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+}
+
+function drawGhostNote(note){
+  const ctx=ghostCanvasState.ctx;
+  if(!ctx||note.opacity<=0)return;
+  const x=ghostCanvasState.width/2;
+  const radius=note.isAccent?16:12;
+  ctx.globalAlpha=note.opacity;
+  ctx.beginPath();
+  ctx.arc(x,note.y,radius,0,Math.PI*2);
+  ctx.fillStyle=note.isAccent?'#ecc94b':'#667eea';
+  ctx.fill();
+  if(note.isAccent){
+    ctx.shadowColor='#ecc94b';
+    ctx.shadowBlur=15;
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawProgressRing(){
+  if(ghostMetronomeState.currentPhase!=='active'||ghostVisualState.noteOpacity>=1)return;
+  const ctx=ghostCanvasState.ctx;
+  if(!ctx)return;
+  const progress=calculateGhostProgress();
+  ghostVisualState.progressRingPercent=progress*100;
+  const cx=ghostCanvasState.width/2;
+  const cy=ghostCanvasState.height/2;
+  const radius=60;
+  const circumference=2*Math.PI*radius;
+  
+  ctx.strokeStyle='#4a5568';
+  ctx.lineWidth=8;
+  ctx.beginPath();
+  ctx.arc(cx,cy,radius,0,Math.PI*2);
+  ctx.stroke();
+  
+  if(ghostMetronomeState.currentPhase==='ghost'){
+    ctx.strokeStyle='#667eea';
+    ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius,-Math.PI/2,-Math.PI/2+progress*Math.PI*2);
+    ctx.stroke();
+    
+    ctx.fillStyle='#fff';
+    ctx.font='bold 20px system-ui';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    const remaining=Math.ceil((1-progress)*ghostMetronomeState.ghostBars*ghostMetronomeState.beatsPerBar);
+    ctx.fillText(remaining.toString(),cx,cy);
+  }
+}
+
+function spawnGhostNote(beatNum){
+  const note={
+    y:-20,
+    beatNumber:beatNum,
+    isAccent:beatNum===1,
+    opacity:ghostMetronomeState.currentPhase==='active'?1:0,
+    spawnedInPhase:ghostMetronomeState.currentPhase
+  };
+  ghostCanvasState.notes.push(note);
+}
+
+function updateGhostNotePositions(delta){
+  const speed=ghostCanvasState.scrollSpeed;
+  ghostCanvasState.notes.forEach(n=>{
+    n.y+=speed*delta;
+    if(ghostMetronomeState.currentPhase==='ghost'||ghostVisualState.isFadingOut){
+      n.opacity=Math.max(0,n.opacity-delta*3);
+    }else if(ghostVisualState.isFadingIn&&n.spawnedInPhase==='active'){
+      n.opacity=Math.min(1,n.opacity+delta*3);
+    }
+  });
+  ghostCanvasState.notes=ghostCanvasState.notes.filter(n=>n.y<ghostCanvasState.height+30);
+}
+
+function calculateGhostScrollSpeed(tempo){
+  return tempo*2.5;
+}
+
+function scheduleGhostClick(time,beatNum){
+  if(ghostAudioState.isMuted||!audioState.context)return;
+  const freq=beatNum===1?ghostAudioState.accentFrequency:ghostAudioState.normalFrequency;
+  const osc=audioState.context.createOscillator();
+  const gain=audioState.context.createGain();
+  osc.connect(gain);
+  gain.connect(audioState.masterGain||audioState.context.destination);
+  osc.frequency.value=freq;
+  osc.type='sine';
+  const vol=beatNum===1?0.4:0.25;
+  gain.gain.setValueAtTime(vol,time);
+  gain.gain.exponentialRampToValueAtTime(0.001,time+ghostAudioState.clickDuration/1000);
+  osc.start(time);
+  osc.stop(time+ghostAudioState.clickDuration/1000);
+}
+
+function startGhostAudioScheduler(){
+  if(!audioState.context)return;
+  const beatDur=calculateGhostBeatDuration()/1000;
+  audioState.nextNoteTime=audioState.context.currentTime;
+  
+  function schedule(){
+    if(!ghostMetronomeState.isRunning)return;
+    while(audioState.nextNoteTime<audioState.context.currentTime+audioState.scheduleAheadTime){
+      scheduleGhostClick(audioState.nextNoteTime,ghostMetronomeState.currentBeat);
+      spawnGhostNote(ghostMetronomeState.currentBeat);
+      incrementGhostBeat();
+      audioState.nextNoteTime+=beatDur;
+    }
+  }
+  audioState.schedulerTimerId=setInterval(schedule,audioState.lookahead);
+}
+
+function stopGhostAudioScheduler(){
+  if(audioState.schedulerTimerId){
+    clearInterval(audioState.schedulerTimerId);
+    audioState.schedulerTimerId=null;
+  }
+}
+
+function ghostMetronomeAnimationLoop(timestamp){
+  if(!ghostMetronomeState.isRunning)return;
+  const delta=(timestamp-ghostCanvasState.lastTimestamp)/1000;
+  ghostCanvasState.lastTimestamp=timestamp;
+  
+  ghostMetronomeState.elapsedTime+=(delta*1000);
+  updateGhostFadeProgress(delta);
+  updateGhostBackgroundColor();
+  updateGhostNotePositions(delta);
+  
+  clearGhostCanvas();
+  drawGhostHitLine();
+  ghostCanvasState.notes.forEach(drawGhostNote);
+  if(ghostMetronomeState.currentPhase==='ghost')drawProgressRing();
+  
+  ghostCanvasState.animationFrameId=requestAnimationFrame(ghostMetronomeAnimationLoop);
+}
+
+function startGhostMetronome(){
+  if(ghostMetronomeState.isRunning)return;
+  initializeAudioContext();
+  
+  ghostMetronomeState.isRunning=true;
+  ghostMetronomeState.currentPhase='active';
+  ghostMetronomeState.currentBar=1;
+  ghostMetronomeState.currentBeat=1;
+  ghostMetronomeState.cycleCount=0;
+  ghostMetronomeState.elapsedTime=0;
+  ghostAudioState.isMuted=false;
+  ghostVisualState.noteOpacity=1;
+  ghostVisualState.isFadingIn=false;
+  ghostVisualState.isFadingOut=false;
+  ghostCanvasState.notes=[];
+  ghostCanvasState.scrollSpeed=calculateGhostScrollSpeed(ghostMetronomeState.tempo);
+  ghostCanvasState.lastTimestamp=performance.now();
+  
+  appState.isSessionActive=true;
+  appState.currentMode='ghostMetronome';
+  
+  updateCycleDisplay();
+  startGhostAudioScheduler();
+  ghostMetronomeAnimationLoop(performance.now());
+}
+
+function stopGhostMetronome(){
+  ghostMetronomeState.isRunning=false;
+  appState.isSessionActive=false;
+  stopGhostAudioScheduler();
+  ghostCanvasState.notes=[];
+  if(ghostCanvasState.animationFrameId){
+    cancelAnimationFrame(ghostCanvasState.animationFrameId);
+    ghostCanvasState.animationFrameId=null;
+  }
+}
+
+function updateCycleDisplay(){
+  const s=ghostMetronomeState;
+  const statusEl=document.getElementById('cycleStatus');
+  const badgeEl=document.getElementById('phaseBadge');
+  if(statusEl){
+    const phaseText=s.currentPhase==='active'?'Playing':'Ghosting';
+    const totalBars=s.currentPhase==='active'?s.activeBars:s.ghostBars;
+    statusEl.textContent=`${phaseText}: Bar ${s.currentBar} of ${totalBars}`;
+    statusEl.className='cycle-status '+s.currentPhase;
+  }
+  if(badgeEl){
+    badgeEl.textContent=s.currentPhase==='active'?'🔊 ACTIVE':'👻 GHOST';
+    badgeEl.className='phase-badge '+s.currentPhase;
+  }
+  const cycleEl=document.getElementById('cycleCount');
+  if(cycleEl)cycleEl.textContent=s.cycleCount;
+}
+
+function renderGhostMetronomeScreen(){
+  const s=ghostMetronomeState;
+  document.getElementById('app').innerHTML=`
+    <button class="btn btn-secondary btn-sm back-btn" id="btnBack">← Back</button>
+    <h1>👻 Ghost Metronome</h1>
+    <div class="controls">
+      <div class="control-row"><label>Tempo (BPM)</label><input type="number" id="ghostTempo" value="${s.tempo}" min="40" max="240"></div>
+      <div class="control-row"><label>Beats per Bar</label>
+        <div class="radio-group">
+          <div class="radio-btn beats-btn ${s.beatsPerBar===3?'selected':''}" data-beats="3">3</div>
+          <div class="radio-btn beats-btn ${s.beatsPerBar===4?'selected':''}" data-beats="4">4</div>
+          <div class="radio-btn beats-btn ${s.beatsPerBar===6?'selected':''}" data-beats="6">6</div>
+        </div>
+      </div>
+      <div class="control-row"><label>Active Bars (Audible)</label><input type="number" id="activeBars" value="${s.activeBars}" min="1" max="16"></div>
+      <div class="control-row"><label>Ghost Bars (Silent)</label><input type="number" id="ghostBars" value="${s.ghostBars}" min="1" max="16"></div>
+    </div>
+    <div class="cycle-display">
+      <span class="cycle-status active" id="cycleStatus">Ready to start</span>
+      <span class="phase-badge active" id="phaseBadge">🔊 ACTIVE</span>
+      <div class="ghost-info">Cycles completed: <strong id="cycleCount">0</strong></div>
+    </div>
+    <div class="ghost-canvas-container" id="ghostCanvasContainer">
+      <canvas class="ghost-canvas" id="ghostCanvas"></canvas>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnStartGhost">Start</button>
+      <button class="btn btn-secondary" id="btnStopGhost">Stop</button>
+    </div>
+    <p class="hint">Keep the beat during ghost bars - the click returns on beat 1!</p>`;
+  
+  document.getElementById('btnBack').onclick=returnToHome;
+  document.getElementById('ghostTempo').onchange=e=>{s.tempo=clamp(+e.target.value||100,40,240);e.target.value=s.tempo;};
+  document.getElementById('activeBars').onchange=e=>{s.activeBars=clamp(+e.target.value||4,1,16);e.target.value=s.activeBars;};
+  document.getElementById('ghostBars').onchange=e=>{s.ghostBars=clamp(+e.target.value||2,1,16);e.target.value=s.ghostBars;};
+  document.querySelectorAll('.beats-btn').forEach(b=>b.onclick=()=>{
+    s.beatsPerBar=+b.dataset.beats;
+    document.querySelectorAll('.beats-btn').forEach(x=>x.classList.toggle('selected',+x.dataset.beats===s.beatsPerBar));
+  });
+  document.getElementById('btnStartGhost').onclick=()=>{initializeGhostCanvas();startGhostMetronome();};
+  document.getElementById('btnStopGhost').onclick=stopGhostMetronome;
+  
+  setTimeout(initializeGhostCanvas,50);
+}
+
+function stopImprov(){
+  stopPatternAnimation();
+  document.onkeydown=null;
+}
+
+function returnToHome(){
+  stopDirectionTrainer();
+  stopSplitMetronome();
+  stopPolyrhythm();
+  stopSwing();
+  stopTempoRamp();
+  stopImprov();
+  stopGhostMetronome();
+  appState.currentMode='home';
+  appState.isSessionActive=false;
+  renderHomeScreen();
+}
+
+// ===== INITIALIZATION =====
+function initializeApplication(){
+  loadPresets();
+  renderHomeScreen();
+}
+
+document.addEventListener('DOMContentLoaded',initializeApplication);
+window.addEventListener('resize',()=>{if(canvasState.canvas)resizeCanvas();});
+</script>
+</body>
+</html>

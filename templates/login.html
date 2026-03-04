@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+
+{% set hide_navbar = true %}
+
+{% block title %}Login - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
+    }
+
+    .login-card {
+        background: var(--bg-surface);
+        border: none;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .logo-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .logo-icon {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .otp-input {
+        text-align: center;
+        font-size: 20px;
+        letter-spacing: 8px;
+        font-weight: 600;
+    }
+    
+    #loading {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center login-page">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4">
+            <div class="card login-card">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- Logo Section -->
+                    <div class="logo-section">
+                        <span class="logo-icon">🎓</span>
+                        <h1 class="logo mb-2">LinguaDojo</h1>
+                        <p class="tagline mb-0" data-i18n="login.tagline">Master any language with active practice</p>
+                    </div>
+
+                    <!-- Language Switcher (no navbar on login page) -->
+                    <div class="text-center mb-3">
+                        <div class="btn-group btn-group-sm" id="loginLangSwitcher" role="group" aria-label="Switch language"></div>
+                    </div>
+                    
+                    <!-- Error Alert (hidden by default) -->
+                    <div id="error-alert" class="alert alert-danger d-none" role="alert">
+                        <span id="error-message"></span>
+                    </div>
+                    
+                    <!-- Email Step -->
+                    <div id="email-step">
+                        <form id="email-form">
+                            <div class="mb-3">
+                                <label for="email" class="form-label" data-i18n="login.email_label">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    class="form-control" 
+                                    id="email" 
+                                    placeholder="your@email.com" data-i18n-placeholder="login.email_placeholder"
+                                    autocomplete="email"
+                                    required
+                                >
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mb-3" data-i18n="login.send_code">
+                                Send Verification Code
+                            </button>
+                            <p class="text-center text-muted mb-0">
+                                <small data-i18n="login.new_user_hint">New here? Just enter your email to create an account.</small>
+                            </p>
+                        </form>
+                    </div>
+                    
+                    <!-- OTP Step (hidden by default) -->
+                    <div id="otp-step" class="d-none">
+                        <div class="alert alert-info mb-4">
+                            <span data-i18n="login.code_sent">We sent a 6-digit code to</span> <strong id="email-display"></strong>
+                        </div>
+                        
+                        <form id="otp-form">
+                            <div class="mb-3">
+                                <label for="otp" class="form-label" data-i18n="login.code_label">Verification Code</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control otp-input" 
+                                    id="otp" 
+                                    placeholder="000000"
+                                    pattern="[0-9]{6}"
+                                    maxlength="6"
+                                    inputmode="numeric"
+                                    autocomplete="one-time-code"
+                                    required
+                                >
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success w-100 mb-2" data-i18n="login.verify">
+                                Verify & Continue
+                            </button>
+
+                            <button type="button" id="back-btn" class="btn btn-secondary w-100 mb-3" data-i18n="login.back">
+                                ← Back to Email
+                            </button>
+                        </form>
+                        
+                        <div class="text-center">
+                            <small class="text-slate-500">
+                                <span data-i18n="login.resend_prompt">Didn't receive the code?</span>
+                                <button id="resend-btn" class="btn btn-link p-0 text-decoration-underline" type="button" data-i18n="login.resend">
+                                    Resend
+                                </button>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State (hidden by default) -->
+                    <div id="loading" class="d-none py-4">
+                        <div class="spinner mx-auto mb-3"></div>
+                        <p class="text-slate-500 mb-0" data-i18n="login.processing">Processing...</p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    // DOM Elements
+    const emailStep = document.getElementById('email-step');
+    const otpStep = document.getElementById('otp-step');
+    const loading = document.getElementById('loading');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const emailInput = document.getElementById('email');
+    const otpInput = document.getElementById('otp');
+    const emailDisplay = document.getElementById('email-display');
+    const emailForm = document.getElementById('email-form');
+    const otpForm = document.getElementById('otp-form');
+    const backBtn = document.getElementById('back-btn');
+    const resendBtn = document.getElementById('resend-btn');
+
+    // Utility Functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideError() {
+        errorAlert.classList.add('d-none');
+        errorMessage.textContent = '';
+    }
+
+    function showLoading() {
+        emailStep.classList.add('d-none');
+        otpStep.classList.add('d-none');
+        loading.classList.remove('d-none');
+    }
+
+    function hideLoading() {
+        loading.classList.add('d-none');
+    }
+
+    function showEmailStep() {
+        hideError();
+        emailStep.classList.remove('d-none');
+        otpStep.classList.add('d-none');
+        hideLoading();
+    }
+
+    function showOtpStep() {
+        hideError();
+        emailStep.classList.add('d-none');
+        otpStep.classList.remove('d-none');
+        hideLoading();
+        setTimeout(() => otpInput.focus(), 100);
+    }
+
+    // Send OTP
+    emailForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+
+        if (!email || !emailInput.checkValidity()) {
+            showError(LinguaI18n.t('login.error.invalid_email'));
+            return;
+        }
+
+        hideError();
+        showLoading();
+
+        try {
+            const response = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    is_registration: true
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                emailDisplay.textContent = email;
+                showOtpStep();
+            } else {
+                showEmailStep();
+                showError(LinguaI18n.tError(data.error) || LinguaI18n.t('login.error.send_failed'));
+            }
+        } catch (error) {
+            console.error('Send OTP error:', error);
+            showEmailStep();
+            showError(LinguaI18n.t('login.error.network'));
+        }
+    });
+
+    // Verify OTP
+    otpForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = emailInput.value.trim();
+        const otp = otpInput.value.trim();
+        
+        if (otp.length !== 6) {
+            showError(LinguaI18n.t('login.error.invalid_code'));
+            return;
+        }
+        
+        hideError();
+        showLoading();
+        
+        try {
+            const response = await fetch('/api/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: email,
+                    otp_code: otp 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Store JWT and user data
+                localStorage.setItem('jwt_token', data.jwt_token);
+                localStorage.setItem('user_data', JSON.stringify(data.user));
+
+                // Store refresh token for silent token refresh
+                if (data.refresh_token) {
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                }
+
+                // Redirect new users to welcome page, returning users to language selection
+                if (data.user.totalTestsTaken === 0) {
+                    window.location.href = '/welcome';
+                } else {
+                    window.location.href = '/language-selection';
+                }
+            } else {
+                showOtpStep();
+                showError(LinguaI18n.tError(data.error || data.message) || LinguaI18n.t('login.error.verify_failed'));
+                otpInput.value = '';
+            }
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            showOtpStep();
+            showError(LinguaI18n.t('login.error.network'));
+        }
+    });
+
+    // Back Button
+    backBtn.addEventListener('click', function() {
+        showEmailStep();
+        otpInput.value = '';
+    });
+    
+    // Resend OTP
+    resendBtn.addEventListener('click', async function() {
+        const email = emailInput.value.trim();
+
+        this.disabled = true;
+        this.textContent = LinguaI18n.t('login.sending');
+
+        try {
+            const response = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    is_registration: true
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                hideError();
+                // Visual feedback
+                const infoAlert = otpStep.querySelector('.alert-info');
+                infoAlert.style.animation = 'pulse 0.4s ease';
+                setTimeout(() => infoAlert.style.animation = '', 400);
+            } else {
+                showError(LinguaI18n.tError(data.error) || LinguaI18n.t('login.error.resend_failed'));
+            }
+        } catch (error) {
+            console.error('Resend OTP error:', error);
+            showError(LinguaI18n.t('error.network'));
+        } finally {
+            this.disabled = false;
+            this.textContent = LinguaI18n.t('login.resend');
+        }
+    });
+    
+    // Auto-format OTP input
+    otpInput.addEventListener('input', function(e) {
+        // Only allow numbers
+        this.value = this.value.replace(/[^0-9]/g, '');
+        
+        // Auto-submit when 6 digits entered
+        if (this.value.length === 6) {
+            // Use requestSubmit for proper form submission
+            if (otpForm.requestSubmit) {
+                otpForm.requestSubmit();
+            } else {
+                // Fallback for older browsers
+                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                otpForm.dispatchEvent(submitEvent);
+            }
+        }
+    });
+    
+    // Build standalone language switcher (no navbar on login page)
+    (function setupLoginLangSwitcher() {
+        var container = document.getElementById('loginLangSwitcher');
+        if (!container) return;
+        var langs = LinguaI18n.SUPPORTED_LANGS;
+        var current = LinguaI18n.currentLanguage();
+        Object.keys(langs).forEach(function(code) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-outline-secondary' + (code === current ? ' active' : '');
+            btn.textContent = langs[code].flag;
+            btn.title = langs[code].nativeName;
+            btn.addEventListener('click', function() {
+                LinguaI18n.setLanguage(code);
+                container.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            });
+            container.appendChild(btn);
+        });
+    })();
+
+    // Check if already logged in
+    if (localStorage.getItem('jwt_token')) {
+        window.location.href = '/language-selection';
+    }
+})();
+</script>
+{% endblock %}

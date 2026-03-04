@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>MusicDojo - Master Rhythm & Musicality</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container" id="app">
+
+        <!-- ===== HOME SCREEN ===== -->
+        <div id="home-screen" class="screen active">
+            <header class="header">
+                <h1 class="title">🎵 MusicDojo</h1>
+                <p class="subtitle">Master Rhythm, Timing & Musicality</p>
+            </header>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Elo</span>
+                    <span class="stat-value" id="home-elo">1000</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Streak</span>
+                    <span class="stat-value" id="home-streak">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Practice</span>
+                    <span class="stat-value" id="home-practice-time">0m</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Achievements</span>
+                    <span class="stat-value" id="home-achievements">0</span>
+                </div>
+            </div>
+
+            <div class="mode-grid">
+                <button class="mode-btn" id="btn-direction">
+                    <div class="mode-icon">↕️</div>
+                    <div class="mode-name">Direction Trainer</div>
+                    <div class="mode-desc">Hand coordination practice</div>
+                </button>
+
+                <button class="mode-btn" id="btn-split">
+                    <div class="mode-icon">⏱️</div>
+                    <div class="mode-name">Split Metronome</div>
+                    <div class="mode-desc">Dual-tempo practice</div>
+                </button>
+
+                <button class="mode-btn" id="btn-polyrhythm">
+                    <div class="mode-icon">🔢</div>
+                    <div class="mode-name">Polyrhythm</div>
+                    <div class="mode-desc">Master complex ratios</div>
+                </button>
+
+                <button class="mode-btn" id="btn-swing">
+                    <div class="mode-icon">🎷</div>
+                    <div class="mode-name">Swing Trainer</div>
+                    <div class="mode-desc">Feel the groove</div>
+                </button>
+
+                <button class="mode-btn" id="btn-tempo-ramp">
+                    <div class="mode-icon">📈</div>
+                    <div class="mode-name">Tempo Ramp</div>
+                    <div class="mode-desc">Progressive speed training</div>
+                </button>
+
+                <button class="mode-btn" id="btn-improv">
+                    <div class="mode-icon">🎹</div>
+                    <div class="mode-name">Improv Generator</div>
+                    <div class="mode-desc">Jazz scales & patterns</div>
+                </button>
+
+                <button class="mode-btn" id="btn-ghost">
+                    <div class="mode-icon">👻</div>
+                    <div class="mode-name">Ghost Metronome</div>
+                    <div class="mode-desc">Internalize the beat</div>
+                </button>
+
+                <button class="mode-btn" id="btn-ear-training">
+                    <div class="mode-icon">👂</div>
+                    <div class="mode-name">Ear Training</div>
+                    <div class="mode-desc">Intervals, chords & progressions</div>
+                </button>
+
+                <button class="mode-btn" id="btn-rhythm-dictation">
+                    <div class="mode-icon">✍️</div>
+                    <div class="mode-name">Rhythm Dictation</div>
+                    <div class="mode-desc">Recognize rhythm patterns</div>
+                </button>
+
+                <button class="mode-btn" id="btn-metronome">
+                    <div class="mode-icon">⏲️</div>
+                    <div class="mode-name">Metronome+</div>
+                    <div class="mode-desc">Advanced metronome features</div>
+                </button>
+
+                <button class="mode-btn mode-btn-highlight" id="btn-guitar-exercises">
+                    <div class="mode-icon">🎸</div>
+                    <div class="mode-name">Guitar Exercises</div>
+                    <div class="mode-desc">52 exercises across 10 categories</div>
+                </button>
+
+                <button class="mode-btn mode-btn-highlight" id="btn-sight-reading">
+                    <div class="mode-icon">🎼</div>
+                    <div class="mode-name">Sight Reading</div>
+                    <div class="mode-desc">Read & play sheet music</div>
+                </button>
+            </div>
+
+            <div class="bottom-buttons">
+                <button class="btn btn-secondary" id="btn-stats">📊 Stats</button>
+                <button class="btn btn-secondary" id="btn-settings">⚙️ Settings</button>
+            </div>
+        </div>
+
+        <!-- ===== DIRECTION TRAINER SCREEN ===== -->
+        <div id="direction-trainer-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Direction Trainer</h2>
+            <div id="direction-trainer-content">
+                <!-- Will be populated by direction-trainer.js -->
+            </div>
+        </div>
+
+        <!-- ===== SPLIT METRONOME SCREEN ===== -->
+        <div id="split-metronome-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Split Metronome</h2>
+            <div id="split-metronome-content">
+                <!-- Will be populated by split-metronome.js -->
+            </div>
+        </div>
+
+        <!-- ===== POLYRHYTHM SCREEN ===== -->
+        <div id="polyrhythm-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Polyrhythm Visualizer</h2>
+            <div id="polyrhythm-content">
+                <!-- Will be populated by polyrhythm-visualizer.js -->
+            </div>
+        </div>
+
+        <!-- ===== SWING SCREEN ===== -->
+        <div id="swing-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Swing Trainer</h2>
+            <div id="swing-content">
+                <!-- Will be populated by swing-trainer.js -->
+            </div>
+        </div>
+
+        <!-- ===== TEMPO RAMP SCREEN ===== -->
+        <div id="tempo-ramp-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Tempo Ramp</h2>
+            <div id="tempo-ramp-content">
+                <!-- Will be populated by tempo-ramp.js -->
+            </div>
+        </div>
+
+        <!-- ===== IMPROV GENERATOR SCREEN ===== -->
+        <div id="improv-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Improv Generator</h2>
+            <div id="improv-content">
+                <!-- Will be populated by improv-generator.js -->
+            </div>
+        </div>
+
+        <!-- ===== GHOST METRONOME SCREEN ===== -->
+        <div id="ghost-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Ghost Metronome</h2>
+            <div id="ghost-content">
+                <!-- Will be populated by ghost-metronome.js -->
+            </div>
+        </div>
+
+        <!-- ===== EAR TRAINING SCREEN ===== -->
+        <div id="ear-training-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Ear Training</h2>
+            <div id="ear-training-content">
+                <!-- Will be populated by ear-training.js -->
+            </div>
+        </div>
+
+        <!-- ===== RHYTHM DICTATION SCREEN ===== -->
+        <div id="rhythm-dictation-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Rhythm Dictation</h2>
+            <div id="rhythm-dictation-content">
+                <!-- Will be populated by rhythm-dictation.js -->
+            </div>
+        </div>
+
+        <!-- ===== METRONOME SCREEN ===== -->
+        <div id="metronome-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Advanced Metronome</h2>
+            <div id="metronome-content">
+                <!-- Will be populated by metronome.js -->
+            </div>
+        </div>
+
+        <!-- ===== SIGHT READING SCREEN ===== -->
+        <div id="sight-reading-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Sight Reading</h2>
+            <div id="sight-reading-content">
+                <!-- Populated by sight-reading.js -->
+            </div>
+        </div>
+
+        <!-- ===== STATS SCREEN ===== -->
+        <div id="stats-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Statistics & Progress</h2>
+
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h3>Overall Progress</h3>
+                    <div class="stat-row">
+                        <span>Current Elo:</span>
+                        <span id="stats-elo">1000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Daily Streak:</span>
+                        <span id="stats-streak">0 days</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Total Practice Time:</span>
+                        <span id="stats-total-time">0h 0m</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Achievements Unlocked:</span>
+                        <span id="stats-achievements">0</span>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>Mode Statistics</h3>
+                    <div class="mode-stats-list">
+                        <div class="mode-stat">
+                            <span class="mode-stat-name">Direction Trainer:</span>
+                            <span id="stats-direction_trainer-sessions">0</span> sessions,
+                            <span id="stats-direction_trainer-time">0m</span>
+                        </div>
+                        <div class="mode-stat">
+                            <span class="mode-stat-name">Polyrhythm:</span>
+                            <span id="stats-polyrhythm-sessions">0</span> sessions,
+                            <span id="stats-polyrhythm-time">0m</span>
+                        </div>
+                        <div class="mode-stat">
+                            <span class="mode-stat-name">Ear Training:</span>
+                            <span id="stats-ear_training-sessions">0</span> sessions,
+                            <span id="stats-ear-accuracy">0%</span> accuracy
+                        </div>
+                        <div class="mode-stat">
+                            <span class="mode-stat-name">Rhythm Dictation:</span>
+                            <span id="stats-rhythm_dictation-sessions">0</span> sessions,
+                            <span id="stats-rhythm-accuracy">0%</span> accuracy
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>High Scores</h3>
+                    <div class="highscores-list">
+                        <div class="highscore-row">
+                            <span>Max Tempo Reached:</span>
+                            <span id="highscore-tempo_ramp_max">60</span> BPM
+                        </div>
+                        <div class="highscore-row">
+                            <span>Ear Training Streak:</span>
+                            <span id="highscore-ear_training_streak">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>Achievements</h3>
+                    <div id="achievements-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS SCREEN ===== -->
+        <div id="settings-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <h2>Settings</h2>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>Audio Settings</h3>
+
+                    <div class="setting-row">
+                        <label for="settings-sound-toggle">Sound Enabled:</label>
+                        <input type="checkbox" id="settings-sound-toggle" checked>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="settings-volume">Master Volume:</label>
+                        <div class="volume-control">
+                            <input type="range" id="settings-volume" min="0" max="100" value="50">
+                            <span id="settings-volume-value">50%</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="settings-metronome-sound">Metronome Sound:</label>
+                        <select id="settings-metronome-sound">
+                            <option value="sine">Sine Wave</option>
+                            <option value="square">Square Wave</option>
+                            <option value="triangle">Triangle Wave</option>
+                            <option value="sawtooth">Sawtooth Wave</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Visual Settings</h3>
+
+                    <div class="setting-row">
+                        <label for="settings-theme">Theme:</label>
+                        <select id="settings-theme">
+                            <option value="NEON_PULSE">Neon Pulse</option>
+                            <option value="JAZZ_LOUNGE">Jazz Lounge</option>
+                            <option value="CLASSICAL_CONCERT">Classical Concert</option>
+                            <option value="RETRO_SYNTH">Retro Synth</option>
+                            <option value="FOREST_ACOUSTIC">Forest Acoustic</option>
+                            <option value="MIDNIGHT_KEYS">Midnight Keys</option>
+                            <option value="SUNSET_STAGE">Sunset Stage</option>
+                            <option value="MINIMAL_MONO">Minimal Mono</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Data Management</h3>
+
+                    <div class="setting-row">
+                        <button class="btn btn-secondary" id="settings-export">Export Data</button>
+                    </div>
+
+                    <div class="setting-row">
+                        <button class="btn btn-secondary" id="settings-import">Import Data</button>
+                        <input type="file" id="settings-import-file" accept=".json" style="display:none;">
+                    </div>
+
+                    <div class="setting-row">
+                        <button class="btn btn-danger" id="settings-reset">Reset All Progress</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== GUITAR EXERCISES HUB SCREEN ===== -->
+        <div id="guitar-exercises-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <header class="guitar-header">
+                <h2>🎸 Guitar Exercises</h2>
+                <p class="subtitle">52 exercises across 10 technique categories</p>
+            </header>
+
+            <div id="guitar-stats-summary" class="stats-bar mt-md">
+                <!-- Populated by guitar-exercises.js -->
+            </div>
+
+            <div id="guitar-category-nav" class="category-nav mt-lg">
+                <!-- Populated by guitar-exercises.js -->
+            </div>
+
+            <div id="guitar-exercise-list" class="exercise-list mt-lg">
+                <!-- Populated by guitar-exercises.js -->
+            </div>
+
+            <div class="bottom-buttons mt-lg">
+                <button class="btn btn-primary" id="guitar-dashboard-btn">📊 View Dashboard</button>
+            </div>
+        </div>
+
+        <!-- ===== GUITAR PRACTICE SESSION SCREEN ===== -->
+        <div id="guitar-practice-session-screen" class="screen">
+            <div id="guitar-practice-content">
+                <!-- Populated by guitar-metronome.js -->
+            </div>
+        </div>
+
+        <!-- ===== GUITAR DASHBOARD SCREEN ===== -->
+        <div id="guitar-dashboard-screen" class="screen">
+            <button class="btn-back">← Back</button>
+            <header class="guitar-header">
+                <h2>Guitar Practice Dashboard</h2>
+            </header>
+
+            <div class="dashboard-grid mt-lg">
+                <!-- Overall Stats Card -->
+                <div class="stats-card">
+                    <h3>Practice Overview</h3>
+                    <div class="stat-row">
+                        <span>Total Sessions:</span>
+                        <span id="guitar-total-sessions">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Practice Streak:</span>
+                        <span id="guitar-practice-streak">0 days</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Total Practice Time:</span>
+                        <span id="guitar-total-time">0h 0m</span>
+                    </div>
+                </div>
+
+                <!-- Category Coverage -->
+                <div class="stats-card">
+                    <h3>Category Balance</h3>
+                    <div id="guitar-category-stats">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Advancement Ready List -->
+                <div class="stats-card">
+                    <h3>Ready to Advance</h3>
+                    <div id="guitar-advancement-list">
+                        <!-- Exercises with 3 consecutive Gold sessions -->
+                    </div>
+                </div>
+
+                <!-- Milestones -->
+                <div class="stats-card">
+                    <h3>Milestone Badges</h3>
+                    <div class="milestone-grid" id="guitar-milestone-grid">
+                        <!-- Achievement badges -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Load JavaScript files in order -->
+    <script src="{{ url_for('static', filename='js/storage-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/screen-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+
+    <!-- Game mode scripts -->
+    <script src="{{ url_for('static', filename='js/direction-trainer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/split-metronome.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/polyrhythm-visualizer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/swing-trainer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tempo-ramp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/improv-generator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ghost-metronome.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ear-training.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rhythm-dictation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/metronome.js') }}"></script>
+
+    <!-- Guitar exercises scripts -->
+    <script src="{{ url_for('static', filename='js/guitar-exercises.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/guitar-metronome.js') }}"></script>
+
+    <!-- Sight reading dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.5/build/cjs/vexflow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+    <script src="{{ url_for('static', filename='js/sight-reading.js') }}"></script>
+
+    <!-- Initialize app last -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

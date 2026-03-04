@@ -1,0 +1,1153 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Tests - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+    }
+    
+    .filter-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    
+    .filter-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .test-card {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        cursor: pointer;
+        overflow: hidden;
+    }
+    
+    .test-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: var(--primary);
+    }
+    
+    .test-card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--slate-100);
+    }
+    
+    .test-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .test-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .badge-difficulty {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+        border: 1px solid;
+    }
+    
+    .badge-beginner {
+        background: var(--success-bg);
+        color: var(--success);
+        border-color: var(--success);
+    }
+    
+    .badge-intermediate {
+        background: var(--warning-bg);
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+    
+    .badge-advanced {
+        background: var(--warning-bg);
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+    
+    .badge-expert {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+    
+    .badge-custom {
+        background: var(--selected-bg);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .test-card-body {
+        padding: 1.5rem;
+    }
+    
+    .test-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        font-size: 14px;
+        margin-bottom: 1rem;
+    }
+    
+    .test-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--slate-600);
+    }
+    
+    .test-meta-icon {
+        width: 16px;
+        height: 16px;
+        color: var(--slate-500);
+    }
+    
+    .test-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--slate-100);
+    }
+    
+    .stat {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: var(--slate-500);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .test-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .test-meta {
+            gap: 1rem;
+        }
+    }
+
+    /* Suggested Tests Section */
+    .suggested-section {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .suggested-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Suggested Card Base */
+    .suggested-card {
+        background: var(--bg-body);
+        border: 2px dashed var(--border-strong);
+        border-radius: 8px;
+        padding: 1.25rem;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease;
+    }
+
+    /* Skeleton Cards (Placeholder) */
+    .skeleton-card {
+        position: relative;
+        overflow: hidden;
+        opacity: 0.6;
+    }
+
+    .skeleton-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent
+        );
+        animation: skeleton-loading 1.5s infinite;
+    }
+
+    @keyframes skeleton-loading {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .skeleton-badge {
+        width: 80px;
+        height: 20px;
+        background: var(--border-strong);
+        border-radius: 4px;
+        margin-bottom: 0.75rem;
+    }
+
+    .skeleton-title {
+        width: 100%;
+        height: 24px;
+        background: var(--border-strong);
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .skeleton-meta {
+        width: 60%;
+        height: 16px;
+        background: var(--border-default);
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .skeleton-button {
+        width: 100%;
+        height: 36px;
+        background: var(--border-default);
+        border-radius: 6px;
+        margin-top: auto;
+    }
+
+    /* Recommended Test Cards */
+    .recommended-card {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-default);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .recommended-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .recommended-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .test-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+        text-transform: capitalize;
+    }
+
+    .test-type-badge.listening {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .test-type-badge.reading {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    .test-type-badge.dictation {
+        background: var(--selected-bg);
+        color: var(--primary);
+    }
+
+    .tier-badge.premium {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .recommended-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .recommended-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 13px;
+    }
+
+    .elo-info {
+        color: var(--slate-500);
+        font-weight: 500;
+    }
+
+    .recommended-btn {
+        width: 100%;
+        margin-top: auto;
+    }
+
+    /* Empty/Error States for Recommended */
+    .recommended-empty,
+    .recommended-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        color: var(--slate-500);
+        padding: 1rem;
+    }
+
+    .recommended-empty p,
+    .recommended-error p {
+        margin-bottom: 0.5rem;
+        font-size: 14px;
+    }
+
+    /* Random Test Card */
+    .random-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .random-test-btn {
+        width: 100%;
+        height: 100%;
+        background: none;
+        border: none;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .random-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .random-test-btn:hover .random-icon {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    .random-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .random-subtext {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    .random-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Loading State for Random Button */
+    .random-test-btn.loading .random-icon {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .suggested-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+    
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="mb-1" data-i18n="test_list.title">Browse Tests</h1>
+        <p class="text-slate-600 mb-0" data-i18n="test_list.subtitle">Select a test to practice and improve your language skills</p>
+    </div>
+    
+    <div class="suggested-section mb-4">
+        <div class="suggested-header">
+            <h3 class="h6 mb-3" data-i18n="test_list.recommended">Recommended for You</h3>
+        </div>
+        
+        <div class="suggested-grid">
+            <!-- 3 Suggested Test Cards (Placeholder) -->
+            <div class="suggested-card skeleton-card">
+                <div class="skeleton-badge"></div>
+                <div class="skeleton-title"></div>
+                <div class="skeleton-meta"></div>
+                <div class="skeleton-button"></div>
+            </div>
+            <div class="suggested-card skeleton-card">
+                <div class="skeleton-badge"></div>
+                <div class="skeleton-title"></div>
+                <div class="skeleton-meta"></div>
+                <div class="skeleton-button"></div>
+            </div>
+            <div class="suggested-card skeleton-card">
+                <div class="skeleton-badge"></div>
+                <div class="skeleton-title"></div>
+                <div class="skeleton-meta"></div>
+                <div class="skeleton-button"></div>
+            </div>
+            
+            <!-- Random Test Button Card -->
+            <div class="suggested-card random-card">
+                <button type="button" 
+                        class="random-test-btn" 
+                        id="randomTestBtn"
+                        onclick="getRandomTest()">
+                    <div class="random-icon">
+                        <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855-.143.268-.276.56-.395.872.705.157 1.472.257 2.282.287V1.077zM4.249 3.539c.142-.384.304-.744.481-1.078a6.7 6.7 0 0 1 .597-.933A7.01 7.01 0 0 0 3.051 3.05c.362.184.763.349 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9.124 9.124 0 0 1-1.565-.667A6.964 6.964 0 0 0 1.018 7.5h2.49zm1.4-2.741a12.344 12.344 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332zM8.5 5.09V7.5h2.99a12.342 12.342 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5c.035.987.176 1.914.399 2.741A13.612 13.612 0 0 1 7.5 10.91V8.5H4.51zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741H8.5zm-3.282 3.696c.12.312.252.604.395.872.552 1.035 1.218 1.65 1.887 1.855V11.91c-.81.03-1.577.13-2.282.287zm.11 2.276a6.696 6.696 0 0 1-.598-.933 8.853 8.853 0 0 1-.481-1.079 8.38 8.38 0 0 0-1.198.49 7.01 7.01 0 0 0 2.276 1.522zm-1.383-2.964A13.36 13.36 0 0 1 3.508 8.5h-2.49a6.963 6.963 0 0 0 1.362 3.675c.47-.258.995-.482 1.565-.667zm6.728 2.964a7.009 7.009 0 0 0 2.275-1.521 8.376 8.376 0 0 0-1.197-.49 8.853 8.853 0 0 1-.481 1.078 6.688 6.688 0 0 1-.597.933zM8.5 11.909v3.014c.67-.204 1.335-.82 1.887-1.855.143-.268.276-.56.395-.872A12.63 12.63 0 0 0 8.5 11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.963 6.963 0 0 0 14.982 8.5h-2.49a13.36 13.36 0 0 1-.437 3.008zM14.982 7.5a6.963 6.963 0 0 0-1.362-3.675c-.47.258-.995.482-1.565.667.248.92.4 1.938.437 3.008h2.49zM11.27 2.461c.177.334.339.694.482 1.078a8.368 8.368 0 0 0 1.196-.49 7.01 7.01 0 0 0-2.275-1.52c.218.283.418.597.597.932zm-.488 1.343a7.765 7.765 0 0 0-.395-.872C9.835 1.897 9.17 1.282 8.5 1.077V4.09c.81-.03 1.577-.13 2.282-.287z"/>
+                        </svg>
+                    </div>
+                    <span class="random-text" data-i18n="test_list.surprise">Surprise Me!</span>
+                    <span class="random-subtext" data-i18n="test_list.random_hint">Get a random test at your level</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h3 class="h6 mb-3" data-i18n="test_list.filter">Filter Tests</h3>
+        
+        <form id="filter-form" class="filter-row">
+            <!-- Test Type Filter -->
+            <div>
+                <label for="test-type" class="filter-label" data-i18n="test_list.test_type">Test Type</label>
+                <select id="test-type" name="test_type" class="form-select" onchange="applyFilters()">
+                    <option value="" data-i18n="test_list.all_types">All Types</option>
+                    <option value="reading" data-i18n="test_list.reading">📖 Reading</option>
+                    <option value="listening" data-i18n="test_list.listening">🎧 Listening</option>
+                    <option value="dictation" data-i18n="test_list.dictation">⌨️ Dictation</option>
+                </select>
+            </div>
+            
+            <!-- Difficulty Filter -->
+            <div>
+                <label for="difficulty" class="filter-label" data-i18n="test_list.difficulty">Difficulty</label>
+                <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
+                    <option value="" data-i18n="test_list.all_levels">All Levels</option>
+                    <option value="1">Level 1 - Beginner (0-1200)</option>
+                    <option value="2">Level 2 - Elementary (1200-1300)</option>
+                    <option value="3">Level 3 - Intermediate- (1300-1400)</option>
+                    <option value="4">Level 4 - Intermediate (1400-1500)</option>
+                    <option value="5">Level 5 - Intermediate+ (1500-1600)</option>
+                    <option value="6">Level 6 - Advanced- (1600-1700)</option>
+                    <option value="7">Level 7 - Advanced (1700-1800)</option>
+                    <option value="8">Level 8 - Advanced+ (1800-1900)</option>
+                    <option value="9">Level 9 - Expert (1900+)</option>
+                </select>
+            </div>
+            
+            <!-- Reset Button -->
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()" data-i18n="test_list.reset">
+                    Reset
+                </button>
+            </div>
+        </form>
+        
+        <!-- Language Chip (if selected) -->
+        {% if selected_language %}
+        <div class="mt-3 d-inline-block">
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--selected-bg); color: var(--primary); padding: 0.5rem 0.75rem; border-radius: 20px; font-weight: 600; border: 1px solid var(--primary);">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+                {{ selected_language | upper }}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Tests Grid/Loading/Error States -->
+    <div id="content-area">
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-spinner d-none">
+            <div class="spinner"></div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-state" class="d-none">
+            <div class="alert alert-danger" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-5.708 9.7a1.13 1.13 0 0 0 .98 1.733h11.396a1.13 1.13 0 0 0 .98-1.732L8.982 1.566zM8 5a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                    </svg>
+                    <div>
+                        <strong data-i18n="test_list.error_title">Error Loading Tests</strong>
+                        <p id="error-message" class="mb-0 mt-2" data-i18n="test_list.error_default">Failed to load tests. Please try again.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger mt-3" onclick="loadTests()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    <span data-i18n="test_list.retry">Retry</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="d-none">
+            <div class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <h3 class="h5 text-slate-900" data-i18n="test_list.no_tests">No Tests Found</h3>
+                <p class="text-slate-600 mb-3" data-i18n="test_list.no_tests_hint">Try adjusting your filters or check back later for new tests.</p>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()" data-i18n="test_list.clear_filters">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tests Grid -->
+        <div id="tests-grid" class="test-grid"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    // DOM Elements
+    const testsGrid = document.getElementById('tests-grid');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const errorAlert = document.getElementById('error-alert');
+    const emptyState = document.getElementById('empty-state');
+    const difficultyFilter = document.getElementById('difficulty');
+    const testTypeFilter = document.getElementById('test-type');
+
+    // ELO Range Mapping
+    function getEloRange(difficultyLevel) {
+        const ranges = {
+            '1': { min: 0, max: 1200, label: 'Beginner' },
+            '2': { min: 1200, max: 1300, label: 'Elementary' },
+            '3': { min: 1300, max: 1400, label: 'Intermediate-' },
+            '4': { min: 1400, max: 1500, label: 'Intermediate' },
+            '5': { min: 1500, max: 1600, label: 'Intermediate+' },
+            '6': { min: 1600, max: 1700, label: 'Advanced-' },
+            '7': { min: 1700, max: 1800, label: 'Advanced' },
+            '8': { min: 1800, max: 1900, label: 'Advanced+' },
+            '9': { min: 1900, max: 9999, label: 'Expert' }
+        };
+        return ranges[difficultyLevel] || null;
+    }
+
+    // Utility Functions
+    function showLoading() {
+        debugLog('⏳ Showing loading spinner');
+        loadingSpinner?.classList.remove('d-none');
+        testsGrid.innerHTML = '';
+        hideError();
+        hideEmpty();
+    }
+
+    function hideLoading() {
+        debugLog('✅ Hiding loading spinner');
+        loadingSpinner?.classList.add('d-none');
+    }
+
+    function showError(message = 'Failed to load tests. Please try again.') {
+        debugLog('❌ Showing error:', message);
+        errorAlert?.classList.remove('d-none');
+        const errorMsg = errorAlert?.querySelector('#error-message');
+        if (errorMsg) errorMsg.textContent = message;
+        hideLoading();
+    }
+
+    function hideError() {
+        debugLog('✅ Hiding error');
+        errorAlert?.classList.add('d-none');
+    }
+
+    function showEmpty() {
+        debugLog('📭 Showing empty state');
+        emptyState?.classList.remove('d-none');
+        hideLoading();
+        hideError();
+    }
+
+    function hideEmpty() {
+        debugLog('✅ Hiding empty state');
+        emptyState?.classList.add('d-none');
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Get the appropriate ELO rating based on selected test type
+    function getTestEloRating(test) {
+        const selectedType = testTypeFilter?.value || 'listening';
+        
+        switch(selectedType.toLowerCase()) {
+            case 'listening':
+                return test.listening_rating || 1400;
+            case 'reading':
+                return test.reading_rating || 1400;
+            case 'dictation':
+                return test.dictation_rating || 1400;
+            default:
+                return test.listening_rating || 1400;
+        }
+    }
+    
+    function getDifficultyLabel(elo) {
+        if (elo < 1200) return 'Beginner';
+        if (elo < 1400) return 'Elementary';
+        if (elo < 1600) return 'Intermediate';
+        if (elo < 1800) return 'Advanced';
+        return 'Expert';
+    }
+    
+    function createTestCard(test) {
+        const eloRating = getTestEloRating(test);
+        const difficulty = getDifficultyLabel(eloRating);
+        const difficultyClass = `badge-${difficulty.toLowerCase()}`;
+        
+        return `
+            <div class="test-card" onclick="goToTestPreview('${test.slug}')">
+                <div class="test-card-header">
+                    <div class="test-card-title">
+                        <span>${escapeHtml(test.title || test.topic || 'Untitled Test')}</span>
+                        <div class="test-badges">
+                            <span class="badge-difficulty ${difficultyClass}">${difficulty}</span>
+                            ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
+                            ${test.is_featured ? '<span class="badge-difficulty badge-featured">Featured</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-card-body">
+                    <div class="test-meta">
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
+                            </svg>
+                            <span>${escapeHtml(LinguaMetadata.getNativeName(test.language) || test.language?.toUpperCase() || 'N/A')}</span>
+                        </div>
+                        
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5H3z"/>
+                            </svg>
+                            <span>ELO: ${eloRating}</span>
+                        </div>
+                        
+                        <div class="test-meta-item">
+                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                            <span>${LinguaI18n.t('test_list.attempts', {count: test.total_attempts || 0})}</span>
+                        </div>
+                    </div>
+                    
+                    ${test.topic ? `<p class="test-description">${escapeHtml(test.topic)}</p>` : ''}
+                </div>
+            </div>
+        `;
+    }
+    
+    function displayTests(tests) {
+        debugLog('🎨 displayTests() called with', tests?.length || 0, 'tests');
+
+        if (!tests || tests.length === 0) {
+            console.warn('⚠️ No tests to display');
+            showEmpty();
+            return;
+        }
+
+        // Apply client-side ELO-based difficulty filtering
+        let filteredTests = tests;
+        const selectedDifficulty = difficultyFilter?.value;
+        const selectedTestType = testTypeFilter?.value;
+
+        debugLog('🔍 Filters - Difficulty:', selectedDifficulty, 'TestType:', selectedTestType);
+
+        if (selectedDifficulty && selectedDifficulty !== '') {
+            const eloRange = getEloRange(selectedDifficulty);
+            debugLog('📊 ELO range for difficulty', selectedDifficulty, ':', eloRange);
+
+            if (eloRange) {
+                const beforeCount = filteredTests.length;
+                filteredTests = filteredTests.filter(test => {
+                    // Get the appropriate ELO rating based on test type
+                    let testElo = test.reading_rating || 1400;
+
+                    if (selectedTestType === 'listening') {
+                        testElo = test.listening_rating || 1400;
+                    } else if (selectedTestType === 'dictation') {
+                        testElo = test.dictation_rating || 1400;
+                    }
+
+                    const matches = testElo >= eloRange.min && testElo < eloRange.max;
+                    return matches;
+                });
+                debugLog('🔍 Filtered from', beforeCount, 'to', filteredTests.length, 'tests by ELO');
+            }
+        }
+
+        // Show empty state if no tests match filters
+        if (filteredTests.length === 0) {
+            console.warn('⚠️ No tests match filters');
+            showEmpty();
+            return;
+        }
+
+        debugLog('✅ Rendering', filteredTests.length, 'test cards');
+        testsGrid.innerHTML = filteredTests.map(test => createTestCard(test)).join('');
+        debugLog('✅ Test cards rendered to DOM');
+
+        hideLoading();
+        hideError();
+        hideEmpty();
+    }
+    
+    function goToTestPreview(slug) {
+    if (slug) {
+        // Get selected test type for preview
+        const testType = testTypeFilter?.value || 'listening';
+
+        // Redirect to preview page with test type query parameter
+        window.location.href = `/test/${slug}/preview?type=${testType}`;
+        }
+    }
+
+    
+    async function loadTests() {
+        debugLog('🚀 loadTests() called');
+        showLoading();
+
+        try {
+            const token = localStorage.getItem('jwt_token');
+            debugLog('🔑 JWT token present:', !!token);
+
+            if (!token) {
+                console.error('❌ No JWT token found');
+                window.location.href = '/login';
+                return;
+            }
+
+            // Get selected language ID from localStorage
+            const languageId = localStorage.getItem('selectedLanguageId');
+            debugLog('🌐 selectedLanguageId:', languageId);
+
+            if (!languageId) {
+                console.warn('⚠️ No selected language found, redirecting to language selection');
+                window.location.href = '/language-selection';
+                return;
+            }
+
+            // Build query string with language_id
+            const params = new URLSearchParams();
+            params.append('language_id', languageId);
+
+            const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
+
+            debugLog('📡 Fetching tests from:', url);
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            debugLog('📨 Response status:', response.status, response.statusText);
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.error('❌ Unauthorized - redirecting to login');
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('user_data');
+                    window.location.href = '/login';
+                    return;
+                }
+                const errorText = await response.text();
+                console.error('❌ HTTP error response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            debugLog('✅ Response data:', data);
+            debugLog('📊 Tests count:', data.tests ? data.tests.length : 0);
+
+            if (data.success && data.tests) {
+                debugLog('✅ Calling displayTests with', data.tests.length, 'tests');
+                if (data.tests.length > 0) {
+                    debugLog('📋 First test sample:', data.tests[0]);
+                }
+                displayTests(data.tests);
+            } else {
+                console.warn('⚠️ No tests in response or success=false');
+                showEmpty();
+            }
+        } catch (error) {
+            console.error('❌ Error loading tests:', error);
+            console.error('❌ Error stack:', error.stack);
+            showError(LinguaI18n.t('test_list.error_default'));
+        }
+    }
+
+    /**
+     * Get a random test based on user's ELO and skill type
+     */
+    async function getRandomTest() {
+        const btn = document.getElementById('randomTestBtn');
+        const icon = btn.querySelector('.random-icon');
+        
+        try {
+            // Add loading state
+            btn.disabled = true;
+            icon.classList.add('loading');
+            
+            // Get current filter values for context
+            const testType = document.getElementById('test-type').value || 'listening';
+            const token = localStorage.getItem('jwt_token');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Get user's selected language ID from localStorage
+            const languageId = localStorage.getItem('selectedLanguageId');
+            if (!languageId) {
+                window.location.href = '/language-selection';
+                return;
+            }
+
+            debugLog('🎲 Fetching random test...', { testType, languageId });
+
+            const response = await fetch(`/api/tests/random?language_id=${languageId}&skill_type=${testType}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch random test: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            debugLog('✅ Random test received:', result);
+            
+            if (result.test && result.test.slug) {
+                // Navigate to the test page
+                window.location.href = `/test/${result.test.slug}?type=${testType}`;
+            } else {
+                throw new Error('Invalid response format');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error getting random test:', error);
+            
+            // Remove loading state
+            btn.disabled = false;
+            icon.classList.remove('loading');
+            
+            // Show error message
+            alert(LinguaI18n.t('test_list.random_failed'));
+        }
+    }
+    
+    // ✅ NEW: Apply filters function
+    function applyFilters() {
+        debugLog('🔧 Applying filters...');
+        loadTests();
+    }
+    
+    // Reset filters function
+    function resetFilters() {
+        debugLog('🔧 Resetting filters...');
+
+        // Reset filter dropdowns to default values
+        if (difficultyFilter) difficultyFilter.value = '';
+        if (testTypeFilter) testTypeFilter.value = '';
+
+        // Reload tests with no filters
+        loadTests();
+    }
+
+    // ============================================
+    // RECOMMENDED TESTS FUNCTIONALITY
+    // ============================================
+
+    async function loadRecommendedTests() {
+        const suggestedGrid = document.querySelector('.suggested-grid');
+
+        try {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                debugLog('No token for recommended tests');
+                return;
+            }
+
+            const languageId = localStorage.getItem('selectedLanguageId');
+            if (!languageId) {
+                debugLog('No language selected for recommended tests');
+                return;
+            }
+
+            debugLog('Fetching recommended tests...', { languageId });
+
+            const response = await fetch(`/api/tests/recommended?language_id=${languageId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            debugLog('Recommended tests received:', data);
+
+            if (data.success && data.recommended_tests && data.recommended_tests.length > 0) {
+                displayRecommendedTests(data.recommended_tests);
+            } else {
+                showRecommendedEmpty();
+            }
+
+        } catch (error) {
+            console.error('Error loading recommended tests:', error);
+            showRecommendedError();
+        }
+    }
+
+    function displayRecommendedTests(tests) {
+        const suggestedGrid = document.querySelector('.suggested-grid');
+
+        // Remove existing skeleton cards
+        const skeletonCards = suggestedGrid.querySelectorAll('.skeleton-card');
+        skeletonCards.forEach(card => card.remove());
+
+        // Take up to 3 recommended tests
+        const testsToShow = tests.slice(0, 3);
+
+        // Create and insert recommended cards before the random test card
+        const randomCard = suggestedGrid.querySelector('.random-card');
+
+        testsToShow.forEach(test => {
+            const card = createRecommendedCard(test);
+            suggestedGrid.insertBefore(card, randomCard);
+        });
+    }
+
+    function createRecommendedCard(test) {
+        const card = document.createElement('div');
+        card.className = 'suggested-card recommended-card';
+        card.onclick = () => goToTestPreviewRecommended(test.slug, test.test_type);
+
+        const testTypeIcon = getTestTypeIcon(test.test_type);
+        const testTypeLabel = capitalizeFirst(test.test_type);
+        const difficultyLabel = getDifficultyLabel(test.elo_rating);
+        const difficultyClass = difficultyLabel.toLowerCase();
+        const tierBadge = test.tier !== 'free-tier' ? '<span class="tier-badge premium">Premium</span>' : '';
+
+        card.innerHTML = `
+            <div class="recommended-header">
+                <span class="test-type-badge ${test.test_type}">${testTypeIcon} ${testTypeLabel}</span>
+                ${tierBadge}
+            </div>
+            <div class="recommended-title">${escapeHtml(test.title)}</div>
+            <div class="recommended-meta">
+                <span class="badge-difficulty badge-${difficultyClass}">${difficultyLabel}</span>
+                <span class="elo-info">ELO ${test.elo_rating}</span>
+            </div>
+            <button class="btn btn-primary btn-sm recommended-btn" type="button">
+                ${LinguaI18n.t('test_list.start_test')}
+            </button>
+        `;
+
+        return card;
+    }
+
+    function getTestTypeIcon(testType) {
+        const icons = {
+            listening: '<i class="fa-solid fa-headphones"></i>',
+            reading: '<i class="fa-solid fa-book-open"></i>',
+            dictation: '<i class="fa-solid fa-keyboard"></i>'
+        };
+        return icons[testType] || icons.listening;
+    }
+
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function goToTestPreviewRecommended(testId, testType) {
+        window.location.href = `/test/${testId}?type=${testType}`;
+    }
+
+    function showRecommendedEmpty() {
+        const skeletonCards = document.querySelectorAll('.skeleton-card');
+        skeletonCards.forEach((card, index) => {
+            if (index === 0) {
+                card.classList.remove('skeleton-card');
+                card.innerHTML = `
+                    <div class="recommended-empty">
+                        <p>${LinguaI18n.t('test_list.recommended_empty')}</p>
+                    </div>
+                `;
+            } else {
+                card.remove();
+            }
+        });
+    }
+
+    function showRecommendedError() {
+        const skeletonCards = document.querySelectorAll('.skeleton-card');
+        skeletonCards.forEach((card, index) => {
+            if (index === 0) {
+                card.classList.remove('skeleton-card');
+                card.innerHTML = `
+                    <div class="recommended-error">
+                        <p>${LinguaI18n.t('test_list.recommended_error')}</p>
+                        <button class="btn btn-sm btn-secondary" onclick="loadRecommendedTests()">${LinguaI18n.t('test_list.retry')}</button>
+                    </div>
+                `;
+            } else {
+                card.remove();
+            }
+        });
+    }
+
+    // Make functions globally accessible for inline event handlers
+    window.goToTestPreview = goToTestPreview;
+    window.applyFilters = applyFilters;
+    window.resetFilters = resetFilters;
+    window.loadTests = loadTests;
+    window.getRandomTest = getRandomTest;
+    window.loadRecommendedTests = loadRecommendedTests;
+    window.goToTestPreviewRecommended = goToTestPreviewRecommended;
+
+    // Initial load — fetch metadata first for native language names
+    LinguaMetadata.load().then(function() {
+        loadTests();
+        loadRecommendedTests();
+    });
+    
+    // Check authentication
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+        console.error('No authentication token found');
+        window.location.href = '/login';
+    }
+})();
+</script>
+{% endblock %}

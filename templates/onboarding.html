@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% set hide_navbar = true %}
+
+{% block title %}Welcome - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-page {
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .welcome-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .welcome-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-icon {
+        font-size: 64px;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 1rem;
+    }
+
+    .feature-icon.report { background: var(--danger-bg); color: var(--danger); }
+    .feature-icon.profile { background: var(--selected-bg); color: var(--primary); }
+    .feature-icon.language { background: var(--success-bg); color: var(--success); }
+
+    .info-section {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .info-section h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .info-section ul {
+        margin-bottom: 0;
+        padding-left: 1.25rem;
+    }
+
+    .info-section li {
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .info-section li:last-child {
+        margin-bottom: 0;
+    }
+
+    .get-started-btn {
+        padding: 1rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-page">
+    <div class="welcome-container">
+        <!-- Header -->
+        <div class="welcome-header">
+            <span class="welcome-icon">🎓</span>
+            <h1 class="logo mb-2" data-i18n="onboarding.welcome">Welcome to LinguaDojo</h1>
+            <p class="text-muted mb-0" data-i18n="onboarding.tagline">Master any language with active practice</p>
+        </div>
+
+        <!-- What LinguaDojo Does -->
+        <div class="info-section">
+            <h3 data-i18n="onboarding.what_title">What LinguaDojo Does</h3>
+            <ul>
+                <li data-i18n="onboarding.what_1">Improve foreign language skills through short, active exercises instead of passive study</li>
+                <li data-i18n="onboarding.what_2">Answer focused comprehension tests designed for translators, exam preparation, and serious learners</li>
+                <li data-i18n="onboarding.what_3">Each test is calibrated with an ELO rating so you are matched with challenges that fit your level</li>
+            </ul>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon report">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h5 data-i18n="onboarding.report_title">Report Button</h5>
+                    <p class="text-muted mb-0" data-i18n="onboarding.report_desc">Use the flag icon to report issues, bad translations, or suggest improvements. Your feedback helps improve test quality for everyone.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon profile">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5 data-i18n="onboarding.profile_title">Profile</h5>
+                    <p class="text-muted mb-0" data-i18n="onboarding.profile_desc">View your ELO rating, track progress over time, and see your test history. Watch how your skills improve with practice.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon language">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h5 data-i18n="onboarding.lang_title">Language Selector</h5>
+                    <p class="text-muted mb-0" data-i18n="onboarding.lang_desc">Switch the site interface language to navigate in your preferred language. More interface languages coming soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How Tests Work -->
+        <div class="info-section">
+            <h3 data-i18n="onboarding.how_title">How Tests Work</h3>
+            <ul>
+                <li data-i18n-html="onboarding.how_1_html">Choose between <strong>listening</strong> tests (audio first, transcript shown after) or <strong>reading</strong> tests (text on screen from the start)</li>
+                <li data-i18n="onboarding.how_2">Each test has 5 multiple-choice questions with 4 options, giving you clear, targeted feedback</li>
+                <li data-i18n="onboarding.how_3">As you complete tests, LinguaDojo adapts to your level and recommends material that fits your ability</li>
+            </ul>
+        </div>
+
+        <!-- Get Started Button -->
+        <div class="text-center mt-4">
+            <a href="/language-selection" class="btn btn-primary get-started-btn">
+                <span data-i18n="onboarding.get_started">Get Started</span> <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

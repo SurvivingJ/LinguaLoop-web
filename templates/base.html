@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LinguaDojo - Active language learning platform with listening tests">
+    <meta name="theme-color" content="#1e40af">
+    <title>{% block title %}LinguaDojo{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script>
+        // Apply theme immediately to prevent flash of default theme
+        (function() {
+            var theme = localStorage.getItem('linguadojo-theme');
+            if (theme && theme !== 'default') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        })();
+    </script>
+    <style>
+        .navbar-language-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--focus-ring);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-left: 16px;
+        }
+
+        .navbar-language-indicator .language-flag {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .navbar-language-indicator .language-name {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .navbar-language-indicator {
+                margin-left: 8px;
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .navbar-language-indicator .language-flag {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>🎓</text></svg>">
+</head>
+<body class="{% block body_class %}bg-slate-50{% endblock %}">
+
+    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
+
+    {% if not hide_navbar %}
+    <nav class="navbar sticky-top">
+        <div class="container-fluid px-3 px-md-4">
+            <div class="d-flex align-items-center justify-content-between w-100">
+
+                <a href="{{ url_for('index') if current_user else '/' }}" class="logo text-decoration-none">
+                    LinguaDojo
+                </a>
+                <div class="navbar-language-indicator" id="navLanguageIndicator" style="display: none;">
+                    <span class="language-flag" id="navLanguageFlag"></span>
+                    <span class="language-name" id="navLanguageName"></span>
+                </div>
+
+                <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
+                    <li class="nav-item">
+                        <a href="{{ url_for('index') }}"
+                           class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"
+                           data-i18n="common.nav.language_selection">
+                            Language Selection
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('tests') }}"
+                           class="nav-link {% if request.endpoint == 'test_list' %}active{% endif %}"
+                           data-i18n="common.nav.browse_tests">
+                            Browse Tests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('flashcards') }}"
+                           class="nav-link {% if request.endpoint == 'flashcards' %}active{% endif %}"
+                           data-i18n="common.nav.flashcards">
+                            Flashcards
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="fas fa-flag"></i><span class="d-none d-lg-inline ms-1" data-i18n="common.nav.report">Report</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-1">
+                <div class="dropdown">
+                    <button class="btn btn-icon" type="button" id="langSwitcherBtn"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-i18n-aria="common.nav.switch_language">
+                        <span class="lang-flag">\uD83C\uDDFA\uD83C\uDDF8</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-md" id="langSwitcherMenu"
+                        aria-labelledby="langSwitcherBtn">
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-icon" type="button" id="themeSwitcherBtn"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-i18n-aria="common.nav.switch_theme">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-md" id="themeSwitcherMenu"
+                        aria-labelledby="themeSwitcherBtn">
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-icon"
+                            type="button"
+                            id="userMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="User menu">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-md" style="border-color: var(--border-default);" aria-labelledby="userMenuButton">
+                        <li>
+                            <a class="dropdown-item" href="/profile">
+                                <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                </svg>
+                                <span data-i18n="common.nav.profile">Profile</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item text-danger" id="logout-btn">
+                                <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                                    <path d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                                    <path d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                </svg>
+                                <span data-i18n="common.nav.logout">Logout</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3" role="alert" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main id="main-content" class="{% block main_class %}container py-4{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if not hide_footer %}
+    <footer class="mt-auto py-4 border-top" style="border-color: var(--border-default); background: var(--bg-surface);">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <span class="logo" style="font-size: 24px;">LinguaDojo</span>
+                    <p class="tagline mb-0" data-i18n="common.footer.tagline">Master any language with active practice</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-slate-500">
+                        © {{ current_year or '2025' }} LinguaDojo. <span data-i18n="common.footer.copyright">All rights reserved.</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18n-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+
+    <script>
+        // Global configuration - accessible from all pages
+        window.LINGUADOJO = {
+            API_BASE: "{{ url_for('index') }}",
+            JWT_TOKEN: localStorage.getItem('jwt_token'),
+            USER_DATA: JSON.parse(localStorage.getItem('user_data') || '{}')
+        };
+
+        /**
+         * Authenticated fetch wrapper with automatic token refresh.
+         * Use this instead of fetch() for API calls that require authentication.
+         *
+         * @param {string} url - The URL to fetch
+         * @param {object} options - Fetch options (method, body, etc.)
+         * @returns {Promise<Response>} - The fetch response
+         */
+        window.authFetch = async function(url, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+
+            // Set up headers with auth token
+            options.headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+
+            let response = await fetch(url, options);
+
+            // If 401 Unauthorized, try to refresh the token
+            if (response.status === 401) {
+                const refreshToken = localStorage.getItem('refresh_token');
+
+                if (refreshToken) {
+                    try {
+                        console.log('Token expired, attempting refresh...');
+                        const refreshResponse = await fetch('/api/auth/refresh-token', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ refresh_token: refreshToken })
+                        });
+
+                        if (refreshResponse.ok) {
+                            const data = await refreshResponse.json();
+
+                            // Store new tokens
+                            localStorage.setItem('jwt_token', data.jwt_token);
+                            localStorage.setItem('refresh_token', data.refresh_token);
+                            window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+
+                            console.log('Token refreshed successfully, retrying request...');
+
+                            // Retry the original request with new token
+                            options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
+                            response = await fetch(url, options);
+                        } else {
+                            // Refresh failed - clear tokens and redirect to login
+                            console.error('Token refresh failed, redirecting to login');
+                            localStorage.removeItem('jwt_token');
+                            localStorage.removeItem('refresh_token');
+                            localStorage.removeItem('user_data');
+                            window.location.href = '/login';
+                            return response;
+                        }
+                    } catch (e) {
+                        console.error('Token refresh error:', e);
+                        localStorage.removeItem('jwt_token');
+                        localStorage.removeItem('refresh_token');
+                        localStorage.removeItem('user_data');
+                        window.location.href = '/login';
+                        return response;
+                    }
+                } else {
+                    // No refresh token available - redirect to login
+                    console.log('No refresh token, redirecting to login');
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('user_data');
+                    window.location.href = '/login';
+                    return response;
+                }
+            }
+
+            return response;
+        };
+
+        function updateLanguageIndicator() {
+            const savedLanguage = localStorage.getItem('selectedLanguage');
+            if (savedLanguage) {
+                const lang = JSON.parse(savedLanguage);
+
+                const flagMap = {
+                    'en': '🇺🇸',
+                    'zh': '🇨🇳',
+                    'ja': '🇯🇵',
+                    'ko': '🇰🇷',
+                    'fr': '🇫🇷',
+                    'English': '🇺🇸',
+                    'Chinese': '🇨🇳',
+                    'Japanese': '🇯🇵',
+                    'Korean': '🇰🇷',
+                    'French': '🇫🇷'
+                };
+
+                const indicator = document.getElementById('navLanguageIndicator');
+                const flag = document.getElementById('navLanguageFlag');
+                const name = document.getElementById('navLanguageName');
+
+                if (indicator && flag && name) {
+                    flag.textContent = flagMap[lang.code] || flagMap[lang.name] || '🌐';
+                    name.textContent = lang.name;
+                    indicator.style.display = 'flex';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLanguageIndicator();
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('refresh_token');
+                    localStorage.removeItem('user_data');
+
+                    window.location.href = '/login';
+                });
+            }
+
+            // Report submission
+            const submitReportBtn = document.getElementById('submitReportBtn');
+            if (submitReportBtn) {
+                submitReportBtn.addEventListener('click', async function() {
+                    const btn = this;
+                    const form = document.getElementById('reportForm');
+                    const category = document.getElementById('reportCategory').value;
+                    const description = document.getElementById('reportDescription').value.trim();
+
+                    if (!category || description.length < 10) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + LinguaI18n.t('report.submitting');
+                    document.getElementById('reportError').classList.add('d-none');
+
+                    try {
+                        const token = localStorage.getItem('jwt_token');
+                        if (!token) throw new Error('Please log in');
+
+                        const res = await fetch('/api/reports/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({
+                                report_category: category,
+                                description: description,
+                                current_page: window.location.pathname,
+                                test_id: window.location.pathname.match(/\/test\/([^\/]+)/)?.[1] || null,
+                                user_agent: navigator.userAgent,
+                                screen_resolution: `${screen.width}x${screen.height}`
+                            })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+                        document.getElementById('reportForm').classList.add('d-none');
+                        document.getElementById('reportFooter').classList.add('d-none');
+                        document.getElementById('reportSuccess').classList.remove('d-none');
+                        setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide(), 1500);
+
+                    } catch (e) {
+                        document.getElementById('reportError').textContent = e.message;
+                        document.getElementById('reportError').classList.remove('d-none');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>' + LinguaI18n.t('report.submit');
+                    }
+                });
+            }
+
+            // Reset modal on close
+            const reportModal = document.getElementById('reportModal');
+            if (reportModal) {
+                reportModal.addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('reportForm').classList.remove('d-none');
+                    document.getElementById('reportFooter').classList.remove('d-none');
+                    document.getElementById('reportSuccess').classList.add('d-none');
+                    document.getElementById('reportError').classList.add('d-none');
+                    const btn = document.getElementById('submitReportBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>' + LinguaI18n.t('report.submit');
+                });
+            }
+        });
+    </script>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title"><i class="fas fa-flag text-primary me-2"></i><span data-i18n="report.title">Report Issue</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" data-i18n="report.issue_type">Issue Type</label>
+                            <select class="form-select" id="reportCategory" required>
+                                <option value="" data-i18n="report.select">Select</option>
+                                <option value="test_answer_incorrect" data-i18n="report.cat.test_answer_incorrect">Test answer incorrect</option>
+                                <option value="test_load_error" data-i18n="report.cat.test_load_error">Test won't load</option>
+                                <option value="website_crash" data-i18n="report.cat.website_crash">Website crashed</option>
+                                <option value="improvement_idea" data-i18n="report.cat.improvement_idea">Improvement idea</option>
+                                <option value="audio_quality" data-i18n="report.cat.audio_quality">Audio quality poor</option>
+                                <option value="other" data-i18n="report.cat.other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" data-i18n="report.description">Description</label>
+                            <textarea class="form-control" id="reportDescription" rows="4" required minlength="10"
+                                placeholder="Describe the issue..." data-i18n-placeholder="report.placeholder"></textarea>
+                            <div class="form-text" data-i18n="report.min_chars">Min 10 characters</div>
+                        </div>
+                    </form>
+                    <div id="reportSuccess" class="alert alert-success d-none">
+                        <i class="fas fa-check-circle me-2"></i><span data-i18n="report.success">Report submitted!</span>
+                    </div>
+                    <div id="reportError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer border-0" id="reportFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="report.cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitReportBtn">
+                        <i class="fas fa-paper-plane me-1"></i><span data-i18n="report.submit">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

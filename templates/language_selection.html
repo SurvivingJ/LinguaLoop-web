@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Select Language - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 80px);">
+    <div class="row w-100 justify-content-center">
+        <div class="col-12" style="max-width: 500px;">
+            <div class="px-3 py-4">
+                
+                <!-- Header Section -->
+                <div class="text-center mb-4">
+                    <h2 class="mb-3" style="color: var(--slate-900); font-weight: 600;" data-i18n="lang_select.title">
+                        Choose your language to practice
+                    </h2>
+                    <p class="mb-0" style="color: var(--slate-500); font-size: 16px;" data-i18n="lang_select.subtitle">
+                        This will be used for all tests and content
+                    </p>
+                </div>
+
+                <!-- Language Selection Cards -->
+                <div class="language-options mt-5">
+                    
+                    <!-- Chinese (id=1) -->
+                    <div class="language-card mb-3" data-id="1">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇨🇳</span>
+                            <div class="flex-grow-1">
+                                <span class="language-native">Chinese</span>
+                                <small class="language-english d-block text-muted">Chinese</small>
+                            </div>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- English (id=2) -->
+                    <div class="language-card mb-3" data-id="2">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇺🇸</span>
+                            <div class="flex-grow-1">
+                                <span class="language-native">English</span>
+                                <small class="language-english d-block text-muted">English</small>
+                            </div>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Japanese (id=3) -->
+                    <div class="language-card mb-3" data-id="3">
+                        <div class="d-flex align-items-center">
+                            <span class="language-flag">🇯🇵</span>
+                            <div class="flex-grow-1">
+                                <span class="language-native">Japanese</span>
+                                <small class="language-english d-block text-muted">Japanese</small>
+                            </div>
+                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Continue Button -->
+                <div class="mt-4">
+                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.continue">
+                        Continue to Tests
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<style>
+    /* Language Selection Card Styles */
+    .language-card {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-strong);
+        border-radius: 12px;
+        padding: 24px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+    }
+
+    .language-card:hover {
+        border-color: var(--slate-400);
+        background: var(--bg-surface-hover);
+    }
+
+    .language-card.selected {
+        border-color: var(--primary);
+        border-width: 2px;
+        background: var(--selected-bg);
+        animation: scaleIn 0.15s ease;
+    }
+
+    .language-flag {
+        font-size: 32px;
+        margin-right: 16px;
+        user-select: none;
+    }
+
+    .language-native {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--slate-700);
+        transition: var(--transition-fast);
+        display: block;
+    }
+
+    .language-english {
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .language-card.selected .language-native {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .check-icon {
+        color: var(--primary);
+        font-size: 24px;
+        margin-left: 12px;
+    }
+
+    /* Button states */
+    #continue-btn:disabled {
+        background: var(--border-strong);
+        border-color: var(--border-strong);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const languageCards = document.querySelectorAll('.language-card');
+        const continueBtn = document.getElementById('continue-btn');
+        let selectedLanguage = null;
+
+        // Fetch native names from metadata
+        LinguaMetadata.load().then(function(meta) {
+            if (!meta || !meta.languages) return;
+            languageCards.forEach(function(card) {
+                var langId = parseInt(card.dataset.id);
+                var lang = meta.languages.find(function(l) { return l.id === langId; });
+                if (lang && lang.native_name) {
+                    var nativeEl = card.querySelector('.language-native');
+                    var englishEl = card.querySelector('.language-english');
+                    if (nativeEl) nativeEl.textContent = lang.native_name;
+                    if (englishEl) englishEl.textContent = lang.language_name;
+                }
+            });
+        });
+
+        // Handle language card selection
+        languageCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selection from all cards
+                languageCards.forEach(c => {
+                    c.classList.remove('selected');
+                    c.querySelector('.check-icon').style.display = 'none';
+                });
+
+                // Add selection to clicked card
+                this.classList.add('selected');
+                this.querySelector('.check-icon').style.display = 'block';
+
+                // Store selected language ID
+                selectedLanguage = {
+                    id: parseInt(this.dataset.id)
+                };
+
+                // Enable continue button
+                continueBtn.disabled = false;
+            });
+        });
+
+        // Handle continue button click
+        continueBtn.addEventListener('click', function() {
+            if (selectedLanguage) {
+                // Store the language ID (1=Chinese, 2=English, 3=Japanese)
+                localStorage.setItem('selectedLanguageId', selectedLanguage.id.toString());
+
+                // Redirect to home/test page
+                window.location.href = "{{ url_for('tests') }}";
+            }
+        });
+
+        // Check if language was previously selected
+        const savedLanguageId = localStorage.getItem('selectedLanguageId');
+        if (savedLanguageId) {
+            const savedCard = document.querySelector(`[data-id="${savedLanguageId}"]`);
+            if (savedCard) {
+                savedCard.click();
+            }
+        }
+    });
+</script>
+{% endblock %}
