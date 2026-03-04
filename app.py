@@ -358,6 +358,9 @@ def _register_core_routes(app):
             app.logger.error(traceback.format_exc())
             return jsonify({"error": "Vocabulary extraction failed", "status": "error"}), 500
 
+    # Server-side in-memory cache for word definitions: (language_code, word_lower, ui_language) -> result dict
+    _definition_cache = {}
+
     @app.route('/api/vocabulary/define', methods=['POST'])
     @supabase_jwt_required
     def define_word():
@@ -378,6 +381,11 @@ def _register_core_routes(app):
             return jsonify({"error": "Valid word is required (max 100 chars)", "status": "error"}), 400
         if not language_code:
             return jsonify({"error": "Language code is required", "status": "error"}), 400
+
+        # Check server-side cache first
+        cache_key = (language_code, word.lower(), ui_language)
+        if cache_key in _definition_cache:
+            return jsonify({"status": "success", "definition": _definition_cache[cache_key]})
 
         # Map language codes to full names
         lang_names = {'en': 'English', 'es': 'Spanish', 'cn': 'Chinese', 'jp': 'Japanese'}
@@ -448,6 +456,9 @@ def _register_core_routes(app):
                 "part_of_speech": definition.get("part_of_speech", ""),
                 "reading": definition.get("reading")
             }
+
+            # Store in server-side cache
+            _definition_cache[cache_key] = result
 
             return jsonify({"status": "success", "definition": result})
 

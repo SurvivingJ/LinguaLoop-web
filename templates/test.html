@@ -781,7 +781,10 @@ async function initializeTest() {
         
         // Load test data
         await loadTestData();
-        
+
+        // Pre-fetch definitions in background while user takes the test
+        prefetchTranscriptDefinitions();
+
         // Initialize UI
         initializeUI();
         
@@ -1629,6 +1632,45 @@ async function fetchDefinition(word) {
 
     definitionCache.set(cacheKey, data.definition);
     return data.definition;
+}
+
+function getUniqueTranscriptWords() {
+    const text = testState.testData.transcript;
+    const langCode = testState.testData.language;
+    const locale = LANGUAGE_LOCALE_MAP[langCode] || 'en';
+    const isCJK = ['zh', 'ja'].includes(locale);
+    const words = new Set();
+
+    if (isCJK && typeof Intl !== 'undefined' && Intl.Segmenter) {
+        try {
+            const segmenter = new Intl.Segmenter(locale, { granularity: 'word' });
+            for (const segment of segmenter.segment(text)) {
+                if (segment.isWordLike) words.add(segment.segment.toLowerCase());
+            }
+            return words;
+        } catch (e) { /* fall through to space-split */ }
+    }
+
+    const tokens = text.split(/(\s+|[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+)/);
+    for (const token of tokens) {
+        if (token && !/^\s+$/.test(token) && !/^[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+$/.test(token)) {
+            words.add(token.toLowerCase());
+        }
+    }
+    return words;
+}
+
+async function prefetchTranscriptDefinitions() {
+    const words = [...getUniqueTranscriptWords()];
+    const CONCURRENCY = 3;
+    let i = 0;
+    async function next() {
+        while (i < words.length) {
+            const word = words[i++];
+            try { await fetchDefinition(word); } catch (e) { /* best-effort */ }
+        }
+    }
+    await Promise.all(Array.from({ length: CONCURRENCY }, next));
 }
 
 const wordPopover = {
