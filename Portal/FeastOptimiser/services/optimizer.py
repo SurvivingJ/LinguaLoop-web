@@ -49,10 +49,16 @@ def optimize_meal_plan(recipes, products, macros, budget, meal_counts,
     prob = LpProblem("MealPlan", LpMinimize)
 
     # Decision variables: how many servings of each recipe to include
+    # Cap per recipe to encourage variety, but ensure feasibility
+    n_recipes = len(recipes)
+    if n_recipes >= 6:
+        max_per_recipe = max(total_meals // 3, 2)
+    else:
+        # Few recipes available — allow enough to fill all slots
+        max_per_recipe = total_meals
     recipe_vars = {}
     for r in recipes:
-        max_servings = min(r.get('servings', 4), total_meals)
-        recipe_vars[r['id']] = LpVariable(f"r_{r['id']}", 0, max_servings, cat=LpInteger)
+        recipe_vars[r['id']] = LpVariable(f"r_{r['id']}", 0, max_per_recipe, cat=LpInteger)
 
     # Effective costs (with learning mode adjustment)
     effective_costs = dict(recipe_costs)
@@ -61,25 +67,43 @@ def optimize_meal_plan(recipes, products, macros, budget, meal_counts,
             if r.get('cuisine') == cuisine_focus:
                 effective_costs[r['id']] *= 0.8
 
-    # Objective: minimize total cost
-    prob += lpSum(recipe_vars[r['id']] * effective_costs[r['id']] for r in recipes)
+    # Slack variables for macro shortfalls (soft constraints)
+    # Penalize missing macros rather than making them hard constraints
+    macro_slack = {}
+    macro_penalty_weights = {'protein': 0.5, 'carbs': 0.1, 'fat': 0.2, 'calories': 0.01}
+    for macro in ['protein', 'carbs', 'fat', 'calories']:
+        if macros.get(macro):
+            weekly_target = macros[macro] * 7
+            macro_slack[macro] = LpVariable(f"slack_{macro}", 0, weekly_target)
+
+    # Objective: minimize cost + penalty for macro shortfalls
+    cost_expr = lpSum(recipe_vars[r['id']] * effective_costs[r['id']] for r in recipes)
+    penalty_expr = lpSum(
+        macro_slack[macro] * macro_penalty_weights.get(macro, 0.1)
+        for macro in macro_slack
+    )
+    prob += cost_expr + penalty_expr
 
     # Constraint: total servings = total meals requested
     prob += lpSum(recipe_vars[r['id']] for r in recipes) == total_meals
 
-    # Constraints: weekly macros >= daily targets * 7
+    # Soft macro constraints: actual + slack >= target
     for macro in ['protein', 'carbs', 'fat', 'calories']:
-        if macros.get(macro):
-            prob += lpSum(
-                recipe_vars[r['id']] * r.get('macros_per_serving', {}).get(macro, 0)
-                for r in recipes
-            ) >= macros[macro] * 7
+        if macros.get(macro) and macro in macro_slack:
+            prob += (
+                lpSum(
+                    recipe_vars[r['id']] * r.get('macros_per_serving', {}).get(macro, 0)
+                    for r in recipes
+                ) + macro_slack[macro] >= macros[macro] * 7
+            )
 
-    # Constraint: total actual cost <= budget
-    prob += lpSum(recipe_vars[r['id']] * recipe_costs[r['id']] for r in recipes) <= budget
+    # Constraint: total actual cost <= budget (only if any recipes have cost)
+    if any(recipe_costs[r['id']] > 0 for r in recipes):
+        prob += lpSum(recipe_vars[r['id']] * recipe_costs[r['id']] for r in recipes) <= budget
 
-    # Solve
-    prob.solve()
+    # Solve (suppress verbose CBC output)
+    from pulp import PULP_CBC_CMD
+    prob.solve(PULP_CBC_CMD(msg=0))
 
     if LpStatus[prob.status] != 'Optimal':
         logger.warning(f"Optimization status: {LpStatus[prob.status]}")

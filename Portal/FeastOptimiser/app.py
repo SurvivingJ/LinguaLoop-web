@@ -1,4 +1,5 @@
 import logging
+import os
 from flask import Flask
 from flask_cors import CORS
 from config import Config
@@ -17,6 +18,9 @@ def create_app(config_class=Config):
     # Initialize CSV store
     app.store = CSVStore(app.config['DATA_STORE_DIR'])
 
+    # Auto-seed if no data exists yet (Railway has ephemeral storage)
+    _auto_seed_if_needed(app)
+
     # Register blueprints
     _register_blueprints(app)
 
@@ -25,6 +29,19 @@ def create_app(config_class=Config):
         _init_scheduler(app)
 
     return app
+
+
+def _auto_seed_if_needed(app):
+    """Seed products, settings, and recipes if CSV store is empty."""
+    recipes_path = os.path.join(app.config['DATA_STORE_DIR'], 'recipes.csv')
+    if not os.path.exists(recipes_path):
+        try:
+            app.logger.info("No recipes.csv found — running auto-seed...")
+            from scripts.seed_data import seed
+            seed(app.config['DATA_STORE_DIR'])
+            app.logger.info("Auto-seed complete")
+        except Exception as e:
+            app.logger.warning(f"Auto-seed failed: {e}")
 
 
 def _register_blueprints(app):
