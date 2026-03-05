@@ -1401,11 +1401,28 @@ function showResults(result) {
     const newBtn = submitBtn.cloneNode(true);
     submitBtn.replaceWith(newBtn);
 
-    newBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>' + LinguaI18n.t('test.back_to_test_list');
-    newBtn.disabled = false;
-    newBtn.onclick = () => {
-        window.location.href = '/tests';
-    };
+    // Check if this is a daily load test
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDailyLoad = urlParams.get('daily') === 'true';
+
+    if (isDailyLoad) {
+        // Mark test as completed in the daily load
+        markDailyLoadComplete(testState.testId);
+
+        newBtn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue Daily Load';
+        newBtn.disabled = false;
+        newBtn.classList.remove('btn-primary');
+        newBtn.classList.add('btn-success');
+        newBtn.onclick = function() {
+            window.location.href = '/tests';
+        };
+    } else {
+        newBtn.innerHTML = '<i class="fas fa-arrow-left me-2"></i>' + LinguaI18n.t('test.back_to_test_list');
+        newBtn.disabled = false;
+        newBtn.onclick = function() {
+            window.location.href = '/tests';
+        };
+    }
     
     // Show success message
     const score = result.result?.score || 0;
@@ -1420,6 +1437,34 @@ function showResults(result) {
 
     // Scroll to top to show success message
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================================
+// DAILY LOAD COMPLETION
+// ============================================================================
+function markDailyLoadComplete(testId) {
+    var token = localStorage.getItem('jwt_token');
+    var languageId = localStorage.getItem('selectedLanguageId');
+
+    if (!token || !languageId || !testId) return;
+
+    fetch('/api/tests/daily-load/complete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            test_id: testId,
+            language_id: parseInt(languageId)
+        })
+    }).then(function(response) {
+        if (response.ok) {
+            debugLog('Daily load test marked complete');
+        }
+    }).catch(function(error) {
+        console.error('Error marking daily load complete:', error);
+    });
 }
 
 // ============================================================================

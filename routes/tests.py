@@ -123,6 +123,57 @@ def get_recommended_tests():
         return jsonify({"error": str(e), "success": False}), 500
 
 
+@tests_bp.route('/daily-load', methods=['GET'])
+@supabase_jwt_required
+def get_daily_load():
+    """Get or compute today's daily test load for the user."""
+    user_id = g.supabase_claims.get('sub')
+    language_id_param = request.args.get('language_id')
+
+    language_id = parse_language_id(language_id_param)
+    if not language_id:
+        return jsonify({"error": "Invalid or missing language_id"}), 400
+
+    try:
+        test_service = get_test_service()
+        daily_load = test_service.get_or_create_daily_load(user_id, language_id)
+
+        return jsonify({
+            "success": True,
+            "daily_load": daily_load
+        })
+    except Exception as e:
+        logger.error(f"Error fetching daily load: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({"error": str(e), "success": False}), 500
+
+
+@tests_bp.route('/daily-load/complete', methods=['POST'])
+@supabase_jwt_required
+def complete_daily_load_test():
+    """Mark a test as completed in today's daily load."""
+    user_id = g.supabase_claims.get('sub')
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    test_id = data.get('test_id')
+    language_id = parse_language_id(data.get('language_id'))
+
+    if not test_id or not language_id:
+        return jsonify({"error": "test_id and language_id required"}), 400
+
+    try:
+        test_service = get_test_service()
+        result = test_service.mark_daily_test_complete(user_id, language_id, test_id)
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        logger.error(f"Error marking daily test complete: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({"error": str(e), "success": False}), 500
+
+
 @tests_bp.route('/generate_test', methods=['POST'])
 @supabase_jwt_required
 def generate_test():

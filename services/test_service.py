@@ -549,6 +549,300 @@ class TestService:
             logger.error(f"Error recording test attempt: {e}")
             raise
 
+    # -------------------------------------------------------------------------
+    # DAILY TEST LOAD
+    # -------------------------------------------------------------------------
+
+    def get_or_create_daily_load(self, user_id: str, language_id: int) -> Dict:
+        """
+        Get today's daily test load, or compute and cache it if not yet created.
+
+        Returns dict with load_date, tests (enriched), and progress.
+        """
+        today = datetime.now(timezone.utc).date().isoformat()
+
+        # Check if today's load already exists
+        existing = self.admin.table('daily_test_loads')\
+            .select('*')\
+            .eq('user_id', user_id)\
+            .eq('language_id', language_id)\
+            .eq('load_date', today)\
+            .execute()
+
+        if existing.data:
+            return self._enrich_daily_load(existing.data[0])
+
+        # Compute new daily load
+        load_items = self._compute_daily_load(user_id, language_id)
+
+        if not load_items:
+            return {
+                'load_date': today,
+                'tests': [],
+                'progress': {'completed': 0, 'total': 0}
+            }
+
+        # Persist
+        record = self.admin.table('daily_test_loads').insert({
+            'user_id': user_id,
+            'language_id': language_id,
+            'load_date': today,
+            'test_ids': load_items,
+            'completed_test_ids': []
+        }).execute()
+
+        return self._enrich_daily_load(record.data[0])
+
+    def _compute_daily_load(self, user_id: str, language_id: int) -> List[Dict]:
+        """
+        Core algorithm for selecting up to 3 daily tests.
+
+        Strategy:
+        - 1-2 slots: tests the user performed poorly on (<70%) and haven't retried in 24h
+        - Remaining slots: new ELO-matched tests via the recommended RPC
+        """
+        MAX_TESTS = 3
+        POOR_THRESHOLD = 70
+        COOLDOWN_SECONDS = 86400  # 24 hours
+
+        now = datetime.now(timezone.utc)
+
+        # Build test_type id-to-code map
+        id_to_type_code = {}
+        if DimensionService._test_type_cache:
+            id_to_type_code = {v: k for k, v in DimensionService._test_type_cache.items()}
+
+        # Step 1: Find retry candidates (poorly performed tests)
+        try:
+            attempts_result = self.admin.table('test_attempts')\
+                .select('test_id, percentage, test_type_id, created_at')\
+                .eq('user_id', user_id)\
+                .eq('language_id', language_id)\
+                .order('created_at', desc=True)\
+                .execute()
+        except Exception as e:
+            logger.error(f"Error fetching attempts for daily load: {e}")
+            attempts_result = type('obj', (object,), {'data': []})()
+
+        # Group by test_id, keep only the latest attempt per test
+        latest_by_test = {}
+        for a in (attempts_result.data or []):
+            if a['test_id'] not in latest_by_test:
+                latest_by_test[a['test_id']] = a
+
+        # Filter for retry candidates
+        retry_pool = []
+        for test_id, a in latest_by_test.items():
+            if a['percentage'] is None or a['percentage'] >= POOR_THRESHOLD:
+                continue
+            # Check cooldown: latest attempt must be older than 24 hours
+            try:
+                attempt_time = datetime.fromisoformat(a['created_at'].replace('Z', '+00:00'))
+                if (now - attempt_time).total_seconds() < COOLDOWN_SECONDS:
+                    continue
+            except (ValueError, TypeError):
+                continue
+            retry_pool.append(a)
+
+        # Sort by percentage ascending (worst performance first)
+        retry_pool.sort(key=lambda a: a['percentage'])
+
+        # Step 2: Select 1-2 retry tests
+        num_retries = min(2, len(retry_pool))
+        retry_tests = retry_pool[:num_retries]
+        num_new = MAX_TESTS - num_retries
+
+        # Build the load items from retries
+        load_items = []
+        selected_test_ids = set()
+
+        for r in retry_tests:
+            type_code = id_to_type_code.get(r['test_type_id'], 'listening')
+            load_items.append({
+                'test_id': r['test_id'],
+                'slot_type': 'retry',
+                'test_type': type_code,
+                'original_percentage': round(r['percentage'], 1)
+            })
+            selected_test_ids.add(r['test_id'])
+
+        # Step 3: Fill remaining slots with new ELO-matched tests
+        if num_new > 0:
+            language_name = LANGUAGE_ID_TO_NAME.get(language_id, 'chinese')
+            try:
+                recommended_result = self.admin.rpc('get_recommended_tests', {
+                    'p_user_id': user_id,
+                    'p_language': language_name
+                }).execute()
+
+                recommended = recommended_result.data or []
+
+                # Filter out already-selected and already-attempted tests
+                new_tests = [
+                    t for t in recommended
+                    if t.get('test_id') not in selected_test_ids
+                    and t.get('test_id') not in latest_by_test
+                ]
+
+                for t in new_tests[:num_new]:
+                    load_items.append({
+                        'test_id': t['test_id'],
+                        'slot_type': 'new',
+                        'test_type': t.get('test_type', 'listening')
+                    })
+                    selected_test_ids.add(t['test_id'])
+                    num_new -= 1
+
+            except Exception as e:
+                logger.error(f"Error fetching recommended tests for daily load: {e}")
+
+        # Step 4: If still need more tests, fallback to direct query
+        if num_new > 0:
+            try:
+                # Get user's approximate ELO for this language
+                user_elo = 1200
+                for a in (attempts_result.data or []):
+                    # First entry is most recent
+                    user_elo = a.get('user_elo_after', 1200) or 1200
+                    break
+
+                elo_min = max(400, user_elo - 200)
+                elo_max = min(3000, user_elo + 200)
+
+                # Query tests in ELO range that user hasn't attempted
+                fallback_query = self.admin.table('tests')\
+                    .select('id, slug')\
+                    .eq('language_id', language_id)\
+                    .eq('is_active', True)\
+                    .limit(num_new + len(selected_test_ids))
+
+                fallback_result = fallback_query.execute()
+
+                for t in (fallback_result.data or []):
+                    if t['id'] not in selected_test_ids and t['id'] not in latest_by_test:
+                        load_items.append({
+                            'test_id': t['id'],
+                            'slot_type': 'new',
+                            'test_type': 'listening'
+                        })
+                        selected_test_ids.add(t['id'])
+                        num_new -= 1
+                        if num_new <= 0:
+                            break
+
+            except Exception as e:
+                logger.error(f"Error in fallback test selection for daily load: {e}")
+
+        return load_items
+
+    def _enrich_daily_load(self, cached_record: Dict) -> Dict:
+        """
+        Take a raw daily_test_loads row and enrich with full test details.
+        """
+        test_ids_list = cached_record.get('test_ids', [])
+        completed = cached_record.get('completed_test_ids', []) or []
+
+        if not test_ids_list:
+            return {
+                'load_date': cached_record.get('load_date'),
+                'tests': [],
+                'progress': {'completed': 0, 'total': 0}
+            }
+
+        # Fetch full test details
+        ids = [item['test_id'] for item in test_ids_list]
+        try:
+            tests_result = self.admin.table('tests').select(
+                'id, slug, title, language_id, difficulty, style, tier, '
+                'audio_url, audio_generated, is_custom, total_attempts'
+            ).in_('id', ids).execute()
+
+            tests_map = {t['id']: t for t in (tests_result.data or [])}
+        except Exception as e:
+            logger.error(f"Error enriching daily load: {e}")
+            tests_map = {}
+
+        # Fetch ELO ratings for these tests
+        ratings_map = {}
+        if ids:
+            try:
+                ratings_result = self.admin.table('test_skill_ratings').select(
+                    'test_id, test_type_id, elo_rating, dim_test_types(type_code)'
+                ).in_('test_id', ids).execute()
+
+                for rating in (ratings_result.data or []):
+                    test_id = rating['test_id']
+                    type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
+                    if test_id not in ratings_map:
+                        ratings_map[test_id] = {}
+                    ratings_map[test_id][type_code] = rating['elo_rating']
+            except Exception as e:
+                logger.error(f"Error fetching ratings for daily load: {e}")
+
+        enriched_tests = []
+        for item in test_ids_list:
+            test_id = item['test_id']
+            test_detail = tests_map.get(test_id)
+            if not test_detail:
+                continue  # Skip if test was deactivated
+
+            test_type = item.get('test_type', 'listening')
+            test_ratings = ratings_map.get(test_id, {})
+            elo_rating = test_ratings.get(test_type, 1400)
+
+            enriched_tests.append({
+                **test_detail,
+                'slot_type': item['slot_type'],
+                'test_type': test_type,
+                'elo_rating': elo_rating,
+                'original_percentage': item.get('original_percentage'),
+                'is_completed': test_id in completed
+            })
+
+        return {
+            'load_date': cached_record.get('load_date'),
+            'tests': enriched_tests,
+            'progress': {
+                'completed': len(completed),
+                'total': len(test_ids_list)
+            }
+        }
+
+    def mark_daily_test_complete(self, user_id: str, language_id: int, test_id: str) -> Dict:
+        """Mark a specific test as completed in today's daily load."""
+        today = datetime.now(timezone.utc).date().isoformat()
+
+        record = self.admin.table('daily_test_loads')\
+            .select('id, completed_test_ids, test_ids')\
+            .eq('user_id', user_id)\
+            .eq('language_id', language_id)\
+            .eq('load_date', today)\
+            .single()\
+            .execute()
+
+        if not record.data:
+            raise Exception("No daily load found for today")
+
+        completed = record.data.get('completed_test_ids', []) or []
+        if test_id not in completed:
+            completed.append(test_id)
+
+        self.admin.table('daily_test_loads')\
+            .update({'completed_test_ids': completed})\
+            .eq('id', record.data['id'])\
+            .execute()
+
+        total = len(record.data.get('test_ids', []))
+        return {
+            'completed': len(completed),
+            'total': total,
+            'all_complete': len(completed) >= total
+        }
+
+    # -------------------------------------------------------------------------
+    # CONTENT MODERATION
+    # -------------------------------------------------------------------------
+
     def record_flagged_input(self, user_email: str, content: str,
                              flagged_categories: List[str] = None) -> None:
         """Record flagged input for analytics."""

@@ -453,6 +453,206 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* ============================================
+       DAILY TEST LOAD SECTION
+       ============================================ */
+    .daily-load-section {
+        background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(99, 102, 241, 0.03) 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-default);
+    }
+
+    .daily-load-header {
+        margin-bottom: 1.25rem;
+    }
+
+    .daily-load-header h3 {
+        color: var(--slate-900);
+    }
+
+    .daily-progress {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .progress-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--slate-600);
+    }
+
+    .progress-bar-daily {
+        width: 80px;
+        height: 6px;
+        background: var(--slate-200);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .daily-load-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .daily-card {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-default);
+        border-radius: 8px;
+        padding: 1.25rem;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .daily-card:hover:not(.daily-card-completed) {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .daily-card-completed {
+        opacity: 0.7;
+        cursor: default;
+    }
+
+    .daily-card-completed::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        pointer-events: none;
+    }
+
+    .daily-card-number {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .daily-card-completed .daily-card-number {
+        background: var(--success);
+    }
+
+    .daily-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .slot-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .slot-badge-retry {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #f59e0b;
+    }
+
+    .slot-badge-new {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+    }
+
+    .slot-badge-completed {
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .daily-card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .daily-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 12px;
+        flex-wrap: wrap;
+    }
+
+    .daily-original-score {
+        font-size: 12px;
+        color: #92400e;
+        font-weight: 500;
+    }
+
+    .daily-card-btn {
+        width: 100%;
+        margin-top: auto;
+    }
+
+    .daily-all-complete {
+        text-align: center;
+        padding: 1rem;
+        color: var(--success);
+        font-weight: 600;
+    }
+
+    .daily-all-complete-icon {
+        font-size: 32px;
+        margin-bottom: 0.5rem;
+    }
+
+    .daily-load-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--slate-500);
+    }
+
+    @media (max-width: 768px) {
+        .daily-load-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -465,6 +665,31 @@
         <p class="text-slate-600 mb-0" data-i18n="test_list.subtitle">Select a test to practice and improve your language skills</p>
     </div>
     
+    <!-- Daily Test Load Section -->
+    <div class="daily-load-section mb-4" id="dailyLoadSection" style="display: none;">
+        <div class="daily-load-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="h5 mb-1">
+                        <i class="fa-solid fa-calendar-day me-2"></i>
+                        Today's Test Load
+                    </h3>
+                    <p class="text-slate-500 mb-0 small">Your personalized tests for today</p>
+                </div>
+                <div class="daily-progress" id="dailyProgress">
+                    <span class="progress-text" id="dailyProgressText">0/3</span>
+                    <div class="progress-bar-daily">
+                        <div class="progress-bar-fill" id="dailyProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="daily-load-grid" id="dailyLoadGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
     <div class="suggested-section mb-4">
         <div class="suggested-header">
             <h3 class="h6 mb-3" data-i18n="test_list.recommended">Recommended for You</h3>
@@ -1127,6 +1352,129 @@
         });
     }
 
+    // ============================================
+    // DAILY TEST LOAD FUNCTIONALITY
+    // ============================================
+
+    async function loadDailyLoad() {
+        try {
+            const token = localStorage.getItem('jwt_token');
+            const languageId = localStorage.getItem('selectedLanguageId');
+
+            if (!token || !languageId) return;
+
+            debugLog('Fetching daily load...', { languageId });
+
+            const response = await fetch(`/api/tests/daily-load?language_id=${languageId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            debugLog('Daily load received:', data);
+
+            if (data.success && data.daily_load && data.daily_load.tests && data.daily_load.tests.length > 0) {
+                displayDailyLoad(data.daily_load);
+            }
+        } catch (error) {
+            console.error('Error loading daily load:', error);
+            // Silently fail - the section just won't show
+        }
+    }
+
+    function displayDailyLoad(dailyLoad) {
+        const section = document.getElementById('dailyLoadSection');
+        const grid = document.getElementById('dailyLoadGrid');
+
+        section.style.display = '';
+        grid.innerHTML = '';
+
+        // Update progress
+        updateDailyProgress(dailyLoad.progress);
+
+        const allComplete = dailyLoad.progress.completed >= dailyLoad.progress.total;
+
+        dailyLoad.tests.forEach(function(test, index) {
+            var card = createDailyLoadCard(test, index);
+            grid.appendChild(card);
+        });
+
+        // Show congrats message if all complete
+        if (allComplete) {
+            var completeMsg = document.createElement('div');
+            completeMsg.className = 'daily-all-complete';
+            completeMsg.innerHTML = '<div class="daily-all-complete-icon">&#127881;</div><div>Great job! You\'ve completed today\'s test load!</div>';
+            grid.appendChild(completeMsg);
+        }
+    }
+
+    function createDailyLoadCard(test, index) {
+        var card = document.createElement('div');
+        var isCompleted = test.is_completed;
+        card.className = 'daily-card' + (isCompleted ? ' daily-card-completed' : '');
+
+        if (!isCompleted) {
+            card.onclick = function() {
+                var testType = test.test_type || 'listening';
+                window.location.href = '/test/' + test.slug + '?type=' + testType + '&daily=true';
+            };
+        }
+
+        var testTypeIcon = getTestTypeIcon(test.test_type || 'listening');
+        var testTypeLabel = capitalizeFirst(test.test_type || 'listening');
+        var diffLabel = getDifficultyLabel(test.elo_rating || 1400);
+        var diffClass = diffLabel.toLowerCase();
+
+        var slotBadgeClass = test.slot_type === 'retry' ? 'slot-badge-retry' : 'slot-badge-new';
+        var slotLabel = test.slot_type === 'retry' ? 'Retry' : 'New';
+        var numberBadgeHtml = '<div class="daily-card-number">' + (isCompleted ? '&#10003;' : (index + 1)) + '</div>';
+
+        var originalScoreHtml = '';
+        if (test.slot_type === 'retry' && test.original_percentage != null) {
+            originalScoreHtml = '<div class="daily-original-score">Previously scored ' + Math.round(test.original_percentage) + '%</div>';
+        }
+
+        var completedBadge = isCompleted ? '<span class="slot-badge slot-badge-completed">Completed</span>' : '';
+
+        var buttonHtml = isCompleted
+            ? '<button class="btn btn-success btn-sm daily-card-btn" disabled>Completed</button>'
+            : '<button class="btn btn-primary btn-sm daily-card-btn" type="button">Start Test</button>';
+
+        card.innerHTML = numberBadgeHtml +
+            '<div class="daily-card-header">' +
+                '<span class="test-type-badge ' + (test.test_type || 'listening') + '">' + testTypeIcon + ' ' + testTypeLabel + '</span>' +
+                '<span class="slot-badge ' + slotBadgeClass + '">' + slotLabel + '</span>' +
+                completedBadge +
+            '</div>' +
+            '<div class="daily-card-title">' + escapeHtml(test.title || 'Test') + '</div>' +
+            '<div class="daily-card-meta">' +
+                '<span class="badge-difficulty badge-' + diffClass + '">' + diffLabel + '</span>' +
+                '<span class="elo-info">ELO ' + (test.elo_rating || 1400) + '</span>' +
+            '</div>' +
+            originalScoreHtml +
+            buttonHtml;
+
+        return card;
+    }
+
+    function updateDailyProgress(progress) {
+        var text = document.getElementById('dailyProgressText');
+        var bar = document.getElementById('dailyProgressBar');
+
+        if (text) text.textContent = progress.completed + '/' + progress.total;
+        if (bar) {
+            var pct = progress.total > 0 ? (progress.completed / progress.total * 100) : 0;
+            bar.style.width = pct + '%';
+        }
+    }
+
     // Make functions globally accessible for inline event handlers
     window.goToTestPreview = goToTestPreview;
     window.applyFilters = applyFilters;
@@ -1135,11 +1483,13 @@
     window.getRandomTest = getRandomTest;
     window.loadRecommendedTests = loadRecommendedTests;
     window.goToTestPreviewRecommended = goToTestPreviewRecommended;
+    window.loadDailyLoad = loadDailyLoad;
 
     // Initial load — fetch metadata first for native language names
     LinguaMetadata.load().then(function() {
         loadTests();
         loadRecommendedTests();
+        loadDailyLoad();
     });
     
     // Check authentication
