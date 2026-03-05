@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Meal Plan Results - FeastOptimizer{% endblock %}
+{% block page_title %}Meal Plan Results{% endblock %}
+{% block content %}
+<div class="planner-results">
+    <!-- Summary -->
+    <div class="stat-row">
+        <div class="stat-box card">
+            <span class="stat-value">${{ plan.total_cost }}</span>
+            <span class="stat-label">Total Cost</span>
+        </div>
+        <div class="stat-box card">
+            <span class="stat-value">${{ budget|int }}</span>
+            <span class="stat-label">Budget</span>
+        </div>
+        <div class="stat-box card">
+            <span class="stat-value">${{ (budget - plan.total_cost)|round(2) }}</span>
+            <span class="stat-label">Under Budget</span>
+        </div>
+        {% if plan.savings_from_offers > 0 %}
+        <div class="stat-box card">
+            <span class="stat-value">${{ plan.savings_from_offers }}</span>
+            <span class="stat-label">Offer Savings</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Macro Summary -->
+    <div class="card">
+        <h3 class="card-title">Weekly Macro Totals</h3>
+        <div class="macro-grid">
+            <div class="macro-item">
+                <span class="macro-value">{{ plan.macro_summary.get('calories', 0)|int }}</span>
+                <span class="macro-label">Calories (target: {{ (macros.calories * 7)|int }})</span>
+            </div>
+            <div class="macro-item">
+                <span class="macro-value">{{ plan.macro_summary.get('protein', 0)|int }}g</span>
+                <span class="macro-label">Protein (target: {{ (macros.protein * 7)|int }}g)</span>
+            </div>
+            <div class="macro-item">
+                <span class="macro-value">{{ plan.macro_summary.get('carbs', 0)|int }}g</span>
+                <span class="macro-label">Carbs (target: {{ (macros.carbs * 7)|int }}g)</span>
+            </div>
+            <div class="macro-item">
+                <span class="macro-value">{{ plan.macro_summary.get('fat', 0)|int }}g</span>
+                <span class="macro-label">Fat (target: {{ (macros.fat * 7)|int }}g)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meal Plan -->
+    <div class="card">
+        <h3 class="card-title">Selected Recipes</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Recipe</th>
+                    <th>Cuisine</th>
+                    <th>Servings</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipe_id, info in plan.plan_data.items() %}
+                <tr>
+                    <td><a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe_id) }}">{{ info.name }}</a></td>
+                    <td><span class="badge badge-cuisine">{{ info.cuisine|title }}</span></td>
+                    <td>{{ info.count }}</td>
+                    <td>${{ info.cost }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Total</strong></td>
+                    <td><strong>${{ plan.total_cost }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <form action="{{ url_for('planner.accept_plan_route', plan_id=plan.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-primary btn-large">Accept Plan</button>
+        </form>
+        <a href="{{ url_for('planner.planner_form') }}" class="btn btn-secondary">Regenerate</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Settings - FeastOptimizer{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="settings-grid">
+
+    <!-- Macro Targets -->
+    <div class="card">
+        <h3 class="card-title">Daily Macro Targets</h3>
+        <form action="{{ url_for('settings.save_macros') }}" method="post">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="daily_calories">Calories (kcal)</label>
+                    <input type="number" id="daily_calories" name="daily_calories"
+                           value="{{ settings.daily_calories|int }}" min="1000" max="5000" step="50">
+                </div>
+                <div class="form-group">
+                    <label for="daily_protein">Protein (g)</label>
+                    <input type="number" id="daily_protein" name="daily_protein"
+                           value="{{ settings.daily_protein|int }}" min="30" max="300" step="5">
+                </div>
+                <div class="form-group">
+                    <label for="daily_carbs">Carbs (g)</label>
+                    <input type="number" id="daily_carbs" name="daily_carbs"
+                           value="{{ settings.daily_carbs|int }}" min="50" max="500" step="5">
+                </div>
+                <div class="form-group">
+                    <label for="daily_fat">Fat (g)</label>
+                    <input type="number" id="daily_fat" name="daily_fat"
+                           value="{{ settings.daily_fat|int }}" min="20" max="200" step="5">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Macros</button>
+        </form>
+    </div>
+
+    <!-- Weekly Budget -->
+    <div class="card">
+        <h3 class="card-title">Weekly Budget</h3>
+        <form action="{{ url_for('settings.save_budget') }}" method="post">
+            <div class="form-group">
+                <label for="weekly_budget">Budget ($AUD)</label>
+                <input type="number" id="weekly_budget" name="weekly_budget"
+                       value="{{ settings.weekly_budget|int }}" min="20" max="1000" step="5">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Budget</button>
+        </form>
+    </div>
+
+    <!-- Cuisine Preferences -->
+    <div class="card">
+        <h3 class="card-title">Cuisine Preferences</h3>
+        <form action="{{ url_for('settings.save_cuisine_preferences') }}" method="post">
+            <div class="checkbox-grid">
+                {% set all_cuisines = ['chinese', 'japanese', 'italian', 'thai', 'indian', 'french'] %}
+                {% for cuisine in all_cuisines %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="cuisine_preferences" value="{{ cuisine }}"
+                           {{ 'checked' if cuisine in settings.cuisine_preferences else '' }}>
+                    {{ cuisine|title }}
+                </label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Preferences</button>
+        </form>
+    </div>
+
+    <!-- Pantry Items (Owned) -->
+    <div class="card">
+        <h3 class="card-title">Pantry Items (Already Owned)</h3>
+        <p class="card-subtitle">Items you always have — excluded from shopping lists.</p>
+        <form action="{{ url_for('settings.save_owned_items') }}" method="post">
+            <div class="checkbox-grid">
+                {% for product in all_products|sort(attribute='name') %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="owned_items" value="{{ product.id }}"
+                           {{ 'checked' if product.id in settings.owned_items else '' }}>
+                    {{ product.name }}
+                </label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Pantry Items</button>
+        </form>
+    </div>
+
+    <!-- Loyalty Offers Upload -->
+    <div class="card">
+        <h3 class="card-title">Loyalty Offers</h3>
+        <p class="card-subtitle">Upload screenshots from Flybuys or Everyday Rewards to extract offers.</p>
+        <form action="{{ url_for('settings.upload_offers') }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="screenshots">Screenshots (max 8)</label>
+                <input type="file" id="screenshots" name="screenshots" multiple accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Extract Offers</button>
+        </form>
+
+        {% if pending_offers is defined and pending_offers %}
+        <div class="offer-confirmation">
+            <h4>Extracted Offers — Confirm to Save</h4>
+            <form action="{{ url_for('settings.confirm_offers') }}" method="post">
+                <input type="hidden" name="offers_data" value='{{ pending_offers|tojson }}'>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>Expiry</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for offer in pending_offers %}
+                        <tr>
+                            <td><span class="badge badge-{{ offer.program }}">{{ offer.program|replace('_',' ')|title }}</span></td>
+                            <td>{{ offer.offer_type|replace('_',' ')|title }}</td>
+                            <td>{{ offer.title }}</td>
+                            <td>{{ offer.expiry_date or 'Unknown' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Confirm & Save Offers</button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if offers %}
+        <div class="active-offers">
+            <h4>Active Offers</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Expiry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in offers %}
+                    <tr>
+                        <td><span class="badge badge-{{ offer.program }}">{{ offer.program|replace('_',' ')|title }}</span></td>
+                        <td>{{ offer.offer_type|replace('_',' ')|title }}</td>
+                        <td>{{ offer.title }}</td>
+                        <td>{{ offer.expiry_date or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

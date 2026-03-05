@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.name }} - FeastOptimizer{% endblock %}
+{% block page_title %}{{ recipe.name }}{% endblock %}
+{% block content %}
+<div class="recipe-detail">
+    <!-- Header -->
+    <div class="recipe-header card">
+        <div class="recipe-header-info">
+            <h2>{{ recipe.name }}</h2>
+            <div class="recipe-badges">
+                <span class="badge badge-cuisine">{{ recipe.cuisine|title }}</span>
+                <span class="badge badge-tier badge-{{ recipe.tier }}">{{ recipe.tier|title }}</span>
+                <span class="badge">Difficulty {{ recipe.difficulty }}/5</span>
+            </div>
+            <div class="recipe-times">
+                <span>Prep: {{ recipe.prep_time }} min</span>
+                <span>Cook: {{ recipe.cook_time }} min</span>
+                <span>Total: {{ recipe.prep_time + recipe.cook_time }} min</span>
+                <span>Serves: {{ recipe.servings }}</span>
+            </div>
+            {% if completion_count > 0 %}
+            <p class="completion-badge">Completed {{ completion_count }} time{{ 's' if completion_count != 1 }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="recipe-body">
+        <!-- Macros -->
+        {% if recipe.macros_per_serving %}
+        <div class="card">
+            <h3 class="card-title">Nutrition per Serving</h3>
+            <div class="macro-grid">
+                <div class="macro-item">
+                    <span class="macro-value">{{ recipe.macros_per_serving.get('calories', 0)|int }}</span>
+                    <span class="macro-label">Calories</span>
+                </div>
+                <div class="macro-item">
+                    <span class="macro-value">{{ recipe.macros_per_serving.get('protein', 0)|int }}g</span>
+                    <span class="macro-label">Protein</span>
+                </div>
+                <div class="macro-item">
+                    <span class="macro-value">{{ recipe.macros_per_serving.get('carbs', 0)|int }}g</span>
+                    <span class="macro-label">Carbs</span>
+                </div>
+                <div class="macro-item">
+                    <span class="macro-value">{{ recipe.macros_per_serving.get('fat', 0)|int }}g</span>
+                    <span class="macro-label">Fat</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Techniques -->
+        {% if recipe.techniques_taught %}
+        <div class="card">
+            <h3 class="card-title">Techniques You'll Practice</h3>
+            <div class="technique-list">
+                {% for tech in recipe.techniques_taught %}
+                <span class="badge badge-technique">{{ tech.replace('_', ' ').title() }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ingredients -->
+        <div class="card">
+            <h3 class="card-title">Ingredients</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ing in ingredients %}
+                    <tr>
+                        <td>{{ ing.product_name }}</td>
+                        <td>{{ ing.quantity }}</td>
+                        <td>{{ ing.unit }}</td>
+                        <td>{{ ing.notes or '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Instructions -->
+        {% if recipe.instructions %}
+        <div class="card">
+            <h3 class="card-title">Instructions</h3>
+            <ol class="instruction-list">
+                {% for step in recipe.instructions %}
+                <li class="instruction-step">{{ step }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+
+        <!-- Key Learnings -->
+        {% if recipe.key_learnings %}
+        <div class="card">
+            <h3 class="card-title">Key Learnings</h3>
+            <p>{{ recipe.key_learnings }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Video -->
+        {% if recipe.video_url %}
+        <div class="card">
+            <h3 class="card-title">Video</h3>
+            <div class="video-container">
+                <iframe src="{{ recipe.video_url }}" allowfullscreen></iframe>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="recipe-actions">
+        <a href="{{ url_for('recipes.recipe_complete', recipe_id=recipe.id) }}" class="btn btn-primary btn-large">
+            I Made This!
+        </a>
+        <a href="{{ url_for('recipes.recipe_list') }}" class="btn btn-secondary">Back to Recipes</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Skill Tree - FeastOptimizer{% endblock %}
+{% block page_title %}{% if detail_mode is defined and detail_mode %}{{ cuisine_name }} Skills{% else %}Skill Tree{% endif %}{% endblock %}
+{% block content %}
+
+{% if detail_mode is defined and detail_mode %}
+<!-- Cuisine Detail View -->
+<div class="cuisine-detail">
+    <div class="card">
+        <h2>{{ cuisine_name }}</h2>
+        <p>{{ cuisine_description }}</p>
+        <a href="{{ url_for('skills.skills_overview') }}" class="btn btn-secondary">Back to All Cuisines</a>
+    </div>
+
+    <!-- Technique Mastery -->
+    <div class="card">
+        <h3 class="card-title">Technique Mastery</h3>
+        <div class="technique-mastery-list">
+            {% for tech in techniques %}
+            <div class="technique-mastery-item">
+                <div class="technique-info">
+                    <span class="technique-name">{{ tech.display_name }}</span>
+                    <span class="badge badge-level badge-{{ tech.level }}">{{ tech.level|title }}</span>
+                    {% if tech.needs_practice %}
+                    <span class="badge badge-warning">Needs Practice</span>
+                    {% endif %}
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ tech.mastery }}%"></div>
+                    <span class="progress-label">{{ tech.mastery }}% mastery / {{ tech.retention }}% retention</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tiers -->
+    {% for tier in tiers %}
+    <div class="card tier-card">
+        <div class="tier-header" onclick="this.parentElement.classList.toggle('expanded')">
+            <h3>
+                {{ tier.name|title }}
+                <span class="tier-progress">{{ tier.completed_count }}/{{ tier.total_count }}</span>
+            </h3>
+            {% if tier.unlock_requirements %}
+            <p class="tier-requirements">Requires: {{ tier.unlock_requirements }}</p>
+            {% endif %}
+            <span class="tier-toggle">&#9660;</span>
+        </div>
+        <div class="tier-content">
+            <div class="recipe-grid">
+                {% for recipe in tier.recipes %}
+                <a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe.id) }}"
+                   class="card recipe-card {{ 'completed' if recipe.completed }}">
+                    <div class="recipe-card-header">
+                        {% if recipe.completed %}
+                        <span class="badge badge-completed">&#10003; Done ({{ recipe.completion_count }}x)</span>
+                        {% endif %}
+                        <span class="badge">Difficulty {{ recipe.difficulty }}/5</span>
+                    </div>
+                    <h4 class="recipe-card-title">{{ recipe.name }}</h4>
+                    <div class="recipe-card-meta">
+                        <span>{{ recipe.prep_time + recipe.cook_time }} min</span>
+                    </div>
+                    {% if recipe.techniques_taught %}
+                    <div class="recipe-card-techniques">
+                        {% for tech in recipe.techniques_taught[:3] %}
+                        <span class="badge badge-technique">{{ tech.replace('_', ' ') }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Overview: All Cuisines -->
+<div class="cuisine-grid">
+    {% for cuisine in cuisines %}
+    <a href="{{ url_for('skills.cuisine_detail', cuisine=cuisine.key) }}" class="card cuisine-card">
+        <h3>{{ cuisine.name }}</h3>
+        <p class="cuisine-description">{{ cuisine.description }}</p>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ cuisine.progress_percent }}%"></div>
+            <span class="progress-label">{{ cuisine.completed_recipes }}/{{ cuisine.total_recipes }} recipes</span>
+        </div>
+        <div class="cuisine-stats">
+            <span>Avg Mastery: {{ cuisine.avg_mastery }}%</span>
+        </div>
+    </a>
+    {% else %}
+    <div class="empty-state">
+        <p>No cuisine skill trees configured.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var firstTier = document.querySelector('.tier-card');
+    if (firstTier) firstTier.classList.add('expanded');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FeastOptimizer{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-theme="bauhaus">
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">FeastOptimizer</h1>
+            <button class="menu-close" onclick="toggleMenu()" aria-label="Close menu">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard.dashboard_view') }}" class="nav-link" data-section="dashboard">
+                <span class="nav-icon">&#9776;</span> Dashboard
+            </a></li>
+            <li><a href="{{ url_for('planner.planner_form') }}" class="nav-link" data-section="planner">
+                <span class="nav-icon">&#128197;</span> Meal Planner
+            </a></li>
+            <li><a href="{{ url_for('recipes.recipe_list') }}" class="nav-link" data-section="recipes">
+                <span class="nav-icon">&#127858;</span> Recipes
+            </a></li>
+            <li><a href="{{ url_for('skills.skills_overview') }}" class="nav-link" data-section="skills">
+                <span class="nav-icon">&#127942;</span> Skill Tree
+            </a></li>
+            <li><a href="{{ url_for('wishlist.wishlist_view') }}" class="nav-link" data-section="wishlist">
+                <span class="nav-icon">&#128722;</span> Wishlist
+            </a></li>
+            <li><a href="{{ url_for('settings.settings_view') }}" class="nav-link" data-section="settings">
+                <span class="nav-icon">&#9881;</span> Settings
+            </a></li>
+        </ul>
+        <div class="theme-switcher">
+            <span class="theme-label">Theme</span>
+            <div class="theme-options">
+                <button class="theme-btn active" data-theme="bauhaus" onclick="changeTheme('bauhaus')">Bauhaus</button>
+                <button class="theme-btn" data-theme="pixel-farm" onclick="changeTheme('pixel-farm')">Pixel Farm</button>
+                <button class="theme-btn" data-theme="retro" onclick="changeTheme('retro')">Retro</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content {% block main_class %}{% endblock %}">
+        <header class="top-bar">
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">&#9776;</button>
+            <h2 class="page-title">{% block page_title %}Dashboard{% endblock %}</h2>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

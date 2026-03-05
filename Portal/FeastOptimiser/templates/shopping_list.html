@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Shopping List - FeastOptimizer{% endblock %}
+{% block page_title %}Shopping List{% endblock %}
+{% block content %}
+<div class="shopping-list-page">
+    {% if plan %}
+    <div class="card">
+        <h2>Shopping List — Week of {{ plan.week_start }}</h2>
+        <p>Total: <strong>${{ plan.total_cost }}</strong></p>
+    </div>
+
+    {% for store_name, data in shopping_list.items() %}
+    <div class="card store-section">
+        <h3 class="card-title store-title">{{ store_name|title }}</h3>
+
+        {% if data is mapping %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Promo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data.get('items', data.values() if data is mapping else []) %}
+                <tr>
+                    <td>{{ item.get('product_name', item.get('name', '')) }}</td>
+                    <td>{{ item.get('quantity', '') }}</td>
+                    <td>{{ item.get('unit', '') }}</td>
+                    <td>${{ item.get('effective_price', item.get('price', 0)) }}</td>
+                    <td>{% if item.get('promotion_active') %}<span class="badge badge-promo">Sale</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if data.get('total') %}
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Store Total</strong></td>
+                    <td><strong>${{ data.total }}</strong></td>
+                    <td>{% if data.get('savings', 0) > 0 %}Saved ${{ data.savings }}{% endif %}</td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+        {% else %}
+        <!-- Simple list format (from optimizer) -->
+        <table class="data-table">
+            <thead>
+                <tr><th>Item</th><th>Qty</th><th>Unit</th><th>Price</th></tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td>${{ item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+        <p>Your shopping list is empty.</p>
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+        <a href="{{ url_for('planner.planner_form') }}" class="btn btn-secondary">Back to Planner</a>
+    </div>
+    {% else %}
+    <div class="empty-state card">
+        <p>No meal plan found. <a href="{{ url_for('planner.planner_form') }}">Generate one first</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

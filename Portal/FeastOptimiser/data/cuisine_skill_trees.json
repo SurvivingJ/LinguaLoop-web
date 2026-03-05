@@ -1,0 +1,284 @@
+{
+    "chinese": {
+        "name": "Chinese",
+        "description": "Master wok techniques, balance of five flavors, and the art of stir-frying",
+        "core_techniques": ["stir_frying", "velveting", "wok_hei", "steaming", "braising", "deep_frying"],
+        "core_ingredients": ["soy_sauce", "sesame_oil", "rice_wine", "ginger", "garlic", "spring_onion", "oyster_sauce"],
+        "tiers": {
+            "beginner": {
+                "description": "Foundational stir-fry and steaming techniques",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "Egg Fried Rice", "difficulty": 1, "techniques_taught": ["wok_control", "stir_frying"], "key_learnings": "Wok heat management and rice texture", "builds_on": [], "estimated_time": 20},
+                    {"name": "Stir-Fried Vegetables", "difficulty": 1, "techniques_taught": ["stir_frying", "knife_skills"], "key_learnings": "Uniform cutting for even cooking", "builds_on": [], "estimated_time": 15},
+                    {"name": "Steamed Rice", "difficulty": 1, "techniques_taught": ["steaming"], "key_learnings": "Water-to-rice ratios and absorption method", "builds_on": [], "estimated_time": 25},
+                    {"name": "Tomato Egg Stir-Fry", "difficulty": 1, "techniques_taught": ["stir_frying", "sauce_making"], "key_learnings": "Quick sauce thickening and egg texture control", "builds_on": ["Egg Fried Rice"], "estimated_time": 15},
+                    {"name": "Hot and Sour Soup", "difficulty": 2, "techniques_taught": ["sauce_making", "knife_skills"], "key_learnings": "Balancing sour and spicy flavors", "builds_on": [], "estimated_time": 30},
+                    {"name": "Spring Rolls", "difficulty": 2, "techniques_taught": ["deep_frying", "knife_skills"], "key_learnings": "Wrapper rolling technique and oil temperature control", "builds_on": ["Stir-Fried Vegetables"], "estimated_time": 45}
+                ],
+                "required_equipment": ["wok", "rice cooker", "cleaver"]
+            },
+            "intermediate": {
+                "description": "Protein velveting, complex sauces, and braising",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["stir_frying", "knife_skills"]},
+                "recipes": [
+                    {"name": "Kung Pao Chicken", "difficulty": 3, "techniques_taught": ["velveting", "stir_frying"], "key_learnings": "Protein velveting for silky texture and mala flavor balance", "builds_on": ["Stir-Fried Vegetables"], "estimated_time": 35},
+                    {"name": "Mapo Tofu", "difficulty": 3, "techniques_taught": ["braising", "sauce_making"], "key_learnings": "Doubanjiang usage and tofu handling", "builds_on": ["Hot and Sour Soup"], "estimated_time": 30},
+                    {"name": "Sweet and Sour Pork", "difficulty": 3, "techniques_taught": ["deep_frying", "sauce_making"], "key_learnings": "Batter coating and balanced sweet-sour sauce", "builds_on": ["Spring Rolls"], "estimated_time": 40},
+                    {"name": "Char Siu (BBQ Pork)", "difficulty": 3, "techniques_taught": ["roasting", "sauce_making"], "key_learnings": "Marinade penetration and caramelization", "builds_on": [], "estimated_time": 90},
+                    {"name": "Dan Dan Noodles", "difficulty": 3, "techniques_taught": ["sauce_making", "stir_frying"], "key_learnings": "Chilli oil preparation and noodle sauce emulsion", "builds_on": ["Mapo Tofu"], "estimated_time": 35},
+                    {"name": "Steamed Dumplings (Jiaozi)", "difficulty": 4, "techniques_taught": ["dough_making", "steaming"], "key_learnings": "Dumpling wrapper making and pleating technique", "builds_on": ["Spring Rolls"], "estimated_time": 60}
+                ],
+                "required_equipment": ["wok", "bamboo steamer", "cleaver", "rolling_pin"]
+            },
+            "advanced": {
+                "description": "Wok hei mastery, hand-pulled noodles, and banquet dishes",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["stir_frying", "velveting", "steaming", "sauce_making"]},
+                "recipes": [
+                    {"name": "Peking Duck", "difficulty": 5, "techniques_taught": ["roasting", "knife_skills"], "key_learnings": "Air-drying, glazing, and tableside carving", "builds_on": ["Char Siu (BBQ Pork)"], "estimated_time": 240},
+                    {"name": "Xiao Long Bao (Soup Dumplings)", "difficulty": 5, "techniques_taught": ["dough_making", "steaming"], "key_learnings": "Aspic preparation and ultra-thin wrappers", "builds_on": ["Steamed Dumplings (Jiaozi)"], "estimated_time": 120},
+                    {"name": "Hand-Pulled Noodles (La Mian)", "difficulty": 5, "techniques_taught": ["dough_making"], "key_learnings": "Gluten development and pulling technique", "builds_on": ["Dan Dan Noodles"], "estimated_time": 90},
+                    {"name": "Crispy Skin Pork Belly", "difficulty": 4, "techniques_taught": ["roasting", "braising"], "key_learnings": "Skin preparation for maximum crackle", "builds_on": ["Char Siu (BBQ Pork)"], "estimated_time": 180},
+                    {"name": "General Tso's Chicken", "difficulty": 4, "techniques_taught": ["deep_frying", "wok_hei", "sauce_making"], "key_learnings": "Double-frying and wok hei in sauce finishing", "builds_on": ["Sweet and Sour Pork", "Kung Pao Chicken"], "estimated_time": 45},
+                    {"name": "Cantonese Steamed Fish", "difficulty": 4, "techniques_taught": ["steaming", "sauce_making"], "key_learnings": "Precise steaming time and hot oil finishing", "builds_on": ["Steamed Rice"], "estimated_time": 25}
+                ],
+                "required_equipment": ["wok", "bamboo steamer", "cleaver", "roasting_rack"]
+            }
+        }
+    },
+    "japanese": {
+        "name": "Japanese",
+        "description": "Precision knife work, umami mastery, and respect for seasonal ingredients",
+        "core_techniques": ["knife_skills", "steaming", "grilling", "deep_frying", "simmering", "pickling"],
+        "core_ingredients": ["dashi", "soy_sauce", "mirin", "sake", "rice_vinegar", "miso", "nori"],
+        "tiers": {
+            "beginner": {
+                "description": "Rice preparation, basic dashi, and simple home cooking",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "Japanese White Rice (Gohan)", "difficulty": 1, "techniques_taught": ["steaming"], "key_learnings": "Rice washing and water ratios for sticky rice", "builds_on": [], "estimated_time": 30},
+                    {"name": "Miso Soup", "difficulty": 1, "techniques_taught": ["simmering", "sauce_making"], "key_learnings": "Dashi preparation and miso tempering", "builds_on": [], "estimated_time": 15},
+                    {"name": "Tamagoyaki (Rolled Omelette)", "difficulty": 2, "techniques_taught": ["sauteing"], "key_learnings": "Pan rolling technique and even heat control", "builds_on": [], "estimated_time": 15},
+                    {"name": "Onigiri (Rice Balls)", "difficulty": 1, "techniques_taught": ["knife_skills"], "key_learnings": "Rice shaping and nori wrapping", "builds_on": ["Japanese White Rice (Gohan)"], "estimated_time": 20},
+                    {"name": "Edamame with Salt", "difficulty": 1, "techniques_taught": ["blanching"], "key_learnings": "Blanching and seasoning timing", "builds_on": [], "estimated_time": 10},
+                    {"name": "Teriyaki Chicken", "difficulty": 2, "techniques_taught": ["grilling", "sauce_making"], "key_learnings": "Teriyaki glaze reduction and basting", "builds_on": [], "estimated_time": 25}
+                ],
+                "required_equipment": ["rice_cooker", "tamagoyaki_pan", "sharp_knife"]
+            },
+            "intermediate": {
+                "description": "Tempura, ramen, and precision cutting techniques",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["steaming", "sauce_making"]},
+                "recipes": [
+                    {"name": "Tonkatsu (Pork Cutlet)", "difficulty": 3, "techniques_taught": ["deep_frying", "knife_skills"], "key_learnings": "Panko coating technique and oil temperature", "builds_on": ["Teriyaki Chicken"], "estimated_time": 35},
+                    {"name": "Vegetable Tempura", "difficulty": 3, "techniques_taught": ["deep_frying"], "key_learnings": "Cold batter technique and frying temperature control", "builds_on": [], "estimated_time": 30},
+                    {"name": "Shoyu Ramen", "difficulty": 4, "techniques_taught": ["simmering", "sauce_making"], "key_learnings": "Tare preparation and broth layering", "builds_on": ["Miso Soup"], "estimated_time": 120},
+                    {"name": "Gyoza (Pan-Fried Dumplings)", "difficulty": 3, "techniques_taught": ["dough_making", "sauteing"], "key_learnings": "Pleating technique and steam-frying method", "builds_on": ["Onigiri (Rice Balls)"], "estimated_time": 50},
+                    {"name": "Katsu Curry", "difficulty": 3, "techniques_taught": ["deep_frying", "sauce_making"], "key_learnings": "Japanese curry roux and component assembly", "builds_on": ["Tonkatsu (Pork Cutlet)"], "estimated_time": 45},
+                    {"name": "Yakitori", "difficulty": 3, "techniques_taught": ["grilling", "sauce_making"], "key_learnings": "Tare basting and charcoal grilling control", "builds_on": ["Teriyaki Chicken"], "estimated_time": 40}
+                ],
+                "required_equipment": ["rice_cooker", "sharp_knife", "deep_fryer", "grill"]
+            },
+            "advanced": {
+                "description": "Sushi mastery, complex broths, and kaiseki principles",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["knife_skills", "deep_frying", "sauce_making", "simmering"]},
+                "recipes": [
+                    {"name": "Nigiri Sushi", "difficulty": 5, "techniques_taught": ["knife_skills"], "key_learnings": "Fish slicing at precise angles and shari forming", "builds_on": ["Japanese White Rice (Gohan)"], "estimated_time": 60},
+                    {"name": "Tonkotsu Ramen", "difficulty": 5, "techniques_taught": ["simmering"], "key_learnings": "18-hour pork bone broth emulsification", "builds_on": ["Shoyu Ramen"], "estimated_time": 1080},
+                    {"name": "Sashimi Platter", "difficulty": 5, "techniques_taught": ["knife_skills"], "key_learnings": "Single-stroke fish cutting and presentation", "builds_on": ["Nigiri Sushi"], "estimated_time": 30},
+                    {"name": "Okonomiyaki", "difficulty": 4, "techniques_taught": ["sauteing", "sauce_making"], "key_learnings": "Batter consistency and griddle temperature control", "builds_on": ["Tamagoyaki (Rolled Omelette)"], "estimated_time": 35},
+                    {"name": "Chawanmushi (Steamed Egg Custard)", "difficulty": 4, "techniques_taught": ["steaming"], "key_learnings": "Silky egg custard steaming and dashi ratio", "builds_on": ["Miso Soup"], "estimated_time": 40},
+                    {"name": "Kakiage (Mixed Vegetable Tempura)", "difficulty": 4, "techniques_taught": ["deep_frying", "knife_skills"], "key_learnings": "Julienne precision and cluster frying", "builds_on": ["Vegetable Tempura"], "estimated_time": 35}
+                ],
+                "required_equipment": ["rice_cooker", "yanagiba_knife", "bamboo_sushi_mat", "donabe"]
+            }
+        }
+    },
+    "italian": {
+        "name": "Italian",
+        "description": "Mastery of simplicity through quality ingredients, fresh pasta, and slow-cooked sauces",
+        "core_techniques": ["sauteing", "sauce_making", "dough_making", "braising", "roasting", "emulsification"],
+        "core_ingredients": ["olive_oil", "garlic", "canned_tomatoes", "parmesan", "basil", "pasta", "pancetta"],
+        "tiers": {
+            "beginner": {
+                "description": "Essential pasta sauces and simple preparations",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "Aglio e Olio", "difficulty": 1, "techniques_taught": ["sauteing", "emulsification"], "key_learnings": "Garlic toasting without burning and pasta water emulsion", "builds_on": [], "estimated_time": 15},
+                    {"name": "Pomodoro Sauce with Spaghetti", "difficulty": 1, "techniques_taught": ["sauce_making"], "key_learnings": "Building tomato sauce from canned tomatoes", "builds_on": [], "estimated_time": 25},
+                    {"name": "Bruschetta", "difficulty": 1, "techniques_taught": ["knife_skills", "roasting"], "key_learnings": "Bread toasting and fresh tomato concasse", "builds_on": [], "estimated_time": 15},
+                    {"name": "Caprese Salad", "difficulty": 1, "techniques_taught": ["knife_skills"], "key_learnings": "Ingredient quality and simple assembly", "builds_on": [], "estimated_time": 10},
+                    {"name": "Penne Arrabbiata", "difficulty": 2, "techniques_taught": ["sauteing", "sauce_making"], "key_learnings": "Chilli heat control and sauce consistency", "builds_on": ["Pomodoro Sauce with Spaghetti"], "estimated_time": 25},
+                    {"name": "Minestrone Soup", "difficulty": 2, "techniques_taught": ["sauteing", "simmering"], "key_learnings": "Soffritto base and vegetable layering", "builds_on": [], "estimated_time": 40}
+                ],
+                "required_equipment": ["large_pot", "saucepan", "wooden_spoon"]
+            },
+            "intermediate": {
+                "description": "Fresh pasta, risotto technique, and regional classics",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["sauteing", "sauce_making"]},
+                "recipes": [
+                    {"name": "Carbonara", "difficulty": 3, "techniques_taught": ["emulsification", "sauce_making"], "key_learnings": "Egg tempering and creating creamy sauce without cream", "builds_on": ["Aglio e Olio"], "estimated_time": 25},
+                    {"name": "Risotto alla Milanese", "difficulty": 3, "techniques_taught": ["sauteing", "reduction"], "key_learnings": "Toast, ladle, stir rhythm and mantecatura", "builds_on": ["Minestrone Soup"], "estimated_time": 35},
+                    {"name": "Fresh Egg Pasta", "difficulty": 3, "techniques_taught": ["dough_making"], "key_learnings": "Dough hydration, kneading, and rolling to correct thickness", "builds_on": [], "estimated_time": 60},
+                    {"name": "Bolognese (Ragu alla Bolognese)", "difficulty": 3, "techniques_taught": ["braising", "sauce_making"], "key_learnings": "Long slow cook and layering of mince browning", "builds_on": ["Pomodoro Sauce with Spaghetti"], "estimated_time": 180},
+                    {"name": "Chicken Parmigiana", "difficulty": 3, "techniques_taught": ["deep_frying", "roasting"], "key_learnings": "Crumb coating and cheese melting under grill", "builds_on": ["Penne Arrabbiata"], "estimated_time": 40},
+                    {"name": "Gnocchi with Sage Butter", "difficulty": 4, "techniques_taught": ["dough_making", "sauteing"], "key_learnings": "Potato gnocchi lightness and brown butter technique", "builds_on": ["Fresh Egg Pasta"], "estimated_time": 50}
+                ],
+                "required_equipment": ["large_pot", "pasta_machine", "heavy_pan", "cheese_grater"]
+            },
+            "advanced": {
+                "description": "Filled pasta, complex ragus, and restaurant-quality dishes",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["dough_making", "sauce_making", "emulsification", "sauteing"]},
+                "recipes": [
+                    {"name": "Ravioli with Ricotta and Spinach", "difficulty": 5, "techniques_taught": ["dough_making", "knife_skills"], "key_learnings": "Thin pasta sheets, filling, and sealing without air pockets", "builds_on": ["Fresh Egg Pasta"], "estimated_time": 90},
+                    {"name": "Osso Buco", "difficulty": 5, "techniques_taught": ["braising", "searing"], "key_learnings": "Braising veal shanks and gremolata preparation", "builds_on": ["Bolognese (Ragu alla Bolognese)"], "estimated_time": 180},
+                    {"name": "Cacio e Pepe", "difficulty": 4, "techniques_taught": ["emulsification"], "key_learnings": "Cheese and starch water emulsion without clumping", "builds_on": ["Carbonara"], "estimated_time": 20},
+                    {"name": "Lasagna", "difficulty": 4, "techniques_taught": ["dough_making", "sauce_making", "roasting"], "key_learnings": "Bechamel, ragu layering, and baking to golden finish", "builds_on": ["Fresh Egg Pasta", "Bolognese (Ragu alla Bolognese)"], "estimated_time": 120},
+                    {"name": "Tiramisu", "difficulty": 4, "techniques_taught": ["emulsification"], "key_learnings": "Zabaglione whisking and mascarpone folding", "builds_on": [], "estimated_time": 40},
+                    {"name": "Saltimbocca alla Romana", "difficulty": 4, "techniques_taught": ["sauteing", "deglazing"], "key_learnings": "Veal pounding, prosciutto layering, and pan sauce deglazing", "builds_on": ["Chicken Parmigiana"], "estimated_time": 25}
+                ],
+                "required_equipment": ["large_pot", "pasta_machine", "heavy_pan", "baking_dish", "rolling_pin"]
+            }
+        }
+    },
+    "thai": {
+        "name": "Thai",
+        "description": "Balancing sweet, sour, salty, and spicy with fresh aromatics and curry pastes",
+        "core_techniques": ["curry_paste", "stir_frying", "deep_frying", "blanching", "sauce_making", "grilling"],
+        "core_ingredients": ["fish_sauce", "palm_sugar", "lime", "lemongrass", "galangal", "chilli", "coconut_milk", "thai_basil", "coriander"],
+        "tiers": {
+            "beginner": {
+                "description": "Essential Thai flavors, stir-fries, and simple curries",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "Pad Thai", "difficulty": 2, "techniques_taught": ["stir_frying", "sauce_making"], "key_learnings": "Tamarind sauce balance and noodle wok technique", "builds_on": [], "estimated_time": 25},
+                    {"name": "Thai Fried Rice (Khao Pad)", "difficulty": 1, "techniques_taught": ["stir_frying"], "key_learnings": "Day-old rice and fish sauce seasoning", "builds_on": [], "estimated_time": 15},
+                    {"name": "Tom Yum Soup", "difficulty": 2, "techniques_taught": ["simmering", "sauce_making"], "key_learnings": "Aromatic bruising and hot-sour balance", "builds_on": [], "estimated_time": 20},
+                    {"name": "Thai Omelette (Khai Jiao)", "difficulty": 1, "techniques_taught": ["deep_frying"], "key_learnings": "High-heat wok frying for puffy omelette", "builds_on": [], "estimated_time": 10},
+                    {"name": "Green Papaya Salad (Som Tum)", "difficulty": 2, "techniques_taught": ["knife_skills"], "key_learnings": "Mortar pounding technique and flavor balance", "builds_on": [], "estimated_time": 15},
+                    {"name": "Stir-Fried Basil Chicken (Pad Krapao)", "difficulty": 2, "techniques_taught": ["stir_frying", "sauce_making"], "key_learnings": "Holy basil wok frying and chilli garlic mince", "builds_on": ["Thai Fried Rice (Khao Pad)"], "estimated_time": 15}
+                ],
+                "required_equipment": ["wok", "mortar_and_pestle", "rice_cooker"]
+            },
+            "intermediate": {
+                "description": "Curry paste making, complex soups, and grilled dishes",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["stir_frying", "sauce_making"]},
+                "recipes": [
+                    {"name": "Green Curry (Gaeng Keow Wan)", "difficulty": 3, "techniques_taught": ["curry_paste", "simmering"], "key_learnings": "Pounding green curry paste and cracking coconut milk", "builds_on": ["Tom Yum Soup"], "estimated_time": 40},
+                    {"name": "Massaman Curry", "difficulty": 3, "techniques_taught": ["curry_paste", "braising"], "key_learnings": "Dry-roasting spices and slow braising with coconut", "builds_on": ["Green Curry (Gaeng Keow Wan)"], "estimated_time": 60},
+                    {"name": "Tom Kha Gai", "difficulty": 3, "techniques_taught": ["simmering", "sauce_making"], "key_learnings": "Coconut milk soup technique and galangal infusion", "builds_on": ["Tom Yum Soup"], "estimated_time": 30},
+                    {"name": "Larb (Thai Minced Meat Salad)", "difficulty": 3, "techniques_taught": ["stir_frying", "sauce_making"], "key_learnings": "Toasted rice powder and lime dressing", "builds_on": ["Stir-Fried Basil Chicken (Pad Krapao)"], "estimated_time": 20},
+                    {"name": "Satay Chicken with Peanut Sauce", "difficulty": 3, "techniques_taught": ["grilling", "sauce_making"], "key_learnings": "Turmeric marinade and peanut sauce emulsion", "builds_on": [], "estimated_time": 45},
+                    {"name": "Pad See Ew", "difficulty": 3, "techniques_taught": ["stir_frying", "wok_hei"], "key_learnings": "Wide noodle charring and dark soy caramelization", "builds_on": ["Pad Thai"], "estimated_time": 20}
+                ],
+                "required_equipment": ["wok", "mortar_and_pestle", "grill", "rice_cooker"]
+            },
+            "advanced": {
+                "description": "Complex curry pastes, banquet dishes, and traditional desserts",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["curry_paste", "stir_frying", "sauce_making", "simmering"]},
+                "recipes": [
+                    {"name": "Red Curry Duck", "difficulty": 4, "techniques_taught": ["curry_paste", "braising"], "key_learnings": "Red curry paste from scratch and duck preparation", "builds_on": ["Green Curry (Gaeng Keow Wan)"], "estimated_time": 60},
+                    {"name": "Crying Tiger (Suea Rong Hai)", "difficulty": 4, "techniques_taught": ["grilling", "sauce_making"], "key_learnings": "Steak grilling to medium-rare and jaew dipping sauce", "builds_on": ["Satay Chicken with Peanut Sauce"], "estimated_time": 30},
+                    {"name": "Khao Soi (Northern Thai Curry Noodles)", "difficulty": 5, "techniques_taught": ["curry_paste", "deep_frying", "simmering"], "key_learnings": "Khao soi paste, crispy noodle garnish, and broth richness", "builds_on": ["Massaman Curry", "Pad See Ew"], "estimated_time": 50},
+                    {"name": "Whole Fried Fish with Three-Flavor Sauce", "difficulty": 5, "techniques_taught": ["deep_frying", "sauce_making"], "key_learnings": "Scoring and deep-frying whole fish, three-flavor sauce", "builds_on": ["Thai Omelette (Khai Jiao)"], "estimated_time": 40},
+                    {"name": "Mango Sticky Rice (Khao Niao Mamuang)", "difficulty": 3, "techniques_taught": ["steaming"], "key_learnings": "Glutinous rice steaming and coconut cream sauce", "builds_on": [], "estimated_time": 45},
+                    {"name": "Panang Curry", "difficulty": 4, "techniques_taught": ["curry_paste", "sauce_making"], "key_learnings": "Dry curry technique and kaffir lime leaf chiffonade", "builds_on": ["Green Curry (Gaeng Keow Wan)", "Red Curry Duck"], "estimated_time": 40}
+                ],
+                "required_equipment": ["wok", "mortar_and_pestle", "bamboo_steamer", "deep_fryer"]
+            }
+        }
+    },
+    "indian": {
+        "name": "Indian",
+        "description": "Complex spice layering, tempering techniques, and diverse regional traditions",
+        "core_techniques": ["tempering", "sauce_making", "braising", "roasting", "grilling", "dough_making"],
+        "core_ingredients": ["cumin", "turmeric", "coriander_ground", "garam_masala", "chilli_powder", "ginger", "garlic", "onion", "ghee", "yoghurt"],
+        "tiers": {
+            "beginner": {
+                "description": "Basic spice handling, rice dishes, and simple curries",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "Jeera Rice (Cumin Rice)", "difficulty": 1, "techniques_taught": ["tempering"], "key_learnings": "Tempering cumin seeds in ghee", "builds_on": [], "estimated_time": 20},
+                    {"name": "Dal Tadka (Tempered Lentils)", "difficulty": 2, "techniques_taught": ["tempering", "simmering"], "key_learnings": "Lentil cooking and aromatic tadka finish", "builds_on": [], "estimated_time": 35},
+                    {"name": "Aloo Gobi (Potato and Cauliflower)", "difficulty": 2, "techniques_taught": ["sauteing", "sauce_making"], "key_learnings": "Dry curry technique and spice layering", "builds_on": [], "estimated_time": 30},
+                    {"name": "Raita", "difficulty": 1, "techniques_taught": ["knife_skills"], "key_learnings": "Yoghurt-based accompaniment and tempering for raita", "builds_on": [], "estimated_time": 10},
+                    {"name": "Chapati", "difficulty": 2, "techniques_taught": ["dough_making"], "key_learnings": "Unleavened dough handling and tawa cooking", "builds_on": [], "estimated_time": 30},
+                    {"name": "Egg Curry", "difficulty": 2, "techniques_taught": ["sauce_making", "simmering"], "key_learnings": "Onion-tomato masala base and egg cooking", "builds_on": ["Dal Tadka (Tempered Lentils)"], "estimated_time": 30}
+                ],
+                "required_equipment": ["heavy_pan", "tawa", "pressure_cooker"]
+            },
+            "intermediate": {
+                "description": "Complex curries, bread making, and tandoori techniques",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["tempering", "sauce_making"]},
+                "recipes": [
+                    {"name": "Butter Chicken (Murgh Makhani)", "difficulty": 3, "techniques_taught": ["grilling", "sauce_making"], "key_learnings": "Yoghurt marinade, tandoori char, and makhani sauce", "builds_on": ["Egg Curry"], "estimated_time": 60},
+                    {"name": "Chana Masala", "difficulty": 3, "techniques_taught": ["tempering", "sauce_making"], "key_learnings": "Complex spice sequencing and chickpea preparation", "builds_on": ["Dal Tadka (Tempered Lentils)"], "estimated_time": 40},
+                    {"name": "Palak Paneer", "difficulty": 3, "techniques_taught": ["blanching", "sauce_making"], "key_learnings": "Spinach blanching and puree, paneer frying", "builds_on": ["Aloo Gobi (Potato and Cauliflower)"], "estimated_time": 35},
+                    {"name": "Naan Bread", "difficulty": 3, "techniques_taught": ["dough_making"], "key_learnings": "Yeasted dough, tandoor-style cooking on cast iron", "builds_on": ["Chapati"], "estimated_time": 60},
+                    {"name": "Tandoori Chicken", "difficulty": 3, "techniques_taught": ["grilling"], "key_learnings": "Dual marinade technique and high-heat cooking", "builds_on": [], "estimated_time": 90},
+                    {"name": "Lamb Rogan Josh", "difficulty": 4, "techniques_taught": ["braising", "sauce_making"], "key_learnings": "Kashmiri chilli handling and slow lamb braising", "builds_on": ["Butter Chicken (Murgh Makhani)"], "estimated_time": 120}
+                ],
+                "required_equipment": ["heavy_pan", "tawa", "pressure_cooker", "grill", "spice_grinder"]
+            },
+            "advanced": {
+                "description": "Biryani mastery, complex regional dishes, and spice blending",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["tempering", "sauce_making", "dough_making", "grilling"]},
+                "recipes": [
+                    {"name": "Hyderabadi Biryani", "difficulty": 5, "techniques_taught": ["steaming", "sauce_making"], "key_learnings": "Dum cooking, saffron infusion, and rice layering", "builds_on": ["Jeera Rice (Cumin Rice)", "Lamb Rogan Josh"], "estimated_time": 120},
+                    {"name": "Dosa with Sambar", "difficulty": 5, "techniques_taught": ["fermentation", "tempering"], "key_learnings": "Batter fermentation and crispy dosa spreading", "builds_on": ["Chapati"], "estimated_time": 180},
+                    {"name": "Chole Bhature", "difficulty": 4, "techniques_taught": ["dough_making", "deep_frying"], "key_learnings": "Bhatura dough and puffy deep-frying", "builds_on": ["Chana Masala", "Naan Bread"], "estimated_time": 60},
+                    {"name": "Fish Moilee (Kerala Fish Curry)", "difficulty": 4, "techniques_taught": ["sauteing", "sauce_making"], "key_learnings": "Coconut milk curry and gentle fish poaching", "builds_on": ["Palak Paneer"], "estimated_time": 35},
+                    {"name": "Garam Masala from Scratch", "difficulty": 3, "techniques_taught": ["tempering", "roasting"], "key_learnings": "Whole spice toasting and grinding ratios", "builds_on": [], "estimated_time": 20},
+                    {"name": "Lamb Nihari", "difficulty": 5, "techniques_taught": ["braising"], "key_learnings": "Overnight slow cooking and nut-thickened gravy", "builds_on": ["Lamb Rogan Josh"], "estimated_time": 480}
+                ],
+                "required_equipment": ["heavy_pan", "tawa", "pressure_cooker", "spice_grinder", "deep_pot"]
+            }
+        }
+    },
+    "french": {
+        "name": "French",
+        "description": "Classical techniques, mother sauces, and refined presentation",
+        "core_techniques": ["sauteing", "sauce_making", "reduction", "emulsification", "deglazing", "roasting", "poaching"],
+        "core_ingredients": ["butter", "shallot", "cream", "white_wine", "thyme", "bay_leaf", "garlic", "parsley", "dijon_mustard"],
+        "tiers": {
+            "beginner": {
+                "description": "Foundational French techniques and simple bistro dishes",
+                "unlock_requirements": {"completed_recipes": 0, "mastered_techniques": []},
+                "recipes": [
+                    {"name": "French Omelette", "difficulty": 2, "techniques_taught": ["sauteing"], "key_learnings": "Low heat, constant stirring, and tri-fold technique", "builds_on": [], "estimated_time": 10},
+                    {"name": "Vinaigrette", "difficulty": 1, "techniques_taught": ["emulsification"], "key_learnings": "Oil and acid emulsion with mustard stabilizer", "builds_on": [], "estimated_time": 5},
+                    {"name": "Croque Monsieur", "difficulty": 1, "techniques_taught": ["sauce_making", "sauteing"], "key_learnings": "Simple bechamel and pan toasting", "builds_on": [], "estimated_time": 20},
+                    {"name": "French Onion Soup", "difficulty": 2, "techniques_taught": ["sauteing", "deglazing"], "key_learnings": "Deep caramelization and fond deglazing", "builds_on": [], "estimated_time": 60},
+                    {"name": "Salade Nicoise", "difficulty": 2, "techniques_taught": ["blanching", "knife_skills"], "key_learnings": "Component cooking and composed salad assembly", "builds_on": ["Vinaigrette"], "estimated_time": 30},
+                    {"name": "Pan-Fried Sole Meuniere", "difficulty": 2, "techniques_taught": ["sauteing", "sauce_making"], "key_learnings": "Fish dredging and beurre noisette", "builds_on": [], "estimated_time": 20}
+                ],
+                "required_equipment": ["heavy_pan", "saucepan", "whisk"]
+            },
+            "intermediate": {
+                "description": "Mother sauces, braising, and classic bistro fare",
+                "unlock_requirements": {"completed_recipes": 5, "mastered_techniques": ["sauteing", "sauce_making"]},
+                "recipes": [
+                    {"name": "Coq au Vin", "difficulty": 3, "techniques_taught": ["braising", "deglazing", "sauce_making"], "key_learnings": "Wine braising, bouquet garni, and sauce finishing", "builds_on": ["French Onion Soup"], "estimated_time": 120},
+                    {"name": "Bechamel Sauce", "difficulty": 2, "techniques_taught": ["sauce_making"], "key_learnings": "Roux preparation and gradual milk incorporation", "builds_on": ["Croque Monsieur"], "estimated_time": 15},
+                    {"name": "Quiche Lorraine", "difficulty": 3, "techniques_taught": ["dough_making", "roasting"], "key_learnings": "Shortcrust pastry and custard ratio", "builds_on": ["French Omelette"], "estimated_time": 60},
+                    {"name": "Ratatouille", "difficulty": 3, "techniques_taught": ["knife_skills", "roasting"], "key_learnings": "Precision slicing and layered vegetable roasting", "builds_on": ["Salade Nicoise"], "estimated_time": 75},
+                    {"name": "Steak Frites with Bearnaise", "difficulty": 4, "techniques_taught": ["searing", "emulsification", "deep_frying"], "key_learnings": "Steak resting and hollandaise-family emulsion", "builds_on": ["Pan-Fried Sole Meuniere"], "estimated_time": 45},
+                    {"name": "Chicken Fricassee", "difficulty": 3, "techniques_taught": ["braising", "sauce_making"], "key_learnings": "White braising and veloute-style sauce", "builds_on": ["Bechamel Sauce"], "estimated_time": 60}
+                ],
+                "required_equipment": ["heavy_pan", "dutch_oven", "whisk", "rolling_pin", "baking_dish"]
+            },
+            "advanced": {
+                "description": "Refined sauces, pastry, and restaurant-quality presentations",
+                "unlock_requirements": {"completed_recipes": 10, "mastered_techniques": ["sauce_making", "emulsification", "deglazing", "braising"]},
+                "recipes": [
+                    {"name": "Beef Bourguignon", "difficulty": 5, "techniques_taught": ["braising", "searing", "reduction"], "key_learnings": "Deep wine reduction and pearl onion glazing", "builds_on": ["Coq au Vin"], "estimated_time": 210},
+                    {"name": "Souffle (Cheese)", "difficulty": 5, "techniques_taught": ["emulsification", "roasting"], "key_learnings": "Meringue folding and oven temperature precision", "builds_on": ["Bechamel Sauce"], "estimated_time": 45},
+                    {"name": "Duck Confit", "difficulty": 4, "techniques_taught": ["poaching", "searing"], "key_learnings": "Salt curing and low-temperature fat poaching", "builds_on": ["Coq au Vin"], "estimated_time": 720},
+                    {"name": "Bouillabaisse", "difficulty": 5, "techniques_taught": ["simmering", "sauce_making"], "key_learnings": "Seafood stock, rouille, and sequenced fish cooking", "builds_on": ["Pan-Fried Sole Meuniere", "Chicken Fricassee"], "estimated_time": 90},
+                    {"name": "Tarte Tatin", "difficulty": 4, "techniques_taught": ["dough_making", "sauteing"], "key_learnings": "Caramel making and pastry inversion", "builds_on": ["Quiche Lorraine"], "estimated_time": 60},
+                    {"name": "Creme Brulee", "difficulty": 3, "techniques_taught": ["poaching"], "key_learnings": "Custard tempering and bain-marie technique", "builds_on": [], "estimated_time": 50}
+                ],
+                "required_equipment": ["heavy_pan", "dutch_oven", "whisk", "torch", "ramekins", "rolling_pin"]
+            }
+        }
+    }
+}

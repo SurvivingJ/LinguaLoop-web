@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Meal Planner - FeastOptimizer{% endblock %}
+{% block page_title %}Meal Planner{% endblock %}
+{% block content %}
+<div class="planner-page">
+    <div class="card">
+        <h2>Generate Weekly Meal Plan</h2>
+        <p class="card-subtitle">Configure your preferences and let the optimizer find the cheapest plan that meets your targets.</p>
+    </div>
+
+    <form action="{{ url_for('planner.generate_plan') }}" method="post" id="plannerForm">
+        <div class="card">
+            <h3 class="card-title">Budget</h3>
+            <div class="form-group">
+                <label for="weekly_budget">Weekly Budget ($AUD)</label>
+                <input type="number" id="weekly_budget" name="weekly_budget"
+                       value="{{ settings.weekly_budget|int }}" min="20" max="1000" step="5" required>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Daily Macro Targets</h3>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="daily_calories">Calories</label>
+                    <input type="number" id="daily_calories" name="daily_calories"
+                           value="{{ settings.daily_calories|int }}" min="1000" max="5000" step="50">
+                </div>
+                <div class="form-group">
+                    <label for="daily_protein">Protein (g)</label>
+                    <input type="number" id="daily_protein" name="daily_protein"
+                           value="{{ settings.daily_protein|int }}" min="30" max="300" step="5">
+                </div>
+                <div class="form-group">
+                    <label for="daily_carbs">Carbs (g)</label>
+                    <input type="number" id="daily_carbs" name="daily_carbs"
+                           value="{{ settings.daily_carbs|int }}" min="50" max="500" step="5">
+                </div>
+                <div class="form-group">
+                    <label for="daily_fat">Fat (g)</label>
+                    <input type="number" id="daily_fat" name="daily_fat"
+                           value="{{ settings.daily_fat|int }}" min="20" max="200" step="5">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Meals per Week</h3>
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label for="breakfast">Breakfasts</label>
+                    <input type="number" id="breakfast" name="breakfast" value="7" min="0" max="14">
+                </div>
+                <div class="form-group">
+                    <label for="lunch">Lunches</label>
+                    <input type="number" id="lunch" name="lunch" value="7" min="0" max="14">
+                </div>
+                <div class="form-group">
+                    <label for="dinner">Dinners</label>
+                    <input type="number" id="dinner" name="dinner" value="7" min="0" max="14">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Skill Building</h3>
+            <div class="form-group">
+                <label for="cuisine_focus">Cuisine Focus (optional)</label>
+                <select id="cuisine_focus" name="cuisine_focus">
+                    <option value="">No preference</option>
+                    {% for c in settings.cuisine_preferences %}
+                    <option value="{{ c }}">{{ c|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="learning_mode" id="learning_mode">
+                    Learning Mode (prioritize skill-building recipes, may cost slightly more)
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large" id="generateBtn">Generate Plan</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('plannerForm').addEventListener('submit', function() {
+    var btn = document.getElementById('generateBtn');
+    btn.textContent = 'Optimizing...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}

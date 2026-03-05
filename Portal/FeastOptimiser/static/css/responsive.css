@@ -1,0 +1,90 @@
+/* ==============================
+   FeastOptimizer - Responsive
+   ============================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .menu-close {
+        display: block;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .content-area {
+        padding: var(--spacing-md);
+    }
+
+    .grid--2,
+    .grid--3,
+    .grid--4 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid--stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid--recipes {
+        grid-template-columns: 1fr;
+    }
+
+    .table-wrap {
+        margin: 0 calc(-1 * var(--spacing-md));
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    .flex-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .grid--stats {
+        grid-template-columns: 1fr;
+    }
+
+    .top-bar {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .page-title {
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+/* Sidebar overlay on mobile */
+@media (max-width: 768px) {
+    .sidebar.open::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: -1;
+    }
+}

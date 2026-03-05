@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - FeastOptimizer{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <!-- Stat Boxes -->
+    <div class="stat-row">
+        <div class="stat-box card">
+            <span class="stat-value">${{ budget_remaining }}</span>
+            <span class="stat-label">Budget Remaining</span>
+        </div>
+        <div class="stat-box card">
+            <span class="stat-value">{{ unique_recipes }}</span>
+            <span class="stat-label">Recipes Completed</span>
+        </div>
+        <div class="stat-box card">
+            <span class="stat-value">{{ total_completions }}</span>
+            <span class="stat-label">Total Cook Sessions</span>
+        </div>
+        <div class="stat-box card">
+            <span class="stat-value">{{ deals|length }}</span>
+            <span class="stat-label">Active Deals</span>
+        </div>
+    </div>
+
+    <!-- Current Plan -->
+    {% if plan %}
+    <div class="card">
+        <h3 class="card-title">Current Meal Plan — {{ plan.week_start }}</h3>
+        <div class="plan-summary">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Recipe</th><th>Cuisine</th><th>Servings</th><th>Cost</th></tr>
+                </thead>
+                <tbody>
+                    {% for rid, info in plan.plan_data.items() %}
+                    <tr>
+                        <td><a href="{{ url_for('recipes.recipe_detail', recipe_id=rid) }}">{{ info.name }}</a></td>
+                        <td><span class="badge badge-cuisine">{{ info.cuisine|title }}</span></td>
+                        <td>{{ info.count }}</td>
+                        <td>${{ info.cost }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ url_for('planner.shopping_list_view') }}" class="btn btn-primary btn-small">View Shopping List</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <h3 class="card-title">No Meal Plan</h3>
+        <p>You haven't generated a meal plan yet.</p>
+        <a href="{{ url_for('planner.planner_form') }}" class="btn btn-primary">Generate Plan</a>
+    </div>
+    {% endif %}
+
+    <!-- Cuisine Progress -->
+    {% if cuisine_progress %}
+    <div class="card">
+        <h3 class="card-title">Cuisine Progress</h3>
+        <div class="cuisine-progress-bars">
+            {% for cuisine, count in cuisine_progress.items() %}
+            <div class="cuisine-progress-item">
+                <span class="cuisine-name">{{ cuisine|title }}</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ [count * 5, 100]|min }}%"></div>
+                    <span class="progress-label">{{ count }} recipes</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('skills.skills_overview') }}" class="btn btn-secondary btn-small">View Skill Tree</a>
+    </div>
+    {% endif %}
+
+    <!-- Due Technique Reviews -->
+    {% if due_techniques %}
+    <div class="card">
+        <h3 class="card-title">Techniques Due for Review</h3>
+        <table class="data-table">
+            <thead>
+                <tr><th>Technique</th><th>Days Overdue</th><th>Level</th></tr>
+            </thead>
+            <tbody>
+                {% for tech in due_techniques %}
+                <tr>
+                    <td>{{ tech.technique.replace('_', ' ').title() }}</td>
+                    <td>{{ tech.days_overdue }} day{{ 's' if tech.days_overdue != 1 }}</td>
+                    <td><span class="badge badge-level badge-{{ tech.current_level }}">{{ tech.current_level|title }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Gifts -->
+    {% if gifts %}
+    <div class="card">
+        <h3 class="card-title">Upcoming Gifts</h3>
+        <table class="data-table">
+            <thead>
+                <tr><th>Recipient</th><th>Occasion</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                {% for gift in gifts %}
+                <tr>
+                    <td>{{ gift.recipient }}</td>
+                    <td>{{ gift.occasion }}</td>
+                    <td>{{ gift.occasion_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('wishlist.wishlist_view') }}" class="btn btn-secondary btn-small">View Wishlist</a>
+    </div>
+    {% endif %}
+
+    <!-- Deals -->
+    {% if deals %}
+    <div class="card">
+        <h3 class="card-title">Wishlist Deals</h3>
+        {% for deal in deals %}
+        <div class="deal-item">
+            <strong>{{ deal.product_name }}</strong> — ${{ '%.2f'|format(deal.current_best_price) }} at {{ deal.current_best_store|title }}
+            <span class="badge badge-completed">Target Met!</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,266 @@
+{
+    "sauces": {
+        "bechamel": {
+            "name": "Bechamel (White Sauce)",
+            "tradition": "french",
+            "components": ["butter", "plain_flour", "milk", "nutmeg", "salt", "white_pepper"],
+            "technique": "Melt butter, whisk in flour to form roux, gradually add warm milk while whisking continuously until smooth and thickened",
+            "common_uses": ["lasagna", "croque monsieur", "gratins", "pasta bakes", "moussaka"],
+            "variations": ["mornay (add gruyere/parmesan)", "soubise (add onion puree)", "mustard sauce (add dijon)"]
+        },
+        "tomato_sugo": {
+            "name": "Sugo di Pomodoro (Basic Tomato Sauce)",
+            "tradition": "italian",
+            "components": ["canned_tomatoes", "garlic", "olive_oil", "basil", "salt", "sugar"],
+            "technique": "Gently fry garlic in olive oil, add crushed tomatoes, simmer 20-30 minutes, finish with torn basil",
+            "common_uses": ["pasta", "pizza base", "braising liquid", "shakshuka"],
+            "variations": ["arrabbiata (add chilli flakes)", "puttanesca (add olives, capers, anchovies)", "vodka sauce (add cream and vodka)"]
+        },
+        "stir_fry_sauce": {
+            "name": "All-Purpose Stir-Fry Sauce",
+            "tradition": "chinese",
+            "components": ["soy_sauce", "oyster_sauce", "sesame_oil", "rice_wine", "cornstarch", "sugar", "white_pepper"],
+            "technique": "Combine soy sauce, oyster sauce, rice wine, sugar, and sesame oil. Mix cornstarch with cold water separately. Add slurry at end of stir-fry",
+            "common_uses": ["vegetable stir-fry", "chicken stir-fry", "noodle dishes", "fried rice finishing"],
+            "variations": ["black bean (add fermented black beans)", "garlic sauce (extra garlic)", "XO sauce base"]
+        },
+        "thai_curry_base": {
+            "name": "Thai Curry Sauce Base",
+            "tradition": "thai",
+            "components": ["coconut_milk", "curry_paste", "fish_sauce", "palm_sugar", "lime_juice", "thai_basil"],
+            "technique": "Crack coconut cream in hot wok until oil separates, fry curry paste until fragrant, add remaining coconut milk and simmer, season with fish sauce and palm sugar",
+            "common_uses": ["green curry", "red curry", "panang curry", "curry noodle soups"],
+            "variations": ["green (green curry paste)", "red (red curry paste)", "yellow (yellow curry paste)", "massaman (massaman paste with peanuts)"]
+        },
+        "teriyaki": {
+            "name": "Teriyaki Sauce",
+            "tradition": "japanese",
+            "components": ["soy_sauce", "mirin", "sake", "sugar"],
+            "technique": "Combine equal parts soy sauce and mirin with half part sake and sugar. Simmer until slightly thickened and glossy",
+            "common_uses": ["grilled chicken", "salmon", "tofu glaze", "rice bowls"],
+            "variations": ["ginger teriyaki (add grated ginger)", "garlic teriyaki", "spicy teriyaki (add chilli)"]
+        },
+        "raita": {
+            "name": "Raita",
+            "tradition": "indian",
+            "components": ["yoghurt", "cucumber", "cumin", "mint", "salt", "chilli_powder"],
+            "technique": "Grate and squeeze excess water from cucumber, fold into whisked yoghurt, temper with dry-roasted cumin, garnish with mint",
+            "common_uses": ["biryani accompaniment", "curry cooling side", "wrap sauce", "tandoori accompaniment"],
+            "variations": ["boondi raita (add fried chickpea flour drops)", "onion raita", "pomegranate raita"]
+        },
+        "nuoc_cham": {
+            "name": "Nuoc Cham (Vietnamese Dipping Sauce)",
+            "tradition": "thai",
+            "components": ["fish_sauce", "lime_juice", "sugar", "garlic", "chilli", "water"],
+            "technique": "Dissolve sugar in warm water, add fish sauce and lime juice, stir in minced garlic and sliced chilli. Rest 10 minutes before serving",
+            "common_uses": ["spring rolls", "rice paper rolls", "vermicelli bowls", "grilled meats"],
+            "variations": ["peanut nuoc cham (add crushed peanuts)", "hoisin based", "extra spicy"]
+        },
+        "hollandaise": {
+            "name": "Hollandaise Sauce",
+            "tradition": "french",
+            "components": ["egg_yolks", "butter", "lemon_juice", "cayenne_pepper", "salt"],
+            "technique": "Whisk egg yolks with lemon juice over bain-marie until thick and pale, slowly drizzle in clarified melted butter while whisking continuously",
+            "common_uses": ["eggs benedict", "asparagus", "steamed fish", "vegetables"],
+            "variations": ["bearnaise (add tarragon and shallot reduction)", "mousseline (fold in whipped cream)", "maltaise (add blood orange)"]
+        },
+        "chimichurri": {
+            "name": "Chimichurri",
+            "tradition": "italian",
+            "components": ["parsley", "garlic", "olive_oil", "red_wine_vinegar", "oregano", "chilli_flakes", "salt"],
+            "technique": "Finely chop parsley and garlic, combine with olive oil, vinegar, oregano, and chilli flakes. Rest at least 30 minutes",
+            "common_uses": ["grilled steak", "roasted vegetables", "bread dipping", "grilled fish"],
+            "variations": ["red chimichurri (add roasted red capsicum)", "coriander chimichurri"]
+        }
+    },
+    "stocks": {
+        "chicken_stock": {
+            "name": "Chicken Stock",
+            "difficulty": 2,
+            "time_minutes": 180,
+            "ingredients": ["chicken_bones", "onion", "carrot", "celery", "bay_leaf", "peppercorns", "parsley_stems", "water"],
+            "technique": "Place bones in cold water, bring to simmer, skim impurities, add aromatics, simmer gently for 3 hours without boiling",
+            "storage_tips": "Cool quickly in ice bath, refrigerate up to 5 days, freeze in portions for up to 3 months. Remove solidified fat layer before use."
+        },
+        "beef_stock": {
+            "name": "Beef Stock",
+            "difficulty": 3,
+            "time_minutes": 480,
+            "ingredients": ["beef_bones", "onion", "carrot", "celery", "tomato_paste", "bay_leaf", "thyme", "peppercorns", "water"],
+            "technique": "Roast bones at 220C until deeply browned, add to pot with cold water, deglaze roasting pan, add vegetables and aromatics, simmer 6-8 hours",
+            "storage_tips": "Cool rapidly, refrigerate up to 5 days, freeze in ice cube trays for easy portioning. Keeps frozen for 6 months."
+        },
+        "vegetable_stock": {
+            "name": "Vegetable Stock",
+            "difficulty": 1,
+            "time_minutes": 60,
+            "ingredients": ["onion", "carrot", "celery", "mushroom_stems", "garlic", "bay_leaf", "parsley_stems", "peppercorns", "water"],
+            "technique": "Roughly chop all vegetables, add to cold water with aromatics, bring to simmer, cook 45-60 minutes. Avoid brassicas which turn bitter",
+            "storage_tips": "Refrigerate up to 5 days or freeze in portions for up to 3 months. Good way to use vegetable scraps."
+        },
+        "dashi": {
+            "name": "Dashi (Japanese Stock)",
+            "difficulty": 2,
+            "time_minutes": 20,
+            "ingredients": ["kombu", "katsuobushi", "water"],
+            "technique": "Soak kombu in cold water 30 minutes, heat gently to just below boiling, remove kombu, add bonito flakes, steep 3 minutes, strain",
+            "storage_tips": "Use within 3 days refrigerated. Does not freeze well. Make ichiban dashi (first) for soups, niban dashi (second steep) for cooking liquid."
+        },
+        "fish_stock": {
+            "name": "Fish Stock (Fumet)",
+            "difficulty": 3,
+            "time_minutes": 30,
+            "ingredients": ["white_fish_bones", "onion", "celery", "white_wine", "lemon", "bay_leaf", "parsley_stems", "peppercorns", "water"],
+            "technique": "Sweat vegetables in butter, add rinsed fish bones, white wine, and cold water. Simmer gently for 20-25 minutes only. Strain through fine mesh",
+            "storage_tips": "Use within 2 days refrigerated or freeze for up to 2 months. Never simmer longer than 30 minutes or it turns bitter."
+        }
+    },
+    "techniques": {
+        "julienne": {
+            "name": "Julienne",
+            "type": "knife",
+            "difficulty": 3,
+            "practice_instructions": "Cut vegetables into thin planks (3mm thick), stack planks, cut into uniform matchstick strips approximately 3mm x 3mm x 5cm. Practice with carrots first as they hold shape well. Focus on consistent thickness.",
+            "associated_cuisines": ["french", "japanese", "chinese"]
+        },
+        "brunoise": {
+            "name": "Brunoise",
+            "type": "knife",
+            "difficulty": 4,
+            "practice_instructions": "First julienne the vegetable, then cut across the strips to create 3mm cubes. Requires very sharp knife and stable cutting board. Practice with firm vegetables like carrot and celery.",
+            "associated_cuisines": ["french", "italian"]
+        },
+        "chiffonade": {
+            "name": "Chiffonade",
+            "type": "knife",
+            "difficulty": 2,
+            "practice_instructions": "Stack herb or leafy green leaves, roll tightly into a cigar shape, slice across the roll to create fine ribbons. Use a sharp knife with gentle rocking motion. Works with basil, mint, and spinach.",
+            "associated_cuisines": ["french", "italian", "thai"]
+        },
+        "tempering_spices": {
+            "name": "Tempering (Tadka/Tarka)",
+            "type": "heat",
+            "difficulty": 2,
+            "practice_instructions": "Heat oil or ghee until shimmering, add whole spices (mustard seeds, cumin seeds, curry leaves) in sequence from hardest to most delicate. Listen for crackling. Remove from heat when fragrant, about 30-60 seconds. Pour over finished dish.",
+            "associated_cuisines": ["indian"]
+        },
+        "deglazing": {
+            "name": "Deglazing",
+            "type": "sauce",
+            "difficulty": 2,
+            "practice_instructions": "After searing meat, remove from pan. With pan still hot, add cold liquid (wine, stock, or vinegar). Scrape browned fond from bottom with wooden spoon. Reduce liquid by half for concentrated flavor. This forms the base of pan sauces.",
+            "associated_cuisines": ["french", "italian"]
+        },
+        "emulsion": {
+            "name": "Emulsification",
+            "type": "sauce",
+            "difficulty": 4,
+            "practice_instructions": "Slowly incorporate fat (oil or butter) into an acid or water base while whisking vigorously. Start with tiny amounts of fat. Temperature control is critical - too hot breaks the emulsion. Practice with vinaigrette before attempting hollandaise.",
+            "associated_cuisines": ["french", "italian"]
+        },
+        "wok_hei": {
+            "name": "Wok Hei (Breath of the Wok)",
+            "type": "heat",
+            "difficulty": 5,
+            "practice_instructions": "Heat wok until smoking on highest flame. Add oil, swirl to coat. Add ingredients in small batches. Toss food by pushing wok forward and flicking up. The momentary contact of food with the dry wok above the oil creates charred aroma. Requires gas burner.",
+            "associated_cuisines": ["chinese", "thai"]
+        },
+        "velveting": {
+            "name": "Velveting",
+            "type": "preparation",
+            "difficulty": 3,
+            "practice_instructions": "Slice protein thinly against the grain. Marinate in mixture of egg white, cornstarch, rice wine, and salt for 15-30 minutes. Blanch briefly in 60-70C oil or water for 30 seconds. Drain and proceed to stir-fry. Results in silky, tender texture.",
+            "associated_cuisines": ["chinese"]
+        },
+        "roux": {
+            "name": "Roux",
+            "type": "sauce",
+            "difficulty": 2,
+            "practice_instructions": "Melt equal parts butter and flour by weight in a saucepan. Cook while stirring: white roux (2 minutes), blond roux (5 minutes), brown roux (15-20 minutes). Gradually whisk in liquid off heat to prevent lumps. Return to heat and simmer until desired thickness.",
+            "associated_cuisines": ["french"]
+        },
+        "blanching": {
+            "name": "Blanching and Shocking",
+            "type": "heat",
+            "difficulty": 1,
+            "practice_instructions": "Bring large pot of salted water to rapid boil. Prepare ice bath. Submerge vegetables for 30 seconds to 2 minutes depending on size. Immediately transfer to ice bath to stop cooking. Drain when fully cold. Preserves color, texture, and nutrients.",
+            "associated_cuisines": ["french", "japanese", "italian", "indian"]
+        },
+        "curry_paste_mortar": {
+            "name": "Curry Paste (Mortar and Pestle)",
+            "type": "preparation",
+            "difficulty": 4,
+            "practice_instructions": "Pound ingredients in order from hardest to softest: salt and hard spices first, then fibrous items (lemongrass, galangal), then softer aromatics (garlic, shallot, chilli). Pound and grind in circular motion until a smooth paste forms. Takes 15-20 minutes.",
+            "associated_cuisines": ["thai"]
+        },
+        "reduction": {
+            "name": "Reduction",
+            "type": "sauce",
+            "difficulty": 2,
+            "practice_instructions": "Simmer liquid uncovered over medium heat. Volume should decrease by half (demi) or more (glace). Stir occasionally and watch carefully as it thickens to prevent burning. Season after reducing as flavors concentrate. Use wide pan for faster evaporation.",
+            "associated_cuisines": ["french", "italian", "japanese"]
+        }
+    },
+    "flavor_profiles": {
+        "chinese_five_spice": {
+            "name": "Chinese Five Spice",
+            "components": ["star_anise", "cloves", "cinnamon", "sichuan_peppercorn", "fennel_seeds"],
+            "flavor_description": "Warm, aromatic, and slightly sweet with a numbing quality from Sichuan peppercorn. Balances all five flavor elements of Chinese cooking.",
+            "common_uses": ["roast duck", "braised pork belly", "char siu marinade", "stir-fried vegetables"]
+        },
+        "garam_masala": {
+            "name": "Garam Masala",
+            "components": ["cumin", "coriander_seeds", "cardamom", "black_pepper", "cinnamon", "cloves", "bay_leaf", "nutmeg"],
+            "flavor_description": "Warm, complex, and aromatic. Added at the end of cooking to preserve volatile oils. Literally means 'warm spice blend'.",
+            "common_uses": ["curries", "biryani", "dal", "tikka marinades", "vegetable dishes"]
+        },
+        "italian_soffritto": {
+            "name": "Soffritto",
+            "components": ["onion", "carrot", "celery"],
+            "flavor_description": "Sweet, aromatic, and savory base. The holy trinity of Italian cooking. Provides depth and body to sauces, soups, and braises.",
+            "common_uses": ["bolognese", "minestrone", "risotto base", "ragu", "bean soups"]
+        },
+        "thai_flavor_base": {
+            "name": "Thai Aromatic Base",
+            "components": ["lemongrass", "galangal", "kaffir_lime_leaf", "chilli", "garlic", "shallot", "coriander_root"],
+            "flavor_description": "Bright, citrusy, and spicy with layers of heat and herbal complexity. The foundation of Thai curry pastes and soups.",
+            "common_uses": ["curry pastes", "tom yum", "tom kha", "stir-fry pastes"]
+        },
+        "japanese_tare": {
+            "name": "Japanese Tare (Sweet Soy Glaze)",
+            "components": ["soy_sauce", "mirin", "sake", "sugar", "dashi"],
+            "flavor_description": "Sweet, salty, and deeply savory with pronounced umami. Balanced and glossy. The backbone of many Japanese glazes and sauces.",
+            "common_uses": ["teriyaki", "yakitori basting", "donburi sauce", "noodle dipping sauce"]
+        },
+        "french_bouquet_garni": {
+            "name": "Bouquet Garni",
+            "components": ["thyme", "bay_leaf", "parsley_stems", "peppercorns"],
+            "flavor_description": "Subtle, herbal, and aromatic. Provides a clean backbone of flavor without dominating. Removed before serving.",
+            "common_uses": ["stocks", "braises", "stews", "soups", "poaching liquids"]
+        },
+        "mirepoix": {
+            "name": "Mirepoix",
+            "components": ["onion", "carrot", "celery"],
+            "flavor_description": "The French equivalent of soffritto. Cut larger for stocks (rough chop) or finer for sauces. Ratio is 2:1:1 onion to carrot to celery.",
+            "common_uses": ["stocks", "braises", "stews", "sauce bases"]
+        },
+        "cajun_spice": {
+            "name": "Cajun Spice Blend",
+            "components": ["paprika", "cayenne", "garlic_powder", "onion_powder", "oregano", "thyme", "black_pepper", "white_pepper"],
+            "flavor_description": "Bold, smoky, and moderately spicy with layers of heat from multiple pepper types. Earthy and aromatic.",
+            "common_uses": ["blackened fish", "jambalaya", "gumbo", "grilled chicken", "seasoned rice"]
+        },
+        "dukkah": {
+            "name": "Dukkah",
+            "components": ["hazelnuts", "coriander_seeds", "cumin_seeds", "sesame_seeds", "black_pepper", "salt"],
+            "flavor_description": "Nutty, crunchy, and warmly spiced. A textural condiment that adds toasty complexity. Egyptian origin, popular in Australian cafes.",
+            "common_uses": ["bread dipping with olive oil", "salad topping", "roasted vegetable garnish", "egg topping"]
+        },
+        "ras_el_hanout": {
+            "name": "Ras el Hanout",
+            "components": ["cumin", "coriander", "turmeric", "paprika", "cinnamon", "cardamom", "cloves", "black_pepper", "ginger", "nutmeg"],
+            "flavor_description": "Complex, floral, and warmly spiced. Literally 'head of the shop' meaning the best blend the spice merchant offers. No two versions are identical.",
+            "common_uses": ["tagines", "couscous", "roasted lamb", "vegetable stews", "marinades"]
+        }
+    }
+}

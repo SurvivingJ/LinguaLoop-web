@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Wishlist - FeastOptimizer{% endblock %}
+{% block page_title %}Wishlist{% endblock %}
+{% block content %}
+<div class="wishlist-page">
+    <!-- Add Item Form -->
+    <div class="card">
+        <h3 class="card-title">
+            <span>Add Item</span>
+            <button class="btn btn-secondary btn-small toggle-form" onclick="document.getElementById('addForm').classList.toggle('hidden')">+</button>
+        </h3>
+        <form action="{{ url_for('wishlist.wishlist_add') }}" method="post" id="addForm" class="hidden">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="product_name">Product Name</label>
+                    <input type="text" id="product_name" name="product_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="grocery_staple">Grocery Staple</option>
+                        <option value="meat_seafood">Meat & Seafood</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="produce">Produce</option>
+                        <option value="pantry">Pantry</option>
+                        <option value="gift">Gift</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="target_price">Target Price ($)</label>
+                    <input type="number" id="target_price" name="target_price" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="baseline_price">Current/Baseline Price ($)</label>
+                    <input type="number" id="baseline_price" name="baseline_price" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="alert_threshold_percent">Alert Threshold (%)</label>
+                    <input type="number" id="alert_threshold_percent" name="alert_threshold_percent" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gift fields -->
+            <details class="gift-fields">
+                <summary>Gift Details (optional)</summary>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label for="recipient">Recipient</label>
+                        <input type="text" id="recipient" name="recipient">
+                    </div>
+                    <div class="form-group">
+                        <label for="occasion">Occasion</label>
+                        <input type="text" id="occasion" name="occasion" placeholder="Birthday, Christmas...">
+                    </div>
+                    <div class="form-group">
+                        <label for="occasion_date">Date</label>
+                        <input type="date" id="occasion_date" name="occasion_date">
+                    </div>
+                </div>
+            </details>
+
+            <div class="form-group">
+                <label>Track at:</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" name="stores_to_track" value="coles" checked> Coles</label>
+                    <label class="checkbox-label"><input type="checkbox" name="stores_to_track" value="woolworths" checked> Woolworths</label>
+                    <label class="checkbox-label"><input type="checkbox" name="stores_to_track" value="aldi"> Aldi</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add to Wishlist</button>
+        </form>
+    </div>
+
+    <!-- Active Items -->
+    {% if items %}
+    <div class="card">
+        <h3 class="card-title">Active Items ({{ items|length }})</h3>
+        <table class="data-table sortable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Target</th>
+                    <th>Best Price</th>
+                    <th>Store</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('wishlist.wishlist_item_detail', item_id=item.id) }}">{{ item.product_name }}</a>
+                        {% if item.recipient %}<br><small>Gift for {{ item.recipient }}</small>{% endif %}
+                    </td>
+                    <td>{{ '$%.2f'|format(item.target_price) if item.target_price else 'N/A' }}</td>
+                    <td>
+                        {% if item.current_best_price %}
+                        ${{ '%.2f'|format(item.current_best_price) }}
+                        {% if item.target_price and item.current_best_price <= item.target_price %}
+                        <span class="badge badge-completed">Target Met!</span>
+                        {% endif %}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>{{ item.current_best_store|title if item.current_best_store else '—' }}</td>
+                    <td><span class="badge badge-priority-{{ item.priority }}">{{ item.priority|title }}</span></td>
+                    <td>
+                        <form action="{{ url_for('wishlist.wishlist_mark_purchased', item_id=item.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-small btn-secondary">Bought</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card empty-state">
+        <p>No items on your wishlist yet. Add one above!</p>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Gifts -->
+    {% if gifts %}
+    <div class="card">
+        <h3 class="card-title">Upcoming Gifts</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Recipient</th>
+                    <th>Occasion</th>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Best Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gift in gifts %}
+                <tr>
+                    <td>{{ gift.recipient }}</td>
+                    <td>{{ gift.occasion }}</td>
+                    <td>{{ gift.occasion_date }}</td>
+                    <td>{{ gift.product_name }}</td>
+                    <td>{{ '$%.2f'|format(gift.current_best_price) if gift.current_best_price else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Price Trend Detail -->
+    {% if detail_item is defined and detail_item %}
+    <div class="card">
+        <h3 class="card-title">Price Trends: {{ detail_item.product_name }}</h3>
+        {% if trends %}
+        <div class="stat-row">
+            <div class="stat-box"><span class="stat-value">{{ trends.trend|title }}</span><span class="stat-label">Trend</span></div>
+            <div class="stat-box"><span class="stat-value">${{ trends.average_price }}</span><span class="stat-label">Average</span></div>
+            <div class="stat-box"><span class="stat-value">${{ trends.lowest_price }}</span><span class="stat-label">Lowest</span></div>
+            <div class="stat-box"><span class="stat-value">${{ trends.highest_price }}</span><span class="stat-label">Highest</span></div>
+        </div>
+        {% else %}
+        <p>No price history available for this item.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<div class="recipe-card">
+    <h3>{{ recipe.name }}</h3>
+    <span class="badge badge--cuisine">{{ recipe.cuisine }}</span>
+    <span class="difficulty">{% for i in range(recipe.difficulty|int) %}&#9733;{% endfor %}</span>
+    <p>{{ (recipe.prep_time|int + recipe.cook_time|int) }} min | {{ recipe.servings }} servings</p>
+    <a href="{{ url_for('recipes.recipe_list') }}" class="btn btn--sm">View Recipe</a>
+</div>

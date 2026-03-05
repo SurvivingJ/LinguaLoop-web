@@ -24,6 +24,13 @@ PROJECTS = [
         "icon": "fa-guitar",
         "tags": ["Music", "Guitar", "Practice"],
     },
+    {
+        "name": "FeastOptimiser",
+        "description": "Budget meal planner with skill trees, price tracking, and loyalty offer optimization",
+        "url": "https://feast.linguadojo.com",
+        "icon": "fa-utensils",
+        "tags": ["Food", "Budget", "Cooking"],
+    },
 ]
 
 

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Assessment: {{ recipe.name }} - FeastOptimizer{% endblock %}
+{% block page_title %}Self Assessment{% endblock %}
+{% block content %}
+<div class="assessment-page">
+    <div class="card">
+        <h2>{{ recipe.name }}</h2>
+        <p class="card-subtitle">Rate how well you executed each technique (0 = failed, 5 = perfect)</p>
+    </div>
+
+    {% if show_results is defined and show_results %}
+    <!-- Results View -->
+    <div class="card assessment-results">
+        <h3 class="card-title">Practice Results</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Technique</th>
+                    <th>Rating</th>
+                    <th>Mastery</th>
+                    <th>Next Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r.technique.replace('_', ' ').title() }}</td>
+                    <td>
+                        <div class="star-display">
+                            {% for i in range(5) %}
+                            <span class="star {{ 'filled' if i < r.rating }}">&#9733;</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill" style="width: {{ r.mastery_percentage }}%"></div>
+                            <span>{{ r.mastery_percentage }}%</span>
+                        </div>
+                    </td>
+                    <td>{{ r.next_review_days }} day{{ 's' if r.next_review_days != 1 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="assessment-actions">
+            <a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe.id) }}" class="btn btn-secondary">Back to Recipe</a>
+            <a href="{{ url_for('skills.skills_overview') }}" class="btn btn-primary">View Skill Tree</a>
+        </div>
+    </div>
+    {% else %}
+    <!-- Assessment Form -->
+    <form action="{{ url_for('recipes.recipe_submit_assessment', recipe_id=recipe.id) }}" method="post">
+        {% for technique in recipe.techniques_taught %}
+        <div class="card technique-rating">
+            <h4>{{ technique.replace('_', ' ').title() }}</h4>
+            <div class="star-rating" data-technique="{{ technique }}">
+                {% for i in range(6) %}
+                <label class="star-label">
+                    <input type="radio" name="rating_{{ technique }}" value="{{ i }}"
+                           {{ 'checked' if i == 3 }} class="star-input">
+                    <span class="star-icon {% if i > 0 %}clickable{% endif %}">
+                        {% if i == 0 %}&#10060;{% else %}{{ '&#9733;' * i }}{% endif %}
+                    </span>
+                    <span class="star-text">
+                        {% if i == 0 %}Failed{% elif i == 1 %}Poor{% elif i == 2 %}Fair{% elif i == 3 %}Good{% elif i == 4 %}Great{% elif i == 5 %}Perfect{% endif %}
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="card">
+            <div class="form-group">
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="What went well? What to improve?"></textarea>
+            </div>
+        </div>
+
+        <div class="assessment-actions">
+            <button type="submit" class="btn btn-primary btn-large">Submit Assessment</button>
+            <a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe.id) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
