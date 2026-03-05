@@ -1,7 +1,7 @@
 """Cross-store product matching using barcode and fuzzy string matching."""
 
 import re
-from fuzzywuzzy import fuzz
+from thefuzz import fuzz
 
 
 # Brand names to strip during normalization
