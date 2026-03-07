@@ -472,15 +472,24 @@ class TestGenerationOrchestrator:
                         1 for v in vocab_items if not v.get('is_phrase')
                     ),
                 }
+
+                # Build token map for frontend rendering
+                token_map = self._build_token_map(
+                    db, transcript, lang_config.language_code, lang_config.id,
+                    sense_ids=sense_ids
+                )
+
                 db.table('tests').update({
                     'vocab_sense_ids': sense_ids,
                     'vocab_sense_stats': vocab_stats,
+                    'vocab_token_map': token_map,
                 }).eq('id', str(test_id)).execute()
 
                 logger.info(
                     f"Vocabulary: {len(sense_ids)} word senses generated "
                     f"({sense_gen.stats['senses_created']} new, "
-                    f"{sense_gen.stats['senses_reused']} reused)"
+                    f"{sense_gen.stats['senses_reused']} reused), "
+                    f"{len(token_map)} tokens in map"
                 )
             else:
                 logger.warning(f"No word senses generated for test {test_id}")
@@ -488,6 +497,88 @@ class TestGenerationOrchestrator:
         except Exception as e:
             # Vocab failure is non-fatal — test is still usable without vocab
             logger.error(f"Vocabulary generation failed for test {test_id}: {e}")
+
+    def _build_sense_lookup(
+        self, db, sense_ids: list[int]
+    ) -> dict[str, int]:
+        """Reverse-lookup: sense_ids → vocab_id → lemma → {lemma: sense_id}."""
+        if not sense_ids:
+            return {}
+
+        sense_to_vocab: dict[int, int] = {}
+        for i in range(0, len(sense_ids), 500):
+            chunk = sense_ids[i:i + 500]
+            result = db.table('dim_word_senses') \
+                .select('id, vocab_id') \
+                .in_('id', chunk) \
+                .execute()
+            for row in (result.data or []):
+                sense_to_vocab[row['id']] = row['vocab_id']
+
+        vocab_ids = list(set(sense_to_vocab.values()))
+        vocab_to_lemma: dict[int, str] = {}
+        for i in range(0, len(vocab_ids), 500):
+            chunk = vocab_ids[i:i + 500]
+            result = db.table('dim_vocabulary') \
+                .select('id, lemma') \
+                .in_('id', chunk) \
+                .execute()
+            for row in (result.data or []):
+                vocab_to_lemma[row['id']] = row['lemma']
+
+        lemma_to_sense: dict[str, int] = {}
+        for sense_id, vocab_id in sense_to_vocab.items():
+            lemma = vocab_to_lemma.get(vocab_id)
+            if lemma and lemma not in lemma_to_sense:
+                lemma_to_sense[lemma] = sense_id
+
+        return lemma_to_sense
+
+    def _build_token_map(
+        self, db, transcript: str, language_code: str, language_id: int,
+        sense_ids: list[int] | None = None
+    ) -> list:
+        """Build vocab token map: [[display_text, sense_id_or_0], ...]."""
+        tokens = self.vocab_pipeline.tokenize_full(transcript, language_code)
+
+        # Strategy 1: Reverse-lookup from just-generated sense_ids
+        sense_lookup = self._build_sense_lookup(db, sense_ids or [])
+
+        # Strategy 2: Collect vocab_ids for cache-based lookup
+        vocab_ids_needed = set()
+        token_vocab_ids = []
+        for display_text, lemma, is_content in tokens:
+            vid = self._vocab_cache.get((lemma, language_id)) if is_content else None
+            token_vocab_ids.append(vid)
+            if vid:
+                vocab_ids_needed.add(vid)
+
+        # Batch-fetch best sense for each vocab_id
+        sense_map = {}
+        if vocab_ids_needed:
+            result = db.table('dim_word_senses') \
+                .select('id, vocab_id, sense_rank') \
+                .in_('vocab_id', list(vocab_ids_needed)) \
+                .order('sense_rank') \
+                .execute()
+            for row in (result.data or []):
+                vid = row['vocab_id']
+                if vid not in sense_map:
+                    sense_map[vid] = row['id']
+
+        token_map = []
+        for i, (display_text, lemma, is_content) in enumerate(tokens):
+            sid = 0
+            if is_content and lemma:
+                # Try reverse lookup first
+                sid = sense_lookup.get(lemma, 0)
+                if not sid:
+                    # Fall back to cache-based lookup
+                    vid = token_vocab_ids[i]
+                    sid = sense_map.get(vid, 0) if vid else 0
+            token_map.append([display_text, sid])
+
+        return token_map
 
     def _get_or_create_vocab_id(
         self, db, item: dict, language_id: int, language_code: str

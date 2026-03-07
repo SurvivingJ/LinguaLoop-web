@@ -34,6 +34,7 @@ class BaseLanguageProcessor(ABC):
 
     Subclasses must implement:
         - extract_lemma_tokens(): tokenize and lemmatize text
+        - tokenize_full(): full tokenization for display (token map)
         - is_ready(): health check for required NLP models
     """
 
@@ -50,6 +51,24 @@ class BaseLanguageProcessor(ABC):
 
         Returns:
             List of LemmaToken objects in document order
+        """
+        ...
+
+    @abstractmethod
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+        """
+        Full tokenization for building vocab token maps.
+
+        Unlike extract_lemma_tokens(), this includes ALL characters
+        (whitespace, punctuation) so that concatenating display texts
+        reproduces the original transcript exactly.
+
+        Args:
+            text: Raw input text
+
+        Returns:
+            List of (display_text, lemma, is_content) tuples.
+            display_text includes trailing whitespace where applicable.
         """
         ...
 

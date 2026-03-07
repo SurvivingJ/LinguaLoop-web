@@ -358,114 +358,33 @@ def _register_core_routes(app):
             app.logger.error(traceback.format_exc())
             return jsonify({"error": "Vocabulary extraction failed", "status": "error"}), 500
 
-    # Server-side in-memory cache for word definitions: (language_code, word_lower, ui_language) -> result dict
-    _definition_cache = {}
-
-    @app.route('/api/vocabulary/define', methods=['POST'])
+    @app.route('/api/errors/log', methods=['POST'])
     @supabase_jwt_required
-    def define_word():
-        """Get a contextual definition for a word/phrase using AI"""
-        if not app.openai_service:
-            return jsonify({"error": "AI service unavailable", "status": "error"}), 503
-
+    def log_error():
+        """Log an application error to the app_error_logs table"""
         data = request.get_json()
         if not data:
             return jsonify({"error": "Request body required", "status": "error"}), 400
 
-        word = data.get('word', '').strip()
-        language_code = data.get('language_code', '').strip()
-        context = data.get('context', '').strip()
-        ui_language = data.get('ui_language', 'en').strip()
+        error_type = data.get('error_type', '').strip()
+        error_message = data.get('error_message', '').strip()
+        if not error_type or not error_message:
+            return jsonify({"error": "error_type and error_message are required", "status": "error"}), 400
 
-        if not word or len(word) > 100:
-            return jsonify({"error": "Valid word is required (max 100 chars)", "status": "error"}), 400
-        if not language_code:
-            return jsonify({"error": "Language code is required", "status": "error"}), 400
-
-        # Check server-side cache first
-        cache_key = (language_code, word.lower(), ui_language)
-        if cache_key in _definition_cache:
-            return jsonify({"status": "success", "definition": _definition_cache[cache_key]})
-
-        # Map language codes to full names
-        lang_names = {'en': 'English', 'es': 'Spanish', 'cn': 'Chinese', 'jp': 'Japanese'}
-        ui_lang_names = {'en': 'English', 'es': 'Spanish', 'ja': 'Japanese', 'zh': 'Chinese'}
-        language_name = lang_names.get(language_code, 'English')
-        ui_language_name = ui_lang_names.get(ui_language, 'English')
-
-        # Truncate context to ~500 chars around the word for token efficiency
-        if context and len(context) > 500:
-            word_pos = context.lower().find(word.lower())
-            if word_pos >= 0:
-                start = max(0, word_pos - 250)
-                end = min(len(context), word_pos + len(word) + 250)
-                context = context[start:end]
-            else:
-                context = context[:500]
-
-        reading_instruction = ""
-        if language_code in ('cn', 'jp'):
-            reading_instruction = (
-                '- "reading": For Chinese, provide pinyin with tone marks. '
-                'For Japanese, provide hiragana reading. '
-            )
-        else:
-            reading_instruction = '- "reading": null (not applicable for this language). '
-
-        system_prompt = (
-            f"You are a concise language learning dictionary. "
-            f"Given a word or phrase in {language_name} and a sentence it appeared in, "
-            f"provide a brief definition.\n\n"
-            f"Respond ONLY with valid JSON:\n"
-            f'{{"word": "...", "definition": "...", "part_of_speech": "...", "reading": ...}}\n\n'
-            f'- "definition": A clear, concise definition in {ui_language_name}. One sentence max.\n'
-            f'- "part_of_speech": e.g. noun, verb, adjective, phrase, etc.\n'
-            f'{reading_instruction}'
-        )
-
-        user_prompt = f'Word: "{word}"'
-        if context:
-            user_prompt += f'\nContext: "{context}"'
+        user_id = g.supabase_claims.get('sub')
 
         try:
-            response = app.openai_service.client.chat.completions.create(
-                model='gpt-4o-mini',
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.3,
-                max_tokens=200,
-                timeout=15
-            )
-
-            if not response.choices:
-                raise Exception("No response from AI")
-
-            import json as json_module
-            raw = response.choices[0].message.content.strip()
-            # Strip markdown code fences if present
-            if raw.startswith('```'):
-                raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
-            definition = json_module.loads(raw)
-
-            # Validate required fields
-            result = {
-                "word": definition.get("word", word),
-                "definition": definition.get("definition", ""),
-                "part_of_speech": definition.get("part_of_speech", ""),
-                "reading": definition.get("reading")
-            }
-
-            # Store in server-side cache
-            _definition_cache[cache_key] = result
-
-            return jsonify({"status": "success", "definition": result})
-
+            app.supabase_service.table('app_error_logs').insert({
+                'error_type': error_type[:100],
+                'error_message': error_message[:2000],
+                'url': (data.get('url') or '')[:2000],
+                'user_id': user_id,
+                'metadata': data.get('metadata')
+            }).execute()
+            return jsonify({"status": "success"}), 201
         except Exception as e:
-            app.logger.error(f"Word definition failed for '{word}': {e}")
-            app.logger.error(traceback.format_exc())
-            return jsonify({"error": "Failed to generate definition", "status": "error"}), 500
+            app.logger.error(f"Failed to log error: {e}")
+            return jsonify({"error": "Failed to log error", "status": "error"}), 500
 
     @app.route('/api/users/elo', methods=['GET'])
     @supabase_jwt_required

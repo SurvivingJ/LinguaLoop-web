@@ -64,6 +64,18 @@ class ChineseProcessor(BaseLanguageProcessor):
 
         return tokens
 
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+        pseg = self._get_tagger()
+        result = []
+        for word, pos in pseg.cut(text):
+            if not word:
+                continue
+            word_stripped = word.strip()
+            is_content = pos in _CONTENT_POS or (len(pos) > 0 and pos[0] in {'n', 'v', 'a'})
+            # display_text keeps original, lemma is stripped (matches dim_vocabulary)
+            result.append((word, word_stripped if word_stripped else word, is_content))
+        return result
+
     def is_ready(self) -> bool:
         try:
             self._get_tagger()

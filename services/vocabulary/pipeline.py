@@ -272,6 +272,23 @@ class VocabularyExtractionPipeline:
 
         return result
 
+    def tokenize_full(self, text: str, language_code: str) -> list[tuple[str, str, bool]]:
+        """
+        Full tokenization for building vocab token maps.
+
+        Returns ALL tokens (including whitespace/punctuation) so that
+        concatenating display texts reproduces the original text.
+
+        Args:
+            text: Raw input text
+            language_code: e.g., 'en', 'cn', 'jp'
+
+        Returns:
+            List of (display_text, lemma, is_content) tuples
+        """
+        processor = self._get_processor(language_code)
+        return processor.tokenize_full(text)
+
     def health_check(self) -> dict[str, bool]:
         """
         Check all registered language processors are ready.

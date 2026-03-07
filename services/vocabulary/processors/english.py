@@ -59,6 +59,20 @@ class EnglishProcessor(BaseLanguageProcessor):
 
         return tokens
 
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+        nlp = self._get_nlp()
+        doc = nlp(text)
+        result = []
+        for token in doc:
+            lemma = (
+                token._.lemma()
+                if hasattr(token._, "lemma") and token._.lemma()
+                else token.lemma_
+            )
+            is_content = token.pos_ in _CONTENT_POS and not token.is_stop
+            result.append((token.text_with_ws, lemma.lower().strip(), is_content))
+        return result
+
     def is_ready(self) -> bool:
         try:
             self._get_nlp()

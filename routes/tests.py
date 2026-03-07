@@ -772,6 +772,7 @@ def get_test_with_ratings(identifier):
         select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
+            'vocab_token_map, '
             'dim_languages(language_code, language_name)'
         )
 
@@ -829,11 +830,32 @@ def get_test_with_ratings(identifier):
             for rating in ratings_result.data
         }
         
+        # Load definitions for vocab token map sense IDs
+        token_map = test.pop('vocab_token_map', None) or []
+        definitions = {}
+        if token_map:
+            sense_ids = list(set(s for _, s in token_map if s))
+            if sense_ids:
+                senses_result = current_app.supabase_service.table('dim_word_senses').select(
+                    'id, definition, pronunciation, '
+                    'dim_vocabulary(lemma, part_of_speech)'
+                ).in_('id', sense_ids).execute()
+                for sense in (senses_result.data or []):
+                    vocab = sense.get('dim_vocabulary') or {}
+                    definitions[str(sense['id'])] = {
+                        'word': vocab.get('lemma', ''),
+                        'definition': sense.get('definition', ''),
+                        'part_of_speech': vocab.get('part_of_speech', ''),
+                        'reading': sense.get('pronunciation')
+                    }
+
         # Build response
         response_data = {
             "test_data": test,
             "questions_data": questions_result.data,
-            "skill_ratings": ratings
+            "skill_ratings": ratings,
+            "vocab_token_map": token_map,
+            "definitions": definitions
         }
         
         return jsonify(response_data)

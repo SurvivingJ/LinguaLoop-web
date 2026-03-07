@@ -734,6 +734,8 @@ const testState = {
     testId: null,
     testType: null, // 'reading', 'listening', 'dictation'
     testData: null,
+    vocabTokenMap: [],    // [[display_text, sense_id], ...] from server tokenization
+    definitions: {},      // { sense_id_str: { word, definition, part_of_speech, reading } }
     questions: [],
     currentQuestionIndex: 0,
     answers: {}, // { questionId: selectedChoice }
@@ -779,11 +781,8 @@ async function initializeTest() {
         // Show loading
         showLoading(true);
         
-        // Load test data
+        // Load test data (includes pre-generated definitions)
         await loadTestData();
-
-        // Pre-fetch definitions in background while user takes the test
-        prefetchTranscriptDefinitions();
 
         // Initialize UI
         initializeUI();
@@ -821,6 +820,8 @@ async function loadTestData() {
         
         testState.testData = data.test_data;
         testState.testId = data.test_data.id;
+        testState.vocabTokenMap = data.vocab_token_map || [];
+        testState.definitions = data.definitions || {};
         testState.questions = data.questions_data.map(q => ({
             id: q.id,
             text: q.question_text,
@@ -1592,130 +1593,35 @@ function calculateSimilarity(str1, str2) {
 // ============================================================================
 // WORD DEFINITION POPOVER
 // ============================================================================
-const definitionCache = new Map();
-
 function wrapTranscriptWords() {
     const transcriptEl = document.getElementById('transcriptText');
-    const text = testState.testData.transcript;
-    const langCode = testState.testData.language;
-    const locale = LANGUAGE_LOCALE_MAP[langCode] || 'en';
-    const isCJK = ['zh', 'ja'].includes(locale);
-
+    const tokenMap = testState.vocabTokenMap;
     transcriptEl.innerHTML = '';
 
-    if (isCJK && typeof Intl !== 'undefined' && Intl.Segmenter) {
-        try {
-            const segmenter = new Intl.Segmenter(locale, { granularity: 'word' });
-            const segments = [...segmenter.segment(text)];
-
-            segments.forEach(segment => {
-                if (segment.isWordLike) {
-                    const span = document.createElement('span');
-                    span.className = 'word-clickable';
-                    span.textContent = segment.segment;
-                    span.dataset.word = segment.segment;
-                    span.setAttribute('role', 'button');
-                    span.setAttribute('tabindex', '0');
-                    transcriptEl.appendChild(span);
-                } else {
-                    transcriptEl.appendChild(document.createTextNode(segment.segment));
-                }
-            });
-            return;
-        } catch (e) {
-            console.warn('Intl.Segmenter failed for CJK, using character-level fallback:', e);
-        }
+    if (!tokenMap || !tokenMap.length) {
+        // Fallback: render transcript as plain text (old tests without token map)
+        transcriptEl.textContent = testState.testData.transcript;
+        return;
     }
 
-    // Space-delimited languages (en, es) or CJK fallback
-    const tokens = text.split(/(\s+|[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+)/);
-
-    tokens.forEach(token => {
-        if (!token) return;
-        if (/^\s+$/.test(token) || /^[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+$/.test(token)) {
-            transcriptEl.appendChild(document.createTextNode(token));
-        } else {
+    tokenMap.forEach(([text, senseId]) => {
+        if (senseId) {
             const span = document.createElement('span');
             span.className = 'word-clickable';
-            span.textContent = token;
-            span.dataset.word = token;
+            span.textContent = text;
+            span.dataset.senseId = String(senseId);
             span.setAttribute('role', 'button');
             span.setAttribute('tabindex', '0');
             transcriptEl.appendChild(span);
+        } else {
+            transcriptEl.appendChild(document.createTextNode(text));
         }
     });
 }
 
-async function fetchDefinition(word) {
-    const langCode = testState.testData.language;
-    const cacheKey = `${langCode}:${word.toLowerCase()}`;
-
-    if (definitionCache.has(cacheKey)) {
-        return definitionCache.get(cacheKey);
-    }
-
-    const uiLang = (typeof LinguaI18n !== 'undefined' && LinguaI18n.currentLanguage) || 'en';
-
-    const response = await authFetch('/api/vocabulary/define', {
-        method: 'POST',
-        body: JSON.stringify({
-            word: word,
-            language_code: langCode,
-            context: testState.testData.transcript,
-            ui_language: uiLang
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch definition');
-    }
-
-    const data = await response.json();
-    if (data.status !== 'success' || !data.definition) {
-        throw new Error(data.error || 'Invalid response');
-    }
-
-    definitionCache.set(cacheKey, data.definition);
-    return data.definition;
-}
-
-function getUniqueTranscriptWords() {
-    const text = testState.testData.transcript;
-    const langCode = testState.testData.language;
-    const locale = LANGUAGE_LOCALE_MAP[langCode] || 'en';
-    const isCJK = ['zh', 'ja'].includes(locale);
-    const words = new Set();
-
-    if (isCJK && typeof Intl !== 'undefined' && Intl.Segmenter) {
-        try {
-            const segmenter = new Intl.Segmenter(locale, { granularity: 'word' });
-            for (const segment of segmenter.segment(text)) {
-                if (segment.isWordLike) words.add(segment.segment.toLowerCase());
-            }
-            return words;
-        } catch (e) { /* fall through to space-split */ }
-    }
-
-    const tokens = text.split(/(\s+|[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+)/);
-    for (const token of tokens) {
-        if (token && !/^\s+$/.test(token) && !/^[.,!?;:'"()\u2014\u2013\u00bf\u00a1\u3000-\u303F\uFF00-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65]+$/.test(token)) {
-            words.add(token.toLowerCase());
-        }
-    }
-    return words;
-}
-
-async function prefetchTranscriptDefinitions() {
-    const words = [...getUniqueTranscriptWords()];
-    const CONCURRENCY = 3;
-    let i = 0;
-    async function next() {
-        while (i < words.length) {
-            const word = words[i++];
-            try { await fetchDefinition(word); } catch (e) { /* best-effort */ }
-        }
-    }
-    await Promise.all(Array.from({ length: CONCURRENCY }, next));
+function getDefinition(senseId) {
+    const key = String(senseId);
+    return (testState.definitions && testState.definitions[key]) || null;
 }
 
 const wordPopover = {
@@ -1779,8 +1685,9 @@ const wordPopover = {
         window.addEventListener('resize', this._resizeHandler);
     },
 
-    async show(wordSpan) {
-        const word = wordSpan.dataset.word;
+    show(wordSpan) {
+        const senseId = wordSpan.dataset.senseId;
+        if (!senseId) return;
 
         // Toggle off if clicking the same word
         if (this.activeWord === wordSpan && this.el.style.display !== 'none') {
@@ -1796,10 +1703,27 @@ const wordPopover = {
         this.activeWord = wordSpan;
         wordSpan.classList.add('word-active');
 
-        // Set loading state
-        document.getElementById('popoverLoading').style.display = 'flex';
-        document.getElementById('popoverBody').style.display = 'none';
+        const def = getDefinition(senseId);
+        if (!def) {
+            // No definition available — don't show popover
+            return;
+        }
+
+        document.getElementById('popoverLoading').style.display = 'none';
         document.getElementById('popoverError').style.display = 'none';
+        document.getElementById('popoverWord').textContent = def.word;
+        document.getElementById('popoverPOS').textContent = def.part_of_speech || '';
+        document.getElementById('popoverDefinition').textContent = def.definition;
+
+        const readingEl = document.getElementById('popoverReading');
+        if (def.reading) {
+            readingEl.textContent = def.reading;
+            readingEl.style.display = 'block';
+        } else {
+            readingEl.style.display = 'none';
+        }
+
+        document.getElementById('popoverBody').style.display = 'block';
         this.el.style.display = 'block';
 
         // Show mobile backdrop
@@ -1808,36 +1732,6 @@ const wordPopover = {
         }
 
         this.position(wordSpan);
-
-        try {
-            const def = await fetchDefinition(word);
-
-            // Check that this word is still the active one (user may have clicked another)
-            if (this.activeWord !== wordSpan) return;
-
-            document.getElementById('popoverWord').textContent = def.word;
-            document.getElementById('popoverPOS').textContent = def.part_of_speech || '';
-            document.getElementById('popoverDefinition').textContent = def.definition;
-
-            const readingEl = document.getElementById('popoverReading');
-            if (def.reading) {
-                readingEl.textContent = def.reading;
-                readingEl.style.display = 'block';
-            } else {
-                readingEl.style.display = 'none';
-            }
-
-            document.getElementById('popoverLoading').style.display = 'none';
-            document.getElementById('popoverBody').style.display = 'block';
-
-            // Reposition after content loads (height may change)
-            this.position(wordSpan);
-        } catch (err) {
-            console.error('Definition fetch failed:', err);
-            if (this.activeWord !== wordSpan) return;
-            document.getElementById('popoverLoading').style.display = 'none';
-            document.getElementById('popoverError').style.display = 'block';
-        }
     },
 
     position(wordSpan) {

@@ -62,6 +62,21 @@ class JapaneseProcessor(BaseLanguageProcessor):
 
         return tokens
 
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+        tagger = self._get_tagger()
+        result = []
+        for word in tagger(text):
+            surface = word.surface
+            if not surface:
+                continue
+            pos = word.feature.pos1
+            lemma = word.feature.lemma
+            if not lemma or lemma == '*':
+                lemma = surface
+            is_content = pos in _CONTENT_POS
+            result.append((surface, lemma, is_content))
+        return result
+
     def is_ready(self) -> bool:
         try:
             self._get_tagger()
