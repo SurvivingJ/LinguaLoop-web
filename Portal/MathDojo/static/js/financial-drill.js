@@ -119,6 +119,7 @@ class FinancialDrill {
         // NEXT button after wrong-answer explanation
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => {
+                if (!this.isActive) return;
                 this.hideExplanation();
                 this.loadNextProblem();
                 this.inputHandler.focus();
@@ -210,6 +211,9 @@ class FinancialDrill {
         this.coach.reset();
         this.intervention.deactivate();
 
+        // Start profile session
+        profileManager.startSession('financial_drill');
+
         // Hide start button
         if (this.drillStartButton) this.drillStartButton.style.display = 'none';
 
@@ -218,9 +222,10 @@ class FinancialDrill {
         this.inputHandler.clear();
         this.inputHandler.focus();
 
-        // Clear queue and load initial batch
+        // Clear queue and load initial batch with profile focus tags
         gameManager.problemQueue = [];
-        await gameManager.loadFinancialDrill(50, this.getOptions());
+        const profileFocus = await profileManager.getFocusTags('financial');
+        await gameManager.loadFinancialDrill(50, this.getOptions(), profileFocus);
 
         // Load first problem
         this.loadNextProblem();
@@ -259,6 +264,9 @@ class FinancialDrill {
             this.equationDisplay.textContent = problem.equation;
         }
 
+        // Update mental math hint (auto-hides for financial problems)
+        MentalGuides.update(problem.tags || [], 'drill');
+
         // Auto-submit when typed value matches the correct answer
         const tolerance = gameManager.currentProblem?.tolerance || 0;
         this.inputHandler.setAutoCheck((val) =>
@@ -296,6 +304,7 @@ class FinancialDrill {
     handleAnswer(userAnswer) {
         if (!this.isActive) return;
 
+        MentalGuides.hide('drill');
         const result = gameManager.checkAnswer(userAnswer);
         const tags = gameManager.currentProblem?.tags || [];
         const explanation = gameManager.currentProblem?.explanation || '';
@@ -308,8 +317,9 @@ class FinancialDrill {
         const tolerance = gameManager.currentProblem?.tolerance || 0;
         const prefix = tolerance > 0 ? '\u2248' : '';
 
-        // Record with coach
+        // Record with coach and profile manager
         this.coach.record(tags, result.correct, result.timeElapsed * 1000);
+        profileManager.recordResult(tags, result.correct, result.timeElapsed * 1000);
 
         if (result.correct) {
             this.correctAnswers++;
@@ -398,6 +408,7 @@ class FinancialDrill {
         window.gameActive = false;
         this.intervention.deactivate();
         this.hideExplanation();
+        profileManager.endSession();
 
         if (this.elapsedInterval) {
             clearInterval(this.elapsedInterval);

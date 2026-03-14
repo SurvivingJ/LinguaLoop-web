@@ -1,0 +1,878 @@
+{% extends "base.html" %}
+
+{% block title %}{{ plan.name }} — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/session.css">
+<style>
+  /* ---- Full-screen session layout ---- */
+  body.dark-theme {
+    padding-bottom: 0; /* No bottom nav padding needed — we hide nav during session */
+  }
+
+  .bottom-nav { display: none; } /* Hide nav during active session */
+
+  .session-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* ---- TOP BAR ---- */
+  .session-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .session-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .session-plan-name {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .deload-badge {
+    flex-shrink: 0;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(0,183,255,0.15);
+    color: #00b7ff;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    background: rgba(255,255,255,0.06);
+    border-radius: var(--radius-btn);
+    overflow: hidden;
+  }
+
+  .mode-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 12px;
+    cursor: pointer;
+    min-height: 36px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .mode-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .exit-btn {
+    background: none;
+    border: 1px solid rgba(255,56,96,0.4);
+    color: var(--danger);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    min-height: 36px;
+    flex-shrink: 0;
+    transition: background 0.12s;
+  }
+
+  .exit-btn:hover { background: rgba(255,56,96,0.1); }
+
+  /* ---- EXERCISE AREA ---- */
+  .exercise-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px 12px;
+    gap: 16px;
+  }
+
+  .exercise-area-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+
+  .exercise-name-row {
+    text-align: center;
+  }
+
+  #current-exercise-name {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  #set-counter {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  #target-display {
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  /* ---- Number inputs with +/- ---- */
+  .stepper-group {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px;
+  }
+
+  .stepper-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .stepper-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, border-color 0.12s;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+
+  .stepper-btn:active {
+    background: rgba(108,99,255,0.2);
+    border-color: var(--accent);
+  }
+
+  .stepper-value {
+    font-size: 36px;
+    font-weight: 800;
+    min-width: 80px;
+    text-align: center;
+    cursor: text;
+    border: none;
+    background: none;
+    color: var(--text);
+    padding: 0;
+    -moz-appearance: textfield;
+  }
+
+  .stepper-value::-webkit-inner-spin-button,
+  .stepper-value::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .stepper-unit {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 28px;
+  }
+
+  /* ---- RPE selector ---- */
+  .rpe-container {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 12px 14px;
+  }
+
+  .rpe-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  #rpe-selector {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .rpe-dot {
+    flex: 1;
+    height: 36px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+    touch-action: manipulation;
+  }
+
+  .rpe-dot:active   { transform: scale(0.95); }
+  .rpe-dot.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* RPE colour gradient */
+  .rpe-dot[data-rpe="1"]  { color: #48c774; }
+  .rpe-dot[data-rpe="2"]  { color: #48c774; }
+  .rpe-dot[data-rpe="3"]  { color: #7cd867; }
+  .rpe-dot[data-rpe="4"]  { color: #b0e052; }
+  .rpe-dot[data-rpe="5"]  { color: #d4e052; }
+  .rpe-dot[data-rpe="6"]  { color: #e8c53a; }
+  .rpe-dot[data-rpe="7"]  { color: #ffb700; }
+  .rpe-dot[data-rpe="8"]  { color: #ff8c00; }
+  .rpe-dot[data-rpe="9"]  { color: #ff5b3a; }
+  .rpe-dot[data-rpe="10"] { color: #ff3860; }
+
+  /* ---- Complete set button ---- */
+  .complete-set-area {
+    padding: 0 16px 16px;
+    flex-shrink: 0;
+  }
+
+  #complete-set-btn {
+    width: 100%;
+    padding: 18px 24px;
+    background: var(--success);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+    touch-action: manipulation;
+  }
+
+  #complete-set-btn:active { transform: scale(0.98); opacity: 0.9; }
+  #complete-set-btn:disabled { opacity: 0.4; }
+
+  /* ---- REST AREA ---- */
+  #rest-area {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 16px;
+    gap: 16px;
+    text-align: center;
+  }
+
+  #rest-area.visible { display: flex; }
+
+  .rest-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  #rest-timer-display {
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    transition: color 0.3s;
+  }
+
+  #rest-timer-display.warning { color: var(--warning); }
+  #rest-timer-display.expired { color: var(--danger); }
+
+  #duration-timer-display.warning { color: var(--warning); }
+  #duration-timer-display.complete { color: var(--success); }
+
+  .rest-progress-wrap {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  #rest-progress {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  #rest-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 100px;
+    transition: width 0.5s linear;
+    width: 100%;
+  }
+
+  /* ---- Filler display ---- */
+  #filler-display {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .filler-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .filler-instructions {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .filler-duration {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 100px;
+  }
+
+  #next-exercise-preview {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  #next-exercise-preview strong {
+    color: var(--text);
+  }
+
+  #auto-advance-countdown {
+    font-size: 13px;
+    color: var(--accent);
+    min-height: 20px;
+  }
+
+  .rest-controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+
+  #pause-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.12s;
+  }
+
+  #pause-btn:hover { background: rgba(255,255,255,0.12); }
+
+  /* ---- Grace countdown overlay ---- */
+  #grace-countdown-area {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,16,0.9);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  #grace-countdown-area.visible {
+    display: flex;
+  }
+
+  #grace-countdown {
+    font-size: 96px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .grace-label {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  #cancel-grace-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    min-height: 48px;
+  }
+
+  /* ---- Workout complete overlay ---- */
+  #complete-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 600;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  #complete-overlay.visible {
+    display: flex;
+  }
+
+  .complete-inner {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 32px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .complete-title {
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    color: var(--success);
+  }
+
+  .complete-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: -10px;
+  }
+
+  .complete-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .stat-box .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .stat-box .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .progression-section {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+  }
+
+  .progression-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .sugg-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .sugg-item:last-child { border-bottom: none; }
+
+  .sugg-name {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .sugg-action {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .sugg-action.increase { color: var(--success); }
+  .sugg-action.maintain { color: var(--text-muted); }
+  .sugg-action.deload   { color: var(--warning); }
+
+  #canvas-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 700;
+  }
+
+  #confetti-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .notes-section .form-group {
+    margin-bottom: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-root" id="session-root">
+
+  <!-- TOP BAR -->
+  <div class="session-topbar">
+    <div class="session-topbar-left">
+      <span class="session-plan-name">{{ plan.name }}</span>
+      {% if is_deload %}
+        <span class="deload-badge">Deload</span>
+      {% endif %}
+    </div>
+
+    <div class="mode-toggle">
+      <button id="mode-manual-btn" class="active" onclick="setMode('manual')">Manual</button>
+      <button id="mode-play-btn" onclick="setMode('play')">▶ Play</button>
+    </div>
+
+    <button class="exit-btn" onclick="confirmExit()">✕ Exit</button>
+  </div>
+
+  <!-- EXERCISE AREA -->
+  <div class="exercise-area" id="exercise-area">
+    <div class="exercise-area-inner">
+
+      <div class="exercise-name-row">
+        <h1 id="current-exercise-name">Loading…</h1>
+        <div id="set-counter" aria-live="polite">Set 1 of 1</div>
+        <div id="target-display" aria-live="polite"></div>
+      </div>
+
+      <!-- Reps stepper (hidden for timed exercises) -->
+      <div class="stepper-group" id="reps-stepper-group">
+        <div class="stepper-label">Reps</div>
+        <div class="stepper" role="group" aria-label="Reps input">
+          <button class="stepper-btn" onclick="adjustReps(-1)" aria-label="Decrease reps">−</button>
+          <input type="number" id="reps-input" class="stepper-value" value="10" min="0" max="999"
+                 inputmode="numeric" aria-label="Reps"
+                 onchange="onRepsInputChange(this.value)">
+          <span class="stepper-unit">reps</span>
+          <button class="stepper-btn" onclick="adjustReps(1)" aria-label="Increase reps">+</button>
+        </div>
+      </div>
+
+      <!-- Duration countdown (timed exercises only) -->
+      <div class="stepper-group" id="duration-countdown-group" style="display:none;">
+        <div class="stepper-label">Duration</div>
+        <div id="duration-timer-display" style="font-size:48px; font-weight:900; text-align:center; font-variant-numeric:tabular-nums; line-height:1.1; padding:8px 0;">
+          0:30
+        </div>
+        <div style="width:100%; max-width:320px; margin:8px auto 0;">
+          <div id="duration-progress" style="height:6px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;">
+            <div id="duration-progress-fill" style="height:100%; background:var(--accent); border-radius:100px; transition:width 0.5s linear; width:100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight stepper -->
+      <div class="stepper-group">
+        <div class="stepper-label">Weight</div>
+        <div class="stepper" role="group" aria-label="Weight input">
+          <button class="stepper-btn" onclick="adjustWeight(-1)" aria-label="Decrease weight">−</button>
+          <input type="number" id="weight-input" class="stepper-value" value="0" min="0" max="9999"
+                 step="0.5" inputmode="decimal" aria-label="Weight"
+                 onchange="onWeightInputChange(this.value)">
+          <span class="stepper-unit">kg</span>
+          <button class="stepper-btn" onclick="adjustWeight(1)" aria-label="Increase weight">+</button>
+        </div>
+      </div>
+
+      <!-- RPE selector -->
+      <div class="rpe-container">
+        <div class="rpe-label">RPE (Rate of Perceived Exertion)</div>
+        <div id="rpe-selector" role="radiogroup" aria-label="RPE">
+          {% for i in range(1, 11) %}
+            <div class="rpe-dot" data-rpe="{{ i }}" onclick="selectRpe({{ i }})" role="radio" aria-label="RPE {{ i }}">{{ i }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPLETE SET BUTTON -->
+  <div class="complete-set-area" id="complete-set-area">
+    <button id="complete-set-btn" onclick="completeSet()" aria-label="Complete set">
+      ✓ Complete Set
+    </button>
+  </div>
+
+  <!-- REST AREA -->
+  <div id="rest-area" role="region" aria-label="Rest timer">
+    <div class="rest-header">REST</div>
+    <div id="rest-timer-display" aria-live="polite">1:30</div>
+
+    <div class="rest-progress-wrap">
+      <div id="rest-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <div id="rest-progress-fill"></div>
+      </div>
+    </div>
+
+    <div id="filler-display">
+      <div class="filler-name" id="filler-name">—</div>
+      <div class="filler-instructions" id="filler-instructions"></div>
+      <span class="filler-duration" id="filler-duration"></span>
+    </div>
+
+    <div id="next-exercise-preview">Next: <strong id="next-exercise-name">—</strong></div>
+
+    <div id="auto-advance-countdown"></div>
+
+    <div class="rest-controls">
+      <button id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+      <button class="stepper-btn" style="border-radius:var(--radius-btn); width:auto; padding:0 16px; font-size:14px;" onclick="skipRest()">Skip →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- GRACE COUNTDOWN OVERLAY (play mode) -->
+<div id="grace-countdown-area" role="dialog" aria-modal="true" aria-label="Next exercise countdown">
+  <div class="grace-label">Next set in</div>
+  <div id="grace-countdown">3</div>
+  <div class="grace-label" id="grace-exercise-label"></div>
+  <button id="cancel-grace-btn" onclick="cancelGrace()">Cancel</button>
+</div>
+
+<!-- WORKOUT COMPLETE OVERLAY -->
+<div id="complete-overlay" role="dialog" aria-modal="true" aria-label="Workout complete">
+  <div id="canvas-wrap">
+    <canvas id="confetti-canvas"></canvas>
+  </div>
+
+  <div class="complete-inner">
+    <div class="complete-title">Workout Complete! 🎉</div>
+    <div class="complete-subtitle" id="complete-subtitle">Great work!</div>
+
+    <div class="complete-stats">
+      <div class="stat-box">
+        <div class="stat-value" id="stat-sets">0</div>
+        <div class="stat-label">Sets</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="stat-volume">0</div>
+        <div class="stat-label">Vol (kg)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="stat-duration">0</div>
+        <div class="stat-label">Minutes</div>
+      </div>
+    </div>
+
+    <!-- Progression suggestions -->
+    {% if suggestions %}
+      <div class="progression-section">
+        <h3>Next Session Suggestions</h3>
+        <div id="suggestions-list">
+          {% for ex_id, sugg in suggestions.items() %}
+            {% set ex = exercises.get(ex_id) %}
+            {% if ex and sugg.action != 'insufficient_data' %}
+              <div class="sugg-item">
+                <span class="sugg-name">{{ ex.name }}</span>
+                <span class="sugg-action
+                  {% if sugg.action == 'increase' %}increase
+                  {% elif sugg.action == 'deload' %}deload
+                  {% else %}maintain{% endif %}">
+                  {% if sugg.action == 'increase' %}
+                    ↑ {{ sugg.suggested_weight_kg }}kg
+                  {% elif sugg.action == 'deload' %}
+                    ↓ Reduce
+                  {% else %}
+                    → Maintain
+                  {% endif %}
+                </span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Notes -->
+    <div class="notes-section">
+      <div class="form-group">
+        <label for="session-notes">Session Notes</label>
+        <textarea id="session-notes" class="form-control" rows="3"
+                  placeholder="How did it feel? Any notes…"></textarea>
+      </div>
+    </div>
+
+    <button class="btn btn-success btn-lg" onclick="saveAndExit()" id="save-exit-btn">
+      Save & Exit
+    </button>
+  </div>
+</div>
+
+<!-- Inject session data for active_session.js -->
+<script>
+const SESSION_DATA = {{ {
+  'plan': plan,
+  'exercises': exercises,
+  'mobility': mobility,
+  'sessionId': session_id,
+  'suggestions': suggestions,
+  'setWeightPlans': set_weight_plans,
+  'isDeload': is_deload,
+  'deloadPct': deload_pct
+} | tojson | safe }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/active_session.js"></script>
+<script>
+  // ---- Fallback stubs (active_session.js should override these) ----
+
+  if (typeof setMode === 'undefined') {
+    window.setMode = function(mode) {
+      document.getElementById('mode-manual-btn').classList.toggle('active', mode === 'manual');
+      document.getElementById('mode-play-btn').classList.toggle('active', mode === 'play');
+    };
+  }
+
+  if (typeof confirmExit === 'undefined') {
+    window.confirmExit = function() {
+      if (confirm('Exit workout? Progress may be lost.')) {
+        window.location.href = '/workouts/';
+      }
+    };
+  }
+
+  if (typeof adjustReps === 'undefined') {
+    window.adjustReps = function(delta) {
+      var el = document.getElementById('reps-input');
+      el.value = Math.max(0, (parseInt(el.value) || 0) + delta);
+    };
+  }
+
+  if (typeof adjustWeight === 'undefined') {
+    window.adjustWeight = function(delta) {
+      var el = document.getElementById('weight-input');
+      var step = parseFloat(el.step) || 2.5;
+      el.value = Math.max(0, (parseFloat(el.value) || 0) + step * delta);
+    };
+  }
+
+  if (typeof onRepsInputChange === 'undefined') {
+    window.onRepsInputChange = function(v) {};
+  }
+
+  if (typeof onWeightInputChange === 'undefined') {
+    window.onWeightInputChange = function(v) {};
+  }
+
+  if (typeof selectRpe === 'undefined') {
+    window.selectRpe = function(val) {
+      document.querySelectorAll('.rpe-dot').forEach(function(d) {
+        d.classList.toggle('selected', parseInt(d.dataset.rpe) === val);
+      });
+    };
+  }
+
+  if (typeof completeSet === 'undefined') {
+    window.completeSet = function() { console.log('completeSet — no JS loaded'); };
+  }
+
+  if (typeof togglePause === 'undefined') {
+    window.togglePause = function() { console.log('togglePause'); };
+  }
+
+  if (typeof skipRest === 'undefined') {
+    window.skipRest = function() { console.log('skipRest'); };
+  }
+
+  if (typeof cancelGrace === 'undefined') {
+    window.cancelGrace = function() {
+      document.getElementById('grace-countdown-area').classList.remove('visible');
+    };
+  }
+
+  if (typeof saveAndExit === 'undefined') {
+    window.saveAndExit = function() {
+      var notes = document.getElementById('session-notes').value;
+      console.log('saveAndExit — no JS loaded, notes:', notes);
+      window.location.href = '/workouts/';
+    };
+  }
+</script>
+{% endblock %}

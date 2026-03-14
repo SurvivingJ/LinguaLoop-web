@@ -1,0 +1,363 @@
+/* static/css/builder.css — WorkoutOS Workout Builder Styles */
+
+/* ---------------------------------------------------------------------------
+   Exercise list (drag-and-drop)
+--------------------------------------------------------------------------- */
+
+.exercise-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.exercise-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: grab;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, opacity 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.exercise-item:active {
+  cursor: grabbing;
+}
+
+.exercise-item.dragging {
+  opacity: 0.5;
+  border: 2px dashed var(--accent);
+  cursor: grabbing;
+}
+
+.exercise-item.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+/* ---------------------------------------------------------------------------
+   Drag handle
+--------------------------------------------------------------------------- */
+
+.drag-handle {
+  color: var(--text-secondary);
+  cursor: grab;
+  padding-right: 10px;
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none; /* required for mobile drag */
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ---------------------------------------------------------------------------
+   Exercise item header row
+--------------------------------------------------------------------------- */
+
+.exercise-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.exercise-item-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exercise-item-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.exercise-item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-remove-exercise {
+  background: rgba(255, 56, 96, 0.12);
+  border: none;
+  color: var(--danger);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-remove-exercise:active {
+  background: rgba(255, 56, 96, 0.25);
+}
+
+/* ---------------------------------------------------------------------------
+   Set rows
+--------------------------------------------------------------------------- */
+
+.sets-container {
+  margin-top: 8px;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.set-row-header {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.set-row-header span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.set-num-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  min-width: 22px;
+  text-align: center;
+}
+
+.set-row input {
+  padding: 6px 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.warmup-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--warning);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.warmup-indicator.active {
+  opacity: 1;
+}
+
+.btn-remove-set {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-remove-set:active {
+  color: var(--danger);
+}
+
+/* ---------------------------------------------------------------------------
+   Add set / warmup buttons
+--------------------------------------------------------------------------- */
+
+.set-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.add-set-btn {
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add-set-btn:hover {
+  text-decoration: underline;
+}
+
+.add-warmup-btn {
+  font-size: 12px;
+  color: var(--warning);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Superset group indicator
+--------------------------------------------------------------------------- */
+
+.superset-group-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(108, 99, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* ---------------------------------------------------------------------------
+   Exercise search panel
+--------------------------------------------------------------------------- */
+
+.exercise-search-panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.exercise-search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  top: calc(100% + 4px);
+}
+
+.search-result-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover,
+.search-result-item:active {
+  background: var(--surface);
+}
+
+.search-result-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.search-result-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.search-wrap-relative {
+  position: relative;
+}
+
+/* ---------------------------------------------------------------------------
+   Builder form top section
+--------------------------------------------------------------------------- */
+
+.builder-plan-meta {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Empty exercise list placeholder
+--------------------------------------------------------------------------- */
+
+.exercise-list-empty {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 14px;
+  border: 2px dashed var(--border);
+}
+
+.exercise-list-empty p {
+  margin-top: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   Rest seconds quick-select
+--------------------------------------------------------------------------- */
+
+.rest-quick-select {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.rest-chip {
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rest-chip:hover,
+.rest-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Save bar (fixed bottom above nav)
+--------------------------------------------------------------------------- */
+
+.builder-save-bar {
+  position: fixed;
+  bottom: 60px; /* above nav */
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  z-index: 150;
+}

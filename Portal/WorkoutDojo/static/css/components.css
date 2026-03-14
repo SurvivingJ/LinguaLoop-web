@@ -1,0 +1,567 @@
+/* static/css/components.css — WorkoutOS Components */
+
+/* ---------------------------------------------------------------------------
+   Buttons
+--------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, background 0.15s, transform 0.1s;
+  text-decoration: none;
+  white-space: nowrap;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn:active {
+  opacity: 0.85;
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #55d47f;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff5070;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-ghost:hover {
+  border-color: var(--text-secondary);
+}
+
+.btn-warning {
+  background: var(--warning);
+  color: #0f0f13;
+}
+
+.btn-lg {
+  padding: 16px 28px;
+  font-size: 18px;
+  width: 100%;
+}
+
+/* Small square buttons for +/- adjusters */
+.btn-icon {
+  padding: 8px 12px;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Form elements
+--------------------------------------------------------------------------- */
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a0a0b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.form-error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Custom checkboxes
+--------------------------------------------------------------------------- */
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Muscle group checkbox grid */
+.muscle-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.muscle-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.muscle-checkbox-item:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(108, 99, 255, 0.08);
+}
+
+.muscle-checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  accent-color: var(--accent);
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Custom radio buttons
+--------------------------------------------------------------------------- */
+
+.radio-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.radio-option:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(108, 99, 255, 0.08);
+  color: var(--accent);
+}
+
+.radio-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Toggle switch (iOS style)
+--------------------------------------------------------------------------- */
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.toggle-label {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.toggle-sublabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--accent);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+/* ---------------------------------------------------------------------------
+   Badges
+--------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-purple {
+  background: #3d3870;
+  color: var(--accent);
+}
+
+.badge-green {
+  background: #1a3a2a;
+  color: var(--success);
+}
+
+.badge-amber {
+  background: #3a3010;
+  color: var(--warning);
+}
+
+.badge-red {
+  background: #3a1020;
+  color: var(--danger);
+}
+
+.badge-blue {
+  background: #1a2a4a;
+  color: #60a0ff;
+}
+
+/* ---------------------------------------------------------------------------
+   Progress bar
+--------------------------------------------------------------------------- */
+
+.progress-bar {
+  background: var(--surface);
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-fill {
+  background: var(--accent);
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.success {
+  background: var(--success);
+}
+
+.progress-fill.warning {
+  background: var(--warning);
+}
+
+/* ---------------------------------------------------------------------------
+   RPE dots (for session page)
+--------------------------------------------------------------------------- */
+
+.rpe-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rpe-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  min-width: 28px; /* ensure tap target */
+}
+
+.rpe-dot:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.rpe-dot.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* RPE coloring for high values */
+.rpe-dot[data-rpe="9"],
+.rpe-dot[data-rpe="9.5"],
+.rpe-dot[data-rpe="10"] {
+  border-color: #553030;
+}
+
+.rpe-dot[data-rpe="9"].selected,
+.rpe-dot[data-rpe="9.5"].selected,
+.rpe-dot[data-rpe="10"].selected {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+/* ---------------------------------------------------------------------------
+   Search input with icon
+--------------------------------------------------------------------------- */
+
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap input {
+  padding-left: 36px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+  font-size: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Modal / overlay sheet
+--------------------------------------------------------------------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+}
+
+.modal-sheet {
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 16px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Divider
+--------------------------------------------------------------------------- */
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Info / warning banners
+--------------------------------------------------------------------------- */
+
+.banner {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.banner-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  margin-top: 1px;
+}
+
+.banner-info {
+  background: #1a2a4a;
+  border-left: 3px solid #60a0ff;
+  color: #c0d0f0;
+}
+
+.banner-warning {
+  background: #3a3010;
+  border-left: 3px solid var(--warning);
+  color: #f0d070;
+}
+
+.banner-success {
+  background: #1a3a2a;
+  border-left: 3px solid var(--success);
+  color: #80e0a0;
+}
+
+.banner-danger {
+  background: #3a1020;
+  border-left: 3px solid var(--danger);
+  color: #f08090;
+}
+
+/* ---------------------------------------------------------------------------
+   Spinner
+--------------------------------------------------------------------------- */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}

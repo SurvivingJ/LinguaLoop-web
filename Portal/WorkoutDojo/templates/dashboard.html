@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}WorkoutOS — Home{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- Program widget ---- */
+  .program-widget {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .program-widget .prog-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .program-widget .prog-name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .program-widget .prog-week {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .prog-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .prog-progress-row .progress-bar-track {
+    flex: 1;
+  }
+
+  .prog-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .prog-today-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .prog-today-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .prog-today-label strong {
+    color: var(--text);
+  }
+
+  .prog-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .prog-tomorrow {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .session-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .session-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .session-dot.done {
+    background: var(--success);
+  }
+
+  .sessions-this-week {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ---- Body weight card ---- */
+  .bw-card .bw-inputs {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .bw-card .bw-inputs .form-group {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 90px;
+  }
+
+  .bw-card .bw-last {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  /* ---- Recent sessions ---- */
+  .session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .session-item:last-child {
+    border-bottom: none;
+  }
+
+  .session-item .session-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .session-item .session-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .session-item .session-dur {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ---- Deload badge ---- */
+  .deload-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(0,183,255,0.15);
+    color: #00b7ff;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .date-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .auto-superset-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 3px 6px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .auto-superset-toggle:has(input:checked) {
+    background: rgba(108,99,255,0.18);
+    color: var(--accent);
+  }
+  .auto-superset-toggle input { display: none; }
+  .auto-superset-toggle .toggle-label { white-space: nowrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1>WorkoutOS</h1>
+      <div class="date-sub" id="today-date"></div>
+    </div>
+    {% if active_program and program_status and program_status.is_deload %}
+      <span class="deload-badge">Deload Week</span>
+    {% endif %}
+  </div>
+
+  <!-- Active program widget -->
+  {% if active_program and program_status %}
+    <div class="program-widget">
+      <div class="prog-header">
+        <span class="prog-name">{{ active_program.name }}</span>
+        <span class="prog-week">Week {{ program_status.current_week_number }} of {{ active_program.duration_weeks }}</span>
+      </div>
+
+      <div class="prog-progress-row">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width: {{ program_status.pct_complete | int }}%;"></div>
+        </div>
+        <span class="prog-pct">{{ program_status.pct_complete | int }}%</span>
+      </div>
+
+      {% set today_entry = program_status.today_entry %}
+      <div class="prog-today-row">
+        <div class="prog-today-label">
+          TODAY:
+          <strong>
+            {% if today_entry %}
+              {{ today_entry.label if today_entry.label else (today_entry.plan_id if today_entry.plan_id else 'REST') }}
+            {% else %}
+              REST
+            {% endif %}
+          </strong>
+        </div>
+
+        {% if today_entry and today_entry.plan_id %}
+          {% if today_plan %}
+            {% set already_done = (program_status.sessions_this_week | int) >= (program_status.total_sessions_expected | int) %}
+            {% if already_done %}
+              <a href="{{ url_for('analytics.index') }}" class="btn btn-ghost btn-sm">View Log</a>
+            {% else %}
+              <label class="auto-superset-toggle" title="Auto-pair antagonist exercises as supersets" style="font-size:11px;padding:3px 6px;">
+                <input type="checkbox" class="auto-superset-cb" data-plan-id="{{ today_plan.id }}">
+                <span class="toggle-label">Auto SS</span>
+              </label>
+              <a href="{{ url_for('sessions.start', id=today_plan.id) }}" class="btn btn-success btn-sm start-workout-btn"
+                 data-base-url="{{ url_for('sessions.start', id=today_plan.id) }}"
+                 data-plan-id="{{ today_plan.id }}">▶ Start Workout</a>
+            {% endif %}
+          {% else %}
+            <button class="btn btn-ghost btn-sm" disabled>No Plan Found</button>
+          {% endif %}
+        {% else %}
+          <span class="badge badge-muted">Rest Day</span>
+        {% endif %}
+      </div>
+
+      <div class="prog-meta-row">
+        <div class="prog-tomorrow">
+          {% if program_status.tomorrow_entry is defined and program_status.tomorrow_entry %}
+            Tomorrow: <strong>{{ program_status.tomorrow_entry.label if program_status.tomorrow_entry.label else 'Workout' }}</strong>
+          {% else %}
+            Tomorrow: <strong>REST</strong>
+          {% endif %}
+        </div>
+
+        <div class="sessions-this-week">
+          <span>{{ program_status.sessions_this_week }}/{{ program_status.total_sessions_expected }}</span>
+          <div class="session-dots">
+            {% for i in range(program_status.total_sessions_expected | int) %}
+              <div class="session-dot {% if i < (program_status.sessions_this_week | int) %}done{% endif %}"></div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <!-- No active program -->
+    <div class="card" style="text-align:center; padding: 24px 16px; border: 1px dashed rgba(108,99,255,0.3);">
+      <div style="font-size: 32px; margin-bottom: 8px;">📅</div>
+      <div style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">No Active Program</div>
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Activate a training program to track weekly progress and get today's workout.
+      </div>
+      <a href="{{ url_for('programs.index') }}" class="btn btn-primary btn-sm">Browse Programs</a>
+    </div>
+  {% endif %}
+
+  <!-- Quick workout buttons (if no program or want ad-hoc) -->
+  <div style="margin-bottom: 4px;">
+    <a href="{{ url_for('workouts.index') }}" class="btn btn-ghost" style="width:100%; margin-bottom: 8px;">
+      📋 Browse All Workouts
+    </a>
+  </div>
+
+  <!-- Body weight quick log -->
+  <div class="section-title">Body Weight</div>
+  <div class="card bw-card">
+    <div style="font-size: 15px; font-weight: 600; margin-bottom: 2px;">Log Weight</div>
+    {% if latest_bw %}
+      <div class="bw-last">Last: {{ latest_bw.weight_kg }} kg ({{ latest_bw.time_of_day }}) &mdash; {{ latest_bw.date }}</div>
+    {% endif %}
+
+    <form action="/body-weight" method="POST" id="bw-form">
+      <div class="bw-inputs">
+        <div class="form-group">
+          <label for="bw-weight">Weight (kg)</label>
+          <input type="number" id="bw-weight" name="weight_kg" class="form-control"
+                 step="0.1" min="0" max="500" placeholder="82.5"
+                 value="{{ latest_bw.weight_kg if latest_bw else '' }}"
+                 required>
+        </div>
+        <div class="form-group">
+          <label for="bw-time">Time of Day</label>
+          <select id="bw-time" name="time_of_day" class="form-control">
+            <option value="morning">Morning</option>
+            <option value="evening">Evening</option>
+            <option value="post-workout">Post-workout</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex: 0;">
+          <label>&nbsp;</label>
+          <button type="submit" class="btn btn-primary" style="white-space:nowrap;">Log</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Recent sessions -->
+  <div class="section-title">Recent Sessions</div>
+  <div class="card" style="padding: 8px 16px;">
+    {% if recent_sessions %}
+      {% for session in recent_sessions %}
+        <div class="session-item">
+          <div>
+            <div class="session-name">
+              {{ session.plan_name if session.plan_name else 'Workout' }}
+            </div>
+            <div class="session-date">{{ session.date }}</div>
+          </div>
+          <div class="session-dur">
+            {% if session.duration_minutes %}
+              {{ session.duration_minutes }} min
+            {% else %}
+              &mdash;
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center; padding: 24px 0; color: var(--text-muted); font-size: 14px;">
+        No sessions yet. Start your first workout!
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Display today's date
+  var d = new Date();
+  var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('today-date').textContent = d.toLocaleDateString(undefined, opts);
+
+  // Wire auto-superset toggle
+  document.querySelectorAll('.auto-superset-cb').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var card = this.closest('.program-widget') || this.parentElement.parentElement;
+      var startBtn = card.querySelector('.start-workout-btn');
+      if (!startBtn) return;
+      var baseUrl = startBtn.dataset.baseUrl;
+      startBtn.href = this.checked ? baseUrl + '?auto_superset=1' : baseUrl;
+    });
+  });
+</script>
+{% endblock %}

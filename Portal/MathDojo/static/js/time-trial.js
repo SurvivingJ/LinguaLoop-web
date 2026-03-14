@@ -46,6 +46,9 @@ class TimeTrial {
         this.wrongAnswers = 0;
         this.currentElo = storageManager.load('user_elo');
 
+        // Start profile session
+        profileManager.startSession('time_trial');
+
         // Hide start button
         if (this.startButton) this.startButton.style.display = 'none';
 
@@ -96,6 +99,9 @@ class TimeTrial {
             this.equationDisplay.textContent = problem.equation;
         }
 
+        // Update mental math hint
+        MentalGuides.update(problem.tags || [], 'tt');
+
         // Auto-submit when typed value matches the correct answer
         this.inputHandler.setAutoCheck((val) => val === problem.answer);
     }
@@ -106,7 +112,12 @@ class TimeTrial {
     async handleAnswer(userAnswer) {
         if (!this.isActive) return;
 
+        MentalGuides.hide('tt');
         const result = gameManager.checkAnswerTimeTrial(userAnswer, this.correctAnswers);
+
+        // Record with profile manager
+        const tags = gameManager.currentProblem?.tags || [];
+        profileManager.recordResult(tags, result.correct, result.timeElapsed * 1000);
 
         if (result.correct) {
             this.handleCorrectAnswer(result);
@@ -245,6 +256,9 @@ class TimeTrial {
 
         // Update streak
         storageManager.updateStreak();
+
+        // End profile session
+        profileManager.endSession();
 
         // Show results
         this.showResults(this.score, accuracy, problemsPerMin, this.currentElo, isNewHighScore);

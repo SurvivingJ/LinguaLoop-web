@@ -30,7 +30,9 @@ class StorageManager {
             settings: {
                 sound: true,
                 difficulty_offset: 0,
-                theme: 'neon-arcade'
+                theme: 'neon-arcade',
+                auto_submit: true,
+                font_mode: 'retro'
             }
         };
     }

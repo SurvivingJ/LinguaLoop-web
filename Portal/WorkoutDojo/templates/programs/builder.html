@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if program %}Edit: {{ program.name }}{% else %}New Program{% endif %} — WorkoutOS
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .prog-builder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0 12px;
+    gap: 10px;
+  }
+
+  .prog-builder-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* ---- Section titles ---- */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  /* ---- Weekly grid ---- */
+  .week-grid-outer {
+    overflow-x: auto;
+    margin-bottom: 12px;
+    border-radius: var(--radius-card);
+  }
+
+  .week-grid {
+    min-width: 640px;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .week-grid th {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .week-grid th.week-label-col {
+    text-align: left;
+    padding-left: 12px;
+    min-width: 70px;
+  }
+
+  .week-grid tr.week-row {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .week-grid tr.week-row.is-deload {
+    background: rgba(0,183,255,0.05);
+  }
+
+  .week-grid td {
+    padding: 6px;
+    vertical-align: middle;
+  }
+
+  .week-grid td.week-num-cell {
+    padding: 6px 8px 6px 12px;
+    color: var(--text-muted);
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .week-grid td.week-num-cell .week-label {
+    font-size: 13px;
+  }
+
+  .deload-indicator {
+    font-size: 10px;
+    color: #00b7ff;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .week-grid td.day-cell select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 5px 4px;
+    font-size: 12px;
+    min-height: 34px;
+    appearance: none;
+    text-align: center;
+  }
+
+  .week-grid td.day-cell select option[value="rest"] {
+    color: var(--text-muted);
+  }
+
+  .week-row-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .week-row-actions button {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 3px 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.12s, border-color 0.12s;
+  }
+
+  .week-row-actions button:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  .week-row-actions button.deload-toggle.active {
+    color: #00b7ff;
+    border-color: rgba(0,183,255,0.4);
+  }
+
+  .add-week-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: var(--radius-btn);
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    margin-bottom: 16px;
+  }
+
+  .add-week-btn:hover {
+    background: rgba(108,99,255,0.08);
+    color: var(--accent);
+    border-color: rgba(108,99,255,0.3);
+  }
+
+  /* ---- Save bar ---- */
+  .save-bar {
+    position: sticky;
+    bottom: 70px;
+    background: var(--bg);
+    padding: 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .inline-help {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="prog-builder-header">
+    <h1>{% if program %}Edit Program{% else %}New Program{% endif %}</h1>
+    <a href="{{ url_for('programs.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+  </div>
+
+  <!-- Program meta -->
+  <div class="card">
+    <div class="form-group">
+      <label for="prog-name">Program Name *</label>
+      <input type="text" id="prog-name" class="form-control" required
+             placeholder="e.g. 12-Week Hypertrophy Block"
+             value="{{ program.name if program else '' }}">
+    </div>
+
+    <div class="form-group">
+      <label for="prog-desc">Description</label>
+      <textarea id="prog-desc" class="form-control" rows="2"
+                placeholder="Optional description">{{ program.description if program else '' }}</textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="prog-goal">Goal</label>
+        <select id="prog-goal" class="form-control">
+          {% set goals = [('hypertrophy','Hypertrophy'),('strength','Strength'),('endurance','Endurance')] %}
+          {% for val, label in goals %}
+            <option value="{{ val }}" {% if program and program.goal == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="prog-duration">Duration (weeks)</label>
+        <input type="number" id="prog-duration" class="form-control"
+               min="1" max="52" value="{{ program.duration_weeks if program else 12 }}"
+               oninput="onDurationChange(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Deload & dates -->
+  <div class="card">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="prog-deload-weeks">Deload Weeks</label>
+        <input type="text" id="prog-deload-weeks" class="form-control"
+               placeholder="e.g. 4,8,12"
+               value="{{ program.deload_weeks | join(',') if program and program.deload_weeks else '' }}"
+               oninput="onDeloadWeeksChange(this.value)">
+        <div class="inline-help">Week numbers, comma-separated</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="prog-deload-pct">Deload Volume %</label>
+        <input type="number" id="prog-deload-pct" class="form-control"
+               min="0" max="100" value="{{ program.deload_volume_pct if program and program.deload_volume_pct else 40 }}">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:0;">
+      <label for="prog-start-date">Start Date</label>
+      <input type="date" id="prog-start-date" class="form-control"
+             value="{{ program.start_date if program and program.start_date else '' }}">
+    </div>
+  </div>
+
+  <!-- Weekly grid -->
+  <div class="section-label">Weekly Schedule</div>
+  <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+    Assign a workout plan to each day. Scroll right to see all days.
+  </p>
+
+  <div class="week-grid-outer">
+    <table class="week-grid" id="week-grid">
+      <thead>
+        <tr>
+          <th class="week-label-col">Week</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="week-grid-body">
+        <!-- Rows rendered by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <button type="button" class="add-week-btn" onclick="addWeek()">
+    + Add Week
+  </button>
+
+  <!-- Save bar -->
+  <div class="save-bar">
+    <button type="button" class="btn btn-primary btn-lg" onclick="saveProgram()">
+      Save Program
+    </button>
+  </div>
+
+</div>
+
+<!-- Pass data to JS -->
+<script>
+  const PROGRAM_BUILDER_DATA = {
+    program:  {{ program | tojson | safe if program else 'null' }},
+    plans:    {{ plans | tojson | safe }},
+    planId:   {{ program.id | tojson | safe if program else 'null' }},
+  };
+</script>
+<script src="/static/js/program_builder.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Fallback stubs if program_builder.js not loaded
+  if (typeof addWeek === 'undefined') {
+    var weekCount = 0;
+
+    window.addWeek = function() {
+      weekCount++;
+      var tbody = document.getElementById('week-grid-body');
+      var deloadWeeks = (document.getElementById('prog-deload-weeks').value || '')
+        .split(',').map(function(v) { return parseInt(v.trim()); });
+      var isDeload = deloadWeeks.indexOf(weekCount) !== -1;
+
+      var planOptions = '<option value="rest">— REST —</option>';
+      PROGRAM_BUILDER_DATA.plans.forEach(function(p) {
+        planOptions += '<option value="' + p.id + '">' + p.name + '</option>';
+      });
+
+      var row = document.createElement('tr');
+      row.className = 'week-row' + (isDeload ? ' is-deload' : '');
+      row.dataset.week = weekCount;
+      row.innerHTML = '<td class="week-num-cell"><span class="week-label">Wk ' + weekCount + '</span>' + (isDeload ? '<span class="deload-indicator">DELOAD</span>' : '') + '</td>' +
+        ['mon','tue','wed','thu','fri','sat','sun'].map(function(day) {
+          return '<td class="day-cell"><select name="' + day + '">' + planOptions + '</select></td>';
+        }).join('') +
+        '<td><div class="week-row-actions">' +
+        '<button type="button" class="deload-toggle' + (isDeload ? ' active' : '') + '" onclick="toggleDeload(this, ' + weekCount + ')">Deload</button>' +
+        '<button type="button" onclick="copyWeekAbove(this)">Copy ↑</button>' +
+        '</div></td>';
+      tbody.appendChild(row);
+    };
+
+    window.onDurationChange = function(val) {
+      var n = parseInt(val) || 0;
+      var tbody = document.getElementById('week-grid-body');
+      var current = tbody.querySelectorAll('tr.week-row').length;
+      if (n > current) {
+        for (var i = current; i < n; i++) addWeek();
+      } else if (n < current) {
+        var rows = tbody.querySelectorAll('tr.week-row');
+        for (var j = current - 1; j >= n; j--) rows[j].remove();
+        weekCount = n;
+      }
+    };
+
+    window.onDeloadWeeksChange = function(val) {
+      var deloadWeeks = val.split(',').map(function(v) { return parseInt(v.trim()); }).filter(Boolean);
+      document.querySelectorAll('#week-grid-body tr.week-row').forEach(function(row) {
+        var wk = parseInt(row.dataset.week);
+        var isDeload = deloadWeeks.indexOf(wk) !== -1;
+        row.classList.toggle('is-deload', isDeload);
+        var indicator = row.querySelector('.deload-indicator');
+        if (isDeload && !indicator) {
+          var labelEl = row.querySelector('.week-label');
+          if (labelEl) {
+            var span = document.createElement('span');
+            span.className = 'deload-indicator';
+            span.textContent = 'DELOAD';
+            labelEl.parentNode.appendChild(span);
+          }
+        } else if (!isDeload && indicator) {
+          indicator.remove();
+        }
+        var btn = row.querySelector('.deload-toggle');
+        if (btn) btn.classList.toggle('active', isDeload);
+      });
+    };
+
+    window.toggleDeload = function(btn, weekNum) {
+      btn.classList.toggle('active');
+      var row = btn.closest('tr');
+      var isDeload = btn.classList.contains('active');
+      row.classList.toggle('is-deload', isDeload);
+      var existing = row.querySelector('.deload-indicator');
+      if (isDeload && !existing) {
+        var labelEl = row.querySelector('.week-label');
+        var span = document.createElement('span');
+        span.className = 'deload-indicator';
+        span.textContent = 'DELOAD';
+        labelEl.parentNode.appendChild(span);
+      } else if (!isDeload && existing) {
+        existing.remove();
+      }
+    };
+
+    window.copyWeekAbove = function(btn) {
+      var row = btn.closest('tr');
+      var prev = row.previousElementSibling;
+      if (!prev || !prev.classList.contains('week-row')) return;
+      var selects = row.querySelectorAll('td.day-cell select');
+      var prevSelects = prev.querySelectorAll('td.day-cell select');
+      selects.forEach(function(sel, i) {
+        if (prevSelects[i]) sel.value = prevSelects[i].value;
+      });
+    };
+
+    window.saveProgram = function() {
+      var weeks = [];
+      document.querySelectorAll('#week-grid-body tr.week-row').forEach(function(row) {
+        var days = {};
+        ['mon','tue','wed','thu','fri','sat','sun'].forEach(function(day) {
+          var sel = row.querySelector('select[name="' + day + '"]');
+          days[day] = sel ? sel.value : 'rest';
+        });
+        weeks.push({
+          week_number: parseInt(row.dataset.week),
+          is_deload:   row.classList.contains('is-deload'),
+          days:        days,
+        });
+      });
+
+      var deloadWeeks = (document.getElementById('prog-deload-weeks').value || '')
+        .split(',').map(function(v) { return parseInt(v.trim()); }).filter(Boolean);
+
+      var payload = {
+        name:              document.getElementById('prog-name').value.trim(),
+        description:       document.getElementById('prog-desc').value.trim(),
+        goal:              document.getElementById('prog-goal').value,
+        duration_weeks:    parseInt(document.getElementById('prog-duration').value) || weeks.length,
+        deload_weeks:      deloadWeeks,
+        deload_volume_pct: parseInt(document.getElementById('prog-deload-pct').value) || 40,
+        start_date:        document.getElementById('prog-start-date').value || null,
+        weeks:             weeks,
+      };
+
+      if (!payload.name) {
+        alert('Please enter a program name.');
+        return;
+      }
+
+      var url    = PROGRAM_BUILDER_DATA.planId ? '/programs/' + PROGRAM_BUILDER_DATA.planId : '/programs/';
+      var method = 'POST';
+
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            window.location.href = '/programs/';
+          } else {
+            alert('Failed to save program: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(function(err) {
+          alert('Network error: ' + err.message);
+        });
+    };
+
+    // Initialise grid from existing program or duration
+    (function init() {
+      var prog = PROGRAM_BUILDER_DATA.program;
+      if (prog && prog.weeks && prog.weeks.length) {
+        prog.weeks.forEach(function(wk) {
+          addWeek();
+          var row = document.querySelector('#week-grid-body tr[data-week="' + weekCount + '"]');
+          if (!row) return;
+          ['mon','tue','wed','thu','fri','sat','sun'].forEach(function(day) {
+            var sel = row.querySelector('select[name="' + day + '"]');
+            if (sel && wk.days && wk.days[day]) sel.value = wk.days[day];
+          });
+          if (wk.is_deload) {
+            row.classList.add('is-deload');
+            var btn = row.querySelector('.deload-toggle');
+            if (btn) btn.classList.add('active');
+          }
+        });
+      } else {
+        var dur = parseInt(document.getElementById('prog-duration').value) || 4;
+        for (var i = 0; i < dur; i++) addWeek();
+      }
+    })();
+  }
+</script>
+{% endblock %}

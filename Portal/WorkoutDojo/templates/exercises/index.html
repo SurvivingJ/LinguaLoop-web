@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Exercises — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .exercise-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .exercise-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .exercise-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .exercise-card-name {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+    line-height: 1.3;
+  }
+
+  .exercise-card-muscles {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .exercise-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  /* Category badge colours */
+  .cat-barbell_compound  { background: rgba(108,99,255,0.25); color: #a99fff; }
+  .cat-barbell_isolation { background: rgba(108,99,255,0.15); color: #8a80dd; }
+  .cat-dumbbell          { background: rgba(72,199,116,0.2);  color: var(--success); }
+  .cat-cable             { background: rgba(255,183,0,0.2);   color: var(--warning); }
+  .cat-machine           { background: rgba(0,183,255,0.15);  color: #00b7ff; }
+  .cat-bodyweight        { background: rgba(255,56,96,0.15);  color: var(--danger); }
+  .cat-stretching        { background: rgba(255,183,0,0.15);  color: #e0a800; }
+  .cat-mobility          { background: rgba(0,183,255,0.12);  color: #5bc4e8; }
+
+  .progression-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(108,99,255,0.12);
+    color: var(--accent);
+  }
+
+  .filter-bar {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 12px 0 8px;
+    z-index: 10;
+  }
+
+  .filter-input-wrap {
+    position: relative;
+  }
+
+  .filter-input-wrap .filter-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+    color: var(--text-muted);
+  }
+
+  .filter-input-wrap input {
+    padding-left: 36px;
+  }
+
+  #exercise-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>Exercises</h1>
+    <a href="{{ url_for('exercises.new_form') }}" class="btn btn-primary btn-sm">+ New</a>
+  </div>
+
+  {% if exercises %}
+    <div class="filter-bar">
+      <div class="filter-input-wrap">
+        <span class="filter-icon">🔍</span>
+        <input type="search" id="exercise-filter" class="form-control"
+               placeholder="Filter exercises..." autocomplete="off"
+               oninput="filterExercises(this.value)">
+      </div>
+      <div id="exercise-count">{{ exercises | length }} exercises</div>
+    </div>
+
+    <div class="exercise-grid" id="exercise-grid">
+      {% for e in exercises %}
+        <div class="exercise-card" data-name="{{ e.name | lower }}" data-category="{{ e.category | lower }}" data-muscles="{{ (e.primary_muscles | join(' ')) | lower }}">
+          <div class="exercise-card-top">
+            <div class="exercise-card-name">{{ e.name }}</div>
+            <span class="badge cat-{{ e.category }}">
+              {{ e.category | replace('_', ' ') | title }}
+            </span>
+          </div>
+
+          <div class="exercise-card-muscles">
+            <strong>Primary:</strong>
+            {{ e.primary_muscles | join(', ') | replace('_', ' ') | title }}
+            {% if e.secondary_muscles %}
+              &mdash; <span style="opacity:0.7">{{ e.secondary_muscles | join(', ') | replace('_', ' ') | title }}</span>
+            {% endif %}
+          </div>
+
+          {% if e.movement_pattern %}
+            <div style="font-size:12px; color: var(--text-muted);">
+              {{ e.movement_pattern | replace('_', ' ') | title }}
+              {% if e.equipment %}
+                &middot; {{ e.equipment }}
+              {% endif %}
+              {% if e._progression_name %}
+                <span class="progression-badge">{{ e._progression_name }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="exercise-card-actions">
+            <a href="{{ url_for('exercises.edit_form', id=e.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+            <button class="btn btn-danger btn-sm"
+                    onclick="deleteExercise('{{ e.id }}', '{{ e.name | replace("'", "\\'") }}', this)">
+              Delete
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div id="no-results" style="display:none; text-align:center; padding:32px 0; color: var(--text-muted); font-size:14px;">
+      No exercises match your search.
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">💪</div>
+      <h3>No Exercises Yet</h3>
+      <p>Add your first exercise to start building workouts.</p>
+      <a href="{{ url_for('exercises.new_form') }}" class="btn btn-primary">+ Add Exercise</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function filterExercises(query) {
+    var q = query.toLowerCase().trim();
+    var cards = document.querySelectorAll('#exercise-grid .exercise-card');
+    var visible = 0;
+
+    cards.forEach(function(card) {
+      var name     = card.dataset.name     || '';
+      var category = card.dataset.category || '';
+      var muscles  = card.dataset.muscles  || '';
+      var matches  = !q || name.includes(q) || category.includes(q) || muscles.includes(q);
+      card.style.display = matches ? '' : 'none';
+      if (matches) visible++;
+    });
+
+    var countEl = document.getElementById('exercise-count');
+    if (countEl) countEl.textContent = visible + ' exercise' + (visible !== 1 ? 's' : '') + (q ? ' found' : '');
+
+    var noResults = document.getElementById('no-results');
+    if (noResults) noResults.style.display = (visible === 0 && q) ? 'block' : 'none';
+  }
+
+  function deleteExercise(id, name, btn) {
+    if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('/exercises/' + id, { method: 'DELETE' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          var card = btn.closest('.exercise-card');
+          card.style.transition = 'opacity 0.2s';
+          card.style.opacity = '0';
+          setTimeout(function() { card.remove(); filterExercises(document.getElementById('exercise-filter').value); }, 200);
+        } else {
+          alert('Failed to delete exercise.');
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        }
+      })
+      .catch(function() {
+        alert('Network error.');
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+      });
+  }
+</script>
+{% endblock %}

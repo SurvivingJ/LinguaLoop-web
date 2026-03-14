@@ -82,6 +82,8 @@ class AudioManager {
 class Settings {
     constructor() {
         this.soundToggle = document.getElementById('sound-toggle');
+        this.autoSubmitToggle = document.getElementById('auto-submit-toggle');
+        this.fontToggle = document.getElementById('font-toggle');
         this.difficultyOffset = document.getElementById('difficulty-offset');
         this.difficultyOffsetValue = document.getElementById('difficulty-offset-value');
         this.resetButton = document.getElementById('reset-progress');
@@ -99,6 +101,30 @@ class Settings {
             this.soundToggle.addEventListener('click', () => {
                 const enabled = window.audioManager.toggle();
                 this.soundToggle.textContent = enabled ? 'ON' : 'OFF';
+            });
+        }
+
+        // Auto-submit toggle
+        if (this.autoSubmitToggle) {
+            this.autoSubmitToggle.addEventListener('click', () => {
+                const settings = storageManager.load('settings');
+                settings.auto_submit = !settings.auto_submit;
+                storageManager.save('settings', settings);
+                InputHandler.autoSubmitEnabled = settings.auto_submit;
+                this.autoSubmitToggle.textContent = settings.auto_submit ? 'ON' : 'OFF';
+                this.autoSubmitToggle.classList.toggle('active', settings.auto_submit);
+            });
+        }
+
+        // Font toggle
+        if (this.fontToggle) {
+            this.fontToggle.addEventListener('click', () => {
+                const settings = storageManager.load('settings');
+                const newMode = settings.font_mode === 'retro' ? 'clean' : 'retro';
+                settings.font_mode = newMode;
+                storageManager.save('settings', settings);
+                document.documentElement.setAttribute('data-font', newMode);
+                this.fontToggle.textContent = newMode === 'retro' ? 'RETRO' : 'CLEAN';
             });
         }
 
@@ -138,6 +164,21 @@ class Settings {
             this.soundToggle.textContent = settings.sound ? 'ON' : 'OFF';
         }
 
+        // Auto-submit (default true for backwards compat)
+        const autoSubmit = settings.auto_submit !== undefined ? settings.auto_submit : true;
+        InputHandler.autoSubmitEnabled = autoSubmit;
+        if (this.autoSubmitToggle) {
+            this.autoSubmitToggle.textContent = autoSubmit ? 'ON' : 'OFF';
+            this.autoSubmitToggle.classList.toggle('active', autoSubmit);
+        }
+
+        // Font mode
+        const fontMode = settings.font_mode || 'retro';
+        document.documentElement.setAttribute('data-font', fontMode);
+        if (this.fontToggle) {
+            this.fontToggle.textContent = fontMode === 'retro' ? 'RETRO' : 'CLEAN';
+        }
+
         if (this.difficultyOffset) {
             this.difficultyOffset.value = settings.difficulty_offset;
         }
@@ -169,6 +210,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize settings
     window.settings = new Settings();
+
+    // Profile selection handlers
+    const profileJames = document.getElementById('profile-james');
+    const profileGuest = document.getElementById('profile-guest');
+    const statsBtn = document.getElementById('stats-menu-btn');
+    const focusMixBtn = document.getElementById('focus-mix-btn');
+    const menuFooter = document.getElementById('menu-footer');
+
+    function selectProfile(name) {
+        profileManager.selectProfile(name);
+        screenManager.showScreen('screen-menu');
+
+        if (profileManager.isTracking()) {
+            if (statsBtn) statsBtn.style.display = '';
+            if (focusMixBtn) focusMixBtn.style.display = '';
+            if (menuFooter) menuFooter.textContent = `PLAYER: ${name.toUpperCase()}`;
+        } else {
+            if (statsBtn) statsBtn.style.display = 'none';
+            if (focusMixBtn) focusMixBtn.style.display = 'none';
+            if (menuFooter) menuFooter.textContent = 'GUEST MODE — NO STATS';
+        }
+    }
+
+    if (profileJames) {
+        profileJames.addEventListener('click', () => selectProfile('james'));
+    }
+    if (profileGuest) {
+        profileGuest.addEventListener('click', () => selectProfile('guest'));
+    }
 
     // Update menu stats on load
     screenManager.updateMenuStats();

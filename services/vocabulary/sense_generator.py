@@ -15,6 +15,8 @@ import re
 import json
 import logging
 
+from services.vocabulary.language_detection import check_text_language
+
 logger = logging.getLogger(__name__)
 
 # Language-specific notes for LLM prompts
@@ -218,6 +220,16 @@ class SenseGenerator:
             self.stats['senses_skipped'] += 1
             return None
 
+        # Check language before proceeding — new_definition should be in target language
+        is_correct, reason = check_text_language(new_def, self._language_code)
+        if not is_correct:
+            logger.warning(f"  {lemma}: new_definition from sense selection in wrong language ({reason})")
+            corrected = self._fix_definition_language(lemma, new_def)
+            if corrected:
+                is_correct_now, _ = check_text_language(corrected, self._language_code)
+                if is_correct_now:
+                    new_def = corrected
+
         return self._validate_and_insert(vocab_id, lemma, new_def, sentence, existing)
 
     def _generate_new(self, vocab_id: int, lemma: str, phrase_type: str | None,
@@ -266,6 +278,19 @@ class SenseGenerator:
 
         return self._validate_and_insert(vocab_id, lemma, definition, sentence, [])
 
+    def _fix_definition_language(self, lemma: str, definition: str) -> str | None:
+        """Attempt to rewrite a definition in the correct language via LLM."""
+        prompt = (
+            f"The following definition for \"{lemma}\" is in the wrong language. "
+            f"Rewrite it in {self._language_name}. Keep the same meaning.\n\n"
+            f"Definition: \"{definition}\"\n\n"
+            f"Reply with ONLY a JSON object: {{\"definition\": \"...\"}}"
+        )
+        data = self._call_llm(prompt, max_tokens=200)
+        if data:
+            return data.get('definition', '').strip() or None
+        return None
+
     def _validate_and_insert(self, vocab_id: int, lemma: str, definition: str,
                              sentence: str, existing: list[dict]) -> int | None:
         """
@@ -274,6 +299,22 @@ class SenseGenerator:
         Returns:
             sense_id if inserted, or None on failure.
         """
+        # Language check — definition should be in the target language
+        is_correct_lang, lang_reason = check_text_language(definition, self._language_code)
+        if not is_correct_lang:
+            logger.warning(
+                f"  {lemma}: definition in wrong language ({lang_reason}), "
+                f"attempting correction..."
+            )
+            corrected = self._fix_definition_language(lemma, definition)
+            if corrected:
+                is_correct_now, _ = check_text_language(corrected, self._language_code)
+                if is_correct_now:
+                    definition = corrected
+                    logger.info(f"  {lemma}: definition language corrected")
+                else:
+                    logger.warning(f"  {lemma}: correction still wrong language, proceeding anyway")
+
         # Validation step
         is_valid, validation_notes = self._validate(lemma, definition, sentence)
 

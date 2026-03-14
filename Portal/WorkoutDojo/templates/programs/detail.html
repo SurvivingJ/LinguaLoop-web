@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}{{ program.name }} — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .prog-detail-header {
+    padding: 20px 0 12px;
+  }
+
+  .prog-detail-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .prog-detail-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .prog-detail-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.06);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Goal badges */
+  .goal-hypertrophy { background: rgba(108,99,255,0.2); color: #a99fff; }
+  .goal-strength    { background: rgba(255,56,96,0.2);  color: var(--danger); }
+  .goal-endurance   { background: rgba(72,199,116,0.2); color: var(--success); }
+
+  /* ---- Progress section ---- */
+  .prog-progress-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .prog-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .prog-progress-label strong {
+    color: var(--text);
+  }
+
+  /* ---- Week schedule table ---- */
+  .weeks-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .week-block {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    margin-bottom: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .week-block.is-current {
+    border-color: var(--accent);
+  }
+
+  .week-block.is-deload {
+    background: rgba(0,183,255,0.04);
+    border-color: rgba(0,183,255,0.2);
+  }
+
+  .week-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .week-block.is-current .week-block-header {
+    background: rgba(108,99,255,0.1);
+  }
+
+  .week-block.is-deload .week-block-header {
+    background: rgba(0,183,255,0.08);
+  }
+
+  .current-week-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(108,99,255,0.15);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  .deload-week-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #00b7ff;
+    background: rgba(0,183,255,0.12);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  /* Day grid inside a week */
+  .day-schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .day-cell {
+    padding: 6px 4px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .day-cell:last-child { border-right: none; }
+
+  .day-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .day-cell.is-today .day-label {
+    color: var(--accent);
+  }
+
+  .day-plan-name {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .day-plan-name.is-rest {
+    color: rgba(160,160,184,0.4);
+    font-weight: 400;
+  }
+
+  .day-start-btn {
+    display: block;
+    margin-top: 4px;
+    padding: 3px 6px;
+    background: var(--success);
+    color: #000;
+    border: none;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+  }
+
+  .day-cell.is-today {
+    background: rgba(108,99,255,0.06);
+    border-radius: 4px;
+  }
+
+  /* ---- This-week summary ---- */
+  .this-week-summary {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .this-week-summary .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .this-week-summary .value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .session-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .session-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .session-dot.done {
+    background: var(--success);
+  }
+
+  .prog-edit-link {
+    display: block;
+    text-align: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 8px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-btn);
+    transition: color 0.12s;
+  }
+
+  .prog-edit-link:hover { color: var(--text); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="prog-detail-header">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+      <h1>{{ program.name }}</h1>
+      <a href="{{ url_for('programs.edit_form', id=program.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+    </div>
+
+    <div class="prog-detail-meta">
+      {% if program.goal %}
+        <span class="badge goal-{{ program.goal }}">{{ program.goal | title }}</span>
+      {% endif %}
+      <span>📅 {{ program.duration_weeks }} weeks</span>
+      {% if program.start_date %}
+        <span>▶ {{ program.start_date }}</span>
+      {% endif %}
+      {% if program.deload_weeks %}
+        <span>🔄 Deload wks {{ program.deload_weeks | join(', ') }}</span>
+      {% endif %}
+    </div>
+
+    {% if program.description %}
+      <p style="font-size:14px; color:var(--text-muted); margin-bottom:0;">{{ program.description }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Progress -->
+  {% if status %}
+    <div class="prog-progress-card">
+      <div class="prog-progress-label">
+        <span>Week <strong>{{ status.current_week_number }}</strong> of {{ program.duration_weeks }}</span>
+        <span><strong>{{ status.pct_complete | int }}%</strong> complete</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width: {{ status.pct_complete | int }}%;"></div>
+      </div>
+    </div>
+
+    <!-- This week session count -->
+    <div class="this-week-summary">
+      <div class="label">This Week</div>
+      <div class="value">
+        {{ status.sessions_this_week }}/{{ status.total_sessions_expected }}
+        <div class="session-dots">
+          {% for i in range(status.total_sessions_expected | int) %}
+            <div class="session-dot {% if i < (status.sessions_this_week | int) %}done{% endif %}"></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Week-by-week schedule -->
+  <div class="weeks-section-title">Schedule</div>
+
+  {% set days_order = ['mon','tue','wed','thu','fri','sat','sun'] %}
+  {% set days_short = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+  {% set deload_week_nums = program.deload_weeks if program.deload_weeks else [] %}
+  {% set current_week = status.current_week_number if status else 0 %}
+
+  {% if program.weeks %}
+    {% for week in program.weeks %}
+      {% set wk_num = week.week_number %}
+      {% set is_deload = (wk_num in deload_week_nums) or (week.is_deload if week.is_deload is defined else false) %}
+      {% set is_current = (wk_num == current_week) %}
+
+      <div class="week-block {% if is_current %}is-current{% endif %} {% if is_deload %}is-deload{% endif %}">
+        <div class="week-block-header">
+          <span>Week {{ wk_num }}</span>
+          <div style="display:flex; gap:6px; align-items:center;">
+            {% if is_current %}<span class="current-week-tag">Current</span>{% endif %}
+            {% if is_deload %}<span class="deload-week-tag">Deload</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="day-schedule-grid">
+          {% for idx in range(days_order | length) %}
+            {% set day_key   = days_order[idx] %}
+            {% set day_label = days_short[idx] %}
+            {% set plan_id   = week.days[day_key] if week.days and day_key in week.days else 'rest' %}
+            {% set the_plan  = plans[plan_id] if plan_id and plan_id != 'rest' and plan_id in plans else None %}
+
+            <div class="day-cell">
+              <div class="day-label">{{ day_label }}</div>
+              {% if the_plan %}
+                <div class="day-plan-name">{{ the_plan.name }}</div>
+                {% if is_current %}
+                  <a href="{{ url_for('sessions.start', id=the_plan.id) }}" class="day-start-btn">▶</a>
+                {% endif %}
+              {% else %}
+                <div class="day-plan-name is-rest">—</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>No Schedule</h3>
+      <p>Edit this program to add a weekly schedule.</p>
+      <a href="{{ url_for('programs.edit_form', id=program.id) }}" class="btn btn-primary btn-sm">Edit Program</a>
+    </div>
+  {% endif %}
+
+  <a href="{{ url_for('programs.edit_form', id=program.id) }}" class="prog-edit-link">
+    ✏️ Edit Program Schedule
+  </a>
+
+</div>
+{% endblock %}

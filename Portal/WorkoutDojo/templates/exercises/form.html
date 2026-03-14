@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if exercise %}Edit: {{ exercise.name }}{% else %}New Exercise{% endif %} — WorkoutOS
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .form-section {
+    margin-bottom: 24px;
+  }
+
+  .form-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Muscle checkboxes */
+  .muscle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .muscle-check-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 10px;
+    background: var(--surface);
+    border-radius: var(--radius-btn);
+    border: 1px solid rgba(255,255,255,0.07);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .muscle-check-label:active {
+    background: rgba(108,99,255,0.1);
+  }
+
+  .muscle-check-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .muscle-check-label.checked {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.1);
+  }
+
+  /* Progression radio */
+  .progression-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .prog-radio-label {
+    flex: 1;
+    min-width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-radius: var(--radius-btn);
+    border: 2px solid rgba(255,255,255,0.07);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .prog-radio-label input { display: none; }
+
+  .prog-radio-label.selected {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.12);
+    color: var(--accent);
+  }
+
+  .prog-radio-label .prog-desc {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .form-actions .btn {
+    flex: 1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>{% if exercise %}Edit Exercise{% else %}New Exercise{% endif %}</h1>
+    <a href="{{ url_for('exercises.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+  </div>
+
+  {% if exercise %}
+    <div style="color: var(--text-muted); font-size:14px; margin-bottom:16px;">{{ exercise.name }}</div>
+  {% endif %}
+
+  <form method="POST"
+        action="{% if exercise %}{{ url_for('exercises.update', id=exercise.id) }}{% else %}{{ url_for('exercises.create') }}{% endif %}"
+        id="exercise-form">
+
+    <!-- Basic info -->
+    <div class="form-section">
+      <div class="form-section-title">Basic Info</div>
+
+      <div class="form-group">
+        <label for="name">Exercise Name *</label>
+        <input type="text" id="name" name="name" class="form-control" required
+               placeholder="e.g. Barbell Back Squat"
+               value="{{ exercise.name if exercise else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category *</label>
+        <select id="category" name="category" class="form-control" required>
+          {% set categories = [
+            ('barbell_compound',  'Barbell Compound'),
+            ('barbell_isolation', 'Barbell Isolation'),
+            ('dumbbell',          'Dumbbell'),
+            ('cable',             'Cable'),
+            ('machine',           'Machine'),
+            ('bodyweight',        'Bodyweight'),
+            ('stretching',        'Stretching'),
+            ('mobility',          'Mobility'),
+          ] %}
+          {% for val, label in categories %}
+            <option value="{{ val }}" {% if exercise and exercise.category == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="movement_pattern">Movement Pattern *</label>
+        <select id="movement_pattern" name="movement_pattern" class="form-control" required>
+          {% set patterns = [
+            ('horizontal_push', 'Horizontal Push'),
+            ('horizontal_pull', 'Horizontal Pull'),
+            ('vertical_push',   'Vertical Push'),
+            ('vertical_pull',   'Vertical Pull'),
+            ('squat',           'Squat'),
+            ('hip_hinge',       'Hip Hinge'),
+            ('isolation',       'Isolation'),
+            ('carry',           'Carry'),
+            ('core',            'Core'),
+          ] %}
+          {% for val, label in patterns %}
+            <option value="{{ val }}" {% if exercise and exercise.movement_pattern == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="equipment">Equipment</label>
+        <input type="text" id="equipment" name="equipment" class="form-control"
+               placeholder="e.g. Barbell, Dumbbell, Cable machine"
+               value="{{ exercise.equipment if exercise else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label class="muscle-check-label {% if not exercise or exercise.uses_weights != false %}checked{% endif %}" id="uses-weights-label" style="display:inline-flex;width:auto;">
+          <input type="checkbox" name="uses_weights" value="true" id="uses-weights"
+                 {% if not exercise or exercise.uses_weights != false %}checked{% endif %}
+                 onchange="toggleCheckLabel(this)">
+          Uses Weights
+        </label>
+      </div>
+    </div>
+
+    <!-- Primary muscles -->
+    <div class="form-section">
+      <div class="form-section-title">Primary Muscles *</div>
+      <div class="muscle-grid" id="primary-muscles-grid">
+        {% set all_muscles = [
+          'chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms',
+          'quads', 'hamstrings', 'glutes', 'calves', 'abs', 'traps',
+          'lats', 'hip_flexors', 'adductors'
+        ] %}
+        {% for m in all_muscles %}
+          {% set checked = exercise and m in exercise.primary_muscles %}
+          <label class="muscle-check-label {% if checked %}checked{% endif %}" id="prim-{{ m }}">
+            <input type="checkbox" name="primary_muscles" value="{{ m }}"
+                   {% if checked %}checked{% endif %}
+                   onchange="toggleCheckLabel(this)">
+            {{ m | replace('_', ' ') | title }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Secondary muscles -->
+    <div class="form-section">
+      <div class="form-section-title">Secondary Muscles</div>
+      <div class="muscle-grid" id="secondary-muscles-grid">
+        {% for m in all_muscles %}
+          {% set checked = exercise and m in exercise.secondary_muscles %}
+          <label class="muscle-check-label {% if checked %}checked{% endif %}" id="sec-{{ m }}">
+            <input type="checkbox" name="secondary_muscles" value="{{ m }}"
+                   {% if checked %}checked{% endif %}
+                   onchange="toggleCheckLabel(this)">
+            {{ m | replace('_', ' ') | title }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Progression -->
+    <div class="form-section">
+      <div class="form-section-title">Progression Aggression</div>
+      <div class="progression-options" id="progression-options">
+        {% set current_pa = exercise.progression_aggression if exercise else 'standard' %}
+        {% set pa_options = [
+          ('conservative', 'Conservative', 'Smaller jumps'),
+          ('standard',     'Standard',     'Normal jumps'),
+          ('aggressive',   'Aggressive',   'Bigger jumps'),
+        ] %}
+        {% for val, label, desc in pa_options %}
+          <label class="prog-radio-label {% if current_pa == val %}selected{% endif %}" id="pa-{{ val }}">
+            <input type="radio" name="progression_aggression" value="{{ val }}"
+                   {% if current_pa == val %}checked{% endif %}
+                   onchange="selectProgression(this)">
+            {{ label }}
+            <span class="prog-desc">{{ desc }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Progression Group (read-only, managed from Progressions page) -->
+    {% if current_progression %}
+    <div class="form-section">
+      <div class="form-section-title">Progression Group</div>
+      <div style="font-size:14px; padding:8px 12px; background:var(--surface); border-radius:var(--radius-btn); display:flex; align-items:center; justify-content:space-between;">
+        <span>{{ current_progression.name }}</span>
+        <a href="{{ url_for('progressions.edit_form', id=current_progression.id) }}" class="btn btn-ghost btn-sm">Edit Group</a>
+      </div>
+    </div>
+    {% elif progression_names %}
+    <div class="form-section">
+      <div class="form-section-title">Progression Group</div>
+      <div style="font-size:13px; color:var(--text-muted);">
+        Not in any progression group. <a href="{{ url_for('progressions.index') }}">Manage progressions</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Advanced -->
+    <div class="form-section">
+      <div class="form-section-title">Advanced</div>
+
+      <div class="form-group">
+        <label for="voice_name">Voice Name</label>
+        <input type="text" id="voice_name" name="voice_name" class="form-control"
+               placeholder="Pronunciation hint for speech (optional)"
+               value="{{ exercise.voice_name if exercise and exercise.voice_name else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" class="form-control"
+                  placeholder="Cues, form tips, etc.">{{ exercise.notes if exercise and exercise.notes else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('exercises.index') }}" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Exercise</button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toggleCheckLabel(input) {
+    input.closest('.muscle-check-label').classList.toggle('checked', input.checked);
+  }
+
+  function selectProgression(input) {
+    document.querySelectorAll('.prog-radio-label').forEach(function(el) {
+      el.classList.remove('selected');
+    });
+    input.closest('.prog-radio-label').classList.add('selected');
+  }
+
+  // Auto-toggle "uses weights" based on category
+  var noWeightCategories = ['bodyweight', 'stretching', 'mobility'];
+  document.getElementById('category').addEventListener('change', function() {
+    var cb = document.getElementById('uses-weights');
+    var shouldUseWeights = noWeightCategories.indexOf(this.value) === -1;
+    cb.checked = shouldUseWeights;
+    toggleCheckLabel(cb);
+  });
+
+  // Validate at least one primary muscle selected
+  document.getElementById('exercise-form').addEventListener('submit', function(e) {
+    var primaryChecked = document.querySelectorAll('input[name="primary_muscles"]:checked');
+    if (primaryChecked.length === 0) {
+      e.preventDefault();
+      alert('Please select at least one primary muscle.');
+    }
+  });
+</script>
+{% endblock %}

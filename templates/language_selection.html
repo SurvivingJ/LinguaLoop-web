@@ -28,8 +28,7 @@
                         <div class="d-flex align-items-center">
                             <span class="language-flag">🇨🇳</span>
                             <div class="flex-grow-1">
-                                <span class="language-native">Chinese</span>
-                                <small class="language-english d-block text-muted">Chinese</small>
+                                <span class="language-native">中文</span>
                             </div>
                             <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
                         </div>
@@ -41,7 +40,6 @@
                             <span class="language-flag">🇺🇸</span>
                             <div class="flex-grow-1">
                                 <span class="language-native">English</span>
-                                <small class="language-english d-block text-muted">English</small>
                             </div>
                             <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
                         </div>
@@ -52,8 +50,7 @@
                         <div class="d-flex align-items-center">
                             <span class="language-flag">🇯🇵</span>
                             <div class="flex-grow-1">
-                                <span class="language-native">Japanese</span>
-                                <small class="language-english d-block text-muted">Japanese</small>
+                                <span class="language-native">日本語</span>
                             </div>
                             <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
                         </div>
@@ -154,9 +151,7 @@
                 var lang = meta.languages.find(function(l) { return l.id === langId; });
                 if (lang && lang.native_name) {
                     var nativeEl = card.querySelector('.language-native');
-                    var englishEl = card.querySelector('.language-english');
                     if (nativeEl) nativeEl.textContent = lang.native_name;
-                    if (englishEl) englishEl.textContent = lang.language_name;
                 }
             });
         });

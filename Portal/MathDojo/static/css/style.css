@@ -30,6 +30,16 @@
     /* Background pattern */
     --bg-pattern: none;
     --bg-color: var(--void-black);
+
+    /* Font tokens */
+    --font-display: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
+}
+
+/* Clean font mode */
+[data-font="clean"] {
+    --font-display: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 /* Global Styles */
@@ -40,7 +50,7 @@
 }
 
 body {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     background: var(--bg-color);
     color: var(--neon-green);
     overflow-x: hidden;
@@ -158,7 +168,7 @@ body::after {
 
 /* Typography */
 .title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(2rem, 8vw, 4rem);
     text-shadow: var(--title-shadow);
     margin-bottom: 20px;
@@ -173,7 +183,7 @@ body::after {
 }
 
 .screen-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(1.5rem, 5vw, 2.5rem);
     margin-bottom: 30px;
     text-shadow: 0 0 10px var(--neon-green);
@@ -200,13 +210,13 @@ body::after {
 
 .stat-value {
     font-size: 2rem;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     text-shadow: 0 0 10px var(--neon-green);
 }
 
 /* Buttons */
 .menu-btn, .start-btn, .back-btn, .toggle-btn, .danger-btn {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     background: transparent;
     color: var(--neon-green);
     border: var(--btn-border-width) var(--btn-border-style) var(--neon-green);
@@ -269,7 +279,7 @@ nav.menu {
 }
 
 .timer, .score, .lives, .progress {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(1.2rem, 4vw, 2rem);
     text-shadow: 0 0 10px var(--neon-green);
 }
@@ -288,7 +298,7 @@ nav.menu {
 }
 
 .equation {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(2rem, 8vw, 4rem);
     text-shadow: var(--title-shadow);
     min-height: 80px;
@@ -298,7 +308,7 @@ nav.menu {
 }
 
 .answer-input {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: clamp(2rem, 6vw, 3rem);
     background: rgba(var(--accent-rgb), 0.1);
     border: 3px solid var(--neon-green);
@@ -380,7 +390,7 @@ nav.menu {
 }
 
 .config-label {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.9rem;
     color: var(--amber);
     margin-bottom: 12px;
@@ -405,7 +415,7 @@ nav.menu {
 }
 
 .op-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.2rem;
     width: 64px;
     height: 64px;
@@ -441,7 +451,7 @@ nav.menu {
 
 /* Drill Stats Bar */
 .drill-stats-bar {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: clamp(0.6rem, 2vw, 0.9rem);
     display: flex;
     gap: 15px;
@@ -460,7 +470,7 @@ nav.menu {
 }
 
 .intervention-header {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.65rem;
     color: var(--amber);
     margin-bottom: 8px;
@@ -470,7 +480,7 @@ nav.menu {
 .intervention-metrics {
     display: flex;
     justify-content: space-between;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     color: var(--neon-green);
     margin-bottom: 8px;
@@ -503,7 +513,7 @@ nav.menu {
 }
 
 .fin-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     width: 80px;
     height: 64px;
@@ -564,13 +574,13 @@ nav.menu {
 }
 
 .result-value {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     text-shadow: 0 0 10px var(--neon-green);
 }
 
 .high-score-banner {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     color: var(--amber);
     text-shadow: 0 0 20px var(--amber);
@@ -602,7 +612,7 @@ input[type="range"] {
 
 /* Theme Selector */
 .theme-selector {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.3rem;
     background: rgba(var(--accent-rgb), 0.1);
     border: var(--btn-border-width) var(--btn-border-style) var(--neon-green);
@@ -655,7 +665,7 @@ input[type="range"] {
 }
 
 .modal-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     margin-bottom: 20px;
     color: var(--amber);
@@ -1049,7 +1059,7 @@ input[type="range"] {
 }
 
 .poker-toggle {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.55rem;
     width: 80px;
     height: 64px;
@@ -1097,7 +1107,7 @@ input[type="range"] {
 }
 
 .poker-hand-label {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.5rem;
     color: var(--neon-green);
     opacity: 0.6;
@@ -1110,7 +1120,7 @@ input[type="range"] {
 }
 
 .poker-vs {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.7rem;
     color: var(--alert-red);
     text-shadow: 0 0 8px var(--alert-red);
@@ -1126,7 +1136,7 @@ input[type="range"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.3);
     position: relative;
 }
@@ -1199,7 +1209,7 @@ input[type="range"] {
 }
 
 .equity-slider-value {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1.2rem;
     color: var(--neon-green);
     text-shadow: var(--text-glow);
@@ -1221,7 +1231,7 @@ input[type="range"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: clamp(0.5rem, 1.8vw, 0.75rem);
     background: transparent;
     border: 1px solid rgba(var(--accent-rgb), 0.25);
@@ -1267,7 +1277,7 @@ input[type="range"] {
 }
 
 .explanation-answer {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 1rem;
     color: var(--alert-red);
     margin-bottom: 12px;
@@ -1275,7 +1285,7 @@ input[type="range"] {
 }
 
 .explanation-steps {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.2rem;
     color: var(--neon-green);
     line-height: 1.6;
@@ -1292,14 +1302,14 @@ input[type="range"] {
 }
 
 .guide-title {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-display);
     font-size: 0.8rem;
     color: var(--amber);
     margin-bottom: 10px;
 }
 
 .guide-body {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-body);
     font-size: 1.1rem;
     line-height: 1.6;
     color: var(--neon-green);
@@ -1311,6 +1321,65 @@ input[type="range"] {
 
 .guide-body strong {
     color: var(--amber);
+}
+
+/* Mental Math Hint Button */
+.hint-btn {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px var(--btn-border-style) var(--amber);
+    background: transparent;
+    color: var(--amber);
+    cursor: pointer;
+    margin: 4px auto;
+    display: block;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 32px;
+    text-align: center;
+}
+
+.hint-btn:hover, .hint-btn.active {
+    background: var(--amber);
+    color: var(--bg-primary);
+    box-shadow: 0 0 10px rgba(255, 176, 0, 0.4);
+}
+
+/* Hint Panel (inline guide) */
+.hint-panel {
+    border: 2px var(--btn-border-style) var(--amber);
+    border-radius: var(--btn-radius);
+    padding: 12px 16px;
+    margin: 4px auto 8px;
+    max-width: 500px;
+    text-align: left;
+    animation: hintFadeIn 0.15s ease-in;
+}
+
+.hint-title {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    color: var(--amber);
+    margin-bottom: 8px;
+}
+
+.hint-body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--neon-green);
+}
+
+.hint-body strong {
+    color: var(--amber);
+}
+
+@keyframes hintFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Light theme poker overrides */
@@ -1405,6 +1474,225 @@ input[type="range"] {
         flex-direction: column;
         gap: 15px;
     }
+}
+
+/* ===========================
+   Profile Selection Screen
+   =========================== */
+.profile-menu {
+    gap: 20px;
+}
+
+.profile-btn {
+    font-size: clamp(1rem, 3vw, 1.5rem) !important;
+    padding: 25px 50px !important;
+    min-width: 250px !important;
+}
+
+.profile-guest {
+    opacity: 0.6;
+}
+
+.profile-guest:hover {
+    opacity: 1;
+}
+
+/* Stats button in menu */
+.stats-btn {
+    border-color: var(--amber) !important;
+    color: var(--amber) !important;
+    text-shadow: 0 0 5px var(--amber) !important;
+    box-shadow: 0 0 10px var(--amber) !important;
+}
+
+.stats-btn:hover {
+    background: var(--amber) !important;
+    color: var(--void-black) !important;
+    box-shadow: 0 0 20px var(--amber), 0 0 40px var(--amber) !important;
+}
+
+/* ===========================
+   Stats Dashboard
+   =========================== */
+.stats-loading {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--amber);
+    animation: blink 1s infinite;
+    padding: 40px;
+}
+
+.stats-section {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.stats-empty {
+    font-size: 1rem;
+    color: #555;
+    padding: 10px 0;
+}
+
+/* Overall stats grid */
+.stats-overall-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 15px 0;
+}
+
+.stats-overall-item {
+    text-align: center;
+}
+
+.stats-overall-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.stats-overall-label {
+    font-size: 0.8rem;
+    color: var(--amber);
+    margin-top: 4px;
+}
+
+/* Accuracy bar charts */
+.stats-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+.stats-bar-label {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    width: 70px;
+    text-align: right;
+    color: var(--amber);
+}
+
+.stats-bar-track {
+    flex: 1;
+    height: 12px;
+    background: rgba(var(--accent-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.stats-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 6px currentColor;
+}
+
+.stats-bar-value {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    width: 100px;
+    text-align: left;
+}
+
+.stats-bar-count {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+/* Tag lists (weakest/strongest) */
+.stats-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+}
+
+.stats-tag-name {
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    flex: 1;
+}
+
+.stats-tag-acc {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    width: 60px;
+    text-align: right;
+}
+
+.stats-tag-meta {
+    font-size: 0.9rem;
+    color: #555;
+    width: 100px;
+    text-align: right;
+}
+
+/* Focus tags (recommended practice) */
+.stats-focus-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 0;
+}
+
+.stats-focus-tag {
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    padding: 8px 12px;
+    border: 2px solid var(--amber);
+    border-radius: var(--btn-radius);
+    color: var(--amber);
+    box-shadow: 0 0 8px rgba(255, 176, 0, 0.3);
+}
+
+/* Session table */
+.stats-session-table {
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
+    border-radius: var(--btn-radius);
+    overflow: hidden;
+}
+
+.stats-session-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+}
+
+.stats-session-row:last-child {
+    border-bottom: none;
+}
+
+.stats-session-date {
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    width: 40px;
+    color: var(--amber);
+}
+
+.stats-session-mode {
+    font-family: var(--font-display);
+    font-size: 0.45rem;
+    flex: 1;
+}
+
+.stats-session-acc {
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    width: 50px;
+    text-align: right;
+}
+
+.stats-session-meta {
+    font-size: 0.85rem;
+    color: #555;
+    width: 100px;
+    text-align: right;
 }
 
 /* Touch-friendly */

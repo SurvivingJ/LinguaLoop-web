@@ -523,6 +523,143 @@
             to { opacity: 1; }
         }
 
+        /* Word Quiz Modal */
+        .word-quiz-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 1060;
+            animation: backdropFadeIn 0.15s ease;
+        }
+
+        .word-quiz-modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1061;
+            width: 90%;
+            max-width: 440px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 28px 24px;
+            animation: popoverFadeIn 0.2s ease;
+        }
+
+        .word-quiz-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .word-quiz-header h4 {
+            margin: 0 0 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .word-quiz-header .quiz-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .word-quiz-word {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .word-quiz-word .quiz-lemma {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .word-quiz-word .quiz-pronunciation {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .word-quiz-prompt {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-strong);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .quiz-option:hover:not(.quiz-answered) {
+            border-color: var(--slate-400);
+            background: var(--bg-surface-hover);
+        }
+
+        .quiz-option.quiz-correct {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .quiz-option.quiz-incorrect {
+            border-color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        .quiz-option.quiz-answered {
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .word-quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .quiz-progress {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .quiz-skip-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .quiz-skip-btn:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 480px) {
+            .word-quiz-modal {
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: none;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 16px 16px 0 0;
+                padding-bottom: calc(24px + env(safe-area-inset-bottom));
+                animation: popoverSlideUp 0.2s ease;
+            }
+        }
+
 </style>
 {% endblock %}
 
@@ -702,6 +839,28 @@
         </div>
     </div>
 
+</div>
+
+<!-- Word Quiz Modal -->
+<div id="wordQuizBackdrop" class="word-quiz-backdrop" style="display: none;"></div>
+<div id="wordQuizModal" class="word-quiz-modal" style="display: none;">
+    <div class="word-quiz-header">
+        <h4><i class="fas fa-spell-check me-2"></i>Quick Vocab Check</h4>
+        <div class="quiz-subtitle">Help us track your vocabulary!</div>
+    </div>
+    <div class="word-quiz-word">
+        <div class="quiz-lemma" id="quizLemma"></div>
+        <div class="quiz-pronunciation" id="quizPronunciation"></div>
+    </div>
+    <div class="word-quiz-prompt">What does this word mean?</div>
+    <div id="quizOptions"></div>
+    <div class="word-quiz-footer">
+        <span class="quiz-progress" id="quizProgress"></span>
+        <button class="btn btn-primary btn-sm" id="quizNextBtn" type="button" style="display: none;">
+            Next <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+        <button class="quiz-skip-btn" id="quizSkipBtn" type="button">Skip All</button>
+    </div>
 </div>
 
 <!-- Test Actions (Sticky Footer) -->
@@ -1438,6 +1597,11 @@ function showResults(result) {
 
     // Scroll to top to show success message
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Show word quiz modal if candidates are available
+    if (result.result?.word_quiz) {
+        setTimeout(() => wordQuiz.show(result.result.word_quiz), 600);
+    }
 }
 
 // ============================================================================
@@ -1830,5 +1994,139 @@ function levenshteinDistance(str1, str2) {
     
     return matrix[str2.length][str1.length];
 }
+
+// ============================================================================
+// WORD QUIZ MODAL
+// ============================================================================
+const wordQuiz = {
+    candidates: [],
+    currentIndex: 0,
+    results: [],
+    attemptId: null,
+    languageId: null,
+    startTime: 0,
+
+    show(quizData) {
+        if (!quizData || !quizData.candidates || quizData.candidates.length === 0) return;
+
+        this.candidates = quizData.candidates;
+        this.attemptId = quizData.attempt_id || null;
+        this.languageId = testState.testData?.language_id || parseInt(localStorage.getItem('selectedLanguageId')) || 1;
+        this.currentIndex = 0;
+        this.results = [];
+
+        document.getElementById('wordQuizBackdrop').style.display = 'block';
+        document.getElementById('wordQuizModal').style.display = 'block';
+
+        document.getElementById('quizSkipBtn').onclick = () => this.close();
+        document.getElementById('quizNextBtn').onclick = () => this.advance();
+        document.getElementById('quizNextBtn').style.display = 'none';
+
+        this.renderQuestion();
+    },
+
+    renderQuestion() {
+        const item = this.candidates[this.currentIndex];
+        if (!item) return;
+
+        document.getElementById('quizLemma').textContent = item.lemma;
+        const pronEl = document.getElementById('quizPronunciation');
+        if (item.pronunciation) {
+            pronEl.textContent = item.pronunciation;
+            pronEl.style.display = 'block';
+        } else {
+            pronEl.style.display = 'none';
+        }
+
+        document.getElementById('quizProgress').textContent =
+            `${this.currentIndex + 1} / ${this.candidates.length}`;
+
+        const optionsEl = document.getElementById('quizOptions');
+        optionsEl.innerHTML = '';
+
+        item.options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.textContent = option;
+            btn.type = 'button';
+            btn.onclick = () => this.selectAnswer(option, item);
+            optionsEl.appendChild(btn);
+        });
+
+        this.startTime = Date.now();
+    },
+
+    selectAnswer(selected, item) {
+        const isCorrect = selected === item.correct_definition;
+        const responseTime = Date.now() - this.startTime;
+
+        this.results.push({
+            sense_id: item.sense_id,
+            selected_answer: selected,
+            correct_answer: item.correct_definition,
+            is_correct: isCorrect,
+            response_time_ms: responseTime,
+        });
+
+        // Highlight correct/incorrect
+        const buttons = document.querySelectorAll('#quizOptions .quiz-option');
+        buttons.forEach(btn => {
+            btn.classList.add('quiz-answered');
+            if (btn.textContent === item.correct_definition) {
+                btn.classList.add('quiz-correct');
+            }
+            if (btn.textContent === selected && !isCorrect) {
+                btn.classList.add('quiz-incorrect');
+            }
+        });
+
+        if (isCorrect) {
+            // Auto-advance on correct answer after brief delay
+            setTimeout(() => this.advance(), 800);
+        } else {
+            // Show "Next" button on wrong answer so user can study
+            document.getElementById('quizNextBtn').style.display = '';
+        }
+    },
+
+    advance() {
+        document.getElementById('quizNextBtn').style.display = 'none';
+        this.currentIndex++;
+        if (this.currentIndex < this.candidates.length) {
+            this.renderQuestion();
+        } else {
+            this.submitAndClose();
+        }
+    },
+
+    async submitAndClose() {
+        this.close();
+
+        if (this.results.length === 0) return;
+
+        try {
+            const token = localStorage.getItem('jwt_token');
+            await fetch('/api/vocabulary/word-quiz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    attempt_id: this.attemptId,
+                    language_id: this.languageId,
+                    results: this.results,
+                }),
+            });
+        } catch (e) {
+            console.error('Word quiz submission failed:', e);
+        }
+    },
+
+    close() {
+        document.getElementById('wordQuizBackdrop').style.display = 'none';
+        document.getElementById('wordQuizModal').style.display = 'none';
+    }
+};
 </script>
 {% endblock %}

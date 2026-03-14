@@ -1,0 +1,93 @@
+/* static/css/base.css — WorkoutOS Base Styles */
+
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --card: #22222e;
+  --accent: #6c63ff;
+  --accent-hover: #7c74ff;
+  --success: #48c774;
+  --warning: #ffb700;
+  --danger: #ff3860;
+  --text: #ffffff;
+  --text-secondary: #a0a0b8;
+  --border: #2e2e3e;
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Flash overlay keyframes & classes (A4.3)
+--------------------------------------------------------------------------- */
+
+@keyframes flash-green {
+  0%   { background-color: rgba(72, 199, 116, 0); }
+  20%  { background-color: rgba(72, 199, 116, 0.35); }
+  100% { background-color: rgba(72, 199, 116, 0); }
+}
+
+@keyframes flash-amber {
+  0%   { background-color: rgba(255, 183, 0, 0); }
+  50%  { background-color: rgba(255, 183, 0, 0.3); }
+  100% { background-color: rgba(255, 183, 0, 0); }
+}
+
+/* Full-screen bright green flash for rest complete */
+@keyframes flash-green-full {
+  0%   { background-color: rgba(72, 199, 116, 0); }
+  15%  { background-color: rgba(72, 199, 116, 0.6); }
+  40%  { background-color: rgba(72, 199, 116, 0.4); }
+  100% { background-color: rgba(72, 199, 116, 0); }
+}
+
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.flash-overlay.rest-complete {
+  animation: flash-green-full 0.6s ease-out forwards;
+}
+
+.flash-overlay.rest-warning {
+  animation: flash-amber 0.4s ease-in-out 3;
+}
+
+.flash-overlay.set-complete {
+  animation: flash-green 0.4s ease-out forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Utility classes
+--------------------------------------------------------------------------- */
+
+.hidden {
+  display: none !important;
+}
+
+/* Screen reader only — visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chart-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .chart-card h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .chart-card .chart-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 200px;
+  }
+
+  .chart-wrap canvas {
+    width: 100% !important;
+    height: 200px !important;
+  }
+
+  /* ---- Exercise progress section ---- */
+  .ex-select-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  #exercise-select {
+    margin-bottom: 14px;
+  }
+
+  .one-rm-display {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .one-rm-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .one-rm-label {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ---- Session history ---- */
+  .session-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sh-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 10px;
+  }
+
+  .sh-item:last-child { border-bottom: none; }
+
+  .sh-name {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sh-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .sh-dur {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ---- Empty state ---- */
+  .chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* ---- Stats row ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-mini {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .stat-mini .val {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .stat-mini .lbl {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>Analytics</h1>
+  </div>
+
+  <!-- Quick stats -->
+  {% set total_sessions = recent_sessions | length %}
+  {% set total_minutes = namespace(v=0) %}
+  {% for s in recent_sessions %}
+    {% if s.duration_minutes %}
+      {% set total_minutes.v = total_minutes.v + s.duration_minutes %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="stats-row">
+    <div class="stat-mini">
+      <div class="val">{{ total_sessions }}</div>
+      <div class="lbl">Sessions</div>
+    </div>
+    <div class="stat-mini">
+      <div class="val">{{ total_minutes.v }}</div>
+      <div class="lbl">Total Min</div>
+    </div>
+    <div class="stat-mini">
+      <div class="val">
+        {% if body_weight_history %}
+          {{ body_weight_history[-1].weight_kg }}
+        {% else %}
+          —
+        {% endif %}
+      </div>
+      <div class="lbl">BW (kg)</div>
+    </div>
+  </div>
+
+  <!-- Body weight chart -->
+  <div class="chart-card">
+    <h2>Body Weight</h2>
+    <div class="chart-sub">kg over time (7-day rolling avg)</div>
+    {% if body_weight_history %}
+      <div class="chart-wrap">
+        <canvas id="bodyWeightChart"></canvas>
+      </div>
+    {% else %}
+      <div class="chart-empty">No body weight data logged yet.</div>
+    {% endif %}
+  </div>
+
+  <!-- Per-exercise progress -->
+  <div class="chart-card">
+    <h2>Exercise Progress</h2>
+    <div class="chart-sub">Estimated 1RM over time</div>
+
+    <label class="ex-select-label" for="exercise-select">Select Exercise</label>
+    <select id="exercise-select" class="form-control">
+      <option value="">— Choose an exercise —</option>
+    </select>
+
+    <div id="one-rm-latest" style="display:none;" class="one-rm-display">
+      <span class="one-rm-value" id="one-rm-value">—</span>
+      <span class="one-rm-label">kg estimated 1RM</span>
+    </div>
+
+    <div class="chart-wrap" id="exercise-chart-wrap">
+      <canvas id="exerciseChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent sessions list -->
+  <div class="section-title">Recent Sessions</div>
+  <div class="card" style="padding: 8px 16px;">
+    {% if recent_sessions %}
+      <div class="session-history-list">
+        {% for s in recent_sessions %}
+          <div class="sh-item">
+            <div>
+              <div class="sh-name">{{ s.plan_name if s.plan_name else 'Workout' }}</div>
+              <div class="sh-date">{{ s.date }}</div>
+            </div>
+            <div class="sh-dur">
+              {% if s.duration_minutes %}
+                {{ s.duration_minutes }} min
+              {% else %}
+                &mdash;
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align:center; padding:24px 0; color:var(--text-muted); font-size:13px;">
+        No sessions recorded yet.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Chart data -->
+<script>
+const ANALYTICS_DATA = {
+  bodyWeightHistory: {{ body_weight_history | tojson | safe }},
+  rollingAvg:        {{ rolling_avg | tojson | safe }},
+  recentSessions:    {{ recent_sessions | tojson | safe }},
+};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/analytics.js"></script>
+<script>
+  // ---- Fallback chart initialisation if analytics.js not present ----
+  (function() {
+    if (typeof Chart === 'undefined') return;
+
+    Chart.defaults.color = '#a0a0b8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+
+    // Body weight chart
+    var bwCanvas = document.getElementById('bodyWeightChart');
+    var bwData   = ANALYTICS_DATA.bodyWeightHistory;
+    var avgData  = ANALYTICS_DATA.rollingAvg;
+
+    if (bwCanvas && bwData && bwData.length) {
+      new Chart(bwCanvas, {
+        type: 'line',
+        data: {
+          labels: bwData.map(function(d) { return d.date; }),
+          datasets: [
+            {
+              label: 'Body Weight (kg)',
+              data: bwData.map(function(d) { return d.weight_kg; }),
+              borderColor: '#6c63ff',
+              backgroundColor: 'rgba(108,99,255,0.1)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#6c63ff',
+              fill: true,
+              tension: 0.3,
+            },
+            {
+              label: '7-day Avg',
+              data: avgData.map(function(d) { return d.weight_kg; }),
+              borderColor: '#48c774',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              pointRadius: 0,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#22222e',
+              titleColor: '#fff',
+              bodyColor: '#a0a0b8',
+              borderColor: 'rgba(255,255,255,0.08)',
+              borderWidth: 1,
+            },
+          },
+          scales: {
+            x: {
+              ticks: { maxTicksLimit: 6, font: { size: 11 } },
+              grid: { color: 'rgba(255,255,255,0.04)' },
+            },
+            y: {
+              ticks: { font: { size: 11 } },
+              grid: { color: 'rgba(255,255,255,0.04)' },
+            },
+          },
+        },
+      });
+    }
+
+    // Exercise chart placeholder
+    var exChart = null;
+    var exCanvas = document.getElementById('exerciseChart');
+
+    function drawExerciseChart(data) {
+      if (exChart) exChart.destroy();
+      if (!data || !data.length) return;
+
+      exChart = new Chart(exCanvas, {
+        type: 'line',
+        data: {
+          labels: data.map(function(d) { return d.date; }),
+          datasets: [{
+            label: 'Estimated 1RM (kg)',
+            data: data.map(function(d) { return d.estimated_1rm; }),
+            borderColor: '#ffb700',
+            backgroundColor: 'rgba(255,183,0,0.1)',
+            borderWidth: 2,
+            pointRadius: 3,
+            fill: true,
+            tension: 0.3,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { maxTicksLimit: 6, font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          },
+        },
+      });
+
+      // Show latest 1RM
+      var latest = data[data.length - 1];
+      if (latest) {
+        document.getElementById('one-rm-value').textContent = latest.estimated_1rm.toFixed(1);
+        document.getElementById('one-rm-latest').style.display = 'flex';
+      }
+    }
+
+    // Populate exercise select from API
+    var exSelect = document.getElementById('exercise-select');
+    fetch('/api/exercises')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        data.forEach(function(ex) {
+          var opt = document.createElement('option');
+          opt.value = ex.id;
+          opt.textContent = ex.name;
+          exSelect.appendChild(opt);
+        });
+      })
+      .catch(function() {});
+
+    exSelect.addEventListener('change', function() {
+      var exId = this.value;
+      if (!exId) {
+        if (exChart) exChart.destroy();
+        document.getElementById('one-rm-latest').style.display = 'none';
+        return;
+      }
+      fetch('/api/exercise-progress?exercise_id=' + exId)
+        .then(function(r) { return r.json(); })
+        .then(function(data) { drawExerciseChart(data); })
+        .catch(function() {});
+    });
+
+  })();
+</script>
+{% endblock %}

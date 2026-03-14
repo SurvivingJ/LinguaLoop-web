@@ -281,6 +281,122 @@ class GameManager {
     }
 
     /**
+     * Fetch financial batch (returns array, does not append to queue)
+     */
+    async _fetchFinancialBatch(count, financialOptions, focusTags = null) {
+        try {
+            const body = { count, financial_options: financialOptions };
+            if (focusTags && focusTags.length > 0) body.focus_tags = focusTags;
+            const response = await fetch(`${this.apiBase}/api/batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) throw new Error('API request failed');
+            const data = await response.json();
+            return data.problems;
+        } catch (error) {
+            console.error('Error fetching financial batch:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Fetch poker batch (returns array, does not append to queue)
+     */
+    async _fetchPokerBatch(count, pokerOptions, focusTags = null) {
+        try {
+            const body = { count, poker_options: pokerOptions };
+            if (focusTags && focusTags.length > 0) body.focus_tags = focusTags;
+            const response = await fetch(`${this.apiBase}/api/batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) throw new Error('API request failed');
+            const data = await response.json();
+            return data.problems;
+        } catch (error) {
+            console.error('Error fetching poker batch:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Load a mixed batch from all problem types, proportioned by focus tags.
+     * Fetches arithmetic, financial, and poker problems in parallel, then shuffles.
+     */
+    async loadMixedDrill(count, focusTags = null) {
+        const FINANCIAL_PREFIXES = ['compound_interest', 'simple_interest', 'rule_of_72',
+            'margin', 'return', 'liquidity', 'valuation', 'ggm',
+            'perpetuity', 'npv', 'cagr', 'bonds', 'breakeven',
+            'dcf', 'terminal', 'gordon', 'duration'];
+        const POKER_PREFIXES = ['pot_odds', 'auto_profit', 'combos', 'equity', 'range'];
+
+        let arithTags = [], finTags = [], pokerTags = [];
+        if (focusTags && focusTags.length > 0) {
+            for (const tag of focusTags) {
+                if (FINANCIAL_PREFIXES.some(p => tag.startsWith(p) || tag === p)) {
+                    finTags.push(tag);
+                } else if (POKER_PREFIXES.some(p => tag.startsWith(p) || tag === p)) {
+                    pokerTags.push(tag);
+                } else {
+                    arithTags.push(tag);
+                }
+            }
+        }
+
+        const total = arithTags.length + finTags.length + pokerTags.length;
+        let arithCount, finCount, pokerCount;
+
+        if (total > 0) {
+            // Proportional split with minimum 5 per active category
+            arithCount = arithTags.length > 0 ? Math.max(5, Math.round(count * arithTags.length / total)) : 0;
+            finCount = finTags.length > 0 ? Math.max(5, Math.round(count * finTags.length / total)) : 0;
+            pokerCount = pokerTags.length > 0 ? Math.max(5, Math.round(count * pokerTags.length / total)) : 0;
+        } else {
+            // No focus tags — equal split across all three
+            arithCount = Math.round(count / 3);
+            finCount = Math.round(count / 3);
+            pokerCount = count - arithCount - finCount;
+        }
+
+        // Fetch from all generators in parallel
+        const promises = [];
+        if (arithCount > 0) {
+            promises.push(this._fetchBatchCustom(arithCount, {
+                operations: ['addition', 'subtraction', 'multiplication', 'division'],
+                mix: false, min_digits: 1, max_digits: 3
+            }, arithTags.length > 0 ? arithTags : null));
+        }
+        if (finCount > 0) {
+            promises.push(this._fetchFinancialBatch(finCount, {
+                categories: ['rules', 'interest', 'ratios', 'valuation', 'ggm', 'dcf', 'bonds', 'breakeven'],
+                difficulty: 'normal'
+            }, finTags.length > 0 ? finTags : null));
+        }
+        if (pokerCount > 0) {
+            // Only numeric-answer poker categories (equity/range need special UI)
+            promises.push(this._fetchPokerBatch(pokerCount, {
+                categories: ['pot_odds', 'auto_profit', 'combinatorics'],
+                difficulty: 'normal'
+            }, pokerTags.length > 0 ? pokerTags : null));
+        }
+
+        const results = await Promise.all(promises);
+        let allProblems = results.flat();
+
+        // Fisher-Yates shuffle
+        for (let i = allProblems.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allProblems[i], allProblems[j]] = [allProblems[j], allProblems[i]];
+        }
+
+        this.problemQueue = this.problemQueue.concat(allProblems);
+        return this.problemQueue.length;
+    }
+
+    /**
      * Get problem from queue
      */
     getFromQueue() {

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Programs — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .program-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .program-card.is-active {
+    border-left-color: var(--success);
+  }
+
+  .program-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .program-card-name {
+    font-size: 17px;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .program-card-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .program-card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .program-card-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .program-card-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.06);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  .program-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .program-card-actions .btn-activate {
+    flex: 1;
+  }
+
+  /* Goal badge colours */
+  .goal-hypertrophy { background: rgba(108,99,255,0.25); color: #a99fff; }
+  .goal-strength    { background: rgba(255,56,96,0.2);   color: var(--danger); }
+  .goal-endurance   { background: rgba(72,199,116,0.2);  color: var(--success); }
+
+  .active-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(72,199,116,0.2);
+    color: var(--success);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>Programs</h1>
+    <a href="{{ url_for('programs.new_form') }}" class="btn btn-primary btn-sm">+ New</a>
+  </div>
+
+  {% if programs %}
+    {% for prog in programs %}
+      {% set is_active = prog.is_active if prog.is_active is defined else false %}
+      <div class="program-card {% if is_active %}is-active{% endif %}" data-prog-id="{{ prog.id }}">
+        <div class="program-card-header">
+          <div class="program-card-name">{{ prog.name }}</div>
+          <div class="program-card-badges">
+            {% if prog.goal %}
+              <span class="badge goal-{{ prog.goal }}">{{ prog.goal | title }}</span>
+            {% endif %}
+            {% if is_active %}
+              <span class="active-badge">✓ Active</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if prog.description %}
+          <div class="program-card-desc">{{ prog.description }}</div>
+        {% endif %}
+
+        <div class="program-card-meta">
+          <span>📅 {{ prog.duration_weeks }} week{{ 's' if prog.duration_weeks != 1 else '' }}</span>
+          {% if prog.deload_weeks %}
+            <span>🔄 Deload: Wk {{ prog.deload_weeks | join(', ') }}</span>
+          {% endif %}
+          {% if prog.start_date %}
+            <span>▶ Started {{ prog.start_date }}</span>
+          {% endif %}
+        </div>
+
+        <div class="program-card-actions">
+          {% if not is_active %}
+            <button class="btn btn-success btn-activate"
+                    onclick="activateProgram('{{ prog.id }}', this)">
+              Activate
+            </button>
+          {% else %}
+            <a href="{{ url_for('programs.detail', id=prog.id) }}" class="btn btn-primary btn-activate">
+              View Progress
+            </a>
+          {% endif %}
+          <a href="{{ url_for('programs.detail', id=prog.id) }}" class="btn btn-ghost btn-sm">View</a>
+          <a href="{{ url_for('programs.edit_form', id=prog.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+          <button class="btn btn-danger btn-sm"
+                  onclick="deleteProgram('{{ prog.id }}', '{{ prog.name | replace("'", "\\'") }}', this)">
+            Delete
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>No Programs Yet</h3>
+      <p>Create a structured training program to plan your weeks ahead.</p>
+      <a href="{{ url_for('programs.new_form') }}" class="btn btn-primary">+ Create Program</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function activateProgram(id, btn) {
+    if (!confirm('Activate this program? Any currently active program will be deactivated.')) return;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('/programs/' + id + '/activate', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert('Failed to activate program.');
+          btn.disabled = false;
+          btn.textContent = 'Activate';
+        }
+      })
+      .catch(function() {
+        alert('Network error.');
+        btn.disabled = false;
+        btn.textContent = 'Activate';
+      });
+  }
+
+  function deleteProgram(id, name, btn) {
+    if (!confirm('Delete program "' + name + '"? This cannot be undone.')) return;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('/programs/' + id, { method: 'DELETE' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          var card = btn.closest('.program-card');
+          card.style.transition = 'opacity 0.2s';
+          card.style.opacity = '0';
+          setTimeout(function() { card.remove(); }, 200);
+        } else {
+          alert('Failed to delete program.');
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        }
+      })
+      .catch(function() {
+        alert('Network error.');
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+      });
+  }
+</script>
+{% endblock %}

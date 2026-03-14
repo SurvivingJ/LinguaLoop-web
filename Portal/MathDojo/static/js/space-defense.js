@@ -92,6 +92,9 @@ class SpaceDefense {
         this.currentElo = storageManager.load('user_elo');
         this.colors = themeManager.getCanvasColors();
 
+        // Start profile session
+        profileManager.startSession('space_defense');
+
         // Hide start button
         if (this.startButton) this.startButton.style.display = 'none';
 
@@ -279,6 +282,7 @@ class SpaceDefense {
             equation: problem.equation,
             answer: problem.answer,
             id: problem.id,
+            tags: problem.tags || [],
             isUrgent: false
         };
 
@@ -323,6 +327,10 @@ class SpaceDefense {
      */
     handleCorrectAnswer(enemy) {
         this.score += 10;
+
+        // Record with profile manager
+        const tags = enemy.tags || [];
+        profileManager.recordResult(tags, true, 0);
 
         // Create laser effect
         this.createLaser(enemy.x, enemy.y);
@@ -449,6 +457,9 @@ class SpaceDefense {
         // Calculate stats
         const timeElapsed = Math.floor((Date.now() - this.gameStartTime) / 1000);
         const enemiesDestroyed = Math.floor(this.score / 10);
+
+        // End profile session
+        profileManager.endSession();
 
         // Check for high score
         const isNewHighScore = storageManager.updateHighScore('space_defense', this.score);

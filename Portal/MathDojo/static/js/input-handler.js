@@ -36,7 +36,7 @@ class InputHandler {
         this.input.addEventListener('input', (e) => {
             this.input.value = this.input.value.replace(/[^0-9.\-]/g, '');
 
-            if (this.autoCheckFn) {
+            if (this.autoCheckFn && InputHandler.autoSubmitEnabled) {
                 const value = this.input.value.trim();
                 if (value !== '' && value !== '-' && value !== '.') {
                     const numericValue = value.includes('.') ? parseFloat(value) : parseInt(value, 10);
@@ -108,3 +108,6 @@ class InputHandler {
         }
     }
 }
+
+// Static toggle — checked by all InputHandler instances
+InputHandler.autoSubmitEnabled = true;

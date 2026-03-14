@@ -1,0 +1,225 @@
+/* static/css/layout.css — WorkoutOS Layout */
+
+/* ---------------------------------------------------------------------------
+   Body & main content
+--------------------------------------------------------------------------- */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+  padding-bottom: 70px; /* clearance for fixed bottom nav */
+}
+
+/* ---------------------------------------------------------------------------
+   Bottom navigation bar
+--------------------------------------------------------------------------- */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+  padding: 4px 0;
+}
+
+.nav-item:active {
+  color: var(--accent);
+}
+
+.nav-item.active {
+  color: var(--accent);
+}
+
+.nav-item svg,
+.nav-item .nav-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------------------------------------------------------------------------
+   Page header
+--------------------------------------------------------------------------- */
+
+.page-header {
+  padding: 16px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Container
+--------------------------------------------------------------------------- */
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Card
+--------------------------------------------------------------------------- */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ---------------------------------------------------------------------------
+   Flash messages (server-side rendered)
+--------------------------------------------------------------------------- */
+
+.flash-messages {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 12px 16px;
+  pointer-events: none;
+}
+
+.flash-message {
+  pointer-events: auto;
+  background: var(--card);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.flash-message.success {
+  border-left-color: var(--success);
+}
+
+.flash-message.error,
+.flash-message.danger {
+  border-left-color: var(--danger);
+}
+
+.flash-message.warning {
+  border-left-color: var(--warning);
+}
+
+/* ---------------------------------------------------------------------------
+   Section dividers
+--------------------------------------------------------------------------- */
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   List utilities
+--------------------------------------------------------------------------- */
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.list-item:active {
+  background: var(--surface);
+}
+
+/* ---------------------------------------------------------------------------
+   Empty state
+--------------------------------------------------------------------------- */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   Spacing utilities
+--------------------------------------------------------------------------- */
+
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+
+.text-secondary { color: var(--text-secondary); }
+.text-accent    { color: var(--accent); }
+.text-success   { color: var(--success); }
+.text-warning   { color: var(--warning); }
+.text-danger    { color: var(--danger); }
+.text-sm        { font-size: 13px; }
+.text-xs        { font-size: 11px; }
+
+.flex           { display: flex; }
+.flex-col       { flex-direction: column; }
+.items-center   { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-8          { gap: 8px; }
+.gap-12         { gap: 12px; }

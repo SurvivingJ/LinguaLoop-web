@@ -730,30 +730,92 @@ def submit_test_attempt(slug):
             f"score={score}/{total_questions}, first_attempt={is_first_attempt}"
         )
 
+        # BKT vocabulary tracking — update P(knows) and get quiz candidates
+        word_quiz = None
+        try:
+            from services.vocabulary.knowledge_service import VocabularyKnowledgeService
+
+            question_results_raw = rpc_result.get('question_results', [])
+            current_app.logger.info(f"BKT: {len(question_results_raw)} question results from RPC")
+
+            if question_results_raw:
+                bkt_question_results = [
+                    {
+                        'question_id': str(qr['question_id']),
+                        'is_correct': qr.get('is_correct', False),
+                    }
+                    for qr in question_results_raw
+                    if qr.get('question_id')
+                ]
+
+                current_app.logger.info(f"BKT: {len(bkt_question_results)} valid question results")
+
+                if bkt_question_results:
+                    knowledge_svc = VocabularyKnowledgeService()
+                    vocab_updates = knowledge_svc.update_from_comprehension(
+                        user_id=current_user_id,
+                        language_id=language_id,
+                        question_results=bkt_question_results,
+                    )
+                    current_app.logger.info(f"BKT: {len(vocab_updates)} vocab updates returned")
+
+                    # Collect all sense_ids from questions for quiz candidate selection
+                    all_sense_ids = set()
+                    questions_resp = knowledge_svc.db.table('questions') \
+                        .select('sense_ids') \
+                        .eq('test_id', str(test_id)) \
+                        .execute()
+                    for q in (questions_resp.data or []):
+                        if q.get('sense_ids'):
+                            all_sense_ids.update(q['sense_ids'])
+
+                    current_app.logger.info(f"BKT: {len(all_sense_ids)} unique sense_ids from questions")
+
+                    if all_sense_ids:
+                        quiz_candidates = knowledge_svc.build_quiz_with_distractors(
+                            user_id=current_user_id,
+                            sense_ids=list(all_sense_ids),
+                            language_id=language_id,
+                            max_words=5,
+                        )
+                        current_app.logger.info(f"BKT: {len(quiz_candidates)} quiz candidates with distractors")
+                        if quiz_candidates:
+                            word_quiz = {
+                                'candidates': quiz_candidates,
+                                'attempt_id': str(attempt_id) if attempt_id else None,
+                            }
+                    else:
+                        current_app.logger.warning("BKT: No sense_ids on questions — run backfill_question_sense_ids.py")
+
+        except Exception as e:
+            import traceback
+            current_app.logger.error(f"BKT/word quiz failed (non-fatal): {e}\n{traceback.format_exc()}")
+
         # Return comprehensive result
         # Note: RPC function handles validation, ELO updates atomically
-        return jsonify({
-            'status': 'success',
-            'result': {
-                'score': rpc_result.get('score'),
-                'total_questions': rpc_result.get('total_questions'),
-                'percentage': rpc_result.get('percentage'),
-                'question_results': rpc_result.get('question_results', []),
-                'is_first_attempt': is_first_attempt,
-                'user_elo_change': {
-                    'before': rpc_result.get('user_elo_before'),
-                    'after': rpc_result.get('user_elo_after'),
-                    'change': rpc_result.get('user_elo_change', 0)
-                },
-                'test_elo_change': {
-                    'before': rpc_result.get('test_elo_before'),
-                    'after': rpc_result.get('test_elo_after'),
-                    'change': rpc_result.get('test_elo_change', 0)
-                },
-                'test_mode': test_mode,
-                'attempt_id': str(attempt_id) if attempt_id else None
-            }
-        }), 200
+        result = {
+            'score': rpc_result.get('score'),
+            'total_questions': rpc_result.get('total_questions'),
+            'percentage': rpc_result.get('percentage'),
+            'question_results': rpc_result.get('question_results', []),
+            'is_first_attempt': is_first_attempt,
+            'user_elo_change': {
+                'before': rpc_result.get('user_elo_before'),
+                'after': rpc_result.get('user_elo_after'),
+                'change': rpc_result.get('user_elo_change', 0)
+            },
+            'test_elo_change': {
+                'before': rpc_result.get('test_elo_before'),
+                'after': rpc_result.get('test_elo_after'),
+                'change': rpc_result.get('test_elo_change', 0)
+            },
+            'test_mode': test_mode,
+            'attempt_id': str(attempt_id) if attempt_id else None,
+        }
+        if word_quiz:
+            result['word_quiz'] = word_quiz
+
+        return jsonify({'status': 'success', 'result': result}), 200
 
     except Exception as e:
         current_app.logger.error(f"Test submission error: {e}")

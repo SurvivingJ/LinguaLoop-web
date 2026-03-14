@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Workouts — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .workout-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .workout-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .workout-card-name {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .workout-card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .workout-card-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .workout-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .workout-card-actions .btn-success {
+    flex: 1;
+  }
+
+  .duration-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.07);
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .exercise-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(108,99,255,0.15);
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .auto-superset-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .auto-superset-toggle:has(input:checked) {
+    background: rgba(108,99,255,0.18);
+    color: var(--accent);
+  }
+  .auto-superset-toggle input {
+    display: none;
+  }
+  .auto-superset-toggle .toggle-label {
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>Workouts</h1>
+    <a href="{{ url_for('workouts.new_form') }}" class="btn btn-primary btn-sm">+ New</a>
+  </div>
+
+  {% if plans %}
+    {% for plan in plans %}
+      <div class="workout-card" data-plan-id="{{ plan.id }}">
+        <div class="workout-card-header">
+          <div class="workout-card-name">{{ plan.name }}</div>
+        </div>
+
+        {% if plan.description %}
+          <div class="workout-card-desc">{{ plan.description }}</div>
+        {% endif %}
+
+        <div class="workout-card-meta">
+          <span class="exercise-count-badge">
+            💪 {{ plan.entries | length }} exercise{{ 's' if (plan.entries | length) != 1 else '' }}
+          </span>
+          {% if plan.estimated_duration_minutes %}
+            <span class="duration-badge">
+              ⏱ ~{{ plan.estimated_duration_minutes }} min
+            </span>
+          {% endif %}
+          {% if plan.target_muscles %}
+            <span class="badge badge-muted">
+              {{ plan.target_muscles | first | replace('_', ' ') | title }}
+              {% if (plan.target_muscles | length) > 1 %}
+                +{{ (plan.target_muscles | length) - 1 }}
+              {% endif %}
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="workout-card-actions">
+          <label class="auto-superset-toggle" title="Auto-pair antagonist exercises as supersets">
+            <input type="checkbox" class="auto-superset-cb" data-plan-id="{{ plan.id }}">
+            <span class="toggle-label">Auto Superset</span>
+          </label>
+          <a href="{{ url_for('sessions.start', id=plan.id) }}" class="btn btn-success start-workout-btn"
+             data-base-url="{{ url_for('sessions.start', id=plan.id) }}"
+             data-plan-id="{{ plan.id }}">
+            ▶ Start
+          </a>
+          <a href="{{ url_for('workouts.edit_form', id=plan.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+          <button class="btn btn-danger btn-sm"
+                  onclick="deletePlan('{{ plan.id }}', '{{ plan.name | replace("'", "\\'") }}', this)">
+            Delete
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No Workouts Yet</h3>
+      <p>Build your first workout to get started.</p>
+      <a href="{{ url_for('workouts.new_form') }}" class="btn btn-primary">+ Build Workout</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Wire auto-superset checkboxes to modify Start button URLs
+  document.querySelectorAll('.auto-superset-cb').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var planId = this.dataset.planId;
+      var card = this.closest('.workout-card');
+      var startBtn = card.querySelector('.start-workout-btn');
+      var baseUrl = startBtn.dataset.baseUrl;
+      startBtn.href = this.checked ? baseUrl + '?auto_superset=1' : baseUrl;
+    });
+  });
+
+  function deletePlan(id, name, btn) {
+    if (!confirm('Delete workout "' + name + '"? This cannot be undone.')) return;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('/workouts/' + id, { method: 'DELETE' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          var card = btn.closest('.workout-card');
+          card.style.transition = 'opacity 0.2s';
+          card.style.opacity = '0';
+          setTimeout(function() { card.remove(); }, 200);
+        } else {
+          alert('Failed to delete workout.');
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        }
+      })
+      .catch(function() {
+        alert('Network error.');
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+      });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,379 @@
+/* static/css/program_builder.css — WorkoutOS Program Builder Styles */
+
+/* ---------------------------------------------------------------------------
+   Program meta form
+--------------------------------------------------------------------------- */
+
+.program-meta-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Program grid (calendar)
+--------------------------------------------------------------------------- */
+
+.program-grid {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+/* Day header row */
+.day-headers {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+  padding: 4px 0;
+}
+
+.day-header-spacer {
+  /* empty cell above week labels */
+}
+
+.day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---------------------------------------------------------------------------
+   Week row
+--------------------------------------------------------------------------- */
+
+.week-row {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.week-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  min-height: 60px;
+}
+
+.week-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  min-width: 30px;
+  text-align: center;
+}
+
+.week-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.week-action-btn:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.week-action-btn.deload-toggle {
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  font-weight: 700;
+  color: #60a0ff;
+}
+
+.week-action-btn.deload-toggle.active {
+  color: var(--warning);
+}
+
+/* ---------------------------------------------------------------------------
+   Day cell
+--------------------------------------------------------------------------- */
+
+.day-cell {
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 8px 4px;
+  font-size: 11px;
+  cursor: pointer;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.day-cell:hover {
+  border-color: var(--border);
+  background: var(--card);
+}
+
+.day-cell:active {
+  background: var(--card);
+}
+
+.day-cell.assigned {
+  background: #1a1a36;
+  border: 1px solid var(--accent);
+}
+
+.day-cell.rest {
+  background: var(--card);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.day-cell.deload-row {
+  background: #0f1a2a;
+  border: 1px solid #2040a0;
+}
+
+.day-cell.today {
+  border-color: var(--success) !important;
+}
+
+/* Plan label inside cell */
+.day-cell-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.day-cell.rest .day-cell-label {
+  color: var(--text-secondary);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.day-cell-plan-name {
+  font-size: 9px;
+  color: var(--text-secondary);
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+/* ---------------------------------------------------------------------------
+   Day cell dropdown (inline plan selector)
+--------------------------------------------------------------------------- */
+
+.day-dropdown {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 140px;
+}
+
+.day-dropdown-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+
+.day-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.day-dropdown-item:hover,
+.day-dropdown-item:active {
+  background: var(--surface);
+}
+
+.day-dropdown-item.rest-option {
+  color: var(--text-secondary);
+}
+
+.day-dropdown-item.clear-option {
+  color: var(--danger);
+  font-size: 11px;
+}
+
+/* ---------------------------------------------------------------------------
+   Add week button row
+--------------------------------------------------------------------------- */
+
+.add-week-row {
+  padding: 8px 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Deload row styling
+--------------------------------------------------------------------------- */
+
+.week-row.is-deload .day-cell {
+  background: #0f1a2a;
+  border-color: #2040a0;
+}
+
+.week-row.is-deload .week-label {
+  color: #60a0ff;
+}
+
+.deload-badge-row {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #60a0ff;
+  background: #1a2a4a;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Program goal / duration controls
+--------------------------------------------------------------------------- */
+
+.program-controls-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.program-controls-row .form-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ---------------------------------------------------------------------------
+   Copy week button
+--------------------------------------------------------------------------- */
+
+.btn-copy-week {
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-copy-week:hover {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Save bar
+--------------------------------------------------------------------------- */
+
+.program-save-bar {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  z-index: 150;
+}
+
+/* ---------------------------------------------------------------------------
+   Program list page
+--------------------------------------------------------------------------- */
+
+.program-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  color: var(--text);
+  display: block;
+  border-left: 4px solid var(--accent);
+}
+
+.program-card.active-program {
+  border-left-color: var(--success);
+}
+
+.program-card-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.program-card-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.program-card-progress {
+  margin-top: 10px;
+}
+
+/* ---------------------------------------------------------------------------
+   Week number mini display
+--------------------------------------------------------------------------- */
+
+.week-mini-dots {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.week-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.week-dot.completed {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.week-dot.current {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.week-dot.deload {
+  background: #2040a0;
+  border-color: #4060c0;
+}

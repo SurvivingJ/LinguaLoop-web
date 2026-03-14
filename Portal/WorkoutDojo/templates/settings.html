@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — WorkoutOS{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- Settings cards ---- */
+  .settings-section {
+    margin-bottom: 20px;
+  }
+
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+
+  .settings-card {
+    background: var(--card);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  /* ---- Toggle row ---- */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .setting-row:last-child {
+    border-bottom: none;
+  }
+
+  .setting-row-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .setting-row-label {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .setting-row-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ---- Toggle switch ---- */
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.12);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s, background 0.2s;
+    pointer-events: none;
+  }
+
+  .toggle-switch input:checked ~ .toggle-track {
+    background: var(--accent);
+  }
+
+  .toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(20px);
+  }
+
+  /* ---- Slider row ---- */
+  .slider-row {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .slider-row:last-child { border-bottom: none; }
+
+  .slider-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .slider-row-label {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .slider-row-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .slider-row-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: -6px;
+    margin-bottom: 10px;
+  }
+
+  .settings-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.1);
+    outline: none;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  .settings-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(108,99,255,0.4);
+  }
+
+  .settings-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(108,99,255,0.4);
+  }
+
+  /* ---- Reset button ---- */
+  .settings-footer {
+    text-align: center;
+    padding: 20px 0 8px;
+  }
+
+  .settings-footer button {
+    background: none;
+    border: 1px solid rgba(255,56,96,0.3);
+    color: var(--danger);
+    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .settings-footer button:hover {
+    background: rgba(255,56,96,0.08);
+  }
+
+  /* ---- Save indicator ---- */
+  .save-indicator {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--success);
+    color: #000;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 100px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 200;
+    white-space: nowrap;
+  }
+
+  .save-indicator.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <h1>Settings</h1>
+  </div>
+
+  <!-- Sound notifications -->
+  <div class="settings-section">
+    <div class="settings-section-title">Sound Notifications</div>
+    <div class="settings-card">
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Set Complete Sound</div>
+          <div class="setting-row-desc">Plays a tone when you log a set</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-sound-set-complete" data-setting="soundSetComplete" data-default="false">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Rest Warning Sound</div>
+          <div class="setting-row-desc">Alert before rest period ends</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-sound-rest-warning" data-setting="soundRestWarning" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Rest Complete Sound</div>
+          <div class="setting-row-desc">Plays when rest period finishes</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-sound-rest-complete" data-setting="soundRestComplete" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Workout Complete Sound</div>
+          <div class="setting-row-desc">Fanfare when you finish the workout</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-sound-workout-complete" data-setting="soundWorkoutComplete" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Visual & haptic -->
+  <div class="settings-section">
+    <div class="settings-section-title">Visual & Haptic</div>
+    <div class="settings-card">
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Visual Flash</div>
+          <div class="setting-row-desc">Screen flash on set complete</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-visual-flash" data-setting="visualFlash" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Vibration</div>
+          <div class="setting-row-desc">Haptic feedback on key events</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-vibration" data-setting="vibration" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Voice -->
+  <div class="settings-section">
+    <div class="settings-section-title">Voice</div>
+    <div class="settings-card">
+
+      <div class="setting-row">
+        <div class="setting-row-info">
+          <div class="setting-row-label">Voice Announcements</div>
+          <div class="setting-row-desc">Read out exercise names and cues</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-voice" data-setting="voiceAnnouncements" data-default="true">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Play mode settings -->
+  <div class="settings-section">
+    <div class="settings-section-title">Play Mode</div>
+    <div class="settings-card">
+
+      <div class="slider-row">
+        <div class="slider-row-header">
+          <span class="slider-row-label">Auto-Advance Buffer</span>
+          <span class="slider-row-value" id="auto-advance-value">5s</span>
+        </div>
+        <div class="slider-row-desc">Extra seconds after rest ends before advancing</div>
+        <input type="range" class="settings-slider" id="setting-auto-advance"
+               min="0" max="10" step="1" value="5"
+               data-setting="autoAdvanceBuffer"
+               oninput="updateSliderDisplay('auto-advance-value', this.value, 's')"
+               onchange="saveSetting('autoAdvanceBuffer', parseInt(this.value))">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-row-header">
+          <span class="slider-row-label">Rest Warning Lead Time</span>
+          <span class="slider-row-value" id="rest-warning-value">10s</span>
+        </div>
+        <div class="slider-row-desc">How many seconds before rest ends to play the warning</div>
+        <input type="range" class="settings-slider" id="setting-rest-warning-lead"
+               min="5" max="30" step="1" value="10"
+               data-setting="restWarningLeadTime"
+               oninput="updateSliderDisplay('rest-warning-value', this.value, 's')"
+               onchange="saveSetting('restWarningLeadTime', parseInt(this.value))">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Reset -->
+  <div class="settings-footer">
+    <button onclick="resetSettings()">Reset to Defaults</button>
+  </div>
+
+</div>
+
+<!-- Save indicator toast -->
+<div class="save-indicator" id="save-indicator">Settings saved</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  var SETTINGS_KEY = 'workoutOS_settings';
+
+  var DEFAULTS = {
+    soundSetComplete:      false,
+    soundRestWarning:      true,
+    soundRestComplete:     true,
+    soundWorkoutComplete:  true,
+    visualFlash:           true,
+    vibration:             true,
+    voiceAnnouncements:    true,
+    autoAdvanceBuffer:     5,
+    restWarningLeadTime:   10,
+  };
+
+  // ---- Load settings ----
+  function loadSettings() {
+    var raw = localStorage.getItem(SETTINGS_KEY);
+    try { return raw ? Object.assign({}, DEFAULTS, JSON.parse(raw)) : Object.assign({}, DEFAULTS); }
+    catch (e) { return Object.assign({}, DEFAULTS); }
+  }
+
+  function saveAllSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    showSaveIndicator();
+  }
+
+  function saveSetting(key, value) {
+    var settings = loadSettings();
+    settings[key] = value;
+    saveAllSettings(settings);
+  }
+
+  function showSaveIndicator() {
+    var el = document.getElementById('save-indicator');
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 1800);
+  }
+
+  // ---- Apply settings to UI ----
+  function applySettings(settings) {
+    // Toggles
+    document.querySelectorAll('input[data-setting]').forEach(function(input) {
+      var key = input.dataset.setting;
+      if (input.type === 'checkbox') {
+        var val = settings[key];
+        if (val === undefined) val = input.dataset.default === 'true';
+        input.checked = Boolean(val);
+      } else if (input.type === 'range') {
+        var rval = settings[key];
+        if (rval === undefined) rval = parseFloat(input.value);
+        input.value = rval;
+      }
+    });
+
+    // Update slider display labels
+    var autoAdv = settings.autoAdvanceBuffer !== undefined ? settings.autoAdvanceBuffer : 5;
+    var restWarn = settings.restWarningLeadTime !== undefined ? settings.restWarningLeadTime : 10;
+    document.getElementById('auto-advance-value').textContent = autoAdv + 's';
+    document.getElementById('rest-warning-value').textContent  = restWarn + 's';
+  }
+
+  // ---- Toggle event listeners ----
+  document.querySelectorAll('input[type="checkbox"][data-setting]').forEach(function(input) {
+    input.addEventListener('change', function() {
+      saveSetting(this.dataset.setting, this.checked);
+    });
+  });
+
+  // ---- Slider helpers ----
+  function updateSliderDisplay(labelId, value, unit) {
+    document.getElementById(labelId).textContent = value + unit;
+  }
+
+  // ---- Reset ----
+  function resetSettings() {
+    if (!confirm('Reset all settings to defaults?')) return;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(DEFAULTS));
+    applySettings(DEFAULTS);
+    showSaveIndicator();
+  }
+
+  // ---- Init ----
+  applySettings(loadSettings());
+</script>
+{% endblock %}

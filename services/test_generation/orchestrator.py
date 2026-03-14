@@ -485,11 +485,24 @@ class TestGenerationOrchestrator:
                     'vocab_token_map': token_map,
                 }).eq('id', str(test_id)).execute()
 
+                # Assign all sense_ids to every question in this test
+                # (comprehension questions test understanding of the whole passage)
+                questions = db.table('questions') \
+                    .select('id') \
+                    .eq('test_id', str(test_id)) \
+                    .execute()
+                for q in (questions.data or []):
+                    db.table('questions') \
+                        .update({'sense_ids': sense_ids}) \
+                        .eq('id', q['id']) \
+                        .execute()
+
                 logger.info(
                     f"Vocabulary: {len(sense_ids)} word senses generated "
                     f"({sense_gen.stats['senses_created']} new, "
                     f"{sense_gen.stats['senses_reused']} reused), "
-                    f"{len(token_map)} tokens in map"
+                    f"{len(token_map)} tokens in map, "
+                    f"{len(questions.data or [])} questions updated with sense_ids"
                 )
             else:
                 logger.warning(f"No word senses generated for test {test_id}")

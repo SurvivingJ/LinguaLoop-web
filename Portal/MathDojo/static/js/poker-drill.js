@@ -214,10 +214,14 @@ class PokerDrill {
         this.coach.reset();
         this.intervention.deactivate();
 
+        // Start profile session
+        profileManager.startSession('poker_drill');
+
         if (this.startGameBtn) this.startGameBtn.style.display = 'none';
 
         gameManager.problemQueue = [];
-        await gameManager.loadPokerDrill(50, this.getOptions());
+        const profileFocus = await profileManager.getFocusTags('poker');
+        await gameManager.loadPokerDrill(50, this.getOptions(), profileFocus);
 
         this.loadNextProblem();
         this.startElapsedTimer();
@@ -544,6 +548,7 @@ class PokerDrill {
         const tags = this.currentProblem?.tags || [];
         const timeMs = result.timeElapsed * 1000;
         this.coach.record(tags, result.correct, timeMs);
+        profileManager.recordResult(tags, result.correct, timeMs);
 
         const correctAnswer = result.correctAnswer;
         const tolerance = this.currentProblem.tolerance || 0;
@@ -595,6 +600,7 @@ class PokerDrill {
         const tags = this.currentProblem?.tags || [];
         const timeMs = Date.now() - this.problemStartTime;
         this.coach.record(tags, isCorrect, timeMs);
+        profileManager.recordResult(tags, isCorrect, timeMs);
 
         if (isCorrect) {
             this.correctAnswers++;
@@ -641,6 +647,7 @@ class PokerDrill {
         const tags = this.currentProblem?.tags || [];
         const timeMs = Date.now() - this.problemStartTime;
         this.coach.record(tags, isCorrect, timeMs);
+        profileManager.recordResult(tags, isCorrect, timeMs);
 
         // Highlight correct/wrong cells
         if (this.rangeGrid) {
@@ -716,6 +723,7 @@ class PokerDrill {
         this.isActive = false;
         window.gameActive = false;
         this.intervention.deactivate();
+        profileManager.endSession();
 
         if (this.elapsedInterval) {
             clearInterval(this.elapsedInterval);

@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from math_engine import ProblemGenerator, FinancialProblemGenerator
 from poker_engine import PokerProblemGenerator
+import profile_store
+import prediction_engine
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": [
@@ -92,6 +94,53 @@ def get_batch():
 
         return jsonify({'problems': problems})
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/profile/<name>/stats', methods=['GET'])
+def get_profile_stats(name):
+    """Get stats summary for a profile."""
+    try:
+        summary = profile_store.get_stats_summary(name)
+        return jsonify(summary)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/profile/<name>/record', methods=['POST'])
+def record_profile_results(name):
+    """
+    Record problem results for a profile.
+
+    Request body (JSON):
+        results: [{tags: [...], correct: bool, time_ms: int}, ...]
+        session: {mode, duration_s, problems_attempted, correct} (optional)
+    """
+    try:
+        data = request.get_json()
+        results = data.get('results', [])
+        session_info = data.get('session', None)
+        profile_store.record_results(name, results, session_info)
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/profile/<name>/focus-tags', methods=['GET'])
+def get_focus_tags(name):
+    """
+    Get prediction engine focus tags for a profile.
+
+    Query params:
+        mode (str): Game mode filter (optional)
+    """
+    try:
+        mode = request.args.get('mode', None)
+        profile_data = profile_store.load_profile(name)
+        tag_stats = profile_data.get('tag_stats', {})
+        result = prediction_engine.get_focus_tags(tag_stats, mode=mode)
+        return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 

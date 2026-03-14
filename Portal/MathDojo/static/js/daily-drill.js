@@ -216,6 +216,9 @@ class CustomDrill {
         this.intervention.deactivate();
         this.startTime = Date.now();
 
+        // Start profile session
+        profileManager.startSession('custom_drill');
+
         // Hide start button
         if (this.drillStartButton) this.drillStartButton.style.display = 'none';
 
@@ -224,9 +227,10 @@ class CustomDrill {
         this.inputHandler.clear();
         this.inputHandler.focus();
 
-        // Clear queue and load initial batch
+        // Clear queue and load initial batch with profile focus tags
         gameManager.problemQueue = [];
-        await gameManager.loadCustomDrill(50, this.getOptions());
+        const profileFocus = await profileManager.getFocusTags('custom');
+        await gameManager.loadCustomDrill(50, this.getOptions(), profileFocus);
 
         // Load first problem
         this.loadNextProblem();
@@ -266,6 +270,9 @@ class CustomDrill {
             this.equationDisplay.textContent = problem.equation;
         }
 
+        // Update mental math hint
+        MentalGuides.update(problem.tags || [], 'drill');
+
         // Auto-submit when typed value matches the correct answer
         const tolerance = gameManager.currentProblem?.tolerance || 0;
         this.inputHandler.setAutoCheck((val) =>
@@ -303,11 +310,13 @@ class CustomDrill {
     handleAnswer(userAnswer) {
         if (!this.isActive) return;
 
+        MentalGuides.hide('drill');
         const result = gameManager.checkAnswer(userAnswer);
 
-        // Record with coach before currentProblem gets overwritten
+        // Record with coach and profile manager before currentProblem gets overwritten
         const tags = gameManager.currentProblem?.tags || [];
         this.coach.record(tags, result.correct, result.timeElapsed * 1000);
+        profileManager.recordResult(tags, result.correct, result.timeElapsed * 1000);
 
         if (result.correct) {
             this.correctAnswers++;
@@ -374,6 +383,7 @@ class CustomDrill {
         this._ownsGameScreen = false;
         window.gameActive = false;
         this.intervention.deactivate();
+        profileManager.endSession();
 
         // Stop timer
         if (this.elapsedInterval) {

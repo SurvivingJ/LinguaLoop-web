@@ -3,7 +3,7 @@
  */
 class ScreenManager {
     constructor() {
-        this.currentScreen = 'screen-menu';
+        this.currentScreen = 'screen-profile';
         this.screens = document.querySelectorAll('.screen');
         this.setupNavigation();
     }
@@ -31,6 +31,11 @@ class ScreenManager {
             // Update UI if returning to menu
             if (screenId === 'screen-menu') {
                 this.updateMenuStats();
+            }
+
+            // Load stats dashboard when shown
+            if (screenId === 'screen-stats' && typeof statsDashboard !== 'undefined') {
+                statsDashboard.load();
             }
         }
     }

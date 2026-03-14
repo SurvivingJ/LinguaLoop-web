@@ -722,7 +722,8 @@ class ProblemGenerator:
             'id': str(uuid.uuid4()),
             'equation': equation,
             'answer': answer,
-            'difficulty_rating': int(difficulty_score)
+            'difficulty_rating': int(difficulty_score),
+            'tags': TagExtractor.extract(equation, answer)
         }
 
     # ── Custom drill generation ──────────────────────────────────────

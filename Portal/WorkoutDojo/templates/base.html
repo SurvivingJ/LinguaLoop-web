@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f0f13">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>{% block title %}WorkoutOS{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  {% block extra_css %}{% endblock %}
+  <style>
+    :root {
+      --bg:        #0f0f13;
+      --surface:   #1a1a24;
+      --card:      #22222e;
+      --accent:    #6c63ff;
+      --success:   #48c774;
+      --warning:   #ffb700;
+      --danger:    #ff3860;
+      --text:      #ffffff;
+      --text-muted:#a0a0b8;
+      --radius-card: 8px;
+      --radius-btn:  4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body.dark-theme {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding-bottom: 72px; /* room for bottom nav */
+    }
+
+    /* ---- Centering wrapper (desktop) ---- */
+    .page-wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px 16px;
+    }
+
+    /* ---- Flash overlay ---- */
+    .flash-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .flash-messages {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      width: min(90vw, 440px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .flash-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius-card);
+      font-size: 14px;
+      font-weight: 600;
+      pointer-events: auto;
+      animation: slideDown 0.2s ease;
+    }
+    .flash-msg.success { background: var(--success); color: #000; }
+    .flash-msg.error   { background: var(--danger);  color: #fff; }
+    .flash-msg.info    { background: var(--accent);  color: #fff; }
+    .flash-msg.warning { background: var(--warning); color: #000; }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Bottom nav ---- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      height: 64px;
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      gap: 3px;
+      transition: color 0.15s;
+      min-height: 44px;
+    }
+
+    .bottom-nav a:hover,
+    .bottom-nav a.active {
+      color: var(--accent);
+    }
+
+    .bottom-nav a .nav-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /* ---- Page header ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 16px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    /* ---- Cards ---- */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: var(--radius-btn);
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      min-height: 44px;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-success  { background: var(--success); color: #000; }
+    .btn-danger   { background: var(--danger);  color: #fff; }
+    .btn-warning  { background: var(--warning); color: #000; }
+    .btn-ghost    { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); }
+    .btn-sm       { padding: 6px 12px; font-size: 13px; min-height: 36px; }
+    .btn-lg       { padding: 14px 24px; font-size: 17px; min-height: 52px; width: 100%; }
+    .btn-icon     { padding: 10px; min-width: 44px; }
+
+    /* ---- Badge ---- */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-accent   { background: rgba(108,99,255,0.25); color: var(--accent); }
+    .badge-success  { background: rgba(72,199,116,0.2);  color: var(--success); }
+    .badge-warning  { background: rgba(255,183,0,0.2);   color: var(--warning); }
+    .badge-danger   { background: rgba(255,56,96,0.2);   color: var(--danger); }
+    .badge-muted    { background: rgba(160,160,184,0.15); color: var(--text-muted); }
+
+    /* ---- Form elements ---- */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-btn);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      min-height: 44px;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a0a0b8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    textarea.form-control { min-height: 88px; resize: vertical; }
+
+    /* ---- Progress bar ---- */
+    .progress-bar-track {
+      background: rgba(255,255,255,0.08);
+      border-radius: 100px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+    .progress-bar-fill.success { background: var(--success); }
+
+    /* ---- Divider ---- */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 16px 0;
+    }
+
+    /* ---- Empty state ---- */
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+    }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+    .empty-state p  { font-size: 14px; margin-bottom: 20px; }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <div id="flash-overlay" class="flash-overlay"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages" id="flash-container">
+        {% for category, message in messages %}
+          <div class="flash-msg {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      <script>
+        setTimeout(function() {
+          var c = document.getElementById('flash-container');
+          if (c) c.style.display = 'none';
+        }, 3500);
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="{{ url_for('exercises.index') }}" class="{% if request.endpoint and request.endpoint.startswith('exercises.') %}active{% endif %}">
+      <span class="nav-icon">💪</span>
+      <span>Exercises</span>
+    </a>
+    <a href="{{ url_for('progressions.index') }}" class="{% if request.endpoint and request.endpoint.startswith('progressions.') %}active{% endif %}">
+      <span class="nav-icon">🔗</span>
+      <span>Progress</span>
+    </a>
+    <a href="{{ url_for('workouts.index') }}" class="{% if request.endpoint and request.endpoint.startswith('workouts.') %}active{% endif %}">
+      <span class="nav-icon">📋</span>
+      <span>Workouts</span>
+    </a>
+    <a href="{{ url_for('programs.index') }}" class="{% if request.endpoint and request.endpoint.startswith('programs.') %}active{% endif %}">
+      <span class="nav-icon">📅</span>
+      <span>Programs</span>
+    </a>
+    <a href="{{ url_for('analytics.index') }}" class="{% if request.endpoint and request.endpoint.startswith('analytics.') %}active{% endif %}">
+      <span class="nav-icon">📊</span>
+      <span>Analytics</span>
+    </a>
+    <a href="{{ url_for('settings') }}" class="{% if request.endpoint == 'settings' %}active{% endif %}">
+      <span class="nav-icon">⚙️</span>
+      <span>Settings</span>
+    </a>
+  </nav>
+
+  <script src="/static/js/audio.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

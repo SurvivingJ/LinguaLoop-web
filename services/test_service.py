@@ -684,7 +684,11 @@ class TestService:
                     and t.get('test_id') not in latest_by_test
                 ]
 
-                for t in new_tests[:num_new]:
+                for t in new_tests:
+                    if num_new <= 0:
+                        break
+                    if t.get('test_id') in selected_test_ids:
+                        continue
                     load_items.append({
                         'test_id': t['test_id'],
                         'slot_type': 'new',
