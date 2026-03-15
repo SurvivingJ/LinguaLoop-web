@@ -418,16 +418,16 @@
         </div>
         <div class="exercise-filters">
             <select id="filterType">
-                <option value="">All Types</option>
+                <option value="" data-i18n="exercises.filter.all_types">All Types</option>
             </select>
             <select id="filterSource">
-                <option value="">All Sources</option>
-                <option value="grammar">Grammar</option>
-                <option value="vocabulary">Vocabulary</option>
-                <option value="collocation">Collocation</option>
+                <option value="" data-i18n="exercises.filter.all_sources">All Sources</option>
+                <option value="grammar" data-i18n="exercises.filter.grammar">Grammar</option>
+                <option value="vocabulary" data-i18n="exercises.filter.vocabulary">Vocabulary</option>
+                <option value="collocation" data-i18n="exercises.filter.collocation">Collocation</option>
             </select>
             <select id="filterCefr">
-                <option value="">All Levels</option>
+                <option value="" data-i18n="exercises.filter.all_levels">All Levels</option>
                 <option value="A1">A1</option>
                 <option value="A2">A2</option>
                 <option value="B1">B1</option>
@@ -436,7 +436,7 @@
                 <option value="C2">C2</option>
             </select>
             <button class="btn btn-primary exercise-load-btn" id="loadBtn">
-                <i class="fas fa-play me-1"></i> Load Exercises
+                <i class="fas fa-play me-1"></i> <span data-i18n="exercises.load">Load Exercises</span>
             </button>
         </div>
     </div>
@@ -543,6 +543,9 @@
     }
 
     function formatTypeName(type) {
+        const key = 'exercises.type.' + type;
+        const translated = LinguaI18n.t(key);
+        if (translated !== key) return translated;
         return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
@@ -693,7 +696,7 @@
 
         html += `</div>
             <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">Next <i class="fas fa-arrow-right ms-1"></i></button>
+            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
         `;
 
         els.card.innerHTML = html;
@@ -737,14 +740,14 @@
         if (c.word_definition) {
             promptHTML += `<div style="font-size:14px; color:var(--text-secondary); margin-top:10px; font-weight:400; font-style:italic;">${escapeHtml(c.word_definition)}</div>`;
         }
-        renderMCQ('Cloze', ex.cefr_level, 'Fill in the blank:', promptHTML, c.options, c.correct_answer, c.explanation);
+        renderMCQ(formatTypeName('cloze_completion'), ex.cefr_level, LinguaI18n.t('exercises.instruction.fill_blank'), promptHTML, c.options, c.correct_answer, c.explanation);
     }
 
     // ── TL → NL Translation ──
 
     function renderTlNlTranslation(ex) {
         const c = ex.content;
-        renderMCQ('Translation', ex.cefr_level, 'Choose the correct translation:',
+        renderMCQ(formatTypeName('tl_nl_translation'), ex.cefr_level, LinguaI18n.t('exercises.instruction.choose_translation'),
             escapeHtml(c.tl_sentence), c.options, c.correct_nl, '');
     }
 
@@ -754,7 +757,9 @@
         const c = ex.content;
         const correctSentence = c.sentences.find(s => s.is_correct);
         const options = c.sentences.map(s => s.text);
-        renderMCQ('Semantic', ex.cefr_level, 'Which sentence uses the word correctly?',
+        const word = c.target_word || 'the word';
+        const instruction = LinguaI18n.t('exercises.instruction.which_sentence', { word: word });
+        renderMCQ(formatTypeName('semantic_discrimination'), ex.cefr_level, instruction,
             '', options, correctSentence ? correctSentence.text : '', c.explanation);
     }
 
@@ -767,11 +772,11 @@
 
         let html = `
             <div class="exercise-type-badge">
-                <i class="fas fa-question-circle"></i> Odd One Out
+                <i class="fas fa-question-circle"></i> ${formatTypeName('odd_one_out')}
                 ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
             </div>
-            <div class="exercise-instruction">Which one doesn't belong?</div>
-            ${c.shared_property ? `<div class="exercise-prompt" style="font-size:15px; color:var(--text-secondary)">Hint: ${escapeHtml(c.shared_property)}</div>` : ''}
+            <div class="exercise-instruction">${LinguaI18n.t('exercises.instruction.odd_one_out')}</div>
+            ${c.shared_property ? `<div class="exercise-prompt" style="font-size:15px; color:var(--text-secondary)">${LinguaI18n.t('exercises.hint', { hint: escapeHtml(c.shared_property) })}</div>` : ''}
             <div class="exercise-options" id="optionsList">
         `;
 
@@ -788,7 +793,7 @@
 
         html += `</div>
             <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">Next <i class="fas fa-arrow-right ms-1"></i></button>
+            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
         `;
 
         els.card.innerHTML = html;
@@ -802,17 +807,17 @@
 
         let html = `
             <div class="exercise-type-badge">
-                <i class="fas fa-language"></i> Translation (Production)
+                <i class="fas fa-language"></i> ${formatTypeName('nl_tl_translation')}
                 ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
             </div>
-            <div class="exercise-instruction">Translate to the target language:</div>
+            <div class="exercise-instruction">${LinguaI18n.t('exercises.instruction.translate_to_tl')}</div>
             <div class="exercise-prompt">${escapeHtml(c.nl_sentence)}</div>
-            <textarea class="exercise-input-area" id="translationInput" placeholder="Type your translation..."></textarea>
+            <textarea class="exercise-input-area" id="translationInput" placeholder="${LinguaI18n.t('exercises.type_placeholder')}"></textarea>
             <button class="btn btn-primary exercise-check-btn" id="checkBtn">
-                <i class="fas fa-check me-2"></i> Check
+                <i class="fas fa-check me-2"></i> ${LinguaI18n.t('exercises.check')}
             </button>
             <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">Next <i class="fas fa-arrow-right ms-1"></i></button>
+            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
         `;
 
         els.card.innerHTML = html;
@@ -854,7 +859,7 @@
                 ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
             </div>
             <div class="exercise-prompt">${escapeHtml(JSON.stringify(ex.content, null, 2))}</div>
-            <button class="btn btn-primary exercise-next-btn show" id="nextBtn">Next <i class="fas fa-arrow-right ms-1"></i></button>
+            <button class="btn btn-primary exercise-next-btn show" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
         `;
         document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }

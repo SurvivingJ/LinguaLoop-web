@@ -58,11 +58,13 @@ def get_exercises():
         response = query.execute()
         exercises = response.data or []
 
-        # Batch-fetch definitions for vocabulary exercises missing word_definition.
+        # Batch-fetch definitions and lemmas for vocabulary exercises.
         # Try word_sense_id first, fall back to tags.source_id for older exercises.
         sense_ids = []
         for ex in exercises:
-            if not isinstance(ex.get('content'), dict) or ex['content'].get('word_definition'):
+            if not isinstance(ex.get('content'), dict):
+                continue
+            if ex['content'].get('word_definition') and ex['content'].get('target_word'):
                 continue
             ws_id = ex.get('word_sense_id')
             if not ws_id and ex.get('source_type') == 'vocabulary':
@@ -70,28 +72,34 @@ def get_exercises():
             if ws_id:
                 sense_ids.append(int(ws_id))
 
-        definitions = {}
+        sense_lookup = {}
         if sense_ids:
             unique_ids = list(set(sense_ids))
             sense_resp = db.table('dim_word_senses') \
-                .select('id, definition') \
+                .select('id, definition, dim_vocabulary(lemma)') \
                 .in_('id', unique_ids) \
                 .execute()
-            definitions = {
-                row['id']: row['definition']
+            sense_lookup = {
+                row['id']: row
                 for row in (sense_resp.data or [])
-                if row.get('definition')
             }
 
         for ex in exercises:
-            if isinstance(ex.get('content'), dict) and not ex['content'].get('word_definition'):
-                ws_id = ex.get('word_sense_id')
-                if not ws_id and ex.get('source_type') == 'vocabulary':
-                    ws_id = (ex.get('tags') or {}).get('source_id')
-                if ws_id:
-                    defn = definitions.get(int(ws_id))
-                    if defn:
-                        ex['content']['word_definition'] = defn
+            if not isinstance(ex.get('content'), dict):
+                continue
+            ws_id = ex.get('word_sense_id')
+            if not ws_id and ex.get('source_type') == 'vocabulary':
+                ws_id = (ex.get('tags') or {}).get('source_id')
+            if ws_id:
+                row = sense_lookup.get(int(ws_id))
+                if row:
+                    if not ex['content'].get('word_definition') and row.get('definition'):
+                        ex['content']['word_definition'] = row['definition']
+                    if not ex['content'].get('target_word'):
+                        vocab = row.get('dim_vocabulary') or {}
+                        lemma = vocab.get('lemma', '')
+                        if lemma:
+                            ex['content']['target_word'] = lemma
 
         return jsonify({
             "status": "success",

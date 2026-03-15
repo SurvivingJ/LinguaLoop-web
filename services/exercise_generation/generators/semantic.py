@@ -44,7 +44,7 @@ class SemanticDiscrimGenerator(ExerciseGenerator):
             if not correct:
                 return None
             ordered    = correct[:1] + incorrect[:3]
-            return {'sentences': ordered, 'explanation': explanation}
+            return {'sentences': ordered, 'explanation': explanation, 'target_word': word}
         except Exception:
             return None
 
