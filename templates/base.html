@@ -99,6 +99,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ url_for('exercises') }}"
+                           class="nav-link {% if request.endpoint == 'exercises' %}active{% endif %}"
+                           data-i18n="common.nav.exercises">
+                            Exercises
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#reportModal">
                             <i class="fas fa-flag"></i><span class="d-none d-lg-inline ms-1" data-i18n="common.nav.report">Report</span>
                         </a>

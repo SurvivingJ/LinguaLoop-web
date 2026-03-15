@@ -27,6 +27,7 @@ from routes.tests import tests_bp
 from routes.reports import reports_bp
 from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
+from routes.exercises import exercises_bp
 
 
 def create_app(config_class=Config):
@@ -192,6 +193,7 @@ def _register_blueprints(app):
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(vocabulary_bp, url_prefix='/api/vocabulary')
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
+    app.register_blueprint(exercises_bp, url_prefix='/api/exercises')
 
     app.logger.info("Blueprints registered")
 
@@ -282,6 +284,11 @@ def _register_web_routes(app):
     def flashcards():
         """Render flashcards review page"""
         return render_template('flashcards.html')
+
+    @app.route('/exercises')
+    def exercises():
+        """Render exercises practice page"""
+        return render_template('exercises.html')
 
     @app.route('/logout')
     def logout():
