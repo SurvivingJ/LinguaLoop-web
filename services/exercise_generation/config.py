@@ -98,11 +98,24 @@ CEFR_TO_IRT: dict[str, float] = {
 
 # --- Grammar pattern heuristics (for transcript mining) ---------------------
 PATTERN_HEURISTICS: dict[str, str] = {
-    'en_present_perfect_cont': r'\b(has|have)\s+been\s+\w+ing\b',
+    'en_present_perfect_cont':  r'\b(has|have)\s+been\s+\w+ing\b',
     'en_passive_voice_simple':  r'\b(is|was|are|were|been)\s+\w+ed\b',
     'en_reported_speech':       r'\b(said|told|asked|thought)\s+(that|if|whether)\b',
     'cn_ba_construction':       r'把',
     'cn_bei_passive':           r'被',
+    'cn_le_completed':          r'了',
+    'cn_guo_experience':        r'过',
+    'cn_zhe_continuous':        r'着',
+    'cn_de_complement':         r'得',
+    'cn_shi_de_cleft':          r'是.+的',
+    'cn_bi_comparative':        r'比',
+    'cn_lian_dou_emphasis':     r'连.+[都也]',
+    'cn_measure_word_ge':       r'[一两三四五六七八九十几多]\s*个',
+    'cn_neng_hui_keyi':         r'[能会]|可以',
+    'cn_yao_intention':         r'要',
+    'cn_ruguo_conditional':     r'如果.+就',
+    'cn_yinwei_suoyi_cause':    r'因为.+所以',
+    'cn_bu_shi_er_shi_contrast': r'不是.+而是',
     'jp_te_form_progressive':   r'ている|ています',
     'jp_keigo_sonkeigo':        r'ていらっしゃ|いらっしゃ|ございます',
 }
