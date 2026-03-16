@@ -12,176 +12,19 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, List, Any, Tuple
 from uuid import uuid4
 
+from config import Config
 from services.supabase_factory import get_supabase, get_supabase_admin
 
+# Re-export from dimension_service for backwards compatibility
+from services.dimension_service import (
+    DimensionService,
+    parse_language_id,
+    VALID_LANGUAGE_IDS,
+    LANGUAGE_ID_TO_NAME,
+    LANGUAGE_NAME_TO_ID,
+)
+
 logger = logging.getLogger(__name__)
-
-
-# ============================================================================
-# CONSTANTS - Import from Config (single source of truth)
-# ============================================================================
-from config import Config
-
-VALID_LANGUAGE_IDS = Config.VALID_LANGUAGE_IDS
-LANGUAGE_ID_TO_NAME = Config.LANGUAGE_ID_TO_NAME
-LANGUAGE_NAME_TO_ID = {v: k for k, v in LANGUAGE_ID_TO_NAME.items()}
-
-
-# ============================================================================
-# DIMENSION TABLE HELPERS
-# ============================================================================
-
-class DimensionService:
-    """Handles dimension table lookups with caching."""
-
-    _language_cache: Dict[str, int] = {}
-    _test_type_cache: Dict[str, int] = {}
-    _languages_metadata: List[Dict] = []
-    _test_types_metadata: List[Dict] = []
-    _initialized: bool = False
-
-    @classmethod
-    def initialize(cls, supabase_client=None) -> None:
-        """Pre-load dimension tables into cache."""
-        client = supabase_client or get_supabase()
-        if not client:
-            return
-
-        try:
-            # Cache languages with full metadata
-            langs = client.table('dim_languages')\
-                .select('id, language_code, language_name, native_name')\
-                .eq('is_active', True)\
-                .order('display_order')\
-                .execute()
-            cls._languages_metadata = langs.data or []
-            cls._language_cache = {r['language_code']: r['id'] for r in cls._languages_metadata}
-
-            # Cache test types with full metadata
-            types = client.table('dim_test_types')\
-                .select('id, type_code, type_name, requires_audio')\
-                .eq('is_active', True)\
-                .order('display_order')\
-                .execute()
-            cls._test_types_metadata = types.data or []
-            cls._test_type_cache = {r['type_code']: r['id'] for r in cls._test_types_metadata}
-
-            cls._initialized = True
-            logger.info(f"DimensionService initialized: {len(cls._language_cache)} languages, {len(cls._test_type_cache)} test types")
-
-        except Exception as e:
-            logger.error(f"Failed to initialize DimensionService: {e}")
-
-    @classmethod
-    def get_all_languages(cls) -> List[Dict]:
-        """Return cached language metadata for /api/metadata endpoint."""
-        return cls._languages_metadata
-
-    @classmethod
-    def get_all_test_types(cls) -> List[Dict]:
-        """Return cached test type metadata for /api/metadata endpoint."""
-        return cls._test_types_metadata
-
-    @classmethod
-    def get_language_id(cls, language_code: str, supabase_client=None) -> Optional[int]:
-        """Get language ID from code (cn, en, jp)."""
-        if not language_code:
-            return None
-
-        code = language_code.lower()
-
-        # Check cache first
-        if code in cls._language_cache:
-            return cls._language_cache[code]
-
-        # Query database if not cached
-        client = supabase_client or get_supabase()
-        if not client:
-            return None
-
-        try:
-            result = client.table('dim_languages')\
-                .select('id')\
-                .eq('language_code', code)\
-                .eq('is_active', True)\
-                .limit(1)\
-                .execute()
-            if result.data:
-                cls._language_cache[code] = result.data[0]['id']
-                return result.data[0]['id']
-        except Exception as e:
-            logger.error(f"Error fetching language ID for '{code}': {e}")
-
-        return None
-
-    @classmethod
-    def get_test_type_id(cls, type_code: str, supabase_client=None) -> Optional[int]:
-        """Get test type ID from code (listening, reading, dictation)."""
-        if not type_code:
-            return None
-
-        code = type_code.lower()
-
-        # Check cache first
-        if code in cls._test_type_cache:
-            return cls._test_type_cache[code]
-
-        # Query database if not cached
-        client = supabase_client or get_supabase()
-        if not client:
-            return None
-
-        try:
-            result = client.table('dim_test_types')\
-                .select('id')\
-                .eq('type_code', code)\
-                .eq('is_active', True)\
-                .limit(1)\
-                .execute()
-            if result.data:
-                cls._test_type_cache[code] = result.data[0]['id']
-                return result.data[0]['id']
-        except Exception as e:
-            logger.error(f"Error fetching test type ID for '{code}': {e}")
-
-        return None
-
-    @classmethod
-    def get_all_test_types(cls, supabase_client=None) -> Tuple[Dict[str, int], Dict[int, str]]:
-        """Get all test type mappings."""
-        if cls._test_type_cache:
-            id_to_code = {v: k for k, v in cls._test_type_cache.items()}
-            return cls._test_type_cache.copy(), id_to_code
-
-        client = supabase_client or get_supabase()
-        if not client:
-            return {}, {}
-
-        try:
-            result = client.table('dim_test_types')\
-                .select('id, type_code')\
-                .eq('is_active', True)\
-                .execute()
-
-            code_to_id = {row['type_code']: row['id'] for row in result.data}
-            id_to_code = {row['id']: row['type_code'] for row in result.data}
-            cls._test_type_cache = code_to_id
-            return code_to_id, id_to_code
-        except Exception as e:
-            logger.error(f"Error fetching test types: {e}")
-            return {}, {}
-
-
-def parse_language_id(language_id_input) -> Optional[int]:
-    """Parse and validate language_id - only accepts integer IDs."""
-    if language_id_input is None:
-        return None
-
-    try:
-        lang_id = int(language_id_input)
-        return lang_id if lang_id in VALID_LANGUAGE_IDS else None
-    except (ValueError, TypeError):
-        return None
 
 
 # ============================================================================
@@ -444,7 +287,7 @@ class TestService:
             logger.error(traceback.format_exc())
             raise
 
-    def _create_skill_ratings(self, test_id: int, initial_elo: int = 1400) -> None:
+    def _create_skill_ratings(self, test_id: int, initial_elo: int = Config.DEFAULT_ELO_RATING) -> None:
         """Create initial skill ratings for all test types."""
         listening_id = DimensionService.get_test_type_id('listening', self.admin)
         reading_id = DimensionService.get_test_type_id('reading', self.admin)
@@ -601,9 +444,9 @@ class TestService:
         - 1-2 slots: tests the user performed poorly on (<70%) and haven't retried in 24h
         - Remaining slots: new ELO-matched tests via the recommended RPC
         """
-        MAX_TESTS = 3
-        POOR_THRESHOLD = 70
-        COOLDOWN_SECONDS = 86400  # 24 hours
+        MAX_TESTS = Config.MAX_DAILY_TESTS
+        POOR_THRESHOLD = Config.POOR_PERFORMANCE_THRESHOLD
+        COOLDOWN_SECONDS = Config.DAILY_TEST_COOLDOWN_SECONDS
 
         now = datetime.now(timezone.utc)
 
@@ -792,7 +635,7 @@ class TestService:
 
             test_type = item.get('test_type', 'listening')
             test_ratings = ratings_map.get(test_id, {})
-            elo_rating = test_ratings.get(test_type, 1400)
+            elo_rating = test_ratings.get(test_type, Config.DEFAULT_ELO_RATING)
 
             enriched_tests.append({
                 **test_detail,
@@ -866,6 +709,96 @@ class TestService:
             self.client.table('flagged_inputs').insert(record).execute()
         except Exception as e:
             logger.warning(f"Failed to record flagged input: {e}")
+
+    def get_user_elo_summary(self, user_id: str) -> Dict[str, Any]:
+        """Aggregate ELO ratings across all languages and skills for a user.
+
+        Returns a dict keyed by language code, each containing skill ratings.
+        """
+        attempts_result = self.admin.table('test_attempts') \
+            .select('language_id, test_type_id, user_elo_after, created_at') \
+            .eq('user_id', user_id) \
+            .order('created_at', desc=True) \
+            .execute()
+
+        if not attempts_result.data:
+            return {}
+
+        # Build language lookup (Config -> DimensionService override)
+        lang_map: Dict[int, Dict] = {}
+        for lid, data in Config.LANGUAGES.items():
+            lang_map[lid] = {
+                'code': data.get('code', f'lang_{lid}'),
+                'name': data.get('display', f'Language {lid}'),
+            }
+        for lang in DimensionService.get_all_languages():
+            lang_id = lang.get('id')
+            if lang_id is not None:
+                lang_map[int(lang_id)] = {
+                    'code': lang.get('language_code', f'lang_{lang_id}'),
+                    'name': lang.get('language_name', f'Language {lang_id}'),
+                    'native_name': lang.get('native_name') or lang.get('language_name', f'Language {lang_id}'),
+                }
+
+        # Build test-type lookup with static fallbacks
+        type_map: Dict[int, Dict] = {
+            1: {'code': 'listening', 'name': 'Listening'},
+            2: {'code': 'reading', 'name': 'Reading'},
+            3: {'code': 'dictation', 'name': 'Dictation'},
+        }
+        for tt in DimensionService.get_all_test_types():
+            tt_id = tt.get('id')
+            if tt_id is not None:
+                type_map[int(tt_id)] = {
+                    'code': tt.get('type_code', f'type_{tt_id}'),
+                    'name': tt.get('type_name', f'Type {tt_id}'),
+                }
+
+        # Aggregate: keep only the most recent attempt per (language, test_type)
+        skill_stats: Dict[tuple, Dict] = {}
+        for attempt in attempts_result.data:
+            key = (attempt['language_id'], attempt['test_type_id'])
+            if key not in skill_stats:
+                skill_stats[key] = {
+                    'elo_rating': attempt['user_elo_after'],
+                    'last_test_date': attempt['created_at'],
+                    'tests_taken': 1,
+                }
+            else:
+                skill_stats[key]['tests_taken'] += 1
+
+        # Build structured response
+        ratings: Dict[str, Any] = {}
+        for (language_id, test_type_id), stats in skill_stats.items():
+            lang_id_int = int(language_id) if language_id is not None else None
+            type_id_int = int(test_type_id) if test_type_id is not None else None
+
+            lang_info = lang_map.get(lang_id_int, {
+                'code': str(language_id), 'name': f'Language {language_id}',
+            })
+            type_info = type_map.get(type_id_int, {
+                'code': str(test_type_id), 'name': f'Type {test_type_id}',
+            })
+
+            language_code = lang_info['code']
+            if language_code not in ratings:
+                ratings[language_code] = {
+                    'language_name': lang_info['name'],
+                    'native_name': lang_info.get('native_name', lang_info['name']),
+                    'language_id': language_id,
+                    'skills': {},
+                }
+
+            ratings[language_code]['skills'][type_info['code']] = {
+                'elo_rating': stats['elo_rating'],
+                'tests_taken': stats['tests_taken'],
+                'last_test_date': stats['last_test_date'],
+                'volatility': Config.DEFAULT_VOLATILITY,
+                'skill_name': type_info['name'],
+                'test_type_id': test_type_id,
+            }
+
+        return ratings
 
 
 # ============================================================================

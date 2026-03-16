@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Dict, Any
 
@@ -58,5 +59,6 @@ class PromptService:
                 f[:-4] for f in os.listdir(self.prompts_dir) 
                 if f.endswith('.txt')
             ]
-        except Exception:
+        except OSError as e:
+            logging.getLogger(__name__).warning(f"Cannot list prompts: {e}")
             return []

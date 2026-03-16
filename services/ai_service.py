@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
 import os
 import json
 import logging
@@ -8,9 +8,19 @@ from uuid import uuid4
 from typing import List, Dict
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
 
 from services.prompt_service import PromptService
 from utils.question_validator import QuestionValidator
+
+_RETRYABLE_ERRORS = (APIConnectionError, RateLimitError, APITimeoutError, ConnectionError, TimeoutError)
+_retry_api = retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type(_RETRYABLE_ERRORS),
+    before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+    reraise=True,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +55,7 @@ class AIService:
         from config import Config
         return Config.get_model_for_language(language, task)
 
+    @_retry_api
     def generate_transcript(self, language, topic, difficulty, style):
         """Generate listening comprehension transcript using language-specific models"""
         try:
@@ -136,6 +147,7 @@ class AIService:
         }
         return distributions.get(difficulty, [2, 2, 2, 2, 2])
 
+    @_retry_api
     def _generate_single_question(self, transcript: str, language: str,
                                 question_type: int, previous_questions: List[str]) -> Dict:
         """Generate a single question of specified type using language-specific model"""
@@ -279,6 +291,7 @@ class AIService:
 
         return validated
     
+    @_retry_api
     def generate_audio(self, text, slug):
         """Generate TTS audio and upload directly to R2"""
         try:

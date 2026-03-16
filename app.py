@@ -5,7 +5,7 @@ Clean, production-ready implementation with proper error handling
 
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, g
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager
 from datetime import datetime, timezone
 import stripe
 from services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
@@ -20,6 +20,10 @@ from services.r2_service import R2Service
 from services.prompt_service import PromptService
 from services.auth_service import AuthService
 from middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
+from services.dimension_service import DimensionService
+from utils.responses import api_success, bad_request, server_error, service_unavailable
+from models.requests import VocabularyExtractRequest, ErrorLogRequest
+from pydantic import ValidationError
 
 # Import blueprints
 from routes.auth import auth_bp
@@ -29,6 +33,8 @@ from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
 from routes.exercises import exercises_bp
 from routes.corpus import corpus_bp
+from routes.users import users_bp
+from routes.payments import payments_bp
 
 
 def create_app(config_class=Config):
@@ -119,7 +125,7 @@ def _initialize_services(app):
             app.logger.info("Supabase clients initialized via SupabaseFactory")
 
             # Initialize dimension table cache for fast lookups (use service client to bypass RLS)
-            from services.test_service import DimensionService, get_test_service
+            from services.test_service import get_test_service
             DimensionService.initialize(app.supabase_service)
             app.test_service = get_test_service()  # Singleton for reuse
             app.logger.info("DimensionService cache and TestService initialized")
@@ -196,6 +202,8 @@ def _register_blueprints(app):
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
     app.register_blueprint(exercises_bp, url_prefix='/api/exercises')
     app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(payments_bp, url_prefix='/api/payments')
 
     app.logger.info("Blueprints registered")
 
@@ -335,7 +343,6 @@ def _register_core_routes(app):
     @app.route('/api/metadata', methods=['GET'])
     def get_metadata():
         """Return available languages and test types from cached dimension tables"""
-        from services.test_service import DimensionService
         return jsonify({
             'languages': DimensionService.get_all_languages(),
             'test_types': DimensionService.get_all_test_types(),
@@ -347,430 +354,44 @@ def _register_core_routes(app):
     def extract_vocabulary():
         """Extract vocabulary (lemmas + phrases) from text"""
         if not app.vocab_pipeline:
-            return jsonify({"error": "Vocabulary service unavailable", "status": "error"}), 503
-
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Request body required", "status": "error"}), 400
-
-        text = data.get('text', '').strip()
-        language_code = data.get('language_code', '').strip()
-
-        if not text:
-            return jsonify({"error": "Text is required", "status": "error"}), 400
-        if not language_code:
-            return jsonify({"error": "Language code is required", "status": "error"}), 400
+            return service_unavailable("Vocabulary service unavailable")
 
         try:
-            vocab = app.vocab_pipeline.extract(text, language_code)
-            return jsonify({"status": "success", "vocabulary": vocab})
+            body = VocabularyExtractRequest.model_validate(request.get_json() or {})
+        except ValidationError as e:
+            return bad_request(e.errors()[0]['msg'])
+
+        try:
+            vocab = app.vocab_pipeline.extract(body.text, body.language_code)
+            return api_success({"vocabulary": vocab})
         except ValueError as e:
-            return jsonify({"error": str(e), "status": "error"}), 400
+            return bad_request(str(e))
         except Exception as e:
             app.logger.error(f"Vocabulary extraction failed: {e}")
             app.logger.error(traceback.format_exc())
-            return jsonify({"error": "Vocabulary extraction failed", "status": "error"}), 500
+            return server_error("Vocabulary extraction failed")
 
     @app.route('/api/errors/log', methods=['POST'])
     @supabase_jwt_required
     def log_error():
         """Log an application error to the app_error_logs table"""
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Request body required", "status": "error"}), 400
-
-        error_type = data.get('error_type', '').strip()
-        error_message = data.get('error_message', '').strip()
-        if not error_type or not error_message:
-            return jsonify({"error": "error_type and error_message are required", "status": "error"}), 400
-
-        user_id = g.supabase_claims.get('sub')
+        try:
+            body = ErrorLogRequest.model_validate(request.get_json() or {})
+        except ValidationError as e:
+            return bad_request(e.errors()[0]['msg'])
 
         try:
             app.supabase_service.table('app_error_logs').insert({
-                'error_type': error_type[:100],
-                'error_message': error_message[:2000],
-                'url': (data.get('url') or '')[:2000],
-                'user_id': user_id,
-                'metadata': data.get('metadata')
+                'error_type': body.error_type[:100],
+                'error_message': body.error_message[:Config.MAX_INPUT_LENGTH],
+                'url': (body.url or '')[:Config.MAX_INPUT_LENGTH],
+                'user_id': g.current_user_id,
+                'metadata': body.metadata,
             }).execute()
-            return jsonify({"status": "success"}), 201
+            return api_success(status_code=201)
         except Exception as e:
             app.logger.error(f"Failed to log error: {e}")
-            return jsonify({"error": "Failed to log error", "status": "error"}), 500
-
-    @app.route('/api/users/elo', methods=['GET'])
-    @supabase_jwt_required
-    def get_user_elo_ratings():
-        """Get user's ELO ratings across all languages and skills by aggregating test attempts"""
-        try:
-            # Get user_id from JWT claims
-            user_id = g.supabase_claims.get('sub')
-            if not user_id:
-                return jsonify({"error": "User ID not found in token"}), 401
-
-            # Get all test attempts for this user (ordered by most recent)
-            client = app.supabase_service or app.supabase 
-        
-            attempts_result = client.table('test_attempts')\
-                .select('language_id, test_type_id, user_elo_after, created_at')\
-                .eq('user_id', user_id)\
-                .order('created_at', desc=True)\
-                .execute()
-
-            if not attempts_result.data:
-                # No attempts yet - return empty but valid response
-                return jsonify({
-                    'status': 'success',
-                    'ratings': {}
-                })
-
-            # Build Language Lookup Map (Priority: Config -> DimensionService)
-            lang_map = {}
-
-            # 1. Initialize with Config fallbacks (guarantees data exists)
-            for lid, data in Config.LANGUAGES.items():
-                lang_map[lid] = {
-                    'code': data.get('code', f'lang_{lid}'),
-                    'name': data.get('display', f'Language {lid}')
-                }
-
-            # 2. Overlay with DimensionService cached data
-            from services.test_service import DimensionService
-            for lang in DimensionService.get_all_languages():
-                lang_id = lang.get('id')
-                if lang_id is not None:
-                    lang_map[int(lang_id)] = {
-                        'code': lang.get('language_code', f'lang_{lang_id}'),
-                        'name': lang.get('language_name', f'Language {lang_id}'),
-                        'native_name': lang.get('native_name') or lang.get('language_name', f'Language {lang_id}')
-                    }
-
-            # Build Test Type Lookup Map (with static fallbacks)
-            type_map = {
-                1: {'code': 'listening', 'name': 'Listening'},
-                2: {'code': 'reading', 'name': 'Reading'},
-                3: {'code': 'dictation', 'name': 'Dictation'},
-            }
-
-            # Overlay with DimensionService cached data (defensive access)
-            for tt in DimensionService.get_all_test_types():
-                tt_id = tt.get('id')
-                if tt_id is not None:
-                    type_map[int(tt_id)] = {
-                        'code': tt.get('type_code', f'type_{tt_id}'),
-                        'name': tt.get('type_name', f'Type {tt_id}')
-                    }
-
-            # Aggregate attempts by language_id and test_type_id
-            skill_stats = {}
-            for attempt in attempts_result.data:
-                language_id = attempt['language_id']
-                test_type_id = attempt['test_type_id']
-                key = (language_id, test_type_id)
-
-                if key not in skill_stats:
-                    # First time seeing this combination - this is the most recent
-                    skill_stats[key] = {
-                        'language_id': language_id,
-                        'test_type_id': test_type_id,
-                        'elo_rating': attempt['user_elo_after'],
-                        'last_test_date': attempt['created_at'],
-                        'tests_taken': 1
-                    }
-                else:
-                    # Increment test count (attempts are ordered newest first)
-                    skill_stats[key]['tests_taken'] += 1
-
-            # Build response with proper structure
-            ratings = {}
-            for (language_id, test_type_id), stats in skill_stats.items():
-                # Convert to int for consistent lookup with lang_map/type_map keys
-                lang_id_int = int(language_id) if language_id is not None else None
-                type_id_int = int(test_type_id) if test_type_id is not None else None
-
-                # Get language info (map already has Config fallbacks baked in)
-                lang_info = lang_map.get(lang_id_int, {
-                    'code': str(language_id),
-                    'name': f'Language {language_id}'
-                })
-                language_code = lang_info['code']
-                language_name = lang_info['name']
-
-                # Get test type info (map already has static fallbacks baked in)
-                type_info = type_map.get(type_id_int, {
-                    'code': str(test_type_id),
-                    'name': f'Type {test_type_id}'
-                })
-                test_type_code = type_info['code']
-                test_type_name = type_info['name']
-
-                # Nest by language code
-                if language_code not in ratings:
-                    ratings[language_code] = {
-                        'language_name': language_name,
-                        'native_name': lang_info.get('native_name', language_name),
-                        'language_id': language_id,
-                        'skills': {}
-                    }
-
-                # Add skill rating
-                ratings[language_code]['skills'][test_type_code] = {
-                    'elo_rating': stats['elo_rating'],
-                    'tests_taken': stats['tests_taken'],
-                    'last_test_date': stats['last_test_date'],
-                    'volatility': 100,  # Default volatility
-                    'skill_name': test_type_name,
-                    'test_type_id': test_type_id
-                }
-
-            return jsonify({
-                'status': 'success',
-                'ratings': ratings
-            })
-
-        except Exception as e:
-            app.logger.error(f"Error getting user ELO: {e}")
-            import traceback
-            app.logger.error(traceback.format_exc())
-            return jsonify({'error': 'Failed to get ELO ratings'}), 500
-    
-    @app.route('/api/users/tokens', methods=['GET'])
-    @supabase_jwt_required
-    def get_token_balance():
-        """Get user's current token balance"""
-        try:
-            # Get user_id from JWT claims instead of querying by email
-            user_id = g.supabase_claims.get('sub')
-            if not user_id:
-                return jsonify({"error": "User ID not found in token"}), 401
-
-            user_result = app.supabase.table('users')\
-                .select('tokens, last_free_token_date')\
-                .eq('id', user_id)\
-                .single()\
-                .execute()
-
-            if not user_result.data:
-                return jsonify({"error": "User not found"}), 404
-
-            tokens = user_result.data.get('tokens', 0)
-            last_free_date = user_result.data.get('last_free_token_date')
-
-            # Check if user should get daily free tokens
-            today = datetime.now(timezone.utc).date().isoformat()
-            free_tokens_today = Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
-
-            if last_free_date != today and free_tokens_today > 0:
-                # Grant daily free tokens
-                new_tokens = tokens + free_tokens_today
-                app.supabase.table('users')\
-                    .update({
-                        'tokens': new_tokens,
-                        'last_free_token_date': today
-                    })\
-                    .eq('id', user_id)\
-                    .execute()
-                tokens = new_tokens
-            
-            return jsonify({
-                "total_tokens": tokens,
-                "free_tokens_today": free_tokens_today,
-                "last_free_token_date": last_free_date or today,
-                "status": "success"
-            })
-        except Exception as e:
-            app.logger.error(f"Token balance error: {e}")
-            return jsonify({"error": "Failed to get token balance", "status": "error"}), 500
-    
-    @app.route('/api/users/profile', methods=['GET'])
-    @supabase_jwt_required
-    def get_user_profile():
-        """Get user profile information"""
-        try:
-            # Get user_id from JWT claims instead of querying by email
-            user_id = g.supabase_claims.get('sub')
-            if not user_id:
-                return jsonify({"error": "User ID not found in token"}), 401
-
-            user_result = app.supabase.table('users')\
-                .select('*')\
-                .eq('id', user_id)\
-                .single()\
-                .execute()
-
-            if not user_result.data:
-                return jsonify({"error": "User not found"}), 404
-            
-            profile = user_result.data
-            # Remove sensitive fields
-            profile.pop('password_hash', None)
-            
-            return jsonify({
-                "profile": profile,
-                "status": "success"
-            })
-        except Exception as e:
-            app.logger.error(f"Profile error: {e}")
-            return jsonify({"error": "Failed to get profile"}), 500
-
-    @app.route('/api/tests/history', methods=['GET'])
-    @supabase_jwt_required
-    def get_test_history():
-        """Get user's test attempt history with manual join"""
-        try:
-            user_id = g.supabase_claims.get('sub')
-            if not user_id:
-                return jsonify({"error": "User ID not found"}), 401
-
-            # Pagination & Filtering params
-            language_id = request.args.get('language_id', type=int)
-            test_type_id = request.args.get('test_type_id', type=int)
-            limit = min(int(request.args.get('limit', 25)), 100)
-            offset = int(request.args.get('offset', 0))
-
-            # 1. Fetch Attempts (using admin client to be safe, but user client works too)
-            client = app.supabase_service or app.supabase
-            
-            # Select simple columns, NO joins here to avoid RLS issues
-            query = client.table('test_attempts')\
-                .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id')\
-                .eq('user_id', user_id)\
-                .order('created_at', desc=True)\
-                .range(offset, offset + limit - 1)
-
-            if language_id:
-                query = query.eq('language_id', language_id)
-            if test_type_id:
-                query = query.eq('test_type_id', test_type_id)
-
-            attempts_result = query.execute()
-            attempts = attempts_result.data or []
-
-            if not attempts:
-                return jsonify({'status': 'success', 'tests': []}), 200
-
-            # 2. Extract unique Test IDs
-            test_ids = list(set(a['test_id'] for a in attempts))
-
-            # 3. Fetch Test Details (MUST use Service Client to bypass RLS)
-            tests_map = {}
-            if test_ids and app.supabase_service:
-                tests_result = app.supabase_service.table('tests')\
-                    .select('id, title, slug')\
-                    .in_('id', test_ids)\
-                    .execute()
-                
-                for t in tests_result.data or []:
-                    tests_map[t['id']] = t
-
-            # 4. Fetch Test Types (optional, for type_name)
-            # Using DimensionService if available, or a quick DB lookup
-            type_map = {}
-            try:
-                types_res = client.table('dim_test_types').select('id, type_name').execute()
-                for t in types_res.data or []:
-                    type_map[t['id']] = t['type_name']
-            except:
-                pass # Fallback to Unknown if this fails
-
-            # 5. Merge Data
-            history = []
-            for attempt in attempts:
-                test_id = attempt['test_id']
-                test_detail = tests_map.get(test_id, {})
-                type_name = type_map.get(attempt['test_type_id'], 'Unknown')
-                
-                history.append({
-                    'id': attempt['id'],
-                    'test_id': test_id,
-                    'test_title': test_detail.get('title', 'Unknown Test'),
-                    'test_slug': test_detail.get('slug', ''),
-                    'test_type': type_name,
-                    'test_type_id': attempt['test_type_id'],
-                    'score': attempt['score'],
-                    'total_questions': attempt['total_questions'],
-                    'percentage': attempt['percentage'],
-                    'user_elo_after': attempt['user_elo_after'],
-                    'created_at': attempt['created_at']
-                })
-
-            return jsonify({'status': 'success', 'tests': history}), 200
-
-        except Exception as e:
-            app.logger.error(f"Error getting test history: {e}")
-            app.logger.error(traceback.format_exc())
-            return jsonify({'error': 'Failed to get test history'}), 500
-
-    @app.route('/api/payments/token-packages', methods=['GET'])
-    def get_token_packages():
-        """Get available token packages"""
-        packages = {
-            'starter_10': {
-                'tokens': 10,
-                'price_cents': 199,
-                'price_dollars': 1.99,
-                'description': 'Starter pack - try the platform'
-            },
-            'popular_50': {
-                'tokens': 50,
-                'price_cents': 799,
-                'price_dollars': 7.99,
-                'description': 'Most popular - great value'
-            },
-            'premium_200': {
-                'tokens': 200,
-                'price_cents': 1999,
-                'price_dollars': 19.99,
-                'description': 'Premium pack - best value'
-            }
-        }
-        return jsonify({"packages": packages, "status": "success"})
-    
-    @app.route('/api/payments/create-intent', methods=['POST'])
-    @supabase_jwt_required
-    def create_payment_intent():
-        """Create Stripe PaymentIntent for token purchase"""
-        try:
-            if not stripe.api_key:
-                return jsonify({"error": "Payment system not configured"}), 500
-            
-            data = request.get_json()
-            package_id = data.get('package_id')
-            
-            # Package mapping
-            packages = {
-                'starter_10': {'tokens': 10, 'amount': 199},
-                'popular_50': {'tokens': 50, 'amount': 799},
-                'premium_200': {'tokens': 200, 'amount': 1999}
-            }
-            
-            if package_id not in packages:
-                return jsonify({"error": "Invalid package"}), 400
-            
-            package = packages[package_id]
-            current_user_email = get_jwt_identity()
-            
-            # Create payment intent
-            intent = stripe.PaymentIntent.create(
-                amount=package['amount'],
-                currency='usd',
-                metadata={
-                    'user_email': current_user_email,
-                    'package_id': package_id,
-                    'tokens': package['tokens']
-                }
-            )
-            
-            return jsonify({
-                "client_secret": intent.client_secret,
-                "amount": package['amount'],
-                "tokens": package['tokens'],
-                "status": "success"
-            })
-        except Exception as e:
-            app.logger.error(f"Payment intent error: {e}")
-            return jsonify({"error": str(e)}), 500
+            return server_error("Failed to log error")
 
 app = create_app()
 

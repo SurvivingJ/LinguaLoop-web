@@ -1,9 +1,10 @@
 """User report submission routes."""
-from flask import Blueprint, request, jsonify, current_app, g
+from flask import Blueprint, request, current_app, g
 import logging
 import traceback
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
 reports_bp = Blueprint("reports", __name__)
@@ -20,21 +21,19 @@ VALID_CATEGORIES = [
 
 @reports_bp.route('/submit', methods=['POST'])
 @supabase_jwt_required
-def submit_report():
+def submit_report() -> ApiResponse:
     """Submit a user report with metadata."""
     try:
-        user_id = g.supabase_claims.get('sub')
-        if not user_id:
-            return jsonify({"error": "User ID not found", "status": "error"}), 401
+        user_id = g.current_user_id
 
         data = request.get_json() or {}
         category = data.get('report_category')
         description = data.get('description', '').strip()
 
         if category not in VALID_CATEGORIES:
-            return jsonify({"error": "Invalid category", "status": "error"}), 400
+            return bad_request("Invalid category")
         if len(description) < 10:
-            return jsonify({"error": "Description too short", "status": "error"}), 400
+            return bad_request("Description too short")
 
         result = current_app.supabase_service.table('user_reports').insert({
             'user_id': user_id,
@@ -52,9 +51,9 @@ def submit_report():
             raise Exception("Insert failed")
 
         logger.info(f"Report submitted: user={user_id}, category={category}")
-        return jsonify({"status": "success", "report_id": result.data[0]['id']}), 201
+        return api_success({"report_id": result.data[0]['id']}, status_code=201)
 
     except Exception as e:
         logger.error(f"Report error: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e), "status": "error"}), 500
+        return server_error("Failed to submit report")

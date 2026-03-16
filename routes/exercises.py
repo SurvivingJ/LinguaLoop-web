@@ -1,11 +1,12 @@
 # routes/exercises.py
 """Exercise practice routes — browse, attempt, and track exercises."""
 
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, g
 from datetime import datetime, timezone
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
 exercises_bp = Blueprint("exercises", __name__)
@@ -13,22 +14,16 @@ exercises_bp = Blueprint("exercises", __name__)
 
 @exercises_bp.route('/', methods=['GET'])
 @supabase_jwt_required
-def get_exercises():
-    """
-    List exercises with optional filters.
+def get_exercises() -> ApiResponse:
+    """List exercises with optional filters.
 
     Query params:
-        language_id:   required (int)
-        exercise_type: optional — e.g. cloze_completion, tl_nl_translation
-        source_type:   optional — grammar, vocabulary, collocation
-        cefr_level:    optional — A1..C2
-        limit:         optional (int, default 20, max 100)
-        offset:        optional (int, default 0)
+        language_id, exercise_type, source_type, cefr_level, limit, offset
     """
     try:
         language_id = request.args.get('language_id', type=int)
         if not language_id:
-            return jsonify({"error": "language_id required"}), 400
+            return bad_request("language_id required")
 
         exercise_type = request.args.get('exercise_type')
         source_type = request.args.get('source_type')
@@ -58,8 +53,7 @@ def get_exercises():
         response = query.execute()
         exercises = response.data or []
 
-        # Batch-fetch definitions and lemmas for vocabulary exercises.
-        # Try word_sense_id first, fall back to tags.source_id for older exercises.
+        # Batch-fetch definitions and lemmas for vocabulary exercises
         sense_ids = []
         for ex in exercises:
             if not isinstance(ex.get('content'), dict):
@@ -79,10 +73,7 @@ def get_exercises():
                 .select('id, definition, dim_vocabulary(lemma)') \
                 .in_('id', unique_ids) \
                 .execute()
-            sense_lookup = {
-                row['id']: row
-                for row in (sense_resp.data or [])
-            }
+            sense_lookup = {row['id']: row for row in (sense_resp.data or [])}
 
         for ex in exercises:
             if not isinstance(ex.get('content'), dict):
@@ -101,37 +92,26 @@ def get_exercises():
                         if lemma:
                             ex['content']['target_word'] = lemma
 
-        return jsonify({
-            "status": "success",
-            "exercises": exercises,
-            "count": len(exercises),
-        })
+        return api_success({"exercises": exercises, "count": len(exercises)})
 
     except Exception as e:
         logger.error(f"Error fetching exercises: {e}")
-        return jsonify({"error": "Failed to fetch exercises"}), 500
+        return server_error("Failed to fetch exercises")
 
 
 @exercises_bp.route('/attempt', methods=['POST'])
 @supabase_jwt_required
-def submit_attempt():
-    """
-    Record an exercise attempt.
+def submit_attempt() -> ApiResponse:
+    """Record an exercise attempt.
 
-    Body:
-        exercise_id:   UUID string (required)
-        user_response: dict (required)
-        is_correct:    bool (required)
-        time_taken_ms: int (optional)
+    Body: exercise_id (required), user_response, is_correct, time_taken_ms
     """
     try:
-        current_user_id = g.supabase_claims.get('sub')
-        if not current_user_id:
-            return jsonify({"error": "User authentication failed"}), 401
+        current_user_id = g.current_user_id
 
         data = request.get_json()
         if not data or 'exercise_id' not in data:
-            return jsonify({"error": "exercise_id required"}), 400
+            return bad_request("exercise_id required")
 
         exercise_id = data['exercise_id']
         is_correct = bool(data.get('is_correct', False))
@@ -139,7 +119,6 @@ def submit_attempt():
         from services.supabase_factory import get_supabase_admin
         db = get_supabase_admin()
 
-        # Insert attempt
         db.table('exercise_attempts').insert({
             'user_id': current_user_id,
             'exercise_id': exercise_id,
@@ -149,7 +128,6 @@ def submit_attempt():
             'created_at': datetime.now(timezone.utc).isoformat(),
         }).execute()
 
-        # Update exercise counters
         exercise = db.table('exercises') \
             .select('attempt_count, correct_count') \
             .eq('id', exercise_id).single().execute().data
@@ -160,26 +138,21 @@ def submit_attempt():
                 updates['correct_count'] = (exercise.get('correct_count') or 0) + 1
             db.table('exercises').update(updates).eq('id', exercise_id).execute()
 
-        return jsonify({"status": "success"})
+        return api_success()
 
     except Exception as e:
         logger.error(f"Error submitting exercise attempt: {e}")
-        return jsonify({"error": "Failed to submit attempt"}), 500
+        return server_error("Failed to submit attempt")
 
 
 @exercises_bp.route('/types', methods=['GET'])
 @supabase_jwt_required
-def get_exercise_types():
-    """
-    Get distinct exercise types available for a language.
-
-    Query params:
-        language_id: required (int)
-    """
+def get_exercise_types() -> ApiResponse:
+    """Get distinct exercise types available for a language."""
     try:
         language_id = request.args.get('language_id', type=int)
         if not language_id:
-            return jsonify({"error": "language_id required"}), 400
+            return bad_request("language_id required")
 
         from services.supabase_factory import get_supabase_admin
         db = get_supabase_admin()
@@ -192,11 +165,8 @@ def get_exercise_types():
 
         types = sorted(set(row['exercise_type'] for row in (response.data or [])))
 
-        return jsonify({
-            "status": "success",
-            "types": types,
-        })
+        return api_success({"types": types})
 
     except Exception as e:
         logger.error(f"Error fetching exercise types: {e}")
-        return jsonify({"error": "Failed to fetch exercise types"}), 500
+        return server_error("Failed to fetch exercise types")

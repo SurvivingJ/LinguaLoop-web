@@ -83,6 +83,17 @@ class Config:
     LANGUAGE_CODE_TO_ID = {v['code']: k for k, v in LANGUAGES.items()}
 
     # ==========================================================================
+    # ELO & GAME CONSTANTS
+    # ==========================================================================
+    DEFAULT_ELO_RATING = 1400
+    DEFAULT_VOLATILITY = 100
+    MAX_DAILY_TESTS = 3
+    POOR_PERFORMANCE_THRESHOLD = 70  # percentage
+    DAILY_TEST_COOLDOWN_SECONDS = 86400
+    SUPABASE_BATCH_CHUNK_SIZE = 500
+    MAX_INPUT_LENGTH = 2000
+
+    # ==========================================================================
     # TOKEN ECONOMY - Single source of truth
     # ==========================================================================
     TOKEN_COSTS = {
@@ -92,9 +103,18 @@ class Config:
     DAILY_FREE_TOKENS = int(os.environ.get('DAILY_FREE_TOKENS', '2'))
 
     TOKEN_PACKAGES = {
-        'starter_10': {'tokens': 10, 'price_cents': 199, 'description': 'Starter pack'},
-        'popular_50': {'tokens': 50, 'price_cents': 799, 'description': 'Most popular'},
-        'premium_200': {'tokens': 200, 'price_cents': 1999, 'description': 'Best value'},
+        'starter_10': {
+            'tokens': 10, 'price_cents': 199, 'price_dollars': 1.99,
+            'description': 'Starter pack - try the platform',
+        },
+        'popular_50': {
+            'tokens': 50, 'price_cents': 799, 'price_dollars': 7.99,
+            'description': 'Most popular - great value',
+        },
+        'premium_200': {
+            'tokens': 200, 'price_cents': 1999, 'price_dollars': 19.99,
+            'description': 'Premium pack - best value',
+        },
     }
 
     # ==========================================================================
@@ -124,12 +144,30 @@ class Config:
     # ==========================================================================
     @staticmethod
     def get_audio_url(slug: str) -> str:
-        """Construct audio URL from slug"""
+        """Construct the full public audio URL for a test.
+
+        Args:
+            slug: The test slug used as the audio filename (without extension).
+
+        Returns:
+            Full URL to the .mp3 file on the R2 CDN.
+        """
         return f"{Config.R2_PUBLIC_URL}/{slug}.mp3"
 
     @staticmethod
     def get_model_for_language(language: str, task: str = 'transcript') -> str:
-        """Get optimal model for language and task"""
+        """Select the AI model to use for a given language and task.
+
+        When OpenRouter is disabled, returns the default OpenAI model.
+        Otherwise looks up the language-specific model from AI_MODELS.
+
+        Args:
+            language: Language name (e.g. 'chinese', 'english', 'japanese').
+            task: The generation task — 'transcript' or 'questions'.
+
+        Returns:
+            Model identifier string suitable for the chat completions API.
+        """
         if not Config.USE_OPENROUTER:
             return Config.DEFAULT_AI_MODEL
         lang_config = Config.AI_MODELS.get(language.lower(), Config.AI_MODELS['english'])
@@ -137,10 +175,24 @@ class Config:
 
     @staticmethod
     def get_language_name(language_id: int) -> str:
-        """Get language name from ID"""
+        """Map a numeric language ID to its canonical name.
+
+        Args:
+            language_id: Integer key from the LANGUAGES dict (1=CN, 2=EN, 3=JP).
+
+        Returns:
+            Lowercase language name, or 'unknown' if the ID is not recognised.
+        """
         return Config.LANGUAGE_ID_TO_NAME.get(language_id, 'unknown')
 
     @staticmethod
     def get_language_id(code: str) -> int:
-        """Get language ID from code"""
+        """Map a two-letter language code to its numeric ID.
+
+        Args:
+            code: Two-letter code (e.g. 'cn', 'en', 'jp'). Case-insensitive.
+
+        Returns:
+            Integer language ID, defaulting to 1 (Chinese) if code is not found.
+        """
         return Config.LANGUAGE_CODE_TO_ID.get(code.lower(), 1)

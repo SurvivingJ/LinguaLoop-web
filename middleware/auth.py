@@ -6,6 +6,7 @@ Provides both class-based and standalone decorator functions.
 
 from functools import wraps
 from flask import request, jsonify, g
+from gotrue.errors import AuthApiError, AuthRetryableError
 import os
 import logging
 
@@ -85,6 +86,12 @@ def jwt_required(f):
 
             logger.debug(f"User authenticated: {user_response.user.id}")
 
+        except AuthApiError as e:
+            logger.warning(f'Auth API error: {e.message}')
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        except AuthRetryableError as e:
+            logger.error(f'Auth service temporarily unavailable: {e}')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
         except Exception as e:
             logger.error(f'JWT validation failed: {e}')
             return jsonify({'error': 'Invalid token'}), 401
@@ -128,6 +135,12 @@ def admin_required(f):
 
             logger.info(f"[AUTH] Admin access granted for user_id={user_response.user.id}")
 
+        except AuthApiError as e:
+            logger.warning(f'Admin auth API error: {e.message}')
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        except AuthRetryableError as e:
+            logger.error(f'Auth service temporarily unavailable: {e}')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
         except Exception as e:
             logger.error(f'Admin auth failed: {e}')
             return jsonify({'error': 'Access denied'}), 403
@@ -173,6 +186,12 @@ def tier_required(required_tiers: list):
 
                 logger.info(f"[AUTH] Tier access granted for user_id={user_response.user.id}")
 
+            except AuthApiError as e:
+                logger.warning(f'Tier auth API error: {e.message}')
+                return jsonify({'error': 'Invalid or expired token'}), 401
+            except AuthRetryableError as e:
+                logger.error(f'Auth service temporarily unavailable: {e}')
+                return jsonify({'error': 'Authentication service unavailable'}), 503
             except Exception as e:
                 logger.error(f'Tier auth failed: {e}')
                 return jsonify({'error': 'Access denied'}), 403
@@ -209,7 +228,12 @@ class AuthMiddleware:
                 user = self.supabase.auth.get_user(token)
                 g.current_user_id = user.user.id
                 g.current_user = user.user
+            except AuthApiError:
+                return jsonify({'error': 'Invalid or expired token'}), 401
+            except AuthRetryableError:
+                return jsonify({'error': 'Authentication service unavailable'}), 503
             except Exception as e:
+                logger.error(f'Class-based JWT validation failed: {e}')
                 return jsonify({'error': 'Invalid token'}), 401
 
             return f(*args, **kwargs)
@@ -240,7 +264,12 @@ class AuthMiddleware:
 
                 logger.info(f"[AUTH] Admin access granted (class-based) for user_id={user.user.id}")
 
+            except AuthApiError:
+                return jsonify({'error': 'Invalid or expired token'}), 401
+            except AuthRetryableError:
+                return jsonify({'error': 'Authentication service unavailable'}), 503
             except Exception as e:
+                logger.error(f'Class-based admin auth failed: {e}')
                 return jsonify({'error': 'Access denied'}), 403
 
             return f(*args, **kwargs)
@@ -272,7 +301,12 @@ class AuthMiddleware:
 
                     logger.info(f"[AUTH] Tier access granted (class-based) for user_id={user.user.id}")
 
+                except AuthApiError:
+                    return jsonify({'error': 'Invalid or expired token'}), 401
+                except AuthRetryableError:
+                    return jsonify({'error': 'Authentication service unavailable'}), 503
                 except Exception as e:
+                    logger.error(f'Class-based tier auth failed: {e}')
                     return jsonify({'error': 'Access denied'}), 403
 
                 return f(*args, **kwargs)

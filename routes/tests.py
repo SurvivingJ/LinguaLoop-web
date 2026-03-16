@@ -13,9 +13,26 @@ from services.test_service import (
     TestService, DimensionService, get_test_service,
     parse_language_id, LANGUAGE_ID_TO_NAME, VALID_LANGUAGE_IDS
 )
+from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 
 logger = logging.getLogger(__name__)
 tests_bp = Blueprint("tests", __name__)
+
+
+# ============================================================================
+# HELPERS
+# ============================================================================
+
+def normalize_audio_url(test_data):
+    """Ensure test_data['audio_url'] is a full URL, falling back to slug-based CDN URL."""
+    audio_url = test_data.get('audio_url', '')
+    if audio_url:
+        if not audio_url.startswith('http'):
+            slug_part = audio_url.replace('.mp3', '')
+            test_data['audio_url'] = Config.get_audio_url(slug_part)
+    else:
+        test_data['audio_url'] = Config.get_audio_url(test_data.get('slug', ''))
+    return test_data
 
 
 # ============================================================================
@@ -74,7 +91,7 @@ def moderate_content():
 @tests_bp.route('/random', methods=['GET'])
 @supabase_jwt_required
 def get_random_test():
-    user_id = g.supabase_claims.get('sub')
+    user_id = g.current_user_id
     language_id_param = request.args.get('language_id')
 
     # Parse and validate language_id
@@ -99,7 +116,7 @@ def get_random_test():
 @supabase_jwt_required
 def get_recommended_tests():
     """Get recommended tests based on user's ELO ratings."""
-    user_id = g.supabase_claims.get('sub')
+    user_id = g.current_user_id
     language_id_param = request.args.get('language_id')
 
     language_id = parse_language_id(language_id_param)
@@ -120,14 +137,14 @@ def get_recommended_tests():
         })
     except Exception as e:
         logger.error(f"Error fetching recommended tests: {e}")
-        return jsonify({"error": str(e), "success": False}), 500
+        return jsonify({"error": "Failed to fetch recommended tests", "success": False}), 500
 
 
 @tests_bp.route('/daily-load', methods=['GET'])
 @supabase_jwt_required
 def get_daily_load():
     """Get or compute today's daily test load for the user."""
-    user_id = g.supabase_claims.get('sub')
+    user_id = g.current_user_id
     language_id_param = request.args.get('language_id')
 
     language_id = parse_language_id(language_id_param)
@@ -145,14 +162,14 @@ def get_daily_load():
     except Exception as e:
         logger.error(f"Error fetching daily load: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e), "success": False}), 500
+        return jsonify({"error": "Failed to fetch daily load", "success": False}), 500
 
 
 @tests_bp.route('/daily-load/complete', methods=['POST'])
 @supabase_jwt_required
 def complete_daily_load_test():
     """Mark a test as completed in today's daily load."""
-    user_id = g.supabase_claims.get('sub')
+    user_id = g.current_user_id
     data = request.get_json()
 
     if not data:
@@ -171,7 +188,7 @@ def complete_daily_load_test():
     except Exception as e:
         logger.error(f"Error marking daily test complete: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e), "success": False}), 500
+        return jsonify({"error": "Failed to mark daily test complete", "success": False}), 500
 
 
 @tests_bp.route('/generate_test', methods=['POST'])
@@ -179,7 +196,7 @@ def complete_daily_load_test():
 def generate_test():
     """Generate a new test and save to Supabase database"""
     try:
-        current_user_id = g.supabase_claims.get('sub')
+        current_user_id = g.current_user_id
         current_user_email = g.supabase_claims.get('email')
 
         # Handle batch operations using service role key
@@ -384,7 +401,7 @@ def generate_test():
 def custom_test():
     """Create a custom test with user-provided transcript and save to Supabase"""
     try:
-        current_user_id = g.supabase_claims.get('sub')
+        current_user_id = g.current_user_id
         current_user_email = g.supabase_claims.get('email')
 
         # Handle batch operations using service role key
@@ -535,9 +552,9 @@ def custom_test():
         })
 
     except Exception as e:
-        current_app.logger.error(f"❌ Custom test error: {e}")
-        current_app.logger.error(f"❌ Traceback: {traceback.format_exc()}")
-        return jsonify({"error": str(e), "status": "error"}), 500
+        current_app.logger.error(f"Custom test error: {e}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error": "Failed to create custom test", "status": "error"}), 500
 
 
 
@@ -592,9 +609,9 @@ def get_tests_with_ratings():
             test_ratings = ratings_by_test.get(test['id'], {})
             test_with_ratings = {
                 **test,
-                'listening_rating': test_ratings.get('listening', {}).get('elo_rating', 1400),
-                'reading_rating': test_ratings.get('reading', {}).get('elo_rating', 1400),
-                'dictation_rating': test_ratings.get('dictation', {}).get('elo_rating', 1400),
+                'listening_rating': test_ratings.get('listening', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
+                'reading_rating': test_ratings.get('reading', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
+                'dictation_rating': test_ratings.get('dictation', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
                 'skill_ratings': test_ratings
             }
             tests_with_ratings.append(test_with_ratings)
@@ -606,7 +623,7 @@ def get_tests_with_ratings():
 
     except Exception as e:
         current_app.logger.error(f"Error fetching tests: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Failed to fetch tests"}), 500
 
 @tests_bp.route('/<slug>', methods=['GET'])
 #@supabase_jwt_required
@@ -618,18 +635,129 @@ def get_test(slug):
         if not test_data:
             return jsonify({"error": "Test not found", "status": "not_found"}), 404
 
-        # Only set audio_url if missing from database
-        if not test_data.get('audio_url'):
-            from config import Config
-            test_data['audio_url'] = Config.get_audio_url(slug)
+        normalize_audio_url(test_data)
 
         logger.debug(f"Returning test data for slug: {slug}")
         return jsonify({"test": test_data, "status": "success"})
 
     except Exception as e:
         current_app.logger.error(f"Error in get_test route: {e}")
-        return jsonify({"error": str(e), "status": "error"}), 500
+        return jsonify({"error": "Failed to fetch test", "status": "error"}), 500
         
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses):
+    """Call the process_test_submission RPC and handle JSONB response quirks.
+
+    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
+    """
+    try:
+        response = client.rpc('process_test_submission', {
+            'p_user_id': user_id,
+            'p_test_id': test_id,
+            'p_language_id': language_id,
+            'p_test_type_id': test_type_id,
+            'p_responses': db_responses,
+            'p_was_free_test': True,
+            'p_idempotency_key': str(uuid4())
+        }).execute()
+        return response.data
+    except Exception as e:
+        # Supabase Python client may throw for JSONB responses — check if actually successful
+        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
+        if isinstance(error_data, dict) and error_data.get('success'):
+            current_app.logger.info(f"RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
+            return error_data
+        current_app.logger.error(f"RPC call failed: {error_data}")
+        return jsonify({"error": "Failed to process test submission"}), 500
+
+
+def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
+    """Run BKT vocabulary tracking and build a word quiz from question results.
+
+    Returns a word_quiz dict or None. Failures are logged but never raised.
+    """
+    try:
+        question_results_raw = rpc_result.get('question_results', [])
+        current_app.logger.info(f"BKT: {len(question_results_raw)} question results from RPC")
+
+        if not question_results_raw:
+            return None
+
+        bkt_question_results = [
+            {'question_id': str(qr['question_id']), 'is_correct': qr.get('is_correct', False)}
+            for qr in question_results_raw
+            if qr.get('question_id')
+        ]
+        current_app.logger.info(f"BKT: {len(bkt_question_results)} valid question results")
+
+        if not bkt_question_results:
+            return None
+
+        knowledge_svc = VocabularyKnowledgeService()
+        vocab_updates = knowledge_svc.update_from_comprehension(
+            user_id=user_id, language_id=language_id, question_results=bkt_question_results,
+        )
+        current_app.logger.info(f"BKT: {len(vocab_updates)} vocab updates returned")
+
+        # Collect all sense_ids from questions for quiz candidate selection
+        all_sense_ids = set()
+        questions_resp = knowledge_svc.db.table('questions') \
+            .select('sense_ids').eq('test_id', str(test_id)).execute()
+        for q in (questions_resp.data or []):
+            if q.get('sense_ids'):
+                all_sense_ids.update(q['sense_ids'])
+
+        current_app.logger.info(f"BKT: {len(all_sense_ids)} unique sense_ids from questions")
+
+        if not all_sense_ids:
+            current_app.logger.warning("BKT: No sense_ids on questions — run backfill_question_sense_ids.py")
+            return None
+
+        quiz_candidates = knowledge_svc.build_quiz_with_distractors(
+            user_id=user_id, sense_ids=list(all_sense_ids),
+            language_id=language_id, max_words=5,
+        )
+        current_app.logger.info(f"BKT: {len(quiz_candidates)} quiz candidates with distractors")
+
+        if quiz_candidates:
+            attempt_id = rpc_result.get('attempt_id')
+            return {
+                'candidates': quiz_candidates,
+                'attempt_id': str(attempt_id) if attempt_id else None,
+            }
+        return None
+
+    except Exception as e:
+        current_app.logger.error(f"BKT/word quiz failed (non-fatal): {e}\n{traceback.format_exc()}")
+        return None
+
+
+def _build_submission_response(rpc_result, test_mode, word_quiz):
+    """Construct the API response dict from RPC results and optional word quiz."""
+    attempt_id = rpc_result.get('attempt_id')
+    result = {
+        'score': rpc_result.get('score'),
+        'total_questions': rpc_result.get('total_questions'),
+        'percentage': rpc_result.get('percentage'),
+        'question_results': rpc_result.get('question_results', []),
+        'is_first_attempt': rpc_result.get('is_first_attempt', True),
+        'user_elo_change': {
+            'before': rpc_result.get('user_elo_before'),
+            'after': rpc_result.get('user_elo_after'),
+            'change': rpc_result.get('user_elo_change', 0)
+        },
+        'test_elo_change': {
+            'before': rpc_result.get('test_elo_before'),
+            'after': rpc_result.get('test_elo_after'),
+            'change': rpc_result.get('test_elo_change', 0)
+        },
+        'test_mode': test_mode,
+        'attempt_id': str(attempt_id) if attempt_id else None,
+    }
+    if word_quiz:
+        result['word_quiz'] = word_quiz
+    return result
+
+
 @tests_bp.route('/<slug>/submit', methods=['POST'])
 @supabase_jwt_required
 def submit_test_attempt(slug):
@@ -638,9 +766,7 @@ def submit_test_attempt(slug):
         if not current_app.supabase_service:
             return jsonify({"error": "Database service not configured"}), 500
 
-        current_user_id = g.supabase_claims.get('sub')
-        if not current_user_id:
-            return jsonify({"error": "User authentication failed"}), 401
+        current_user_id = g.current_user_id
 
         data = request.get_json() or {}
         responses = data.get('responses', [])
@@ -670,157 +796,42 @@ def submit_test_attempt(slug):
             test_type_id = DimensionService.get_test_type_id('reading') or 1
 
         # Transform responses: strip 'is_correct' field (DB will calculate)
-        # question_id is questions.id (UUID), not questions.question_id (text)
         db_responses = [
-            {
-                "question_id": str(r['question_id']),
-                "selected_answer": r['selected_answer']
-            }
+            {"question_id": str(r['question_id']), "selected_answer": r['selected_answer']}
             for r in responses
         ]
 
         # Call database RPC for validation, ELO calculation and attempt recording
-        try:
-            response = current_app.supabase_service.rpc('process_test_submission', {
-                'p_user_id': current_user_id,
-                'p_test_id': test_id,
-                'p_language_id': language_id,
-                'p_test_type_id': test_type_id,
-                'p_responses': db_responses,                # Database validates answers
-                'p_was_free_test': True,
-                'p_idempotency_key': str(uuid4())
-            }).execute()
-            
-            # Extract JSONB result from response.data
-            rpc_result = response.data
-            
-        except Exception as e:
-            # The Supabase Python client throws APIError for JSONB responses
-            # Parse the response which is actually in the exception
-            error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-            
-            # Check if it's actually a successful JSONB response
-            if isinstance(error_data, dict) and error_data.get('success'):
-                rpc_result = error_data
-                current_app.logger.info(f"RPC succeeded (JSONB response): attempt_id={rpc_result.get('attempt_id')}")
-            else:
-                # Actual error
-                current_app.logger.error(f"RPC call failed: {error_data}")
-                return jsonify({"error": "Failed to process test submission"}), 500
+        rpc_result = _call_submission_rpc(
+            current_app.supabase_service, current_user_id,
+            test_id, language_id, test_type_id, db_responses
+        )
+        if isinstance(rpc_result, tuple):
+            return rpc_result  # Error response
 
         # Validate the result
         if not rpc_result or not rpc_result.get('success'):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
             current_app.logger.error(f"ELO RPC failed: {error_msg} (detail: {error_detail})")
-            return jsonify({
-                "error": "Failed to process test submission",
-                "details": error_msg
-            }), 500
-
-        # Extract results from database
-        is_first_attempt = rpc_result.get('is_first_attempt', True)
-        attempt_id = rpc_result.get('attempt_id')
-        score = rpc_result.get('score', 0)
-        total_questions = rpc_result.get('total_questions', 0)
+            return jsonify({"error": "Failed to process test submission", "details": error_msg}), 500
 
         current_app.logger.info(
-            f"Test submitted successfully: user={current_user_id}, "
-            f"test={test_id}, attempt={attempt_id}, "
-            f"score={score}/{total_questions}, first_attempt={is_first_attempt}"
+            f"Test submitted: user={current_user_id}, test={test_id}, "
+            f"attempt={rpc_result.get('attempt_id')}, "
+            f"score={rpc_result.get('score', 0)}/{rpc_result.get('total_questions', 0)}"
         )
 
-        # BKT vocabulary tracking — update P(knows) and get quiz candidates
-        word_quiz = None
-        try:
-            from services.vocabulary.knowledge_service import VocabularyKnowledgeService
+        # BKT vocabulary tracking
+        word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
 
-            question_results_raw = rpc_result.get('question_results', [])
-            current_app.logger.info(f"BKT: {len(question_results_raw)} question results from RPC")
-
-            if question_results_raw:
-                bkt_question_results = [
-                    {
-                        'question_id': str(qr['question_id']),
-                        'is_correct': qr.get('is_correct', False),
-                    }
-                    for qr in question_results_raw
-                    if qr.get('question_id')
-                ]
-
-                current_app.logger.info(f"BKT: {len(bkt_question_results)} valid question results")
-
-                if bkt_question_results:
-                    knowledge_svc = VocabularyKnowledgeService()
-                    vocab_updates = knowledge_svc.update_from_comprehension(
-                        user_id=current_user_id,
-                        language_id=language_id,
-                        question_results=bkt_question_results,
-                    )
-                    current_app.logger.info(f"BKT: {len(vocab_updates)} vocab updates returned")
-
-                    # Collect all sense_ids from questions for quiz candidate selection
-                    all_sense_ids = set()
-                    questions_resp = knowledge_svc.db.table('questions') \
-                        .select('sense_ids') \
-                        .eq('test_id', str(test_id)) \
-                        .execute()
-                    for q in (questions_resp.data or []):
-                        if q.get('sense_ids'):
-                            all_sense_ids.update(q['sense_ids'])
-
-                    current_app.logger.info(f"BKT: {len(all_sense_ids)} unique sense_ids from questions")
-
-                    if all_sense_ids:
-                        quiz_candidates = knowledge_svc.build_quiz_with_distractors(
-                            user_id=current_user_id,
-                            sense_ids=list(all_sense_ids),
-                            language_id=language_id,
-                            max_words=5,
-                        )
-                        current_app.logger.info(f"BKT: {len(quiz_candidates)} quiz candidates with distractors")
-                        if quiz_candidates:
-                            word_quiz = {
-                                'candidates': quiz_candidates,
-                                'attempt_id': str(attempt_id) if attempt_id else None,
-                            }
-                    else:
-                        current_app.logger.warning("BKT: No sense_ids on questions — run backfill_question_sense_ids.py")
-
-        except Exception as e:
-            import traceback
-            current_app.logger.error(f"BKT/word quiz failed (non-fatal): {e}\n{traceback.format_exc()}")
-
-        # Return comprehensive result
-        # Note: RPC function handles validation, ELO updates atomically
-        result = {
-            'score': rpc_result.get('score'),
-            'total_questions': rpc_result.get('total_questions'),
-            'percentage': rpc_result.get('percentage'),
-            'question_results': rpc_result.get('question_results', []),
-            'is_first_attempt': is_first_attempt,
-            'user_elo_change': {
-                'before': rpc_result.get('user_elo_before'),
-                'after': rpc_result.get('user_elo_after'),
-                'change': rpc_result.get('user_elo_change', 0)
-            },
-            'test_elo_change': {
-                'before': rpc_result.get('test_elo_before'),
-                'after': rpc_result.get('test_elo_after'),
-                'change': rpc_result.get('test_elo_change', 0)
-            },
-            'test_mode': test_mode,
-            'attempt_id': str(attempt_id) if attempt_id else None,
-        }
-        if word_quiz:
-            result['word_quiz'] = word_quiz
-
+        result = _build_submission_response(rpc_result, test_mode, word_quiz)
         return jsonify({'status': 'success', 'result': result}), 200
 
     except Exception as e:
         current_app.logger.error(f"Test submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit test', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to submit test'}), 500
 
 
 @tests_bp.route('/test/<identifier>', methods=['GET'])
@@ -860,16 +871,7 @@ def get_test_with_ratings(identifier):
         test['language'] = lang_info.get('language_code', 'unknown')
         test['language_name'] = lang_info.get('language_name', 'Unknown')
 
-        # Normalize audio_url to full URL
-        audio_url = test.get('audio_url', '')
-        if audio_url:
-            # If it's just a filename (no protocol), construct full URL
-            if not audio_url.startswith('http'):
-                slug_part = audio_url.replace('.mp3', '')
-                test['audio_url'] = Config.get_audio_url(slug_part)
-        else:
-            # No audio_url, generate from slug
-            test['audio_url'] = Config.get_audio_url(test['slug'])
+        normalize_audio_url(test)
 
         # Get questions
         questions_result = current_app.supabase_service.table('questions').select(
@@ -924,4 +926,84 @@ def get_test_with_ratings(identifier):
 
     except Exception as e:
         current_app.logger.error(f"Error fetching test {identifier}: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Failed to fetch test"}), 500
+
+
+@tests_bp.route('/history', methods=['GET'])
+@supabase_jwt_required
+def get_test_history():
+    """Get user's test attempt history with manual join"""
+    try:
+        user_id = g.current_user_id
+        if not user_id:
+            return jsonify({"error": "User ID not found"}), 401
+
+        language_id = request.args.get('language_id', type=int)
+        test_type_id = request.args.get('test_type_id', type=int)
+        limit = min(int(request.args.get('limit', 25)), 100)
+        offset = int(request.args.get('offset', 0))
+
+        client = current_app.supabase_service or current_app.supabase
+
+        query = client.table('test_attempts')\
+            .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id')\
+            .eq('user_id', user_id)\
+            .order('created_at', desc=True)\
+            .range(offset, offset + limit - 1)
+
+        if language_id:
+            query = query.eq('language_id', language_id)
+        if test_type_id:
+            query = query.eq('test_type_id', test_type_id)
+
+        attempts_result = query.execute()
+        attempts = attempts_result.data or []
+
+        if not attempts:
+            return jsonify({'status': 'success', 'tests': []}), 200
+
+        test_ids = list(set(a['test_id'] for a in attempts))
+
+        tests_map = {}
+        if test_ids and current_app.supabase_service:
+            tests_result = current_app.supabase_service.table('tests')\
+                .select('id, title, slug')\
+                .in_('id', test_ids)\
+                .execute()
+            for t in tests_result.data or []:
+                tests_map[t['id']] = t
+
+        type_map = {}
+        try:
+            types_res = client.table('dim_test_types').select('id, type_name').execute()
+            for t in types_res.data or []:
+                type_map[t['id']] = t['type_name']
+        except Exception as e:
+            logger.debug(f"dim_test_types lookup skipped: {e}")
+
+        history = []
+        for attempt in attempts:
+            test_id = attempt['test_id']
+            test_detail = tests_map.get(test_id, {})
+            type_name = type_map.get(attempt['test_type_id'], 'Unknown')
+
+            history.append({
+                'id': attempt['id'],
+                'test_id': test_id,
+                'test_title': test_detail.get('title', 'Unknown Test'),
+                'test_slug': test_detail.get('slug', ''),
+                'test_type': type_name,
+                'test_type_id': attempt['test_type_id'],
+                'score': attempt['score'],
+                'total_questions': attempt['total_questions'],
+                'percentage': attempt['percentage'],
+                'user_elo_after': attempt['user_elo_after'],
+                'created_at': attempt['created_at']
+            })
+
+        return jsonify({'status': 'success', 'tests': history}), 200
+
+    except Exception as e:
+        logger.error(f"Error getting test history: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': 'Failed to get test history'}), 500
