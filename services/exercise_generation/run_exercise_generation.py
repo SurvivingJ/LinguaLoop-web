@@ -124,12 +124,16 @@ def run_collocation_batch(
 
 if __name__ == '__main__':
     import argparse
+    from services.supabase_factory import SupabaseFactory
+
     parser = argparse.ArgumentParser(description='Run exercise generation batch')
     parser.add_argument('--source',   choices=['grammar', 'vocabulary', 'collocation'], required=True)
     parser.add_argument('--language', type=int, required=True)
     parser.add_argument('--phases',   nargs='*', choices=['A', 'B', 'C', 'D'])
     parser.add_argument('--ids',      nargs='*', type=int)
     args = parser.parse_args()
+
+    SupabaseFactory.initialize()
 
     if args.source == 'grammar':
         run_grammar_batch(args.language, phases=args.phases, pattern_ids=args.ids)

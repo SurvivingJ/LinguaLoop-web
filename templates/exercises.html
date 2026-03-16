@@ -663,6 +663,12 @@
                 renderOddOneOut(ex); break;
             case 'nl_tl_translation':
                 renderNlTlTranslation(ex); break;
+            case 'collocation_gap_fill':
+                renderCollocationGapFill(ex); break;
+            case 'collocation_repair':
+                renderCollocationRepair(ex); break;
+            case 'odd_collocation_out':
+                renderOddCollocationOut(ex); break;
             default:
                 renderGeneric(ex);
         }
@@ -848,6 +854,66 @@
         });
 
         document.getElementById('nextBtn').addEventListener('click', nextExercise);
+    }
+
+    // ── Collocation Gap Fill ──
+
+    function renderCollocationGapFill(ex) {
+        const c = ex.content;
+        let promptHTML = escapeHtml(c.sentence).replace('___', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+        renderMCQ(formatTypeName('collocation_gap_fill'), ex.cefr_level,
+            LinguaI18n.t('exercises.instruction.collocation_gap_fill'),
+            promptHTML, c.options, c.correct, '');
+    }
+
+    // ── Collocation Repair ──
+
+    function renderCollocationRepair(ex) {
+        const c = ex.content;
+        const options = [c.correct_word, c.error_word];
+        const blankedHTML = escapeHtml(c.sentence_with_error).replace(
+            escapeHtml(c.error_word),
+            '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+        );
+        renderMCQ(formatTypeName('collocation_repair'), ex.cefr_level,
+            LinguaI18n.t('exercises.instruction.collocation_repair'),
+            blankedHTML, options, c.correct_word, c.explanation);
+    }
+
+    // ── Odd Collocation Out ──
+
+    function renderOddCollocationOut(ex) {
+        const c = ex.content;
+        const oddValue = c.collocations[c.odd_index];
+        const instruction = LinguaI18n.t('exercises.instruction.odd_collocation_out', { word: escapeHtml(c.head_word) });
+
+        let html = `
+            <div class="exercise-type-badge">
+                <i class="fas fa-question-circle"></i> ${formatTypeName('odd_collocation_out')}
+                ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
+            </div>
+            <div class="exercise-instruction">${instruction}</div>
+            <div class="exercise-options" id="optionsList">
+        `;
+
+        const shuffled = shuffleArray(c.collocations);
+        shuffled.forEach(function(item, i) {
+            const letter = String.fromCharCode(65 + i);
+            html += `
+                <div class="exercise-option" data-value="${escapeHtml(item)}">
+                    <span class="option-letter">${letter}</span>
+                    <span class="option-text">${escapeHtml(item)}</span>
+                </div>
+            `;
+        });
+
+        html += `</div>
+            <div class="exercise-feedback" id="exerciseFeedback"></div>
+            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
+        `;
+
+        els.card.innerHTML = html;
+        bindMCQEvents(oddValue, c.explanation);
     }
 
     // ── Generic fallback ──

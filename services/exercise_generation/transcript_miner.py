@@ -4,18 +4,10 @@ import logging
 from services.exercise_generation.config import (
     MIN_TRANSCRIPT_SENTENCES, DEFAULT_SENTENCE_TARGET,
     LLM_BATCH_SIZE,
-    LANG_CHINESE, LANG_ENGLISH, LANG_JAPANESE,
 )
 from services.exercise_generation.language_processor import LanguageProcessor
 
 logger = logging.getLogger(__name__)
-
-# tests.language is a TEXT column ('cn','en','jp'), not an integer FK
-_LANGUAGE_ID_TO_CODE: dict[int, str] = {
-    LANG_CHINESE:  'cn',
-    LANG_ENGLISH:  'en',
-    LANG_JAPANESE: 'jp',
-}
 
 
 class TranscriptMiner:
@@ -84,13 +76,9 @@ class TranscriptMiner:
 
         pattern_code = pattern_row['pattern_code']
 
-        lang_code = _LANGUAGE_ID_TO_CODE.get(language_id)
-        if not lang_code:
-            raise ValueError(f"Unknown language_id: {language_id}")
-
         tests = self.db.table('tests') \
             .select('id, transcript, difficulty') \
-            .eq('language', lang_code) \
+            .eq('language_id', language_id) \
             .eq('is_active', True) \
             .execute()
 
@@ -116,13 +104,9 @@ class TranscriptMiner:
 
         collocation_text = col_row['collocation_text']
 
-        lang_code = _LANGUAGE_ID_TO_CODE.get(language_id)
-        if not lang_code:
-            raise ValueError(f"Unknown language_id: {language_id}")
-
         tests = self.db.table('tests') \
             .select('id, transcript, difficulty') \
-            .eq('language', lang_code) \
+            .eq('language_id', language_id) \
             .eq('is_active', True) \
             .execute()
 

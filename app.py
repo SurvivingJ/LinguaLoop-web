@@ -28,6 +28,7 @@ from routes.reports import reports_bp
 from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
 from routes.exercises import exercises_bp
+from routes.corpus import corpus_bp
 
 
 def create_app(config_class=Config):
@@ -194,6 +195,7 @@ def _register_blueprints(app):
     app.register_blueprint(vocabulary_bp, url_prefix='/api/vocabulary')
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
     app.register_blueprint(exercises_bp, url_prefix='/api/exercises')
+    app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
 
     app.logger.info("Blueprints registered")
 
