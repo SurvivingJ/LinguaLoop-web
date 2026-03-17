@@ -325,7 +325,7 @@ def generate_test():
             ).eq('id', test_id).execute()
 
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
+                'test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
             ).eq('test_id', test_id).execute()
 
             skill_ratings = {}
@@ -334,7 +334,6 @@ def generate_test():
                 type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
                 skill_ratings[type_code] = {
                     'elo_rating': rating['elo_rating'],
-                    'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
                 flat_ratings[f'{type_code}_rating'] = rating['elo_rating']
@@ -490,7 +489,7 @@ def custom_test():
 
             # Get the skill ratings with FK join to dim_test_types
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
+                'test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
             ).eq('test_id', test_id).execute()
 
             # Transform ratings
@@ -500,7 +499,6 @@ def custom_test():
                 type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
                 skill_ratings[type_code] = {
                     'elo_rating': rating['elo_rating'],
-                    'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
                 flat_ratings[f'{type_code}_rating'] = rating['elo_rating']
@@ -590,7 +588,7 @@ def get_tests_with_ratings():
         ratings_by_test = {}
         if test_ids:
             ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-                'test_id, test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
+                'test_id, test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
             ).in_('test_id', test_ids).execute()
 
             for rating in ratings_result.data:
@@ -600,7 +598,6 @@ def get_tests_with_ratings():
                     ratings_by_test[test_id] = {}
                 ratings_by_test[test_id][type_code] = {
                     'elo_rating': rating['elo_rating'],
-                    'volatility': rating['volatility'],
                     'total_attempts': rating['total_attempts']
                 }
 
@@ -881,14 +878,13 @@ def get_test_with_ratings(identifier):
 
         # Get ELO ratings with FK join to dim_test_types
         ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-            'test_type_id, elo_rating, volatility, total_attempts, dim_test_types(type_code)'
+            'test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
         ).eq('test_id', test_id).execute()
 
         # Transform ratings into a dictionary
         ratings = {
             rating.get('dim_test_types', {}).get('type_code', 'unknown'): {
                 'elo_rating': rating['elo_rating'],
-                'volatility': rating['volatility'],
                 'total_attempts': rating['total_attempts']
             }
             for rating in ratings_result.data

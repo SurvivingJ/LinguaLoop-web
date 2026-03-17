@@ -71,6 +71,14 @@ class LanguageTokenizer(ABC):
         """Split text into sentence strings using language-appropriate boundaries."""
         ...
 
+    def tokenize_doc(self, text: str):
+        """
+        Return the raw NLP document object (e.g. spaCy Doc) for single-pass parsing.
+        Style analysis calls this once and reuses the Doc across feature extractors.
+        Returns None for tokenizers without a full NLP pipeline (e.g. jieba).
+        """
+        return None
+
 
 class EnglishTokenizer(LanguageTokenizer):
 
@@ -131,6 +139,10 @@ class EnglishTokenizer(LanguageTokenizer):
         parts = re.split(r'(?<=[.!?])\s+', text)
         return [p.strip() for p in parts if p.strip()]
 
+    def tokenize_doc(self, text: str):
+        """Return spaCy Doc for single-pass parsing."""
+        return _get_nlp_en()(text)
+
 
 class ChineseTokenizer(LanguageTokenizer):
 
@@ -187,6 +199,8 @@ class ChineseTokenizer(LanguageTokenizer):
     def split_sentences(self, text: str) -> list[str]:
         parts = re.split(r'[。！？；…]+', text)
         return [p.strip() for p in parts if p.strip()]
+
+    # ChineseTokenizer uses jieba which has no Doc object — inherits base None
 
 
 class JapaneseTokenizer(LanguageTokenizer):
@@ -248,6 +262,10 @@ class JapaneseTokenizer(LanguageTokenizer):
     def split_sentences(self, text: str) -> list[str]:
         parts = re.split(r'[。！？]+', text)
         return [p.strip() for p in parts if p.strip()]
+
+    def tokenize_doc(self, text: str):
+        """Return spaCy Doc for single-pass parsing."""
+        return _get_nlp_ja()(text)
 
 
 def get_tokenizer(language_id: int) -> LanguageTokenizer:

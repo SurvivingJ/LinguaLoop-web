@@ -10,21 +10,27 @@ ALL_EXERCISE_TYPES: list[str] = [
     'semantic_discrimination', 'collocation_repair', 'spot_incorrect_sentence',
     'spot_incorrect_part', 'timed_speed_round', 'odd_one_out', 'context_spectrum',
     'odd_collocation_out', 'verb_noun_match',
+    'style_sentence_completion', 'style_pattern_match', 'style_voice_transform',
+    'style_transition_fill', 'style_imitation',
 ]
 
 # Exercise types that require an MCQ options array
 MCQ_TYPES: FrozenSet[str] = frozenset({
     'cloze_completion', 'tl_nl_translation', 'collocation_gap_fill',
     'odd_one_out', 'odd_collocation_out',
+    'style_sentence_completion', 'style_pattern_match', 'style_transition_fill',
 })
 
 # Expected option counts per MCQ type
 EXPECTED_OPTION_COUNT: dict[str, int] = {
-    'cloze_completion':     4,
-    'tl_nl_translation':    3,
-    'collocation_gap_fill': 4,
-    'odd_one_out':          4,
-    'odd_collocation_out':  4,
+    'cloze_completion':          4,
+    'tl_nl_translation':         3,
+    'collocation_gap_fill':      4,
+    'odd_one_out':               4,
+    'odd_collocation_out':       4,
+    'style_sentence_completion': 4,
+    'style_pattern_match':       4,
+    'style_transition_fill':     4,
 }
 
 # --- Required JSONB fields per type ------------------------------------------
@@ -47,6 +53,11 @@ REQUIRED_FIELDS_BY_TYPE: dict[str, list[str]] = {
     'verb_noun_match':         ['verbs', 'nouns', 'valid_pairs'],
     'spot_incorrect_sentence': ['sentences'],
     'spot_incorrect_part':     ['sentence', 'parts'],
+    'style_sentence_completion': ['sentence_with_blank', 'correct', 'options'],
+    'style_pattern_match':       ['sentences', 'correct_index', 'pattern_template'],
+    'style_voice_transform':     ['original_sentence', 'rewritten_sentence', 'instruction'],
+    'style_transition_fill':     ['paragraph_with_blank', 'correct', 'options'],
+    'style_imitation':           ['instruction', 'model_answer', 'grading_notes'],
 }
 
 # --- Distribution targets per grammar pattern --------------------------------
@@ -84,6 +95,14 @@ COLLOCATION_DISTRIBUTION: dict[str, int] = {
     'odd_collocation_out':   3,
     'text_flashcard':        2,
     'verb_noun_match':       1,
+}
+
+STYLE_DISTRIBUTION: dict[str, int] = {
+    'style_sentence_completion': 5,
+    'style_pattern_match':       3,
+    'style_voice_transform':     3,
+    'style_transition_fill':     3,
+    'style_imitation':           2,
 }
 
 # --- Sentence pool thresholds ------------------------------------------------
@@ -129,8 +148,11 @@ LANG_JAPANESE: int = 3
 PHASE_MAP: dict[str, list[str]] = {
     'A': ['text_flashcard', 'listening_flashcard', 'cloze_completion'],
     'B': ['jumbled_sentence', 'spot_incorrect_sentence', 'spot_incorrect_part',
-          'tl_nl_translation', 'nl_tl_translation'],
+          'tl_nl_translation', 'nl_tl_translation',
+          'style_sentence_completion', 'style_transition_fill'],
     'C': ['semantic_discrimination', 'collocation_gap_fill', 'collocation_repair',
-          'odd_collocation_out', 'odd_one_out'],
-    'D': ['verb_noun_match', 'context_spectrum', 'timed_speed_round'],
+          'odd_collocation_out', 'odd_one_out',
+          'style_pattern_match', 'style_voice_transform'],
+    'D': ['verb_noun_match', 'context_spectrum', 'timed_speed_round',
+          'style_imitation'],
 }

@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from services.corpus.tokenizers import get_tokenizer
 from services.corpus.analyzer import CorpusAnalyzer
 from services.corpus.classifier import CollocationClassifier
+from services.corpus.style_analyzer import StyleAnalyzer
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,8 @@ class CorpusIngestionService:
         self,
         url: str,
         language_id: int,
-        tags: list[str]
+        tags: list[str],
+        analyze_style: bool = False,
     ) -> int:
         """
         Fetch a web page, extract main text, run corpus analysis pipeline.
@@ -79,6 +81,7 @@ class CorpusIngestionService:
             source_title=title,
             language_id=language_id,
             tags=tags,
+            analyze_style=analyze_style,
         )
 
     def ingest_text(
@@ -86,7 +89,8 @@ class CorpusIngestionService:
         text: str,
         title: str,
         language_id: int,
-        tags: list[str]
+        tags: list[str],
+        analyze_style: bool = False,
     ) -> int:
         """
         Ingest a plain text string directly (e.g. pasted by admin in UI).
@@ -101,6 +105,7 @@ class CorpusIngestionService:
             source_title=title,
             language_id=language_id,
             tags=tags,
+            analyze_style=analyze_style,
         )
 
     def ingest_author_corpus(
@@ -108,7 +113,8 @@ class CorpusIngestionService:
         author_name: str,
         texts: list[str],
         language_id: int,
-        extra_tags: list[str] | None = None
+        extra_tags: list[str] | None = None,
+        analyze_style: bool = False,
     ) -> int:
         """
         Ingest multiple public-domain texts attributed to one author as a
@@ -133,12 +139,14 @@ class CorpusIngestionService:
             source_title=author_name,
             language_id=language_id,
             tags=tags,
+            analyze_style=analyze_style,
         )
 
     def ingest_transcripts(
         self,
         language_id: int,
-        extra_tags: list[str] | None = None
+        extra_tags: list[str] | None = None,
+        analyze_style: bool = False,
     ) -> int:
         """
         Build a corpus from all active test transcripts for a language.
@@ -195,6 +203,7 @@ class CorpusIngestionService:
             source_title=f'All {lang_name.upper()} transcripts ({len(transcripts)} tests)',
             language_id=language_id,
             tags=tags,
+            analyze_style=analyze_style,
         )
 
     @staticmethod
@@ -236,6 +245,7 @@ class CorpusIngestionService:
         source_title: str,
         language_id: int,
         tags: list[str],
+        analyze_style: bool = False,
     ) -> int:
         """
         Core pipeline: store source -> analyse -> classify -> insert collocations
@@ -383,4 +393,114 @@ class CorpusIngestionService:
             'processed_at': datetime.now(timezone.utc).isoformat(),
         }).eq('id', corpus_source_id).execute()
 
+        # 6. Optional: run style analysis pipeline
+        if analyze_style:
+            self._run_style_pipeline(
+                raw_text=raw_text,
+                corpus_source_id=corpus_source_id,
+                language_id=language_id,
+                tokenizer=tokenizer,
+            )
+
         return corpus_source_id
+
+    def _run_style_pipeline(
+        self,
+        raw_text: str,
+        corpus_source_id: int,
+        language_id: int,
+        tokenizer=None,
+    ) -> int:
+        """
+        Run style analysis on a corpus source and store the profile.
+
+        Can be called independently (for existing sources) or from _run_pipeline.
+        Returns the style profile row id.
+        """
+        if tokenizer is None:
+            tokenizer = get_tokenizer(language_id)
+
+        style_analyzer = StyleAnalyzer(tokenizer)
+
+        # Try to load reference corpus n-grams for keyness comparison
+        reference_ngrams = None
+        reference_total_tokens = 0
+        reference_source_id = None
+        try:
+            reference_ngrams, reference_total_tokens, reference_source_id = (
+                self._load_reference_corpus(language_id, tokenizer)
+            )
+        except Exception as exc:
+            logger.warning(f"Could not load reference corpus for keyness: {exc}")
+
+        profile = style_analyzer.analyze(
+            text=raw_text,
+            reference_ngrams=reference_ngrams,
+            reference_total_tokens=reference_total_tokens,
+        )
+
+        # Upsert the profile (one per corpus source)
+        row = {
+            'corpus_source_id':      corpus_source_id,
+            'language_id':           language_id,
+            'raw_frequency_ngrams':  profile['raw_frequency_ngrams'],
+            'characteristic_ngrams': profile['characteristic_ngrams'],
+            'sentence_structures':   profile['sentence_structures'],
+            'syntactic_preferences': profile['syntactic_preferences'],
+            'discourse_patterns':    profile['discourse_patterns'],
+            'vocabulary_profile':    profile['vocabulary_profile'],
+            'total_tokens':          profile['total_tokens'],
+            'total_sentences':       profile['total_sentences'],
+            'reference_source_id':   reference_source_id,
+        }
+
+        self.db.table('corpus_style_profiles').upsert(
+            row, on_conflict='corpus_source_id'
+        ).execute()
+
+        logger.info(
+            f"Style profile stored for corpus_source_id={corpus_source_id} "
+            f"({profile['total_tokens']:,} tokens)"
+        )
+        result = (
+            self.db.table('corpus_style_profiles')
+            .select('id')
+            .eq('corpus_source_id', corpus_source_id)
+            .single()
+            .execute()
+        )
+        return result.data['id']
+
+    def _load_reference_corpus(
+        self,
+        language_id: int,
+        tokenizer,
+    ) -> tuple[dict | None, int, int | None]:
+        """
+        Load the most recent transcript corpus for this language as a reference
+        for keyness computation. Returns (ngrams_by_size, total_tokens, source_id).
+        """
+        # Find the most recent transcript source for this language
+        result = (
+            self.db.table('corpus_sources')
+            .select('id, raw_text')
+            .eq('language_id', language_id)
+            .like('source_title', '%transcripts%')
+            .order('created_at', desc=True)
+            .limit(1)
+            .execute()
+        )
+
+        if not result.data or not result.data[0].get('raw_text'):
+            return None, 0, None
+
+        source = result.data[0]
+        analyzer = CorpusAnalyzer(tokenizer)
+        ngrams = analyzer.extract_all_ngrams(source['raw_text'], max_n=5)
+        total_tokens = sum(ngrams[1].values())
+
+        logger.info(
+            f"Loaded reference corpus (source_id={source['id']}, "
+            f"{total_tokens:,} tokens) for keyness comparison"
+        )
+        return ngrams, total_tokens, source['id']
