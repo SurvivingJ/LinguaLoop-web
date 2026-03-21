@@ -48,7 +48,7 @@ class ClozeGenerator(ExerciseGenerator):
 
         return result
 
-    def _identify_target_word(self, sentence: str, source_id: int) -> str | None:
+    def _identify_target_word(self, sentence: str, source_id) -> str | None:
         if self.source_type == 'vocabulary':
             row = self.db.table('dim_word_senses') \
                 .select('dim_vocabulary(lemma)') \
@@ -63,9 +63,22 @@ class ClozeGenerator(ExerciseGenerator):
             col = row.get('collocation_text', '') if row else ''
             return col if col and col.lower() in sentence.lower() else None
 
-        elif self.source_type == 'grammar':
-            return '__grammar_target__'
+        elif self.source_type in ('grammar', 'conversation'):
+            return self._identify_target_word_via_llm(sentence)
 
+        return None
+
+    def _identify_target_word_via_llm(self, sentence: str) -> str | None:
+        """Use the LLM to pick a meaningful word to blank out."""
+        template = self.load_prompt_template('cloze_target_selection')
+        prompt = template.format(sentence=sentence)
+        try:
+            result = self.call_llm(prompt, response_format='json')
+            word = result.get('target_word', '').strip()
+            if word and word.lower() in sentence.lower():
+                return word
+        except Exception:
+            pass
         return None
 
     def _load_definition(self, source_id: int) -> str:

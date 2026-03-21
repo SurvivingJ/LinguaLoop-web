@@ -17,7 +17,10 @@ class SemanticDiscrimGenerator(ExerciseGenerator):
         super().__init__(db, language_id, model)
         self.source_type = source_type
 
-    def generate_one(self, sentence_dict: dict, source_id: int) -> dict | None:
+    def generate_one(self, sentence_dict: dict, source_id) -> dict | None:
+        if self.source_type == 'conversation':
+            return self._generate_from_sentence(sentence_dict)
+
         sense_row = self.db.table('dim_word_senses') \
             .select('definition, dim_vocabulary(lemma)') \
             .eq('id', source_id).single().execute().data
@@ -45,6 +48,39 @@ class SemanticDiscrimGenerator(ExerciseGenerator):
                 return None
             ordered    = correct[:1] + incorrect[:3]
             return {'sentences': ordered, 'explanation': explanation, 'target_word': word}
+        except Exception:
+            return None
+
+
+    def _generate_from_sentence(self, sentence_dict: dict) -> dict | None:
+        """Generate semantic discrimination from a conversation sentence context."""
+        sentence = sentence_dict.get('sentence', '')
+        if not sentence:
+            return None
+
+        # Pick a key word from the sentence and generate discrimination items
+        template = self.load_prompt_template('semantic_discrimination_from_context')
+        prompt = template.format(
+            sentence=sentence,
+            cefr_level=sentence_dict.get('cefr_level', 'B1'),
+        )
+        try:
+            result = self.call_llm(prompt, response_format='json')
+            sentences = result.get('sentences', [])
+            explanation = result.get('explanation', '')
+            target_word = result.get('target_word', '')
+            if len(sentences) < 4:
+                return None
+            correct = [s for s in sentences if s.get('is_correct')]
+            incorrect = [s for s in sentences if not s.get('is_correct')]
+            if not correct:
+                return None
+            ordered = correct[:1] + incorrect[:3]
+            return {
+                'sentences': ordered,
+                'explanation': explanation,
+                'target_word': target_word,
+            }
         except Exception:
             return None
 

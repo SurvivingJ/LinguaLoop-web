@@ -34,7 +34,12 @@
       "Bash(python -m git_filter_repo:*)",
       "Bash(python -m pytest:*)",
       "Bash(python3:*)",
-      "Bash(ls -la \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\Portal\\\\WorkoutDojo\\\\data\\\\progressions\"\" 2>/dev/null || echo \"progressions directory may not exist \")"
+      "Bash(ls -la \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\Portal\\\\WorkoutDojo\\\\data\\\\progressions\"\" 2>/dev/null || echo \"progressions directory may not exist \")",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(find /c/Users/James/Documents/Coding/LinguaLoop/WebApp -type f \\\\\\(-name *.json -o -name fixtures* -o -name *seed* \\\\\\) ! -path */venv/* ! -path */.git/* ! -path */node_modules/*)",
+      "Bash(pip install:*)"
     ]
   }
 }

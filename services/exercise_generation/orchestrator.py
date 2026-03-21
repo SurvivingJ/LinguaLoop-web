@@ -4,7 +4,7 @@ import uuid
 import logging
 from services.exercise_generation.config import (
     GRAMMAR_DISTRIBUTION, VOCABULARY_DISTRIBUTION, COLLOCATION_DISTRIBUTION,
-    PHASE_MAP,
+    CONVERSATION_DISTRIBUTION, PHASE_MAP,
 )
 from services.exercise_generation.transcript_miner import get_sentence_pool
 from services.exercise_generation.generators.cloze             import ClozeGenerator
@@ -45,9 +45,15 @@ class ExerciseGenerationOrchestrator:
         source_id: int,
         language_id: int,
         phases: list[str] | None = None,
+        sentence_pool: list[dict] | None = None,
     ) -> dict:
         """
         Execute the full pipeline for one source.
+
+        Args:
+            sentence_pool: If provided, skip Phase 1 (sentence mining) and
+                use this pool directly. Required for source_type='conversation'.
+
         Returns a summary dict with counts per exercise type.
         """
         batch_id     = str(uuid.uuid4())
@@ -59,12 +65,13 @@ class ExerciseGenerationOrchestrator:
             source_type, source_id, language_id, batch_id,
         )
 
-        # Phase 1: Sentence pool
-        sentence_pool = get_sentence_pool(
-            source_type, source_id, language_id,
-            db=self.db, llm_client=self._call_llm_with_model(model),
-            model=sent_model,
-        )
+        # Phase 1: Sentence pool (skip if pre-built pool provided)
+        if sentence_pool is None:
+            sentence_pool = get_sentence_pool(
+                source_type, source_id, language_id,
+                db=self.db, llm_client=self._call_llm_with_model(model),
+                model=sent_model,
+            )
         logger.info("Sentence pool size: %d", len(sentence_pool))
 
         # Phase 2-4: Generate, validate, calibrate per type
@@ -104,9 +111,10 @@ class ExerciseGenerationOrchestrator:
 
     def _get_distribution(self, source_type: str) -> dict[str, int]:
         return {
-            'grammar':     GRAMMAR_DISTRIBUTION,
-            'vocabulary':  VOCABULARY_DISTRIBUTION,
-            'collocation': COLLOCATION_DISTRIBUTION,
+            'grammar':      GRAMMAR_DISTRIBUTION,
+            'vocabulary':   VOCABULARY_DISTRIBUTION,
+            'collocation':  COLLOCATION_DISTRIBUTION,
+            'conversation': CONVERSATION_DISTRIBUTION,
         }[source_type]
 
     def _build_generators(
@@ -150,10 +158,23 @@ class ExerciseGenerationOrchestrator:
             'verb_noun_match':       VerbNounMatchGenerator(**kw),
         }
 
+        conversation_generators = {
+            'cloze_completion':        ClozeGenerator(**kw, source_type='conversation'),
+            'jumbled_sentence':        JumbledSentenceGenerator(**kw, source_type='conversation'),
+            'tl_nl_translation':       TlNlTranslationGenerator(**kw, source_type='conversation',
+                                           nl_language_code=self.nl_language_code),
+            'nl_tl_translation':       NlTlTranslationGenerator(**kw, source_type='conversation',
+                                           nl_language_code=self.nl_language_code),
+            'semantic_discrimination': SemanticDiscrimGenerator(**kw, source_type='conversation'),
+            'text_flashcard':          FlashcardGenerator(**kw, mode='text', source_type='conversation'),
+            'spot_incorrect_sentence': SpotIncorrectGenerator(**kw),
+        }
+
         return {
-            'grammar':     grammar_generators,
-            'vocabulary':  vocabulary_generators,
-            'collocation': collocation_generators,
+            'grammar':      grammar_generators,
+            'vocabulary':   vocabulary_generators,
+            'collocation':  collocation_generators,
+            'conversation': conversation_generators,
         }[source_type]
 
     def _batch_insert(self, rows: list[dict]) -> None:

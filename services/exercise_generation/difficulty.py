@@ -1,12 +1,19 @@
 # services/exercise_generation/difficulty.py
 
+import logging
 from services.exercise_generation.config import CEFR_TO_IRT
+from services.vocabulary.frequency_service import get_zipf_score
+
+logger = logging.getLogger(__name__)
+
+# Language ID -> app language code for wordfreq lookups
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'cn', 2: 'en', 3: 'jp'}
 
 
 class DifficultyCalibrator:
     """
     Computes and attaches static difficulty + IRT seed values to exercise row dicts.
-    Formula: difficulty_static = 0.50 x cefr_numeric + 0.50 x sentence_length_score
+    Formula: difficulty_static = 0.40 x cefr + 0.30 x sentence_length + 0.30 x word_frequency
     """
 
     CEFR_NUMERIC: dict[str, float] = {
@@ -19,9 +26,11 @@ class DifficultyCalibrator:
                    or row.get('content', {}).get('sentence_with_blank') \
                    or row.get('content', {}).get('tl_sentence', '')
 
+        language_id   = row.get('language_id', 2)
         cefr_score    = self.CEFR_NUMERIC.get(cefr_level, 3.0)
-        length_score  = self._sentence_length_score(sentence, row.get('language_id', 2))
-        static        = round(0.5 * cefr_score + 0.5 * length_score, 2)
+        length_score  = self._sentence_length_score(sentence, language_id)
+        freq_score    = self._word_frequency_score(sentence, language_id)
+        static        = round(0.40 * cefr_score + 0.30 * length_score + 0.30 * freq_score, 2)
 
         row['difficulty_static']  = static
         row['irt_difficulty']     = CEFR_TO_IRT.get(cefr_level, 0.0)
@@ -48,3 +57,54 @@ class DifficultyCalibrator:
             if length <= threshold:
                 return score
         return 5.0
+
+    def _word_frequency_score(self, sentence: str, language_id: int) -> float:
+        """
+        Compute difficulty score (1-5) based on mean word frequency.
+        High Zipf = common words = easy (low score).
+        Low Zipf = rare words = hard (high score).
+        """
+        if not sentence:
+            return 2.5
+
+        lang_code = _LANG_ID_TO_CODE.get(language_id)
+        if not lang_code:
+            return 2.5
+
+        # Tokenize: whitespace split for EN, character-level for CJK
+        from services.exercise_generation.config import LANG_CHINESE, LANG_JAPANESE
+        if language_id in (LANG_CHINESE, LANG_JAPANESE):
+            # For CJK, look up individual characters and short tokens
+            # Filter out punctuation and whitespace
+            tokens = [ch for ch in sentence if ch.strip() and not ch.isascii()]
+        else:
+            tokens = sentence.split()
+
+        if not tokens:
+            return 2.5
+
+        scores = []
+        for token in tokens:
+            try:
+                score = get_zipf_score(token.lower().strip('.,!?;:\'"()[]{}'), lang_code)
+            except Exception:
+                continue
+            if score is not None:
+                scores.append(score)
+
+        if not scores:
+            return 2.5
+
+        mean_zipf = sum(scores) / len(scores)
+
+        # Map mean Zipf to 1-5 difficulty (inverse relationship)
+        if mean_zipf >= 5.5:
+            return 1.0
+        elif mean_zipf >= 4.5:
+            return 2.0
+        elif mean_zipf >= 3.5:
+            return 3.0
+        elif mean_zipf >= 2.5:
+            return 4.0
+        else:
+            return 5.0

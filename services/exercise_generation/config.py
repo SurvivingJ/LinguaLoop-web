@@ -105,6 +105,16 @@ STYLE_DISTRIBUTION: dict[str, int] = {
     'style_imitation':           2,
 }
 
+CONVERSATION_DISTRIBUTION: dict[str, int] = {
+    'cloze_completion':        10,
+    'jumbled_sentence':         8,
+    'tl_nl_translation':        6,
+    'nl_tl_translation':        5,
+    'semantic_discrimination':  4,
+    'text_flashcard':           5,
+    'spot_incorrect_sentence':  3,
+}
+
 # --- Sentence pool thresholds ------------------------------------------------
 MIN_TRANSCRIPT_SENTENCES: int = 80
 DEFAULT_SENTENCE_TARGET:  int = 200
