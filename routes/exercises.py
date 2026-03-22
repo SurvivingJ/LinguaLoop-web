@@ -99,10 +99,59 @@ def get_exercises() -> ApiResponse:
         return server_error("Failed to fetch exercises")
 
 
+@exercises_bp.route('/session', methods=['GET'])
+@supabase_jwt_required
+def get_exercise_session() -> ApiResponse:
+    """Get today's exercise session (computed or cached).
+
+    Query params:
+        language_id: required
+    """
+    try:
+        language_id = request.args.get('language_id', type=int)
+        if not language_id:
+            return bad_request("language_id required")
+
+        from services.exercise_session_service import get_exercise_session_service
+        service = get_exercise_session_service()
+        session = service.get_or_create_daily_session(g.current_user_id, language_id)
+        return api_success({"session": session})
+
+    except Exception as e:
+        logger.error(f"Error fetching exercise session: {e}")
+        return server_error("Failed to fetch exercise session")
+
+
+@exercises_bp.route('/session/complete', methods=['POST'])
+@supabase_jwt_required
+def complete_session_exercise() -> ApiResponse:
+    """Mark an exercise as completed in today's session.
+
+    Body: exercise_id (required), language_id (required)
+    """
+    try:
+        data = request.get_json()
+        if not data or 'exercise_id' not in data or 'language_id' not in data:
+            return bad_request("exercise_id and language_id required")
+
+        from services.exercise_session_service import get_exercise_session_service
+        service = get_exercise_session_service()
+        result = service.mark_exercise_complete(
+            g.current_user_id,
+            data['language_id'],
+            data['exercise_id'],
+        )
+        return api_success(result)
+
+    except Exception as e:
+        logger.error(f"Error completing session exercise: {e}")
+        return server_error("Failed to mark exercise complete")
+
+
 @exercises_bp.route('/attempt', methods=['POST'])
 @supabase_jwt_required
 def submit_attempt() -> ApiResponse:
-    """Record an exercise attempt.
+    """Record an exercise attempt and trigger BKT + FSRS updates.
 
     Body: exercise_id (required), user_response, is_correct, time_taken_ms
     """
@@ -113,32 +162,20 @@ def submit_attempt() -> ApiResponse:
         if not data or 'exercise_id' not in data:
             return bad_request("exercise_id required")
 
-        exercise_id = data['exercise_id']
-        is_correct = bool(data.get('is_correct', False))
+        from services.exercise_session_service import get_exercise_session_service
+        service = get_exercise_session_service()
+        result = service.record_attempt_with_updates(
+            user_id=current_user_id,
+            exercise_id=data['exercise_id'],
+            is_correct=bool(data.get('is_correct', False)),
+            user_response=data.get('user_response', {}),
+            time_taken_ms=data.get('time_taken_ms'),
+        )
 
-        from services.supabase_factory import get_supabase_admin
-        db = get_supabase_admin()
+        if result.get('error'):
+            return server_error(result['error'])
 
-        db.table('exercise_attempts').insert({
-            'user_id': current_user_id,
-            'exercise_id': exercise_id,
-            'user_response': data.get('user_response', {}),
-            'is_correct': is_correct,
-            'time_taken_ms': data.get('time_taken_ms'),
-            'created_at': datetime.now(timezone.utc).isoformat(),
-        }).execute()
-
-        exercise = db.table('exercises') \
-            .select('attempt_count, correct_count') \
-            .eq('id', exercise_id).single().execute().data
-
-        if exercise:
-            updates = {'attempt_count': (exercise.get('attempt_count') or 0) + 1}
-            if is_correct:
-                updates['correct_count'] = (exercise.get('correct_count') or 0) + 1
-            db.table('exercises').update(updates).eq('id', exercise_id).execute()
-
-        return api_success()
+        return api_success(result)
 
     except Exception as e:
         logger.error(f"Error submitting exercise attempt: {e}")

@@ -6,81 +6,176 @@
 
 {% block extra_css %}
 <style>
-    /* Header & Filters */
-    .exercise-header {
+    /* ── Header ── */
+    .ex-header {
         background: var(--bg-surface);
         border-bottom: 1px solid var(--border-default);
         padding: 16px 0;
         box-shadow: var(--shadow-sm);
     }
 
-    .exercise-filters {
+    .ex-back-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 0;
+        margin-right: 12px;
+    }
+    .ex-back-btn:hover { color: var(--primary); }
+    .ex-back-btn.show { display: inline-flex; align-items: center; gap: 6px; }
+
+    .ex-progress { display: flex; align-items: center; gap: 12px; }
+    .ex-progress-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .ex-progress-bar { width: 140px; height: 6px; background: var(--border-default); border-radius: 3px; overflow: hidden; }
+    .ex-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--info, var(--primary))); border-radius: 3px; transition: width 0.4s ease; }
+    .ex-score { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+    /* ── Landing: Daily Session Hero ── */
+    .daily-hero {
+        max-width: 600px;
+        margin: 28px auto 0;
+        background: linear-gradient(135deg, var(--primary), #6366f1);
+        border-radius: 16px;
+        padding: 32px 28px;
+        color: white;
+        box-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,0.15));
+        position: relative;
+        overflow: hidden;
+    }
+    .daily-hero::after {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
+    }
+    .daily-hero h3 { margin: 0 0 8px; font-weight: 700; }
+    .daily-hero p { margin: 0; opacity: 0.85; font-size: 14px; }
+    .daily-hero .hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 16px;
+        font-size: 13px;
+        opacity: 0.9;
+    }
+    .daily-hero .hero-meta i { margin-right: 4px; }
+    .daily-hero-actions {
         display: flex;
         gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
+        margin-top: 20px;
+        position: relative;
+        z-index: 1;
     }
-
-    .exercise-filters select {
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 2px solid var(--border-default);
-        background: var(--bg-surface);
-        color: var(--text-primary);
-        font-size: 14px;
-        font-weight: 500;
+    .daily-hero .btn-start {
+        background: white;
+        color: var(--primary);
+        border: none;
+        padding: 10px 28px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
         cursor: pointer;
-        transition: var(--transition-fast);
+        transition: transform 0.15s;
     }
-
-    .exercise-filters select:focus {
-        border-color: var(--primary);
-        outline: none;
-    }
-
-    .exercise-load-btn {
-        padding: 8px 20px;
-        border-radius: 8px;
+    .daily-hero .btn-start:hover { transform: scale(1.03); }
+    .daily-hero .btn-settings {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 10px 16px;
+        border-radius: 10px;
         font-weight: 600;
         font-size: 14px;
+        cursor: pointer;
     }
-
-    /* Progress */
-    .exercise-progress {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .exercise-progress-text {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        white-space: nowrap;
-    }
-
-    .exercise-progress-bar {
-        width: 120px;
+    .daily-hero .hero-progress-bar {
+        margin-top: 16px;
         height: 6px;
-        background: var(--border-default);
+        background: rgba(255,255,255,0.2);
         border-radius: 3px;
         overflow: hidden;
     }
-
-    .exercise-progress-fill {
+    .daily-hero .hero-progress-fill {
         height: 100%;
-        background: linear-gradient(90deg, var(--primary), var(--info, var(--primary)));
+        background: white;
         border-radius: 3px;
         transition: width 0.4s ease;
     }
 
-    .exercise-score {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-secondary);
+    /* Session size popover */
+    .size-popover {
+        display: none;
+        margin-top: 12px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 10px;
+        padding: 12px 16px;
     }
+    .size-popover.show { display: flex; align-items: center; gap: 12px; }
+    .size-popover label { font-size: 13px; opacity: 0.9; }
+    .size-popover input[type="range"] { width: 140px; accent-color: white; }
+    .size-popover .size-val { font-weight: 700; font-size: 18px; min-width: 30px; text-align: center; }
 
-    /* Exercise Card */
+    /* ── Type Grid ── */
+    .type-grid-section {
+        max-width: 800px;
+        margin: 28px auto 0;
+        padding: 0 16px;
+    }
+    .type-grid-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+    }
+    .type-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+    }
+    .type-card {
+        background: var(--bg-surface);
+        border: 2px solid var(--border-default);
+        border-radius: 12px;
+        padding: 18px 16px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .type-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+    .type-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    .type-card-icon.phase-a { background: rgba(34,197,94,0.1); color: var(--success); }
+    .type-card-icon.phase-b { background: rgba(59,130,246,0.1); color: var(--primary); }
+    .type-card-icon.phase-c { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .type-card-icon.phase-d { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .type-card-body { flex: 1; min-width: 0; }
+    .type-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .type-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .type-card-arrow { color: var(--border-strong); font-size: 14px; }
+
+    /* ── Exercise Card (shared for both modes) ── */
     .exercise-card {
         max-width: 600px;
         margin: 0 auto;
@@ -90,403 +185,255 @@
         box-shadow: var(--shadow-md);
         padding: 32px 28px;
     }
-
     .exercise-type-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 12px;
-        background: var(--focus-ring);
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--primary);
-        margin-bottom: 20px;
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 12px; background: var(--focus-ring);
+        border-radius: 20px; font-size: 12px; font-weight: 600;
+        color: var(--primary); margin-bottom: 20px;
     }
-
     .exercise-cefr-badge {
-        display: inline-flex;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 700;
-        margin-left: 8px;
-        background: var(--warning-bg, rgba(245, 158, 11, 0.1));
-        color: var(--warning);
+        display: inline-flex; padding: 3px 10px; border-radius: 12px;
+        font-size: 11px; font-weight: 700; margin-left: 8px;
+        background: var(--warning-bg, rgba(245,158,11,0.1)); color: var(--warning);
     }
+    .exercise-instruction { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; font-weight: 500; }
+    .exercise-prompt { font-size: 22px; font-weight: 600; color: var(--text-primary); line-height: 1.5; margin-bottom: 24px; text-align: center; }
+    .exercise-prompt .blank { display: inline-block; min-width: 80px; border-bottom: 3px solid var(--primary); margin: 0 4px; }
 
-    .exercise-instruction {
-        font-size: 14px;
-        color: var(--text-secondary);
-        margin-bottom: 16px;
-        font-weight: 500;
-    }
-
-    .exercise-prompt {
-        font-size: 22px;
-        font-weight: 600;
-        color: var(--text-primary);
-        line-height: 1.5;
-        margin-bottom: 24px;
-        text-align: center;
-    }
-
-    .exercise-prompt .blank {
-        display: inline-block;
-        min-width: 80px;
-        border-bottom: 3px solid var(--primary);
-        margin: 0 4px;
-    }
-
-    /* MCQ Options */
-    .exercise-options {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
+    .exercise-options { display: flex; flex-direction: column; gap: 10px; }
     .exercise-option {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 18px;
-        border-radius: 10px;
-        border: 2px solid var(--border-default);
-        background: var(--bg-surface);
-        cursor: pointer;
-        transition: var(--transition-fast);
-        font-size: 15px;
-        color: var(--text-primary);
-        line-height: 1.5;
+        display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+        border-radius: 10px; border: 2px solid var(--border-default);
+        background: var(--bg-surface); cursor: pointer;
+        transition: var(--transition-fast); font-size: 15px; color: var(--text-primary); line-height: 1.5;
     }
-
-    .exercise-option:hover:not(.disabled) {
-        border-color: var(--primary);
-        background: var(--focus-ring);
-    }
-
+    .exercise-option:hover:not(.disabled) { border-color: var(--primary); background: var(--focus-ring); }
     .exercise-option .option-letter {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--border-default);
-        color: var(--text-secondary);
-        font-weight: 700;
-        font-size: 13px;
-        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 50%;
+        background: var(--border-default); color: var(--text-secondary);
+        font-weight: 700; font-size: 13px; flex-shrink: 0;
     }
+    .exercise-option.correct { border-color: var(--success); background: var(--success-bg, rgba(34,197,94,0.1)); }
+    .exercise-option.correct .option-letter { background: var(--success); color: white; }
+    .exercise-option.incorrect { border-color: var(--danger); background: var(--danger-bg, rgba(239,68,68,0.1)); }
+    .exercise-option.incorrect .option-letter { background: var(--danger); color: white; }
+    .exercise-option.disabled { cursor: default; opacity: 0.7; }
 
-    .exercise-option.correct {
-        border-color: var(--success);
-        background: var(--success-bg, rgba(34, 197, 94, 0.1));
-    }
-
-    .exercise-option.correct .option-letter {
-        background: var(--success);
-        color: white;
-    }
-
-    .exercise-option.incorrect {
-        border-color: var(--danger);
-        background: var(--danger-bg, rgba(239, 68, 68, 0.1));
-    }
-
-    .exercise-option.incorrect .option-letter {
-        background: var(--danger);
-        color: white;
-    }
-
-    .exercise-option.disabled {
-        cursor: default;
-        opacity: 0.7;
-    }
-
-    /* Text Input (for production exercises) */
     .exercise-input-area {
-        width: 100%;
-        padding: 14px 16px;
-        border-radius: 10px;
-        border: 2px solid var(--border-default);
-        background: var(--bg-surface);
-        color: var(--text-primary);
-        font-size: 16px;
-        line-height: 1.6;
-        resize: vertical;
-        min-height: 80px;
-        transition: var(--transition-fast);
+        width: 100%; padding: 14px 16px; border-radius: 10px;
+        border: 2px solid var(--border-default); background: var(--bg-surface);
+        color: var(--text-primary); font-size: 16px; line-height: 1.6;
+        resize: vertical; min-height: 80px; transition: var(--transition-fast);
     }
+    .exercise-input-area:focus { border-color: var(--primary); outline: none; }
+    .exercise-check-btn { margin-top: 12px; width: 100%; }
 
-    .exercise-input-area:focus {
-        border-color: var(--primary);
-        outline: none;
+    .exercise-feedback { display: none; margin-top: 20px; padding: 16px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
+    .exercise-feedback.show { display: block; }
+    .exercise-feedback.correct { background: var(--success-bg, rgba(34,197,94,0.1)); border: 1px solid var(--success); color: var(--success); }
+    .exercise-feedback.incorrect { background: var(--danger-bg, rgba(239,68,68,0.1)); border: 1px solid var(--danger); color: var(--danger); }
+    .exercise-feedback .feedback-explanation { margin-top: 8px; color: var(--text-secondary); }
+
+    .exercise-next-btn { display: none; margin-top: 16px; width: 100%; }
+    .exercise-next-btn.show { display: block; }
+
+    /* ── Word info badge ── */
+    .exercise-word-info {
+        font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;
+        padding: 8px 12px; background: var(--focus-ring); border-radius: 8px;
+        display: flex; align-items: center; gap: 8px;
     }
+    .exercise-word-info .word-lemma { font-weight: 700; color: var(--text-primary); font-size: 15px; }
+    .exercise-word-info .word-def { color: var(--text-secondary); font-style: italic; }
 
-    .exercise-check-btn {
-        margin-top: 12px;
-        width: 100%;
+    /* ── Spot Incorrect Part ── */
+    .sip-parts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
+    .sip-part {
+        display: inline-block; padding: 10px 16px; border-radius: 10px;
+        border: 2px solid var(--border-default); background: var(--bg-surface);
+        cursor: pointer; font-size: 16px; color: var(--text-primary);
+        transition: var(--transition-fast); line-height: 1.5;
     }
-
-    /* Feedback */
-    .exercise-feedback {
-        display: none;
-        margin-top: 20px;
-        padding: 16px;
-        border-radius: 10px;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .exercise-feedback.show {
-        display: block;
-    }
-
-    .exercise-feedback.correct {
-        background: var(--success-bg, rgba(34, 197, 94, 0.1));
-        border: 1px solid var(--success);
-        color: var(--success);
-    }
-
-    .exercise-feedback.incorrect {
-        background: var(--danger-bg, rgba(239, 68, 68, 0.1));
-        border: 1px solid var(--danger);
-        color: var(--danger);
-    }
-
-    .exercise-feedback .feedback-explanation {
-        margin-top: 8px;
-        color: var(--text-secondary);
-    }
-
-    /* Next Button */
-    .exercise-next-btn {
-        display: none;
-        margin-top: 16px;
-        width: 100%;
-    }
-
-    .exercise-next-btn.show {
-        display: block;
-    }
-
-    /* Loading & Empty */
-    .exercise-loading {
+    .sip-part:hover:not(.disabled) { border-color: var(--primary); background: var(--focus-ring); }
+    .sip-part.correct { border-color: var(--success); background: var(--success-bg, rgba(34,197,94,0.1)); }
+    .sip-part.incorrect { border-color: var(--danger); background: var(--danger-bg, rgba(239,68,68,0.1)); }
+    .sip-part.disabled { cursor: default; opacity: 0.7; }
+    .sip-correction {
+        margin-top: 8px; font-size: 14px; color: var(--success); font-weight: 600;
         text-align: center;
-        padding: 60px 20px;
     }
 
-    .exercise-empty {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--text-secondary);
+    /* ── Jumbled Sentence ── */
+    .js-bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; min-height: 48px; }
+    .js-chunk {
+        display: inline-flex; align-items: center; padding: 10px 16px;
+        border-radius: 10px; border: 2px solid var(--border-default);
+        background: var(--bg-surface); cursor: grab; font-size: 16px;
+        color: var(--text-primary); transition: var(--transition-fast);
+        user-select: none; line-height: 1.4;
     }
-
-    .exercise-empty i {
-        font-size: 48px;
-        margin-bottom: 16px;
-        color: var(--border-strong);
-    }
-
-    /* Session Complete */
-    .exercise-complete-card {
-        background: var(--bg-surface);
-        border-radius: 16px;
-        border: 1px solid var(--border-default);
-        box-shadow: var(--shadow-md);
-        padding: 48px 32px;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-
-    .exercise-complete-icon {
-        font-size: 64px;
-        color: var(--success);
+    .js-chunk:hover:not(.disabled) { border-color: var(--primary); background: var(--focus-ring); }
+    .js-chunk.placed { opacity: 0.35; cursor: default; }
+    .js-answer {
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+        min-height: 52px; padding: 12px; border-radius: 10px;
+        border: 2px dashed var(--border-default); background: var(--focus-ring);
         margin-bottom: 16px;
     }
+    .js-answer .js-chunk { cursor: pointer; border-style: solid; }
+    .js-answer .js-chunk:hover { border-color: var(--danger); }
+    .js-answer.correct { border-color: var(--success); border-style: solid; background: var(--success-bg, rgba(34,197,94,0.1)); }
+    .js-answer.incorrect { border-color: var(--danger); border-style: solid; background: var(--danger-bg, rgba(239,68,68,0.1)); }
 
-    .exercise-stats {
-        display: flex;
-        justify-content: center;
-        gap: 32px;
-        margin-top: 20px;
+    /* ── Loading ── */
+    .ex-loading { text-align: center; padding: 60px 20px; }
+
+    /* ── Complete ── */
+    .ex-complete-card {
+        background: var(--bg-surface); border-radius: 16px;
+        border: 1px solid var(--border-default); box-shadow: var(--shadow-md);
+        padding: 48px 32px; max-width: 500px; margin: 40px auto 0; text-align: center;
     }
+    .ex-complete-icon { font-size: 64px; color: var(--success); margin-bottom: 16px; }
+    .ex-stats { display: flex; justify-content: center; gap: 32px; margin-top: 20px; }
+    .ex-stat { text-align: center; }
+    .ex-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+    .ex-stat-label { font-size: 13px; color: var(--text-muted, var(--text-secondary)); }
 
-    .exercise-stat {
-        text-align: center;
-    }
-
-    .exercise-stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .exercise-stat-label {
-        font-size: 13px;
-        color: var(--text-muted, var(--text-secondary));
-    }
-
-    /* Slide animations */
+    /* ── Animations ── */
     @keyframes exerciseSlideIn {
         0% { transform: translateX(-30px); opacity: 0; }
         100% { transform: translateX(0); opacity: 1; }
     }
+    .exercise-slide-in { animation: exerciseSlideIn 0.3s ease forwards; }
 
-    .exercise-slide-in {
-        animation: exerciseSlideIn 0.3s ease forwards;
+    .ex-keyboard-hint { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+    .ex-keyboard-hint kbd {
+        display: inline-block; padding: 3px 8px; font-size: 12px;
+        font-family: inherit; font-weight: 600; color: var(--text-primary);
+        background: var(--bg-surface); border: 1px solid var(--border-default);
+        border-radius: 5px; box-shadow: 0 2px 0 var(--border-default); margin: 0 2px;
     }
 
-    /* Keyboard Hint */
-    .exercise-keyboard-hint {
-        text-align: center;
-        margin-top: 16px;
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-
-    .exercise-keyboard-hint kbd {
-        display: inline-block;
-        padding: 3px 8px;
-        font-size: 12px;
-        font-family: inherit;
-        font-weight: 600;
-        color: var(--text-primary);
-        background: var(--bg-surface);
-        border: 1px solid var(--border-default);
-        border-radius: 5px;
-        box-shadow: 0 2px 0 var(--border-default);
-        margin: 0 2px;
-    }
-
-    /* Mobile */
     @media (max-width: 576px) {
-        .exercise-card {
-            padding: 24px 18px;
-            border-radius: 12px;
-        }
-
-        .exercise-prompt {
-            font-size: 18px;
-        }
-
-        .exercise-option {
-            padding: 12px 14px;
-            font-size: 14px;
-        }
-
-        .exercise-filters {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .exercise-filters select,
-        .exercise-load-btn {
-            width: 100%;
-        }
-
-        .exercise-progress-bar {
-            width: 80px;
-        }
-
-        .exercise-keyboard-hint {
-            display: none;
-        }
+        .exercise-card { padding: 24px 18px; border-radius: 12px; }
+        .exercise-prompt { font-size: 18px; }
+        .exercise-option { padding: 12px 14px; font-size: 14px; }
+        .daily-hero { margin: 16px 16px 0; padding: 24px 20px; }
+        .type-grid { grid-template-columns: 1fr; }
+        .ex-progress-bar { width: 80px; }
+        .ex-keyboard-hint { display: none; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header / Filters -->
-<div class="exercise-header">
+<!-- Header -->
+<div class="ex-header">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">
-                <i class="fas fa-dumbbell text-primary me-2"></i>
-                Exercises
-            </h4>
-            <div class="exercise-progress" id="exerciseProgress" style="display: none;">
-                <span class="exercise-progress-text">
-                    <span id="currentExNum">1</span> / <span id="totalExercises">0</span>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="ex-back-btn" id="backBtn" onclick="backToLanding()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <h4 class="mb-0">
+                    <i class="fas fa-dumbbell text-primary me-2"></i>
+                    <span id="headerTitle">Exercises</span>
+                </h4>
+            </div>
+            <div class="ex-progress" id="exProgress" style="display: none;">
+                <span class="ex-progress-text">
+                    <span id="currentNum">1</span> / <span id="totalNum">0</span>
                 </span>
-                <div class="exercise-progress-bar">
-                    <div class="exercise-progress-fill" id="progressFill" style="width: 0%"></div>
+                <div class="ex-progress-bar">
+                    <div class="ex-progress-fill" id="progressFill" style="width: 0%"></div>
                 </div>
-                <span class="exercise-score" id="exerciseScore"></span>
+                <span class="ex-score" id="exScore"></span>
             </div>
         </div>
-        <div class="exercise-filters">
-            <select id="filterType">
-                <option value="" data-i18n="exercises.filter.all_types">All Types</option>
-            </select>
-            <select id="filterSource">
-                <option value="" data-i18n="exercises.filter.all_sources">All Sources</option>
-                <option value="grammar" data-i18n="exercises.filter.grammar">Grammar</option>
-                <option value="vocabulary" data-i18n="exercises.filter.vocabulary">Vocabulary</option>
-                <option value="collocation" data-i18n="exercises.filter.collocation">Collocation</option>
-            </select>
-            <select id="filterCefr">
-                <option value="" data-i18n="exercises.filter.all_levels">All Levels</option>
-                <option value="A1">A1</option>
-                <option value="A2">A2</option>
-                <option value="B1">B1</option>
-                <option value="B2">B2</option>
-                <option value="C1">C1</option>
-                <option value="C2">C2</option>
-            </select>
-            <button class="btn btn-primary exercise-load-btn" id="loadBtn">
-                <i class="fas fa-play me-1"></i> <span data-i18n="exercises.load">Load Exercises</span>
-            </button>
+    </div>
+</div>
+
+<!-- ═══ LANDING VIEW ═══ -->
+<div id="landingView">
+    <!-- Daily Session Hero -->
+    <div class="container">
+        <div class="daily-hero" id="dailyHero">
+            <h3><i class="fas fa-bolt me-2"></i>Daily Session</h3>
+            <p id="heroDesc">Personalised exercises based on your vocabulary progress.</p>
+            <div class="hero-meta" id="heroMeta"></div>
+            <div class="hero-progress-bar" id="heroProgressBar" style="display:none;">
+                <div class="hero-progress-fill" id="heroProgressFill" style="width: 0%"></div>
+            </div>
+            <div class="daily-hero-actions">
+                <button class="btn-start" id="startDailyBtn">
+                    <i class="fas fa-play me-2"></i>Start Session
+                </button>
+                <button class="btn-settings" id="settingsBtn">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+            </div>
+            <div class="size-popover" id="sizePopover">
+                <label>Session size:</label>
+                <input type="range" id="sizeSlider" min="5" max="50" step="5" value="20">
+                <span class="size-val" id="sizeVal">20</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Type Grid -->
+    <div class="type-grid-section">
+        <div class="type-grid-title">Practice by Type</div>
+        <div class="type-grid" id="typeGrid">
+            <!-- Populated by JS -->
         </div>
     </div>
 </div>
 
-<!-- Loading State -->
-<div class="container mt-4 exercise-loading" id="exerciseLoading" style="display: none;">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+<!-- ═══ EXERCISE VIEW (shared by both modes) ═══ -->
+<div id="exerciseView" style="display: none;">
+    <!-- Loading -->
+    <div class="ex-loading" id="exLoading" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading exercises...</p>
+    </div>
+
+    <!-- Exercise Card -->
+    <div class="container mt-4" id="exArea" style="display: none;">
+        <div class="exercise-card exercise-slide-in" id="exerciseCard"></div>
+    </div>
+
+    <!-- Keyboard Hints -->
+    <div class="ex-keyboard-hint" id="keyboardHint" style="display: none;">
+        <kbd>1</kbd>-<kbd>4</kbd> select &middot; <kbd>Enter</kbd> next &middot; <kbd>Space</kbd> flip/check
+    </div>
+
+    <!-- Empty -->
+    <div class="ex-loading" id="exEmpty" style="display: none;">
+        <i class="fas fa-puzzle-piece d-block" style="font-size:48px; color:var(--border-strong); margin-bottom:16px;"></i>
+        <h5>No exercises available</h5>
+        <p class="text-muted">Try a different type or take some tests first.</p>
+        <button class="btn btn-outline-primary mt-2" onclick="backToLanding()">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </button>
     </div>
 </div>
 
-<!-- Empty State -->
-<div class="container mt-4 exercise-empty" id="exerciseEmpty" style="display: none;">
-    <i class="fas fa-puzzle-piece d-block"></i>
-    <h5>No exercises found</h5>
-    <p>Try adjusting your filters or generate exercises first.</p>
-</div>
-
-<!-- Initial State -->
-<div class="container mt-4 exercise-empty" id="exerciseInitial">
-    <i class="fas fa-dumbbell d-block"></i>
-    <h5>Ready to practice?</h5>
-    <p>Select your filters and click "Load Exercises" to start.</p>
-</div>
-
-<!-- Exercise Area -->
-<div class="container mt-4" id="exerciseArea" style="display: none;">
-    <div class="exercise-card exercise-slide-in" id="exerciseCard">
-        <!-- Rendered dynamically -->
-    </div>
-</div>
-
-<!-- Keyboard Hints -->
-<div class="exercise-keyboard-hint" id="keyboardHint" style="display: none;">
-    <kbd>1</kbd>–<kbd>4</kbd> select option &middot; <kbd>Enter</kbd> next &middot; <kbd>Space</kbd> flip/check
-</div>
-
-<!-- Session Complete -->
-<div class="container mt-4" id="sessionComplete" style="display: none;">
-    <div class="exercise-complete-card text-center">
-        <i class="fas fa-check-circle exercise-complete-icon"></i>
-        <h3>Session Complete!</h3>
-        <div class="exercise-stats" id="sessionStats"></div>
-        <div class="mt-4 d-flex gap-2 justify-content-center">
-            <button class="btn btn-primary" id="loadMoreBtn">
-                <i class="fas fa-redo me-2"></i> Load More
+<!-- ═══ COMPLETE VIEW ═══ -->
+<div id="completeView" style="display: none;">
+    <div class="ex-complete-card">
+        <i class="fas fa-trophy ex-complete-icon"></i>
+        <h3 id="completeTitle">Session Complete!</h3>
+        <div class="ex-stats" id="exStats"></div>
+        <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
+            <button class="btn btn-primary" onclick="backToLanding()">
+                <i class="fas fa-arrow-left me-2"></i>Back to Exercises
             </button>
-            <a href="/tests" class="btn btn-outline-secondary">
-                <i class="fas fa-headphones me-2"></i> Browse Tests
+            <a href="/flashcards" class="btn btn-outline-secondary">
+                <i class="fas fa-layer-group me-2"></i>Flashcards
             </a>
         </div>
     </div>
@@ -496,560 +443,785 @@
 {% block extra_js %}
 <script>
 (function() {
+    'use strict';
     const token = localStorage.getItem('jwt_token');
-    const languageId = parseInt(localStorage.getItem('selectedLanguageId')) || 1;
+    const langId = parseInt(localStorage.getItem('selectedLanguageId')) || 1;
+    if (!token) { window.location.href = '/login'; return; }
 
-    // State
+    // ── Exercise type metadata ──
+    const TYPE_META = {
+        text_flashcard:           { icon: 'fa-layer-group', phase: 'a', desc: 'Vocabulary recognition' },
+        listening_flashcard:      { icon: 'fa-headphones',  phase: 'a', desc: 'Audio recognition' },
+        cloze_completion:         { icon: 'fa-pen-to-square', phase: 'a', desc: 'Fill in the blank' },
+        jumbled_sentence:         { icon: 'fa-shuffle',     phase: 'b', desc: 'Reorder words' },
+        tl_nl_translation:       { icon: 'fa-language',    phase: 'b', desc: 'Translate to English' },
+        nl_tl_translation:       { icon: 'fa-language',    phase: 'b', desc: 'Translate to target' },
+        spot_incorrect_sentence:  { icon: 'fa-search',      phase: 'b', desc: 'Find the error' },
+        spot_incorrect_part:      { icon: 'fa-search',      phase: 'b', desc: 'Find the error' },
+        style_sentence_completion:{ icon: 'fa-feather',     phase: 'b', desc: 'Complete the style' },
+        style_transition_fill:    { icon: 'fa-feather',     phase: 'b', desc: 'Fill transition words' },
+        semantic_discrimination:  { icon: 'fa-bullseye',    phase: 'c', desc: 'Choose correct usage' },
+        collocation_gap_fill:     { icon: 'fa-puzzle-piece',phase: 'c', desc: 'Natural word pairs' },
+        collocation_repair:       { icon: 'fa-wrench',      phase: 'c', desc: 'Fix the collocation' },
+        odd_collocation_out:      { icon: 'fa-question',    phase: 'c', desc: 'Spot the odd pairing' },
+        odd_one_out:              { icon: 'fa-question',    phase: 'c', desc: 'Which doesn\'t belong?' },
+        style_pattern_match:      { icon: 'fa-palette',     phase: 'c', desc: 'Match writing styles' },
+        style_voice_transform:    { icon: 'fa-exchange-alt',phase: 'c', desc: 'Transform the voice' },
+        verb_noun_match:          { icon: 'fa-link',        phase: 'd', desc: 'Match verbs & nouns' },
+        context_spectrum:         { icon: 'fa-sliders-h',   phase: 'd', desc: 'Contextual nuance' },
+        timed_speed_round:        { icon: 'fa-bolt',        phase: 'd', desc: 'Speed challenge' },
+        style_imitation:          { icon: 'fa-pen-fancy',   phase: 'd', desc: 'Imitate the style' },
+    };
+
+    // ── State ──
     const state = {
+        mode: null,          // 'daily' | 'practice'
         exercises: [],
         currentIndex: 0,
         answered: 0,
         correct: 0,
         isAnswered: false,
         exerciseStart: null,
+        practiceType: null,  // exercise_type for practice mode
+        practiceOffset: 0,
+        practiceLoading: false,
+        sessionData: null,
     };
 
-    // DOM refs
+    // ── DOM ──
+    const $ = id => document.getElementById(id);
     const els = {
-        filterType: document.getElementById('filterType'),
-        filterSource: document.getElementById('filterSource'),
-        filterCefr: document.getElementById('filterCefr'),
-        loadBtn: document.getElementById('loadBtn'),
-        loading: document.getElementById('exerciseLoading'),
-        empty: document.getElementById('exerciseEmpty'),
-        initial: document.getElementById('exerciseInitial'),
-        area: document.getElementById('exerciseArea'),
-        card: document.getElementById('exerciseCard'),
-        progress: document.getElementById('exerciseProgress'),
-        currentExNum: document.getElementById('currentExNum'),
-        totalExercises: document.getElementById('totalExercises'),
-        progressFill: document.getElementById('progressFill'),
-        score: document.getElementById('exerciseScore'),
-        keyboardHint: document.getElementById('keyboardHint'),
-        sessionComplete: document.getElementById('sessionComplete'),
-        sessionStats: document.getElementById('sessionStats'),
-        loadMoreBtn: document.getElementById('loadMoreBtn'),
+        landing: $('landingView'),
+        exerciseView: $('exerciseView'),
+        completeView: $('completeView'),
+        backBtn: $('backBtn'),
+        headerTitle: $('headerTitle'),
+        progress: $('exProgress'),
+        currentNum: $('currentNum'),
+        totalNum: $('totalNum'),
+        progressFill: $('progressFill'),
+        score: $('exScore'),
+        loading: $('exLoading'),
+        area: $('exArea'),
+        card: $('exerciseCard'),
+        keyboardHint: $('keyboardHint'),
+        empty: $('exEmpty'),
+        stats: $('exStats'),
+        completeTitle: $('completeTitle'),
+        heroDesc: $('heroDesc'),
+        heroMeta: $('heroMeta'),
+        heroProgressBar: $('heroProgressBar'),
+        heroProgressFill: $('heroProgressFill'),
+        startDailyBtn: $('startDailyBtn'),
+        settingsBtn: $('settingsBtn'),
+        sizePopover: $('sizePopover'),
+        sizeSlider: $('sizeSlider'),
+        sizeVal: $('sizeVal'),
+        typeGrid: $('typeGrid'),
     };
 
-    // ── Utilities ──
+    function hdrs() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }; }
 
-    function shuffleArray(arr) {
-        const a = arr.slice();
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
+    function fmtType(t) {
+        if (typeof LinguaI18n !== 'undefined') {
+            const k = 'exercises.type.' + t;
+            const v = LinguaI18n.t(k);
+            if (v !== k) return v;
         }
+        return t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function escHtml(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function shuffleArr(a) {
+        a = a.slice();
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i+1)); [a[i],a[j]] = [a[j],a[i]]; }
         return a;
     }
 
-    function formatTypeName(type) {
-        const key = 'exercises.type.' + type;
-        const translated = LinguaI18n.t(key);
-        if (translated !== key) return translated;
-        return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    function i18n(key, v) {
+        if (typeof LinguaI18n !== 'undefined') return LinguaI18n.t(key, v);
+        const map = {
+            'exercises.next': 'Next', 'exercises.check': 'Check',
+            'exercises.instruction.fill_blank': 'Fill in the blank:',
+            'exercises.instruction.choose_translation': 'Choose the correct translation:',
+            'exercises.instruction.which_sentence': `Which sentence uses "${(v&&v.word)||''}" correctly?`,
+            'exercises.instruction.odd_one_out': 'Which word does not belong?',
+            'exercises.instruction.translate_to_tl': 'Translate into the target language:',
+            'exercises.instruction.collocation_gap_fill': 'Fill in the missing word:',
+            'exercises.instruction.collocation_repair': 'Choose the correct word:',
+            'exercises.instruction.odd_collocation_out': `Which collocation with "${(v&&v.word)||''}" does not fit?`,
+            'exercises.type_placeholder': 'Type your answer...',
+            'exercises.hint': `Hint: ${(v&&v.hint)||''}`,
+        };
+        return map[key] || key;
     }
 
-    function hideAll() {
-        els.loading.style.display = 'none';
-        els.empty.style.display = 'none';
-        els.initial.style.display = 'none';
-        els.area.style.display = 'none';
-        els.keyboardHint.style.display = 'none';
-        els.sessionComplete.style.display = 'none';
+    // ══════════════════════════════════════════════
+    // LANDING
+    // ══════════════════════════════════════════════
+
+    function showLanding() {
+        state.mode = null;
+        els.landing.style.display = '';
+        els.exerciseView.style.display = 'none';
+        els.completeView.style.display = 'none';
+        els.backBtn.classList.remove('show');
+        els.progress.style.display = 'none';
+        els.headerTitle.textContent = 'Exercises';
+    }
+    window.backToLanding = showLanding;
+
+    async function initLanding() {
+        buildTypeGrid();
+        await checkDailySession();
     }
 
-    // ── Load exercise types for filter dropdown ──
+    function buildTypeGrid() {
+        // Fetch available types then render cards
+        fetch(`/api/exercises/types?language_id=${langId}`, { headers: hdrs() })
+            .then(r => r.json())
+            .then(data => {
+                const types = data.types || [];
+                els.typeGrid.innerHTML = '';
+                types.forEach(t => {
+                    const meta = TYPE_META[t] || { icon: 'fa-question', phase: 'b', desc: '' };
+                    const card = document.createElement('div');
+                    card.className = 'type-card';
+                    card.onclick = () => startPractice(t);
+                    card.innerHTML = `
+                        <div class="type-card-icon phase-${meta.phase}">
+                            <i class="fas ${meta.icon}"></i>
+                        </div>
+                        <div class="type-card-body">
+                            <div class="type-card-name">${fmtType(t)}</div>
+                            <div class="type-card-desc">${meta.desc}</div>
+                        </div>
+                        <i class="fas fa-chevron-right type-card-arrow"></i>
+                    `;
+                    els.typeGrid.appendChild(card);
+                });
+            })
+            .catch(e => console.error('Failed to load types:', e));
+    }
 
-    async function loadTypes() {
+    async function checkDailySession() {
         try {
-            const resp = await fetch(`/api/exercises/types?language_id=${languageId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const resp = await fetch(`/api/exercises/session?language_id=${langId}`, { headers: hdrs() });
             if (!resp.ok) return;
             const data = await resp.json();
-            const EXCLUDED_TYPES = ['text_flashcard', 'listening_flashcard'];
-            (data.types || []).filter(t => !EXCLUDED_TYPES.includes(t)).forEach(function(t) {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.textContent = formatTypeName(t);
-                els.filterType.appendChild(opt);
-            });
-        } catch (e) {
-            console.error('Failed to load exercise types:', e);
-        }
-    }
+            const s = data.session;
+            if (!s) return;
 
-    // ── Load exercises ──
+            const completed = s.progress ? s.progress.completed : 0;
+            const total = s.progress ? s.progress.total : (s.exercises || []).length;
 
-    async function loadExercises() {
-        if (!token) { window.location.href = '/login'; return; }
-
-        hideAll();
-        els.loading.style.display = 'block';
-
-        const params = new URLSearchParams({ language_id: languageId, limit: '30' });
-        if (els.filterType.value) params.set('exercise_type', els.filterType.value);
-        if (els.filterSource.value) params.set('source_type', els.filterSource.value);
-        if (els.filterCefr.value) params.set('cefr_level', els.filterCefr.value);
-
-        try {
-            const resp = await fetch(`/api/exercises/?${params}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!resp.ok) throw new Error('Failed to load exercises');
-
-            const data = await resp.json();
-            const EXCLUDED_TYPES = ['text_flashcard', 'listening_flashcard'];
-            state.exercises = (data.exercises || []).filter(e => !EXCLUDED_TYPES.includes(e.exercise_type));
-            state.currentIndex = 0;
-            state.answered = 0;
-            state.correct = 0;
-
-            hideAll();
-
-            if (state.exercises.length === 0) {
-                els.empty.style.display = 'block';
-                els.progress.style.display = 'none';
+            if (total === 0) {
+                els.heroDesc.textContent = 'Take some tests first to build your vocabulary.';
                 return;
             }
 
-            els.area.style.display = 'block';
-            els.progress.style.display = 'flex';
-            els.keyboardHint.style.display = '';
-            els.totalExercises.textContent = state.exercises.length;
-            renderExercise();
+            if (s.session_size) {
+                els.sizeSlider.value = s.session_size;
+                els.sizeVal.textContent = s.session_size;
+            }
 
+            if (completed > 0 && completed < total) {
+                els.startDailyBtn.innerHTML = '<i class="fas fa-play me-2"></i>Resume (' + completed + '/' + total + ')';
+                els.heroProgressBar.style.display = '';
+                els.heroProgressFill.style.width = (completed / total * 100) + '%';
+            } else if (completed >= total && total > 0) {
+                els.startDailyBtn.innerHTML = '<i class="fas fa-check me-2"></i>Completed!';
+                els.startDailyBtn.style.opacity = '0.7';
+                els.heroProgressBar.style.display = '';
+                els.heroProgressFill.style.width = '100%';
+                els.heroDesc.textContent = 'You\'ve finished today\'s session. Come back tomorrow!';
+            }
+
+            els.heroMeta.innerHTML = `
+                <span><i class="fas fa-layer-group"></i> ${total} exercises</span>
+                <span><i class="fas fa-check-circle"></i> ${completed} done</span>
+            `;
         } catch (e) {
-            console.error('Exercise load error:', e);
-            hideAll();
-            els.loading.style.display = 'block';
-            els.loading.innerHTML =
-                '<p class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>Failed to load exercises</p>';
+            console.error('Daily session check failed:', e);
         }
     }
 
-    // ── Render dispatcher ──
+    // ══════════════════════════════════════════════
+    // DAILY SESSION MODE
+    // ══════════════════════════════════════════════
+
+    async function startDaily() {
+        state.mode = 'daily';
+        enterExerciseView('Daily Session');
+
+        try {
+            const resp = await fetch(`/api/exercises/session?language_id=${langId}`, { headers: hdrs() });
+            if (!resp.ok) throw new Error('Failed');
+            const data = await resp.json();
+            const s = data.session;
+
+            if (!s || !s.exercises || s.exercises.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            state.sessionData = s;
+            state.exercises = s.exercises;
+            state.answered = 0;
+            state.correct = 0;
+
+            // Find first non-completed
+            state.currentIndex = 0;
+            for (let i = 0; i < state.exercises.length; i++) {
+                if (!state.exercises[i].is_completed) { state.currentIndex = i; break; }
+                if (i === state.exercises.length - 1) state.currentIndex = state.exercises.length;
+            }
+            // Count already completed
+            state.answered = state.exercises.filter(e => e.is_completed).length;
+
+            showExerciseArea();
+            els.totalNum.textContent = state.exercises.length;
+            renderExercise();
+
+        } catch (e) {
+            console.error('Daily session error:', e);
+            showEmpty();
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    // PRACTICE MODE (infinite)
+    // ══════════════════════════════════════════════
+
+    async function startPractice(exerciseType) {
+        state.mode = 'practice';
+        state.practiceType = exerciseType;
+        state.practiceOffset = 0;
+        state.exercises = [];
+        state.currentIndex = 0;
+        state.answered = 0;
+        state.correct = 0;
+
+        enterExerciseView(fmtType(exerciseType));
+        els.progress.style.display = 'flex';
+        els.totalNum.textContent = '\u221E';  // infinity symbol
+
+        await fetchMorePractice();
+
+        if (state.exercises.length === 0) {
+            showEmpty();
+            return;
+        }
+
+        showExerciseArea();
+        renderExercise();
+    }
+
+    async function fetchMorePractice() {
+        if (state.practiceLoading) return;
+        state.practiceLoading = true;
+
+        try {
+            const params = new URLSearchParams({
+                language_id: langId,
+                exercise_type: state.practiceType,
+                limit: '20',
+                offset: state.practiceOffset,
+            });
+            const resp = await fetch(`/api/exercises/?${params}`, { headers: hdrs() });
+            if (!resp.ok) throw new Error('Failed');
+            const data = await resp.json();
+            const newExercises = (data.exercises || []).map(e => ({
+                exercise_id: e.id,
+                exercise_type: e.exercise_type,
+                content: e.content,
+                cefr_level: e.cefr_level,
+                source_type: e.source_type,
+                sense_id: e.word_sense_id,
+            }));
+
+            state.exercises.push(...newExercises);
+            state.practiceOffset += newExercises.length;
+        } catch (e) {
+            console.error('Practice fetch error:', e);
+        }
+        state.practiceLoading = false;
+    }
+
+    // ══════════════════════════════════════════════
+    // EXERCISE VIEW
+    // ══════════════════════════════════════════════
+
+    function enterExerciseView(title) {
+        els.landing.style.display = 'none';
+        els.completeView.style.display = 'none';
+        els.exerciseView.style.display = '';
+        els.backBtn.classList.add('show');
+        els.headerTitle.textContent = title;
+        els.loading.style.display = 'block';
+        els.area.style.display = 'none';
+        els.empty.style.display = 'none';
+        els.keyboardHint.style.display = 'none';
+        els.progress.style.display = 'none';
+    }
+
+    function showExerciseArea() {
+        els.loading.style.display = 'none';
+        els.area.style.display = '';
+        els.keyboardHint.style.display = '';
+        els.progress.style.display = 'flex';
+    }
+
+    function showEmpty() {
+        els.loading.style.display = 'none';
+        els.area.style.display = 'none';
+        els.empty.style.display = '';
+    }
 
     function renderExercise() {
         if (state.currentIndex >= state.exercises.length) {
+            if (state.mode === 'practice') {
+                // Try to fetch more
+                fetchMorePractice().then(() => {
+                    if (state.currentIndex >= state.exercises.length) {
+                        showComplete();
+                    } else {
+                        renderExercise();
+                    }
+                });
+                return;
+            }
             showComplete();
             return;
+        }
+
+        // Pre-fetch more in practice mode when running low
+        if (state.mode === 'practice' && state.currentIndex >= state.exercises.length - 5) {
+            fetchMorePractice();
         }
 
         state.isAnswered = false;
         state.exerciseStart = Date.now();
         const ex = state.exercises[state.currentIndex];
-        const content = ex.content;
+        const c = ex.content || {};
 
-        // Update progress
-        els.currentExNum.textContent = state.currentIndex + 1;
-        els.progressFill.style.width =
-            ((state.currentIndex + 1) / state.exercises.length * 100) + '%';
+        // Progress
+        els.currentNum.textContent = state.currentIndex + 1;
+        if (state.mode === 'daily') {
+            els.progressFill.style.width = ((state.currentIndex + 1) / state.exercises.length * 100) + '%';
+        }
         updateScore();
 
         // Animate
         els.card.classList.remove('exercise-slide-in');
-        void els.card.offsetWidth; // force reflow
+        void els.card.offsetWidth;
         els.card.classList.add('exercise-slide-in');
 
+        // Word info
+        let wordHTML = '';
+        if (ex.lemma || ex.definition) {
+            wordHTML = '<div class="exercise-word-info">';
+            if (ex.lemma) wordHTML += '<span class="word-lemma">' + escHtml(ex.lemma) + '</span>';
+            if (ex.definition) wordHTML += '<span class="word-def">' + escHtml(ex.definition) + '</span>';
+            wordHTML += '</div>';
+        }
+
         switch (ex.exercise_type) {
-            case 'cloze_completion':
-                renderCloze(ex); break;
-            case 'tl_nl_translation':
-                renderTlNlTranslation(ex); break;
-            case 'semantic_discrimination':
-                renderSemanticDiscrim(ex); break;
-            case 'odd_one_out':
-                renderOddOneOut(ex); break;
-            case 'nl_tl_translation':
-                renderNlTlTranslation(ex); break;
-            case 'collocation_gap_fill':
-                renderCollocationGapFill(ex); break;
-            case 'collocation_repair':
-                renderCollocationRepair(ex); break;
-            case 'odd_collocation_out':
-                renderOddCollocationOut(ex); break;
-            default:
-                renderGeneric(ex);
+            case 'cloze_completion': renderCloze(ex,c,wordHTML); break;
+            case 'tl_nl_translation': renderTlNl(ex,c,wordHTML); break;
+            case 'semantic_discrimination': renderSemDiscrim(ex,c,wordHTML); break;
+            case 'odd_one_out': renderOddOneOut(ex,c,wordHTML); break;
+            case 'nl_tl_translation': renderNlTl(ex,c,wordHTML); break;
+            case 'collocation_gap_fill': renderColloGap(ex,c,wordHTML); break;
+            case 'collocation_repair': renderColloRepair(ex,c,wordHTML); break;
+            case 'odd_collocation_out': renderOddCollo(ex,c,wordHTML); break;
+            case 'text_flashcard': case 'listening_flashcard': renderFlashcard(ex,c,wordHTML); break;
+            case 'spot_incorrect_part': renderSpotPart(ex,c,wordHTML); break;
+            case 'spot_incorrect_sentence': renderSpotSentence(ex,c,wordHTML); break;
+            case 'jumbled_sentence': renderJumbled(ex,c,wordHTML); break;
+            default: renderGeneric(ex,c,wordHTML);
         }
     }
 
-    // ── MCQ helper ──
+    // ── MCQ shared ──
 
-    function renderMCQ(typeBadge, cefrLevel, instruction, promptHTML, options, correctValue, explanation) {
-        const shuffled = shuffleArray(options);
-
-        let html = `
-            <div class="exercise-type-badge">
-                <i class="fas fa-pen-to-square"></i> ${typeBadge}
-                ${cefrLevel ? `<span class="exercise-cefr-badge">${cefrLevel}</span>` : ''}
-            </div>
-            <div class="exercise-instruction">${instruction}</div>
-            <div class="exercise-prompt">${promptHTML}</div>
-            <div class="exercise-options" id="optionsList">
-        `;
-
-        shuffled.forEach(function(opt, i) {
-            const letter = String.fromCharCode(65 + i);
-            const val = typeof opt === 'object' ? opt.text : opt;
-            html += `
-                <div class="exercise-option" data-value="${escapeHtml(val)}" data-index="${i}">
-                    <span class="option-letter">${letter}</span>
-                    <span class="option-text">${escapeHtml(val)}</span>
-                </div>
-            `;
+    function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML) {
+        const shuffled = shuffleArr(opts);
+        let h = (wordHTML||'') +
+            `<div class="exercise-type-badge"><i class="fas fa-pen-to-square"></i> ${badge}${cefr?`<span class="exercise-cefr-badge">${cefr}</span>`:''}</div>` +
+            `<div class="exercise-instruction">${instr}</div>` +
+            `<div class="exercise-prompt">${prompt}</div>` +
+            `<div class="exercise-options" id="optionsList">`;
+        shuffled.forEach((o,i) => {
+            const v = typeof o === 'object' ? o.text : o;
+            h += `<div class="exercise-option" data-value="${escHtml(v)}"><span class="option-letter">${String.fromCharCode(65+i)}</span><span class="option-text">${escHtml(v)}</span></div>`;
         });
+        h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div><button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
 
-        html += `</div>
-            <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
-        `;
-
-        els.card.innerHTML = html;
-        bindMCQEvents(correctValue, explanation);
-    }
-
-    function bindMCQEvents(correctValue, explanation) {
-        const optionsList = document.getElementById('optionsList');
-        optionsList.addEventListener('click', function(e) {
+        document.getElementById('optionsList').addEventListener('click', e => {
             if (state.isAnswered) return;
             const opt = e.target.closest('.exercise-option');
             if (!opt) return;
-
             state.isAnswered = true;
-            const selected = opt.dataset.value;
-            const isCorrect = selected === correctValue;
-
-            // Mark all options
-            optionsList.querySelectorAll('.exercise-option').forEach(function(o) {
+            const sel = opt.dataset.value;
+            const ok = sel === correct;
+            document.querySelectorAll('#optionsList .exercise-option').forEach(o => {
                 o.classList.add('disabled');
-                if (o.dataset.value === correctValue) {
-                    o.classList.add('correct');
-                }
+                if (o.dataset.value === correct) o.classList.add('correct');
             });
-            if (!isCorrect) {
-                opt.classList.add('incorrect');
-            }
-
-            showFeedback(isCorrect, explanation);
-            submitAttempt(isCorrect, { selected: selected });
+            if (!ok) opt.classList.add('incorrect');
+            showFeedback(ok, expl);
+            submitAttempt(ok, { selected: sel });
         });
-
         document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
 
-    // ── Cloze ──
+    // ── Type renderers ──
 
-    function renderCloze(ex) {
-        const c = ex.content;
-        let promptHTML = escapeHtml(c.sentence_with_blank).replace('___', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
-        if (c.word_definition) {
-            promptHTML += `<div style="font-size:14px; color:var(--text-secondary); margin-top:10px; font-weight:400; font-style:italic;">${escapeHtml(c.word_definition)}</div>`;
-        }
-        renderMCQ(formatTypeName('cloze_completion'), ex.cefr_level, LinguaI18n.t('exercises.instruction.fill_blank'), promptHTML, c.options, c.correct_answer, c.explanation);
+    function renderCloze(ex,c,w) {
+        let p = escHtml(c.sentence_with_blank).replace('___','<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+        if (c.word_definition) p += `<div style="font-size:14px;color:var(--text-secondary);margin-top:10px;font-style:italic;">${escHtml(c.word_definition)}</div>`;
+        mcq(fmtType('cloze_completion'), ex.cefr_level, i18n('exercises.instruction.fill_blank'), p, c.options, c.correct_answer, c.explanation, w);
     }
-
-    // ── TL → NL Translation ──
-
-    function renderTlNlTranslation(ex) {
-        const c = ex.content;
-        renderMCQ(formatTypeName('tl_nl_translation'), ex.cefr_level, LinguaI18n.t('exercises.instruction.choose_translation'),
-            escapeHtml(c.tl_sentence), c.options, c.correct_nl, '');
+    function renderTlNl(ex,c,w) { mcq(fmtType('tl_nl_translation'), ex.cefr_level, i18n('exercises.instruction.choose_translation'), escHtml(c.tl_sentence), c.options, c.correct_nl, '', w); }
+    function renderSemDiscrim(ex,c,w) {
+        const cor = c.sentences.find(s=>s.is_correct);
+        mcq(fmtType('semantic_discrimination'), ex.cefr_level, i18n('exercises.instruction.which_sentence',{word:c.target_word||'the word'}), '', c.sentences.map(s=>s.text), cor?cor.text:'', c.explanation, w);
     }
-
-    // ── Semantic Discrimination ──
-
-    function renderSemanticDiscrim(ex) {
-        const c = ex.content;
-        const correctSentence = c.sentences.find(s => s.is_correct);
-        const options = c.sentences.map(s => s.text);
-        const word = c.target_word || 'the word';
-        const instruction = LinguaI18n.t('exercises.instruction.which_sentence', { word: word });
-        renderMCQ(formatTypeName('semantic_discrimination'), ex.cefr_level, instruction,
-            '', options, correctSentence ? correctSentence.text : '', c.explanation);
-    }
-
-    // ── Odd One Out ──
-
-    function renderOddOneOut(ex) {
-        const c = ex.content;
-        // The odd item is at c.odd_index in the original array
-        const oddValue = c.items[c.odd_index];
-
-        let html = `
-            <div class="exercise-type-badge">
-                <i class="fas fa-question-circle"></i> ${formatTypeName('odd_one_out')}
-                ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
-            </div>
-            <div class="exercise-instruction">${LinguaI18n.t('exercises.instruction.odd_one_out')}</div>
-            ${c.shared_property ? `<div class="exercise-prompt" style="font-size:15px; color:var(--text-secondary)">${LinguaI18n.t('exercises.hint', { hint: escapeHtml(c.shared_property) })}</div>` : ''}
-            <div class="exercise-options" id="optionsList">
-        `;
-
-        const shuffled = shuffleArray(c.items);
-        shuffled.forEach(function(item, i) {
-            const letter = String.fromCharCode(65 + i);
-            html += `
-                <div class="exercise-option" data-value="${escapeHtml(item)}">
-                    <span class="option-letter">${letter}</span>
-                    <span class="option-text">${escapeHtml(item)}</span>
-                </div>
-            `;
+    function renderOddOneOut(ex,c,w) {
+        const odd = c.items[c.odd_index];
+        let h = (w||'')+`<div class="exercise-type-badge"><i class="fas fa-question-circle"></i> ${fmtType('odd_one_out')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">${i18n('exercises.instruction.odd_one_out')}</div>`+
+            (c.shared_property?`<div class="exercise-prompt" style="font-size:15px;color:var(--text-secondary)">${i18n('exercises.hint',{hint:escHtml(c.shared_property)})}</div>`:'')+
+            `<div class="exercise-options" id="optionsList">`;
+        shuffleArr(c.items).forEach((it,i) => { h += `<div class="exercise-option" data-value="${escHtml(it)}"><span class="option-letter">${String.fromCharCode(65+i)}</span><span class="option-text">${escHtml(it)}</span></div>`; });
+        h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div><button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
+        document.getElementById('optionsList').addEventListener('click', e => {
+            if (state.isAnswered) return; const o=e.target.closest('.exercise-option'); if(!o) return; state.isAnswered=true;
+            const sel=o.dataset.value, ok=sel===odd;
+            document.querySelectorAll('#optionsList .exercise-option').forEach(x=>{x.classList.add('disabled');if(x.dataset.value===odd)x.classList.add('correct');});
+            if(!ok)o.classList.add('incorrect'); showFeedback(ok,c.explanation); submitAttempt(ok,{selected:sel});
         });
-
-        html += `</div>
-            <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
-        `;
-
-        els.card.innerHTML = html;
-        bindMCQEvents(oddValue, c.explanation);
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
-
-    // ── NL → TL Translation (Production) ──
-
-    function renderNlTlTranslation(ex) {
-        const c = ex.content;
-
-        let html = `
-            <div class="exercise-type-badge">
-                <i class="fas fa-language"></i> ${formatTypeName('nl_tl_translation')}
-                ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
-            </div>
-            <div class="exercise-instruction">${LinguaI18n.t('exercises.instruction.translate_to_tl')}</div>
-            <div class="exercise-prompt">${escapeHtml(c.nl_sentence)}</div>
-            <textarea class="exercise-input-area" id="translationInput" placeholder="${LinguaI18n.t('exercises.type_placeholder')}"></textarea>
-            <button class="btn btn-primary exercise-check-btn" id="checkBtn">
-                <i class="fas fa-check me-2"></i> ${LinguaI18n.t('exercises.check')}
-            </button>
-            <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
-        `;
-
-        els.card.innerHTML = html;
-
+    function renderNlTl(ex,c,w) {
+        let h = (w||'')+`<div class="exercise-type-badge"><i class="fas fa-language"></i> ${fmtType('nl_tl_translation')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">${i18n('exercises.instruction.translate_to_tl')}</div>`+
+            `<div class="exercise-prompt">${escHtml(c.nl_sentence)}</div>`+
+            `<textarea class="exercise-input-area" id="translationInput" placeholder="${i18n('exercises.type_placeholder')}"></textarea>`+
+            `<button class="btn btn-primary exercise-check-btn" id="checkBtn"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>`+
+            `<div class="exercise-feedback" id="exerciseFeedback"></div>`+
+            `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
         document.getElementById('checkBtn').addEventListener('click', function() {
+            if (state.isAnswered) return; state.isAnswered=true;
+            const inp = document.getElementById('translationInput').value.trim();
+            const pri = (c.primary_tl||'').trim();
+            const vars = (c.acceptable_variants||[]).map(v=>v.trim().toLowerCase());
+            const ok = inp.toLowerCase()===pri.toLowerCase() || vars.includes(inp.toLowerCase());
+            let expl=''; if(c.grading_notes) expl+=c.grading_notes; if(!ok) expl+='\nExpected: '+pri;
+            if(c.acceptable_variants&&c.acceptable_variants.length) expl+='\nAlso accepted: '+c.acceptable_variants.join(', ');
+            this.style.display='none'; document.getElementById('translationInput').readOnly=true;
+            showFeedback(ok,expl); submitAttempt(ok,{typed:inp});
+        });
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
+    }
+    function renderColloGap(ex,c,w) {
+        let p = escHtml(c.sentence).replace('___','<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+        mcq(fmtType('collocation_gap_fill'), ex.cefr_level, i18n('exercises.instruction.collocation_gap_fill'), p, c.options, c.correct, '', w);
+    }
+    function renderColloRepair(ex,c,w) {
+        const opts = [c.correct_word, c.error_word];
+        const p = escHtml(c.sentence_with_error).replace(escHtml(c.error_word),'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+        mcq(fmtType('collocation_repair'), ex.cefr_level, i18n('exercises.instruction.collocation_repair'), p, opts, c.correct_word, c.explanation, w);
+    }
+    function renderOddCollo(ex,c,w) {
+        const odd = c.collocations[c.odd_index];
+        let h = (w||'')+`<div class="exercise-type-badge"><i class="fas fa-question-circle"></i> ${fmtType('odd_collocation_out')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">${i18n('exercises.instruction.odd_collocation_out',{word:escHtml(c.head_word)})}</div>`+
+            `<div class="exercise-options" id="optionsList">`;
+        shuffleArr(c.collocations).forEach((it,i) => { h += `<div class="exercise-option" data-value="${escHtml(it)}"><span class="option-letter">${String.fromCharCode(65+i)}</span><span class="option-text">${escHtml(it)}</span></div>`; });
+        h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div><button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
+        document.getElementById('optionsList').addEventListener('click', e => {
+            if (state.isAnswered) return; const o=e.target.closest('.exercise-option'); if(!o) return; state.isAnswered=true;
+            const sel=o.dataset.value, ok=sel===odd;
+            document.querySelectorAll('#optionsList .exercise-option').forEach(x=>{x.classList.add('disabled');if(x.dataset.value===odd)x.classList.add('correct');});
+            if(!ok)o.classList.add('incorrect'); showFeedback(ok,c.explanation); submitAttempt(ok,{selected:sel});
+        });
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
+    }
+    function renderSpotPart(ex,c,w) {
+        const errorPart = c.parts.find(p => p.is_error);
+        let h = (w||'')+
+            `<div class="exercise-type-badge"><i class="fas fa-search"></i> ${fmtType('spot_incorrect_part')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">Tap the part of the sentence that contains an error:</div>`+
+            `<div class="sip-parts" id="sipParts">`;
+        c.parts.forEach((p,i) => {
+            h += `<span class="sip-part" data-idx="${i}">${escHtml(p.text)}</span>`;
+        });
+        h += `</div><div id="sipCorrection" class="sip-correction" style="display:none;"></div>`+
+            `<div class="exercise-feedback" id="exerciseFeedback"></div>`+
+            `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
+
+        document.getElementById('sipParts').addEventListener('click', e => {
             if (state.isAnswered) return;
+            const part = e.target.closest('.sip-part');
+            if (!part) return;
             state.isAnswered = true;
+            const idx = parseInt(part.dataset.idx);
+            const selected = c.parts[idx];
+            const ok = !!selected.is_error;
 
-            const input = document.getElementById('translationInput').value.trim();
-            const primary = (c.primary_tl || '').trim();
-            const variants = (c.acceptable_variants || []).map(v => v.trim().toLowerCase());
-            const inputLower = input.toLowerCase();
+            document.querySelectorAll('.sip-part').forEach(el => {
+                el.classList.add('disabled');
+                const pi = parseInt(el.dataset.idx);
+                if (c.parts[pi].is_error) el.classList.add('correct');
+            });
+            if (!ok) part.classList.add('incorrect');
 
-            const isCorrect = inputLower === primary.toLowerCase() ||
-                variants.includes(inputLower);
-
-            let explanation = '';
-            if (c.grading_notes) explanation += c.grading_notes;
-            if (!isCorrect) explanation += `\nExpected: ${primary}`;
-            if (c.acceptable_variants && c.acceptable_variants.length > 0) {
-                explanation += `\nAlso accepted: ${c.acceptable_variants.join(', ')}`;
+            if (errorPart && errorPart.correct_form) {
+                const corr = document.getElementById('sipCorrection');
+                corr.innerHTML = '<i class="fas fa-check me-1"></i>Correct form: ' + escHtml(errorPart.correct_form);
+                corr.style.display = '';
             }
 
-            this.style.display = 'none';
-            document.getElementById('translationInput').setAttribute('readonly', true);
-            showFeedback(isCorrect, explanation);
-            submitAttempt(isCorrect, { typed: input });
+            const expl = errorPart ? errorPart.explanation : '';
+            showFeedback(ok, expl);
+            submitAttempt(ok, {selected_index: idx, selected_text: selected.text});
         });
-
         document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
 
-    // ── Collocation Gap Fill ──
-
-    function renderCollocationGapFill(ex) {
-        const c = ex.content;
-        let promptHTML = escapeHtml(c.sentence).replace('___', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
-        renderMCQ(formatTypeName('collocation_gap_fill'), ex.cefr_level,
-            LinguaI18n.t('exercises.instruction.collocation_gap_fill'),
-            promptHTML, c.options, c.correct, '');
-    }
-
-    // ── Collocation Repair ──
-
-    function renderCollocationRepair(ex) {
-        const c = ex.content;
-        const options = [c.correct_word, c.error_word];
-        const blankedHTML = escapeHtml(c.sentence_with_error).replace(
-            escapeHtml(c.error_word),
-            '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
-        );
-        renderMCQ(formatTypeName('collocation_repair'), ex.cefr_level,
-            LinguaI18n.t('exercises.instruction.collocation_repair'),
-            blankedHTML, options, c.correct_word, c.explanation);
-    }
-
-    // ── Odd Collocation Out ──
-
-    function renderOddCollocationOut(ex) {
-        const c = ex.content;
-        const oddValue = c.collocations[c.odd_index];
-        const instruction = LinguaI18n.t('exercises.instruction.odd_collocation_out', { word: escapeHtml(c.head_word) });
-
-        let html = `
-            <div class="exercise-type-badge">
-                <i class="fas fa-question-circle"></i> ${formatTypeName('odd_collocation_out')}
-                ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
-            </div>
-            <div class="exercise-instruction">${instruction}</div>
-            <div class="exercise-options" id="optionsList">
-        `;
-
-        const shuffled = shuffleArray(c.collocations);
-        shuffled.forEach(function(item, i) {
-            const letter = String.fromCharCode(65 + i);
-            html += `
-                <div class="exercise-option" data-value="${escapeHtml(item)}">
-                    <span class="option-letter">${letter}</span>
-                    <span class="option-text">${escapeHtml(item)}</span>
-                </div>
-            `;
+    function renderSpotSentence(ex,c,w) {
+        const incorrect = c.sentences.find(s => !s.is_correct);
+        const opts = c.sentences.map(s => s.text);
+        let h = (w||'')+
+            `<div class="exercise-type-badge"><i class="fas fa-search"></i> ${fmtType('spot_incorrect_sentence')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">Which sentence contains an error?</div>`+
+            `<div class="exercise-options" id="optionsList">`;
+        opts.forEach((t,i) => {
+            h += `<div class="exercise-option" data-value="${escHtml(t)}"><span class="option-letter">${String.fromCharCode(65+i)}</span><span class="option-text">${escHtml(t)}</span></div>`;
         });
+        h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>`+
+            `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
 
-        html += `</div>
-            <div class="exercise-feedback" id="exerciseFeedback"></div>
-            <button class="btn btn-primary exercise-next-btn" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
-        `;
+        const correctVal = incorrect ? incorrect.text : '';
+        document.getElementById('optionsList').addEventListener('click', e => {
+            if (state.isAnswered) return;
+            const opt = e.target.closest('.exercise-option');
+            if (!opt) return;
+            state.isAnswered = true;
+            const sel = opt.dataset.value;
+            const ok = sel === correctVal;
 
-        els.card.innerHTML = html;
-        bindMCQEvents(oddValue, c.explanation);
+            document.querySelectorAll('#optionsList .exercise-option').forEach(o => {
+                o.classList.add('disabled');
+                if (o.dataset.value === correctVal) o.classList.add('correct');
+            });
+            if (!ok) opt.classList.add('incorrect');
+
+            let expl = '';
+            if (incorrect) {
+                if (incorrect.error_description) expl += incorrect.error_description;
+                if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
+            }
+            showFeedback(ok, expl);
+            submitAttempt(ok, {selected: sel});
+        });
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
 
-    // ── Generic fallback ──
+    function renderJumbled(ex,c,w) {
+        const correctOrder = c.correct_ordering;
+        const chunks = c.chunks;
+        const placed = [];
+        // Pre-shuffle the initial bank order so it doesn't hint at the answer
+        const initialBankOrder = shuffleArr([...Array(chunks.length).keys()]);
 
-    function renderGeneric(ex) {
-        els.card.innerHTML = `
-            <div class="exercise-type-badge">
-                <i class="fas fa-question"></i> ${formatTypeName(ex.exercise_type)}
-                ${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}
-            </div>
-            <div class="exercise-prompt">${escapeHtml(JSON.stringify(ex.content, null, 2))}</div>
-            <button class="btn btn-primary exercise-next-btn show" id="nextBtn">${LinguaI18n.t('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>
-        `;
+        function render() {
+            let h = (w||'')+
+                `<div class="exercise-type-badge"><i class="fas fa-shuffle"></i> ${fmtType('jumbled_sentence')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+                `<div class="exercise-instruction">Arrange the parts in the correct order:</div>`+
+                `<div class="js-answer" id="jsAnswer">`;
+            placed.forEach((ci,i) => {
+                h += `<span class="js-chunk" data-placed="${i}">${escHtml(chunks[ci])}</span>`;
+            });
+            if (placed.length === 0) h += `<span style="color:var(--text-secondary);font-size:14px;padding:8px;">Tap words below to build the sentence</span>`;
+            h += `</div><div class="js-bank" id="jsBank">`;
+            // Show remaining chunks in the pre-shuffled order
+            const bankIndices = initialBankOrder.filter(i => !placed.includes(i));
+            bankIndices.forEach(ci => {
+                h += `<span class="js-chunk" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
+            });
+            h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>`+
+                `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+            els.card.innerHTML = h;
+
+            // Bank click: add to answer
+            document.getElementById('jsBank').addEventListener('click', e => {
+                if (state.isAnswered) return;
+                const ch = e.target.closest('.js-chunk');
+                if (!ch) return;
+                placed.push(parseInt(ch.dataset.chunk));
+                if (placed.length === chunks.length) checkJumbled();
+                else render();
+            });
+            // Answer click: remove from answer
+            document.getElementById('jsAnswer').addEventListener('click', e => {
+                if (state.isAnswered) return;
+                const ch = e.target.closest('.js-chunk');
+                if (!ch || ch.dataset.placed === undefined) return;
+                placed.splice(parseInt(ch.dataset.placed), 1);
+                render();
+            });
+            document.getElementById('nextBtn').addEventListener('click', nextExercise);
+        }
+
+        function checkJumbled() {
+            state.isAnswered = true;
+            const ok = placed.every((ci,i) => ci === correctOrder[i]);
+            const answerDiv = document.getElementById('jsAnswer');
+            answerDiv.classList.add(ok ? 'correct' : 'incorrect');
+            document.querySelectorAll('.js-chunk').forEach(el => el.classList.add('disabled'));
+            let expl = '';
+            if (!ok) expl = 'Correct order: ' + correctOrder.map(i => chunks[i]).join(' ');
+            showFeedback(ok, expl);
+            submitAttempt(ok, {user_ordering: placed});
+        }
+
+        render();
+    }
+
+    function renderFlashcard(ex,c,w) {
+        const front = c.target_word||c.front_sentence||ex.lemma||'';
+        const back = c.word_definition||c.back_sentence||ex.definition||'';
+        const pron = c.pronunciation||ex.pronunciation||'';
+        const example = c.example_sentence||'';
+        let h = (w||'')+`<div class="exercise-type-badge"><i class="fas fa-layer-group"></i> ${fmtType(ex.exercise_type)}</div>`+
+            `<div class="exercise-prompt">${escHtml(front)}</div>`+
+            (pron?`<div style="text-align:center;color:var(--text-secondary);font-size:16px;margin-bottom:16px;">${escHtml(pron)}</div>`:'')+
+            `<div id="fcBack" style="display:none;text-align:center;margin-bottom:20px;">`+
+            `<div style="font-size:18px;color:var(--text-primary);font-weight:500;margin-bottom:8px;">${escHtml(back)}</div>`+
+            (example?`<div style="font-size:14px;color:var(--text-secondary);font-style:italic;">${escHtml(example)}</div>`:'')+
+            `</div><button class="btn btn-outline-primary w-100 mb-2" id="revealBtn"><i class="fas fa-eye me-2"></i>Reveal</button>`+
+            `<div id="fcRate" style="display:none;"><p class="text-center text-muted mb-2">How well did you know this?</p>`+
+            `<div class="d-flex gap-2"><button class="btn btn-danger flex-fill fc-rate" data-ok="0">Didn't know</button><button class="btn btn-success flex-fill fc-rate" data-ok="1">Knew it</button></div></div>`+
+            `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
+        document.getElementById('revealBtn').addEventListener('click', function() {
+            document.getElementById('fcBack').style.display='block'; document.getElementById('fcRate').style.display='block'; this.style.display='none';
+        });
+        document.querySelectorAll('.fc-rate').forEach(b => b.addEventListener('click', function() {
+            if(state.isAnswered)return; state.isAnswered=true; const ok=this.dataset.ok==='1';
+            document.getElementById('fcRate').style.display='none'; showFeedback(ok,''); submitAttempt(ok,{self_rated:true});
+        }));
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
+    }
+    function renderGeneric(ex,c,w) {
+        els.card.innerHTML = (w||'')+`<div class="exercise-type-badge"><i class="fas fa-question"></i> ${fmtType(ex.exercise_type)}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-prompt" style="font-size:14px;text-align:left;white-space:pre-wrap;">${escHtml(JSON.stringify(c,null,2))}</div>`+
+            `<button class="btn btn-primary exercise-next-btn show" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
         document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
 
     // ── Shared logic ──
 
-    function showFeedback(isCorrect, explanation) {
-        if (isCorrect) state.correct++;
+    function showFeedback(ok, expl) {
+        if (ok) state.correct++;
         state.answered++;
         updateScore();
-
         const fb = document.getElementById('exerciseFeedback');
-        fb.className = 'exercise-feedback show ' + (isCorrect ? 'correct' : 'incorrect');
-        fb.innerHTML = `
-            <strong><i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'} me-1"></i>
-            ${isCorrect ? 'Correct!' : 'Incorrect'}</strong>
-            ${explanation ? `<div class="feedback-explanation">${escapeHtml(explanation)}</div>` : ''}
-        `;
-
+        fb.className = 'exercise-feedback show ' + (ok ? 'correct' : 'incorrect');
+        fb.innerHTML = `<strong><i class="fas fa-${ok?'check-circle':'times-circle'} me-1"></i>${ok?'Correct!':'Incorrect'}</strong>${expl?`<div class="feedback-explanation">${escHtml(expl)}</div>`:''}`;
         document.getElementById('nextBtn').classList.add('show');
     }
 
-    function submitAttempt(isCorrect, userResponse) {
+    function submitAttempt(ok, resp) {
         const ex = state.exercises[state.currentIndex];
-        const timeTaken = Date.now() - (state.exerciseStart || Date.now());
+        const t = Date.now() - (state.exerciseStart || Date.now());
+        fetch('/api/exercises/attempt', { method: 'POST', headers: hdrs(), body: JSON.stringify({
+            exercise_id: ex.exercise_id || ex.id, user_response: resp, is_correct: ok, time_taken_ms: t,
+        })}).catch(e => console.error('Attempt failed:', e));
 
-        fetch('/api/exercises/attempt', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                exercise_id: ex.id,
-                user_response: userResponse,
-                is_correct: isCorrect,
-                time_taken_ms: timeTaken,
-            }),
-        }).catch(function(e) { console.error('Attempt submit failed:', e); });
+        if (state.mode === 'daily') {
+            fetch('/api/exercises/session/complete', { method: 'POST', headers: hdrs(), body: JSON.stringify({
+                exercise_id: ex.exercise_id, language_id: langId,
+            })}).catch(e => console.error('Complete failed:', e));
+        }
     }
 
     function nextExercise() {
         state.currentIndex++;
+        if (state.mode === 'daily') {
+            while (state.currentIndex < state.exercises.length && state.exercises[state.currentIndex].is_completed) {
+                state.currentIndex++;
+            }
+        }
         renderExercise();
     }
 
     function updateScore() {
         if (state.answered > 0) {
-            const pct = Math.round((state.correct / state.answered) * 100);
-            els.score.textContent = `${state.correct}/${state.answered} (${pct}%)`;
+            const p = Math.round(state.correct / state.answered * 100);
+            els.score.textContent = `${state.correct}/${state.answered} (${p}%)`;
         } else {
             els.score.textContent = '';
         }
     }
 
     function showComplete() {
-        hideAll();
-        els.sessionComplete.style.display = 'block';
+        els.exerciseView.style.display = 'none';
+        els.completeView.style.display = '';
         els.progress.style.display = 'none';
-
-        const pct = state.answered > 0 ? Math.round((state.correct / state.answered) * 100) : 0;
-        els.sessionStats.innerHTML = `
-            <div class="exercise-stat">
-                <div class="exercise-stat-value">${state.answered}</div>
-                <div class="exercise-stat-label">Attempted</div>
-            </div>
-            <div class="exercise-stat">
-                <div class="exercise-stat-value" style="color:var(--success)">${state.correct}</div>
-                <div class="exercise-stat-label">Correct</div>
-            </div>
-            <div class="exercise-stat">
-                <div class="exercise-stat-value" style="color:var(--primary)">${pct}%</div>
-                <div class="exercise-stat-label">Accuracy</div>
-            </div>
+        els.completeTitle.textContent = state.mode === 'daily' ? 'Daily Session Complete!' : 'Practice Complete!';
+        const p = state.answered > 0 ? Math.round(state.correct / state.answered * 100) : 0;
+        els.stats.innerHTML = `
+            <div class="ex-stat"><div class="ex-stat-value">${state.answered}</div><div class="ex-stat-label">Completed</div></div>
+            <div class="ex-stat"><div class="ex-stat-value" style="color:var(--success)">${state.correct}</div><div class="ex-stat-label">Correct</div></div>
+            <div class="ex-stat"><div class="ex-stat-value" style="color:var(--primary)">${p}%</div><div class="ex-stat-label">Accuracy</div></div>
         `;
     }
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    // ── Events ──
 
-    // ── Event listeners ──
+    els.startDailyBtn.addEventListener('click', startDaily);
+    els.settingsBtn.addEventListener('click', () => els.sizePopover.classList.toggle('show'));
+    els.sizeSlider.addEventListener('input', () => els.sizeVal.textContent = els.sizeSlider.value);
+    els.sizeSlider.addEventListener('change', () => {
+        fetch('/api/users/preferences', { method: 'PATCH', headers: hdrs(), body: JSON.stringify({ session_size: parseInt(els.sizeSlider.value) })})
+            .catch(e => console.error('Prefs save failed:', e));
+    });
 
-    els.loadBtn.addEventListener('click', loadExercises);
-    els.loadMoreBtn.addEventListener('click', loadExercises);
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (els.area.style.display === 'none') return;
-
-        // Number keys to select option
+    document.addEventListener('keydown', e => {
+        if (els.exerciseView.style.display === 'none') return;
         if (!state.isAnswered && e.code.startsWith('Digit') && e.code !== 'Digit0') {
-            const idx = parseInt(e.code.replace('Digit', '')) - 1;
-            const options = document.querySelectorAll('.exercise-option');
-            if (idx < options.length) {
-                e.preventDefault();
-                options[idx].click();
-            }
+            const idx = parseInt(e.code.replace('Digit','')) - 1;
+            const opts = document.querySelectorAll('.exercise-option');
+            if (idx < opts.length) { e.preventDefault(); opts[idx].click(); }
         }
-
-        // Enter or Space for next / reveal / check
         if (e.code === 'Enter' || e.code === 'Space') {
-            const nextBtn = document.getElementById('nextBtn');
-            const revealBtn = document.getElementById('revealBtn');
-            const checkBtn = document.getElementById('checkBtn');
-
-            if (state.isAnswered && nextBtn && nextBtn.classList.contains('show')) {
-                e.preventDefault();
-                nextBtn.click();
-            } else if (revealBtn && revealBtn.style.display !== 'none') {
-                e.preventDefault();
-                revealBtn.click();
-            } else if (checkBtn && checkBtn.style.display !== 'none' && e.code === 'Enter') {
-                e.preventDefault();
-                checkBtn.click();
-            }
+            const nb = document.getElementById('nextBtn');
+            if (nb && nb.classList.contains('show')) { e.preventDefault(); nb.click(); return; }
+            const rb = document.getElementById('revealBtn');
+            if (rb && rb.style.display !== 'none') { e.preventDefault(); rb.click(); return; }
+            const cb = document.getElementById('checkBtn');
+            if (cb && cb.style.display !== 'none' && e.code === 'Enter') { e.preventDefault(); cb.click(); }
         }
     });
 
     // ── Init ──
-    loadTypes();
+    initLanding();
 })();
 </script>
 {% endblock %}

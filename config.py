@@ -94,6 +94,19 @@ class Config:
     MAX_INPUT_LENGTH = 2000
 
     # ==========================================================================
+    # EXERCISE SCHEDULING
+    # ==========================================================================
+    DEFAULT_EXERCISE_SESSION_SIZE = 20
+    MIN_EXERCISE_SESSION_SIZE = 5
+    MAX_EXERCISE_SESSION_SIZE = 50
+    EXERCISE_COOLDOWN_DAYS = 7              # Don't re-serve same exercise_id within N days
+    EXERCISE_SLOT_DISTRIBUTION = {
+        'due_review': 0.40,
+        'active_learning': 0.40,
+        'new_words': 0.20,
+    }
+
+    # ==========================================================================
     # TOKEN ECONOMY - Single source of truth
     # ==========================================================================
     TOKEN_COSTS = {

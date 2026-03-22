@@ -1,14 +1,14 @@
 # routes/users.py
 """User routes — ELO ratings, token balance, profile."""
 
-from flask import Blueprint, current_app, g
+from flask import Blueprint, current_app, g, request
 import logging
 import traceback
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.test_service import get_test_service
-from utils.responses import api_success, not_found, server_error, ApiResponse
+from utils.responses import api_success, bad_request, not_found, server_error, ApiResponse
 
 logger = logging.getLogger(__name__)
 users_bp = Blueprint("users", __name__)
@@ -83,3 +83,49 @@ def get_user_profile() -> ApiResponse:
     except Exception as e:
         logger.error(f"Profile error: {e}")
         return server_error("Failed to get profile")
+
+
+@users_bp.route('/preferences', methods=['PATCH'])
+@supabase_jwt_required
+def update_preferences() -> ApiResponse:
+    """Update user exercise preferences.
+
+    Body: {"session_size": 15}
+    """
+    try:
+        user_id = g.current_user_id
+        data = request.get_json()
+        if not data:
+            return bad_request("Request body required")
+
+        # Read current preferences
+        user_resp = current_app.supabase_service.table('users') \
+            .select('exercise_preferences') \
+            .eq('id', user_id) \
+            .single() \
+            .execute()
+
+        prefs = (user_resp.data or {}).get('exercise_preferences') or {}
+
+        # Validate and merge session_size
+        if 'session_size' in data:
+            size = data['session_size']
+            if not isinstance(size, int) or not (
+                Config.MIN_EXERCISE_SESSION_SIZE <= size <= Config.MAX_EXERCISE_SESSION_SIZE
+            ):
+                return bad_request(
+                    f"session_size must be {Config.MIN_EXERCISE_SESSION_SIZE}-"
+                    f"{Config.MAX_EXERCISE_SESSION_SIZE}"
+                )
+            prefs['session_size'] = size
+
+        current_app.supabase_service.table('users') \
+            .update({'exercise_preferences': prefs}) \
+            .eq('id', user_id) \
+            .execute()
+
+        return api_success({"exercise_preferences": prefs})
+
+    except Exception as e:
+        logger.error(f"Preferences update error: {e}")
+        return server_error("Failed to update preferences")

@@ -126,9 +126,11 @@ def _initialize_services(app):
 
             # Initialize dimension table cache for fast lookups (use service client to bypass RLS)
             from services.test_service import get_test_service
+            from services.exercise_session_service import get_exercise_session_service
             DimensionService.initialize(app.supabase_service)
             app.test_service = get_test_service()  # Singleton for reuse
-            app.logger.info("DimensionService cache and TestService initialized")
+            app.exercise_session_service = get_exercise_session_service()
+            app.logger.info("DimensionService cache, TestService, and ExerciseSessionService initialized")
         else:
             raise ValueError("Missing Supabase credentials")
     except Exception as e:
