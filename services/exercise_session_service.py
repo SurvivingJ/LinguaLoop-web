@@ -13,6 +13,7 @@ import logging
 import random
 from datetime import date, datetime, timezone
 from typing import Dict, List, Optional, Tuple
+from uuid import uuid4
 
 from config import Config
 from services.supabase_factory import get_supabase_admin
@@ -334,6 +335,27 @@ class ExerciseSessionService:
             )
             all_picks.extend(supplementary)
 
+        # --- Bucket 5: User test sentence jumbled exercises ---
+        remaining = session_size - len(all_picks)
+        user_test_slots = min(remaining, 3)
+        if user_test_slots > 0:
+            test_sentences = self._get_user_test_sentences(
+                user_id, language_id, user_test_slots
+            )
+            for sent in test_sentences:
+                all_picks.append({
+                    'exercise_id': f"virtual-jumbled-{uuid4()}",
+                    'sense_id': None,
+                    'exercise_type': 'jumbled_sentence',
+                    'slot_type': 'user_test',
+                    'phase': 'B',
+                    'is_virtual': True,
+                    'virtual_content': {
+                        'original_sentence': sent['sentence'],
+                        'source_test_id': sent['test_id'],
+                    },
+                })
+
         # Shuffle so session isn't grouped by bucket
         random.shuffle(all_picks)
         return all_picks
@@ -629,6 +651,54 @@ class ExerciseSessionService:
 
         return picks
 
+    def _get_user_test_sentences(
+        self, user_id: str, language_id: int, count: int
+    ) -> List[Dict]:
+        """Pull sentences from tests the user scored >50% on."""
+        try:
+            resp = (
+                self.db.table('test_attempts')
+                .select('test_id, percentage')
+                .eq('user_id', user_id)
+                .gt('percentage', 50)
+                .order('created_at', desc=True)
+                .limit(20)
+                .execute()
+            )
+            test_ids = list(set(row['test_id'] for row in (resp.data or [])))
+            if not test_ids:
+                return []
+
+            test_resp = (
+                self.db.table('tests')
+                .select('id, transcript, language_id')
+                .in_('id', test_ids)
+                .eq('language_id', language_id)
+                .execute()
+            )
+
+            from services.exercise_generation.language_processor import LanguageProcessor
+            processor = LanguageProcessor.for_language(language_id)
+            sentences = []
+            for test in (test_resp.data or []):
+                if not test.get('transcript'):
+                    continue
+                for sent in processor.split_sentences(test['transcript']):
+                    if len(sent.strip()) < 5:
+                        continue
+                    words = processor.tokenize(sent)
+                    if len(words) >= 3:
+                        sentences.append({
+                            'sentence': sent,
+                            'test_id': test['id'],
+                        })
+
+            random.shuffle(sentences)
+            return sentences[:count]
+        except Exception as e:
+            logger.error(f"Error fetching user test sentences: {e}")
+            return []
+
     def _get_recent_exercise_ids(self, user_id: str, days: int) -> set:
         """Get exercise IDs the user has seen within the cooldown window."""
         try:
@@ -789,19 +859,54 @@ class ExerciseSessionService:
                 logger.error(f"Error fetching sense definitions: {e}")
 
         # Build enriched exercise list
+        from services.exercise_generation.language_processor import prepare_jumbled_content
+        lang_id = cached_record.get('language_id')
+
         exercises = []
         for item in exercise_items:
             eid = item['exercise_id']
+
+            # Virtual exercises (e.g. from user test sentences) have inline content
+            if item.get('is_virtual'):
+                try:
+                    content = prepare_jumbled_content(item['virtual_content'], lang_id)
+                except Exception as e:
+                    logger.error(f"Failed to prepare virtual jumbled content: {e}")
+                    continue
+                exercises.append({
+                    'exercise_id': eid,
+                    'exercise_type': item.get('exercise_type', ''),
+                    'source_type': 'user_test',
+                    'content': content,
+                    'cefr_level': None,
+                    'phase': item.get('phase', ''),
+                    'slot_type': item.get('slot_type', ''),
+                    'is_completed': eid in completed,
+                    'sense_id': None,
+                    'lemma': '',
+                    'definition': '',
+                    'pronunciation': '',
+                })
+                continue
+
             ex_data = exercise_map.get(eid, {})
             sense_id = item.get('sense_id')
             sense_data = sense_lookup.get(sense_id, {}) if sense_id else {}
             vocab = sense_data.get('dim_vocabulary') or {}
 
+            content = ex_data.get('content', {})
+            exercise_type = item.get('exercise_type', ex_data.get('exercise_type', ''))
+            if exercise_type == 'jumbled_sentence' and 'chunks' not in content:
+                try:
+                    content = prepare_jumbled_content(content, lang_id)
+                except Exception as e:
+                    logger.error(f"Failed to prepare jumbled content for {eid}: {e}")
+
             exercises.append({
                 'exercise_id': eid,
-                'exercise_type': item.get('exercise_type', ex_data.get('exercise_type', '')),
+                'exercise_type': exercise_type,
                 'source_type': ex_data.get('source_type', ''),
-                'content': ex_data.get('content', {}),
+                'content': content,
                 'cefr_level': ex_data.get('cefr_level'),
                 'phase': item.get('phase', ''),
                 'slot_type': item.get('slot_type', ''),

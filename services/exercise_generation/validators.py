@@ -68,14 +68,9 @@ class ExerciseValidator:
                 errors.append(f"Expected {expected} options, got {len(options)}")
 
     def _check_jumbled_sentence(self, content: dict, errors: list[str]) -> None:
-        chunks   = content.get('chunks', [])
-        ordering = content.get('correct_ordering', [])
-        if len(chunks) < 3:
-            errors.append("jumbled_sentence requires at least 3 chunks")
-        if len(chunks) > 7:
-            errors.append("jumbled_sentence has too many chunks (max 7)")
-        if sorted(ordering) != list(range(len(chunks))):
-            errors.append("correct_ordering must reference all indices 0..n-1")
+        sentence = content.get('original_sentence', '')
+        if not sentence or len(sentence.strip()) < 3:
+            errors.append("jumbled_sentence requires a non-empty original_sentence")
 
     def _check_spot_incorrect_sentence(self, content: dict, errors: list[str]) -> None:
         sentences = content.get('sentences', [])

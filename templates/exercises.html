@@ -285,6 +285,15 @@
     .js-answer .js-chunk:hover { border-color: var(--danger); }
     .js-answer.correct { border-color: var(--success); border-style: solid; background: var(--success-bg, rgba(34,197,94,0.1)); }
     .js-answer.incorrect { border-color: var(--danger); border-style: solid; background: var(--danger-bg, rgba(239,68,68,0.1)); }
+    .js-chunk.dragging { opacity: 0.4; }
+    .js-answer.drag-over { border-color: var(--primary); background: rgba(59,130,246,0.08); }
+    .js-bank.drag-over { border-color: var(--primary); }
+    .js-drop-indicator {
+        width: 3px; border-radius: 2px; background: var(--primary);
+        align-self: stretch; min-height: 32px; flex-shrink: 0;
+        box-shadow: 0 0 6px rgba(59,130,246,0.5);
+        pointer-events: none; transition: none;
+    }
 
     /* ── Loading ── */
     .ex-loading { text-align: center; padding: 60px 20px; }
@@ -832,6 +841,12 @@
             wordHTML += '</div>';
         }
 
+        // Show keyboard hint only for exercise types that use keyboard shortcuts
+        const kbTypes = new Set(['cloze_completion','tl_nl_translation','semantic_discrimination',
+            'odd_one_out','collocation_gap_fill','collocation_repair','odd_collocation_out',
+            'spot_incorrect_sentence','text_flashcard','listening_flashcard']);
+        els.keyboardHint.style.display = kbTypes.has(ex.exercise_type) ? '' : 'none';
+
         switch (ex.exercise_type) {
             case 'cloze_completion': renderCloze(ex,c,wordHTML); break;
             case 'tl_nl_translation': renderTlNl(ex,c,wordHTML); break;
@@ -1052,24 +1067,26 @@
         function render() {
             let h = (w||'')+
                 `<div class="exercise-type-badge"><i class="fas fa-shuffle"></i> ${fmtType('jumbled_sentence')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
-                `<div class="exercise-instruction">Arrange the parts in the correct order:</div>`+
+                `<div class="exercise-instruction">Arrange the words in the correct order:</div>`+
                 `<div class="js-answer" id="jsAnswer">`;
             placed.forEach((ci,i) => {
-                h += `<span class="js-chunk" data-placed="${i}">${escHtml(chunks[ci])}</span>`;
+                h += `<span class="js-chunk" draggable="true" data-placed="${i}" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
             });
-            if (placed.length === 0) h += `<span style="color:var(--text-secondary);font-size:14px;padding:8px;">Tap words below to build the sentence</span>`;
+            if (placed.length === 0) h += `<span style="color:var(--text-secondary);font-size:14px;padding:8px;">Tap or drag words below to build the sentence</span>`;
             h += `</div><div class="js-bank" id="jsBank">`;
-            // Show remaining chunks in the pre-shuffled order
             const bankIndices = initialBankOrder.filter(i => !placed.includes(i));
             bankIndices.forEach(ci => {
-                h += `<span class="js-chunk" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
+                h += `<span class="js-chunk" draggable="true" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
             });
             h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>`+
                 `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
             els.card.innerHTML = h;
 
-            // Bank click: add to answer
-            document.getElementById('jsBank').addEventListener('click', e => {
+            const answerDiv = document.getElementById('jsAnswer');
+            const bankDiv = document.getElementById('jsBank');
+
+            // Click: bank → answer
+            bankDiv.addEventListener('click', e => {
                 if (state.isAnswered) return;
                 const ch = e.target.closest('.js-chunk');
                 if (!ch) return;
@@ -1077,14 +1094,93 @@
                 if (placed.length === chunks.length) checkJumbled();
                 else render();
             });
-            // Answer click: remove from answer
-            document.getElementById('jsAnswer').addEventListener('click', e => {
+            // Click: answer → bank
+            answerDiv.addEventListener('click', e => {
                 if (state.isAnswered) return;
                 const ch = e.target.closest('.js-chunk');
                 if (!ch || ch.dataset.placed === undefined) return;
                 placed.splice(parseInt(ch.dataset.placed), 1);
                 render();
             });
+
+            // Drag and drop
+            let dragChunkIdx = null;
+            let dragFrom = null; // 'bank' or 'answer'
+
+            function getInsertIndex(zone, clientX) {
+                const children = [...zone.querySelectorAll('.js-chunk:not(.dragging)')];
+                for (let i = 0; i < children.length; i++) {
+                    const rect = children[i].getBoundingClientRect();
+                    if (clientX < rect.left + rect.width / 2) return i;
+                }
+                return children.length;
+            }
+
+            els.card.querySelectorAll('.js-chunk').forEach(el => {
+                el.addEventListener('dragstart', e => {
+                    if (state.isAnswered) { e.preventDefault(); return; }
+                    dragChunkIdx = parseInt(el.dataset.chunk);
+                    dragFrom = el.dataset.placed !== undefined ? 'answer' : 'bank';
+                    el.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                el.addEventListener('dragend', () => { el.classList.remove('dragging'); removeIndicator(); });
+            });
+
+            function removeIndicator() {
+                const old = answerDiv.querySelector('.js-drop-indicator');
+                if (old) old.remove();
+            }
+
+            function showIndicator(zone, clientX) {
+                removeIndicator();
+                if (zone !== answerDiv) return;
+                const indicator = document.createElement('span');
+                indicator.className = 'js-drop-indicator';
+                const children = [...zone.querySelectorAll('.js-chunk:not(.dragging)')];
+                const idx = getInsertIndex(zone, clientX);
+                if (idx < children.length) {
+                    zone.insertBefore(indicator, children[idx]);
+                } else {
+                    zone.appendChild(indicator);
+                }
+            }
+
+            [answerDiv, bankDiv].forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    zone.classList.add('drag-over');
+                    showIndicator(zone, e.clientX);
+                });
+                zone.addEventListener('dragleave', e => {
+                    if (!zone.contains(e.relatedTarget)) {
+                        zone.classList.remove('drag-over');
+                        removeIndicator();
+                    }
+                });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    removeIndicator();
+                    if (state.isAnswered || dragChunkIdx === null) return;
+                    const target = zone.id === 'jsAnswer' ? 'answer' : 'bank';
+
+                    const existingIdx = placed.indexOf(dragChunkIdx);
+                    if (existingIdx !== -1) placed.splice(existingIdx, 1);
+
+                    if (target === 'answer') {
+                        const insertAt = getInsertIndex(zone, e.clientX);
+                        placed.splice(insertAt, 0, dragChunkIdx);
+                    }
+
+                    dragChunkIdx = null;
+                    dragFrom = null;
+                    if (placed.length === chunks.length) checkJumbled();
+                    else render();
+                });
+            });
+
             document.getElementById('nextBtn').addEventListener('click', nextExercise);
         }
 
@@ -1093,7 +1189,7 @@
             const ok = placed.every((ci,i) => ci === correctOrder[i]);
             const answerDiv = document.getElementById('jsAnswer');
             answerDiv.classList.add(ok ? 'correct' : 'incorrect');
-            document.querySelectorAll('.js-chunk').forEach(el => el.classList.add('disabled'));
+            document.querySelectorAll('.js-chunk').forEach(el => { el.classList.add('disabled'); el.removeAttribute('draggable'); });
             let expl = '';
             if (!ok) expl = 'Correct order: ' + correctOrder.map(i => chunks[i]).join(' ');
             showFeedback(ok, expl);

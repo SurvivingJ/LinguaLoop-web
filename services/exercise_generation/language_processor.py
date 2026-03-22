@@ -21,6 +21,10 @@ class LanguageProcessor(ABC):
     def chunk_sentence(self, sentence: str) -> list[str]:
         """Split a sentence into 3-6 syntactic chunks for jumbled_sentence exercises."""
 
+    @abstractmethod
+    def tokenize(self, sentence: str) -> list[str]:
+        """Split a sentence into individual words, filtering out punctuation and whitespace."""
+
     def matches_pattern(self, sentence: str, pattern_code: str) -> bool:
         """
         Return True if the sentence demonstrates the given grammar pattern.
@@ -102,6 +106,10 @@ class EnglishProcessor(LanguageProcessor):
             )
         return chunks[:6]
 
+    def tokenize(self, sentence: str) -> list[str]:
+        doc = self.nlp(sentence)
+        return [tok.text for tok in doc if not tok.is_punct and not tok.is_space]
+
     def _simple_split(self, sentence: str) -> list[str]:
         pattern = r'\b(after|before|because|when|while|and|but|although|since|if)\b'
         parts = re.split(pattern, sentence, flags=re.IGNORECASE)
@@ -121,10 +129,16 @@ class ChineseProcessor(LanguageProcessor):
 
     SENTENCE_END_PATTERN = re.compile(r'(?<=[。！？])')
     BOUNDARY_MARKERS = frozenset({'，', '。', '、', '了', '在', '和', '与', '但', '因为', '所以'})
+    PUNCTUATION = frozenset('，。、！？；：""''（）【】《》—…·')
 
     def split_sentences(self, text: str) -> list[str]:
         parts = self.SENTENCE_END_PATTERN.split(text)
         return [p.strip() for p in parts if p.strip()]
+
+    def tokenize(self, sentence: str) -> list[str]:
+        import jieba
+        return [t for t in jieba.cut(sentence, cut_all=False)
+                if t.strip() and t not in self.PUNCTUATION]
 
     def chunk_sentence(self, sentence: str) -> list[str]:
         import jieba
@@ -168,6 +182,10 @@ class JapaneseProcessor(LanguageProcessor):
         doc = self.nlp(text)
         return [sent.text.strip() for sent in doc.sents if sent.text.strip()]
 
+    def tokenize(self, sentence: str) -> list[str]:
+        doc = self.nlp(sentence)
+        return [tok.text for tok in doc if not tok.is_punct and not tok.is_space]
+
     def chunk_sentence(self, sentence: str) -> list[str]:
         doc = self.nlp(sentence)
         chunks = []
@@ -190,3 +208,21 @@ class JapaneseProcessor(LanguageProcessor):
                 f"JapaneseProcessor.chunk_sentence: only {len(chunks)} chunks for: {sentence[:40]}"
             )
         return chunks
+
+
+def prepare_jumbled_content(content: dict, language_id: int) -> dict:
+    """Transform stored jumbled_sentence content into frontend-ready format.
+
+    Takes content with just 'original_sentence' and returns content with
+    'chunks' (individual words) and 'correct_ordering' added.
+    """
+    sentence = content['original_sentence']
+    processor = LanguageProcessor.for_language(language_id)
+    words = processor.tokenize(sentence)
+    if len(words) < 2:
+        words = [sentence]
+    return {
+        'original_sentence': sentence,
+        'chunks': words,
+        'correct_ordering': list(range(len(words))),
+    }

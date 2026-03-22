@@ -21,16 +21,14 @@ class JumbledSentenceGenerator(ExerciseGenerator):
     def generate_one(self, sentence_dict: dict, source_id: int) -> dict | None:
         sentence = sentence_dict['sentence']
         try:
-            chunks = self.lang_processor.chunk_sentence(sentence)
-        except ValueError:
+            words = self.lang_processor.tokenize(sentence)
+        except Exception:
             return None
 
-        if len(chunks) < 3:
+        if len(words) < 3:
             return None
 
         return {
             'original_sentence': sentence,
-            'chunks':            chunks,
-            'correct_ordering':  list(range(len(chunks))),
             'source_test_id':    sentence_dict.get('test_id'),
         }

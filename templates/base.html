@@ -18,6 +18,14 @@
                 document.documentElement.setAttribute('data-theme', theme);
             }
         })();
+        // Redirect to login if no auth token on protected pages
+        (function() {
+            var publicPaths = ['/', '/login', '/signup', '/logout'];
+            var path = window.location.pathname;
+            if (!localStorage.getItem('jwt_token') && publicPaths.indexOf(path) === -1) {
+                window.location.href = '/login';
+            }
+        })();
     </script>
     <style>
         .navbar-language-indicator {

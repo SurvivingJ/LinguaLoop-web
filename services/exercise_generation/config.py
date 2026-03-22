@@ -38,7 +38,7 @@ EXPECTED_OPTION_COUNT: dict[str, int] = {
 REQUIRED_FIELDS_BY_TYPE: dict[str, list[str]] = {
     'cloze_completion':        ['sentence_with_blank', 'correct_answer', 'options',
                                 'explanation', 'distractor_tags'],
-    'jumbled_sentence':        ['chunks', 'correct_ordering', 'original_sentence'],
+    'jumbled_sentence':        ['original_sentence'],
     'tl_nl_translation':       ['tl_sentence', 'correct_nl', 'options'],
     'nl_tl_translation':       ['nl_sentence', 'primary_tl', 'grading_notes'],
     'text_flashcard':          ['front_sentence', 'highlight_word', 'back_sentence',

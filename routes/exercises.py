@@ -75,6 +75,17 @@ def get_exercises() -> ApiResponse:
                 .execute()
             sense_lookup = {row['id']: row for row in (sense_resp.data or [])}
 
+        # Transform jumbled_sentence content at serve-time
+        from services.exercise_generation.language_processor import prepare_jumbled_content
+        for ex in exercises:
+            if not isinstance(ex.get('content'), dict):
+                continue
+            if ex.get('exercise_type') == 'jumbled_sentence' and 'chunks' not in ex['content']:
+                try:
+                    ex['content'] = prepare_jumbled_content(ex['content'], language_id)
+                except Exception as e:
+                    logger.error(f"Failed to prepare jumbled content for {ex.get('id')}: {e}")
+
         for ex in exercises:
             if not isinstance(ex.get('content'), dict):
                 continue
@@ -161,6 +172,13 @@ def submit_attempt() -> ApiResponse:
         data = request.get_json()
         if not data or 'exercise_id' not in data:
             return bad_request("exercise_id required")
+
+        # Virtual exercises (from user test sentences) have no DB row
+        if str(data['exercise_id']).startswith('virtual-'):
+            return api_success({
+                'is_correct': bool(data.get('is_correct', False)),
+                'exercise_type': 'jumbled_sentence',
+            })
 
         from services.exercise_session_service import get_exercise_session_service
         service = get_exercise_session_service()

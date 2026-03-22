@@ -160,16 +160,11 @@ function getAuthHeaders() {
  * @returns {Promise<Object>} Response data
  */
 async function apiRequest(url, options = {}) {
-    const config = {
-        headers: getAuthHeaders(),
-        ...options
-    };
-
     if (options.body && typeof options.body === 'object') {
-        config.body = JSON.stringify(options.body);
+        options.body = JSON.stringify(options.body);
     }
 
-    const response = await fetch(url, config);
+    const response = await window.authFetch(url, options);
     const data = await response.json();
 
     if (!response.ok) {
