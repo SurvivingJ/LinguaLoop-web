@@ -598,7 +598,7 @@ body.tower-mode .tower-particles {
     width: 100%;
 }
 
-/* ── Book Spine ─────────────────────────────────────────────────── */
+/* ── Book Spine — Leather Tome ──────────────────────────────────── */
 
 .book-spine {
     position: absolute;
@@ -608,57 +608,101 @@ body.tower-mode .tower-particles {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0 12px;
+    padding: 0 16px;
     cursor: pointer;
-    transition: opacity 0.4s ease, filter 0.4s ease;
+    transition: opacity 0.4s ease, filter 0.4s ease, box-shadow 0.3s ease;
+    background:
+        /* Subtle leather grain via layered radial gradients */
+        radial-gradient(ellipse at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(0, 0, 0, 0.07) 0%, transparent 50%),
+        /* Rounded spine shading — lighter center, darker edges */
+        linear-gradient(
+            90deg,
+            var(--leather-dark) 0%,
+            var(--leather-light) 12%,
+            var(--leather-base) 50%,
+            var(--leather-light) 88%,
+            var(--leather-dark) 100%
+        );
     box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 1px 0 rgba(0, 0, 0, 0.7),
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
         inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
+/* Decorative bands at head and tail of spine */
 .book-spine::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        transparent 40%,
-        rgba(0, 0, 0, 0.15) 100%
-    );
+    background:
+        linear-gradient(90deg, rgba(201, 168, 76, 0.25) 0px, transparent 4px),
+        linear-gradient(90deg, transparent calc(100% - 4px), rgba(201, 168, 76, 0.25) 100%);
+    pointer-events: none;
+}
+
+/* Subtle grain texture overlay */
+.book-spine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23000' opacity='0.15'/%3E%3Ccircle cx='4' cy='3' r='0.4' fill='%23fff' opacity='0.06'/%3E%3Ccircle cx='2' cy='5' r='0.3' fill='%23000' opacity='0.1'/%3E%3C/svg%3E");
+    background-size: 6px 6px;
+    opacity: 0.5;
     pointer-events: none;
 }
 
 .book-spine:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.12);
     z-index: 5;
+    box-shadow:
+        0 0 14px rgba(201, 168, 76, 0.2),
+        0 1px 0 rgba(0, 0, 0, 0.7),
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
+/* Debossed gold lettering */
 .spine-title {
+    font-family: "Georgia", "Palatino Linotype", "Book Antiqua", serif;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    font-weight: 700;
+    color: #c9a84c;
+    text-shadow:
+        0 -1px 0 rgba(0, 0, 0, 0.6),
+        0 1px 0 rgba(255, 255, 255, 0.08);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 60%;
     line-height: 1.2;
+    position: relative;
+    z-index: 1;
 }
 
 .spine-author {
+    font-family: "Georgia", "Palatino Linotype", "Book Antiqua", serif;
     font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.65);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    color: #a08940;
+    text-shadow:
+        0 -1px 0 rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 255, 255, 0.06);
+    letter-spacing: 0.02em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 30%;
     line-height: 1.2;
+    position: relative;
+    z-index: 1;
 }
 
 /* ── Tower Search Effects ───────────────────────────────────────── */
@@ -669,8 +713,8 @@ body.tower-mode .tower-particles {
 }
 
 .book-spine.search-match {
-    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8))
-            drop-shadow(0 0 25px rgba(255, 215, 0, 0.4));
+    filter: drop-shadow(0 0 12px rgba(201, 168, 76, 0.7))
+            drop-shadow(0 0 25px rgba(201, 168, 76, 0.3));
     animation: levitate 2s ease-in-out infinite;
     z-index: 10 !important;
 }

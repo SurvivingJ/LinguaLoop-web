@@ -611,11 +611,46 @@
             hash = str.charCodeAt(i) + ((hash << 5) - hash);
         }
         const hue = Math.abs(hash) % 360;
-        return `hsl(${hue}, 40%, 35%)`;
+        return `hsl(${hue}, 30%, 22%)`;
     }
 
     function rgbToHex(r, g, b) {
         return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+    }
+
+    // ── Leather Color Transform ──────────────────────────────────────
+
+    function hexToHsl(hex) {
+        let r = 0, g = 0, b = 0;
+        if (hex.startsWith("#")) {
+            r = parseInt(hex.slice(1, 3), 16) / 255;
+            g = parseInt(hex.slice(3, 5), 16) / 255;
+            b = parseInt(hex.slice(5, 7), 16) / 255;
+        } else if (hex.startsWith("hsl")) {
+            const m = hex.match(/[\d.]+/g);
+            if (m) return { h: +m[0], s: +m[1], l: +m[2] };
+        }
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+            else if (max === g) h = ((b - r) / d + 2) / 6;
+            else h = ((r - g) / d + 4) / 6;
+        }
+        return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function toLeatherColor(color) {
+        const { h, s, l } = hexToHsl(color);
+        const ls = Math.max(25, Math.min(50, Math.round(s * 0.6)));
+        const ll = Math.max(18, Math.min(30, Math.round(l * 0.45)));
+        return {
+            base:  `hsl(${h}, ${ls}%, ${ll}%)`,
+            light: `hsl(${h}, ${ls}%, ${ll + 10}%)`,
+            dark:  `hsl(${h}, ${ls}%, ${Math.max(8, ll - 6)}%)`,
+        };
     }
 
     async function persistSpineColor(isbn, color) {
@@ -684,7 +719,11 @@
             spine.style.width = spineWidth + "px";
             spine.style.bottom = currentStackY + "px";
             spine.style.transform = `translateX(calc(-50% + ${offsetX}px)) rotateZ(${rotZ}deg)`;
-            spine.style.backgroundColor = book.spine_color || fallbackColor(book.title);
+
+            const leather = toLeatherColor(book.spine_color || fallbackColor(book.title));
+            spine.style.setProperty("--leather-base", leather.base);
+            spine.style.setProperty("--leather-light", leather.light);
+            spine.style.setProperty("--leather-dark", leather.dark);
 
             const titleEl = document.createElement("span");
             titleEl.className = "spine-title";
