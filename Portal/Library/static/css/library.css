@@ -536,3 +536,212 @@ body {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* ── Mystical Tower Background ──────────────────────────────────── */
+
+body.tower-mode {
+    background: radial-gradient(ellipse at 50% 80%, #1a1040 0%, #0d0d1a 40%, #0a0a0a 100%);
+    transition: background 0.6s ease;
+}
+
+body.tower-mode .app-header h1 {
+    background: linear-gradient(135deg, #c9b3ff, #7c8aff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.tower-mode .search-bar {
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom-color: rgba(124, 138, 255, 0.15);
+}
+
+.tower-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+}
+
+body.tower-mode .tower-particles {
+    display: block;
+}
+
+/* ── Tower Container ────────────────────────────────────────────── */
+
+.tower-container {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 180px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 138, 255, 0.3) transparent;
+}
+
+.tower-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tower-container::-webkit-scrollbar-thumb {
+    background: rgba(124, 138, 255, 0.3);
+    border-radius: 3px;
+}
+
+.tower-stack {
+    position: relative;
+    width: 100%;
+}
+
+/* ── Book Spine ─────────────────────────────────────────────────── */
+
+.book-spine {
+    position: absolute;
+    left: 50%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 12px;
+    cursor: default;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.book-spine::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+}
+
+.book-spine:hover {
+    filter: brightness(1.2);
+    z-index: 5;
+}
+
+.spine-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 85%;
+    line-height: 1.2;
+}
+
+.spine-author {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.65);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 60%;
+    line-height: 1.2;
+}
+
+/* ── Tower Search Effects ───────────────────────────────────────── */
+
+.book-spine.search-dim {
+    opacity: 0.15;
+    filter: grayscale(0.6);
+}
+
+.book-spine.search-match {
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8))
+            drop-shadow(0 0 25px rgba(255, 215, 0, 0.4));
+    animation: levitate 2s ease-in-out infinite;
+    z-index: 10 !important;
+}
+
+@keyframes levitate {
+    0%, 100% { transform: translateX(var(--offset-x)) rotateZ(var(--rotation)) translateY(0); }
+    50%      { transform: translateX(var(--offset-x)) rotateZ(var(--rotation)) translateY(-6px); }
+}
+
+/* ── View Toggle FAB ────────────────────────────────────────────── */
+
+.view-toggle-fab {
+    position: fixed;
+    bottom: 92px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #7c8aff;
+    border: 1px solid #333;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.view-toggle-fab:hover {
+    background: #222;
+    transform: scale(1.08);
+}
+
+body.tower-mode .view-toggle-fab {
+    background: #7c8aff;
+    color: #fff;
+    border-color: #7c8aff;
+    box-shadow: 0 4px 16px rgba(124, 138, 255, 0.35);
+}
+
+/* ── Tower Mobile ───────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+    .tower-container {
+        padding: 12px;
+        max-height: calc(100vh - 160px);
+    }
+
+    .tower-stack {
+        transform: scale(0.7);
+        transform-origin: top center;
+    }
+
+    .spine-title {
+        font-size: 0.65rem;
+    }
+
+    .spine-author {
+        font-size: 0.5rem;
+    }
+
+    .view-toggle-fab {
+        bottom: 84px;
+        right: 16px;
+        width: 42px;
+        height: 42px;
+    }
+}

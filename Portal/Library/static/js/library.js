@@ -8,6 +8,8 @@
         videos: [],
         activeTab: "books",
         scanner: null,
+        viewMode: localStorage.getItem("library-view-mode") || "grid",
+        colorThief: null,
     };
 
     // ── DOM refs ─────────────────────────────────────────────────────
@@ -27,6 +29,11 @@
     const manualForm = $("manual-form");
     const loadingOverlay = $("loading");
     const toastContainer = $("toast-container");
+    const towerContainer = $("tower-container");
+    const towerStack = $("tower-stack");
+    const towerParticles = $("tower-particles");
+    const viewToggle = $("view-toggle");
+    const viewToggleIcon = $("view-toggle-icon");
 
     // ── Data loading ─────────────────────────────────────────────────
 
@@ -36,7 +43,8 @@
             if (!res.ok) throw new Error(res.statusText);
             state[type] = await res.json();
             updateCounts();
-            if (type === state.activeTab) renderCards(state[type]);
+            if (type === state.activeTab) renderView();
+            if (type === "books") ensureSpineColors(state.books);
         } catch (err) {
             showToast("Failed to load " + type, "error");
         }
@@ -52,6 +60,18 @@
     }
 
     // ── Rendering ────────────────────────────────────────────────────
+
+    function renderView() {
+        const data = state[state.activeTab];
+        if (state.activeTab === "books" && state.viewMode === "tower") {
+            cardGrid.style.display = "none";
+            renderTower(data, searchInput.value);
+        } else {
+            towerContainer.style.display = "none";
+            cardGrid.style.display = "";
+            renderCards(data);
+        }
+    }
 
     function renderCards(data) {
         cardGrid.innerHTML = "";
@@ -123,6 +143,10 @@
 
     function searchFilter(query) {
         const data = state[state.activeTab];
+        if (state.activeTab === "books" && state.viewMode === "tower") {
+            renderTower(data, query);
+            return;
+        }
         if (!query.trim()) {
             renderCards(data);
             return;
@@ -143,9 +167,22 @@
             t.classList.toggle("active", t.dataset.tab === type);
         });
         scanFab.style.display = type === "books" ? "flex" : "none";
+        viewToggle.style.display = type === "books" ? "flex" : "none";
         searchInput.value = "";
         updateCounts();
-        renderCards(state[type]);
+
+        if (type === "books" && state.viewMode === "tower") {
+            document.body.classList.add("tower-mode");
+            cardGrid.style.display = "none";
+            renderTower(state.books, "");
+            initParticles();
+        } else {
+            document.body.classList.remove("tower-mode");
+            towerContainer.style.display = "none";
+            cardGrid.style.display = "";
+            stopParticles();
+            renderCards(state[type]);
+        }
     }
 
     // ── Scanner ──────────────────────────────────────────────────────
@@ -375,8 +412,16 @@
                 const saved = await res.json();
                 state.books.push(saved);
                 updateCounts();
-                renderCards(state.books);
+                renderView();
                 showToast("Added to library!");
+                // Extract spine color in the background
+                if (!saved.spine_color && saved.cover_url) {
+                    extractSpineColor(saved.cover_url).then((color) => {
+                        saved.spine_color = color;
+                        persistSpineColor(saved.isbn, color);
+                        if (state.viewMode === "tower") renderTower(state.books, searchInput.value);
+                    });
+                }
             } else if (res.status === 409) {
                 showToast("Already in your library!", "error");
             } else {
@@ -464,9 +509,245 @@
         return el.innerHTML;
     }
 
+    // ── Color Extraction ──────────────────────────────────────────────
+
+    function extractSpineColor(coverUrl) {
+        return new Promise((resolve) => {
+            if (!coverUrl || !state.colorThief) {
+                resolve(fallbackColor(""));
+                return;
+            }
+
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = "/api/proxy-image?url=" + encodeURIComponent(coverUrl);
+
+            let settled = false;
+            function settle(color) {
+                if (settled) return;
+                settled = true;
+                resolve(color);
+            }
+
+            img.onload = function () {
+                try {
+                    const [r, g, b] = state.colorThief.getColor(img);
+                    settle(rgbToHex(r, g, b));
+                } catch (e) {
+                    settle(fallbackColor(""));
+                }
+            };
+
+            img.onerror = function () {
+                settle(fallbackColor(""));
+            };
+
+            setTimeout(() => settle(fallbackColor("")), 5000);
+        });
+    }
+
+    function fallbackColor(title) {
+        let hash = 0;
+        const str = title || "book";
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = Math.abs(hash) % 360;
+        return `hsl(${hue}, 40%, 35%)`;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function persistSpineColor(isbn, color) {
+        if (!isbn) return;
+        try {
+            await fetch(`/api/books/${isbn}/color`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ spine_color: color }),
+            });
+        } catch (e) {
+            // Non-critical; color will be re-extracted next time
+        }
+    }
+
+    async function ensureSpineColors(books) {
+        const tasks = books.map(async (book) => {
+            if (book.spine_color) return;
+            const color = await extractSpineColor(book.cover_url);
+            book.spine_color = color;
+            persistSpineColor(book.isbn, color);
+        });
+        await Promise.all(tasks);
+    }
+
+    // ── Tower Rendering ──────────────────────────────────────────────
+
+    function renderTower(books, searchQuery) {
+        towerStack.innerHTML = "";
+
+        if (!books.length) {
+            towerContainer.style.display = "none";
+            emptyState.style.display = "block";
+            return;
+        }
+
+        emptyState.style.display = "none";
+        towerContainer.style.display = "block";
+
+        const q = (searchQuery || "").toLowerCase().trim();
+        let currentStackY = 0;
+
+        books.forEach((book) => {
+            const pageCount = book.page_count || 300;
+            const spineHeight = Math.max(15, 15 + pageCount * 0.05);
+            const spineWidth = Math.max(200, 200 + pageCount * 0.02);
+
+            const rotZ = (Math.random() * 4) - 2;
+            const offsetX = (Math.random() * 10) - 5;
+
+            const spine = document.createElement("div");
+            spine.className = "book-spine";
+            spine.title = `${book.title} — ${book.author || "Unknown"}`;
+
+            spine.style.setProperty("--offset-x", `calc(-50% + ${offsetX}px)`);
+            spine.style.setProperty("--rotation", rotZ + "deg");
+
+            spine.style.height = spineHeight + "px";
+            spine.style.width = spineWidth + "px";
+            spine.style.bottom = currentStackY + "px";
+            spine.style.transform = `translateX(calc(-50% + ${offsetX}px)) rotateZ(${rotZ}deg)`;
+            spine.style.backgroundColor = book.spine_color || fallbackColor(book.title);
+
+            const titleEl = document.createElement("span");
+            titleEl.className = "spine-title";
+            titleEl.textContent = book.title;
+            spine.appendChild(titleEl);
+
+            if (book.author) {
+                const authorEl = document.createElement("span");
+                authorEl.className = "spine-author";
+                authorEl.textContent = book.author;
+                spine.appendChild(authorEl);
+            }
+
+            if (q) {
+                const fields = [book.title, book.author, book.isbn, String(book.year || "")];
+                const matches = fields.some((f) => f && f.toLowerCase().includes(q));
+                spine.classList.add(matches ? "search-match" : "search-dim");
+            }
+
+            towerStack.appendChild(spine);
+            currentStackY += spineHeight;
+        });
+
+        towerStack.style.height = currentStackY + "px";
+    }
+
+    // ── View Toggle ──────────────────────────────────────────────────
+
+    function setViewMode(mode) {
+        state.viewMode = mode;
+        localStorage.setItem("library-view-mode", mode);
+
+        const isTower = mode === "tower";
+        document.body.classList.toggle("tower-mode", isTower);
+
+        viewToggleIcon.className = isTower ? "fas fa-th" : "fas fa-layer-group";
+        viewToggle.title = isTower ? "Switch to grid" : "Switch to tower";
+
+        if (state.activeTab === "books") {
+            if (isTower) {
+                cardGrid.style.display = "none";
+                ensureSpineColors(state.books).then(() => {
+                    renderTower(state.books, searchInput.value);
+                });
+                initParticles();
+            } else {
+                towerContainer.style.display = "none";
+                cardGrid.style.display = "";
+                stopParticles();
+                renderCards(state.books);
+            }
+        }
+    }
+
+    function toggleView() {
+        setViewMode(state.viewMode === "tower" ? "grid" : "tower");
+    }
+
+    // ── Particle Animation ───────────────────────────────────────────
+
+    let particleAnimId = null;
+
+    function initParticles() {
+        const canvas = towerParticles;
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const COUNT = 35;
+
+        for (let i = 0; i < COUNT; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2 + 0.5,
+                alpha: Math.random() * 0.4 + 0.1,
+                dx: (Math.random() - 0.5) * 0.3,
+                dy: -Math.random() * 0.3 - 0.1,
+                pulse: Math.random() * Math.PI * 2,
+            });
+        }
+
+        stopParticles();
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p) => {
+                p.x += p.dx;
+                p.y += p.dy;
+                p.pulse += 0.02;
+
+                if (p.y < -10) p.y = canvas.height + 10;
+                if (p.x < -10) p.x = canvas.width + 10;
+                if (p.x > canvas.width + 10) p.x = -10;
+
+                const a = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse));
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 175, 55, ${a})`;
+                ctx.fill();
+            });
+
+            particleAnimId = requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    function stopParticles() {
+        if (particleAnimId) {
+            cancelAnimationFrame(particleAnimId);
+            particleAnimId = null;
+        }
+        const ctx = towerParticles.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, towerParticles.width, towerParticles.height);
+    }
+
     // ── Init ─────────────────────────────────────────────────────────
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Initialize ColorThief
+        if (typeof ColorThief !== "undefined") {
+            state.colorThief = new ColorThief();
+        }
+
         loadLibrary("books");
         loadLibrary("videos");
 
@@ -488,6 +769,23 @@
         $("manual-entry-link").addEventListener("click", () => {
             stopScanner();
             openManualModal("");
+        });
+
+        // View toggle
+        viewToggle.addEventListener("click", toggleView);
+        viewToggle.style.display = "flex";
+
+        // Restore persisted view mode
+        if (state.viewMode === "tower") {
+            setViewMode("tower");
+        }
+
+        // Resize particle canvas on window resize
+        window.addEventListener("resize", () => {
+            if (state.viewMode === "tower") {
+                towerParticles.width = window.innerWidth;
+                towerParticles.height = window.innerHeight;
+            }
         });
     });
 })();

@@ -31,14 +31,23 @@
         </button>
     </nav>
 
-    <!-- Card grid -->
+    <!-- Main content -->
     <main>
+        <canvas id="tower-particles" class="tower-particles"></canvas>
         <div id="card-grid" class="card-grid"></div>
+        <div id="tower-container" class="tower-container" style="display:none;">
+            <div id="tower-stack" class="tower-stack"></div>
+        </div>
         <div id="empty-state" class="empty-state" style="display:none;">
             <i class="fas fa-book-open"></i>
             <p>No items yet. Scan a barcode to add your first book!</p>
         </div>
     </main>
+
+    <!-- View toggle FAB -->
+    <button id="view-toggle" class="view-toggle-fab" title="Switch view">
+        <i id="view-toggle-icon" class="fas fa-layer-group"></i>
+    </button>
 
     <!-- Scan FAB -->
     <button id="scan-fab" class="scan-fab" title="Scan barcode">
@@ -103,6 +112,7 @@
     </div>
 
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.umd.js"></script>
     <script src="{{ url_for('static', filename='js/library.js') }}"></script>
 </body>
 </html>
