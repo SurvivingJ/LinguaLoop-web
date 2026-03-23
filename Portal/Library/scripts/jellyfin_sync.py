@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 """Sync Jellyfin library to the Library cloud app.
 
-Required env vars:
-    JELLYFIN_API_KEY   - Jellyfin API key
-    JELLYFIN_USER_ID   - Jellyfin user ID
-    SYNC_TOKEN         - Bearer token matching the Library app's SYNC_TOKEN
-
 Optional env vars:
     JELLYFIN_HOST      - Jellyfin URL (default: http://localhost:8096)
     LIBRARY_URL        - Library app URL (default: https://library.linguadojo.com)
@@ -20,10 +15,9 @@ import requests
 from PIL import Image
 
 JELLYFIN_HOST = os.environ.get("JELLYFIN_HOST", "http://localhost:8096")
-JELLYFIN_API_KEY = os.environ.get("JELLYFIN_API_KEY", "")
-JELLYFIN_USER_ID = os.environ.get("JELLYFIN_USER_ID", "")
+JELLYFIN_API_KEY = "e560ff1b5dbf47f18694a0f8cd59f4ab"
+JELLYFIN_USER_ID = "7a95b519700540bf82c201d8aa50abe1"
 LIBRARY_URL = os.environ.get("LIBRARY_URL", "https://library.linguadojo.com")
-SYNC_TOKEN = os.environ.get("SYNC_TOKEN", "")
 
 
 def fetch_jellyfin_library():
@@ -86,7 +80,6 @@ def push_to_cloud(clean_data):
         f"{LIBRARY_URL}/api/videos/sync",
         json=clean_data,
         headers={
-            "Authorization": f"Bearer {SYNC_TOKEN}",
             "Content-Type": "application/json",
         },
         timeout=60,
@@ -100,17 +93,6 @@ def push_to_cloud(clean_data):
 
 
 def main():
-    missing = []
-    if not JELLYFIN_API_KEY:
-        missing.append("JELLYFIN_API_KEY")
-    if not JELLYFIN_USER_ID:
-        missing.append("JELLYFIN_USER_ID")
-    if not SYNC_TOKEN:
-        missing.append("SYNC_TOKEN")
-    if missing:
-        print(f"Error: missing required env vars: {', '.join(missing)}")
-        sys.exit(1)
-
     raw = fetch_jellyfin_library()
     clean = format_video_data(raw)
     push_to_cloud(clean)

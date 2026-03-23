@@ -6,7 +6,6 @@ import os
 import storage
 
 app = Flask(__name__)
-SYNC_TOKEN = os.environ.get("SYNC_TOKEN", "")
 
 
 @app.route("/")
@@ -72,13 +71,6 @@ def get_videos():
 
 @app.route("/api/videos/sync", methods=["POST"])
 def sync_videos():
-    if not SYNC_TOKEN:
-        return jsonify({"error": "Sync not configured"}), 500
-
-    auth = request.headers.get("Authorization", "")
-    if auth != f"Bearer {SYNC_TOKEN}":
-        return jsonify({"error": "Unauthorized"}), 401
-
     data = request.get_json(silent=True)
     if not isinstance(data, list):
         return jsonify({"error": "Expected a JSON array"}), 400
