@@ -486,6 +486,7 @@
     const state = {
         mode: null,          // 'daily' | 'practice'
         exercises: [],
+        originalSize: 0,     // original session size (excludes retries)
         currentIndex: 0,
         answered: 0,
         correct: 0,
@@ -682,6 +683,7 @@
 
             state.sessionData = s;
             state.exercises = s.exercises;
+            state.originalSize = s.exercises.length;
             state.answered = 0;
             state.correct = 0;
 
@@ -695,7 +697,7 @@
             state.answered = state.exercises.filter(e => e.is_completed).length;
 
             showExerciseArea();
-            els.totalNum.textContent = state.exercises.length;
+            els.totalNum.textContent = state.originalSize;
             renderExercise();
 
         } catch (e) {
@@ -820,10 +822,11 @@
         const ex = state.exercises[state.currentIndex];
         const c = ex.content || {};
 
-        // Progress
-        els.currentNum.textContent = state.currentIndex + 1;
+        // Progress — cap display at originalSize so retries don't inflate the counter
+        const displayNum = ex._retry ? state.originalSize : Math.min(state.currentIndex + 1, state.originalSize);
+        els.currentNum.textContent = displayNum;
         if (state.mode === 'daily') {
-            els.progressFill.style.width = ((state.currentIndex + 1) / state.exercises.length * 100) + '%';
+            els.progressFill.style.width = Math.min((state.currentIndex + 1) / state.exercises.length * 100, 100) + '%';
         }
         updateScore();
 
@@ -1250,10 +1253,15 @@
             exercise_id: ex.exercise_id || ex.id, user_response: resp, is_correct: ok, time_taken_ms: t,
         })}).catch(e => console.error('Attempt failed:', e));
 
-        if (state.mode === 'daily') {
-            fetch('/api/exercises/session/complete', { method: 'POST', headers: hdrs(), body: JSON.stringify({
-                exercise_id: ex.exercise_id, language_id: langId,
-            })}).catch(e => console.error('Complete failed:', e));
+        if (ok) {
+            if (state.mode === 'daily') {
+                fetch('/api/exercises/session/complete', { method: 'POST', headers: hdrs(), body: JSON.stringify({
+                    exercise_id: ex.exercise_id, language_id: langId,
+                })}).catch(e => console.error('Complete failed:', e));
+            }
+        } else {
+            // Re-queue incorrect exercises so the user sees them again
+            state.exercises.push({...ex, _retry: true});
         }
     }
 

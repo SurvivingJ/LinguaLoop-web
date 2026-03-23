@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <h1>Library</h1>
+        <span id="item-count" class="item-count"></span>
+    </header>
+
+    <!-- Search bar (sticky) -->
+    <div class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="search-input" placeholder="Search your library..." autocomplete="off">
+    </div>
+
+    <!-- Tab bar -->
+    <nav class="tab-bar">
+        <button class="tab active" data-tab="books">
+            <i class="fas fa-book"></i> Books <span id="books-count" class="tab-count"></span>
+        </button>
+        <button class="tab" data-tab="videos">
+            <i class="fas fa-film"></i> Videos <span id="videos-count" class="tab-count"></span>
+        </button>
+    </nav>
+
+    <!-- Card grid -->
+    <main>
+        <div id="card-grid" class="card-grid"></div>
+        <div id="empty-state" class="empty-state" style="display:none;">
+            <i class="fas fa-book-open"></i>
+            <p>No items yet. Scan a barcode to add your first book!</p>
+        </div>
+    </main>
+
+    <!-- Scan FAB -->
+    <button id="scan-fab" class="scan-fab" title="Scan barcode">
+        <i class="fas fa-barcode"></i>
+    </button>
+
+    <!-- Scanner overlay -->
+    <div id="scanner-overlay" class="overlay" style="display:none;">
+        <div class="overlay-header">
+            <h2>Scan Barcode</h2>
+            <button class="close-btn" data-close="scanner-overlay">&times;</button>
+        </div>
+        <div id="scanner-region" class="scanner-region"></div>
+        <button id="manual-entry-link" class="link-btn">Enter ISBN manually</button>
+    </div>
+
+    <!-- Selection modal -->
+    <div id="selection-modal" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Select the correct edition</h2>
+                <button class="close-btn" data-close="selection-modal">&times;</button>
+            </div>
+            <div id="selection-options" class="selection-options"></div>
+        </div>
+    </div>
+
+    <!-- Manual entry modal -->
+    <div id="manual-modal" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Book</h2>
+                <button class="close-btn" data-close="manual-modal">&times;</button>
+            </div>
+            <form id="manual-form" class="manual-form">
+                <input type="text" id="manual-isbn" placeholder="ISBN (optional)">
+                <div class="form-row">
+                    <button type="button" id="manual-search-btn" class="btn btn-secondary">
+                        <i class="fas fa-search"></i> Lookup
+                    </button>
+                </div>
+                <input type="text" id="manual-title" placeholder="Title *" required>
+                <input type="text" id="manual-author" placeholder="Author">
+                <input type="text" id="manual-publisher" placeholder="Publisher">
+                <input type="text" id="manual-year" placeholder="Year">
+                <button type="submit" class="btn btn-primary">Save to Library</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading overlay -->
+    <div id="loading" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p>Looking up book...</p>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="{{ url_for('static', filename='js/library.js') }}"></script>
+</body>
+</html>

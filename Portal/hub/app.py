@@ -31,6 +31,13 @@ PROJECTS = [
         "icon": "fa-utensils",
         "tags": ["Food", "Budget", "Cooking"],
     },
+    {
+        "name": "Library",
+        "description": "Personal book and video collection tracker with barcode scanning",
+        "url": "https://library.linguadojo.com",
+        "icon": "fa-book",
+        "tags": ["Books", "Videos", "Scanner"],
+    },
 ]
 
 
