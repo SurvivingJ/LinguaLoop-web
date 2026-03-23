@@ -699,7 +699,7 @@
 
         books.forEach((book) => {
             const pageCount = book.page_count || 300;
-            const spineHeight = Math.max(15, 15 + pageCount * 0.05);
+            const spineHeight = Math.max(22, 22 + pageCount * 0.075);
             const spineWidth = Math.max(200, 200 + pageCount * 0.02);
 
             // Drift from previous angle: small step, clamped to [-3, 3]
