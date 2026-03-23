@@ -150,36 +150,61 @@
 
     // ── Scanner ──────────────────────────────────────────────────────
 
-    function initScanner() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showToast("Camera not supported on this browser", "error");
-            return;
-        }
+    const BARCODE_FORMATS = [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+    ];
 
+    function initScanner() {
         scannerOverlay.style.display = "flex";
 
-        const html5Qr = new Html5Qrcode("scanner-region");
-        state.scanner = html5Qr;
+        // Try live camera first, but don't block if unavailable
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const html5Qr = new Html5Qrcode("scanner-region", {
+                formatsToSupport: BARCODE_FORMATS,
+            });
+            state.scanner = html5Qr;
 
+            // Responsive qrbox: 80% of scanner region width, capped at 250px
+            const regionWidth = $("scanner-region").clientWidth;
+            const qrboxSize = Math.min(250, Math.floor(regionWidth * 0.8));
+
+            html5Qr
+                .start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: qrboxSize },
+                    onScanSuccess,
+                    () => {} // ignore per-frame scan misses
+                )
+                .catch((err) => {
+                    console.warn("Live scanner failed, use photo instead:", err);
+                    // Don't close overlay — user can still use "Scan from photo"
+                    const msg = err.name || String(err);
+                    if (msg.includes("NotAllowedError")) {
+                        showToast("Camera denied — use 'Scan from photo' below", "error");
+                    } else {
+                        showToast("Camera unavailable — use 'Scan from photo' below", "error");
+                    }
+                    state.scanner = null;
+                });
+        } else {
+            showToast("No live camera — use 'Scan from photo'", "error");
+        }
+    }
+
+    function scanFromFile(file) {
+        if (!file) return;
+        const html5Qr = new Html5Qrcode("scanner-region", {
+            formatsToSupport: BARCODE_FORMATS,
+        });
         html5Qr
-            .start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                onScanSuccess,
-                () => {} // ignore scan errors (no barcode in frame)
-            )
-            .catch((err) => {
-                stopScanner();
-                const msg = err.name || String(err);
-                if (msg.includes("NotAllowedError")) {
-                    showToast("Camera permission denied", "error");
-                } else if (msg.includes("NotFoundError")) {
-                    showToast("No camera found", "error");
-                } else if (msg.includes("NotReadableError")) {
-                    showToast("Camera in use by another app", "error");
-                } else {
-                    showToast("Camera error: " + msg, "error");
-                }
+            .scanFile(file, /* showImage */ false)
+            .then(onScanSuccess)
+            .catch(() => {
+                showToast("No barcode found in photo — try again", "error");
             });
     }
 
@@ -192,6 +217,9 @@
                     state.scanner = null;
                 });
         }
+        // Reset file input so the same photo can be re-selected
+        const fileInput = $("scan-file-input");
+        if (fileInput) fileInput.value = "";
         scannerOverlay.style.display = "none";
     }
 
@@ -452,6 +480,10 @@
         });
 
         scanFab.addEventListener("click", initScanner);
+
+        $("scan-file-input").addEventListener("change", (e) => {
+            scanFromFile(e.target.files[0]);
+        });
 
         $("manual-entry-link").addEventListener("click", () => {
             stopScanner();
