@@ -34,6 +34,11 @@
     const towerParticles = $("tower-particles");
     const viewToggle = $("view-toggle");
     const viewToggleIcon = $("view-toggle-icon");
+    const detailModal = $("detail-modal");
+    const detailCoverWrap = $("detail-cover-wrap");
+    const detailTitle = $("detail-title");
+    const detailAuthor = $("detail-author");
+    const detailMeta = $("detail-meta");
 
     // ── Data loading ─────────────────────────────────────────────────
 
@@ -126,6 +131,7 @@
             }
 
             card.appendChild(info);
+            card.addEventListener("click", () => showDetail(item));
             cardGrid.appendChild(card);
         });
     }
@@ -509,6 +515,58 @@
         return el.innerHTML;
     }
 
+    // ── Book/Video Detail Modal ─────────────────────────────────────
+
+    function showDetail(item) {
+        const isBook = state.activeTab === "books";
+        const coverSrc = isBook ? item.cover_url : item.cover_base64;
+        const icon = isBook ? "fa-book" : "fa-film";
+
+        // Cover
+        detailCoverWrap.innerHTML = "";
+        if (coverSrc) {
+            const img = document.createElement("img");
+            img.className = "detail-cover";
+            img.src = coverSrc;
+            img.alt = item.title;
+            img.onerror = function () {
+                this.replaceWith(makeDetailPlaceholder(icon));
+            };
+            detailCoverWrap.appendChild(img);
+        } else {
+            detailCoverWrap.appendChild(makeDetailPlaceholder(icon));
+        }
+
+        // Text
+        detailTitle.textContent = item.title;
+        detailAuthor.textContent = isBook
+            ? [item.author, item.publisher].filter(Boolean).join(" — ")
+            : item.type || "";
+
+        // Tags
+        detailMeta.innerHTML = "";
+        const tags = [];
+        if (item.year) tags.push(item.year);
+        if (item.page_count) tags.push(item.page_count + " pages");
+        if (item.isbn) tags.push("ISBN: " + item.isbn);
+        if (!isBook && item.type) tags.push(item.type);
+        tags.forEach((t) => {
+            const span = document.createElement("span");
+            span.className = "detail-tag";
+            span.textContent = t;
+            detailMeta.appendChild(span);
+        });
+
+        detailModal.style.display = "flex";
+    }
+
+    function makeDetailPlaceholder(iconClass) {
+        const div = document.createElement("div");
+        div.className = "detail-cover-placeholder";
+        div.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        return div;
+    }
+
     // ── Color Extraction ──────────────────────────────────────────────
 
     function extractSpineColor(coverUrl) {
@@ -600,13 +658,20 @@
         const q = (searchQuery || "").toLowerCase().trim();
         let currentStackY = 0;
 
+        // Continuous angles — each book drifts slightly from the previous
+        let prevRot = (Math.random() * 2) - 1;
+        let prevOffX = 0;
+
         books.forEach((book) => {
             const pageCount = book.page_count || 300;
             const spineHeight = Math.max(15, 15 + pageCount * 0.05);
             const spineWidth = Math.max(200, 200 + pageCount * 0.02);
 
-            const rotZ = (Math.random() * 4) - 2;
-            const offsetX = (Math.random() * 10) - 5;
+            // Drift from previous angle: small step, clamped to [-3, 3]
+            prevRot = Math.max(-3, Math.min(3, prevRot + (Math.random() * 1.6 - 0.8)));
+            prevOffX = Math.max(-8, Math.min(8, prevOffX + (Math.random() * 6 - 3)));
+            const rotZ = prevRot;
+            const offsetX = prevOffX;
 
             const spine = document.createElement("div");
             spine.className = "book-spine";
@@ -632,6 +697,9 @@
                 authorEl.textContent = book.author;
                 spine.appendChild(authorEl);
             }
+
+            // Click to show detail
+            spine.addEventListener("click", () => showDetail(book));
 
             if (q) {
                 const fields = [book.title, book.author, book.isbn, String(book.year || "")];
@@ -769,6 +837,11 @@
         $("manual-entry-link").addEventListener("click", () => {
             stopScanner();
             openManualModal("");
+        });
+
+        // Detail modal — click backdrop to close
+        detailModal.addEventListener("click", (e) => {
+            if (e.target === detailModal) closeModal("detail-modal");
         });
 
         // View toggle
