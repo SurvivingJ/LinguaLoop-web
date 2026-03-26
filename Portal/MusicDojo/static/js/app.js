@@ -73,7 +73,8 @@ function setupNavigationButtons() {
         'btn-rhythm-dictation': 'rhythm-dictation',
         'btn-metronome': 'metronome',
         'btn-guitar-exercises': 'guitar-exercises',
-        'btn-sight-reading': 'sight-reading'
+        'btn-sight-reading': 'sight-reading',
+        'btn-guitar-100k': 'guitar-100k'
     };
 
     for (const [buttonId, screenId] of Object.entries(modeButtons)) {

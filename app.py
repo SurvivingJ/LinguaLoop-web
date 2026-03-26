@@ -35,6 +35,7 @@ from routes.exercises import exercises_bp
 from routes.corpus import corpus_bp
 from routes.users import users_bp
 from routes.payments import payments_bp
+from routes.mystery import mystery_bp
 
 
 def create_app(config_class=Config):
@@ -206,6 +207,7 @@ def _register_blueprints(app):
     app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
+    app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
 
     app.logger.info("Blueprints registered")
 
@@ -301,6 +303,16 @@ def _register_web_routes(app):
     def exercises():
         """Render exercises practice page"""
         return render_template('exercises.html')
+
+    @app.route('/mysteries')
+    def mysteries():
+        """Render mystery list page"""
+        return render_template('mystery_list.html')
+
+    @app.route('/mystery/<slug>')
+    def mystery_page(slug):
+        """Render mystery playing page"""
+        return render_template('mystery.html')
 
     @app.route('/logout')
     def logout():

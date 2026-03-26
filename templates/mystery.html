@@ -1,0 +1,1110 @@
+{% extends 'base.html' %}
+
+{% block title %}Mystery - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== Layout ===== */
+    .mystery-container {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* ===== Header ===== */
+    .mystery-header {
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-default);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .mystery-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .scene-pills {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .scene-pill {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 2px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-fast);
+    }
+
+    .scene-pill.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .scene-pill.completed {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+
+    .scene-pill.locked {
+        opacity: 0.4;
+    }
+
+    .scene-connector {
+        width: 24px;
+        height: 2px;
+        background: var(--border-strong);
+    }
+
+    .scene-connector.completed {
+        background: var(--success);
+    }
+
+    /* ===== Scene Content ===== */
+    .scene-content {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .scene-title-bar {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-default);
+        background: var(--bg-muted);
+    }
+
+    .scene-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--slate-800);
+    }
+
+    .scene-body {
+        padding: 1.5rem;
+    }
+
+    /* Audio player */
+    .mystery-audio-player {
+        background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-default);
+    }
+
+    .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .audio-play-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+        transition: var(--transition-base);
+        flex-shrink: 0;
+    }
+
+    .audio-play-btn:hover { background: var(--primary-hover); transform: scale(1.05); }
+    .audio-play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .audio-progress { flex-grow: 1; }
+    .audio-bar { height: 8px; background: var(--border-strong); border-radius: 4px; cursor: pointer; position: relative; overflow: hidden; }
+    .audio-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.1s linear; }
+
+    /* Transcript */
+    .mystery-transcript {
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--slate-700);
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--bg-body);
+        border-radius: 8px;
+        transition: filter 0.4s ease;
+    }
+
+    .mystery-transcript.locked {
+        filter: blur(8px);
+        user-select: none;
+        pointer-events: none;
+        position: relative;
+    }
+
+    .transcript-lock-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 10;
+        color: var(--slate-600);
+        font-weight: 600;
+    }
+
+    .transcript-lock-icon {
+        font-size: 32px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* Questions */
+    .mystery-questions {
+        border-top: 1px solid var(--border-default);
+        padding-top: 1.5rem;
+    }
+
+    .question-block {
+        margin-bottom: 1.5rem;
+    }
+
+    .question-text {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 1rem;
+    }
+
+    .option-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-default);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        background: var(--bg-surface);
+    }
+
+    .option-item:hover { border-color: var(--primary); background: var(--selected-bg); }
+    .option-item.selected { border-color: var(--primary); background: var(--selected-bg); }
+    .option-item.correct { border-color: var(--success); background: var(--success-bg); }
+    .option-item.incorrect { border-color: var(--danger); background: var(--danger-bg); }
+    .option-item.disabled { pointer-events: none; opacity: 0.7; }
+
+    .option-radio {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-strong);
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .option-item.selected .option-radio {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    .option-item.selected .option-radio::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .option-text {
+        font-size: 14px;
+        color: var(--slate-800);
+    }
+
+    /* Scene actions */
+    .scene-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-submit-scene {
+        padding: 0.75rem 2rem;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition-fast);
+    }
+
+    .btn-submit-scene.primary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-submit-scene.primary:hover { background: var(--primary-hover); }
+    .btn-submit-scene.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-submit-scene.success {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-submit-scene.success:hover { opacity: 0.9; }
+
+    /* Feedback */
+    .feedback-banner {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-weight: 500;
+        display: none;
+    }
+
+    .feedback-banner.success {
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success);
+        display: block;
+    }
+
+    .feedback-banner.error {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        display: block;
+    }
+
+    /* ===== Detective's Notebook ===== */
+    .notebook {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 80px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .notebook-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-default);
+        background: var(--bg-muted);
+        border-radius: 12px 12px 0 0;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--slate-900);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .notebook-section {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-default);
+    }
+
+    .notebook-section:last-child {
+        border-bottom: none;
+    }
+
+    .notebook-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--slate-500);
+        margin-bottom: 0.75rem;
+    }
+
+    .suspect-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        font-size: 14px;
+        color: var(--slate-700);
+        border-bottom: 1px dashed var(--border-default);
+    }
+
+    .suspect-item:last-child {
+        border-bottom: none;
+    }
+
+    .suspect-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .suspect-name {
+        font-weight: 600;
+        color: var(--slate-900);
+    }
+
+    .clue-item {
+        padding: 0.75rem;
+        background: var(--bg-body);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        font-size: 13px;
+        color: var(--slate-700);
+        border-left: 3px solid var(--primary);
+    }
+
+    .clue-item.reveal-animation {
+        animation: clueReveal 0.5s ease-out;
+    }
+
+    @keyframes clueReveal {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .clue-locked {
+        padding: 0.5rem 0.75rem;
+        font-size: 13px;
+        color: var(--slate-400);
+        font-style: italic;
+    }
+
+    /* ===== Results Overlay ===== */
+    .results-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .results-overlay.show { display: flex; }
+
+    .results-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .results-title {
+        font-size: 24px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .results-score {
+        font-size: 48px;
+        font-weight: 800;
+        text-align: center;
+        color: var(--primary);
+    }
+
+    .results-elo {
+        text-align: center;
+        font-size: 16px;
+        color: var(--slate-600);
+        margin-bottom: 1.5rem;
+    }
+
+    .elo-change { font-weight: 700; }
+    .elo-change.positive { color: var(--success); }
+    .elo-change.negative { color: var(--danger); }
+
+    .solution-section {
+        background: var(--bg-muted);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+    }
+
+    .solution-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.75rem;
+    }
+
+    .solution-text {
+        font-size: 14px;
+        color: var(--slate-700);
+        line-height: 1.6;
+    }
+
+    /* ===== Loading & Error ===== */
+    .loading-state {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .error-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--danger);
+    }
+
+    /* ===== Mobile Notebook Toggle ===== */
+    .notebook-mobile-btn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 900;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        font-size: 24px;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+    }
+
+    @media (max-width: 992px) {
+        .mystery-container {
+            grid-template-columns: 1fr;
+        }
+        .notebook {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 950;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+        .notebook.mobile-open { display: block; }
+        .notebook-mobile-btn { display: flex; align-items: center; justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" id="errorState" style="display:none;">
+        <h3>Something went wrong</h3>
+        <p id="errorMessage"></p>
+        <a href="/mysteries" class="btn btn-primary">Back to Mysteries</a>
+    </div>
+
+    <!-- Main Content (hidden until loaded) -->
+    <div id="mysteryContent" style="display:none;">
+
+        <!-- Header -->
+        <div class="mystery-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="mystery-title" id="mysteryTitle"></div>
+                <a href="/mysteries" class="btn btn-sm btn-outline-secondary">Back</a>
+            </div>
+            <div class="scene-pills" id="scenePills"></div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="mystery-container">
+            <!-- Left: Scene -->
+            <div>
+                <div class="scene-content" id="sceneContainer">
+                    <div class="scene-title-bar">
+                        <span class="scene-title" id="sceneTitle"></span>
+                    </div>
+                    <div class="scene-body">
+                        <!-- Audio (listening mode) -->
+                        <div class="mystery-audio-player" id="audioPlayer" style="display:none;">
+                            <div class="audio-controls">
+                                <button class="audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                                <div class="audio-progress">
+                                    <div class="audio-bar" onclick="seekAudio(event)">
+                                        <div class="audio-bar-fill" id="audioProgressFill" style="width:0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transcript -->
+                        <div id="transcriptWrapper" style="position:relative;">
+                            <div class="mystery-transcript" id="transcriptText"></div>
+                            <div class="transcript-lock-overlay" id="transcriptLock" style="display:none;">
+                                <span class="transcript-lock-icon"><i class="fa-solid fa-lock"></i></span>
+                                <span>Answer correctly to unlock</span>
+                            </div>
+                        </div>
+
+                        <!-- Questions -->
+                        <div class="mystery-questions" id="questionsContainer"></div>
+
+                        <!-- Feedback -->
+                        <div class="feedback-banner" id="feedbackBanner"></div>
+
+                        <!-- Actions -->
+                        <div class="scene-actions" id="sceneActions">
+                            <button class="btn-submit-scene primary" id="btnSubmit" onclick="submitScene()" disabled>
+                                Submit Deduction
+                            </button>
+                            <button class="btn-submit-scene success" id="btnNext" onclick="nextScene()" style="display:none;">
+                                Continue to Next Scene
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Notebook -->
+            <div class="notebook" id="notebook">
+                <div class="notebook-header">
+                    <i class="fa-solid fa-book"></i>
+                    Detective's Notebook
+                    <button class="btn btn-sm btn-link ms-auto d-lg-none" onclick="toggleNotebook()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="notebook-section">
+                    <div class="notebook-section-title">Suspects</div>
+                    <div id="notebookSuspects"></div>
+                </div>
+                <div class="notebook-section">
+                    <div class="notebook-section-title">Clues</div>
+                    <div id="notebookClues"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile notebook toggle -->
+<button class="notebook-mobile-btn" id="notebookMobileBtn" onclick="toggleNotebook()" style="display:none;">
+    <i class="fa-solid fa-book"></i>
+</button>
+
+<!-- Results Overlay -->
+<div class="results-overlay" id="resultsOverlay">
+    <div class="results-card">
+        <div class="results-title" id="resultsTitle">Case Closed!</div>
+        <div class="results-score" id="resultsScore"></div>
+        <div class="results-elo" id="resultsElo"></div>
+        <div class="solution-section">
+            <div class="solution-title">The Solution</div>
+            <div class="solution-text" id="solutionText"></div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/mysteries" class="btn btn-primary">Back to Mysteries</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================================================
+// STATE
+// ============================================================================
+const mysteryState = {
+    slug: window.location.pathname.split('/').filter(Boolean).pop(),
+    mysteryId: null,
+    mysteryData: null,
+    mode: 'reading',
+    currentScene: 1,
+    totalScenes: 5,
+    scenes: {},
+    sceneResponses: {},
+    allResponses: [],
+    notebook: { suspects: [], clues: [] },
+    status: 'loading',
+    audioElement: null,
+};
+
+// ============================================================================
+// INIT
+// ============================================================================
+document.addEventListener('DOMContentLoaded', initMystery);
+
+async function initMystery() {
+    try {
+        const modeParam = new URLSearchParams(window.location.search).get('mode');
+        if (modeParam === 'listening') mysteryState.mode = 'listening';
+
+        const resp = await authFetch(`/api/mystery/${mysteryState.slug}?mode=${mysteryState.mode}`);
+        const data = await resp.json();
+
+        if (data.status !== 'success' || !data.mystery) {
+            throw new Error(data.error || 'Failed to load mystery');
+        }
+
+        mysteryState.mysteryData = data.mystery;
+        mysteryState.mysteryId = data.mystery.id;
+
+        // Restore progress
+        if (data.progress) {
+            mysteryState.currentScene = data.progress.current_scene || 1;
+            mysteryState.sceneResponses = data.progress.scene_responses || {};
+            mysteryState.notebook = data.progress.notebook_state || { suspects: [], clues: [] };
+            mysteryState.mode = data.progress.mode || mysteryState.mode;
+
+            if (data.progress.completed_at) {
+                mysteryState.status = 'complete';
+            }
+        }
+
+        // Render header
+        document.getElementById('mysteryTitle').textContent = data.mystery.title;
+        renderScenePills();
+        renderNotebook();
+
+        // Show content
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('mysteryContent').style.display = '';
+        document.getElementById('notebookMobileBtn').style.display = '';
+
+        // Load current scene
+        if (mysteryState.status !== 'complete') {
+            await loadScene(mysteryState.currentScene);
+        }
+
+    } catch (err) {
+        console.error('Init error:', err);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = '';
+        document.getElementById('errorMessage').textContent = err.message;
+    }
+}
+
+// ============================================================================
+// SCENE LOADING
+// ============================================================================
+async function loadScene(sceneNum) {
+    try {
+        mysteryState.status = 'reading';
+        document.getElementById('feedbackBanner').className = 'feedback-banner';
+        document.getElementById('feedbackBanner').style.display = 'none';
+        document.getElementById('btnSubmit').style.display = '';
+        document.getElementById('btnSubmit').disabled = true;
+        document.getElementById('btnNext').style.display = 'none';
+
+        const resp = await authFetch(`/api/mystery/${mysteryState.slug}/scene/${sceneNum}`);
+        const data = await resp.json();
+
+        if (data.status !== 'success' || !data.scene) {
+            throw new Error(data.error || 'Failed to load scene');
+        }
+
+        const scene = data.scene;
+        mysteryState.scenes[sceneNum] = scene;
+        mysteryState.currentScene = sceneNum;
+
+        // Title
+        document.getElementById('sceneTitle').textContent =
+            `Scene ${sceneNum}/5 — ${scene.title}`;
+
+        // Audio
+        const audioPlayer = document.getElementById('audioPlayer');
+        if (scene.audio_url && mysteryState.mode === 'listening') {
+            audioPlayer.style.display = '';
+            setupAudio(scene.audio_url);
+        } else {
+            audioPlayer.style.display = 'none';
+        }
+
+        // Transcript
+        const transcriptEl = document.getElementById('transcriptText');
+        const lockOverlay = document.getElementById('transcriptLock');
+        transcriptEl.textContent = scene.transcript || '';
+
+        if (scene.transcript_locked) {
+            transcriptEl.classList.add('locked');
+            lockOverlay.style.display = '';
+        } else {
+            transcriptEl.classList.remove('locked');
+            lockOverlay.style.display = 'none';
+        }
+
+        // Questions
+        renderQuestions(scene.questions || []);
+
+        // Update pills
+        renderScenePills();
+
+        // Finale button text
+        if (sceneNum === 5) {
+            document.getElementById('btnSubmit').textContent = 'Solve the Case';
+        } else {
+            document.getElementById('btnSubmit').textContent = 'Submit Deduction';
+        }
+
+    } catch (err) {
+        console.error('Scene load error:', err);
+        document.getElementById('feedbackBanner').className = 'feedback-banner error';
+        document.getElementById('feedbackBanner').textContent = err.message;
+    }
+}
+
+// ============================================================================
+// QUESTIONS
+// ============================================================================
+function renderQuestions(questions) {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = questions.map((q, qi) => `
+        <div class="question-block" data-question-id="${q.id}">
+            <div class="question-text">${qi + 1}. ${q.question_text}</div>
+            <div class="option-list">
+                ${(q.choices || []).map((c, ci) => {
+                    const choiceText = typeof c === 'string' ? c : (c.text || c.label || '');
+                    return `
+                        <div class="option-item" data-question="${q.id}" data-choice="${choiceText}"
+                             onclick="selectOption(this, '${q.id}', '${choiceText.replace(/'/g, "\\'")}')">
+                            <div class="option-radio"></div>
+                            <span class="option-text">${choiceText}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectOption(el, questionId, choiceText) {
+    if (mysteryState.status === 'feedback') return;
+
+    // Clear previous selection for this question
+    const siblings = el.parentElement.querySelectorAll('.option-item');
+    siblings.forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+
+    // Track selection
+    if (!mysteryState.sceneSelections) mysteryState.sceneSelections = {};
+    mysteryState.sceneSelections[questionId] = choiceText;
+
+    // Enable submit if all questions answered
+    const scene = mysteryState.scenes[mysteryState.currentScene];
+    const totalQs = (scene && scene.questions) ? scene.questions.length : 1;
+    const answered = Object.keys(mysteryState.sceneSelections).length;
+    document.getElementById('btnSubmit').disabled = (answered < totalQs);
+}
+
+// ============================================================================
+// SUBMISSION
+// ============================================================================
+async function submitScene() {
+    if (!mysteryState.sceneSelections || Object.keys(mysteryState.sceneSelections).length === 0) return;
+
+    const sceneNum = mysteryState.currentScene;
+    const responses = Object.entries(mysteryState.sceneSelections).map(([qid, ans]) => ({
+        question_id: qid,
+        selected_answer: ans,
+    }));
+
+    document.getElementById('btnSubmit').disabled = true;
+    mysteryState.status = 'feedback';
+
+    try {
+        const resp = await authFetch(`/api/mystery/${mysteryState.slug}/scene/${sceneNum}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ responses }),
+        });
+        const data = await resp.json();
+
+        if (data.status !== 'success') {
+            throw new Error(data.error || 'Submission failed');
+        }
+
+        if (data.correct) {
+            handleCorrectScene(data, sceneNum, responses);
+        } else {
+            handleIncorrectScene(data);
+        }
+
+    } catch (err) {
+        console.error('Submit error:', err);
+        document.getElementById('feedbackBanner').className = 'feedback-banner error';
+        document.getElementById('feedbackBanner').textContent = err.message;
+        document.getElementById('btnSubmit').disabled = false;
+        mysteryState.status = 'reading';
+    }
+}
+
+function handleCorrectScene(data, sceneNum, responses) {
+    // Store responses for finale
+    mysteryState.allResponses.push(...responses);
+    mysteryState.sceneSelections = {};
+
+    // Highlight correct
+    document.querySelectorAll('.option-item.selected').forEach(el => {
+        el.classList.add('correct');
+    });
+
+    // Unlock transcript
+    document.getElementById('transcriptText').classList.remove('locked');
+    document.getElementById('transcriptLock').style.display = 'none';
+
+    // Show clue in banner
+    const banner = document.getElementById('feedbackBanner');
+    banner.className = 'feedback-banner success';
+    banner.innerHTML = `<strong>Clue Found:</strong> ${data.clue_text}`;
+
+    // Update notebook
+    if (data.notebook_state) {
+        mysteryState.notebook = data.notebook_state;
+    } else {
+        mysteryState.notebook.clues.push({
+            scene_number: sceneNum,
+            text: data.clue_text,
+            clue_type: data.clue_type || 'evidence',
+        });
+    }
+    renderNotebook(true);
+
+    // Show next button or trigger finale
+    document.getElementById('btnSubmit').style.display = 'none';
+
+    if (sceneNum < 5) {
+        document.getElementById('btnNext').style.display = '';
+        mysteryState.currentScene = data.next_scene || sceneNum + 1;
+        renderScenePills();
+    } else {
+        // Scene 5 complete — submit finale
+        submitFinale();
+    }
+}
+
+function handleIncorrectScene(data) {
+    // Highlight incorrect answers
+    if (data.question_results) {
+        data.question_results.forEach(qr => {
+            if (!qr.is_correct) {
+                const selected = document.querySelector(
+                    `.option-item.selected[data-question="${qr.question_id}"]`
+                );
+                if (selected) selected.classList.add('incorrect');
+            }
+        });
+    }
+
+    // Show retry banner
+    const banner = document.getElementById('feedbackBanner');
+    banner.className = 'feedback-banner error';
+    banner.textContent = 'Not quite right. Review the text and try again.';
+
+    // Re-enable after short delay
+    setTimeout(() => {
+        // Clear incorrect highlights and selections
+        document.querySelectorAll('.option-item.incorrect').forEach(el => {
+            el.classList.remove('incorrect', 'selected');
+        });
+        document.querySelectorAll('.option-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        mysteryState.sceneSelections = {};
+        mysteryState.status = 'reading';
+        document.getElementById('btnSubmit').disabled = true;
+        banner.style.display = 'none';
+    }, 2000);
+}
+
+async function submitFinale() {
+    try {
+        const resp = await authFetch(`/api/mystery/${mysteryState.slug}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ responses: mysteryState.allResponses }),
+        });
+        const data = await resp.json();
+
+        if (data.status !== 'success' || !data.result) {
+            throw new Error(data.error || 'Finale submission failed');
+        }
+
+        showResults(data.result);
+
+    } catch (err) {
+        console.error('Finale error:', err);
+        const banner = document.getElementById('feedbackBanner');
+        banner.className = 'feedback-banner error';
+        banner.textContent = err.message;
+    }
+}
+
+function nextScene() {
+    loadScene(mysteryState.currentScene);
+}
+
+// ============================================================================
+// RESULTS
+// ============================================================================
+function showResults(result) {
+    mysteryState.status = 'complete';
+
+    const score = result.score || 0;
+    const total = result.total_questions || 1;
+    const pct = Math.round((score / total) * 100);
+    const eloChange = result.user_elo_change || 0;
+
+    document.getElementById('resultsScore').textContent = `${score}/${total} (${pct}%)`;
+
+    const eloEl = document.getElementById('resultsElo');
+    const cls = eloChange >= 0 ? 'positive' : 'negative';
+    const sign = eloChange >= 0 ? '+' : '';
+    eloEl.innerHTML = `ELO: <span class="elo-change ${cls}">${sign}${eloChange}</span>`;
+
+    const solution = [];
+    if (result.solution_suspect) solution.push(`<strong>The culprit:</strong> ${result.solution_suspect}`);
+    if (result.solution_reasoning) solution.push(result.solution_reasoning);
+    document.getElementById('solutionText').innerHTML = solution.join('<br><br>');
+
+    document.getElementById('resultsOverlay').classList.add('show');
+}
+
+// ============================================================================
+// NOTEBOOK
+// ============================================================================
+function renderNotebook(animateLastClue) {
+    // Suspects
+    const suspectsEl = document.getElementById('notebookSuspects');
+    const suspects = mysteryState.notebook.suspects || [];
+    suspectsEl.innerHTML = suspects.length ? suspects.map(s => `
+        <div class="suspect-item">
+            <span class="suspect-icon"><i class="fa-solid fa-user-secret"></i></span>
+            <div>
+                <div class="suspect-name">${s.name}</div>
+                <div class="text-slate-500" style="font-size:12px;">${s.description || ''}</div>
+            </div>
+        </div>
+    `).join('') : '<div class="text-slate-400" style="font-size:13px;">No suspects yet</div>';
+
+    // Clues
+    const cluesEl = document.getElementById('notebookClues');
+    const clues = mysteryState.notebook.clues || [];
+    let clueHtml = '';
+
+    for (let i = 1; i <= 5; i++) {
+        const clue = clues.find(c => c.scene_number === i);
+        if (clue) {
+            const isLast = animateLastClue && i === clues.length;
+            clueHtml += `<div class="clue-item ${isLast ? 'reveal-animation' : ''}">
+                <strong>Scene ${i}:</strong> ${clue.text}
+            </div>`;
+        } else {
+            clueHtml += `<div class="clue-locked"><i class="fa-solid fa-lock me-1"></i> Scene ${i} — locked</div>`;
+        }
+    }
+    cluesEl.innerHTML = clueHtml;
+}
+
+// ============================================================================
+// SCENE PILLS
+// ============================================================================
+function renderScenePills() {
+    const container = document.getElementById('scenePills');
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i > 1) {
+            const connCls = i <= mysteryState.currentScene ? 'completed' : '';
+            html += `<div class="scene-connector ${connCls}"></div>`;
+        }
+        let cls = '';
+        if (i < mysteryState.currentScene) cls = 'completed';
+        else if (i === mysteryState.currentScene) cls = 'active';
+        else cls = 'locked';
+        html += `<div class="scene-pill ${cls}">${i}</div>`;
+    }
+    container.innerHTML = html;
+}
+
+// ============================================================================
+// AUDIO
+// ============================================================================
+function setupAudio(url) {
+    if (mysteryState.audioElement) {
+        mysteryState.audioElement.pause();
+        mysteryState.audioElement = null;
+    }
+    const audio = new Audio(url);
+    mysteryState.audioElement = audio;
+
+    audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('audioProgressFill').style.width = pct + '%';
+        }
+    });
+
+    audio.addEventListener('ended', () => {
+        document.getElementById('audioPlayBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+    });
+}
+
+function toggleAudio() {
+    const audio = mysteryState.audioElement;
+    if (!audio) return;
+    if (audio.paused) {
+        audio.play();
+        document.getElementById('audioPlayBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+    } else {
+        audio.pause();
+        document.getElementById('audioPlayBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+    }
+}
+
+function seekAudio(event) {
+    const audio = mysteryState.audioElement;
+    if (!audio || !audio.duration) return;
+    const bar = event.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const pct = (event.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
+}
+
+// ============================================================================
+// MOBILE NOTEBOOK
+// ============================================================================
+function toggleNotebook() {
+    document.getElementById('notebook').classList.toggle('mobile-open');
+}
+</script>
+{% endblock %}

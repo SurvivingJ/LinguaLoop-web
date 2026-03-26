@@ -1974,3 +1974,546 @@ select option {
         padding: 8px;
     }
 }
+
+
+/* ===== GUITAR 100K STYLES ===== */
+
+/* Overall progress hero */
+.g100k-progress-hero {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.g100k-progress-bar-wrapper {
+    height: 24px;
+    background: var(--color-surface2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+}
+
+.g100k-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+    border-radius: 12px;
+    transition: width var(--transition-slow);
+    min-width: 0;
+}
+
+.g100k-progress-text {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Instrument tabs */
+.g100k-instrument-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.g100k-tab {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.g100k-tab.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.g100k-tab:hover:not(.active) {
+    border-color: var(--color-primary);
+}
+
+/* Exercise grid */
+.g100k-exercise-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.g100k-category-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-xs);
+}
+
+.g100k-category-label:first-child {
+    margin-top: 0;
+}
+
+/* Exercise card */
+.g100k-exercise-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    transition: border-color var(--transition-fast);
+}
+
+.g100k-exercise-card:hover {
+    border-color: var(--color-primary);
+}
+
+.g100k-exercise-card.completed {
+    border-color: var(--color-success);
+    background: rgba(var(--success-rgb), 0.05);
+}
+
+.g100k-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.g100k-card-name {
+    font-weight: 600;
+    flex: 1;
+}
+
+.g100k-badge-slonimsky {
+    background: var(--color-secondary);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.g100k-badge-complete {
+    color: var(--color-success);
+    font-size: 1.2rem;
+}
+
+/* Card progress bar */
+.g100k-card-progress {
+    margin-bottom: var(--spacing-sm);
+}
+
+.g100k-card-bar-wrapper {
+    height: 8px;
+    background: var(--color-surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.g100k-card-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+    border-radius: 4px;
+    transition: width var(--transition-normal);
+}
+
+.g100k-card-reps {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.g100k-card-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.g100k-card-bpm {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.g100k-card-best {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+}
+
+.g100k-card-footer .g100k-log-btn {
+    margin-left: auto;
+}
+
+/* Log Modal */
+.g100k-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-md);
+}
+
+.g100k-modal {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 460px;
+    width: 100%;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.g100k-modal-close {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-md);
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.g100k-modal h3 {
+    margin-bottom: var(--spacing-lg);
+    padding-right: var(--spacing-xl);
+}
+
+.g100k-calculator {
+    background: var(--color-surface2);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.g100k-calculator h4 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--color-accent);
+}
+
+.g100k-calc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.g100k-calc-row label {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.g100k-calc-row input,
+.g100k-calc-row select {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+    width: 140px;
+}
+
+.g100k-calc-result {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-success);
+    text-align: center;
+    padding: var(--spacing-sm) 0;
+}
+
+.g100k-divider {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    margin: var(--spacing-md) 0;
+}
+
+.g100k-submit-btn {
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+/* ===== SLONIMSKY LAB STYLES ===== */
+
+.slonimsky-controls {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+}
+
+.slonimsky-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.slonimsky-control-row:last-child {
+    margin-bottom: 0;
+}
+
+.slonimsky-control-row label {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    min-width: 100px;
+}
+
+.slonimsky-control-row select {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+    flex: 1;
+    max-width: 260px;
+}
+
+.slonimsky-view-tab {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-surface2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all var(--transition-fast);
+}
+
+.slonimsky-view-tab.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.slonimsky-pattern-info {
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    min-height: 40px;
+}
+
+.slonimsky-notation {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+.slonimsky-visualizer {
+    min-height: 120px;
+}
+
+.slonimsky-playback {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.slonimsky-tempo-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex: 1;
+}
+
+.slonimsky-tempo-control label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.slonimsky-tempo-control input[type="range"] {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* ===== FRETBOARD VISUALIZER ===== */
+
+.fretboard-container {
+    overflow-x: auto;
+    padding: var(--spacing-sm) 0;
+}
+
+.fretboard-grid {
+    display: grid;
+    grid-template-rows: repeat(6, 28px);
+    grid-template-columns: 40px repeat(24, 1fr);
+    gap: 0;
+    min-width: 700px;
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+}
+
+.fretboard-string-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.fretboard-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.65rem;
+    color: transparent;
+    position: relative;
+    cursor: default;
+    transition: all var(--transition-fast);
+}
+
+.fretboard-cell.nut {
+    border-right: 3px solid var(--color-text);
+}
+
+.fretboard-cell.dot::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--color-text-secondary);
+    border-radius: 50%;
+    opacity: 0.3;
+}
+
+.fretboard-cell.glow {
+    background: radial-gradient(circle, rgba(var(--primary-rgb), 0.8), transparent);
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: 0.75rem;
+    z-index: 1;
+}
+
+.fretboard-cell.glow-static {
+    background: rgba(var(--primary-rgb), 0.3);
+    color: var(--color-text);
+    font-size: 0.7rem;
+}
+
+.fretboard-fret-numbers {
+    display: grid;
+    grid-template-columns: 40px repeat(24, 1fr);
+    min-width: 700px;
+    padding: 0 var(--spacing-sm);
+}
+
+.fretboard-fret-number {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+}
+
+/* ===== PIANO VISUALIZER ===== */
+
+.piano-container {
+    overflow-x: auto;
+    padding: var(--spacing-sm) 0;
+}
+
+.piano-keyboard {
+    display: flex;
+    position: relative;
+    height: 140px;
+    min-width: 600px;
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+}
+
+.piano-key {
+    position: relative;
+    cursor: default;
+    transition: all var(--transition-fast);
+}
+
+.piano-key.white {
+    width: 36px;
+    height: 120px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    z-index: 1;
+}
+
+.piano-key.black {
+    width: 22px;
+    height: 75px;
+    background: #2d2d2d;
+    border: 1px solid #1a1a1a;
+    border-radius: 0 0 3px 3px;
+    margin-left: -11px;
+    margin-right: -11px;
+    z-index: 2;
+}
+
+.piano-key.white.pressed {
+    background: rgba(var(--primary-rgb), 0.7);
+    transform: scaleY(0.98);
+    transform-origin: top;
+}
+
+.piano-key.black.pressed {
+    background: var(--color-primary);
+    transform: scaleY(0.97);
+    transform-origin: top;
+}
+
+.piano-key-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.55rem;
+    color: transparent;
+    pointer-events: none;
+}
+
+.piano-key.pressed .piano-key-label,
+.piano-key.glow-static .piano-key-label {
+    color: var(--color-text);
+}
+
+.piano-key.white.glow-static {
+    background: rgba(var(--primary-rgb), 0.3);
+}
+
+.piano-key.black.glow-static {
+    background: rgba(var(--primary-rgb), 0.6);
+}
+
+/* ===== SHARED UTILITY ===== */
+
+.btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8rem;
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4); }
+    50% { box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8); }
+}
+
+.fretboard-cell.glow,
+.piano-key.pressed {
+    animation: glowPulse 0.6s ease-in-out;
+}

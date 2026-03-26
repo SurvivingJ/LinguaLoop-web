@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, render_template
+import os
+from flask import Flask, jsonify, request, render_template, send_file
 from flask_cors import CORS
 from music_engine import (
     DirectionExerciseGenerator,
@@ -12,8 +13,12 @@ from music_engine import (
 )
 from guitar_exercise_engine import guitar_generator
 from sight_reading_engine import SightReadingGenerator
+import guitar100k_service
 
 app = Flask(__name__)
+
+# Initialize Guitar 100K data files on startup
+guitar100k_service.init_files()
 CORS(app, resources={r"/api/*": {"origins": [
     "https://music.linguadojo.com",
     "http://localhost:5000",
@@ -302,6 +307,97 @@ def get_guitar_bpm_ladder(exercise_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+
+# ===== GUITAR 100K ENDPOINTS =====
+
+@app.route('/api/guitar100k/exercises/<instrument>', methods=['GET'])
+def get_100k_exercises(instrument):
+    """Get exercises state for an instrument (guitar or piano)."""
+    try:
+        data = guitar100k_service.get_exercises(instrument)
+        return jsonify(data)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/guitar100k/log', methods=['POST'])
+def log_100k_practice():
+    """Log a practice session. Body: {instrument, exercise_id, reps, bpm, duration}."""
+    try:
+        data = request.get_json()
+        instrument = data['instrument']
+        exercise_id = data['exercise_id']
+        reps = int(data['reps'])
+        bpm = int(data['bpm'])
+        duration = int(data.get('duration', 0))
+
+        result = guitar100k_service.log_practice(instrument, exercise_id, reps, bpm, duration)
+        if result is None:
+            return jsonify({'error': f'Exercise not found: {exercise_id}'}), 404
+
+        return jsonify({'success': True, 'data': result})
+    except (KeyError, ValueError) as e:
+        return jsonify({'error': f'Invalid request: {e}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/guitar100k/exercises', methods=['POST'])
+def add_100k_exercise():
+    """Add a new exercise. Body: {instrument, id, name, category?, target_reps?, source?}."""
+    try:
+        data = request.get_json()
+        instrument = data.pop('instrument', 'guitar')
+        result = guitar100k_service.add_exercise(instrument, data)
+        if result is None:
+            return jsonify({'error': 'Exercise ID already exists'}), 409
+
+        return jsonify({'success': True, 'exercise': result}), 201
+    except (KeyError, ValueError) as e:
+        return jsonify({'error': f'Invalid request: {e}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/guitar100k/exercises/<instrument>/<exercise_id>', methods=['DELETE'])
+def delete_100k_exercise(instrument, exercise_id):
+    """Remove an exercise from the tracker."""
+    try:
+        removed = guitar100k_service.remove_exercise(instrument, exercise_id)
+        if not removed:
+            return jsonify({'error': 'Exercise not found'}), 404
+
+        return jsonify({'success': True})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/guitar100k/export', methods=['GET'])
+def export_100k_data():
+    """Download a zip of all Guitar 100K data files."""
+    try:
+        buffer = guitar100k_service.export_data()
+        return send_file(buffer, mimetype='application/zip',
+                         as_attachment=True, download_name='guitar100k_backup.zip')
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/guitar100k/library', methods=['GET'])
+def get_slonimsky_library():
+    """Serve the pre-generated Slonimsky pattern library."""
+    try:
+        library_path = os.path.join(app.static_folder, 'data', 'slonimsky_library.json')
+        return send_file(library_path, mimetype='application/json')
+    except FileNotFoundError:
+        return jsonify({'error': 'Slonimsky library not yet generated'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/health', methods=['GET'])

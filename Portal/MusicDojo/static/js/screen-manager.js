@@ -20,6 +20,8 @@ class ScreenManager {
             'guitar-practice-session',
             'guitar-dashboard',
             'sight-reading',
+            'guitar-100k',
+            'slonimsky-lab',
             'stats',
             'settings'
         ];

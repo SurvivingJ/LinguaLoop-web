@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+
+{% block title %}Mysteries - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mystery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .mystery-card {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .mystery-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: var(--primary);
+    }
+
+    .mystery-card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--slate-100);
+        position: relative;
+    }
+
+    .mystery-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .mystery-card-premise {
+        font-size: 14px;
+        color: var(--slate-600);
+        line-height: 1.5;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .mystery-card-body {
+        padding: 1.5rem;
+    }
+
+    .mystery-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 14px;
+        margin-bottom: 1rem;
+    }
+
+    .mystery-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--slate-600);
+    }
+
+    .mystery-suspects {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .suspect-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 4px;
+        background: var(--bg-muted);
+        color: var(--slate-700);
+        border: 1px solid var(--border-default);
+    }
+
+    .mystery-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--slate-100);
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--slate-500);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-difficulty {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+        border: 1px solid;
+    }
+
+    .badge-beginner { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+    .badge-intermediate { background: var(--warning-bg); color: var(--warning); border-color: var(--warning); }
+    .badge-advanced { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+
+    .badge-free {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 4px;
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success);
+        text-transform: uppercase;
+    }
+
+    .filter-section {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .filter-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .recommended-section {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+    }
+
+    .mystery-progress-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .badge-in-progress {
+        background: var(--info-bg);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .badge-completed {
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    @media (max-width: 768px) {
+        .filter-row { flex-direction: column; }
+        .mystery-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="mb-1" data-i18n="mystery.list_title">Murder Mysteries</h1>
+        <p class="text-slate-600 mb-0" data-i18n="mystery.list_subtitle">Solve mysteries to test your reading and listening comprehension</p>
+    </div>
+
+    <!-- Recommended Section -->
+    <div class="recommended-section" id="recommendedSection" style="display: none;">
+        <h3 class="h6 mb-3" data-i18n="mystery.recommended">Recommended for You</h3>
+        <div class="mystery-grid" id="recommendedGrid"></div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div>
+                <label class="filter-label" data-i18n="mystery.filter_difficulty">Difficulty</label>
+                <select class="form-select" id="filterDifficulty" onchange="loadMysteries()">
+                    <option value="" data-i18n="mystery.all_levels">All Levels</option>
+                    <option value="1">1 - A1</option>
+                    <option value="2">2 - A1</option>
+                    <option value="3">3 - A2</option>
+                    <option value="4">4 - B1</option>
+                    <option value="5">5 - B1</option>
+                    <option value="6">6 - B2</option>
+                    <option value="7">7 - C1</option>
+                    <option value="8">8 - C2</option>
+                    <option value="9">9 - C2</option>
+                </select>
+            </div>
+            <div>
+                <span class="badge badge-free">Free to Play</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mystery Grid -->
+    <div id="mysteryGrid" class="mystery-grid">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">🔍</div>
+        <h3 data-i18n="mystery.no_mysteries">No mysteries available</h3>
+        <p class="text-slate-500" data-i18n="mystery.no_mysteries_desc">Check back soon for new mysteries in your language.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const CEFR_MAP = {1:'A1',2:'A1',3:'A2',4:'B1',5:'B1',6:'B2',7:'C1',8:'C2',9:'C2'};
+
+    function getDifficultyBadge(difficulty) {
+        const d = parseInt(difficulty) || 1;
+        const cefr = CEFR_MAP[d] || '?';
+        let cls = 'badge-beginner';
+        if (d >= 4 && d <= 6) cls = 'badge-intermediate';
+        else if (d >= 7) cls = 'badge-advanced';
+        return `<span class="badge-difficulty ${cls}">${cefr} (${d})</span>`;
+    }
+
+    function renderMysteryCard(m) {
+        const suspects = (m.suspects || []).slice(0, 4);
+        const suspectTags = suspects.map(s =>
+            `<span class="suspect-tag">${s.name || '???'}</span>`
+        ).join('');
+
+        const elo = m.elo_rating || m.mystery_elo || 1400;
+
+        return `
+            <div class="mystery-card" onclick="window.location.href='/mystery/${m.slug}'">
+                <div class="mystery-card-header">
+                    <div class="mystery-card-title">
+                        <span>${m.title || 'Untitled Mystery'}</span>
+                        ${getDifficultyBadge(m.difficulty)}
+                    </div>
+                    <p class="mystery-card-premise">${m.premise || ''}</p>
+                </div>
+                <div class="mystery-card-body">
+                    <div class="mystery-suspects">${suspectTags}</div>
+                    <div class="mystery-stats">
+                        <div class="stat">
+                            <span class="stat-value">${elo}</span>
+                            <span class="stat-label">ELO</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${m.total_attempts || 0}</span>
+                            <span class="stat-label">Attempts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function loadRecommended() {
+        try {
+            const langId = localStorage.getItem('selectedLanguageId') || '1';
+            const resp = await authFetch(`/api/mystery/recommended?language_id=${langId}`);
+            const data = await resp.json();
+
+            if (data.status === 'success' && data.mysteries && data.mysteries.length > 0) {
+                const grid = document.getElementById('recommendedGrid');
+                grid.innerHTML = data.mysteries.map(renderMysteryCard).join('');
+                document.getElementById('recommendedSection').style.display = '';
+            }
+        } catch (err) {
+            console.error('Failed to load recommended mysteries:', err);
+        }
+    }
+
+    async function loadMysteries() {
+        const grid = document.getElementById('mysteryGrid');
+        const emptyState = document.getElementById('emptyState');
+        grid.innerHTML = '<div class="loading-spinner"><div class="spinner-border text-primary" role="status"></div></div>';
+        emptyState.style.display = 'none';
+
+        try {
+            const langId = localStorage.getItem('selectedLanguageId') || '1';
+            const difficulty = document.getElementById('filterDifficulty').value;
+            let url = `/api/mystery/?language_id=${langId}`;
+            if (difficulty) url += `&difficulty=${difficulty}`;
+
+            const resp = await authFetch(url);
+            const data = await resp.json();
+
+            if (data.status === 'success' && data.mysteries && data.mysteries.length > 0) {
+                grid.innerHTML = data.mysteries.map(renderMysteryCard).join('');
+            } else {
+                grid.innerHTML = '';
+                emptyState.style.display = '';
+            }
+        } catch (err) {
+            console.error('Failed to load mysteries:', err);
+            grid.innerHTML = '';
+            emptyState.style.display = '';
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        loadRecommended();
+        loadMysteries();
+    });
+</script>
+{% endblock %}
