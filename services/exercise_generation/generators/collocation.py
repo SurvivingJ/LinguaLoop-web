@@ -1,6 +1,7 @@
 # services/exercise_generation/generators/collocation.py
 
 from services.exercise_generation.base_generator import ExerciseGenerator
+from services.exercise_generation.language_processor import LanguageProcessor
 
 
 class CollocationGapFillGenerator(ExerciseGenerator):
@@ -53,10 +54,15 @@ class CollocationRepairGenerator(ExerciseGenerator):
     """
     Generates collocation_repair exercises.
     LLM replaces the correct collocate with an unnatural-but-plausible substitute.
+    User must (1) identify the wrong word, then (2) type the correct one.
     """
 
     exercise_type = 'collocation_repair'
     source_type   = 'collocation'
+
+    def __init__(self, db, language_id: int, model: str):
+        super().__init__(db, language_id, model)
+        self.lang_processor = LanguageProcessor.for_language(language_id)
 
     def generate_one(self, sentence_dict: dict, source_id: int) -> dict | None:
         col_row = self.db.table('corpus_collocations') \
@@ -75,15 +81,37 @@ class CollocationRepairGenerator(ExerciseGenerator):
             result = self.call_llm(prompt, response_format='json')
             if not result.get('error_word') or not result.get('correct_word'):
                 return None
+            words = self._segment_sentence(
+                result['sentence_with_error'], result['error_word']
+            )
             return {
                 'sentence_with_error': result['sentence_with_error'],
                 'error_word':          result['error_word'],
                 'correct_word':        result['correct_word'],
                 'explanation':         result.get('explanation', ''),
+                'words':               words,
                 'source_test_id':      sentence_dict.get('test_id'),
             }
         except Exception:
             return None
+
+    def _segment_sentence(self, sentence: str, error_word: str) -> list[dict]:
+        """Segment sentence into display-ready word objects with error marking."""
+        from services.exercise_generation.config import LANG_CHINESE, LANG_JAPANESE
+        if self.language_id in (LANG_CHINESE, LANG_JAPANESE):
+            tokens = self.lang_processor.tokenize(sentence)
+        else:
+            tokens = sentence.split()
+
+        words = []
+        error_found = False
+        for token in tokens:
+            clean = token.strip('.,;:!?"\'-()[]').lower()
+            is_error = not error_found and clean == error_word.lower()
+            if is_error:
+                error_found = True
+            words.append({'text': token, 'is_error': is_error})
+        return words
 
 
 class OddCollocationOutGenerator(ExerciseGenerator):

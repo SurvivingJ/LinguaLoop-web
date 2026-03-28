@@ -957,9 +957,85 @@
         mcq(fmtType('collocation_gap_fill'), ex.cefr_level, i18n('exercises.instruction.collocation_gap_fill'), p, c.options, c.correct, '', w);
     }
     function renderColloRepair(ex,c,w) {
-        const opts = [c.correct_word, c.error_word];
-        const p = escHtml(c.sentence_with_error).replace(escHtml(c.error_word),'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
-        mcq(fmtType('collocation_repair'), ex.cefr_level, i18n('exercises.instruction.collocation_repair'), p, opts, c.correct_word, c.explanation, w);
+        // Build words array: use pre-computed from backend, or fallback to whitespace split
+        let words = c.words;
+        if (!words) {
+            const tokens = c.sentence_with_error.split(/\s+/);
+            words = tokens.map(t => {
+                const clean = t.replace(/[.,;:!?"'\-()[\]]/g, '').toLowerCase();
+                return {text: t, is_error: clean === (c.error_word||'').toLowerCase()};
+            });
+        }
+
+        let h = (w||'')+
+            `<div class="exercise-type-badge"><i class="fas fa-wrench"></i> ${fmtType('collocation_repair')}${ex.cefr_level?`<span class="exercise-cefr-badge">${ex.cefr_level}</span>`:''}</div>`+
+            `<div class="exercise-instruction">${i18n('exercises.instruction.collocation_repair')}</div>`+
+            `<div class="sip-parts" id="crWords">`;
+        words.forEach((wd,i) => {
+            h += `<span class="sip-part" data-idx="${i}">${escHtml(wd.text)}</span>`;
+        });
+        h += `</div>`+
+            `<div id="crPhase2" style="display:none;margin-top:16px;">`+
+                `<div class="exercise-instruction" style="font-size:14px;">${i18n('exercises.instruction.collocation_repair_phase2')}</div>`+
+                `<input type="text" class="exercise-input-area" id="crInput" style="width:100%;padding:10px;font-size:16px;" autocomplete="off">`+
+                `<button class="btn btn-primary exercise-check-btn" id="crCheckBtn" style="margin-top:8px;"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>`+
+            `</div>`+
+            `<div id="crCorrection" class="sip-correction" style="display:none;"></div>`+
+            `<div class="exercise-feedback" id="exerciseFeedback"></div>`+
+            `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        els.card.innerHTML = h;
+
+        // Phase 1: click the incorrect word
+        document.getElementById('crWords').addEventListener('click', e => {
+            if (state.isAnswered) return;
+            const part = e.target.closest('.sip-part');
+            if (!part) return;
+            const idx = parseInt(part.dataset.idx);
+            const selected = words[idx];
+            const ok = !!selected.is_error;
+
+            // Disable all word tokens
+            document.querySelectorAll('#crWords .sip-part').forEach(el => {
+                el.classList.add('disabled');
+                const pi = parseInt(el.dataset.idx);
+                if (words[pi].is_error) el.classList.add('correct');
+            });
+            if (!ok) part.classList.add('incorrect');
+
+            if (ok) {
+                // Phase 2: show typing input
+                state.isAnswered = true;  // block further word clicks
+                document.getElementById('crPhase2').style.display = '';
+                const inp = document.getElementById('crInput');
+                inp.focus();
+
+                const checkTyped = () => {
+                    const typed = inp.value.trim();
+                    if (!typed) return;
+                    inp.readOnly = true;
+                    document.getElementById('crCheckBtn').style.display = 'none';
+                    const phase2ok = typed.toLowerCase() === c.correct_word.toLowerCase();
+                    if (!phase2ok) {
+                        const corr = document.getElementById('crCorrection');
+                        corr.innerHTML = '<i class="fas fa-check me-1"></i>' + escHtml(c.correct_word);
+                        corr.style.display = '';
+                    }
+                    showFeedback(phase2ok, c.explanation);
+                    submitAttempt(phase2ok, {selected_word: selected.text, typed_correction: typed, phase1_correct: true, phase2_correct: phase2ok});
+                };
+                document.getElementById('crCheckBtn').addEventListener('click', checkTyped);
+                inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkTyped(); });
+            } else {
+                // Wrong word selected - exercise over
+                state.isAnswered = true;
+                const corr = document.getElementById('crCorrection');
+                corr.innerHTML = '<i class="fas fa-check me-1"></i>' + escHtml(c.error_word) + ' → ' + escHtml(c.correct_word);
+                corr.style.display = '';
+                showFeedback(false, c.explanation);
+                submitAttempt(false, {selected_word: selected.text, phase1_correct: false});
+            }
+        });
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
     }
     function renderOddCollo(ex,c,w) {
         const odd = c.collocations[c.odd_index];

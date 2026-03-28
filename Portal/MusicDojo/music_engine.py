@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 CHROMATIC_KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
 SCALE_DEFINITIONS = {
+    # Diatonic Modes
     'Major': [0, 2, 4, 5, 7, 9, 11],
     'Natural Minor': [0, 2, 3, 5, 7, 8, 10],
     'Dorian': [0, 2, 3, 5, 7, 9, 10],
@@ -14,35 +15,217 @@ SCALE_DEFINITIONS = {
     'Lydian': [0, 2, 4, 6, 7, 9, 11],
     'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
     'Locrian': [0, 1, 3, 5, 6, 8, 10],
+    # Minor Variants
     'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
     'Melodic Minor': [0, 2, 3, 5, 7, 9, 11],
     'Jazz Minor': [0, 2, 3, 5, 7, 9, 11],
+    # Jazz / Modern
     'Lydian Dominant': [0, 2, 4, 6, 7, 9, 10],
     'Altered': [0, 1, 3, 4, 6, 8, 10],
     'Phrygian Dominant': [0, 1, 4, 5, 7, 8, 10],
     'Dominant Bebop': [0, 2, 4, 5, 7, 9, 10, 11],
+    # Symmetric
     'Whole Tone': [0, 2, 4, 6, 8, 10],
     'Diminished HW': [0, 1, 3, 4, 6, 7, 9, 10],
+    # Pentatonic / Blues
     'Pentatonic Major': [0, 2, 4, 7, 9],
     'Pentatonic Minor': [0, 3, 5, 7, 10],
     'Blues': [0, 3, 5, 6, 7, 10],
+    # Bebop
+    'Major Bebop': [0, 2, 4, 5, 7, 8, 9, 11],
+    'Minor Bebop': [0, 2, 3, 5, 7, 8, 9, 10],
+    # Symmetric / Exotic Western
+    'Whole-Half Diminished': [0, 2, 3, 5, 6, 8, 9, 11],
+    'Prometheus': [0, 2, 4, 6, 9, 10],
+    'Enigmatic': [0, 1, 4, 6, 8, 10, 11],
+    'Persian': [0, 1, 4, 5, 6, 8, 11],
+    'Byzantine': [0, 1, 4, 5, 7, 8, 11],
+    'Neapolitan Minor': [0, 1, 3, 5, 7, 8, 11],
+    'Neapolitan Major': [0, 1, 3, 5, 7, 9, 11],
+    # World / Ethnic
+    'Hungarian Minor': [0, 2, 3, 6, 7, 8, 11],
+    'Hungarian Major': [0, 3, 4, 6, 7, 9, 10],
+    'Romanian Major': [0, 1, 4, 6, 7, 9, 10],
+    'Arabian': [0, 2, 4, 5, 6, 8, 10],
+    'Asian': [0, 1, 4, 5, 6, 9, 10],
+    'Javanese Pelog': [0, 1, 3, 5, 7, 9, 10],
+    # Japanese Pentatonic
+    'Hirajoshi': [0, 2, 3, 7, 8],
+    'In Sen': [0, 1, 5, 7, 10],
+    'Iwato': [0, 1, 5, 6, 10],
+    'Kumoi': [0, 2, 5, 7, 8],
+    'Balinese Pelog': [0, 1, 3, 7, 8],
+    # Other Pentatonics
+    'Dominant Pentatonic': [0, 2, 4, 7, 10],
+    'Egyptian': [0, 2, 5, 7, 10],
+    'Scottish Pentatonic': [0, 2, 5, 7, 9],
 }
 
 SCALE_CATEGORIES = {
     'beginner': ['Major', 'Natural Minor', 'Pentatonic Major', 'Pentatonic Minor'],
-    'jazz': ['Dorian', 'Lydian', 'Mixolydian', 'Altered', 'Jazz Minor', 'Lydian Dominant', 'Whole Tone', 'Diminished HW'],
     'common': ['Major', 'Natural Minor', 'Harmonic Minor', 'Melodic Minor', 'Pentatonic Major', 'Pentatonic Minor', 'Blues'],
+    'jazz': ['Dorian', 'Lydian', 'Mixolydian', 'Altered', 'Jazz Minor', 'Lydian Dominant', 'Whole Tone', 'Diminished HW'],
+    'bebop': ['Dominant Bebop', 'Major Bebop', 'Minor Bebop'],
+    'world': ['Hungarian Minor', 'Hungarian Major', 'Byzantine', 'Persian', 'Romanian Major',
+              'Arabian', 'Asian', 'Javanese Pelog', 'Neapolitan Minor', 'Neapolitan Major'],
+    'japanese': ['Hirajoshi', 'In Sen', 'Iwato', 'Kumoi', 'Balinese Pelog'],
+    'symmetric': ['Whole Tone', 'Diminished HW', 'Whole-Half Diminished', 'Prometheus', 'Enigmatic'],
+    'pentatonic_ext': ['Dominant Pentatonic', 'Egyptian', 'Scottish Pentatonic'],
+}
+
+SCALE_METADATA = {
+    # Beginner
+    'Major':              {'category': 'Beginner',  'mood': 'Bright, Happy',         'difficulty': 'beginner',      'chords': ['maj', 'maj7', 'maj9']},
+    'Natural Minor':      {'category': 'Beginner',  'mood': 'Sad, Dark',             'difficulty': 'beginner',      'chords': ['min', 'min7']},
+    'Pentatonic Major':   {'category': 'Beginner',  'mood': 'Open, Cheerful',        'difficulty': 'beginner',      'chords': ['maj', 'maj7', '6']},
+    'Pentatonic Minor':   {'category': 'Beginner',  'mood': 'Bluesy, Soulful',       'difficulty': 'beginner',      'chords': ['min', 'min7', '7']},
+    # Common
+    'Harmonic Minor':     {'category': 'Common',    'mood': 'Classical, Dramatic',    'difficulty': 'intermediate',  'chords': ['min(maj7)', 'dim7']},
+    'Melodic Minor':      {'category': 'Common',    'mood': 'Smooth, Jazz',           'difficulty': 'intermediate',  'chords': ['min(maj7)', 'min6']},
+    'Blues':              {'category': 'Common',    'mood': 'Gritty, Expressive',     'difficulty': 'beginner',      'chords': ['7', 'min7', '9']},
+    # Diatonic Modes
+    'Dorian':            {'category': 'Jazz',       'mood': 'Cool, Mellow',           'difficulty': 'intermediate',  'chords': ['min7', 'min9', 'min13']},
+    'Phrygian':          {'category': 'Jazz',       'mood': 'Spanish, Dark',          'difficulty': 'intermediate',  'chords': ['min7', 'sus4b9']},
+    'Lydian':            {'category': 'Jazz',       'mood': 'Dreamy, Floating',       'difficulty': 'intermediate',  'chords': ['maj7#11', 'maj9']},
+    'Mixolydian':        {'category': 'Jazz',       'mood': 'Bluesy, Rock',           'difficulty': 'intermediate',  'chords': ['7', '9', '13']},
+    'Locrian':           {'category': 'Jazz',       'mood': 'Unstable, Tense',        'difficulty': 'advanced',      'chords': ['min7b5', 'dim']},
+    # Jazz / Modern
+    'Jazz Minor':        {'category': 'Jazz',       'mood': 'Smooth, Modern',         'difficulty': 'advanced',      'chords': ['min(maj7)']},
+    'Lydian Dominant':   {'category': 'Jazz',       'mood': 'Bright, Tension',        'difficulty': 'advanced',      'chords': ['7#11', 'bII7']},
+    'Altered':           {'category': 'Jazz',       'mood': 'Tense, Chromatic',       'difficulty': 'advanced',      'chords': ['7alt', '7#9b13']},
+    'Phrygian Dominant': {'category': 'Jazz',       'mood': 'Flamenco, Exotic',       'difficulty': 'advanced',      'chords': ['V7', '7b9']},
+    # Bebop
+    'Dominant Bebop':    {'category': 'Bebop',      'mood': 'Swinging, Chromatic',    'difficulty': 'advanced',      'chords': ['7', '9', '13']},
+    'Major Bebop':       {'category': 'Bebop',      'mood': 'Swinging, Bright',       'difficulty': 'advanced',      'chords': ['maj7', 'maj6']},
+    'Minor Bebop':       {'category': 'Bebop',      'mood': 'Swinging, Dark',         'difficulty': 'advanced',      'chords': ['min7', 'min9']},
+    # Symmetric
+    'Whole Tone':        {'category': 'Symmetric',  'mood': 'Dreamy, Impressionist',  'difficulty': 'intermediate',  'chords': ['7#5', 'aug']},
+    'Diminished HW':     {'category': 'Symmetric',  'mood': 'Tense, Angular',         'difficulty': 'advanced',      'chords': ['dim7', '7b9']},
+    'Whole-Half Diminished': {'category': 'Symmetric', 'mood': 'Eerie, Symmetrical',  'difficulty': 'advanced',      'chords': ['dim7']},
+    'Prometheus':        {'category': 'Symmetric',  'mood': 'Other-worldly, Mystic',  'difficulty': 'advanced',      'chords': ['7#11']},
+    'Enigmatic':         {'category': 'Symmetric',  'mood': 'Chromatic, Intense',     'difficulty': 'advanced',      'chords': []},
+    # World / Ethnic
+    'Persian':           {'category': 'World',      'mood': 'Middle Eastern, Tense',  'difficulty': 'advanced',      'chords': ['maj', 'maj7']},
+    'Byzantine':         {'category': 'World',      'mood': 'Majestic, Eastern',      'difficulty': 'advanced',      'chords': ['maj', '7b9']},
+    'Neapolitan Minor':  {'category': 'World',      'mood': 'Dark, Classical',        'difficulty': 'advanced',      'chords': ['min(maj7)', 'dim']},
+    'Neapolitan Major':  {'category': 'World',      'mood': 'Warm, Classical',        'difficulty': 'advanced',      'chords': ['maj7', 'bIImaj7']},
+    'Hungarian Minor':   {'category': 'World',      'mood': 'Dark, Exotic',           'difficulty': 'advanced',      'chords': ['min(maj7)', 'dim7']},
+    'Hungarian Major':   {'category': 'World',      'mood': 'Dominant, Exotic',       'difficulty': 'advanced',      'chords': ['7', '7b9']},
+    'Romanian Major':    {'category': 'World',      'mood': 'Tense, Lydian',          'difficulty': 'advanced',      'chords': ['7', '7#11']},
+    'Arabian':           {'category': 'World',      'mood': 'Desert, Mysterious',     'difficulty': 'advanced',      'chords': ['7b5', '7b13']},
+    'Asian':             {'category': 'World',      'mood': 'Eastern, Minor',         'difficulty': 'advanced',      'chords': ['min', 'sus4']},
+    'Javanese Pelog':    {'category': 'World',      'mood': 'Indonesian, Soft',       'difficulty': 'intermediate',  'chords': ['min7', 'sus2']},
+    # Japanese Pentatonic
+    'Hirajoshi':         {'category': 'Japanese',   'mood': 'Sparse, Mysterious',     'difficulty': 'intermediate',  'chords': ['min', 'min7', 'sus4']},
+    'In Sen':            {'category': 'Japanese',   'mood': 'Dark, Stark',            'difficulty': 'intermediate',  'chords': ['min7', 'sus4']},
+    'Iwato':             {'category': 'Japanese',   'mood': 'Dissonant, Haunting',    'difficulty': 'intermediate',  'chords': ['min7b5']},
+    'Kumoi':             {'category': 'Japanese',   'mood': 'Gentle, Wistful',        'difficulty': 'intermediate',  'chords': ['min', 'sus4']},
+    'Balinese Pelog':    {'category': 'Japanese',   'mood': 'Exotic, Mystical',       'difficulty': 'intermediate',  'chords': ['min', 'sus2']},
+    # Other Pentatonics
+    'Dominant Pentatonic': {'category': 'Pentatonic', 'mood': 'Bluesy, Dominant',     'difficulty': 'intermediate',  'chords': ['7', '9']},
+    'Egyptian':          {'category': 'Pentatonic', 'mood': 'Open, Suspended',        'difficulty': 'beginner',      'chords': ['sus2', 'sus4']},
+    'Scottish Pentatonic': {'category': 'Pentatonic', 'mood': 'Open, Folkloric',      'difficulty': 'beginner',      'chords': ['sus2', '5']},
 }
 
 PATTERN_DEFINITIONS = {
+    # Classical / Beginner
     'Block Chords': {'sequence': [[1, 3, 5]], 'desc': 'All chord tones simultaneously', 'vibe': ['all']},
     'Alberti Bass': {'sequence': [1, 5, 3, 5], 'desc': 'Root-fifth-third-fifth pattern', 'vibe': ['classical', 'beginner']},
-    'Walking Bass': {'sequence': [1, 2, 3, 5], 'desc': 'Stepwise ascending movement', 'vibe': ['jazz', 'swing']},
-    'Stride': {'sequence': [1, [3, 5, 8]], 'desc': 'Low bass then mid-range chord', 'vibe': ['jazz', 'ragtime']},
-    'Bossa Nova': {'sequence': [1, 5, 8, 5, 1, 5, 3, 5], 'desc': 'Syncopated Latin rhythm', 'vibe': ['latin', 'jazz']},
     'Waltz': {'sequence': [1, [3, 5], [3, 5]], 'desc': 'Classic 3/4 oom-pah-pah', 'vibe': ['classical', 'romantic']},
     'Arpeggio Up': {'sequence': [1, 3, 5, 8], 'desc': 'Rising broken chord', 'vibe': ['all']},
     'Arpeggio Down': {'sequence': [8, 5, 3, 1], 'desc': 'Falling broken chord', 'vibe': ['all']},
+    # Jazz
+    'Walking Bass': {'sequence': [1, 2, 3, 5], 'desc': 'Stepwise ascending movement', 'vibe': ['jazz', 'swing']},
+    'Stride': {'sequence': [1, [3, 5, 8]], 'desc': 'Low bass then mid-range chord', 'vibe': ['jazz', 'ragtime']},
+    'Shell Voicing': {'sequence': [[1, 7]], 'desc': 'Root + 7th only (Bud Powell style)', 'vibe': ['jazz', 'bebop']},
+    'Shell Voicing Alt': {'sequence': [[1, 3]], 'desc': 'Root + 3rd shell variation', 'vibe': ['jazz', 'bebop']},
+    'Rootless A': {'sequence': [[3, 5, 7, 9]], 'desc': 'Bill Evans-style 3-5-7-9 voicing', 'vibe': ['jazz', 'voicing']},
+    'Rootless B': {'sequence': [[7, 9, 3, 5]], 'desc': 'Inverted rootless 7-9-3-5 voicing', 'vibe': ['jazz', 'voicing']},
+    'Quartal Voicing': {'sequence': [[1, 4, 7]], 'desc': 'Stacked 4ths (McCoy Tyner)', 'vibe': ['jazz', 'modal', 'voicing']},
+    'Quartal Quartal': {'sequence': [[4, 7, 3]], 'desc': 'Wider quartal stack', 'vibe': ['jazz', 'modal', 'voicing']},
+    # Boogie / Blues
+    'Boogie Shuffle': {'sequence': [1, 5, 6, 5], 'desc': 'Root-fifth-sixth-fifth swing pattern', 'vibe': ['boogie', 'blues']},
+    'Boogie Chop': {'sequence': [1, 8, 1, 8], 'desc': 'Octave jump country/rock boogie', 'vibe': ['boogie', 'rock']},
+    'Boogie Ascending': {'sequence': [1, 2, 3, 4, 5, 6, 5, 3], 'desc': 'Walking chromatic climb, back to 5', 'vibe': ['boogie', 'blues']},
+    '12-Bar Groove': {'sequence': [1, 5, 1, 5, [1, 5], [1, 5]], 'desc': 'Alternating bass + power chord hits', 'vibe': ['boogie', 'blues', 'rock']},
+    'Shuffle Split': {'sequence': [1, [3, 5], 1, [3, 5]], 'desc': 'Low root, staccato chord hits', 'vibe': ['boogie', 'blues']},
+    # Funk / Gospel
+    'Gospel Chop': {'sequence': [[1, 5], [3, 7], [1, 5], [3, 7, 9]], 'desc': 'Alternating bass chord + extension', 'vibe': ['gospel', 'soul']},
+    'Funk Stab': {'sequence': [[1, 3, 7], 0, [1, 3, 7], 0], 'desc': 'Chord stabs with rests', 'vibe': ['funk', 'r&b']},
+    'Syncopated Bass': {'sequence': [1, 0, 5, 1, 0, 5, 3, 5], 'desc': 'Off-beat bass movement', 'vibe': ['funk', 'pop']},
+    'New Orleans': {'sequence': [1, 3, 5, 3, [1, 5], 3, 5, 3], 'desc': 'Circular bass phrase', 'vibe': ['blues', 'gospel']},
+    # Latin
+    'Bossa Nova': {'sequence': [1, 5, 8, 5, 1, 5, 3, 5], 'desc': 'Syncopated Latin rhythm', 'vibe': ['latin', 'jazz']},
+    'Montuno': {'sequence': [1, 3, 5, 3, 8, 5, 3, 5], 'desc': 'Cuban repeated figure', 'vibe': ['latin', 'salsa']},
+    'Songo': {'sequence': [1, 0, 5, 0, [1, 5], 0, 3, 0], 'desc': 'Afro-Cuban with rests', 'vibe': ['latin', 'afrocuban']},
+    'Cha-Cha': {'sequence': [1, 1, 5, 5, 1, 0, 5, 0], 'desc': 'Steady cha-cha-cha feel', 'vibe': ['latin', 'pop']},
+    'Mambo Bass': {'sequence': [1, 5, 8, 5, 1, 0, 8, 5], 'desc': 'Driving mambo left hand', 'vibe': ['latin', 'salsa']},
+    # Ostinato / Drone
+    'Open Fifth Ostinato': {'sequence': [[1, 5], [1, 5], [1, 5], [1, 5]], 'desc': 'Power-chord drone', 'vibe': ['modal', 'rock', 'drone']},
+    'Two-Note Bass Vamp': {'sequence': [1, 0, 1, 0, 5, 0, 5, 0], 'desc': 'Alternating root/fifth pedal point', 'vibe': ['modal', 'drone']},
+    'Pedal Bass': {'sequence': [1, 1, 1, 1], 'desc': 'Static bass note tension builder', 'vibe': ['modal', 'drone']},
+    'Rhumba Clave': {'sequence': [1, 0, 0, 5, 0, 1, 0, 0], 'desc': '3-2 clave feel in bass', 'vibe': ['latin', 'afrocuban']},
+}
+
+PATTERN_CATEGORIES = {
+    'Classical':    ['Block Chords', 'Alberti Bass', 'Waltz', 'Arpeggio Up', 'Arpeggio Down'],
+    'Jazz':         ['Walking Bass', 'Stride', 'Shell Voicing', 'Shell Voicing Alt'],
+    'Voicings':     ['Rootless A', 'Rootless B', 'Quartal Voicing', 'Quartal Quartal'],
+    'Boogie/Blues': ['Boogie Shuffle', 'Boogie Chop', 'Boogie Ascending', '12-Bar Groove', 'Shuffle Split'],
+    'Funk/Gospel':  ['Gospel Chop', 'Funk Stab', 'Syncopated Bass', 'New Orleans'],
+    'Latin':        ['Bossa Nova', 'Montuno', 'Songo', 'Cha-Cha', 'Mambo Bass'],
+    'Ostinato':     ['Open Fifth Ostinato', 'Two-Note Bass Vamp', 'Pedal Bass', 'Rhumba Clave'],
+}
+
+MOTIF_DEFINITIONS = {
+    'Rising 3rd': {
+        'intervals': [0, 2],
+        'rhythm': [1.0, 1.0],
+        'direction': 'up',
+        'length': 2,
+        'desc': 'Simple ascending 3rd — starting cell of hundreds of phrases',
+        'style': ['all'],
+    },
+    'Call Riff': {
+        'intervals': [1, 3, 2, 1],
+        'rhythm': [0.5, 0.5, 0.5, 1.5],
+        'direction': 'mixed',
+        'length': 4,
+        'desc': 'Classic jazz call figure — resolves back to root',
+        'style': ['jazz', 'blues'],
+    },
+    'Pentatonic Drop': {
+        'intervals': [5, 4, 3, 1],
+        'rhythm': [0.5, 0.5, 0.5, 0.5],
+        'direction': 'down',
+        'length': 4,
+        'desc': 'Falling pentatonic lick from 5th to root',
+        'style': ['rock', 'blues', 'country'],
+    },
+    'Blues Wail': {
+        'intervals': [5, 4, 3, 4, 3],
+        'rhythm': [1.0, 0.5, 0.5, 0.5, 1.5],
+        'direction': 'mixed',
+        'length': 5,
+        'desc': 'Bent blues cry — 5 to 4 with linger',
+        'style': ['blues'],
+    },
+    'Jazz Enclosure': {
+        'intervals': [3, 1, 2, 3],
+        'rhythm': [0.5, 0.5, 0.5, 1.5],
+        'direction': 'up',
+        'length': 4,
+        'desc': 'Approach target from chromatic above + below',
+        'style': ['jazz', 'bebop'],
+    },
+    'Ascending Sequence': {
+        'intervals': [1, 2, 3, 2, 3, 4, 3, 4, 5],
+        'rhythm': [0.5] * 9,
+        'direction': 'up',
+        'length': 9,
+        'desc': 'Stepwise sequence climbing the scale in overlapping 3rds',
+        'style': ['jazz', 'classical'],
+    },
 }
 
 # Interval data for ear training
@@ -284,10 +467,70 @@ class TempoRampGenerator:
         return [self.generate(difficulty) for _ in range(count)]
 
 
+# ===== MOTIF GENERATOR =====
+
+class MotifGenerator:
+    """Generate motifs with transformations for improvisation practice."""
+
+    TRANSFORMATIONS = ['transpose', 'invert', 'retrograde', 'augment',
+                       'diminish', 'fragment', 'displace']
+
+    def generate(self, difficulty: int, style: str = 'all') -> Dict[str, Any]:
+        """Generate a motif with difficulty-scaled transformations."""
+        # Filter motifs by style
+        pool = [k for k, v in MOTIF_DEFINITIONS.items()
+                if style in v['style'] or 'all' in v['style']]
+        if not pool:
+            pool = list(MOTIF_DEFINITIONS.keys())
+
+        base_name = random.choice(pool)
+        base = MOTIF_DEFINITIONS[base_name]
+
+        # Apply transformations based on difficulty
+        n_transforms = min(difficulty // 3, len(self.TRANSFORMATIONS))
+        transforms = random.sample(self.TRANSFORMATIONS, n_transforms) if n_transforms > 0 else []
+
+        result_intervals = base['intervals'][:]
+        result_rhythm = base['rhythm'][:]
+
+        for t in transforms:
+            if t == 'transpose':
+                shift = random.choice([-2, -1, 1, 2])
+                result_intervals = [x + shift for x in result_intervals]
+            elif t == 'invert':
+                result_intervals = [-x for x in result_intervals]
+            elif t == 'retrograde':
+                result_intervals = result_intervals[::-1]
+                result_rhythm = result_rhythm[::-1]
+            elif t == 'augment':
+                result_rhythm = [r * 2 for r in result_rhythm]
+            elif t == 'diminish':
+                result_rhythm = [r / 2 for r in result_rhythm]
+            elif t == 'fragment':
+                n = max(2, len(result_intervals) // 2)
+                result_intervals = result_intervals[:n]
+                result_rhythm = result_rhythm[:n]
+            elif t == 'displace':
+                result_intervals = result_intervals[1:] + result_intervals[:1]
+
+        return {
+            'base_motif': base_name,
+            'transforms_applied': transforms,
+            'intervals': result_intervals,
+            'rhythm': result_rhythm,
+            'description': base['desc'],
+            'direction': base['direction'],
+            'style': style,
+        }
+
+
 # ===== SCALE/PATTERN GENERATOR =====
 
 class ScalePatternGenerator:
     """Generate jazz improvisation scale/pattern combinations."""
+
+    def __init__(self):
+        self._motif_gen = MotifGenerator()
 
     def generate(self, difficulty: int) -> Dict[str, Any]:
         """Generate a scale/pattern exercise."""
@@ -307,7 +550,7 @@ class ScalePatternGenerator:
         pattern_name = random.choice(list(PATTERN_DEFINITIONS.keys()))
         pattern = PATTERN_DEFINITIONS[pattern_name]
 
-        return {
+        result = {
             'id': generate_id(),
             'mode': 'improv',
             'difficulty': difficulty,
@@ -318,6 +561,13 @@ class ScalePatternGenerator:
             'pattern_sequence': pattern['sequence'],
             'pattern_description': pattern['desc'],
         }
+
+        # Include motif for difficulty >= 4
+        if difficulty >= 4:
+            motif = self._motif_gen.generate(difficulty)
+            result['motif'] = motif
+
+        return result
 
     def _get_scale_notes(self, key: str, scale_type: str) -> List[str]:
         """Get the notes of a scale."""
