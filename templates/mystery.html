@@ -2,10 +2,97 @@
 
 {% block title %}Mystery - LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-900{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* ===== Dark Theme with Gold Trim ===== */
+    :root {
+        --mystery-dark-bg: #0f172a;
+        --mystery-dark-surface: #1e293b;
+        --mystery-dark-surface-light: #334155;
+        --mystery-gold: #d4af37;
+        --mystery-gold-light: #e8c547;
+        --mystery-gold-muted: #a89632;
+        --mystery-text-primary: #f1f5f9;
+        --mystery-text-secondary: #cbd5e1;
+    }
+
+    .mystery-container,
+    .mystery-header,
+    .scene-content,
+    .notebook,
+    .option-item,
+    .clue-item {
+        background: var(--mystery-dark-surface);
+        color: var(--mystery-text-primary);
+        border-color: var(--mystery-gold-muted) !important;
+    }
+
+    .scene-title-bar,
+    .notebook-header {
+        background: var(--mystery-dark-bg);
+        border-color: var(--mystery-gold-muted) !important;
+    }
+
+    .mystery-title,
+    .scene-title,
+    .question-text,
+    .notebook-section-title,
+    .solution-title {
+        color: var(--mystery-gold-light);
+    }
+
+    .mystery-transcript,
+    .option-item:hover,
+    .option-item.selected {
+        background: var(--mystery-dark-surface-light);
+    }
+
+    .clue-item {
+        border-left-color: var(--mystery-gold) !important;
+        background: linear-gradient(135deg, var(--mystery-dark-surface-light) 0%, var(--mystery-dark-surface) 100%);
+    }
+
+    .clue-item strong {
+        color: var(--mystery-gold);
+    }
+
+    .mystery-transcript.locked {
+        color: var(--mystery-text-secondary);
+    }
+
+    .scene-pill {
+        background: var(--mystery-dark-surface);
+        color: var(--mystery-text-secondary);
+        border-color: var(--mystery-gold-muted);
+    }
+
+    .scene-pill.active,
+    .scene-pill.completed {
+        border-color: var(--mystery-gold) !important;
+        background: var(--mystery-gold);
+        color: var(--mystery-dark-bg);
+    }
+
+    .btn-submit-scene.primary {
+        background: var(--mystery-gold);
+        color: var(--mystery-dark-bg);
+    }
+
+    .btn-submit-scene.primary:hover {
+        background: var(--mystery-gold-light);
+    }
+
+    .results-card {
+        background: var(--mystery-dark-surface);
+        color: var(--mystery-text-primary);
+    }
+
+    .solution-section {
+        background: var(--mystery-dark-surface-light);
+    }
+
     /* ===== Layout ===== */
     .mystery-container {
         display: grid;
@@ -106,11 +193,11 @@
 
     /* Audio player */
     .mystery-audio-player {
-        background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
+        background: linear-gradient(135deg, var(--mystery-dark-surface-light) 0%, var(--mystery-dark-bg) 100%);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        border: 1px solid var(--border-default);
+        border: 1px solid var(--mystery-gold-muted);
     }
 
     .audio-controls {
@@ -123,24 +210,25 @@
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: var(--primary);
+        background: var(--mystery-gold);
         border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        color: var(--mystery-dark-bg);
         font-size: 22px;
         cursor: pointer;
-        transition: var(--transition-base);
+        transition: all 0.3s ease;
         flex-shrink: 0;
+        font-weight: 600;
     }
 
-    .audio-play-btn:hover { background: var(--primary-hover); transform: scale(1.05); }
+    .audio-play-btn:hover { background: var(--mystery-gold-light); transform: scale(1.05); }
     .audio-play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .audio-progress { flex-grow: 1; }
-    .audio-bar { height: 8px; background: var(--border-strong); border-radius: 4px; cursor: pointer; position: relative; overflow: hidden; }
-    .audio-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.1s linear; }
+    .audio-bar { height: 8px; background: var(--mystery-gold-muted); border-radius: 4px; cursor: pointer; position: relative; overflow: hidden; }
+    .audio-bar-fill { height: 100%; background: var(--mystery-gold); border-radius: 4px; transition: width 0.1s linear; }
 
     /* Transcript */
     .mystery-transcript {
@@ -389,10 +477,22 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ===== Typing Animation ===== */
+    .clue-text-typing {
+        display: inline-block;
+        border-right: 2px solid var(--mystery-gold);
+        animation: typingBlink 0.7s infinite;
+    }
+
+    @keyframes typingBlink {
+        0%, 49% { border-right-color: var(--mystery-gold); }
+        50%, 100% { border-right-color: transparent; }
+    }
+
     .clue-locked {
         padding: 0.5rem 0.75rem;
         font-size: 13px;
-        color: var(--slate-400);
+        color: var(--mystery-text-secondary);
         font-style: italic;
     }
 
@@ -490,12 +590,20 @@
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: var(--primary);
-        color: white;
+        background: var(--mystery-gold);
+        color: var(--mystery-dark-bg);
         border: none;
         font-size: 24px;
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .notebook-mobile-btn:hover {
+        background: var(--mystery-gold-light);
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.5);
     }
 
     @media (max-width: 992px) {
@@ -1012,10 +1120,10 @@ function renderNotebook(animateLastClue) {
             <span class="suspect-icon"><i class="fa-solid fa-user-secret"></i></span>
             <div>
                 <div class="suspect-name">${s.name}</div>
-                <div class="text-slate-500" style="font-size:12px;">${s.description || ''}</div>
+                <div style="font-size:12px; color: var(--mystery-text-secondary);">${s.description || ''}</div>
             </div>
         </div>
-    `).join('') : '<div class="text-slate-400" style="font-size:13px;">No suspects yet</div>';
+    `).join('') : '<div style="font-size:13px; color: var(--mystery-text-secondary);">No suspects yet</div>';
 
     // Clues
     const cluesEl = document.getElementById('notebookClues');
@@ -1026,14 +1134,67 @@ function renderNotebook(animateLastClue) {
         const clue = clues.find(c => c.scene_number === i);
         if (clue) {
             const isLast = animateLastClue && i === clues.length;
-            clueHtml += `<div class="clue-item ${isLast ? 'reveal-animation' : ''}">
-                <strong>Scene ${i}:</strong> ${clue.text}
+            const clueId = `clue-${i}`;
+            clueHtml += `<div class="clue-item ${isLast ? 'reveal-animation' : ''}" id="${clueId}">
+                <strong>Scene ${i}:</strong> <span class="clue-text" data-text="${escapeHtml(clue.text)}"></span>
             </div>`;
         } else {
             clueHtml += `<div class="clue-locked"><i class="fa-solid fa-lock me-1"></i> Scene ${i} — locked</div>`;
         }
     }
     cluesEl.innerHTML = clueHtml;
+
+    // Start typing animations for new clues
+    if (animateLastClue) {
+        const clues = mysteryState.notebook.clues || [];
+        if (clues.length > 0) {
+            const lastClue = clues[clues.length - 1];
+            const clueEl = document.getElementById(`clue-${lastClue.scene_number}`);
+            if (clueEl) {
+                const textEl = clueEl.querySelector('.clue-text');
+                if (textEl && textEl.dataset.text) {
+                    typeClue(textEl, textEl.dataset.text, 30);
+                }
+            }
+        }
+    } else {
+        // For non-animated clues, just show text immediately
+        document.querySelectorAll('.clue-text').forEach(el => {
+            if (el.dataset.text) {
+                el.textContent = el.dataset.text;
+            }
+        });
+    }
+}
+
+function typeClue(element, text, speed = 30) {
+    element.innerHTML = '';
+    let index = 0;
+
+    function type() {
+        if (index < text.length) {
+            element.textContent += text[index];
+            index++;
+            setTimeout(type, speed);
+        } else {
+            // Remove blinking cursor when done
+            element.classList.remove('clue-text-typing');
+        }
+    }
+
+    element.classList.add('clue-text-typing');
+    type();
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 // ============================================================================

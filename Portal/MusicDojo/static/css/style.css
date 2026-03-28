@@ -2302,7 +2302,7 @@ select option {
 }
 
 .slonimsky-notation {
-    background: var(--color-surface);
+    background: #ffffff;
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     min-height: 200px;
@@ -2310,6 +2310,7 @@ select option {
     align-items: center;
     justify-content: center;
     overflow-x: auto;
+    color: #1a1a1a;
 }
 
 .slonimsky-visualizer {
@@ -2354,7 +2355,7 @@ select option {
     grid-template-columns: 40px repeat(24, 1fr);
     gap: 0;
     min-width: 700px;
-    background: var(--color-surface);
+    background: #ffffff;
     border-radius: var(--radius-sm);
     padding: var(--spacing-sm);
 }
@@ -2365,15 +2366,15 @@ select option {
     justify-content: center;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-accent);
+    color: #333;
 }
 
 .fretboard-cell {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--color-border);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid #bbb;
+    border-bottom: 1px solid #ddd;
     font-size: 0.65rem;
     color: transparent;
     position: relative;
@@ -2382,7 +2383,7 @@ select option {
 }
 
 .fretboard-cell.nut {
-    border-right: 3px solid var(--color-text);
+    border-right: 3px solid #333;
 }
 
 .fretboard-cell.dot::after {
@@ -2390,22 +2391,23 @@ select option {
     position: absolute;
     width: 6px;
     height: 6px;
-    background: var(--color-text-secondary);
+    background: #666;
     border-radius: 50%;
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 .fretboard-cell.glow {
-    background: radial-gradient(circle, rgba(var(--primary-rgb), 0.8), transparent);
-    color: var(--color-text);
+    background: radial-gradient(circle, rgba(var(--primary-rgb), 0.9), rgba(var(--primary-rgb), 0.2));
+    color: #fff;
     font-weight: 700;
     font-size: 0.75rem;
     z-index: 1;
 }
 
 .fretboard-cell.glow-static {
-    background: rgba(var(--primary-rgb), 0.3);
-    color: var(--color-text);
+    background: rgba(var(--primary-rgb), 0.4);
+    color: #1a1a1a;
+    font-weight: 600;
     font-size: 0.7rem;
 }
 
@@ -2419,8 +2421,7 @@ select option {
 .fretboard-fret-number {
     text-align: center;
     font-size: 0.65rem;
-    color: var(--color-text-secondary);
-    opacity: 0.5;
+    color: #666;
 }
 
 /* ===== PIANO VISUALIZER ===== */
@@ -2435,7 +2436,7 @@ select option {
     position: relative;
     height: 140px;
     min-width: 600px;
-    background: var(--color-surface);
+    background: #ffffff;
     border-radius: var(--radius-sm);
     padding: var(--spacing-sm);
 }
@@ -2488,9 +2489,14 @@ select option {
     pointer-events: none;
 }
 
-.piano-key.pressed .piano-key-label,
-.piano-key.glow-static .piano-key-label {
-    color: var(--color-text);
+.piano-key.white.pressed .piano-key-label,
+.piano-key.white.glow-static .piano-key-label {
+    color: #1a1a1a;
+}
+
+.piano-key.black.pressed .piano-key-label,
+.piano-key.black.glow-static .piano-key-label {
+    color: #ffffff;
 }
 
 .piano-key.white.glow-static {
