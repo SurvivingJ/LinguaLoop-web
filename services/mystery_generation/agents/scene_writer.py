@@ -9,8 +9,8 @@ Supports per-language prompt templates from prompt_templates table.
 
 import logging
 from typing import Optional, Dict
-from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from services.llm_service import get_client
 
 from ..config import mystery_gen_config
 
@@ -49,7 +49,7 @@ class SceneWriter:
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or mystery_gen_config.openrouter_api_key
         self.model = model or mystery_gen_config.scene_model
-        self.client = OpenAI(api_key=self.api_key, base_url=self.OPENROUTER_BASE_URL)
+        self.client = get_client(base_url=self.OPENROUTER_BASE_URL, api_key=self.api_key)
         self.api_call_count = 0
         logger.info(f"SceneWriter initialized with model: {self.model}")
 

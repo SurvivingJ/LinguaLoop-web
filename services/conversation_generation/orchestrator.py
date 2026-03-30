@@ -166,6 +166,7 @@ class ConversationGenerationOrchestrator:
                 persona_a=persona_a,
                 persona_b=persona_b,
                 language_id=item.language_id,
+                model=model,
             )
         else:
             turns = self.conversation_writer.generate_conversation(
@@ -174,6 +175,7 @@ class ConversationGenerationOrchestrator:
                 persona_a=persona_a,
                 persona_b=persona_b,
                 language_id=item.language_id,
+                model=model,
             )
 
         if not turns:
@@ -185,6 +187,7 @@ class ConversationGenerationOrchestrator:
             language_id=item.language_id,
             cefr_level=scenario.cefr_level or 'B1',
             prompt_template=analysis_template,
+            model=model,
         )
 
         # Quality score from multi-dimensional checker

@@ -70,6 +70,16 @@ class CollocationClassifier:
         'ADV+VERB', 'ADV+ADJ',
     })
 
+    VALID_POS_PATTERNS_ZH: frozenset = frozenset({
+        'VERB+NOUN', 'ADJ+NOUN', 'NOUN+NOUN', 'NOUN+VERB',
+        'ADV+VERB', 'ADV+ADJ',
+        'VERB+VERB',                  # serial verb constructions
+        'PREP+NOUN', 'PREP+VERB',     # prepositional phrases
+        'NOUN+PREP+NOUN',             # NP-PP-NP
+        'VERB+ADJ',                   # resultative complements
+        'DET+NOUN',                   # classifier + noun
+    })
+
     def __init__(self, tokenizer: LanguageTokenizer):
         self.tokenizer = tokenizer
         self._marker_sets = {
@@ -143,16 +153,41 @@ class CollocationClassifier:
 
         return 'collocation'
 
+    # jieba POS flags → coarse Universal POS mapping
+    # See: https://github.com/fxsjy/jieba (POS tagging)
+    _JIEBA_POS_MAP: dict = {
+        'n': 'NOUN', 'nr': 'NOUN', 'ns': 'NOUN', 'nt': 'NOUN', 'nz': 'NOUN',
+        'ng': 'NOUN', 'nrt': 'NOUN', 'nrfg': 'NOUN',
+        'v': 'VERB', 'vd': 'VERB', 'vn': 'VERB', 'vg': 'VERB',
+        'a': 'ADJ', 'ad': 'ADJ', 'an': 'ADJ', 'ag': 'ADJ',
+        'd': 'ADV',
+        'p': 'PREP',
+        'r': 'PRON',
+        'm': 'NUM', 'mq': 'NUM',
+        'q': 'DET',   # classifier/measure word → DET for consistency
+        'c': 'CONJ',
+        'u': 'PART', 'uj': 'PART', 'ud': 'PART', 'uv': 'PART', 'ul': 'PART',
+        'e': 'PART',  # interjection
+        'f': 'NOUN',  # directional noun
+        's': 'NOUN',  # place
+        't': 'NOUN',  # time
+        'b': 'ADJ',   # distinguishing word (区别词) → ADJ
+        'z': 'ADJ',   # status word (状态词) → ADJ
+        'l': 'NOUN',  # idiom component
+        'i': 'NOUN',  # idiom
+    }
+
     def get_pos_pattern(self, text: str) -> str:
         """
         Return a '+'-separated string of coarse POS tags for the n-gram.
         Examples: 'VERB+NOUN', 'PREP+DET+NOUN', 'ADJ+NOUN'
 
-        For Chinese (language_id=1): returns 'UNKNOWN' — jieba pos flags
-        require a separate mapping.
+        For Chinese (language_id=1): uses jieba POS tags mapped to
+        Universal POS via _JIEBA_POS_MAP.  Falls back to LLM for
+        unresolvable cases.
         """
         if self.tokenizer.language_id == 1:
-            return 'UNKNOWN'
+            return self._get_chinese_pos_pattern(text)
 
         pairs = self.tokenizer.tokenize_with_pos(text)
         tags = [
@@ -161,6 +196,28 @@ class CollocationClassifier:
             if pos not in ('PUNCT', 'SPACE', 'X', '')
         ]
         return '+'.join(tags)
+
+    def _get_chinese_pos_pattern(self, text: str) -> str:
+        """
+        Get POS pattern for Chinese text using jieba POS tags.
+
+        jieba's POS tagger provides granular flags (n, v, a, d, p, etc.)
+        that we map to the same coarse POS set used for EN/JA.
+        """
+        pairs = self.tokenizer.tokenize_with_pos(text)
+        if not pairs:
+            return 'UNKNOWN'
+
+        tags = []
+        for _, flag in pairs:
+            coarse = self._JIEBA_POS_MAP.get(flag)
+            if coarse:
+                tags.append(coarse)
+            elif flag and flag not in ('x', 'w', ''):
+                # Unknown jieba flag — skip punctuation-like tags
+                tags.append(flag.upper())
+
+        return '+'.join(tags) if tags else 'UNKNOWN'
 
     def is_valid_pattern(self, pos_pattern: str) -> bool:
         """Return True if pos_pattern is a linguistically motivated collocation structure."""
@@ -171,6 +228,8 @@ class CollocationClassifier:
             valid_set = self.VALID_POS_PATTERNS_EN
         elif lang_id == 3:
             valid_set = self.VALID_POS_PATTERNS_JA
+        elif lang_id == 1:
+            valid_set = self.VALID_POS_PATTERNS_ZH
         else:
             return True
         return pos_pattern in valid_set
@@ -190,3 +249,87 @@ class CollocationClassifier:
             'collocation_type': self.classify_collocation(text, pmi, frequency, n),
             'pos_pattern':      self.get_pos_pattern(text),
         }
+
+    def discover_discourse_markers(
+        self,
+        candidates: list[dict],
+    ) -> set[str]:
+        """
+        Use an LLM to identify discourse markers among high-PMI n-grams
+        that are not in the static frozensets.
+
+        Args:
+            candidates: List of collocation dicts. Only n-grams with
+                        n_gram_size >= 2 and pmi_score >= 4.0 are sent.
+
+        Returns:
+            Set of collocation_text strings that the LLM identified as
+            discourse markers or fixed transition phrases.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+
+        lang_id = self.tokenizer.language_id
+        lang_names = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
+        language = lang_names.get(lang_id, 'Unknown')
+
+        # Filter to multi-word, high-PMI candidates not already classified
+        marker_set = self._marker_sets.get(lang_id, frozenset())
+        filtered = [
+            c for c in candidates
+            if c.get('n_gram_size', 0) >= 2
+            and c.get('pmi_score', 0) >= 4.0
+            and c['collocation_text'].lower().strip() not in marker_set
+        ]
+
+        if not filtered:
+            return set()
+
+        # Cap at 120 candidates per LLM call
+        filtered = filtered[:120]
+
+        numbered = '\n'.join(
+            f"{i+1}. \"{c['collocation_text']}\" (PMI={c.get('pmi_score', 0)}, freq={c.get('frequency', 0)})"
+            for i, c in enumerate(filtered)
+        )
+
+        prompt = f"""You are a {language} linguistics expert. Below is a list of statistically significant multi-word expressions extracted from a {language} corpus.
+
+Identify which of these are **discourse markers** or **fixed transition phrases** — expressions used to organise discourse, signal relationships between clauses, or connect ideas (e.g. "on the other hand", "as a result", "in addition").
+
+Do NOT include:
+- Regular collocations (verb+noun, adj+noun combinations like "strong wind")
+- Content phrases that are topic-specific
+- Proper nouns or names
+
+Return a JSON object with a single key "discourse_markers" containing an array of objects, each with:
+- "index": the item number (1-based)
+- "text": the exact expression text
+
+Only include items you are confident are discourse markers or transition phrases.
+
+Candidates:
+{numbered}"""
+
+        try:
+            from services.corpus.llm_client import call_llm
+            result = call_llm(prompt)
+            markers = result.get('discourse_markers', [])
+
+            discovered = set()
+            for m in markers:
+                text = m.get('text', '').strip()
+                if text:
+                    discovered.add(text.lower())
+
+            if discovered:
+                logger.info(
+                    f"LLM discovered {len(discovered)} new discourse markers: "
+                    f"{list(discovered)[:5]}..."
+                )
+
+            return discovered
+
+        except Exception as exc:
+            logger.warning(f"Discourse marker discovery failed: {exc}")
+            return set()

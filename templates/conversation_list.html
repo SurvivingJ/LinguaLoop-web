@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversations - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .conv-card {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .conv-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: var(--primary);
+    }
+
+    .conv-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--slate-100);
+    }
+
+    .conv-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .conv-card-context {
+        font-size: 13px;
+        color: var(--slate-500);
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .conv-card-body {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .conv-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 13px;
+        margin-bottom: 0.75rem;
+    }
+
+    .conv-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--slate-600);
+    }
+
+    .conv-meta-item i {
+        width: 14px;
+        text-align: center;
+        color: var(--slate-400);
+    }
+
+    .conv-personas {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 13px;
+        color: var(--slate-700);
+        font-weight: 500;
+    }
+
+    .conv-personas i {
+        color: var(--slate-400);
+        font-size: 11px;
+    }
+
+    .badge-cefr {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 4px;
+        border: 1px solid;
+        white-space: nowrap;
+    }
+
+    .badge-a1, .badge-a2 { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+    .badge-b1, .badge-b2 { background: var(--warning-bg); color: var(--warning); border-color: var(--warning); }
+    .badge-c1, .badge-c2 { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+
+    .quality-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: var(--slate-200);
+        overflow: hidden;
+        flex: 1;
+        max-width: 60px;
+    }
+
+    .quality-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: var(--success);
+    }
+
+    .filter-section {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .filter-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        opacity: 0.4;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .result-count {
+        font-size: 13px;
+        color: var(--slate-500);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .filter-row { flex-direction: column; }
+        .conv-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+
+    <div class="mb-4">
+        <h1 class="mb-1">Conversations</h1>
+        <p class="text-slate-600 mb-0">Browse generated conversations</p>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-row">
+            <div>
+                <label class="filter-label">CEFR Level</label>
+                <select class="form-select form-select-sm" id="filterCefr" onchange="loadConversations()">
+                    <option value="">All Levels</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                    <option value="C1">C1</option>
+                    <option value="C2">C2</option>
+                </select>
+            </div>
+            <div>
+                <label class="filter-label">QC Status</label>
+                <select class="form-select form-select-sm" id="filterQc" onchange="loadConversations()">
+                    <option value="">All</option>
+                    <option value="passed">Passed QC</option>
+                    <option value="failed">Failed QC</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-count" id="resultCount" style="display:none;"></div>
+
+    <div id="convGrid" class="conv-grid">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon"><i class="fa-solid fa-comments"></i></div>
+        <h3>No conversations found</h3>
+        <p class="text-slate-500">Try adjusting your filters or check back later.</p>
+    </div>
+
+    <div class="text-center mt-4" id="loadMoreWrap" style="display:none;">
+        <button class="btn btn-outline-primary btn-sm" onclick="loadMore()">Load More</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let allConversations = [];
+    let currentOffset = 0;
+    const PAGE_SIZE = 50;
+
+    function getCefrBadge(level) {
+        if (!level) return '';
+        const cls = 'badge-' + level.toLowerCase();
+        return `<span class="badge-cefr ${cls}">${level}</span>`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderCard(c) {
+        const scenario = c.scenarios || {};
+        const domain = scenario.conversation_domains || {};
+        const pair = c.persona_pairs || {};
+        const a = pair.persona_a || {};
+        const b = pair.persona_b || {};
+
+        const title = escapeHtml(scenario.title || 'Untitled');
+        const context = escapeHtml(scenario.context_description || '');
+        const domainName = escapeHtml(domain.domain_name || '');
+        const cefr = getCefrBadge(scenario.cefr_level);
+        const quality = c.quality_score ? Math.round(c.quality_score * 100) : null;
+        const date = c.created_at ? new Date(c.created_at).toLocaleDateString() : '';
+
+        const personaA = escapeHtml(a.name || '?');
+        const personaB = escapeHtml(b.name || '?');
+
+        return `
+            <div class="conv-card" onclick="window.location.href='/conversation/${c.id}'">
+                <div class="conv-card-header">
+                    <div class="conv-card-title">
+                        <span>${title}</span>
+                        ${cefr}
+                    </div>
+                    ${context ? `<p class="conv-card-context">${context}</p>` : ''}
+                </div>
+                <div class="conv-card-body">
+                    <div class="conv-personas">
+                        <span>${personaA}</span>
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                        <span>${personaB}</span>
+                        ${pair.relationship_type ? `<span style="color:var(--slate-400);font-size:12px;">· ${escapeHtml(pair.relationship_type)}</span>` : ''}
+                    </div>
+                    <div class="conv-meta mt-2">
+                        ${domainName ? `<span class="conv-meta-item"><i class="fa-solid fa-folder"></i>${domainName}</span>` : ''}
+                        <span class="conv-meta-item"><i class="fa-solid fa-comments"></i>${c.turn_count || '?'} turns</span>
+                        ${quality !== null ? `
+                            <span class="conv-meta-item">
+                                <i class="fa-solid fa-star"></i>${quality}%
+                                <span class="quality-bar"><span class="quality-fill" style="width:${quality}%"></span></span>
+                            </span>
+                        ` : ''}
+                        ${date ? `<span class="conv-meta-item"><i class="fa-regular fa-calendar"></i>${date}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function loadConversations() {
+        const grid = document.getElementById('convGrid');
+        const emptyState = document.getElementById('emptyState');
+        const loadMoreWrap = document.getElementById('loadMoreWrap');
+        const resultCount = document.getElementById('resultCount');
+        grid.innerHTML = '<div class="loading-spinner"><div class="spinner-border text-primary" role="status"></div></div>';
+        emptyState.style.display = 'none';
+        loadMoreWrap.style.display = 'none';
+        resultCount.style.display = 'none';
+        currentOffset = 0;
+
+        try {
+            const langId = localStorage.getItem('selectedLanguageId') || '1';
+            const cefr = document.getElementById('filterCefr').value;
+            const qc = document.getElementById('filterQc').value;
+
+            let url = `/api/conversations/?language_id=${langId}&limit=${PAGE_SIZE}&offset=0`;
+            if (cefr) url += `&cefr_level=${cefr}`;
+
+            const resp = await authFetch(url);
+            const data = await resp.json();
+
+            if (data.status === 'success' && data.conversations && data.conversations.length > 0) {
+                let items = data.conversations;
+
+                // Client-side QC filter
+                if (qc === 'passed') items = items.filter(c => c.passed_qc === true);
+                else if (qc === 'failed') items = items.filter(c => c.passed_qc !== true);
+
+                allConversations = items;
+                grid.innerHTML = items.map(renderCard).join('');
+                resultCount.textContent = `${items.length} conversation${items.length !== 1 ? 's' : ''}`;
+                resultCount.style.display = '';
+
+                if (data.conversations.length >= PAGE_SIZE) {
+                    loadMoreWrap.style.display = '';
+                    currentOffset = PAGE_SIZE;
+                }
+            } else {
+                grid.innerHTML = '';
+                emptyState.style.display = '';
+            }
+        } catch (err) {
+            console.error('Failed to load conversations:', err);
+            grid.innerHTML = '';
+            emptyState.style.display = '';
+        }
+    }
+
+    async function loadMore() {
+        try {
+            const langId = localStorage.getItem('selectedLanguageId') || '1';
+            const cefr = document.getElementById('filterCefr').value;
+            let url = `/api/conversations/?language_id=${langId}&limit=${PAGE_SIZE}&offset=${currentOffset}`;
+            if (cefr) url += `&cefr_level=${cefr}`;
+
+            const resp = await authFetch(url);
+            const data = await resp.json();
+
+            if (data.status === 'success' && data.conversations && data.conversations.length > 0) {
+                const grid = document.getElementById('convGrid');
+                grid.innerHTML += data.conversations.map(renderCard).join('');
+                currentOffset += PAGE_SIZE;
+
+                if (data.conversations.length < PAGE_SIZE) {
+                    document.getElementById('loadMoreWrap').style.display = 'none';
+                }
+            } else {
+                document.getElementById('loadMoreWrap').style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Failed to load more:', err);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadConversations);
+</script>
+{% endblock %}

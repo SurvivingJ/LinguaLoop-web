@@ -124,17 +124,5 @@ class PhraseDetector:
     @staticmethod
     def _clean_json(content: str) -> str:
         """Strip markdown code fences from LLM response."""
-        content = content.strip()
-        if content.startswith('```'):
-            content = content.replace('```json', '', 1).replace('```', '', 1)
-        if content.endswith('```'):
-            content = content.rsplit('```', 1)[0]
-        content = content.strip()
-
-        # Find the JSON object
-        start = content.find('{')
-        end = content.rfind('}')
-        if start != -1 and end != -1 and start < end:
-            return content[start:end + 1]
-
-        return content
+        from services.llm_output_cleaner import clean_json_response
+        return clean_json_response(content)

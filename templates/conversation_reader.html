@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversation - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reader-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 14px;
+        color: var(--slate-500);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: var(--transition-base);
+    }
+
+    .back-link:hover { color: var(--primary); }
+
+    .conv-header {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .conv-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .conv-context {
+        font-size: 14px;
+        color: var(--slate-600);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .conv-header-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        font-size: 13px;
+    }
+
+    .meta-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--slate-600);
+    }
+
+    .meta-tag i {
+        color: var(--slate-400);
+        width: 14px;
+        text-align: center;
+    }
+
+    .badge-cefr {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 4px;
+        border: 1px solid;
+    }
+
+    .badge-a1, .badge-a2 { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+    .badge-b1, .badge-b2 { background: var(--warning-bg); color: var(--warning); border-color: var(--warning); }
+    .badge-c1, .badge-c2 { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+
+    .persona-card {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: var(--bg-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    .persona-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .persona-a-color { background: var(--primary); }
+    .persona-b-color { background: #7c3aed; }
+
+    .persona-info { flex: 1; }
+    .persona-name { font-weight: 700; font-size: 14px; color: var(--slate-900); }
+    .persona-detail { font-size: 12px; color: var(--slate-500); }
+
+    /* Dialogue */
+    .dialogue-section {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+    }
+
+    .dialogue-section h3 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 1.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .turn {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .turn-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        color: #fff;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .turn-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .turn-speaker {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .turn-speaker.speaker-a { color: var(--primary); }
+    .turn-speaker.speaker-b { color: #7c3aed; }
+
+    .turn-text {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--slate-800);
+        background: var(--bg-muted);
+        padding: 0.75rem 1rem;
+        border-radius: 0 12px 12px 12px;
+    }
+
+    .turn.is-b .turn-text {
+        border-radius: 12px 0 12px 12px;
+    }
+
+    .turn-number {
+        font-size: 11px;
+        color: var(--slate-400);
+        margin-top: 0.2rem;
+    }
+
+    .corpus-section {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .corpus-section h3 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .corpus-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .corpus-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 12px;
+        border-radius: 4px;
+        background: var(--bg-muted);
+        color: var(--slate-700);
+        border: 1px solid var(--border-default);
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    @media (max-width: 768px) {
+        .reader-container { padding: 0 0.5rem; }
+        .conv-header-meta { gap: 0.5rem 1rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+    <div class="reader-container">
+
+        <a href="/conversations" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Conversations
+        </a>
+
+        <div id="loadingState" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div id="conversationContent" style="display:none;">
+
+            <div class="conv-header">
+                <div class="conv-title" id="convTitle"></div>
+                <div class="conv-context" id="convContext"></div>
+                <div class="conv-header-meta" id="convMeta"></div>
+            </div>
+
+            <div class="row g-3 mb-4" id="personaCards"></div>
+
+            <div class="dialogue-section">
+                <h3>Dialogue</h3>
+                <div id="dialogueTurns"></div>
+            </div>
+
+            <div class="corpus-section" id="corpusSection" style="display:none;">
+                <h3>Corpus Features</h3>
+                <div id="corpusContent"></div>
+            </div>
+        </div>
+
+        <div id="errorState" class="empty-state" style="display:none;">
+            <h3>Conversation not found</h3>
+            <p class="text-slate-500">This conversation may have been removed.</p>
+            <a href="/conversations" class="btn btn-primary btn-sm mt-2">Browse Conversations</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getCefrBadge(level) {
+        if (!level) return '';
+        const cls = 'badge-' + level.toLowerCase();
+        return `<span class="badge-cefr ${cls}">${level}</span>`;
+    }
+
+    function getInitial(name) {
+        return (name || '?').charAt(0).toUpperCase();
+    }
+
+    async function loadConversation() {
+        const parts = window.location.pathname.split('/');
+        const convId = parts[parts.length - 1];
+
+        try {
+            const resp = await authFetch(`/api/conversations/${convId}`);
+            const data = await resp.json();
+
+            if (data.status !== 'success' || !data.conversation) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = '';
+                return;
+            }
+
+            const c = data.conversation;
+            const scenario = c.scenarios || {};
+            const domain = scenario.conversation_domains || {};
+            const pair = c.persona_pairs || {};
+            const personaA = pair.persona_a || {};
+            const personaB = pair.persona_b || {};
+
+            // Title & context
+            document.getElementById('convTitle').textContent = scenario.title || 'Untitled Conversation';
+            document.getElementById('convContext').textContent = scenario.context_description || '';
+            document.title = (scenario.title || 'Conversation') + ' - LinguaDojo';
+
+            // Meta tags
+            let metaHtml = '';
+            if (scenario.cefr_level) metaHtml += getCefrBadge(scenario.cefr_level);
+            if (domain.domain_name) metaHtml += `<span class="meta-tag"><i class="fa-solid fa-folder"></i>${escapeHtml(domain.domain_name)}</span>`;
+            metaHtml += `<span class="meta-tag"><i class="fa-solid fa-comments"></i>${c.turn_count || '?'} turns</span>`;
+            if (c.quality_score != null) metaHtml += `<span class="meta-tag"><i class="fa-solid fa-star"></i>Quality: ${Math.round(c.quality_score * 100)}%</span>`;
+            if (pair.relationship_type) metaHtml += `<span class="meta-tag"><i class="fa-solid fa-handshake"></i>${escapeHtml(pair.relationship_type)}</span>`;
+            if (c.model_used) metaHtml += `<span class="meta-tag"><i class="fa-solid fa-robot"></i>${escapeHtml(c.model_used)}</span>`;
+            if (c.created_at) metaHtml += `<span class="meta-tag"><i class="fa-regular fa-calendar"></i>${new Date(c.created_at).toLocaleDateString()}</span>`;
+            document.getElementById('convMeta').innerHTML = metaHtml;
+
+            // Persona cards
+            const nameA = personaA.name || 'Speaker A';
+            const nameB = personaB.name || 'Speaker B';
+            let personaHtml = '';
+
+            personaHtml += `<div class="col-md-6"><div class="persona-card">
+                <div class="persona-avatar persona-a-color">${getInitial(nameA)}</div>
+                <div class="persona-info">
+                    <div class="persona-name">${escapeHtml(nameA)}</div>
+                    <div class="persona-detail">${escapeHtml(personaA.archetype || '')}${personaA.occupation ? ' · ' + escapeHtml(personaA.occupation) : ''}</div>
+                </div>
+            </div></div>`;
+
+            personaHtml += `<div class="col-md-6"><div class="persona-card">
+                <div class="persona-avatar persona-b-color">${getInitial(nameB)}</div>
+                <div class="persona-info">
+                    <div class="persona-name">${escapeHtml(nameB)}</div>
+                    <div class="persona-detail">${escapeHtml(personaB.archetype || '')}${personaB.occupation ? ' · ' + escapeHtml(personaB.occupation) : ''}</div>
+                </div>
+            </div></div>`;
+
+            document.getElementById('personaCards').innerHTML = personaHtml;
+
+            // Build persona ID map
+            const personaIdA = personaA.id;
+            const personaIdB = personaB.id;
+
+            // Dialogue turns
+            const turns = c.turns || [];
+            let turnsHtml = '';
+
+            turns.forEach((t, i) => {
+                const isB = t.persona_id === personaIdB;
+                const speakerName = t.speaker_name || t.speaker || (isB ? nameB : nameA);
+                const avatarClass = isB ? 'persona-b-color' : 'persona-a-color';
+                const speakerClass = isB ? 'speaker-b' : 'speaker-a';
+
+                turnsHtml += `
+                    <div class="turn ${isB ? 'is-b' : ''}">
+                        <div class="turn-avatar ${avatarClass}">${getInitial(speakerName)}</div>
+                        <div class="turn-content">
+                            <div class="turn-speaker ${speakerClass}">${escapeHtml(speakerName)}</div>
+                            <div class="turn-text">${escapeHtml(t.text)}</div>
+                            <div class="turn-number">Turn ${i + 1}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('dialogueTurns').innerHTML = turnsHtml;
+
+            // Corpus features
+            const features = c.corpus_features;
+            if (features && Object.keys(features).length > 0) {
+                let corpusHtml = '';
+
+                if (features.vocabulary && features.vocabulary.length > 0) {
+                    corpusHtml += `<p style="font-size:13px;font-weight:600;color:var(--slate-700);margin-bottom:0.5rem;">Vocabulary</p>`;
+                    corpusHtml += `<div class="corpus-tags mb-3">${features.vocabulary.map(v => `<span class="corpus-tag">${escapeHtml(typeof v === 'string' ? v : v.word || v.term || JSON.stringify(v))}</span>`).join('')}</div>`;
+                }
+
+                if (features.grammar_patterns && features.grammar_patterns.length > 0) {
+                    corpusHtml += `<p style="font-size:13px;font-weight:600;color:var(--slate-700);margin-bottom:0.5rem;">Grammar Patterns</p>`;
+                    corpusHtml += `<div class="corpus-tags mb-3">${features.grammar_patterns.map(g => `<span class="corpus-tag">${escapeHtml(typeof g === 'string' ? g : g.pattern || JSON.stringify(g))}</span>`).join('')}</div>`;
+                }
+
+                if (features.register_markers && features.register_markers.length > 0) {
+                    corpusHtml += `<p style="font-size:13px;font-weight:600;color:var(--slate-700);margin-bottom:0.5rem;">Register Markers</p>`;
+                    corpusHtml += `<div class="corpus-tags mb-3">${features.register_markers.map(r => `<span class="corpus-tag">${escapeHtml(typeof r === 'string' ? r : JSON.stringify(r))}</span>`).join('')}</div>`;
+                }
+
+                if (features.estimated_cefr) {
+                    corpusHtml += `<p style="font-size:13px;color:var(--slate-600);">Estimated CEFR: <strong>${escapeHtml(features.estimated_cefr)}</strong></p>`;
+                }
+
+                if (corpusHtml) {
+                    document.getElementById('corpusContent').innerHTML = corpusHtml;
+                    document.getElementById('corpusSection').style.display = '';
+                }
+            }
+
+            // Show content
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('conversationContent').style.display = '';
+
+        } catch (err) {
+            console.error('Failed to load conversation:', err);
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = '';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadConversation);
+</script>
+{% endblock %}

@@ -2,20 +2,22 @@
 Base Agent Class
 
 Provides common functionality for all AI agents including:
-- OpenAI/OpenRouter client management
+- Client pooling via the unified llm_service
 - Retry logic with exponential backoff
 - API call tracking
 """
 
 import logging
 from typing import Optional
-from openai import OpenAI
+
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type
+    retry_if_exception_type,
 )
+
+from services.llm_service import get_client
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +45,12 @@ class BaseAgent:
         self.name = name
         self.api_call_count = 0
 
-        client_kwargs = {'api_key': api_key}
+        # Use shared client pool instead of creating a new OpenAI instance
         if base_url:
-            client_kwargs['base_url'] = base_url
+            self.client = get_client(base_url=base_url, api_key=api_key)
+        else:
+            self.client = get_client(base_url='https://api.openai.com/v1', api_key=api_key)
 
-        self.client = OpenAI(**client_kwargs)
         logger.debug(f"{name} initialized with model: {model}")
 
     @retry(
@@ -62,7 +65,8 @@ class BaseAgent:
         system_prompt: Optional[str] = None,
         json_mode: bool = False,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None
+        max_tokens: Optional[int] = None,
+        model: Optional[str] = None,
     ) -> str:
         """
         Make LLM API call with retry logic.
@@ -87,8 +91,10 @@ class BaseAgent:
 
         messages.append({'role': 'user', 'content': prompt})
 
+        effective_model = model or self.model
+
         payload = {
-            'model': self.model,
+            'model': effective_model,
             'messages': messages,
             'temperature': temperature
         }
@@ -99,7 +105,7 @@ class BaseAgent:
         if max_tokens:
             payload['max_tokens'] = max_tokens
 
-        logger.debug(f"{self.name} calling LLM: model={self.model}, temp={temperature}")
+        logger.debug(f"{self.name} calling LLM: model={effective_model}, temp={temperature}")
 
         response = self.client.chat.completions.create(**payload)
         self.api_call_count += 1

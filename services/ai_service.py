@@ -1,5 +1,4 @@
 from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
-import os
 import json
 import logging
 import traceback
@@ -11,6 +10,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
 
 from services.prompt_service import PromptService
+from services.llm_service import call_llm as llm_call
 from utils.question_validator import QuestionValidator
 
 _RETRYABLE_ERRORS = (APIConnectionError, RateLimitError, APITimeoutError, ConnectionError, TimeoutError)
@@ -49,13 +49,6 @@ class AIService:
             region_name='auto'
         )
 
-    def _get_model_for_language(self, language: str, task: str) -> str:
-        """Get optimal model for language and task (transcript or questions)"""
-        # Use Config as single source of truth for model selection
-        from config import Config
-        return Config.get_model_for_language(language, task)
-
-    @_retry_api
     def generate_transcript(self, language, topic, difficulty, style):
         """Generate listening comprehension transcript using language-specific models"""
         try:
@@ -72,24 +65,14 @@ class AIService:
                 style=safe_style
             )
 
-            # Select appropriate model for language and task
-            model = self._get_model_for_language(safe_language, 'transcript')
-
-            response = self.client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=1
+            transcript = llm_call(
+                prompt,
+                language=safe_language,
+                temperature=1.0,
+                response_format='text',
             )
 
-            if not response.choices:
-                raise Exception("No choices returned from API")
-
-            raw_content = response.choices[0].message.content
-
-            if raw_content is None:
-                raise Exception("API returned None content")
-
-            transcript = raw_content.strip()
+            transcript = transcript.strip()
 
             # Handle JSON-wrapped responses (some models return {"transcript": "..."})
             if transcript.startswith('{') and transcript.endswith('}'):
@@ -147,7 +130,6 @@ class AIService:
         }
         return distributions.get(difficulty, [2, 2, 2, 2, 2])
 
-    @_retry_api
     def _generate_single_question(self, transcript: str, language: str,
                                 question_type: int, previous_questions: List[str]) -> Dict:
         """Generate a single question of specified type using language-specific model"""
@@ -161,41 +143,17 @@ class AIService:
             previous_questions=previous_text
         )
 
-        # Select appropriate model for language and task
-        model = self._get_model_for_language(language, 'questions')
-
-        response = self.client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=1,
-            timeout=30
-        )
-
-        if not response.choices:
-            raise Exception("No response from API")
-
-        choice = response.choices[0]
-        logger.debug(f"Question Type {question_type}, Language: {language}, Model: {model}")
-
-        raw_content = choice.message.content
-        if raw_content is None:
-            logger.error(f"Model {model} returned None content for question type {question_type}")
-            raise Exception(f"Model {model} returned None content for question type {question_type}")
-
-        content = raw_content.strip()
-        if not content:
-            logger.error(f"Model {model} returned empty content for question type {question_type}")
-            raise Exception(f"Model {model} returned empty content for question type {question_type}")
-
-        logger.debug(f"Content length: {len(content)} chars")
-
-        cleaned_content = self._clean_json_response(content)
-        if cleaned_content != content:
-            logger.debug("Content cleaned (removed markdown/extra text)")
-            content = cleaned_content
-
         try:
-            question_data = json.loads(content)
+            question_data = llm_call(
+                prompt,
+                language=language,
+                temperature=1.0,
+                response_format='json',
+                timeout=30,
+            )
+
+            logger.debug(f"Question Type {question_type}, Language: {language}")
+
             validated_question = QuestionValidator.validate_question_format(question_data)
             QuestionValidator.check_semantic_overlap(validated_question["Question"], previous_questions)
 
@@ -208,7 +166,7 @@ class AIService:
             }
 
         except json.JSONDecodeError as e:
-            logger.error(f"JSON Parse Error: {e}, content: {content[:200]}")
+            logger.error(f"JSON Parse Error: {e}")
             raise Exception(f"Invalid JSON response: {e}")
         except ValueError as e:
             logger.error(f"Validation Error: {e}")
@@ -217,36 +175,6 @@ class AIService:
 
 
 
-    
-    def _clean_json_response(self, content):
-        """Clean AI response that might be wrapped in markdown code blocks"""
-        if content.startswith('```'):
-            content = content.replace('```json', '', 1)
-        if content.startswith('```'):
-            content = content.replace('```', '', 1)
-        if content.endswith('```'):
-            content = content.rsplit('```', 1)[0]
-
-        content = content.strip()
-
-        # Check for objects {...} FIRST (before arrays)
-        # This is important because question responses are objects containing arrays
-        start_idx = content.find('{')
-        end_idx = content.rfind('}')
-
-        if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
-            json_part = content[start_idx:end_idx+1]
-            return json_part
-
-        # Only check for arrays [...] if no object found
-        start_idx = content.find('[')
-        end_idx = content.rfind(']')
-
-        if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
-            json_part = content[start_idx:end_idx+1]
-            return json_part
-
-        return content
     
     def _validate_question_structure(self, question, question_id, starting_elo, timestamp):
         """Validate and fix question structure"""

@@ -15,6 +15,7 @@ import re
 import json
 import logging
 
+from services.llm_service import call_llm as llm_call
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
@@ -31,23 +32,6 @@ LANGUAGE_NAMES = {
     "cn": "Chinese",
     "jp": "Japanese",
 }
-
-
-def clean_json(content: str) -> str:
-    """Strip markdown code fences from LLM response and extract JSON object."""
-    content = content.strip()
-    if content.startswith('```'):
-        content = content.replace('```json', '', 1).replace('```', '', 1)
-    if content.endswith('```'):
-        content = content.rsplit('```', 1)[0]
-    content = content.strip()
-
-    start = content.find('{')
-    end = content.rfind('}')
-    if start != -1 and end != -1 and start < end:
-        return content[start:end + 1]
-
-    return content
 
 
 def find_sentence(transcript: str, lemma: str) -> str:
@@ -142,22 +126,13 @@ class SenseGenerator:
     def _call_llm(self, prompt: str, max_tokens: int = 800) -> dict | None:
         """Make an LLM call expecting a JSON response. Returns parsed dict or None."""
         try:
-            response = self._client.chat.completions.create(
+            return llm_call(
+                prompt,
                 model=self._model,
-                messages=[{"role": "user", "content": prompt}],
                 temperature=0.0,
                 max_tokens=max_tokens,
-                response_format={"type": "json_object"},
+                response_format='json_object',
             )
-
-            if not response.choices:
-                return None
-
-            raw = response.choices[0].message.content
-            if not raw:
-                return None
-
-            return json.loads(clean_json(raw))
         except json.JSONDecodeError as e:
             logger.error(f"JSON parse error: {e}")
             return None

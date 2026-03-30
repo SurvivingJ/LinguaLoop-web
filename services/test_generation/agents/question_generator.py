@@ -9,8 +9,8 @@ import json
 import logging
 import traceback
 from typing import List, Dict, Optional
-from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from services.llm_service import get_client
 
 from ..config import test_gen_config
 
@@ -69,10 +69,10 @@ class QuestionGenerator:
         self.model = model or test_gen_config.default_question_model
         self.api_call_count = 0
 
-        # Initialize OpenAI client with OpenRouter base URL
-        self.client = OpenAI(
+        # Use shared client pool
+        self.client = get_client(
+            base_url=self.OPENROUTER_BASE_URL,
             api_key=self.api_key,
-            base_url=self.OPENROUTER_BASE_URL
         )
 
         logger.info(f"QuestionGenerator initialized with model: {self.model}")

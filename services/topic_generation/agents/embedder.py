@@ -7,7 +7,6 @@ Supports batch embedding for efficiency.
 
 import logging
 from typing import List
-from openai import OpenAI
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -15,6 +14,7 @@ from tenacity import (
     retry_if_exception_type
 )
 
+from services.llm_service import get_client
 from ..config import topic_gen_config
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class EmbeddingService:
         if not self.api_key:
             raise ValueError("OpenAI API key is required for embeddings")
 
-        self.client = OpenAI(api_key=self.api_key)
+        self.client = get_client(base_url='https://api.openai.com/v1', api_key=self.api_key)
         self.api_call_count = 0
 
         logger.debug(f"EmbeddingService initialized: model={self.model}")

@@ -116,8 +116,18 @@ def run_file_mode(args):
     db = _get_db()
     service = CorpusIngestionService(db=db)
 
+    if args.llm_enhance:
+        print("LLM enhancement enabled (validation, tagging, discourse discovery)")
+    if args.analyze_style:
+        print("Style analysis enabled")
+    print()
+
     print("Running corpus analysis pipeline...")
-    source_id = service.ingest_text(text, title, language_id, tags)
+    source_id = service.ingest_text(
+        text, title, language_id, tags,
+        analyze_style=args.analyze_style,
+        llm_enhance=args.llm_enhance,
+    )
     print(f"Done! corpus_source_id = {source_id}")
 
     if args.create_pack:
@@ -144,9 +154,20 @@ def run_transcript_mode(args):
 
     extra_tags = [t.strip() for t in args.tags.split(',')] if args.tags else None
 
+    if args.llm_enhance:
+        print("LLM enhancement enabled")
+    if args.analyze_style:
+        print("Style analysis enabled")
+    print()
+
     print("Fetching transcripts and running corpus analysis pipeline...")
     try:
-        source_id = service.ingest_transcripts(language_id, extra_tags=extra_tags)
+        source_id = service.ingest_transcripts(
+            language_id,
+            extra_tags=extra_tags,
+            analyze_style=args.analyze_style,
+            llm_enhance=args.llm_enhance,
+        )
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -180,6 +201,11 @@ def main():
                         help='Custom title for the corpus source')
     parser.add_argument('--create-pack', action='store_true',
                         help='Also create a collocation pack from the results')
+    parser.add_argument('--analyze-style', action='store_true',
+                        help='Run style analysis pipeline on the corpus')
+    parser.add_argument('--llm-enhance', action='store_true',
+                        help='Run LLM-powered enhancements (validation, tagging, '
+                             'discourse discovery, style narrative)')
     args = parser.parse_args()
 
     if args.transcripts:

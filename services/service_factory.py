@@ -1,5 +1,6 @@
 from services.ai_service import AIService
 from services.prompt_service import PromptService
+from services.llm_service import get_client
 from config import Config
 from services.r2_service import R2Service
 
@@ -31,12 +32,8 @@ class ServiceFactory:
             use_openrouter = getattr(self.config, 'USE_OPENROUTER', False)
 
             if use_openrouter and getattr(self.config, 'OPENROUTER_API_KEY', None):
-                # Use OpenRouter with language-specific models
-                from openai import OpenAI
-                openai_client = OpenAI(
-                    api_key=self.config.OPENROUTER_API_KEY,
-                    base_url="https://openrouter.ai/api/v1"
-                )
+                # Use shared client pool — OpenRouter for TTS/moderation fallback
+                openai_client = get_client('openrouter')
                 self._ai_service = AIService(
                     openai_client,
                     self.config,
@@ -44,9 +41,11 @@ class ServiceFactory:
                     use_openrouter=True
                 )
             elif self.config.OPENAI_API_KEY:
-                # Use OpenAI with default models
-                from openai import OpenAI
-                openai_client = OpenAI(api_key=self.config.OPENAI_API_KEY)
+                # Use shared client pool — direct OpenAI for TTS/moderation
+                openai_client = get_client(
+                    base_url='https://api.openai.com/v1',
+                    api_key=self.config.OPENAI_API_KEY,
+                )
                 self._ai_service = AIService(
                     openai_client,
                     self.config,

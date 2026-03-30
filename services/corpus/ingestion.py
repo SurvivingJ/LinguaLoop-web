@@ -7,6 +7,9 @@ from services.corpus.tokenizers import get_tokenizer
 from services.corpus.analyzer import CorpusAnalyzer
 from services.corpus.classifier import CollocationClassifier
 from services.corpus.style_analyzer import StyleAnalyzer
+from services.corpus.collocation_validator import validate_collocations, MIN_PEDAGOGICAL_SCORE
+from services.corpus.collocation_tagger import tag_collocations
+from services.corpus.style_narrative import generate_narrative
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
@@ -41,6 +44,7 @@ class CorpusIngestionService:
         language_id: int,
         tags: list[str],
         analyze_style: bool = False,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Fetch a web page, extract main text, run corpus analysis pipeline.
@@ -82,6 +86,7 @@ class CorpusIngestionService:
             language_id=language_id,
             tags=tags,
             analyze_style=analyze_style,
+            llm_enhance=llm_enhance,
         )
 
     def ingest_text(
@@ -91,6 +96,7 @@ class CorpusIngestionService:
         language_id: int,
         tags: list[str],
         analyze_style: bool = False,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Ingest a plain text string directly (e.g. pasted by admin in UI).
@@ -106,6 +112,7 @@ class CorpusIngestionService:
             language_id=language_id,
             tags=tags,
             analyze_style=analyze_style,
+            llm_enhance=llm_enhance,
         )
 
     def ingest_author_corpus(
@@ -115,6 +122,7 @@ class CorpusIngestionService:
         language_id: int,
         extra_tags: list[str] | None = None,
         analyze_style: bool = False,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Ingest multiple public-domain texts attributed to one author as a
@@ -140,6 +148,7 @@ class CorpusIngestionService:
             language_id=language_id,
             tags=tags,
             analyze_style=analyze_style,
+            llm_enhance=llm_enhance,
         )
 
     def ingest_transcripts(
@@ -147,6 +156,7 @@ class CorpusIngestionService:
         language_id: int,
         extra_tags: list[str] | None = None,
         analyze_style: bool = False,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Build a corpus from all active test transcripts for a language.
@@ -204,6 +214,7 @@ class CorpusIngestionService:
             language_id=language_id,
             tags=tags,
             analyze_style=analyze_style,
+            llm_enhance=llm_enhance,
         )
 
     @staticmethod
@@ -246,10 +257,17 @@ class CorpusIngestionService:
         language_id: int,
         tags: list[str],
         analyze_style: bool = False,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Core pipeline: store source -> analyse -> classify -> insert collocations
         -> mark processed.
+
+        When llm_enhance=True, additional LLM-powered steps run after
+        statistical extraction:
+          - Discourse marker discovery (reclassifies n-grams)
+          - Pedagogical validation (scores 1-5, filters low-value)
+          - Semantic tagging (domain/theme tags)
 
         Chunk size of 500 rows per insert matches Supabase recommended batch size.
 
@@ -384,22 +402,81 @@ class CorpusIngestionService:
                 f"(language_id={language_id})"
             )
 
-        # 4. Batch insert in chunks of 500
-        for i in range(0, len(rows), 500):
-            self.db.table('corpus_collocations').insert(rows[i : i + 500]).execute()
+        # 4. LLM enhancement steps (optional)
+        if llm_enhance and rows:
+            # 4a. Discourse marker discovery — reclassify n-grams that
+            #     the LLM identifies as discourse markers
+            try:
+                discovered_markers = classifier.discover_discourse_markers(rows)
+                if discovered_markers:
+                    reclassified = 0
+                    for row in rows:
+                        if (row['collocation_text'].lower() in discovered_markers
+                                and row['collocation_type'] != 'discourse_marker'):
+                            row['collocation_type'] = 'discourse_marker'
+                            reclassified += 1
+                    if reclassified:
+                        logger.info(
+                            f"Reclassified {reclassified} collocations as "
+                            f"discourse markers via LLM discovery"
+                        )
+            except Exception as exc:
+                logger.warning(f"Discourse marker discovery step failed: {exc}")
 
-        # 5. Mark source as processed
+            # 4b. Pedagogical validation — score and filter
+            try:
+                validate_collocations(rows, language_id)
+                pre_count = len(rows)
+                rows = [r for r in rows if r.get('pedagogical_score', 3) >= MIN_PEDAGOGICAL_SCORE]
+                removed = pre_count - len(rows)
+                if removed:
+                    logger.info(
+                        f"LLM validation removed {removed} low-value collocations "
+                        f"(score < {MIN_PEDAGOGICAL_SCORE})"
+                    )
+            except Exception as exc:
+                logger.warning(f"Collocation validation step failed: {exc}")
+
+            # 4c. Semantic tagging
+            try:
+                tag_collocations(rows, language_id)
+            except Exception as exc:
+                logger.warning(f"Semantic tagging step failed: {exc}")
+
+        # 5. Prepare rows for insert — strip transient keys that aren't
+        #    in the corpus_collocations table schema
+        insert_keys = {
+            'corpus_source_id', 'language_id', 'collocation_text', 'head_word',
+            'collocate', 'n_gram_size', 'frequency', 'pmi_score',
+            'log_likelihood', 't_score', 'lmi_score', 'collocation_type',
+            'pos_pattern', 'extraction_method', 'dependency_relation',
+            'tags', 'is_validated',
+            # LLM-enriched fields (require corresponding DB columns)
+            'pedagogical_score', 'semantic_tags',
+        }
+        clean_rows = [
+            {k: v for k, v in row.items() if k in insert_keys}
+            for row in rows
+        ]
+
+        # 6. Batch insert in chunks of 500
+        for i in range(0, len(clean_rows), 500):
+            self.db.table('corpus_collocations').insert(clean_rows[i : i + 500]).execute()
+
+        # 7. Mark source as processed
         self.db.table('corpus_sources').update({
             'processed_at': datetime.now(timezone.utc).isoformat(),
         }).eq('id', corpus_source_id).execute()
 
-        # 6. Optional: run style analysis pipeline
+        # 8. Optional: run style analysis pipeline
         if analyze_style:
             self._run_style_pipeline(
                 raw_text=raw_text,
                 corpus_source_id=corpus_source_id,
                 language_id=language_id,
+                source_title=source_title,
                 tokenizer=tokenizer,
+                llm_enhance=llm_enhance,
             )
 
         return corpus_source_id
@@ -409,10 +486,15 @@ class CorpusIngestionService:
         raw_text: str,
         corpus_source_id: int,
         language_id: int,
+        source_title: str = '',
         tokenizer=None,
+        llm_enhance: bool = False,
     ) -> int:
         """
         Run style analysis on a corpus source and store the profile.
+
+        When llm_enhance=True, also generates a human-readable narrative
+        summary of the style profile via LLM.
 
         Can be called independently (for existing sources) or from _run_pipeline.
         Returns the style profile row id.
@@ -453,6 +535,21 @@ class CorpusIngestionService:
             'total_sentences':       profile['total_sentences'],
             'reference_source_id':   reference_source_id,
         }
+
+        # Generate narrative summary via LLM
+        if llm_enhance:
+            try:
+                narrative = generate_narrative(
+                    profile=profile,
+                    language_id=language_id,
+                    source_title=source_title,
+                )
+                row['narrative'] = narrative
+                logger.info(
+                    f"Style narrative generated for corpus_source_id={corpus_source_id}"
+                )
+            except Exception as exc:
+                logger.warning(f"Style narrative generation failed: {exc}")
 
         self.db.table('corpus_style_profiles').upsert(
             row, on_conflict='corpus_source_id'

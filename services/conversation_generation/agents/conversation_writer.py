@@ -56,6 +56,7 @@ class ConversationWriter(BaseAgent):
         persona_b: Persona,
         language_id: int,
         turn_count: int | None = None,
+        model: str | None = None,
     ) -> List[Dict]:
         """
         Generate a complete multi-turn conversation.
@@ -105,6 +106,7 @@ class ConversationWriter(BaseAgent):
             prompt=prompt,
             json_mode=True,
             temperature=conv_gen_config.temperature,
+            model=model,
         )
 
         turns = json.loads(response_text) if isinstance(response_text, str) else response_text
@@ -141,6 +143,7 @@ class ConversationWriter(BaseAgent):
         persona_b: Persona,
         language_id: int,
         turn_count: int | None = None,
+        model: str | None = None,
     ) -> List[Dict]:
         """
         Generate a conversation with periodic persona reminders.
@@ -158,7 +161,7 @@ class ConversationWriter(BaseAgent):
         if turn_count <= conv_gen_config.persona_reminder_interval * 2:
             return self.generate_conversation(
                 prompt_template, scenario, persona_a, persona_b,
-                language_id, turn_count,
+                language_id, turn_count, model=model,
             )
 
         # For longer conversations, generate in chunks with reminders
@@ -185,6 +188,7 @@ class ConversationWriter(BaseAgent):
                 persona_b=persona_b,
                 language_id=language_id,
                 turn_count=current_chunk,
+                model=model,
             )
 
             # Re-number turns sequentially
@@ -205,6 +209,7 @@ class ConversationWriter(BaseAgent):
         persona_b: Persona,
         language_id: int,
         turn_count: int | None = None,
+        model: str | None = None,
     ) -> List[Dict]:
         """
         Generate a conversation by calling the LLM once per turn.
@@ -261,6 +266,7 @@ class ConversationWriter(BaseAgent):
                 messages=active_messages,
                 max_tokens=conv_gen_config.per_turn_max_tokens,
                 temperature=conv_gen_config.temperature,
+                model=model,
             )
 
             # Strip any speaker name prefix the LLM might add
@@ -300,6 +306,7 @@ class ConversationWriter(BaseAgent):
         messages: List[Dict],
         max_tokens: int = 200,
         temperature: float = 0.85,
+        model: str | None = None,
     ) -> str:
         """
         Call the LLM with a full message history.
@@ -310,7 +317,7 @@ class ConversationWriter(BaseAgent):
         full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 
         response = self.client.chat.completions.create(
-            model=self.model,
+            model=model or self.model,
             messages=full_messages,
             temperature=temperature,
             max_tokens=max_tokens,

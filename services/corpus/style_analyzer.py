@@ -359,21 +359,107 @@ class StyleAnalyzer:
         self,
         sentences: list[str],
     ) -> dict:
-        """Regex-based syntactic preference detection for Chinese."""
+        """
+        LLM-based syntactic preference detection for Chinese.
+
+        Samples up to 80 representative sentences and asks the LLM to
+        identify syntactic constructions that jieba/regex cannot detect:
+        把-constructions, 被-passives, topic-comment structures, serial
+        verb constructions, aspect markers (了/着/过), and question types.
+
+        Falls back to basic regex counts if the LLM call fails.
+        """
         total = len(sentences)
         if total == 0:
             return {}
 
+        # Basic regex counts (always computed — used as fallback and supplement)
         ba_count = sum(1 for s in sentences if '把' in s)
         bei_count = sum(1 for s in sentences if '被' in s)
         question_count = sum(1 for s in sentences if s.endswith('？') or s.endswith('?'))
 
-        return {
+        regex_result = {
             'ba_construction_ratio': round(ba_count / total, 3),
             'bei_passive_ratio': round(bei_count / total, 3),
             'question_ratio': round(question_count / total, 3),
             'total_sentences_analyzed': total,
         }
+
+        # Sample sentences for LLM analysis
+        import random
+        sample_size = min(80, total)
+        if total > sample_size:
+            sampled = random.sample(sentences, sample_size)
+        else:
+            sampled = sentences
+
+        try:
+            from services.corpus.llm_client import call_llm
+
+            numbered = '\n'.join(
+                f"{i+1}. {s}" for i, s in enumerate(sampled)
+            )
+
+            prompt = f"""You are a Chinese linguistics expert. Analyse these {len(sampled)} Chinese sentences and count syntactic constructions.
+
+Sentences:
+{numbered}
+
+For each category below, count how many sentences contain that construction. A sentence may contain multiple constructions.
+
+Return a JSON object with these exact keys (all values are integers):
+- "ba_constructions": sentences using 把 to mark the object (not incidental 把)
+- "bei_passives": sentences using 被-passive construction
+- "topic_comment": sentences with a fronted topic distinct from the subject (e.g. "这本书，我看过了")
+- "serial_verb": sentences with serial verb constructions (连动句, two+ verbs sharing a subject)
+- "aspect_le": sentences using 了 as a perfective/change-of-state marker
+- "aspect_zhe": sentences using 着 as a continuous aspect marker
+- "aspect_guo": sentences using 过 as an experiential aspect marker
+- "rhetorical_questions": sentences using rhetorical question patterns (难道, 不是...吗, etc.)
+- "direct_questions": sentences ending with ？ that are genuine information-seeking questions
+- "complex_complements": sentences using resultative or directional complements (e.g. 看完, 走出来)
+- "total_analysed": the number of sentences you analysed (should be {len(sampled)})"""
+
+            result = call_llm(prompt)
+
+            # Compute ratios from LLM counts
+            n = result.get('total_analysed', len(sampled))
+            if not isinstance(n, (int, float)) or n <= 0:
+                n = len(sampled)
+
+            llm_prefs = {}
+            ratio_keys = [
+                ('ba_constructions', 'ba_construction_ratio'),
+                ('bei_passives', 'bei_passive_ratio'),
+                ('topic_comment', 'topic_comment_ratio'),
+                ('serial_verb', 'serial_verb_ratio'),
+                ('aspect_le', 'aspect_le_ratio'),
+                ('aspect_zhe', 'aspect_zhe_ratio'),
+                ('aspect_guo', 'aspect_guo_ratio'),
+                ('rhetorical_questions', 'rhetorical_question_ratio'),
+                ('direct_questions', 'question_ratio'),
+                ('complex_complements', 'complex_complement_ratio'),
+            ]
+            for llm_key, ratio_key in ratio_keys:
+                count = result.get(llm_key, 0)
+                if isinstance(count, (int, float)) and count >= 0:
+                    llm_prefs[ratio_key] = round(count / n, 3)
+
+            llm_prefs['total_sentences_analyzed'] = total
+            llm_prefs['llm_sample_size'] = len(sampled)
+
+            logger.info(
+                f"Chinese syntactic analysis via LLM: "
+                f"{len(llm_prefs) - 2} features extracted from {len(sampled)} sentences"
+            )
+            return llm_prefs
+
+        except Exception as exc:
+            logger.warning(
+                f"LLM-based Chinese syntactic analysis failed: {exc}. "
+                f"Falling back to regex counts."
+            )
+            return regex_result
 
     # ── E. Discourse Patterns ────────────────────────────────────────────
 

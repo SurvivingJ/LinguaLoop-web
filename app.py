@@ -36,6 +36,7 @@ from routes.corpus import corpus_bp
 from routes.users import users_bp
 from routes.payments import payments_bp
 from routes.mystery import mystery_bp
+from routes.conversations import conversations_bp
 
 
 def create_app(config_class=Config):
@@ -208,6 +209,7 @@ def _register_blueprints(app):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
+    app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
 
     app.logger.info("Blueprints registered")
 
@@ -313,6 +315,16 @@ def _register_web_routes(app):
     def mystery_page(slug):
         """Render mystery playing page"""
         return render_template('mystery.html')
+
+    @app.route('/conversations')
+    def conversations():
+        """Render conversation list page"""
+        return render_template('conversation_list.html')
+
+    @app.route('/conversation/<conversation_id>')
+    def conversation_reader(conversation_id):
+        """Render conversation reader page"""
+        return render_template('conversation_reader.html')
 
     @app.route('/logout')
     def logout():

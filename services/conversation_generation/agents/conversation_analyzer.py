@@ -55,6 +55,7 @@ class ConversationAnalyzer(BaseAgent):
         language_id: int,
         cefr_level: str = 'B1',
         prompt_template: Optional[str] = None,
+        model: Optional[str] = None,
     ) -> Dict:
         """
         Analyze a conversation and return corpus features.
@@ -82,6 +83,7 @@ class ConversationAnalyzer(BaseAgent):
         if prompt_template:
             llm_features = self._run_llm_analysis(
                 full_text, language_id, cefr_level, prompt_template,
+                model=model,
             )
 
         # Merge results
@@ -153,6 +155,7 @@ class ConversationAnalyzer(BaseAgent):
         language_id: int,
         cefr_level: str,
         prompt_template: str,
+        model: Optional[str] = None,
     ) -> Dict:
         """Run LLM-based feature extraction."""
         language_name = {1: 'Chinese', 2: 'English', 3: 'Japanese'}.get(language_id, 'English')
@@ -168,6 +171,7 @@ class ConversationAnalyzer(BaseAgent):
                 prompt=prompt,
                 json_mode=True,
                 temperature=0.3,
+                model=model,
             )
             features = json.loads(response_text) if isinstance(response_text, str) else response_text
             return {
