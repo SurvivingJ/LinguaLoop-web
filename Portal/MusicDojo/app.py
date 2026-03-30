@@ -325,16 +325,15 @@ def get_100k_exercises(instrument):
 
 @app.route('/api/guitar100k/log', methods=['POST'])
 def log_100k_practice():
-    """Log a practice session. Body: {instrument, exercise_id, reps, bpm, duration}."""
+    """Log a practice session. Body: {instrument, exercise_id, reps, bpm}."""
     try:
         data = request.get_json()
         instrument = data['instrument']
         exercise_id = data['exercise_id']
         reps = int(data['reps'])
         bpm = int(data['bpm'])
-        duration = int(data.get('duration', 0))
 
-        result = guitar100k_service.log_practice(instrument, exercise_id, reps, bpm, duration)
+        result = guitar100k_service.log_practice(instrument, exercise_id, reps, bpm)
         if result is None:
             return jsonify({'error': f'Exercise not found: {exercise_id}'}), 404
 

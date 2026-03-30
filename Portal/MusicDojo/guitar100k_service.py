@@ -16,7 +16,7 @@ PIANO_EXERCISES_FILE = os.path.join(DATA_DIR, 'piano_exercises.json')
 GUITAR_LOGS_FILE = os.path.join(DATA_DIR, 'guitar_logs.csv')
 PIANO_LOGS_FILE = os.path.join(DATA_DIR, 'piano_logs.csv')
 
-CSV_HEADER = ['timestamp', 'exercise_id', 'reps', 'bpm', 'duration']
+CSV_HEADER = ['timestamp', 'exercise_id', 'reps', 'bpm']
 
 DEFAULT_GUITAR_EXERCISES = [
     {"id": "spider_walk_1234", "name": "Spider Walk - 1234", "category": "technique", "target_reps": 5000, "total_reps": 0, "latest_bpm": 0, "best_bpm": 0, "source": "default"},
@@ -114,7 +114,7 @@ def get_exercises(instrument):
         return json.load(f)
 
 
-def log_practice(instrument, exercise_id, reps, bpm, duration):
+def log_practice(instrument, exercise_id, reps, bpm):
     """Log a practice session: append CSV row and update JSON totals."""
     ex_file, log_file = _get_files(instrument)
     now = datetime.now(timezone.utc).isoformat()
@@ -122,7 +122,7 @@ def log_practice(instrument, exercise_id, reps, bpm, duration):
     # Append to CSV
     with open(log_file, 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([now, exercise_id, reps, bpm, duration])
+        writer.writerow([now, exercise_id, reps, bpm])
 
     # Update JSON state
     with open(ex_file, 'r') as f:

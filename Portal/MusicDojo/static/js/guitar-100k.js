@@ -63,14 +63,6 @@ class Guitar100K {
             });
         }
 
-        // Calculator inputs
-        ['g100k-calc-time', 'g100k-calc-bpm', 'g100k-calc-subdivision'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('input', () => this.updateCalculator());
-            }
-        });
-
         // Submit log
         const submitBtn = document.getElementById('g100k-log-submit');
         if (submitBtn) {
@@ -201,11 +193,9 @@ class Guitar100K {
 
         document.getElementById('g100k-modal-title').textContent = `Log: ${exercise.name}`;
         document.getElementById('g100k-log-exercise-id').value = exerciseId;
-        document.getElementById('g100k-manual-reps').value = '';
+        document.getElementById('g100k-log-reps').value = '';
         document.getElementById('g100k-log-bpm').value = exercise.latest_bpm || 60;
-        document.getElementById('g100k-calc-bpm').value = exercise.latest_bpm || 60;
 
-        this.updateCalculator();
         document.getElementById('g100k-log-modal').style.display = 'flex';
     }
 
@@ -213,25 +203,10 @@ class Guitar100K {
         document.getElementById('g100k-log-modal').style.display = 'none';
     }
 
-    updateCalculator() {
-        const time = parseFloat(document.getElementById('g100k-calc-time').value) || 0;
-        const bpm = parseFloat(document.getElementById('g100k-calc-bpm').value) || 0;
-        const sub = parseFloat(document.getElementById('g100k-calc-subdivision').value) || 1;
-        const reps = Math.floor(time * bpm * sub);
-
-        document.getElementById('g100k-calc-reps').textContent = reps.toLocaleString();
-    }
-
     async submitLog() {
         const exerciseId = document.getElementById('g100k-log-exercise-id').value;
-        const manualReps = document.getElementById('g100k-manual-reps').value;
+        const reps = parseInt(document.getElementById('g100k-log-reps').value) || 0;
         const bpm = parseInt(document.getElementById('g100k-log-bpm').value) || 60;
-        const time = parseFloat(document.getElementById('g100k-calc-time').value) || 5;
-        const calcBpm = parseFloat(document.getElementById('g100k-calc-bpm').value) || 60;
-        const sub = parseFloat(document.getElementById('g100k-calc-subdivision').value) || 1;
-
-        const reps = manualReps ? parseInt(manualReps) : Math.floor(time * calcBpm * sub);
-        const duration = Math.round(time * 60); // Convert minutes to seconds
 
         if (reps <= 0) {
             alert('Reps must be greater than 0');
@@ -246,8 +221,7 @@ class Guitar100K {
                     instrument: this.currentInstrument,
                     exercise_id: exerciseId,
                     reps: reps,
-                    bpm: bpm,
-                    duration: duration
+                    bpm: bpm
                 })
             });
 
