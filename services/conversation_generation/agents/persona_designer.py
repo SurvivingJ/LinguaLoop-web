@@ -41,7 +41,7 @@ class PersonaDesigner(BaseAgent):
         language_name: str,
         domain_name: str,
         register: str,
-        cefr_level: str,
+        complexity_tier: str,
     ) -> Dict:
         """
         Generate a persona profile via LLM.
@@ -51,7 +51,7 @@ class PersonaDesigner(BaseAgent):
             language_name: Target language name
             domain_name: Domain for the persona's expertise
             register: Required register (formal/semi-formal/informal)
-            cefr_level: Target CEFR level for the conversation
+            complexity_tier: Target complexity tier (T1-T6)
 
         Returns:
             Dict with persona fields ready for DB insertion.
@@ -60,7 +60,7 @@ class PersonaDesigner(BaseAgent):
             language_name=language_name,
             domain_name=domain_name,
             register=register,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
         )
 
         response_text = self._call_llm(
@@ -79,7 +79,7 @@ class PersonaDesigner(BaseAgent):
         language_name: str,
         domain_name: str,
         register: str,
-        cefr_level: str,
+        complexity_tier: str,
         count: int = 4,
     ) -> List[Dict]:
         """Generate multiple personas for a domain."""
@@ -91,7 +91,7 @@ class PersonaDesigner(BaseAgent):
                     language_name=language_name,
                     domain_name=domain_name,
                     register=register,
-                    cefr_level=cefr_level,
+                    complexity_tier=complexity_tier,
                 )
                 personas.append(persona)
             except Exception as exc:

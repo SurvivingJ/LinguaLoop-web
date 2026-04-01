@@ -66,14 +66,13 @@ class MysteryDatabaseClient:
 
         return None
 
-    def get_cefr_config(self, difficulty: int) -> Optional[Dict]:
-        """Get CEFR configuration for a difficulty level."""
-        # Map difficulty to CEFR code
-        cefr_map = {1: 'A1', 2: 'A1', 3: 'A2', 4: 'B1', 5: 'B1', 6: 'B2', 7: 'C1', 8: 'C2', 9: 'C2'}
-        cefr_code = cefr_map.get(difficulty, 'B1')
+    def get_tier_config(self, difficulty: int) -> Optional[Dict]:
+        """Get complexity tier configuration for a difficulty level."""
+        from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
+        tier_code = DIFFICULTY_TO_TIER.get(difficulty, 'T3')
 
-        result = self.admin.table('dim_cefr_levels').select('*')\
-            .eq('code', cefr_code).single().execute()
+        result = self.admin.table('dim_complexity_tiers').select('*')\
+            .eq('tier_code', tier_code).single().execute()
         return result.data if result.data else None
 
     def save_mystery(

@@ -58,10 +58,10 @@ class LanguageConfig:
 
 
 @dataclass
-class CEFRConfig:
-    """CEFR level configuration."""
+class TierConfig:
+    """Complexity tier configuration."""
     id: int
-    cefr_code: str
+    tier_code: str
     difficulty_min: int
     difficulty_max: int
     word_count_min: int
@@ -132,7 +132,7 @@ class TestDatabaseClient:
 
         # Caches
         self._language_cache: Optional[Dict[int, LanguageConfig]] = None
-        self._cefr_cache: Optional[Dict[int, CEFRConfig]] = None
+        self._cefr_cache: Optional[Dict[int, TierConfig]] = None
         self._question_type_cache: Optional[Dict[str, QuestionType]] = None
         self._distribution_cache: Optional[Dict[int, List[str]]] = None
         self._status_cache: Optional[Dict[str, int]] = None
@@ -413,51 +413,51 @@ class TestDatabaseClient:
         return config
 
     # ============================================================
-    # CEFR CONFIGURATION
+    # TIER CONFIGURATION
     # ============================================================
 
-    def get_cefr_config(self, difficulty: int) -> Optional[CEFRConfig]:
+    def get_cefr_config(self, difficulty: int) -> Optional[TierConfig]:
         """
-        Get CEFR configuration for a difficulty level.
+        Get tier configuration for a difficulty level.
 
         Args:
             difficulty: Difficulty level 1-9
 
         Returns:
-            CEFRConfig object or None
+            TierConfig object or None
         """
         if self._cefr_cache is None:
             self._load_cefr_cache()
 
-        # Find matching CEFR level
-        for cefr in self._cefr_cache.values():
-            if cefr.difficulty_min <= difficulty <= cefr.difficulty_max:
-                return cefr
+        # Find matching tier
+        for tier in self._cefr_cache.values():
+            if tier.difficulty_min <= difficulty <= tier.difficulty_max:
+                return tier
 
-        logger.warning(f"No CEFR config found for difficulty {difficulty}")
+        logger.warning(f"No tier config found for difficulty {difficulty}")
         return None
 
     def _load_cefr_cache(self) -> None:
-        """Load all CEFR levels into cache."""
-        response = self.client.table('dim_cefr_levels') \
+        """Load all complexity tiers into cache."""
+        response = self.client.table('dim_complexity_tiers') \
             .select('*') \
             .execute()
 
         self._cefr_cache = {}
         if response.data:
             for row in response.data:
-                cefr = CEFRConfig(
+                tier = TierConfig(
                     id=row['id'],
-                    cefr_code=row['cefr_code'],
+                    tier_code=row['tier_code'],
                     difficulty_min=row['difficulty_min'],
                     difficulty_max=row['difficulty_max'],
                     word_count_min=row['word_count_min'],
                     word_count_max=row['word_count_max'],
                     initial_elo=row['initial_elo']
                 )
-                self._cefr_cache[cefr.id] = cefr
+                self._cefr_cache[tier.id] = tier
 
-        logger.info(f"Loaded {len(self._cefr_cache)} CEFR levels")
+        logger.info(f"Loaded {len(self._cefr_cache)} complexity tiers")
 
     def get_initial_elo(self, difficulty: int) -> int:
         """Get initial ELO rating for a difficulty level."""

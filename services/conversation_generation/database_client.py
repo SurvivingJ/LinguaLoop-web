@@ -75,7 +75,7 @@ class Scenario:
     goals: Dict = field(default_factory=dict)
     required_register: Optional[str] = None
     required_relationship_type: Optional[str] = None
-    cefr_level: Optional[str] = None
+    complexity_tier: Optional[str] = None
     keywords: List[str] = field(default_factory=list)
     suitable_archetypes: List[str] = field(default_factory=list)
     cultural_note: Optional[str] = None
@@ -544,7 +544,7 @@ class ConversationDatabaseClient:
             goals=row.get('goals', {}),
             required_register=row.get('required_register'),
             required_relationship_type=row.get('required_relationship_type'),
-            cefr_level=row.get('cefr_level'),
+            complexity_tier=row.get('complexity_tier'),
             keywords=row.get('keywords', []),
             suitable_archetypes=row.get('suitable_archetypes', []),
             cultural_note=row.get('cultural_note'),

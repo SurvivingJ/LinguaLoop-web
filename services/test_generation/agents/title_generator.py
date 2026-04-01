@@ -10,6 +10,7 @@ import logging
 from typing import Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from services.llm_service import get_client
+from services.llm_output_cleaner import clean_text
 
 from ..config import test_gen_config
 
@@ -53,7 +54,7 @@ class TitleGenerator:
         prose: str,
         topic_concept: str,
         difficulty: int,
-        cefr_level: str,
+        complexity_tier: str,
         language_name: str,
         language_code: str,
         prompt_template: Optional[str] = None,
@@ -66,7 +67,7 @@ class TitleGenerator:
             prose: The prose/transcript text
             topic_concept: Topic concept (translated to target language)
             difficulty: Difficulty level 1-9
-            cefr_level: CEFR level code (e.g., "A1", "B2")
+            complexity_tier: Tier code (e.g., "T1", "T3")
             language_name: Target language name (e.g., "Spanish")
             language_code: ISO language code (e.g., "es")
             prompt_template: Custom prompt template (optional)
@@ -80,12 +81,12 @@ class TitleGenerator:
         # Build prompt
         if prompt_template:
             # Use placeholder names that match database templates:
-            # {prose}, {topic_concept}, {difficulty}, {cefr_level}, {language}, {language_code}
+            # {prose}, {topic_concept}, {difficulty}, {complexity_tier}, {language}, {language_code}
             prompt = prompt_template.format(
                 prose=prose,
                 topic_concept=topic_concept,
                 difficulty=difficulty,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 language=language_name,
                 language_code=language_code
             )
@@ -94,7 +95,7 @@ class TitleGenerator:
                 prose,
                 topic_concept,
                 difficulty,
-                cefr_level,
+                complexity_tier,
                 language_name
             )
 
@@ -115,7 +116,7 @@ class TitleGenerator:
             if not content:
                 raise Exception("Empty response from LLM")
 
-            title = self._clean_response(content.strip())
+            title = clean_text(content.strip()).cleaned
 
             logger.info(f"Generated title: {title[:50]}...")
             return title
@@ -129,7 +130,7 @@ class TitleGenerator:
         prose: str,
         topic_concept: str,
         difficulty: int,
-        cefr_level: str,
+        complexity_tier: str,
         language_name: str
     ) -> str:
         """Build default title generation prompt."""
@@ -154,16 +155,16 @@ PASSAGE:
 {prose}
 
 TOPIC: {topic_concept}
-DIFFICULTY: {difficulty}/9 ({cefr_level} level)
+DIFFICULTY: {difficulty}/9 (tier {complexity_tier})
 
 Requirements:
 - Write the title ONLY in {language_name}
 - Make the title {style_guidance}
 - The title should capture the main theme or subject of the passage
-- Match the complexity to the {cefr_level} level:
-  * Lower levels (A1-A2): Use simple vocabulary, basic sentence structure
-  * Mid levels (B1-B2): Use clear but more varied vocabulary
-  * Higher levels (C1-C2): Use sophisticated vocabulary and nuanced phrasing
+- Match the complexity to tier {complexity_tier}:
+  * T1-T2 (lower): Use simple vocabulary, basic sentence structure
+  * T3-T4 (mid): Use clear but more varied vocabulary
+  * T5-T6 (higher): Use sophisticated vocabulary and nuanced phrasing
 - Make the title engaging and informative
 - Do NOT include quotation marks, markdown, or additional formatting
 

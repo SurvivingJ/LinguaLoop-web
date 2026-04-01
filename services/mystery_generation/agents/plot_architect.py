@@ -32,13 +32,13 @@ Requirements:
 - Suspects must have distinct personalities and motives
 - The solution must be logically deducible from the 5 clues
 - Vocabulary words should be naturally integrated into scene descriptions
-- Keep the complexity appropriate for {cefr_level} language learners
+- Keep the complexity appropriate for {complexity_tier} language learners
 
 Output format: valid JSON only, no markdown."""
 
 DEFAULT_USER_PROMPT = """Create a murder mystery story bible with these parameters:
 - Language: {language_name}
-- CEFR Level: {cefr_level}
+- Complexity Tier: {complexity_tier}
 - Archetype: {archetype}
 - Target vocabulary words to include: {target_vocab}
 
@@ -96,7 +96,7 @@ class PlotArchitect:
     def generate(
         self,
         language_name: str,
-        cefr_level: str,
+        complexity_tier: str,
         archetype: str = 'alibi_trick',
         target_vocab: Optional[List[str]] = None,
         model_override: Optional[str] = None,
@@ -115,19 +115,19 @@ class PlotArchitect:
         vocab_str = ', '.join(target_vocab) if target_vocab else 'none specified'
         model = model_override or self.model
 
-        system_msg = DEFAULT_SYSTEM_PROMPT.format(cefr_level=cefr_level)
+        system_msg = DEFAULT_SYSTEM_PROMPT.format(complexity_tier=complexity_tier)
 
         if prompt_template:
             user_msg = prompt_template.format(
                 language_name=language_name,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 archetype=archetype,
                 target_vocab=vocab_str,
             )
         else:
             user_msg = DEFAULT_USER_PROMPT.format(
                 language_name=language_name,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 archetype=archetype,
                 target_vocab=vocab_str,
             )

@@ -53,7 +53,7 @@ class ConversationAnalyzer(BaseAgent):
         self,
         turns: List[Dict],
         language_id: int,
-        cefr_level: str = 'B1',
+        complexity_tier: str = 'T3',
         prompt_template: Optional[str] = None,
         model: Optional[str] = None,
     ) -> Dict:
@@ -66,7 +66,7 @@ class ConversationAnalyzer(BaseAgent):
         Args:
             turns: List of turn dicts with 'text' field
             language_id: Language ID from dim_languages
-            cefr_level: Target CEFR level
+            complexity_tier: Target complexity tier (T1-T6)
             prompt_template: Optional prompt template for LLM analysis
 
         Returns:
@@ -82,7 +82,7 @@ class ConversationAnalyzer(BaseAgent):
         llm_features = {}
         if prompt_template:
             llm_features = self._run_llm_analysis(
-                full_text, language_id, cefr_level, prompt_template,
+                full_text, language_id, complexity_tier, prompt_template,
                 model=model,
             )
 
@@ -153,7 +153,7 @@ class ConversationAnalyzer(BaseAgent):
         self,
         text: str,
         language_id: int,
-        cefr_level: str,
+        complexity_tier: str,
         prompt_template: str,
         model: Optional[str] = None,
     ) -> Dict:
@@ -163,7 +163,7 @@ class ConversationAnalyzer(BaseAgent):
         prompt = prompt_template.format(
             conversation_text=text,
             language_name=language_name,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
         )
 
         try:
@@ -179,7 +179,7 @@ class ConversationAnalyzer(BaseAgent):
                 'grammar_patterns': features.get('grammar_patterns', []),
                 'register_markers': features.get('register_markers', []),
                 'cultural_references': features.get('cultural_references', []),
-                'estimated_cefr': features.get('estimated_cefr', cefr_level),
+                'estimated_tier': features.get('estimated_tier', complexity_tier),
             }
         except Exception as exc:
             logger.error("LLM analysis failed: %s", exc)

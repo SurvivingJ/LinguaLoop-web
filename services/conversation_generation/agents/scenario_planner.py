@@ -45,7 +45,7 @@ class ScenarioPlanner(BaseAgent):
         persona_b_summary: str,
         relationship_type: str,
         register: str,
-        cefr_level: str,
+        complexity_tier: str,
     ) -> Dict:
         """
         Generate a scenario outline via LLM.
@@ -59,7 +59,7 @@ class ScenarioPlanner(BaseAgent):
             persona_b_summary: Brief summary of persona B
             relationship_type: Relationship type between personas
             register: Required register
-            cefr_level: Target CEFR level
+            complexity_tier: Target complexity tier (T1-T6)
 
         Returns:
             Dict with scenario fields: title, context_description, goals, keywords, cultural_note
@@ -72,7 +72,7 @@ class ScenarioPlanner(BaseAgent):
             persona_b_summary=persona_b_summary,
             relationship_type=relationship_type,
             register=register,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
         )
 
         response_text = self._call_llm(

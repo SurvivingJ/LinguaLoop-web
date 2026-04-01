@@ -18,14 +18,14 @@ conversations_bp = Blueprint("conversations", __name__)
 def list_conversations() -> ApiResponse:
     """List conversations with optional filters.
 
-    Query params: language_id (required), cefr_level (optional), limit, offset
+    Query params: language_id (required), complexity_tier (optional), limit, offset
     """
     try:
         language_id = parse_language_id(request.args.get('language_id'))
         if not language_id:
             return bad_request("language_id required")
 
-        cefr_level = request.args.get('cefr_level')
+        complexity_tier = request.args.get('complexity_tier')
         limit = request.args.get('limit', 50, type=int)
         offset = request.args.get('offset', 0, type=int)
 
@@ -33,14 +33,14 @@ def list_conversations() -> ApiResponse:
 
         query = client.table('conversations').select(
             'id, turn_count, quality_score, passed_qc, created_at, '
-            'scenarios(title, context_description, cefr_level, conversation_domains(domain_name)), '
+            'scenarios(title, context_description, complexity_tier, conversation_domains(domain_name)), '
             'persona_pairs(relationship_type, dynamic_label, '
             'persona_a:personas!persona_pairs_persona_a_id_fkey(name, archetype), '
             'persona_b:personas!persona_pairs_persona_b_id_fkey(name, archetype))'
         ).eq('language_id', language_id).eq('is_active', True)
 
-        if cefr_level:
-            query = query.eq('scenarios.cefr_level', cefr_level)
+        if complexity_tier:
+            query = query.eq('scenarios.complexity_tier', complexity_tier)
 
         response = query.order('created_at', desc=True) \
             .range(offset, offset + limit - 1) \
@@ -63,7 +63,7 @@ def get_conversation(conversation_id: str) -> ApiResponse:
         response = client.table('conversations').select(
             'id, turn_count, quality_score, passed_qc, turns, corpus_features, '
             'model_used, temperature, created_at, '
-            'scenarios(title, context_description, cefr_level, keywords, '
+            'scenarios(title, context_description, complexity_tier, keywords, '
             'conversation_domains(domain_name)), '
             'persona_pairs(relationship_type, dynamic_label, '
             'persona_a:personas!persona_pairs_persona_a_id_fkey(id, name, archetype, occupation, personality), '

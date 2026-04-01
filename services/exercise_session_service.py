@@ -20,6 +20,7 @@ from services.supabase_factory import get_supabase_admin
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 from services.exercise_generation.config import PHASE_MAP
+from services.conversation_generation.categorical_maps import TIER_TO_PHASE
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +31,8 @@ _PHASE_THRESHOLDS = [
     (0.80, 'C'),
 ]
 
-# CEFR → phase mapping for grammar/collocation exercises
-_CEFR_TO_PHASE = {
-    'A1': 'A', 'A2': 'A',
-    'B1': 'B', 'B2': 'C',
-    'C1': 'D', 'C2': 'D',
-}
+# Tier → phase mapping for grammar/collocation exercises (imported from categorical_maps)
+# TIER_TO_PHASE: T1→A, T2→A, T3→B, T4→C, T5→D, T6→D
 
 
 def _determine_phase(p_known: float) -> str:
@@ -587,8 +584,8 @@ class ExerciseSessionService:
         self, user_id: str, language_id: int, count: int,
         exclude_ids: set,
     ) -> List[Dict]:
-        """Fill remaining slots with grammar/collocation exercises by CEFR level."""
-        # Estimate user's CEFR level from average p_known
+        """Fill remaining slots with grammar/collocation exercises by complexity tier."""
+        # Estimate user's complexity tier from average p_known
         try:
             avg_resp = (
                 self.db.table('user_vocabulary_knowledge')
@@ -603,27 +600,27 @@ class ExerciseSessionService:
         except Exception:
             avg_p = 0.3
 
-        # Map avg p_known to CEFR
+        # Map avg p_known to complexity tiers
         if avg_p < 0.20:
-            cefr_levels = ['A1', 'A2']
+            complexity_tiers = ['T1', 'T2']
         elif avg_p < 0.40:
-            cefr_levels = ['A2', 'B1']
+            complexity_tiers = ['T2', 'T3']
         elif avg_p < 0.60:
-            cefr_levels = ['B1', 'B2']
+            complexity_tiers = ['T3', 'T4']
         elif avg_p < 0.80:
-            cefr_levels = ['B2', 'C1']
+            complexity_tiers = ['T4', 'T5']
         else:
-            cefr_levels = ['C1', 'C2']
+            complexity_tiers = ['T5', 'T6']
 
         picks = []
         try:
             resp = (
                 self.db.table('exercises')
-                .select('id, exercise_type, cefr_level, grammar_pattern_id, '
+                .select('id, exercise_type, complexity_tier, grammar_pattern_id, '
                         'corpus_collocation_id')
                 .eq('language_id', language_id)
                 .eq('is_active', True)
-                .in_('cefr_level', cefr_levels)
+                .in_('complexity_tier', complexity_tiers)
                 .is_('word_sense_id', 'null')  # non-vocabulary exercises
                 .limit(count * 3)
                 .execute()
@@ -636,8 +633,8 @@ class ExerciseSessionService:
             random.shuffle(candidates)
 
             for row in candidates[:count]:
-                cefr = row.get('cefr_level', 'B1')
-                phase = _CEFR_TO_PHASE.get(cefr, 'B')
+                tier = row.get('complexity_tier', 'T3')
+                phase = TIER_TO_PHASE.get(tier, 'B')
                 picks.append({
                     'exercise_id': row['id'],
                     'sense_id': None,
@@ -827,7 +824,7 @@ class ExerciseSessionService:
         try:
             resp = (
                 self.db.table('exercises')
-                .select('id, exercise_type, source_type, content, cefr_level, '
+                .select('id, exercise_type, source_type, content, complexity_tier, '
                         'word_sense_id, difficulty_static')
                 .in_('id', exercise_ids)
                 .execute()
@@ -878,7 +875,7 @@ class ExerciseSessionService:
                     'exercise_type': item.get('exercise_type', ''),
                     'source_type': 'user_test',
                     'content': content,
-                    'cefr_level': None,
+                    'complexity_tier': None,
                     'phase': item.get('phase', ''),
                     'slot_type': item.get('slot_type', ''),
                     'is_completed': eid in completed,
@@ -907,7 +904,7 @@ class ExerciseSessionService:
                 'exercise_type': exercise_type,
                 'source_type': ex_data.get('source_type', ''),
                 'content': content,
-                'cefr_level': ex_data.get('cefr_level'),
+                'complexity_tier': ex_data.get('complexity_tier'),
                 'phase': item.get('phase', ''),
                 'slot_type': item.get('slot_type', ''),
                 'is_completed': eid in completed,

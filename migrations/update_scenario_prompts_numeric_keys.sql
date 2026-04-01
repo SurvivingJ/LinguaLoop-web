@@ -1,10 +1,10 @@
 -- ============================================================
--- Prompt templates for batch scenario generation (v2 — numeric keys)
--- Task: scenario_batch_generation
--- Languages: 1=Chinese, 2=English, 3=Japanese
+-- Update scenario_batch_generation prompts to v2 (numeric keys)
 --
--- Uses numeric JSON keys to prevent English leaking into
--- target-language output. Backend maps keys back to DB columns.
+-- Inserts new version 2 prompt templates that use numeric JSON
+-- keys to prevent English leaking into target-language output.
+-- The latest version is automatically picked up by
+-- get_prompt_template() which orders by version DESC.
 -- ============================================================
 
 -- English (language_id=2)
@@ -17,7 +17,7 @@ Generate {count} UNIQUE and REALISTIC conversation scenarios for:
 - Domain: {domain_name} — {domain_description}
 - Domain keywords: {domain_keywords}
 - Language/Culture: {language_name}
-- Target CEFR difficulty: {cefr_level}
+- Target complexity tier: {complexity_tier}
 - Suitable registers: {suitable_registers}
 - Suitable relationship types: {suitable_relationship_types}
 
@@ -28,7 +28,7 @@ Each scenario must:
 4. Be able to sustain 10-14 turns of natural dialogue without running out of content
 5. Contain vocabulary and cultural references natural to this domain
 
-CRITICAL: ALL string values MUST be in {language_name}. Do NOT include other languages in the JSON output (except for CEFR level codes and archetype codes).
+CRITICAL: ALL string values MUST be in {language_name}. Do NOT include other languages in the JSON output (except for tier codes and archetype codes).
 
 IMPORTANT: Do NOT repeat any of these existing scenario titles:
 {existing_titles}
@@ -43,7 +43,7 @@ Key Legend:
 "5" = Suitable Archetypes (array of 2 archetype codes from the list below)
 "6" = Required Register (choose exactly one from: {suitable_registers})
 "7" = Required Relationship Type (choose exactly one from: {suitable_relationship_types})
-"8" = CEFR Level (output the code: {cefr_level})
+"8" = Complexity Tier (output the code: {complexity_tier})
 "9" = Cultural Note (one sentence in {language_name} noting any culturally specific element)
 
 Return ONLY valid JSON with this exact structure:
@@ -57,7 +57,7 @@ Return ONLY valid JSON with this exact structure:
       "5": ["archetype_a", "archetype_b"],
       "6": "...",
       "7": "...",
-      "8": "{cefr_level}",
+      "8": "{complexity_tier}",
       "9": "..."
     }}
   ]
@@ -66,7 +66,8 @@ Return ONLY valid JSON with this exact structure:
 Valid archetypes: protective_parent, rebellious_teen, supportive_sibling, wise_grandparent, nagging_relative, new_parent, hopeless_romantic, commitment_phobe, long_term_partner, jealous_partner, supportive_spouse, new_dater, loyal_best_friend, party_animal, wise_counselor, competitive_friend, ambitious_climber, burnt_out_worker, inspiring_mentor, strict_boss, new_employee, patient_service_worker, demanding_customer, helpful_neighbor, gossip_enthusiast, social_media_addict, community_organizer
 
 Make every scenario GENUINELY DIFFERENT from the others. Avoid generic or cliched situations.',
- 'Batch scenario generation prompt for English conversations (v2 numeric keys)');
+ 'Batch scenario generation prompt for English conversations (v2 numeric keys)')
+ON CONFLICT DO NOTHING;
 
 -- Chinese (language_id=1)
 INSERT INTO prompt_templates (task_name, language_id, version, template_text, description) VALUES
@@ -78,7 +79,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 - 领域：{domain_name} — {domain_description}
 - 领域关键词：{domain_keywords}
 - 语言/文化：{language_name}
-- 目标CEFR难度：{cefr_level}
+- 目标难度层级：{complexity_tier}
 - 适用语体：{suitable_registers}
 - 适用关系类型：{suitable_relationship_types}
 
@@ -89,7 +90,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 4. 能够支撑10-14轮自然对话而不会缺少话题
 5. 包含该领域自然出现的词汇和文化元素
 
-关键要求：所有字符串值必须用中文。JSON输出中不要包含英文（CEFR等级代码和角色原型代码除外）。
+关键要求：所有字符串值必须用中文。JSON输出中不要包含英文（难度层级代码和角色原型代码除外）。
 
 重要：不要重复以下已有的场景标题：
 {existing_titles}
@@ -104,7 +105,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 "5" = 适用角色原型（从下方列表中选择2个原型代码的数组）
 "6" = 要求的语体（从以下选项中选择一个：{suitable_registers}）
 "7" = 要求的关系类型（从以下选项中选择一个：{suitable_relationship_types}）
-"8" = CEFR等级（输出代码：{cefr_level}）
+"8" = 难度层级（输出代码：{complexity_tier}）
 "9" = 文化说明（用中文写一句话说明该场景中特有的文化元素）
 
 只返回有效的JSON，使用以下结构：
@@ -118,7 +119,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
       "5": ["archetype_a", "archetype_b"],
       "6": "...",
       "7": "...",
-      "8": "{cefr_level}",
+      "8": "{complexity_tier}",
       "9": "..."
     }}
   ]
@@ -127,7 +128,8 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 有效的角色原型：protective_parent, rebellious_teen, supportive_sibling, wise_grandparent, nagging_relative, new_parent, hopeless_romantic, commitment_phobe, long_term_partner, jealous_partner, supportive_spouse, new_dater, loyal_best_friend, party_animal, wise_counselor, competitive_friend, ambitious_climber, burnt_out_worker, inspiring_mentor, strict_boss, new_employee, patient_service_worker, demanding_customer, helpful_neighbor, gossip_enthusiast, social_media_addict, community_organizer
 
 确保每个场景彼此真正不同。避免笼统或老套的情境。场景应反映真实的中国社会生活。',
- 'Batch scenario generation prompt for Chinese conversations (v2 numeric keys)');
+ 'Batch scenario generation prompt for Chinese conversations (v2 numeric keys)')
+ON CONFLICT DO NOTHING;
 
 -- Japanese (language_id=3)
 INSERT INTO prompt_templates (task_name, language_id, version, template_text, description) VALUES
@@ -139,7 +141,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 - 分野：{domain_name} — {domain_description}
 - 分野キーワード：{domain_keywords}
 - 言語/文化：{language_name}
-- 目標CEFRレベル：{cefr_level}
+- 目標難易度ティア：{complexity_tier}
 - 適切なレジスター：{suitable_registers}
 - 適切な関係タイプ：{suitable_relationship_types}
 
@@ -150,7 +152,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 4. 10〜14ターンの自然な対話を維持できる内容であること
 5. この分野に自然な語彙と文化的要素を含むこと
 
-重要な要件：すべての文字列値は日本語で書いてください。JSON出力に英語を含めないでください（CEFRレベルコードとアーキタイプコードを除く）。
+重要な要件：すべての文字列値は日本語で書いてください。JSON出力に英語を含めないでください（難易度ティアコードとアーキタイプコードを除く）。
 
 重要：以下の既存のシナリオタイトルを繰り返さないでください：
 {existing_titles}
@@ -165,7 +167,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 "5" = 適切なアーキタイプ（下記リストから2つのアーキタイプコードの配列）
 "6" = 必要なレジスター（次の選択肢から1つ選択：{suitable_registers}）
 "7" = 必要な関係タイプ（次の選択肢から1つ選択：{suitable_relationship_types}）
-"8" = CEFRレベル（コードを出力：{cefr_level}）
+"8" = 難易度ティア（コードを出力：{complexity_tier}）
 "9" = 文化メモ（このシナリオに特有の文化的要素を日本語で一文で説明）
 
 以下の構造で有効なJSONのみを返してください：
@@ -179,7 +181,7 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
       "5": ["archetype_a", "archetype_b"],
       "6": "...",
       "7": "...",
-      "8": "{cefr_level}",
+      "8": "{complexity_tier}",
       "9": "..."
     }}
   ]
@@ -188,4 +190,5 @@ INSERT INTO prompt_templates (task_name, language_id, version, template_text, de
 有効なアーキタイプ：protective_parent, rebellious_teen, supportive_sibling, wise_grandparent, nagging_relative, new_parent, hopeless_romantic, commitment_phobe, long_term_partner, jealous_partner, supportive_spouse, new_dater, loyal_best_friend, party_animal, wise_counselor, competitive_friend, ambitious_climber, burnt_out_worker, inspiring_mentor, strict_boss, new_employee, patient_service_worker, demanding_customer, helpful_neighbor, gossip_enthusiast, social_media_addict, community_organizer
 
 各シナリオが本当に異なるようにしてください。ありふれた状況は避けてください。シナリオは日本社会の実際の生活を反映すべきです。',
- 'Batch scenario generation prompt for Japanese conversations (v2 numeric keys)');
+ 'Batch scenario generation prompt for Japanese conversations (v2 numeric keys)')
+ON CONFLICT DO NOTHING;

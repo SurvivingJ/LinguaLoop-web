@@ -73,7 +73,7 @@ def print_review(gen, language_id, domain_id, limit):
 
     print(f"\nUnvalidated scenarios ({len(candidates)} found):\n")
     for s in candidates:
-        print(f"  ID: {s.id}  |  Domain: {s.domain_id}  |  Lang: {s.language_id}  |  CEFR: {s.cefr_level or '?'}")
+        print(f"  ID: {s.id}  |  Domain: {s.domain_id}  |  Lang: {s.language_id}  |  Tier: {s.complexity_tier or '?'}")
         print(f"  Title: {s.title}")
         print(f"  Context: {s.context_description[:120]}...")
         goals = s.goals or {}

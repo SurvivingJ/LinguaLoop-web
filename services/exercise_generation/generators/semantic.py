@@ -33,7 +33,7 @@ class SemanticDiscrimGenerator(ExerciseGenerator):
         prompt   = template.format(
             word=word,
             definition=sense_row['definition'],
-            cefr_level=sentence_dict.get('cefr_level', 'B1'),
+            complexity_tier=sentence_dict.get('complexity_tier', 'T3'),
             example_sentence=sentence_dict.get('sentence', ''),
         )
         try:
@@ -62,7 +62,7 @@ class SemanticDiscrimGenerator(ExerciseGenerator):
         template = self.load_prompt_template('semantic_discrimination_from_context')
         prompt = template.format(
             sentence=sentence,
-            cefr_level=sentence_dict.get('cefr_level', 'B1'),
+            complexity_tier=sentence_dict.get('complexity_tier', 'T3'),
         )
         try:
             result = self.call_llm(prompt, response_format='json')

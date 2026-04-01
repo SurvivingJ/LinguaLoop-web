@@ -1,7 +1,8 @@
 # services/exercise_generation/difficulty.py
 
 import logging
-from services.exercise_generation.config import CEFR_TO_IRT
+from services.exercise_generation.config import TIER_TO_IRT
+from services.conversation_generation.categorical_maps import TIER_NUMERIC
 from services.vocabulary.frequency_service import get_zipf_score
 
 logger = logging.getLogger(__name__)
@@ -13,29 +14,25 @@ _LANG_ID_TO_CODE: dict[int, str] = {1: 'cn', 2: 'en', 3: 'jp'}
 class DifficultyCalibrator:
     """
     Computes and attaches static difficulty + IRT seed values to exercise row dicts.
-    Formula: difficulty_static = 0.40 x cefr + 0.30 x sentence_length + 0.30 x word_frequency
+    Formula: difficulty_static = 0.40 x tier + 0.30 x sentence_length + 0.30 x word_frequency
     """
 
-    CEFR_NUMERIC: dict[str, float] = {
-        'A1': 1.0, 'A2': 2.0, 'B1': 3.0, 'B2': 3.5, 'C1': 4.0, 'C2': 5.0,
-    }
-
-    def attach_difficulty(self, row: dict, cefr_level: str) -> dict:
+    def attach_difficulty(self, row: dict, complexity_tier: str) -> dict:
         """Compute and attach difficulty_static, irt_difficulty, irt_discrimination."""
         sentence = row.get('content', {}).get('original_sentence') \
                    or row.get('content', {}).get('sentence_with_blank') \
                    or row.get('content', {}).get('tl_sentence', '')
 
         language_id   = row.get('language_id', 2)
-        cefr_score    = self.CEFR_NUMERIC.get(cefr_level, 3.0)
+        tier_score    = TIER_NUMERIC.get(complexity_tier, 3.0)
         length_score  = self._sentence_length_score(sentence, language_id)
         freq_score    = self._word_frequency_score(sentence, language_id)
-        static        = round(0.40 * cefr_score + 0.30 * length_score + 0.30 * freq_score, 2)
+        static        = round(0.40 * tier_score + 0.30 * length_score + 0.30 * freq_score, 2)
 
         row['difficulty_static']  = static
-        row['irt_difficulty']     = CEFR_TO_IRT.get(cefr_level, 0.0)
+        row['irt_difficulty']     = TIER_TO_IRT.get(complexity_tier, 0.0)
         row['irt_discrimination'] = 1.0
-        row['cefr_level']         = cefr_level
+        row['complexity_tier']    = complexity_tier
         return row
 
     def _sentence_length_score(self, sentence: str, language_id: int) -> float:

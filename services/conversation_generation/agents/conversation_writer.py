@@ -14,6 +14,8 @@ from typing import Dict, List, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from services.topic_generation.agents.base import BaseAgent
+from services.llm_output_cleaner import clean_text
+from ..categorical_maps import get_tier_constraint, get_tier_display, localize_categorical
 from ..config import conv_gen_config
 from ..database_client import Persona, Scenario
 
@@ -26,6 +28,94 @@ LANGUAGE_INSTRUCTIONS = {
     1: '只用中文回答。使用自然的普通话口语。',           # Chinese
     2: 'Respond ONLY in English.',                       # English
     3: '日本語のみで返答してください。自然な口語表現を使ってください。',  # Japanese
+}
+
+# Per-turn rules in target language to prevent English leaking into context window
+PER_TURN_RULES = {
+    1: (
+        "{persona_prompt}\n\n"
+        "对话背景：{context}\n"
+        "你的目标：{goal}\n\n"
+        "规则：\n"
+        "- {lang_instr}\n"
+        "- 始终保持{name}的角色。\n"
+        "- 每轮对话保持1-4句。\n"
+        "- 直接回应对方说的话。\n"
+        "- 第一轮之后不要再打招呼或自我介绍。\n"
+        "- 在任何情况下都不要切换到其他语言。\n"
+        "- 只回复你的对话内容。不要加说话者名字前缀。"
+    ),
+    2: (
+        "{persona_prompt}\n\n"
+        "Conversation context: {context}\n"
+        "Your goal: {goal}\n\n"
+        "RULES:\n"
+        "- {lang_instr}\n"
+        "- Stay completely in character as {name}.\n"
+        "- Keep turns conversational (1-4 sentences).\n"
+        "- React directly to what the other person just said.\n"
+        "- Do NOT greet or introduce yourself after the first turn.\n"
+        "- Do NOT translate or switch to another language under any circumstances.\n"
+        "- Respond with ONLY your dialogue line. No speaker name prefix."
+    ),
+    3: (
+        "{persona_prompt}\n\n"
+        "会話の背景：{context}\n"
+        "あなたの目標：{goal}\n\n"
+        "ルール：\n"
+        "- {lang_instr}\n"
+        "- 常に{name}として振る舞ってください。\n"
+        "- 各ターンは1〜4文にしてください。\n"
+        "- 相手の発言に直接反応してください。\n"
+        "- 最初のターン以降は挨拶や自己紹介をしないでください。\n"
+        "- いかなる場合も他の言語に切り替えないでください。\n"
+        "- セリフのみを返答してください。話者名は付けないでください。"
+    ),
+}
+
+# Character reminder templates in target language
+REMINDER_TEMPLATES = {
+    1: "\n\n[角色提醒：你是{name}。保持角色：{traits}。{lang_instr}]",
+    2: "\n\n[CHARACTER REMINDER: You are {name}. Stay in character: {traits}. {lang_instr}]",
+    3: "\n\n[キャラクターリマインダー：あなたは{name}です。キャラクターを維持：{traits}。{lang_instr}]",
+}
+
+# Default goal fallbacks in target language
+DEFAULT_GOALS = {
+    1: '进行自然的对话。',
+    2: 'Have a natural conversation.',
+    3: '自然な会話をしてください。',
+}
+
+# Default trait fallbacks in target language
+_DEFAULT_TRAIT_LABELS = {
+    1: '你既定的性格',
+    2: 'your established personality',
+    3: 'あなたの確立された性格',
+}
+
+
+# Narrative arc pacing templates (programmatic, no LLM call)
+NARRATIVE_ARC_TEMPLATES = {
+    1: (
+        "节奏：\n"
+        "- 第1-{p1_end}轮：建立情境，引出分歧或话题\n"
+        "- 第{p2_start}-{p2_end}轮：加深讨论，展示不同立场，自然融入领域词汇\n"
+        "- 第{p3_start}-{total}轮：寻求解决、妥协或达成某种结论。不要仓促结束"
+    ),
+    2: (
+        "Pacing:\n"
+        "- Turns 1-{p1_end}: Establish the situation, introduce the disagreement or topic\n"
+        "- Turns {p2_start}-{p2_end}: Deepen the discussion, show different perspectives, "
+        "weave in domain vocabulary naturally\n"
+        "- Turns {p3_start}-{total}: Work toward resolution or conclusion. Do not rush the ending"
+    ),
+    3: (
+        "ペーシング：\n"
+        "- ターン1-{p1_end}：状況を確立し、意見の相違やテーマを導入する\n"
+        "- ターン{p2_start}-{p2_end}：議論を深め、異なる視点を示し、分野の語彙を自然に織り込む\n"
+        "- ターン{p3_start}-{total}：解決や結論に向かう。急いで終わらせないこと"
+    ),
 }
 
 
@@ -80,11 +170,22 @@ class ConversationWriter(BaseAgent):
 
         language_instruction = LANGUAGE_INSTRUCTIONS.get(language_id, 'Respond naturally.')
         language_name = {1: 'Chinese', 2: 'English', 3: 'Japanese'}.get(language_id, 'English')
-        cefr_level = scenario.cefr_level or 'B1'
 
+        # Complexity tier + constraint injection
+        tier_code = scenario.complexity_tier or 'T3'
+        tier_display = get_tier_display(tier_code, language_id)
+        tier_constraint = get_tier_constraint(tier_code, language_id)
+
+        # Narrative arc + semantic field + register
+        narrative_arc = self._build_narrative_arc(turn_count, language_id)
+        semantic_field = ', '.join(scenario.keywords) if scenario.keywords else ''
+        register = scenario.required_register or 'informal'
+        localized_register = localize_categorical('register', register, language_id)
+
+        default_goal = DEFAULT_GOALS.get(language_id, 'Have a natural conversation.')
         goals = scenario.goals or {}
-        goal_a = goals.get('persona_a', 'Have a natural conversation.')
-        goal_b = goals.get('persona_b', 'Have a natural conversation.')
+        goal_a = goals.get('persona_a', default_goal)
+        goal_b = goals.get('persona_b', default_goal)
 
         prompt = prompt_template.format(
             language_instruction=language_instruction,
@@ -99,7 +200,11 @@ class ConversationWriter(BaseAgent):
             persona_b_id=persona_b.id,
             turn_count=turn_count,
             language_name=language_name,
-            cefr_level=cefr_level,
+            complexity_tier=tier_display,
+            complexity_constraint=tier_constraint,
+            narrative_arc=narrative_arc,
+            semantic_field=semantic_field,
+            register=localized_register,
         )
 
         response_text = self._call_llm(
@@ -125,7 +230,7 @@ class ConversationWriter(BaseAgent):
                 'turn': turn.get('turn', i),
                 'speaker': turn.get('speaker', persona_a.name if i % 2 == 0 else persona_b.name),
                 'persona_id': turn.get('persona_id', persona_a.id if i % 2 == 0 else persona_b.id),
-                'text': turn.get('text', ''),
+                'text': clean_text(turn.get('text', '')).cleaned,
             })
 
         logger.info(
@@ -233,15 +338,16 @@ class ConversationWriter(BaseAgent):
             language_id, 'English'
         )
 
+        default_goal = DEFAULT_GOALS.get(language_id, 'Have a natural conversation.')
         goals = scenario.goals or {}
-        goal_a = goals.get('persona_a', 'Have a natural conversation.')
-        goal_b = goals.get('persona_b', 'Have a natural conversation.')
+        goal_a = goals.get('persona_a', default_goal)
+        goal_b = goals.get('persona_b', default_goal)
 
         system_a = self._build_per_turn_system_prompt(
-            persona_a, scenario, goal_a, lang_instr, language_name,
+            persona_a, scenario, goal_a, lang_instr, language_name, language_id,
         )
         system_b = self._build_per_turn_system_prompt(
-            persona_b, scenario, goal_b, lang_instr, language_name,
+            persona_b, scenario, goal_b, lang_instr, language_name, language_id,
         )
 
         # Message histories from each speaker's perspective
@@ -258,7 +364,7 @@ class ConversationWriter(BaseAgent):
             # Inject persona reminder every N turns
             if i > 0 and i % conv_gen_config.persona_reminder_interval == 0:
                 active_system = self._inject_per_turn_reminder(
-                    active_system, active_persona, lang_instr,
+                    active_system, active_persona, lang_instr, language_id,
                 )
 
             text = self._call_llm_with_messages(
@@ -323,7 +429,7 @@ class ConversationWriter(BaseAgent):
             max_tokens=max_tokens,
         )
 
-        return response.choices[0].message.content.strip()
+        return clean_text(response.choices[0].message.content.strip()).cleaned
 
     def _build_per_turn_system_prompt(
         self,
@@ -332,33 +438,43 @@ class ConversationWriter(BaseAgent):
         goal: str,
         lang_instr: str,
         language_name: str,
+        language_id: int = 2,
     ) -> str:
-        """Build a system prompt for per-turn generation."""
-        return (
-            f"{persona.system_prompt}\n\n"
-            f"Conversation context: {scenario.context_description}\n"
-            f"Your goal: {goal}\n\n"
-            f"RULES:\n"
-            f"- {lang_instr}\n"
-            f"- Stay completely in character as {persona.name}.\n"
-            f"- Keep turns conversational (1-4 sentences).\n"
-            f"- React directly to what the other person just said.\n"
-            f"- Do NOT greet or introduce yourself after the first turn.\n"
-            f"- Do NOT translate or switch to another language under any circumstances.\n"
-            f"- Respond with ONLY your dialogue line. No speaker name prefix."
+        """Build a system prompt for per-turn generation in the target language."""
+        template = PER_TURN_RULES.get(language_id, PER_TURN_RULES[2])
+        return template.format(
+            persona_prompt=persona.system_prompt,
+            context=scenario.context_description,
+            goal=goal,
+            lang_instr=lang_instr,
+            name=persona.name,
         )
 
     @staticmethod
     def _inject_per_turn_reminder(
         system_prompt: str, persona: Persona, lang_instr: str,
+        language_id: int = 2,
     ) -> str:
-        """Inject a character reminder into the system prompt."""
+        """Inject a character reminder into the system prompt in the target language."""
         traits = persona.personality.get('traits', [])[:3]
-        trait_str = ', '.join(traits) if traits else 'your established personality'
-        return (
-            system_prompt
-            + f"\n\n[CHARACTER REMINDER: You are {persona.name}. "
-            f"Stay in character: {trait_str}. {lang_instr}]"
+        default_label = _DEFAULT_TRAIT_LABELS.get(language_id, 'your established personality')
+        trait_str = ', '.join(traits) if traits else default_label
+        template = REMINDER_TEMPLATES.get(language_id, REMINDER_TEMPLATES[2])
+        return system_prompt + template.format(
+            name=persona.name, traits=trait_str, lang_instr=lang_instr,
+        )
+
+    @staticmethod
+    def _build_narrative_arc(turn_count: int, language_id: int) -> str:
+        """Build a 3-phase pacing guide from the turn count."""
+        p1_end = max(1, turn_count // 3)
+        p2_start = p1_end + 1
+        p2_end = max(p2_start, 2 * turn_count // 3)
+        p3_start = p2_end + 1
+        template = NARRATIVE_ARC_TEMPLATES.get(language_id, NARRATIVE_ARC_TEMPLATES[2])
+        return template.format(
+            p1_end=p1_end, p2_start=p2_start, p2_end=p2_end,
+            p3_start=p3_start, total=turn_count,
         )
 
     @staticmethod

@@ -41,7 +41,7 @@ class _StyleGeneratorBase(ExerciseGenerator):
                 'item_type': sentence_dict.get('item_type'),
                 'pack_id': source_id,
             },
-            'cefr_level':            sentence_dict.get('cefr_level'),
+            'complexity_tier':        sentence_dict.get('complexity_tier'),
             'is_active':             True,
             'generation_batch_id':   generation_batch_id,
             'grammar_pattern_id':    None,

@@ -185,7 +185,7 @@ class ConversationGenerationOrchestrator:
         corpus_features = self.conversation_analyzer.analyze(
             turns=turns,
             language_id=item.language_id,
-            cefr_level=scenario.cefr_level or 'B1',
+            complexity_tier=scenario.complexity_tier or 'T3',
             prompt_template=analysis_template,
             model=model,
         )
@@ -226,7 +226,7 @@ class ConversationGenerationOrchestrator:
                 conversation_id=conversation_id,
                 turns=turns,
                 language_id=item.language_id,
-                cefr_level=scenario.cefr_level or 'B1',
+                complexity_tier=scenario.complexity_tier or 'T3',
                 corpus_features=corpus_features,
             )
             self.metrics.exercises_generated += exercise_count
@@ -241,7 +241,7 @@ class ConversationGenerationOrchestrator:
         conversation_id: str,
         turns: list[dict],
         language_id: int,
-        cefr_level: str,
+        complexity_tier: str,
         corpus_features: dict,
     ) -> int:
         """
@@ -259,7 +259,7 @@ class ConversationGenerationOrchestrator:
             conversation_id=conversation_id,
             turns=turns,
             language_id=language_id,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
             corpus_features=corpus_features,
         )
 

@@ -19,7 +19,7 @@ class ContextSpectrumGenerator(ExerciseGenerator):
         template = self.load_prompt_template('context_spectrum_generation')
         prompt   = template.format(
             sentence=sentence,
-            cefr_level=sentence_dict.get('cefr_level', 'B1'),
+            complexity_tier=sentence_dict.get('complexity_tier', 'T3'),
         )
         try:
             result   = self.call_llm(prompt, response_format='json')

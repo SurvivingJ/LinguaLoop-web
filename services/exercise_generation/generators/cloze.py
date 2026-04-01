@@ -25,7 +25,7 @@ class ClozeGenerator(ExerciseGenerator):
 
         blanked = sentence.replace(target_word, '___', 1)
         payload = self._generate_distractors(
-            sentence, blanked, target_word, sentence_dict.get('cefr_level', 'B1')
+            sentence, blanked, target_word, sentence_dict.get('complexity_tier', 'T3')
         )
         if not payload:
             return None
@@ -88,14 +88,14 @@ class ClozeGenerator(ExerciseGenerator):
         return (row or {}).get('definition', '')
 
     def _generate_distractors(
-        self, original_sentence: str, blanked: str, correct_answer: str, cefr_level: str,
+        self, original_sentence: str, blanked: str, correct_answer: str, complexity_tier: str,
     ) -> dict | None:
         template = self.load_prompt_template('cloze_distractor_generation')
         prompt   = template.format(
             original_sentence=original_sentence,
             sentence_with_blank=blanked,
             correct_answer=correct_answer,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
         )
         try:
             result = self.call_llm(prompt, response_format='json')

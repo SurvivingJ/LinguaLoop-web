@@ -15,6 +15,7 @@ import logging
 from typing import Optional, Dict, List
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from services.llm_service import get_client
+from services.llm_output_cleaner import clean_text
 
 from ..config import mystery_gen_config
 
@@ -126,5 +127,7 @@ class ClueDesigner:
                 raw = raw[:-3]
 
         result = json.loads(raw)
+        if 'clue_text' in result:
+            result['clue_text'] = clean_text(result['clue_text']).cleaned
         logger.info(f"Generated clue for scene {scene_outline['scene_number']}: {result.get('clue_text', '')[:60]}...")
         return result

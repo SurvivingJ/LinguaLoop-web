@@ -2,7 +2,7 @@
 Scene Writer Agent
 
 Generates prose for each mystery scene in the target language,
-adhering to CEFR grammatical constraints and word count targets.
+adhering to complexity tier grammatical constraints and word count targets.
 
 Supports per-language prompt templates from prompt_templates table.
 """
@@ -11,6 +11,7 @@ import logging
 from typing import Optional, Dict
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from services.llm_service import get_client
+from services.llm_output_cleaner import clean_text
 
 from ..config import mystery_gen_config
 
@@ -21,7 +22,7 @@ Write scene text for a murder mystery comprehension exercise.
 
 Requirements:
 - Write entirely in {language_name}
-- Use ONLY grammar and vocabulary appropriate for CEFR {cefr_level}
+- Use ONLY grammar and vocabulary appropriate for complexity tier {complexity_tier}
 - Write between {min_words} and {max_words} words
 - Include the specified vocabulary words naturally
 - Build suspense while keeping language accessible
@@ -64,7 +65,7 @@ class SceneWriter:
         story_bible: Dict,
         scene_outline: Dict,
         language_name: str,
-        cefr_level: str,
+        complexity_tier: str,
         previous_summary: str = '',
         model_override: Optional[str] = None,
         prompt_template: Optional[str] = None,
@@ -76,7 +77,7 @@ class SceneWriter:
             story_bible: Full plot outline
             scene_outline: This scene's outline from story_bible['scenes']
             language_name: Target language
-            cefr_level: CEFR level code
+            complexity_tier: Tier code (e.g., "T1", "T3")
             previous_summary: Brief summary of previous scenes
             model_override: Override model from dim_languages
             prompt_template: Per-language template from prompt_templates table
@@ -89,7 +90,7 @@ class SceneWriter:
 
         system_msg = DEFAULT_SYSTEM_PROMPT.format(
             language_name=language_name,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
             min_words=mystery_gen_config.min_words_per_scene,
             max_words=mystery_gen_config.max_words_per_scene,
         )
@@ -126,6 +127,6 @@ class SceneWriter:
         )
         self.api_call_count += 1
 
-        text = response.choices[0].message.content.strip()
+        text = clean_text(response.choices[0].message.content.strip()).cleaned
         logger.info(f"Generated scene {scene_outline['scene_number']} text ({len(text)} chars)")
         return text

@@ -30,7 +30,7 @@ class ConversationExerciseAdapter:
         conversation_id: str,
         turns: List[Dict],
         language_id: int,
-        cefr_level: str = 'B1',
+        complexity_tier: str = 'B1',
         corpus_features: Optional[Dict] = None,
     ) -> List[Dict]:
         """
@@ -41,7 +41,7 @@ class ConversationExerciseAdapter:
             conversation_id: UUID of the conversation record
             turns: List of turn dicts with 'text', 'speaker', 'persona_id'
             language_id: Language ID from dim_languages
-            cefr_level: CEFR level for difficulty tagging
+            complexity_tier: Complexity tier for difficulty tagging
             corpus_features: Optional extracted features for enrichment
 
         Returns:
@@ -65,7 +65,7 @@ class ConversationExerciseAdapter:
 
                 sentence_dict = {
                     'sentence': sentence,
-                    'cefr_level': cefr_level,
+                    'complexity_tier': complexity_tier,
                     'source': 'conversation',
                     'source_id': conversation_id,
                     'language_id': language_id,

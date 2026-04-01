@@ -52,10 +52,10 @@ class MysteryGenConfig:
     max_retries: int = 3
     retry_delay: float = 2.0
 
-    # CEFR difficulty mapping
-    difficulty_to_cefr: dict = field(default_factory=lambda: {
-        1: 'A1', 2: 'A1', 3: 'A2', 4: 'B1', 5: 'B1',
-        6: 'B2', 7: 'C1', 8: 'C2', 9: 'C2'
+    # Complexity tier difficulty mapping
+    difficulty_to_tier: dict = field(default_factory=lambda: {
+        1: 'T1', 2: 'T1', 3: 'T2', 4: 'T3', 5: 'T3',
+        6: 'T4', 7: 'T5', 8: 'T6', 9: 'T6'
     })
 
     def validate(self) -> bool:

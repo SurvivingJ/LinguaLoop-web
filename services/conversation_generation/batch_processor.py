@@ -284,7 +284,7 @@ class ConversationBatchProcessor:
             corpus_features = self.analyzer.analyze(
                 turns=turns,
                 language_id=language_id,
-                cefr_level=scenario.cefr_level or 'B1',
+                complexity_tier=scenario.complexity_tier or 'T3',
                 prompt_template=analysis_template,
             )
 
@@ -337,7 +337,7 @@ class ConversationBatchProcessor:
                 conversation_id=conversation_id,
                 turns=turns,
                 language_id=language_id,
-                cefr_level=scenario.cefr_level or 'B1',
+                complexity_tier=scenario.complexity_tier or 'T3',
                 corpus_features=corpus_features,
             )
 
@@ -356,7 +356,7 @@ class ConversationBatchProcessor:
         conversation_id: str,
         turns: list[dict],
         language_id: int,
-        cefr_level: str,
+        complexity_tier: str,
         corpus_features: dict,
     ) -> int:
         """Generate exercises from a conversation. Returns exercise count."""
@@ -364,7 +364,7 @@ class ConversationBatchProcessor:
             conversation_id=conversation_id,
             turns=turns,
             language_id=language_id,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
             corpus_features=corpus_features,
         )
 

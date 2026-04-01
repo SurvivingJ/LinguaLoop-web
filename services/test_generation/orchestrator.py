@@ -92,7 +92,7 @@ class TestGenerationOrchestrator:
             2. For each queue item:
                 a. Get topic and language config
                 b. For each target difficulty:
-                    i. Get CEFR config (word counts, ELO)
+                    i. Get tier config (word counts, ELO)
                     ii. Generate prose
                     iii. Generate questions
                     iv. Validate questions
@@ -234,11 +234,11 @@ class TestGenerationOrchestrator:
         """
         logger.info(f"Generating test: difficulty={difficulty}")
 
-        # Get CEFR config
+        # Get tier config
         cefr_config = self.db.get_cefr_config(difficulty)
         word_min, word_max = self.db.get_word_count_range(difficulty)
         initial_elo = self.db.get_initial_elo(difficulty)
-        cefr_level = cefr_config.cefr_code if cefr_config else 'B1'
+        complexity_tier = cefr_config.tier_code if cefr_config else 'T3'
 
         # Get question distribution
         question_types = self.db.get_question_distribution(difficulty)
@@ -279,7 +279,7 @@ class TestGenerationOrchestrator:
             word_count_min=word_min,
             word_count_max=word_max,
             keywords=translated_keywords,  # Use translated keywords
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
             prompt_template=prose_template,
             model_override=lang_config.prose_model
         )
@@ -298,7 +298,7 @@ class TestGenerationOrchestrator:
                 prose=prose,
                 topic_concept=translated_topic,
                 difficulty=difficulty,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 language_name=lang_config.language_name,
                 language_code=lang_config.language_code,
                 prompt_template=title_template,

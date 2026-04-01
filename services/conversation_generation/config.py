@@ -30,8 +30,8 @@ class ConvGenConfig:
     default_turns: int = field(
         default_factory=lambda: int(os.getenv('CONV_GEN_DEFAULT_TURNS', '12'))
     )
-    target_cefr_levels: List[str] = field(
-        default_factory=lambda: ['A2', 'B1', 'B2', 'C1']
+    target_complexity_tiers: List[str] = field(
+        default_factory=lambda: ['T2', 'T3', 'T4', 'T5']
     )
     persona_reminder_interval: int = field(
         default_factory=lambda: int(os.getenv('CONV_GEN_PERSONA_REMINDER', '4'))
@@ -115,14 +115,14 @@ class ConvGenConfig:
         if self.llm_provider == 'openrouter' and not self.openrouter_api_key:
             logger.warning("OPENROUTER_API_KEY not set - LLM calls will fail")
 
-        # Parse target_cefr_levels from env if set
-        env_levels = os.getenv('CONV_GEN_CEFR_LEVELS')
-        if env_levels:
+        # Parse target_complexity_tiers from env if set
+        env_tiers = os.getenv('CONV_GEN_COMPLEXITY_TIERS')
+        if env_tiers:
             try:
                 import json
-                self.target_cefr_levels = json.loads(env_levels)
+                self.target_complexity_tiers = json.loads(env_tiers)
             except Exception:
-                logger.warning(f"Invalid CONV_GEN_CEFR_LEVELS: {env_levels}")
+                logger.warning(f"Invalid CONV_GEN_COMPLEXITY_TIERS: {env_tiers}")
 
         # Configure logging level
         logging.getLogger('services.conversation_generation').setLevel(
@@ -143,13 +143,13 @@ class ConvGenConfig:
             errors.append("CONV_GEN_TURNS_MIN must be >= 2")
         if self.turns_max < self.turns_min:
             errors.append("CONV_GEN_TURNS_MAX must be >= CONV_GEN_TURNS_MIN")
-        if not self.target_cefr_levels:
-            errors.append("target_cefr_levels must not be empty")
+        if not self.target_complexity_tiers:
+            errors.append("target_complexity_tiers must not be empty")
 
-        valid_cefr = {'A1', 'A2', 'B1', 'B2', 'C1', 'C2'}
-        for level in self.target_cefr_levels:
-            if level not in valid_cefr:
-                errors.append(f"Invalid CEFR level: {level}")
+        valid_tiers = {'T1', 'T2', 'T3', 'T4', 'T5', 'T6'}
+        for tier in self.target_complexity_tiers:
+            if tier not in valid_tiers:
+                errors.append(f"Invalid complexity tier: {tier}")
         if self.generation_mode not in ('single_shot', 'per_turn'):
             errors.append(f"Invalid generation_mode: {self.generation_mode}")
         if not 1 <= self.max_parallel_workers <= 4:

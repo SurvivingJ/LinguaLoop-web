@@ -61,7 +61,7 @@ class ExerciseGenerator(ABC):
                     )
                     continue
                 row = self._build_exercise_row(content, sent, source_id, generation_batch_id)
-                row = calibrator.attach_difficulty(row, sent.get('cefr_level', 'B1'))
+                row = calibrator.attach_difficulty(row, sent.get('complexity_tier', 'T3'))
                 results.append(row)
             except Exception as exc:
                 logger.error("generate_one error for %s: %s", self.exercise_type, exc)
@@ -84,7 +84,7 @@ class ExerciseGenerator(ABC):
             'source_type':           'conversation' if is_conversation else self.source_type,
             'content':               content,
             'tags':                  self._build_tags(source_id, sentence_dict),
-            'cefr_level':            sentence_dict.get('cefr_level'),
+            'complexity_tier':        sentence_dict.get('complexity_tier'),
             'is_active':             True,
             'generation_batch_id':   generation_batch_id,
             'grammar_pattern_id':    None,
@@ -110,7 +110,7 @@ class ExerciseGenerator(ABC):
         return {
             'source_type':  self.source_type,
             'source_id':    source_id,
-            'cefr_level':   sentence_dict.get('cefr_level'),
+            'complexity_tier': sentence_dict.get('complexity_tier'),
             'sentence_src': sentence_dict.get('source', 'unknown'),
         }
 

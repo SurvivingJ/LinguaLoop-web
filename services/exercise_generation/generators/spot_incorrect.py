@@ -45,7 +45,7 @@ class SpotIncorrectGenerator(ExerciseGenerator):
                 continue
 
             sent_content, part_content = pair
-            cefr = triplet[0].get('cefr_level', 'B1')
+            tier = triplet[0].get('complexity_tier', 'T3')
 
             for ex_type, content in [
                 ('spot_incorrect_sentence', sent_content),
@@ -57,7 +57,7 @@ class SpotIncorrectGenerator(ExerciseGenerator):
                     break
                 row = self._build_exercise_row(content, triplet[0], source_id, generation_batch_id)
                 row['exercise_type'] = ex_type
-                row = calibrator.attach_difficulty(row, cefr)
+                row = calibrator.attach_difficulty(row, tier)
                 results.append(row)
 
         return results

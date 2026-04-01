@@ -11,6 +11,14 @@ import logging
 import time
 from typing import Dict, List, Optional, Set
 
+from .categorical_maps import (
+    SCENARIO_KEY_MAP,
+    GOALS_KEY_MAP,
+    build_tier_legend,
+    localize_list,
+    remap_numeric_keys,
+    reverse_lookup,
+)
 from .config import conv_gen_config
 from .database_client import ConversationDatabaseClient, Scenario, ConvDomain
 from .llm_client import call_llm
@@ -76,13 +84,13 @@ class ScenarioBatchGenerator:
             remaining, domain.domain_name, language_name, len(existing),
         )
 
-        cefr_levels = conv_gen_config.target_cefr_levels or ['B1']
+        tiers = conv_gen_config.target_complexity_tiers or ['T3']
         all_ids: List[int] = []
         batch_num = 0
 
         while remaining > 0:
             count = min(batch_size, remaining)
-            cefr_level = cefr_levels[batch_num % len(cefr_levels)]
+            complexity_tier = tiers[batch_num % len(tiers)]
             batch_num += 1
 
             try:
@@ -90,7 +98,7 @@ class ScenarioBatchGenerator:
                     domain=domain,
                     language_id=language_id,
                     language_name=language_name,
-                    cefr_level=cefr_level,
+                    complexity_tier=complexity_tier,
                     existing_titles=list(existing_titles),
                     count=count,
                 )
@@ -111,8 +119,8 @@ class ScenarioBatchGenerator:
             remaining -= len(ids)
 
             logger.info(
-                "  Batch %d: inserted %d scenarios (CEFR %s), %d remaining",
-                batch_num, len(ids), cefr_level, max(remaining, 0),
+                "  Batch %d: inserted %d scenarios (tier %s), %d remaining",
+                batch_num, len(ids), complexity_tier, max(remaining, 0),
             )
 
         return all_ids
@@ -223,7 +231,7 @@ class ScenarioBatchGenerator:
         domain: ConvDomain,
         language_id: int,
         language_name: str,
-        cefr_level: str,
+        complexity_tier: str,
         existing_titles: List[str],
         count: int = 5,
     ) -> List[Dict]:
@@ -239,14 +247,25 @@ class ScenarioBatchGenerator:
             logger.warning("No prompt template for scenario_batch_generation (lang=%d), using fallback", language_id)
             template = self._fallback_prompt_template()
 
+        # Localize categorical values for prompt injection
+        localized_registers = (
+            localize_list('register', domain.suitable_registers, language_id)
+            if domain.suitable_registers else 'any'
+        )
+        localized_relationships = (
+            localize_list('relationship_type', domain.suitable_relationship_types, language_id)
+            if domain.suitable_relationship_types else 'any'
+        )
+
         prompt = template.format(
             count=count,
             domain_name=domain.domain_name,
             domain_description=domain.description or domain.domain_name,
             domain_keywords=', '.join(domain.keywords) if domain.keywords else 'general',
-            suitable_registers=', '.join(domain.suitable_registers) if domain.suitable_registers else 'any',
-            suitable_relationship_types=', '.join(domain.suitable_relationship_types) if domain.suitable_relationship_types else 'any',
-            cefr_level=cefr_level,
+            suitable_registers=localized_registers,
+            suitable_relationship_types=localized_relationships,
+            complexity_tier=complexity_tier,
+            tier_legend=build_tier_legend(language_id),
             language_name=language_name,
             existing_titles=json.dumps(existing_titles[:50]),  # Cap to avoid prompt bloat
         )
@@ -260,7 +279,7 @@ class ScenarioBatchGenerator:
                     temperature=0.85,
                 )
 
-                scenarios = self._parse_and_validate(result)
+                scenarios = self._parse_and_validate(result, language_id)
                 return scenarios
 
             except (json.JSONDecodeError, KeyError, ValueError) as e:
@@ -274,15 +293,19 @@ class ScenarioBatchGenerator:
 
         raise RuntimeError(f"All {conv_gen_config.max_retries} attempts failed: {last_error}")
 
-    def _parse_and_validate(self, result) -> List[Dict]:
-        """Validate LLM response structure and extract scenario list."""
+    def _parse_and_validate(self, result, language_id: int = 2) -> List[Dict]:
+        """Validate LLM response structure and extract scenario list.
+
+        Handles both numeric-key output (new prompts) and English-key output
+        (legacy prompts / backward compatibility).
+        """
         if isinstance(result, list):
             scenarios = result
         elif isinstance(result, dict):
             scenarios = result.get('scenarios', [])
             if not scenarios:
                 # Try the result itself as a single scenario
-                if 'title' in result:
+                if 'title' in result or '1' in result:
                     scenarios = [result]
                 else:
                     raise ValueError(f"Response missing 'scenarios' key. Keys: {list(result.keys())}")
@@ -291,6 +314,25 @@ class ScenarioBatchGenerator:
 
         validated = []
         for i, s in enumerate(scenarios):
+            # Detect numeric keys and remap to English DB columns
+            if '1' in s and 'title' not in s:
+                s = remap_numeric_keys(s, SCENARIO_KEY_MAP)
+                # Remap goals sub-object if also numeric
+                goals = s.get('goals', {})
+                if isinstance(goals, dict) and '1' in goals and 'persona_a' not in goals:
+                    s['goals'] = remap_numeric_keys(goals, GOALS_KEY_MAP)
+
+            # Reverse-lookup localized categorical values to English enums
+            reg = s.get('required_register')
+            if reg:
+                mapped = reverse_lookup('register', str(reg), language_id)
+                s['required_register'] = mapped or reg
+
+            rel = s.get('required_relationship_type')
+            if rel:
+                mapped = reverse_lookup('relationship_type', str(rel), language_id)
+                s['required_relationship_type'] = mapped or rel
+
             missing = REQUIRED_SCENARIO_KEYS - set(s.keys())
             if missing:
                 logger.warning("Scenario %d missing keys %s — skipping", i, missing)
@@ -341,7 +383,7 @@ class ScenarioBatchGenerator:
                 'goals': s['goals'],
                 'required_register': s.get('required_register'),
                 'required_relationship_type': s.get('required_relationship_type'),
-                'cefr_level': s.get('cefr_level'),
+                'complexity_tier': s.get('complexity_tier'),
                 'keywords': s.get('keywords', []),
                 'suitable_archetypes': s.get('suitable_archetypes', []),
                 'cultural_note': s.get('cultural_note'),
@@ -361,16 +403,23 @@ class ScenarioBatchGenerator:
 
     @staticmethod
     def _fallback_prompt_template() -> str:
-        """Hardcoded fallback prompt if no DB template exists yet."""
+        """Hardcoded fallback prompt if no DB template exists yet.
+
+        Uses numeric JSON keys to prevent English leaking into target-language output.
+        """
         return """You are designing conversation scenarios for a language learning application.
+The target language for ALL generated content is: {language_name}.
 
 Generate {count} UNIQUE and REALISTIC conversation scenarios for:
 - Domain: {domain_name} — {domain_description}
 - Domain keywords: {domain_keywords}
 - Language/Culture: {language_name}
-- Target CEFR difficulty: {cefr_level}
+- Target complexity: {complexity_tier}
 - Suitable registers: {suitable_registers}
 - Suitable relationship types: {suitable_relationship_types}
+
+Complexity Tier Legend:
+{tier_legend}
 
 Each scenario must:
 1. Be culturally authentic for {language_name} speakers — NOT a translated Western situation
@@ -379,25 +428,37 @@ Each scenario must:
 4. Be able to sustain 10-14 turns of natural dialogue without running out of content
 5. Contain vocabulary and cultural references natural to this domain
 
+CRITICAL: ALL string values MUST be in {language_name}. Do NOT include English words in the JSON output (except for tier codes and archetype codes).
+
 IMPORTANT: Do NOT repeat any of these existing scenario titles:
 {existing_titles}
+
+OUTPUT FORMAT: Use STRICTLY NUMERIC KEYS according to this legend.
+
+Key Legend:
+"1" = Title (short descriptive title in {language_name})
+"2" = Context Description (2-3 sentences setting the scene in {language_name})
+"3" = Goals (object with "1" = speaker A goal, "2" = speaker B goal, both in {language_name})
+"4" = Keywords (array of 5-8 {language_name} vocabulary words)
+"5" = Suitable Archetypes (array of 2 archetype codes from the list below)
+"6" = Required Register (choose exactly one from: {suitable_registers})
+"7" = Required Relationship Type (choose exactly one from: {suitable_relationship_types})
+"8" = Complexity Tier (choose exactly one: T1, T2, T3, T4, T5, T6)
+"9" = Cultural Note (one sentence in {language_name} noting any culturally specific element)
 
 Return ONLY valid JSON with this exact structure:
 {{
   "scenarios": [
     {{
-      "title": "Short descriptive title in English",
-      "context_description": "2-3 sentences setting the scene. Where are they? What is the situation?",
-      "goals": {{
-        "persona_a": "What does speaker A want to achieve or resolve?",
-        "persona_b": "What does speaker B want — and how does it differ from A?"
-      }},
-      "keywords": ["word1", "word2", "word3", "word4", "word5", "word6"],
-      "suitable_archetypes": ["archetype_a", "archetype_b"],
-      "required_register": "one of: {suitable_registers}",
-      "required_relationship_type": "one of: {suitable_relationship_types}",
-      "cefr_level": "{cefr_level}",
-      "cultural_note": "One sentence noting any culturally specific element."
+      "1": "...",
+      "2": "...",
+      "3": {{"1": "...", "2": "..."}},
+      "4": ["...", "...", "..."],
+      "5": ["archetype_a", "archetype_b"],
+      "6": "...",
+      "7": "...",
+      "8": "{complexity_tier}",
+      "9": "..."
     }}
   ]
 }}

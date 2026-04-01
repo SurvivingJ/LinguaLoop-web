@@ -52,7 +52,7 @@ class TranscriptMiner:
         for test in (result.data or []):
             transcript = test.get('transcript', '')
             token_map  = test.get('vocab_token_map', [])
-            cefr       = self._difficulty_to_cefr(test.get('difficulty', 2))
+            tier       = self._difficulty_to_tier(test.get('difficulty', 2))
 
             target_tokens = [entry[0] for entry in token_map if entry[1] == sense_id]
             if not target_tokens:
@@ -60,7 +60,7 @@ class TranscriptMiner:
 
             for token_text in target_tokens:
                 extracted = self._extract_sentences_containing(
-                    transcript, token_text, test['id'], cefr
+                    transcript, token_text, test['id'], tier
                 )
                 sentences.extend(extracted)
 
@@ -69,7 +69,7 @@ class TranscriptMiner:
     def _mine_grammar(self, pattern_id: int, language_id: int) -> list[dict]:
         """Grammar mining: scan transcripts for pattern matches via regex heuristics."""
         pattern_row = self.db.table('dim_grammar_patterns') \
-            .select('pattern_code, cefr_level') \
+            .select('pattern_code, complexity_tier') \
             .eq('id', pattern_id) \
             .single() \
             .execute().data
@@ -85,12 +85,12 @@ class TranscriptMiner:
         sentences = []
         for test in (tests.data or []):
             transcript = test.get('transcript', '')
-            cefr       = self._difficulty_to_cefr(test.get('difficulty', 2))
+            tier       = self._difficulty_to_tier(test.get('difficulty', 2))
             raw_sents  = self.lp.split_sentences(transcript)
 
             for sent in raw_sents:
                 if self.lp.matches_pattern(sent, pattern_code):
-                    sentences.append(self._make_sentence_dict(sent, test['id'], cefr))
+                    sentences.append(self._make_sentence_dict(sent, test['id'], tier))
 
         return sentences
 
@@ -113,44 +113,44 @@ class TranscriptMiner:
         sentences = []
         for test in (tests.data or []):
             transcript = test.get('transcript', '')
-            cefr       = self._difficulty_to_cefr(test.get('difficulty', 2))
+            tier       = self._difficulty_to_tier(test.get('difficulty', 2))
             raw_sents  = self.lp.split_sentences(transcript)
 
             for sent in raw_sents:
                 if self.lp.contains_collocation(sent, collocation_text):
-                    sentences.append(self._make_sentence_dict(sent, test['id'], cefr))
+                    sentences.append(self._make_sentence_dict(sent, test['id'], tier))
 
         return sentences
 
     def _extract_sentences_containing(
-        self, transcript: str, token_text: str, test_id: str, cefr: str,
+        self, transcript: str, token_text: str, test_id: str, tier: str,
     ) -> list[dict]:
         raw_sents = self.lp.split_sentences(transcript)
         return [
-            self._make_sentence_dict(sent, test_id, cefr)
+            self._make_sentence_dict(sent, test_id, tier)
             for sent in raw_sents
             if self.lp.contains_collocation(sent, token_text)
         ]
 
     @staticmethod
-    def _make_sentence_dict(sentence: str, test_id: str, cefr: str) -> dict:
+    def _make_sentence_dict(sentence: str, test_id: str, tier: str) -> dict:
         return {
-            'sentence':    sentence,
-            'translation': None,
-            'topic':       'existing_content',
-            'source':      'transcript',
-            'cefr_level':  cefr,
-            'test_id':     test_id,
+            'sentence':        sentence,
+            'translation':     None,
+            'topic':           'existing_content',
+            'source':          'transcript',
+            'complexity_tier': tier,
+            'test_id':         test_id,
         }
 
     @staticmethod
-    def _difficulty_to_cefr(difficulty: float) -> str:
-        if difficulty < 1.5:  return 'A1'
-        if difficulty < 2.5:  return 'A2'
-        if difficulty < 3.5:  return 'B1'
-        if difficulty < 4.0:  return 'B2'
-        if difficulty < 4.5:  return 'C1'
-        return 'C2'
+    def _difficulty_to_tier(difficulty: float) -> str:
+        if difficulty < 1.5:  return 'T1'
+        if difficulty < 2.5:  return 'T2'
+        if difficulty < 3.5:  return 'T3'
+        if difficulty < 4.0:  return 'T4'
+        if difficulty < 4.5:  return 'T5'
+        return 'T6'
 
 
 class SentenceFilter:
@@ -230,7 +230,7 @@ class LLMSentenceGenerator:
     def _load_source_data(self, source_type: str, source_id: int) -> dict:
         if source_type == 'grammar':
             row = self.db.table('dim_grammar_patterns') \
-                .select('pattern_code, description, example_sentence, cefr_level') \
+                .select('pattern_code, description, example_sentence, complexity_tier') \
                 .eq('id', source_id).single().execute().data
             return row or {}
         elif source_type == 'vocabulary':
@@ -243,7 +243,7 @@ class LLMSentenceGenerator:
             return {
                 'word': vocab.get('lemma', ''),
                 'definition': row.get('definition', ''),
-                'cefr_level': 'B1',
+                'complexity_tier': 'T3',
             }
         elif source_type == 'collocation':
             row = self.db.table('corpus_collocations') \

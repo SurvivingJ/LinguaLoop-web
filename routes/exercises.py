@@ -18,7 +18,7 @@ def get_exercises() -> ApiResponse:
     """List exercises with optional filters.
 
     Query params:
-        language_id, exercise_type, source_type, cefr_level, limit, offset
+        language_id, exercise_type, source_type, complexity_tier, limit, offset
     """
     try:
         language_id = request.args.get('language_id', type=int)
@@ -27,7 +27,7 @@ def get_exercises() -> ApiResponse:
 
         exercise_type = request.args.get('exercise_type')
         source_type = request.args.get('source_type')
-        cefr_level = request.args.get('cefr_level')
+        complexity_tier = request.args.get('complexity_tier')
         limit = min(request.args.get('limit', 20, type=int), 100)
         offset = request.args.get('offset', 0, type=int)
 
@@ -36,7 +36,7 @@ def get_exercises() -> ApiResponse:
 
         query = db.table('exercises') \
             .select('id, exercise_type, source_type, content, difficulty_static, '
-                    'cefr_level, tags, attempt_count, correct_count, word_sense_id') \
+                    'complexity_tier, tags, attempt_count, correct_count, word_sense_id') \
             .eq('is_active', True) \
             .eq('language_id', language_id)
 
@@ -44,8 +44,8 @@ def get_exercises() -> ApiResponse:
             query = query.eq('exercise_type', exercise_type)
         if source_type:
             query = query.eq('source_type', source_type)
-        if cefr_level:
-            query = query.eq('cefr_level', cefr_level)
+        if complexity_tier:
+            query = query.eq('complexity_tier', complexity_tier)
 
         query = query.order('created_at', desc=True) \
             .range(offset, offset + limit - 1)

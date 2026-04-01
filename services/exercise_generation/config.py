@@ -120,10 +120,8 @@ MIN_TRANSCRIPT_SENTENCES: int = 80
 DEFAULT_SENTENCE_TARGET:  int = 200
 LLM_BATCH_SIZE:           int = 25
 
-# --- CEFR -> IRT difficulty seed ----------------------------------------------
-CEFR_TO_IRT: dict[str, float] = {
-    'A1': -2.0, 'A2': -1.0, 'B1': 0.0, 'B2': 0.5, 'C1': 1.0, 'C2': 2.0,
-}
+# --- Tier -> IRT difficulty seed ----------------------------------------------
+from services.conversation_generation.categorical_maps import TIER_TO_IRT
 
 # --- Grammar pattern heuristics (for transcript mining) ---------------------
 PATTERN_HEURISTICS: dict[str, str] = {

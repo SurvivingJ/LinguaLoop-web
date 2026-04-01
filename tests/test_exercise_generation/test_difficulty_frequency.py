@@ -87,13 +87,13 @@ class TestAttachDifficultyWithFrequency:
             'language_id': 2,
             'content': {'original_sentence': 'Hello world'},
         }
-        result = calibrator.attach_difficulty(row, 'B2')
-        assert result['irt_difficulty'] == 0.5  # B2 IRT value
+        result = calibrator.attach_difficulty(row, 'T4')
+        assert result['irt_difficulty'] == 0.5  # T4 IRT value
         assert result['irt_discrimination'] == 1.0
-        assert result['cefr_level'] == 'B2'
+        assert result['complexity_tier'] == 'T4'
 
-    def test_cefr_still_dominates(self, calibrator):
-        """CEFR level should still be the strongest factor (40% weight)."""
+    def test_tier_still_dominates(self, calibrator):
+        """Complexity tier should still be the strongest factor (40% weight)."""
         row_content = {'original_sentence': 'The cat sat on the mat'}
         a1_row = {'language_id': 2, 'content': row_content}
         c2_row = {'language_id': 2, 'content': row_content}

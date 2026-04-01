@@ -95,7 +95,6 @@ class TempoRamp {
             this.currentTempo = Math.min(this.maxTempo, this.currentTempo + this.increment);
             this.elapsedSinceLastRamp = 0;
             this.lastRampTime = this.elapsedTime;
-            this.updateMetronomeInterval();
             audioManager.playChirp();
             storageManager.updateHighScore('tempo_ramp_max', this.currentTempo);
         }
@@ -112,15 +111,6 @@ class TempoRamp {
         }
     }
 
-    updateMetronomeInterval() {
-        if (this.metronomeInterval) clearInterval(this.metronomeInterval);
-        const interval = (60 / this.currentTempo) * 1000;
-        this.metronomeInterval = setInterval(() => {
-            if (!this.isRunning) return;
-            audioManager.playClick(900, 0.05, true);
-        }, interval);
-    }
-
     animationLoop(timestamp) {
         if (!this.isRunning) return;
 
@@ -130,11 +120,12 @@ class TempoRamp {
         this.elapsedTime += delta;
         this.elapsedSinceLastRamp += delta;
 
-        // Calculate beat
+        // Calculate beat and play click on each new beat
         const beatDurMs = getBeatDurationMs(this.currentTempo);
         const newBeat = Math.floor((this.elapsedTime * 1000) / beatDurMs);
         if (newBeat !== this.currentBeat) {
             this.currentBeat = newBeat;
+            audioManager.playClick(900, 0.05, true);
         }
 
         // Check for warning (2 beats before ramp)
@@ -189,7 +180,6 @@ class TempoRamp {
         document.getElementById('ramp-start').classList.add('hidden');
         document.getElementById('ramp-stop').classList.remove('hidden');
 
-        this.updateMetronomeInterval();
         this.animFrameId = requestAnimationFrame((t) => this.animationLoop(t));
     }
 
@@ -198,7 +188,6 @@ class TempoRamp {
         this.isRunning = false;
 
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
-        if (this.metronomeInterval) clearInterval(this.metronomeInterval);
 
         document.getElementById('ramp-start').classList.remove('hidden');
         document.getElementById('ramp-stop').classList.add('hidden');

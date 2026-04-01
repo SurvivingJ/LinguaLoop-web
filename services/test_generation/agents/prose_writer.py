@@ -10,6 +10,8 @@ import logging
 from typing import Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from services.llm_service import get_client
+from services.llm_output_cleaner import clean_text
+from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
 
 from ..config import test_gen_config
 
@@ -57,7 +59,7 @@ class ProseWriter:
         word_count_min: int,
         word_count_max: int,
         keywords: Optional[list] = None,
-        cefr_level: Optional[str] = None,
+        complexity_tier: Optional[str] = None,
         prompt_template: Optional[str] = None,
         model_override: Optional[str] = None
     ) -> str:
@@ -72,7 +74,7 @@ class ProseWriter:
             word_count_min: Minimum word count
             word_count_max: Maximum word count
             keywords: List of keywords related to topic (in target language)
-            cefr_level: CEFR level code (e.g., "A1", "B2")
+            complexity_tier: Tier code (e.g., "T1", "T3")
             prompt_template: Custom prompt template (optional)
             model_override: Override model for this call
 
@@ -84,26 +86,18 @@ class ProseWriter:
         # Format keywords for template
         keywords_str = ', '.join(keywords) if keywords else ''
 
-        # Determine CEFR level if not provided
-        if not cefr_level:
-            cefr_map = {
-                1: 'A1', 2: 'A1',
-                3: 'A2', 4: 'A2',
-                5: 'B1',
-                6: 'B2',
-                7: 'C1',
-                8: 'C2', 9: 'C2'
-            }
-            cefr_level = cefr_map.get(difficulty, 'B1')
+        # Determine tier if not provided
+        if not complexity_tier:
+            complexity_tier = DIFFICULTY_TO_TIER.get(difficulty, 'T3')
 
         # Build prompt
         if prompt_template:
             # Use placeholder names that match actual database templates:
-            # {topic_concept}, {keywords}, {cefr_level}, {min_words}, {max_words}
+            # {topic_concept}, {keywords}, {complexity_tier}, {min_words}, {max_words}
             prompt = prompt_template.format(
                 topic_concept=topic_concept,
                 keywords=keywords_str,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 min_words=word_count_min,
                 max_words=word_count_max,
                 language=language_name,
@@ -136,7 +130,7 @@ class ProseWriter:
             if not content:
                 raise Exception("Empty response from LLM")
 
-            prose = self._clean_response(content.strip())
+            prose = clean_text(content.strip()).cleaned
 
             # Log prose length (character count works better for CJK languages)
             # Don't validate word count since Chinese/Japanese don't use spaces
@@ -162,27 +156,18 @@ class ProseWriter:
         word_count_max: int
     ) -> str:
         """Build default prose generation prompt."""
-        # Map difficulty to CEFR
-        cefr_map = {
-            1: 'A1', 2: 'A1',
-            3: 'A2', 4: 'A2',
-            5: 'B1',
-            6: 'B2',
-            7: 'C1',
-            8: 'C2', 9: 'C2'
-        }
-        cefr = cefr_map.get(difficulty, 'B1')
+        tier = DIFFICULTY_TO_TIER.get(difficulty, 'T3')
 
         return f"""Generate a natural, engaging prose passage in {language} for language learners.
 
 TOPIC: {topic}
-TARGET LEVEL: {cefr} (CEFR)
+TARGET LEVEL: {tier}
 DIFFICULTY: {difficulty}/9
 WORD COUNT: {word_count_min}-{word_count_max} words
 
 Requirements:
 - Write ONLY in {language}
-- Use vocabulary and grammar appropriate for {cefr} level
+- Use vocabulary and grammar appropriate for complexity tier {tier}
 - Create natural, flowing prose suitable for listening comprehension
 - Include clear main ideas with supporting details
 - Avoid overly complex or technical vocabulary for lower levels

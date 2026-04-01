@@ -26,7 +26,7 @@ Requirements:
 - Each question has exactly 4 options with 1 correct answer
 - Distractors should be plausible but clearly wrong when the text is read carefully
 - Questions should be in {language_name} (matching the scene text)
-- Difficulty appropriate for CEFR {cefr_level}
+- Difficulty appropriate for complexity tier {complexity_tier}
 
 Output format: valid JSON only, no markdown."""
 
@@ -105,7 +105,7 @@ class MysteryQuestionGenerator:
         story_bible: Dict,
         scene_number: int,
         language_name: str,
-        cefr_level: str,
+        complexity_tier: str,
         num_questions: int = 2,
         model_override: Optional[str] = None,
         prompt_template: Optional[str] = None,
@@ -117,7 +117,7 @@ class MysteryQuestionGenerator:
 
         system_msg = DEFAULT_QUESTION_SYSTEM_PROMPT.format(
             language_name=language_name,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
         )
 
         if prompt_template:

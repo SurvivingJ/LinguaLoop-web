@@ -20,7 +20,7 @@ class TestConvGenConfig:
         assert config.temperature == 0.85
         assert config.llm_provider == 'openrouter'
         assert config.min_quality_score == 0.70
-        assert 'B1' in config.target_cefr_levels
+        assert 'T3' in config.target_complexity_tiers
 
     def test_env_override(self):
         """Config reads from environment variables."""

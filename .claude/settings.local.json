@@ -40,7 +40,9 @@
       "mcp__claude_ai_Supabase__execute_sql",
       "Bash(find /c/Users/James/Documents/Coding/LinguaLoop/WebApp -type f \\\\\\(-name *.json -o -name fixtures* -o -name *seed* \\\\\\) ! -path */venv/* ! -path */.git/* ! -path */node_modules/*)",
       "Bash(pip install:*)",
-      "Bash(python generate_slonimsky.py)"
+      "Bash(python generate_slonimsky.py)",
+      "Bash(find /c/Users/James/Documents/Coding/LinguaLoop/WebApp -path ./venv -prune -o -type f \\\\\\(-name *enum* -o -name *categorical* -o -name *mapping* -o -name *constant* \\\\\\) -print)",
+      "mcp__claude_ai_Supabase__apply_migration"
     ]
   }
 }

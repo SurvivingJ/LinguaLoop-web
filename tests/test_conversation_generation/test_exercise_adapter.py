@@ -23,13 +23,13 @@ class TestConversationExerciseAdapter:
             conversation_id='test-uuid',
             turns=turns,
             language_id=2,
-            cefr_level='B1',
+            complexity_tier='T3',
         )
 
         assert len(pool) >= 2
         assert all(s['source'] == 'conversation' for s in pool)
         assert all(s['language_id'] == 2 for s in pool)
-        assert all(s['cefr_level'] == 'B1' for s in pool)
+        assert all(s['complexity_tier'] == 'T3' for s in pool)
 
     def test_skips_short_sentences(self):
         """Sentences shorter than 5 chars are skipped."""
@@ -68,7 +68,7 @@ class TestConversationExerciseAdapter:
             conversation_id='test-uuid',
             turns=turns,
             language_id=1,
-            cefr_level='A2',
+            complexity_tier='T2',
         )
 
         assert len(pool) >= 1

@@ -72,10 +72,10 @@ class MysteryGenerationOrchestrator:
         language_code = lang_config.get('language_code', 'en')
         prose_model = lang_config.get('prose_model', 'google/gemini-2.0-flash-exp')
         question_model = lang_config.get('question_model', 'google/gemini-2.0-flash-exp')
-        cefr_level = mystery_gen_config.difficulty_to_cefr.get(difficulty, 'B1')
+        complexity_tier = mystery_gen_config.difficulty_to_tier.get(difficulty, 'B1')
 
         logger.info(
-            f"Starting mystery generation: {language_name} {cefr_level} "
+            f"Starting mystery generation: {language_name} {complexity_tier} "
             f"(difficulty={difficulty}, archetype={archetype}, "
             f"prose_model={prose_model}, question_model={question_model})"
         )
@@ -87,7 +87,7 @@ class MysteryGenerationOrchestrator:
         logger.info("Step 1: Generating story bible...")
         story_bible = self.plot_architect.generate(
             language_name=language_name,
-            cefr_level=cefr_level,
+            complexity_tier=complexity_tier,
             archetype=archetype,
             target_vocab=target_vocab,
             model_override=prose_model,
@@ -109,7 +109,7 @@ class MysteryGenerationOrchestrator:
                 story_bible=story_bible,
                 scene_outline=scene_outline,
                 language_name=language_name,
-                cefr_level=cefr_level,
+                complexity_tier=complexity_tier,
                 previous_summary=previous_summary,
                 model_override=prose_model,
                 prompt_template=templates.get('mystery_scene'),
@@ -122,7 +122,7 @@ class MysteryGenerationOrchestrator:
                     story_bible=story_bible,
                     scene_number=scene_num,
                     language_name=language_name,
-                    cefr_level=cefr_level,
+                    complexity_tier=complexity_tier,
                     num_questions=mystery_gen_config.questions_per_scene,
                     model_override=question_model,
                     prompt_template=templates.get('mystery_question'),
@@ -134,7 +134,7 @@ class MysteryGenerationOrchestrator:
                     story_bible=story_bible,
                     scene_number=scene_num,
                     language_name=language_name,
-                    cefr_level=cefr_level,
+                    complexity_tier=complexity_tier,
                     num_questions=1,
                     model_override=question_model,
                     prompt_template=templates.get('mystery_question'),

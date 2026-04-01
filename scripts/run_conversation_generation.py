@@ -80,7 +80,7 @@ def main():
     logger.info("  Batch Size: %d", conv_gen_config.batch_size)
     logger.info("  Turns: %d-%d", conv_gen_config.turns_min, conv_gen_config.turns_max)
     logger.info("  Temperature: %.2f", conv_gen_config.temperature)
-    logger.info("  CEFR Levels: %s", conv_gen_config.target_cefr_levels)
+    logger.info("  Complexity Tiers: %s", conv_gen_config.target_complexity_tiers)
     logger.info("  Dry Run: %s", conv_gen_config.dry_run)
     logger.info("")
 
