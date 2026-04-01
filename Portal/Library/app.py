@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import uuid
 
 from flask import Flask, render_template, request, jsonify, Response
 import os
@@ -109,6 +110,41 @@ def sync_videos():
 
     storage.save_videos(data)
     return jsonify({"synced": len(data)})
+
+
+# ── Watched API ──────────────────────────────────────────────────────
+
+@app.route("/api/watched", methods=["GET"])
+def get_watched():
+    return jsonify(storage.load_watched())
+
+
+@app.route("/api/watched", methods=["POST"])
+def add_watched():
+    data = request.get_json(silent=True)
+    if not data or not data.get("title"):
+        return jsonify({"error": "Title is required"}), 400
+
+    watched = storage.load_watched()
+
+    if "added_at" not in data:
+        data["added_at"] = datetime.now(timezone.utc).isoformat()
+    if "id" not in data:
+        data["id"] = str(uuid.uuid4())
+
+    watched.append(data)
+    storage.save_watched(watched)
+    return jsonify(data), 201
+
+
+@app.route("/api/watched/<item_id>", methods=["DELETE"])
+def delete_watched(item_id):
+    watched = storage.load_watched()
+    updated = [w for w in watched if w.get("id") != item_id]
+    if len(updated) == len(watched):
+        return jsonify({"error": "Item not found"}), 404
+    storage.save_watched(updated)
+    return jsonify({"deleted": item_id})
 
 
 if __name__ == "__main__":

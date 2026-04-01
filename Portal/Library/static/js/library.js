@@ -6,6 +6,7 @@
     const state = {
         books: [],
         videos: [],
+        watched: [],
         activeTab: "books",
         scanner: null,
         viewMode: localStorage.getItem("library-view-mode") || "grid",
@@ -22,6 +23,8 @@
     const itemCount = $("item-count");
     const booksCount = $("books-count");
     const videosCount = $("videos-count");
+    const watchedCount = $("watched-count");
+    const addWatchedFab = $("add-watched-fab");
     const scannerOverlay = $("scanner-overlay");
     const selectionModal = $("selection-modal");
     const selectionOptions = $("selection-options");
@@ -58,6 +61,7 @@
     function updateCounts() {
         booksCount.textContent = `(${state.books.length})`;
         videosCount.textContent = `(${state.videos.length})`;
+        watchedCount.textContent = `(${state.watched.length})`;
         const active = state[state.activeTab];
         itemCount.textContent = active.length
             ? `${active.length} ${state.activeTab}`
@@ -87,8 +91,9 @@
             card.className = "card";
 
             const isBook = state.activeTab === "books";
-            const coverSrc = isBook ? item.cover_url : item.cover_base64;
-            const icon = isBook ? "fa-book" : "fa-film";
+            const isWatched = state.activeTab === "watched";
+            const coverSrc = isBook ? item.cover_url : (isWatched ? item.cover_url : item.cover_base64);
+            const icon = isBook ? "fa-book" : "fa-eye";
 
             if (coverSrc) {
                 const img = document.createElement("img");
@@ -123,7 +128,7 @@
             }
             info.appendChild(subtitle);
 
-            if (!isBook && item.type) {
+            if ((!isBook && item.type) || (isWatched && item.type)) {
                 const badge = document.createElement("span");
                 badge.className = "card-badge";
                 badge.textContent = item.type;
@@ -159,7 +164,7 @@
         }
         const q = query.toLowerCase();
         const filtered = data.filter((item) => {
-            const fields = [item.title, item.author, item.isbn, String(item.year || "")];
+            const fields = [item.title, item.author, item.isbn, item.type, String(item.year || "")];
             return fields.some((f) => f && f.toLowerCase().includes(q));
         });
         renderCards(filtered);
@@ -173,6 +178,7 @@
             t.classList.toggle("active", t.dataset.tab === type);
         });
         scanFab.style.display = type === "books" ? "flex" : "none";
+        addWatchedFab.style.display = type === "watched" ? "flex" : "none";
         viewToggle.style.display = type === "books" ? "flex" : "none";
         searchInput.value = "";
         updateCounts();
@@ -519,8 +525,9 @@
 
     function showDetail(item) {
         const isBook = state.activeTab === "books";
-        const coverSrc = isBook ? item.cover_url : item.cover_base64;
-        const icon = isBook ? "fa-book" : "fa-film";
+        const isWatched = state.activeTab === "watched";
+        const coverSrc = isBook ? item.cover_url : (isWatched ? item.cover_url : item.cover_base64);
+        const icon = isBook ? "fa-book" : "fa-eye";
 
         // Cover
         detailCoverWrap.innerHTML = "";
@@ -549,7 +556,7 @@
         if (item.year) tags.push(item.year);
         if (item.page_count) tags.push(item.page_count + " pages");
         if (item.isbn) tags.push("ISBN: " + item.isbn);
-        if (!isBook && item.type) tags.push(item.type);
+        if (!isBook && item.type && !isWatched) tags.push(item.type);
         tags.forEach((t) => {
             const span = document.createElement("span");
             span.className = "detail-tag";
@@ -847,6 +854,50 @@
         if (ctx) ctx.clearRect(0, 0, towerParticles.width, towerParticles.height);
     }
 
+    // ── Watched Modal ────────────────────────────────────────────────
+
+    const watchedForm = $("watched-form");
+
+    async function saveWatched(item) {
+        try {
+            const res = await fetch("/api/watched", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(item),
+            });
+            if (res.status === 201) {
+                const saved = await res.json();
+                state.watched.push(saved);
+                updateCounts();
+                renderView();
+                showToast("Added to watched!");
+            } else {
+                const err = await res.json();
+                showToast(err.error || "Failed to save", "error");
+            }
+        } catch {
+            showToast("Network error — try again", "error");
+        }
+    }
+
+    watchedForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = $("watched-title").value.trim();
+        if (!title) {
+            showToast("Title is required", "error");
+            return;
+        }
+        const item = {
+            title,
+            year: $("watched-year").value.trim(),
+            type: $("watched-type").value,
+            cover_url: $("watched-cover").value.trim(),
+        };
+        closeModal("watched-modal");
+        $("watched-form").reset();
+        await saveWatched(item);
+    });
+
     // ── Init ─────────────────────────────────────────────────────────
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -857,6 +908,7 @@
 
         loadLibrary("books");
         loadLibrary("videos");
+        loadLibrary("watched");
 
         searchInput.addEventListener("input", () => {
             clearTimeout(searchTimer);
@@ -868,6 +920,10 @@
         });
 
         scanFab.addEventListener("click", initScanner);
+
+        addWatchedFab.addEventListener("click", () => {
+            $("watched-modal").style.display = "flex";
+        });
 
         $("scan-file-input").addEventListener("change", (e) => {
             scanFromFile(e.target.files[0]);

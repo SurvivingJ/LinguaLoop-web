@@ -6,13 +6,14 @@ import threading
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "data"))
 BOOKS_FILE = os.path.join(DATA_DIR, "books.json")
 VIDEOS_FILE = os.path.join(DATA_DIR, "videos.json")
+WATCHED_FILE = os.path.join(DATA_DIR, "watched.json")
 
 _lock = threading.Lock()
 
 
 def init_storage():
     os.makedirs(DATA_DIR, exist_ok=True)
-    for filepath in (BOOKS_FILE, VIDEOS_FILE):
+    for filepath in (BOOKS_FILE, VIDEOS_FILE, WATCHED_FILE):
         if not os.path.exists(filepath):
             with open(filepath, "w") as f:
                 json.dump([], f)
@@ -50,6 +51,14 @@ def load_videos():
 
 def save_videos(videos):
     _save(VIDEOS_FILE, videos)
+
+
+def load_watched():
+    return _load(WATCHED_FILE)
+
+
+def save_watched(watched):
+    _save(WATCHED_FILE, watched)
 
 
 init_storage()
