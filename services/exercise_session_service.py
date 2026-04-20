@@ -25,6 +25,8 @@ from services.conversation_generation.categorical_maps import TIER_TO_PHASE
 logger = logging.getLogger(__name__)
 
 # Phase thresholds: p_known → phase letter
+# Canonical source: SQL function bkt_phase() in phase5_algorithm_fixes.sql
+# Keep these values in sync with the DB function.
 _PHASE_THRESHOLDS = [
     (0.30, 'A'),
     (0.55, 'B'),
@@ -232,6 +234,7 @@ class ExerciseSessionService:
                     sense_id=sense_id,
                     is_correct=is_correct,
                     language_id=language_id,
+                    exercise_type=exercise_type,
                 )
                 if bkt_result:
                     result['bkt_update'] = bkt_result
@@ -260,8 +263,52 @@ class ExerciseSessionService:
         cooldown_days = Config.EXERCISE_COOLDOWN_DAYS
         recent_ids = self._get_recent_exercise_ids(user_id, cooldown_days)
 
+        # --- Single RPC: fetch all candidate senses with decay applied ---
+        bucket_map = {'due': [], 'learning': [], 'new': []}
+        try:
+            resp = self.db.rpc('get_session_senses', {
+                'p_user_id': user_id,
+                'p_language_id': language_id,
+                'p_due_limit': due_slots * 3,
+                'p_learning_limit': learning_slots * 3,
+                'p_new_limit': new_slots * 3,
+            }).execute()
+
+            for row in (resp.data or []):
+                bucket = row.get('out_bucket', 'learning')
+                bucket_map.setdefault(bucket, []).append({
+                    'sense_id': row['out_sense_id'],
+                    'p_known': float(row['out_effective_p_known']),
+                })
+        except Exception as e:
+            logger.error(f"get_session_senses RPC failed: {e}")
+
+        due_senses = bucket_map.get('due', [])
+        learning_senses = bucket_map.get('learning', [])
+        new_senses = bucket_map.get('new', [])
+
+        # Also add new flashcards as fallback for the new bucket
+        if len(new_senses) < new_slots:
+            existing_new_ids = {s['sense_id'] for s in new_senses}
+            try:
+                fc_resp = (
+                    self.db.table('user_flashcards')
+                    .select('sense_id')
+                    .eq('user_id', user_id)
+                    .eq('language_id', language_id)
+                    .eq('state', 'new')
+                    .limit(new_slots)
+                    .execute()
+                )
+                for row in (fc_resp.data or []):
+                    sid = row['sense_id']
+                    if sid not in existing_new_ids:
+                        new_senses.append({'sense_id': sid, 'p_known': 0.10})
+                        existing_new_ids.add(sid)
+            except Exception as e:
+                logger.error(f"Error fetching new flashcard senses: {e}")
+
         # --- Bucket 1: FSRS due reviews ---
-        due_senses = self._get_due_senses(user_id, language_id, due_slots * 3)
         due_picks = self._select_exercises_for_senses(
             due_senses, language_id, recent_ids, due_slots, 'due_review'
         )
@@ -269,11 +316,11 @@ class ExerciseSessionService:
         picked_sense_ids = {item['sense_id'] for item in due_picks if item.get('sense_id')}
 
         # --- Bucket 2: Active learning (uncertainty zone) ---
-        learning_senses = self._get_active_learning_senses(
-            user_id, language_id, learning_slots * 3, exclude_senses=picked_sense_ids
-        )
+        learning_senses_filtered = [
+            s for s in learning_senses if s['sense_id'] not in picked_sense_ids
+        ]
         learning_picks = self._select_exercises_for_senses(
-            learning_senses, language_id, recent_ids, learning_slots, 'active_learning'
+            learning_senses_filtered, language_id, recent_ids, learning_slots, 'active_learning'
         )
 
         picked_sense_ids.update(
@@ -281,11 +328,11 @@ class ExerciseSessionService:
         )
 
         # --- Bucket 3: New/encountered words ---
-        new_senses = self._get_new_senses(
-            user_id, language_id, new_slots * 3, exclude_senses=picked_sense_ids
-        )
+        new_senses_filtered = [
+            s for s in new_senses if s['sense_id'] not in picked_sense_ids
+        ]
         new_picks = self._select_exercises_for_senses(
-            new_senses, language_id, recent_ids, new_slots, 'new_word'
+            new_senses_filtered, language_id, recent_ids, new_slots, 'new_word'
         )
 
         # --- Overflow redistribution ---
@@ -293,13 +340,11 @@ class ExerciseSessionService:
         remaining = session_size - len(all_picks)
 
         if remaining > 0:
-            # Try to fill from whichever bucket has leftover candidates
             picked_exercise_ids = {item['exercise_id'] for item in all_picks}
             picked_sense_ids.update(
                 item['sense_id'] for item in new_picks if item.get('sense_id')
             )
 
-            # Pull more from each bucket in priority order
             for bucket_senses, slot_type in [
                 (due_senses, 'due_review'),
                 (learning_senses, 'active_learning'),
@@ -332,7 +377,18 @@ class ExerciseSessionService:
             )
             all_picks.extend(supplementary)
 
-        # --- Bucket 5: User test sentence jumbled exercises ---
+        # --- Bucket 5: Vocabulary ladder exercises ---
+        remaining = session_size - len(all_picks)
+        ladder_slots = min(remaining, 5)
+        if ladder_slots > 0:
+            picked_exercise_ids = {item['exercise_id'] for item in all_picks}
+            ladder_picks = self._get_ladder_exercises(
+                user_id, language_id, ladder_slots,
+                recent_ids | picked_exercise_ids
+            )
+            all_picks.extend(ladder_picks)
+
+        # --- Bucket 6: User test sentence jumbled exercises ---
         remaining = session_size - len(all_picks)
         user_test_slots = min(remaining, 3)
         if user_test_slots > 0:
@@ -356,138 +412,6 @@ class ExerciseSessionService:
         # Shuffle so session isn't grouped by bucket
         random.shuffle(all_picks)
         return all_picks
-
-    def _get_due_senses(
-        self, user_id: str, language_id: int, limit: int
-    ) -> List[Dict]:
-        """Fetch senses with FSRS due flashcards."""
-        today = date.today().isoformat()
-        try:
-            resp = (
-                self.db.table('user_flashcards')
-                .select('sense_id, due_date, state')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .lte('due_date', today)
-                .in_('state', ['review', 'relearning'])
-                .order('due_date')
-                .limit(limit)
-                .execute()
-            )
-            flashcard_senses = [row['sense_id'] for row in (resp.data or [])]
-        except Exception as e:
-            logger.error(f"Error fetching due senses: {e}")
-            return []
-
-        if not flashcard_senses:
-            return []
-
-        # Fetch p_known for these senses
-        try:
-            knowledge = (
-                self.db.table('user_vocabulary_knowledge')
-                .select('sense_id, p_known')
-                .eq('user_id', user_id)
-                .in_('sense_id', flashcard_senses)
-                .execute()
-            )
-            p_known_map = {
-                row['sense_id']: float(row['p_known'])
-                for row in (knowledge.data or [])
-            }
-        except Exception as e:
-            logger.error(f"Error fetching p_known for due senses: {e}")
-            p_known_map = {}
-
-        return [
-            {'sense_id': sid, 'p_known': p_known_map.get(sid, 0.5)}
-            for sid in flashcard_senses
-        ]
-
-    def _get_active_learning_senses(
-        self, user_id: str, language_id: int, limit: int,
-        exclude_senses: set = None,
-    ) -> List[Dict]:
-        """Fetch senses in the BKT uncertainty zone (0.25-0.75)."""
-        try:
-            query = (
-                self.db.table('user_vocabulary_knowledge')
-                .select('sense_id, p_known')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .gte('p_known', 0.25)
-                .lte('p_known', 0.75)
-                .not_.in_('status', ['user_marked_unknown', 'unknown'])
-                .order('p_known')  # will sort in Python for uncertainty
-                .limit(limit * 2)  # fetch extra to filter
-            )
-            resp = query.execute()
-            results = resp.data or []
-        except Exception as e:
-            logger.error(f"Error fetching active learning senses: {e}")
-            return []
-
-        exclude = exclude_senses or set()
-        candidates = [
-            {'sense_id': row['sense_id'], 'p_known': float(row['p_known'])}
-            for row in results
-            if row['sense_id'] not in exclude
-        ]
-
-        # Sort by uncertainty (highest entropy first): p*(1-p)
-        candidates.sort(key=lambda x: x['p_known'] * (1 - x['p_known']), reverse=True)
-        return candidates[:limit]
-
-    def _get_new_senses(
-        self, user_id: str, language_id: int, limit: int,
-        exclude_senses: set = None,
-    ) -> List[Dict]:
-        """Fetch new/encountered senses with low p_known."""
-        try:
-            resp = (
-                self.db.table('user_vocabulary_knowledge')
-                .select('sense_id, p_known, last_evidence_at')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .lt('p_known', 0.30)
-                .in_('status', ['encountered', 'unknown'])
-                .order('last_evidence_at', desc=True)
-                .limit(limit * 2)
-                .execute()
-            )
-            results = resp.data or []
-        except Exception as e:
-            logger.error(f"Error fetching new senses: {e}")
-            return []
-
-        exclude = exclude_senses or set()
-        candidates = [
-            {'sense_id': row['sense_id'], 'p_known': float(row['p_known'])}
-            for row in results
-            if row['sense_id'] not in exclude
-        ]
-
-        # Also try flashcards with state='new' as fallback
-        if len(candidates) < limit:
-            try:
-                fc_resp = (
-                    self.db.table('user_flashcards')
-                    .select('sense_id')
-                    .eq('user_id', user_id)
-                    .eq('language_id', language_id)
-                    .eq('state', 'new')
-                    .limit(limit)
-                    .execute()
-                )
-                existing_ids = {c['sense_id'] for c in candidates}
-                for row in (fc_resp.data or []):
-                    sid = row['sense_id']
-                    if sid not in exclude and sid not in existing_ids:
-                        candidates.append({'sense_id': sid, 'p_known': 0.10})
-            except Exception as e:
-                logger.error(f"Error fetching new flashcard senses: {e}")
-
-        return candidates[:limit]
 
     def _select_exercises_for_senses(
         self,
@@ -696,6 +620,62 @@ class ExerciseSessionService:
             logger.error(f"Error fetching user test sentences: {e}")
             return []
 
+    def _get_ladder_exercises(
+        self, user_id: str, language_id: int, count: int,
+        exclude_ids: set,
+    ) -> List[Dict]:
+        """Fetch vocabulary ladder exercises for the daily session.
+
+        Selects words with ladder exercises, picks one exercise per word
+        at the user's current ladder level.
+        """
+        try:
+            from services.vocabulary_ladder.ladder_service import LadderService
+            ladder_svc = LadderService(self.db)
+            words = ladder_svc.get_words_for_session(user_id, language_id, count * 2)
+
+            picks = []
+            for word in words:
+                if len(picks) >= count:
+                    break
+
+                sense_id = word['sense_id']
+                level = word['current_level']
+
+                # Find an exercise at this level
+                try:
+                    resp = (
+                        self.db.table('exercises')
+                        .select('id, exercise_type')
+                        .eq('word_sense_id', sense_id)
+                        .eq('ladder_level', level)
+                        .eq('language_id', language_id)
+                        .eq('is_active', True)
+                        .limit(1)
+                        .execute()
+                    )
+                    candidates = [
+                        r for r in (resp.data or [])
+                        if r['id'] not in exclude_ids
+                    ]
+                    if candidates:
+                        chosen = candidates[0]
+                        picks.append({
+                            'exercise_id': chosen['id'],
+                            'sense_id': sense_id,
+                            'exercise_type': chosen['exercise_type'],
+                            'slot_type': 'ladder',
+                            'phase': 'B',
+                        })
+                        exclude_ids.add(chosen['id'])
+                except Exception as e:
+                    logger.error(f"Ladder exercise lookup failed for sense {sense_id}: {e}")
+
+            return picks
+        except Exception as e:
+            logger.error(f"Ladder exercise selection failed: {e}")
+            return []
+
     def _get_recent_exercise_ids(self, user_id: str, days: int) -> set:
         """Get exercise IDs the user has seen within the cooldown window."""
         try:
@@ -779,6 +759,17 @@ class ExerciseSessionService:
                 'state': new_card.state,
                 'updated_at': 'now()',
             }).eq('id', row['id']).execute()
+
+            # FSRS lapse → BKT penalty: if lapses increased, penalize p_known
+            if new_card.lapses > card.lapses:
+                try:
+                    self.db.rpc('bkt_apply_lapse_penalty', {
+                        'p_user_id': user_id,
+                        'p_sense_id': sense_id,
+                    }).execute()
+                    logger.debug(f"BKT lapse penalty applied for sense {sense_id}")
+                except Exception as lapse_err:
+                    logger.error(f"BKT lapse penalty failed for sense {sense_id}: {lapse_err}")
 
         except Exception as e:
             logger.error(f"FSRS update failed for sense {sense_id}: {e}")

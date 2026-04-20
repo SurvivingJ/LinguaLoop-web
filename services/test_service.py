@@ -277,8 +277,21 @@ class TestService:
             if question_rows:
                 self.admin.table('questions').insert(question_rows).execute()
 
-            # Create initial skill ratings
-            self._create_skill_ratings(test_id)
+            # Create initial skill ratings (include pinyin for Chinese)
+            self._create_skill_ratings(test_id, language_id=language_id)
+
+            # Generate pinyin payload for Chinese tests
+            if language_id == 1:
+                transcript = test_data.get("transcript", "")
+                if transcript:
+                    try:
+                        from services.pinyin_service import process_passage
+                        pinyin_payload = process_passage(transcript)
+                        self.admin.table('tests').update({
+                            'pinyin_payload': pinyin_payload
+                        }).eq('id', test_id).execute()
+                    except Exception as e:
+                        logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
 
             return test_id
 
@@ -287,11 +300,19 @@ class TestService:
             logger.error(traceback.format_exc())
             raise
 
-    def _create_skill_ratings(self, test_id: int, initial_elo: int = Config.DEFAULT_ELO_RATING) -> None:
+    def _create_skill_ratings(self, test_id: int, initial_elo: int = Config.DEFAULT_ELO_RATING, language_id: int = None) -> None:
         """Create initial skill ratings for all test types."""
         listening_id = DimensionService.get_test_type_id('listening', self.admin)
         reading_id = DimensionService.get_test_type_id('reading', self.admin)
         dictation_id = DimensionService.get_test_type_id('dictation', self.admin)
+
+        type_ids = [listening_id, reading_id, dictation_id]
+
+        # Add pinyin skill rating for Chinese tests
+        if language_id == 1:
+            pinyin_id = DimensionService.get_test_type_id('pinyin', self.admin)
+            if pinyin_id:
+                type_ids.append(pinyin_id)
 
         now = datetime.now(timezone.utc).isoformat()
 
@@ -305,7 +326,7 @@ class TestService:
                 'created_at': now,
                 'updated_at': now,
             }
-            for type_id in [listening_id, reading_id, dictation_id]
+            for type_id in type_ids
             if type_id is not None
         ]
 

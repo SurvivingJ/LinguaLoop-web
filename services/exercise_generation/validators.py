@@ -33,6 +33,9 @@ class ExerciseValidator:
             'semantic_discrimination': self._check_semantic_discrimination,
             'verb_noun_match':         self._check_verb_noun_match,
             'nl_tl_translation':       self._check_nl_tl_translation,
+            'phonetic_recognition':    self._check_phonetic_recognition,
+            'definition_match':        self._check_definition_match,
+            'morphology_slot':         self._check_morphology_slot,
         }
         checker = dispatch.get(exercise_type)
         if checker:
@@ -139,3 +142,29 @@ class ExerciseValidator:
             errors.append("nl_tl_translation must have primary_tl")
         if not content.get('grading_notes'):
             errors.append("nl_tl_translation must have grading_notes")
+
+    def _check_phonetic_recognition(self, content: dict, errors: list[str]) -> None:
+        if not content.get('word'):
+            errors.append("phonetic_recognition must have 'word'")
+        if not content.get('pronunciation') and not content.get('ipa'):
+            errors.append("phonetic_recognition must have pronunciation or ipa")
+        correct = content.get('correct_answer', '')
+        options = content.get('options', [])
+        if correct and options and correct not in options:
+            errors.append("phonetic_recognition correct_answer not in options")
+
+    def _check_definition_match(self, content: dict, errors: list[str]) -> None:
+        if not content.get('correct_definition'):
+            errors.append("definition_match must have correct_definition")
+        options = content.get('options', [])
+        correct = content.get('correct_definition', '')
+        if correct and options and correct not in options:
+            errors.append("definition_match correct_definition not in options")
+
+    def _check_morphology_slot(self, content: dict, errors: list[str]) -> None:
+        if '___' not in content.get('sentence_with_blank', ''):
+            errors.append("morphology_slot sentence_with_blank must contain '___'")
+        if not content.get('base_form'):
+            errors.append("morphology_slot must have base_form")
+        if not content.get('form_label'):
+            errors.append("morphology_slot must have form_label")

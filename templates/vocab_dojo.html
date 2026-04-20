@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Vocab Dojo | LinguaDojo{% endblock %}
+{% block body_class %}bg-slate-50{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .vd-header { background: var(--bg-surface); border-bottom: 1px solid var(--border-default); padding: 16px 0; box-shadow: var(--shadow-sm); }
+    .vd-back-btn { display: none; background: none; border: none; color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; padding: 4px 0; margin-right: 12px; }
+    .vd-back-btn:hover { color: var(--primary); }
+    .vd-back-btn.show { display: inline-flex; align-items: center; gap: 6px; }
+    .vd-progress { display: flex; align-items: center; gap: 12px; }
+    .vd-progress-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .vd-progress-bar { width: 140px; height: 6px; background: var(--border-default); border-radius: 3px; overflow: hidden; }
+    .vd-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #6366f1); border-radius: 3px; transition: width 0.4s ease; }
+    .vd-score { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+    .vd-hero { max-width: 600px; margin: 28px auto 0; background: linear-gradient(135deg, #7c3aed, #6366f1); border-radius: 16px; padding: 32px 28px; color: white; box-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,0.15)); position: relative; overflow: hidden; }
+    .vd-hero h2 { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+    .vd-hero p { opacity: 0.85; margin: 0 0 20px; font-size: 15px; }
+    .vd-start-btn { background: white; color: #7c3aed; border: none; border-radius: 10px; padding: 12px 28px; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.2s; }
+    .vd-start-btn:hover { transform: scale(1.03); }
+
+    .ladder-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 8px; padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+    .ladder-level { color: var(--primary); font-weight: 700; }
+
+    .exercise-card-area { max-width: 680px; margin: 28px auto; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08)); padding: 28px; min-height: 300px; }
+
+    .exercise-type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+    .exercise-instruction { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
+    .exercise-prompt { font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: 20px; }
+    .exercise-prompt .blank { background: var(--bg-muted); border-bottom: 2px solid var(--primary); padding: 2px 20px; border-radius: 4px; }
+    .exercise-options { display: flex; flex-direction: column; gap: 10px; }
+    .exercise-option { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 12px; cursor: pointer; transition: all 0.2s; font-size: 15px; }
+    .exercise-option:hover:not(.disabled) { border-color: var(--primary); background: rgba(30,64,175,0.04); }
+    .exercise-option.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
+    .exercise-option.incorrect { border-color: var(--danger); background: rgba(220,38,38,0.08); }
+    .exercise-option.disabled { pointer-events: none; opacity: 0.85; }
+    .option-letter { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--bg-muted); font-weight: 700; font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
+
+    .exercise-feedback { margin-top: 16px; padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.6; display: none; }
+    .exercise-feedback.show { display: block; }
+    .exercise-feedback.correct { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: var(--text-primary); }
+    .exercise-feedback.incorrect { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: var(--text-primary); }
+    .exercise-next-btn { display: none; margin-top: 16px; }
+    .exercise-next-btn.show { display: inline-flex; }
+
+    .word-ribbon { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--bg-muted); border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+    .word-ribbon strong { font-size: 16px; color: var(--primary); }
+    .word-ribbon .sep { color: var(--border-default); }
+
+    .vd-complete { max-width: 500px; margin: 60px auto; text-align: center; }
+    .vd-complete h2 { font-size: 24px; margin-bottom: 8px; }
+    .vd-complete .stats { display: flex; gap: 20px; justify-content: center; margin: 24px 0; }
+    .vd-complete .stat { text-align: center; }
+    .vd-complete .stat-val { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .vd-complete .stat-label { font-size: 13px; color: var(--text-secondary); }
+
+    /* Jumbled sentence */
+    .js-bank, .js-answer { min-height: 52px; padding: 12px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .js-bank { background: var(--bg-muted); border: 2px dashed var(--border-default); }
+    .js-answer { background: rgba(30,64,175,0.04); border: 2px solid var(--primary); margin-bottom: 12px; }
+    .js-chunk { padding: 8px 16px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 500; user-select: none; transition: all 0.15s; }
+    .js-chunk:hover { border-color: var(--primary); }
+    .js-chunk.placed { opacity: 0.4; pointer-events: none; }
+
+    /* Phonetic */
+    .phonetic-display { text-align: center; margin-bottom: 24px; }
+    .phonetic-display .ipa { font-size: 24px; color: var(--primary); font-weight: 600; }
+    .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* Spot incorrect */
+    .sentence-card { padding: 14px 18px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 12px; cursor: pointer; transition: all 0.2s; font-size: 15px; line-height: 1.6; }
+    .sentence-card:hover:not(.disabled) { border-color: var(--primary); }
+    .sentence-card.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
+    .sentence-card.incorrect { border-color: var(--danger); background: rgba(220,38,38,0.08); }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="vd-header" id="vdHeader">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <button class="vd-back-btn" id="backBtn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+            <span style="font-weight:700;font-size:16px;color:var(--text-primary)">Vocab Dojo</span>
+        </div>
+        <div class="vd-progress" id="progressArea" style="display:none">
+            <span class="vd-progress-text" id="progressText">0 / 0</span>
+            <div class="vd-progress-bar"><div class="vd-progress-fill" id="progressFill"></div></div>
+            <span class="vd-score" id="scoreText"></span>
+        </div>
+    </div>
+</header>
+
+<main class="container" style="padding-top:8px;padding-bottom:40px;">
+    <div id="landingView">
+        <div class="vd-hero">
+            <h2>Vocabulary Ladder</h2>
+            <p>Master words through 9 progressive exercise levels — from recognition to production.</p>
+            <button class="vd-start-btn" onclick="startSession()"><i class="fas fa-play me-2"></i>Start Session</button>
+        </div>
+    </div>
+
+    <div id="sessionView" style="display:none">
+        <div class="exercise-card-area" id="exerciseCard"></div>
+    </div>
+
+    <div id="completeView" class="vd-complete" style="display:none">
+        <h2>Session Complete!</h2>
+        <div class="stats">
+            <div class="stat"><div class="stat-val" id="statCorrect">0</div><div class="stat-label">Correct</div></div>
+            <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div></div>
+            <div class="stat"><div class="stat-val" id="statAccuracy">0%</div><div class="stat-label">Accuracy</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="startSession()"><i class="fas fa-redo me-2"></i>New Session</button>
+        <a href="/exercises" class="btn btn-outline-secondary ms-2">Back to Exercises</a>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/exercise-renderers.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    // ── State ──
+    const state = {
+        exercises: [],
+        retryQueue: [],
+        currentIndex: 0,
+        correctCount: 0,
+        totalAnswered: 0,
+        isAnswered: false,
+        languageId: null,
+    };
+
+    // ── API helpers ──
+    function authFetch(url, opts = {}) {
+        const token = localStorage.getItem('jwt_token');
+        opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        return fetch(url, opts).then(r => r.json());
+    }
+
+    // ── Utilities from shared module ──
+    const escHtml = ExRenderers.escHtml;
+    const shuffleArr = ExRenderers.shuffleArr;
+    const fmtType = ExRenderers.fmtType;
+
+    // ── Init ──
+    window.startSession = async function() {
+        const langPref = localStorage.getItem('selectedLanguageId');
+        state.languageId = langPref ? parseInt(langPref) : 2;
+        state.exercises = [];
+        state.retryQueue = [];
+        state.currentIndex = 0;
+        state.correctCount = 0;
+        state.totalAnswered = 0;
+
+        try {
+            const data = await authFetch(`/api/vocab-dojo/session?language_id=${state.languageId}&count=20`);
+            if (data.status !== 'success' || !data.exercises || !data.exercises.length) {
+                document.getElementById('exerciseCard').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:40px">No vocabulary exercises available yet. Upload words via the admin panel to get started.</p>';
+                showView('session');
+                return;
+            }
+            state.exercises = data.exercises;
+            showView('session');
+            document.getElementById('progressArea').style.display = 'flex';
+            document.getElementById('backBtn').classList.add('show');
+            renderExercise();
+        } catch (e) {
+            console.error('Session fetch failed:', e);
+        }
+    };
+
+    window.goBack = function() {
+        showView('landing');
+        document.getElementById('progressArea').style.display = 'none';
+        document.getElementById('backBtn').classList.remove('show');
+    };
+
+    function showView(v) {
+        document.getElementById('landingView').style.display = v === 'landing' ? '' : 'none';
+        document.getElementById('sessionView').style.display = v === 'session' ? '' : 'none';
+        document.getElementById('completeView').style.display = v === 'complete' ? '' : 'none';
+    }
+
+    function updateProgress() {
+        const total = state.exercises.length;
+        const done = state.currentIndex;
+        document.getElementById('progressText').textContent = `${done} / ${total}`;
+        document.getElementById('progressFill').style.width = total ? `${(done/total)*100}%` : '0%';
+        const acc = state.totalAnswered ? Math.round((state.correctCount/state.totalAnswered)*100) : 0;
+        document.getElementById('scoreText').textContent = `${acc}%`;
+    }
+
+    // ── Exercise rendering ──
+    function renderExercise() {
+        state.isAnswered = false;
+        updateProgress();
+
+        if (state.currentIndex >= state.exercises.length) {
+            // Check retry queue
+            if (state.retryQueue.length > 0) {
+                state.exercises.push(...shuffleArr(state.retryQueue));
+                state.retryQueue = [];
+                renderExercise();
+                return;
+            }
+            showComplete();
+            return;
+        }
+
+        const ex = state.exercises[state.currentIndex];
+        const c = ex.content || {};
+        const card = document.getElementById('exerciseCard');
+
+        // Word ribbon
+        let ribbon = '';
+        if (ex.lemma) {
+            ribbon = `<div class="word-ribbon"><strong>${escHtml(ex.lemma)}</strong>`;
+            if (ex.pronunciation) ribbon += `<span class="sep">|</span> ${escHtml(ex.pronunciation)}`;
+            if (ex.definition) ribbon += `<span class="sep">|</span> <span style="color:var(--text-secondary)">${escHtml(ex.definition)}</span>`;
+            ribbon += '</div>';
+        }
+
+        // Ladder badge
+        let ladderBadge = '';
+        if (ex.ladder_level) {
+            ladderBadge = `<div class="ladder-badge"><span class="ladder-level">L${ex.ladder_level}</span> ${escHtml(ex.ladder_name || '')}</div>`;
+        }
+
+        const w = ribbon + ladderBadge;
+
+        // Dispatch to shared renderer
+        try {
+            ExRenderers.dispatch(ex.exercise_type, ex, c, w);
+        } catch (e) {
+            console.error('Render error for', ex.exercise_type, e);
+            document.getElementById('exerciseCard').innerHTML = w + `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`;
+        }
+    }
+
+
+    // ── Shared renderer init ──
+    ExRenderers.init({
+        cardEl: document.getElementById("exerciseCard"),
+        isAnswered: () => state.isAnswered,
+        setAnswered: v => { state.isAnswered = v; },
+        showFeedback: (ok, expl) => showFeedback(ok, expl),
+        submitAttempt: (ok, resp) => submitAttempt(ok, resp),
+        nextExercise: () => nextExercise(),
+    });
+
+    // ── Feedback & submit ──
+    function showFeedback(ok, expl) {
+        const fb = document.getElementById('exerciseFeedback');
+        if (!fb) return;
+        fb.className = 'exercise-feedback show ' + (ok ? 'correct' : 'incorrect');
+        let html = ok ? '<i class="fas fa-check-circle me-2"></i>Correct!' : '<i class="fas fa-times-circle me-2"></i>Incorrect';
+        if (expl) html += `<div style="margin-top:8px">${escHtml(expl)}</div>`;
+        fb.innerHTML = html;
+        const btn = document.getElementById('nextBtn');
+        if (btn) btn.classList.add('show');
+    }
+
+    function submitAttempt(ok, response) {
+        const ex = state.exercises[state.currentIndex];
+        if (!ex) return;
+
+        state.totalAnswered++;
+        if (ok) state.correctCount++;
+
+        authFetch('/api/vocab-dojo/attempt', {
+            method: 'POST',
+            body: JSON.stringify({
+                exercise_id: ex.exercise_id,
+                sense_id: ex.sense_id,
+                is_correct: ok,
+                is_first_attempt: true,
+                time_taken_ms: 0,
+                language_id: state.languageId,
+            }),
+        }).then(data => {
+            if (data && data.requeue && !ok) {
+                // Re-queue for later in session (mandatory retry)
+                state.retryQueue.push({ ...ex, _retry: true });
+            }
+        }).catch(e => console.error('Attempt submit error:', e));
+    }
+
+    function nextExercise() {
+        state.currentIndex++;
+        renderExercise();
+    }
+
+    function showComplete() {
+        showView('complete');
+        document.getElementById('progressArea').style.display = 'none';
+        document.getElementById('statCorrect').textContent = state.correctCount;
+        document.getElementById('statTotal').textContent = state.totalAnswered;
+        const acc = state.totalAnswered ? Math.round((state.correctCount / state.totalAnswered) * 100) : 0;
+        document.getElementById('statAccuracy').textContent = acc + '%';
+    }
+})();
+</script>
+{% endblock %}

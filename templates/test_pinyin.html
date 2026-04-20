@@ -1,0 +1,1015 @@
+{% extends "base.html" %}
+
+{% block title %}Pinyin Tone Trainer | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tone Colors */
+    :root {
+        --tone-1: #E53935;
+        --tone-2: #F57C00;
+        --tone-3: #43A047;
+        --tone-4: #1E88E5;
+        --tone-5: #9E9E9E;
+    }
+
+    /* Header */
+    .pinyin-header {
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-default);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pinyin-progress-bar {
+        height: 6px;
+        background: var(--border-default);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .pinyin-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+        transition: width 0.3s ease;
+    }
+
+    /* Passage Display */
+    .passage-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 20px;
+    }
+
+    .passage-grid {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 2rem;
+        line-height: 2.2;
+        justify-content: flex-start;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .char-token {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all 0.2s ease;
+        padding: 2px 1px;
+        position: relative;
+        cursor: default;
+    }
+
+    .char-token .char-display {
+        position: relative;
+        z-index: 1;
+    }
+
+    .char-token .char-pinyin {
+        font-size: 0.4em;
+        color: var(--text-muted);
+        line-height: 1;
+        margin-top: -4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .char-token.completed .char-pinyin {
+        opacity: 1;
+    }
+
+    .char-token.upcoming {
+        color: var(--slate-400);
+    }
+
+    .char-token.current {
+        transform: scale(1.25);
+        margin: 0 6px;
+    }
+
+    .char-token.current .char-display {
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 2px;
+    }
+
+    .char-token.completed {
+        opacity: 1;
+    }
+
+    .char-token.error-flash {
+        animation: shake 0.3s ease;
+    }
+
+    .char-token.correct-flash {
+        animation: pop 0.2s ease;
+    }
+
+    /* Tone-specific colors for completed characters */
+    .char-token.tone-1 .char-display { color: var(--tone-1); }
+    .char-token.tone-2 .char-display { color: var(--tone-2); }
+    .char-token.tone-3 .char-display { color: var(--tone-3); }
+    .char-token.tone-4 .char-display { color: var(--tone-4); }
+    .char-token.tone-5 .char-display { color: var(--tone-5); }
+
+    .char-token.tone-1 .char-pinyin { color: var(--tone-1); }
+    .char-token.tone-2 .char-pinyin { color: var(--tone-2); }
+    .char-token.tone-3 .char-pinyin { color: var(--tone-3); }
+    .char-token.tone-4 .char-pinyin { color: var(--tone-4); }
+    .char-token.tone-5 .char-pinyin { color: var(--tone-5); }
+
+    .char-token.punctuation {
+        color: var(--slate-500);
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+    }
+
+    @keyframes pop {
+        0% { transform: scale(1.25); }
+        50% { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+
+    /* Controls hint */
+    .controls-hint {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border-default);
+        padding: 12px 20px;
+        z-index: 50;
+    }
+
+    .controls-grid {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .control-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .control-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 8px;
+        border: 2px solid var(--border-strong);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    .tone-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* Error Modal / Bottom Sheet */
+    .error-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.4);
+        z-index: 200;
+        animation: fadeIn 0.15s ease;
+    }
+
+    .error-modal {
+        position: fixed;
+        z-index: 201;
+        background: var(--bg-surface);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 28px 24px;
+        animation: slideUp 0.2s ease;
+        width: 90%;
+        max-width: 420px;
+    }
+
+    /* Desktop: centered */
+    @media (min-width: 481px) {
+        .error-modal {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    /* Mobile: bottom sheet */
+    @media (max-width: 480px) {
+        .error-modal {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 16px 16px 0 0;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; } to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .error-char {
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .error-pinyin {
+        text-align: center;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    .error-detail {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    .error-tones {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 16px;
+    }
+
+    .tone-label {
+        text-align: center;
+    }
+
+    .tone-label .tone-num {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .tone-label .tone-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .sandhi-explanation {
+        background: var(--info-bg);
+        border-left: 4px solid var(--info);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.9rem;
+        color: var(--slate-700);
+        margin-bottom: 16px;
+    }
+
+    .error-continue-btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: var(--primary);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+    .error-continue-btn:hover {
+        background: var(--primary-hover);
+    }
+
+    /* Results Screen */
+    .results-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--bg-body);
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .results-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 32px;
+        width: 90%;
+        max-width: 480px;
+        text-align: center;
+    }
+
+    .results-accuracy {
+        font-size: 4rem;
+        font-weight: 800;
+        margin: 16px 0 8px;
+    }
+
+    .results-accuracy.excellent { color: var(--success); }
+    .results-accuracy.good { color: var(--tone-2); }
+    .results-accuracy.fair { color: var(--warning); }
+    .results-accuracy.poor { color: var(--danger); }
+
+    .results-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 20px 0;
+    }
+
+    .stat-box {
+        padding: 12px;
+        background: var(--bg-muted);
+        border-radius: 8px;
+    }
+
+    .stat-box .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .stat-box .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .elo-change {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 12px 0;
+    }
+
+    .elo-change.positive { color: var(--success); }
+    .elo-change.negative { color: var(--danger); }
+
+    /* Loading overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .loading-spinner {
+        background: var(--bg-surface);
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+    }
+
+    .spinner-icon {
+        border: 4px solid var(--border-default);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Touch area */
+    .touch-area {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 70px;
+        z-index: 10;
+        touch-action: none;
+        -webkit-touch-callout: none;
+    }
+
+    /* Tone legend (mobile) */
+    @media (max-width: 768px) {
+        .passage-grid { font-size: 1.6rem; line-height: 2; }
+        .char-token.current { transform: scale(1.15); margin: 0 4px; }
+        .controls-grid { gap: 10px; }
+        .control-item { font-size: 12px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600">Loading pinyin data...</p>
+    </div>
+</div>
+
+<!-- Error State -->
+<div id="errorState" class="container py-5" style="display: none;">
+    <div class="alert alert-danger">
+        <h5><i class="fas fa-exclamation-triangle me-2"></i>Error</h5>
+        <p id="errorMessage" class="mb-2"></p>
+        <a href="/tests" class="btn btn-danger">
+            <i class="fas fa-arrow-left me-2"></i>Back to Tests
+        </a>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="pinyin-header" id="pinyinHeader" style="display: none;">
+    <div class="container py-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">
+                    <i class="bi bi-translate text-primary me-2"></i>
+                    <span id="testTitle">Pinyin Tone Trainer</span>
+                </h5>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-primary me-2" id="testLanguage"></span>
+                <span class="badge bg-info">Pinyin</span>
+                <span class="ms-2 text-slate-500">
+                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="pinyin-progress-bar">
+        <div class="pinyin-progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+</div>
+
+<!-- Touch Area (for swipe detection) -->
+<div class="touch-area" id="touchArea" style="display: none;"></div>
+
+<!-- Passage Display -->
+<div class="passage-container" id="passageContainer" style="display: none;">
+    <div class="passage-grid" id="passageGrid"></div>
+</div>
+
+<!-- Controls Hint Bar -->
+<div class="controls-hint" id="controlsHint" style="display: none;">
+    <div class="controls-grid">
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-right"></i></span>
+            <span class="tone-dot" style="background: var(--tone-1);"></span>
+            <span>T1</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-up"></i></span>
+            <span class="tone-dot" style="background: var(--tone-2);"></span>
+            <span>T2</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-left"></i></span>
+            <span class="tone-dot" style="background: var(--tone-3);"></span>
+            <span>T3</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-down"></i></span>
+            <span class="tone-dot" style="background: var(--tone-4);"></span>
+            <span>T4</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key">Space</span>
+            <span class="tone-dot" style="background: var(--tone-5);"></span>
+            <span>Neutral</span>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal (injected dynamically) -->
+<div id="errorModalContainer"></div>
+
+<!-- Results Screen (injected dynamically) -->
+<div id="resultsContainer"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // ========================================================================
+    // STATE
+    // ========================================================================
+    const state = {
+        slug: null,
+        testData: null,
+        allTokens: [],       // full payload including punctuation (for display)
+        playableTokens: [],  // playable only (for game logic)
+        playableIndices: [], // map from playable index to allTokens index
+        currentIndex: 0,     // index into playableTokens
+        correctCount: 0,
+        errorCount: 0,
+        errors: [],
+        startTime: null,
+        timerInterval: null,
+        isComplete: false,
+        isPaused: false,     // paused during error modal
+    };
+
+    const TONE_NAMES = { 1: '1st (flat)', 2: '2nd (rising)', 3: '3rd (dip)', 4: '4th (falling)', 5: 'Neutral' };
+    const TONE_MARKS = { 1: '\u0304', 2: '\u0301', 3: '\u030C', 4: '\u0300', 5: '' };
+
+    // ========================================================================
+    // INITIALIZATION
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+        try {
+            showLoading(true);
+
+            // Parse slug from URL: /test/{slug}/pinyin
+            const parts = window.location.pathname.split('/');
+            const testIdx = parts.indexOf('test');
+            state.slug = parts[testIdx + 1];
+
+            if (!state.slug) throw new Error('No test slug in URL');
+
+            await LinguaMetadata.load();
+            await loadTestData();
+            renderPassage();
+            setupInputHandlers();
+            startTimer();
+
+            // Show UI
+            document.getElementById('pinyinHeader').style.display = 'block';
+            document.getElementById('passageContainer').style.display = 'block';
+            document.getElementById('controlsHint').style.display = 'block';
+            document.getElementById('touchArea').style.display = 'block';
+
+            highlightCurrent();
+            showLoading(false);
+
+        } catch (err) {
+            console.error('Init error:', err);
+            showError(err.message);
+            showLoading(false);
+        }
+    }
+
+    // ========================================================================
+    // DATA LOADING
+    // ========================================================================
+    async function loadTestData() {
+        const token = localStorage.getItem('jwt_token');
+        const resp = await fetch(`/api/tests/test/${state.slug}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resp.ok) throw new Error(`Failed to load test: ${resp.statusText}`);
+
+        const data = await resp.json();
+        state.testData = data.test_data;
+
+        if (!data.pinyin_payload || data.pinyin_payload.length === 0) {
+            throw new Error('This test does not have pinyin data. Please try a different Chinese test.');
+        }
+
+        state.allTokens = data.pinyin_payload;
+
+        // Build playable tokens (non-punctuation)
+        state.allTokens.forEach((t, i) => {
+            if (!t.is_punctuation) {
+                state.playableIndices.push(i);
+                state.playableTokens.push(t);
+            }
+        });
+
+        if (state.playableTokens.length === 0) {
+            throw new Error('No playable characters found in this passage.');
+        }
+
+        // Set header info
+        document.getElementById('testTitle').textContent = state.testData.title || 'Pinyin Tone Trainer';
+        const langName = LinguaMetadata.getNativeName(state.testData.language) || 'Chinese';
+        document.getElementById('testLanguage').textContent = langName;
+    }
+
+    // ========================================================================
+    // RENDERING
+    // ========================================================================
+    function renderPassage() {
+        const grid = document.getElementById('passageGrid');
+        grid.innerHTML = '';
+
+        state.allTokens.forEach((token, idx) => {
+            const el = document.createElement('span');
+            el.className = 'char-token';
+            el.dataset.index = idx;
+
+            if (token.is_punctuation) {
+                el.classList.add('punctuation');
+                el.innerHTML = `<span class="char-display">${token.char}</span>`;
+            } else {
+                el.classList.add('upcoming');
+                el.innerHTML = `<span class="char-display">${token.char}</span>` +
+                               `<span class="char-pinyin">&nbsp;</span>`;
+            }
+
+            grid.appendChild(el);
+        });
+    }
+
+    function highlightCurrent() {
+        if (state.isComplete) return;
+
+        // Remove previous current highlight
+        const prev = document.querySelector('.char-token.current');
+        if (prev) prev.classList.remove('current');
+
+        // Highlight new current
+        const allIdx = state.playableIndices[state.currentIndex];
+        const el = document.querySelector(`.char-token[data-index="${allIdx}"]`);
+        if (el) {
+            el.classList.remove('upcoming');
+            el.classList.add('current');
+            // Scroll into view if needed
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        updateProgress();
+    }
+
+    function colorChar(playableIdx, tone) {
+        const allIdx = state.playableIndices[playableIdx];
+        const el = document.querySelector(`.char-token[data-index="${allIdx}"]`);
+        const token = state.allTokens[allIdx];
+
+        if (el) {
+            el.classList.remove('current', 'upcoming');
+            el.classList.add('completed', `tone-${tone}`);
+
+            // Show pinyin
+            const pinyinEl = el.querySelector('.char-pinyin');
+            if (pinyinEl) {
+                pinyinEl.textContent = token.pinyin_text + token.context_tone;
+            }
+
+            // Flash animation
+            el.classList.add('correct-flash');
+            setTimeout(() => el.classList.remove('correct-flash'), 200);
+        }
+    }
+
+    function flashError(playableIdx) {
+        const allIdx = state.playableIndices[playableIdx];
+        const el = document.querySelector(`.char-token[data-index="${allIdx}"]`);
+        if (el) {
+            el.classList.add('error-flash');
+            setTimeout(() => el.classList.remove('error-flash'), 300);
+        }
+    }
+
+    function updateProgress() {
+        const total = state.playableTokens.length;
+        const done = state.currentIndex;
+        const pct = total > 0 ? (done / total * 100) : 0;
+        document.getElementById('progressFill').style.width = pct + '%';
+    }
+
+    // ========================================================================
+    // GAME LOGIC
+    // ========================================================================
+    function handleToneInput(guessedTone) {
+        if (state.isComplete || state.isPaused) return;
+
+        const token = state.playableTokens[state.currentIndex];
+        if (!token) return;
+
+        if (guessedTone === token.context_tone) {
+            // Correct
+            colorChar(state.currentIndex, token.context_tone);
+            state.correctCount++;
+            state.currentIndex++;
+
+            if (state.currentIndex >= state.playableTokens.length) {
+                completeGame();
+            } else {
+                highlightCurrent();
+            }
+        } else {
+            // Wrong
+            state.errorCount++;
+            flashError(state.currentIndex);
+            state.errors.push({
+                char: token.char,
+                word: token.word,
+                pinyin: token.pinyin_text,
+                expected: token.context_tone,
+                guessed: guessedTone,
+                is_sandhi: token.is_sandhi,
+                sandhi_rule: token.sandhi_rule,
+            });
+            showErrorModal(token, guessedTone);
+        }
+    }
+
+    // ========================================================================
+    // INPUT HANDLERS
+    // ========================================================================
+    function setupInputHandlers() {
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            const map = {
+                'ArrowRight': 1,
+                'ArrowUp': 2,
+                'ArrowLeft': 3,
+                'ArrowDown': 4,
+                ' ': 5,
+            };
+
+            if (map[e.key] !== undefined) {
+                e.preventDefault();
+                handleToneInput(map[e.key]);
+            }
+
+            // Enter to dismiss error modal
+            if (e.key === 'Enter' && state.isPaused) {
+                dismissErrorModal();
+            }
+        });
+
+        // Touch / Swipe
+        const touchArea = document.getElementById('touchArea');
+        let startX, startY, startTime;
+
+        touchArea.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            startTime = Date.now();
+        }, { passive: true });
+
+        touchArea.addEventListener('touchend', (e) => {
+            if (startX === undefined) return;
+
+            const dx = e.changedTouches[0].clientX - startX;
+            const dy = e.changedTouches[0].clientY - startY;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            const elapsed = Date.now() - startTime;
+            const threshold = 30;
+
+            if (absDx < threshold && absDy < threshold && elapsed < 300) {
+                // Tap
+                handleToneInput(5);
+            } else if (absDx > absDy) {
+                // Horizontal swipe
+                handleToneInput(dx > 0 ? 1 : 3);
+            } else {
+                // Vertical swipe
+                handleToneInput(dy < 0 ? 2 : 4);
+            }
+
+            startX = startY = undefined;
+        }, { passive: true });
+
+        // Prevent scroll on touch area
+        touchArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    }
+
+    // ========================================================================
+    // ERROR MODAL
+    // ========================================================================
+    function showErrorModal(token, guessedTone) {
+        state.isPaused = true;
+
+        const toneColor = (t) => `var(--tone-${t})`;
+
+        let sandhiHtml = '';
+        if (token.is_sandhi && token.sandhi_rule) {
+            sandhiHtml = `
+                <div class="sandhi-explanation">
+                    <strong><i class="bi bi-info-circle me-1"></i>Tone Sandhi Rule:</strong><br>
+                    ${token.sandhi_rule}
+                </div>
+            `;
+        }
+
+        const html = `
+            <div class="error-backdrop" id="errorBackdrop" onclick="window._dismissError()"></div>
+            <div class="error-modal">
+                <div class="error-char" style="color: ${toneColor(token.context_tone)}">
+                    ${token.char}
+                </div>
+                <div class="error-pinyin">
+                    ${token.pinyin_text}${token.context_tone}
+                    <span style="color: var(--text-muted); margin-left: 4px;">(${token.word})</span>
+                </div>
+                <div class="error-tones">
+                    <div class="tone-label">
+                        <div class="tone-num" style="color: ${toneColor(guessedTone)}">${guessedTone}</div>
+                        <div class="tone-desc">Your answer</div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
+                    <div class="tone-label">
+                        <div class="tone-num" style="color: ${toneColor(token.context_tone)}">${token.context_tone}</div>
+                        <div class="tone-desc">Correct</div>
+                    </div>
+                </div>
+                ${sandhiHtml}
+                <button class="error-continue-btn" onclick="window._dismissError()">
+                    Continue <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span>
+                </button>
+            </div>
+        `;
+
+        document.getElementById('errorModalContainer').innerHTML = html;
+    }
+
+    function dismissErrorModal() {
+        document.getElementById('errorModalContainer').innerHTML = '';
+        state.isPaused = false;
+        // Stay on the same character — user must get it right
+    }
+
+    // Expose for onclick
+    window._dismissError = dismissErrorModal;
+
+    // ========================================================================
+    // COMPLETION & RESULTS
+    // ========================================================================
+    function completeGame() {
+        state.isComplete = true;
+        clearInterval(state.timerInterval);
+
+        // Hide touch area and controls
+        document.getElementById('touchArea').style.display = 'none';
+        document.getElementById('controlsHint').style.display = 'none';
+
+        const total = state.playableTokens.length;
+        const accuracy = total > 0 ? (state.correctCount / total * 100) : 0;
+        const timeSec = Math.floor((Date.now() - state.startTime) / 1000);
+
+        // Submit results
+        submitResults(accuracy, timeSec);
+
+        // Show results screen
+        showResults(accuracy, timeSec);
+    }
+
+    async function submitResults(accuracy, timeSec) {
+        try {
+            const token = localStorage.getItem('jwt_token');
+            const resp = await fetch(`/api/tests/${state.slug}/submit-pinyin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    correct_chars: state.correctCount,
+                    total_chars: state.playableTokens.length,
+                    time_taken: timeSec,
+                    errors: state.errors.slice(0, 50), // cap error log
+                })
+            });
+
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.result) {
+                    updateResultsWithElo(data.result);
+                }
+            }
+        } catch (err) {
+            console.error('Submit error:', err);
+        }
+    }
+
+    function showResults(accuracy, timeSec) {
+        let grade = 'poor';
+        let label = 'Keep Practicing';
+        if (accuracy >= 95) { grade = 'excellent'; label = 'Excellent!'; }
+        else if (accuracy >= 80) { grade = 'good'; label = 'Great Job!'; }
+        else if (accuracy >= 60) { grade = 'fair'; label = 'Good Effort'; }
+
+        const minutes = Math.floor(timeSec / 60);
+        const seconds = timeSec % 60;
+        const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        const html = `
+            <div class="results-overlay">
+                <div class="results-card">
+                    <h3>${label}</h3>
+                    <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Tone Accuracy</p>
+
+                    <div class="results-stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${state.correctCount}/${state.playableTokens.length}</div>
+                            <div class="stat-label">Characters</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${timeStr}</div>
+                            <div class="stat-label">Time</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${state.errorCount}</div>
+                            <div class="stat-label">Mistakes</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="eloChangeDisplay">--</div>
+                            <div class="stat-label">ELO Change</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="/test/${state.slug}/preview" class="btn btn-outline-primary flex-fill">
+                            <i class="bi bi-arrow-repeat me-1"></i>Retry
+                        </a>
+                        <a href="/tests" class="btn btn-primary flex-fill">
+                            <i class="bi bi-list-ul me-1"></i>All Tests
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('resultsContainer').innerHTML = html;
+    }
+
+    function updateResultsWithElo(result) {
+        const eloEl = document.getElementById('eloChangeDisplay');
+        if (eloEl && result.user_elo_change) {
+            const change = result.user_elo_change.change || 0;
+            const sign = change >= 0 ? '+' : '';
+            eloEl.textContent = sign + change;
+            eloEl.className = 'stat-value ' + (change >= 0 ? 'text-success' : 'text-danger');
+        }
+    }
+
+    // ========================================================================
+    // TIMER
+    // ========================================================================
+    function startTimer() {
+        state.startTime = Date.now();
+        const el = document.getElementById('elapsedTime');
+
+        state.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+            const m = Math.floor(elapsed / 60);
+            const s = elapsed % 60;
+            el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    // ========================================================================
+    // HELPERS
+    // ========================================================================
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    }
+
+    function showError(msg) {
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent = msg;
+        document.getElementById('pinyinHeader').style.display = 'none';
+        document.getElementById('passageContainer').style.display = 'none';
+        document.getElementById('controlsHint').style.display = 'none';
+        document.getElementById('touchArea').style.display = 'none';
+    }
+
+})();
+</script>
+{% endblock %}

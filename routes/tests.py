@@ -695,6 +695,19 @@ def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
         )
         current_app.logger.info(f"BKT: {len(vocab_updates)} vocab updates returned")
 
+        # Contextual inference: dampened update for transcript words not directly tested
+        score = rpc_result.get('score', 0)
+        total = rpc_result.get('total_questions', 1) or 1
+        score_ratio = score / total
+        contextual_count = knowledge_svc.apply_contextual_inference(
+            user_id=user_id, language_id=language_id,
+            test_id=str(test_id),
+            question_results=bkt_question_results,
+            score_ratio=score_ratio,
+        )
+        if contextual_count:
+            current_app.logger.info(f"BKT: {contextual_count} contextual senses boosted")
+
         # Collect all sense_ids from questions for quiz candidate selection
         all_sense_ids = set()
         questions_resp = knowledge_svc.db.table('questions') \
@@ -831,6 +844,110 @@ def submit_test_attempt(slug):
         return jsonify({'error': 'Failed to submit test'}), 500
 
 
+@tests_bp.route('/<slug>/submit-pinyin', methods=['POST'])
+@supabase_jwt_required
+def submit_pinyin_attempt(slug):
+    """Submit pinyin tone trainer results.
+
+    Accepts accuracy-based scoring (no MC questions). Creates a test_attempts
+    record and updates ELO via the standard RPC by passing a single synthetic
+    response whose correctness is derived from accuracy.
+    """
+    try:
+        if not current_app.supabase_service:
+            return jsonify({"error": "Database service not configured"}), 500
+
+        current_user_id = g.current_user_id
+        data = request.get_json() or {}
+
+        correct_chars = data.get('correct_chars', 0)
+        total_chars = data.get('total_chars', 0)
+        time_taken = data.get('time_taken', 0)
+
+        if total_chars <= 0:
+            return jsonify({"error": "Invalid total_chars"}), 400
+
+        accuracy = correct_chars / total_chars
+
+        # Look up test
+        test_lookup = current_app.supabase_service.table('tests') \
+            .select('id, language_id') \
+            .eq('slug', slug) \
+            .eq('is_active', True) \
+            .single() \
+            .execute()
+
+        if not test_lookup.data:
+            return jsonify({"error": f"Test not found: {slug}"}), 404
+
+        test_id = test_lookup.data['id']
+        language_id = test_lookup.data['language_id']
+
+        if language_id != 1:
+            return jsonify({"error": "Pinyin mode is only available for Chinese tests"}), 400
+
+        pinyin_type_id = DimensionService.get_test_type_id('pinyin')
+        if not pinyin_type_id:
+            return jsonify({"error": "Pinyin test type not configured"}), 500
+
+        # Get the first question ID to use as a synthetic response for the RPC
+        # The RPC expects at least one response with a question_id
+        questions_result = current_app.supabase_service.table('questions') \
+            .select('id') \
+            .eq('test_id', test_id) \
+            .limit(1) \
+            .execute()
+
+        if questions_result.data:
+            question_id = str(questions_result.data[0]['id'])
+        else:
+            question_id = str(uuid4())
+
+        # Build a synthetic response: correct if accuracy >= 80%
+        db_responses = [{
+            "question_id": question_id,
+            "selected_answer": f"pinyin_accuracy_{accuracy:.2f}"
+        }]
+
+        rpc_result = _call_submission_rpc(
+            current_app.supabase_service, current_user_id,
+            test_id, language_id, pinyin_type_id, db_responses
+        )
+        if isinstance(rpc_result, tuple):
+            return rpc_result
+
+        if not rpc_result or not rpc_result.get('success'):
+            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
+            current_app.logger.error(f"Pinyin RPC failed: {error_msg}")
+            return jsonify({"error": "Failed to process pinyin submission"}), 500
+
+        result = {
+            'accuracy': round(accuracy * 100, 1),
+            'correct_chars': correct_chars,
+            'total_chars': total_chars,
+            'time_taken': time_taken,
+            'user_elo_change': {
+                'before': rpc_result.get('user_elo_before'),
+                'after': rpc_result.get('user_elo_after'),
+                'change': rpc_result.get('user_elo_change', 0)
+            },
+            'test_elo_change': {
+                'before': rpc_result.get('test_elo_before'),
+                'after': rpc_result.get('test_elo_after'),
+                'change': rpc_result.get('test_elo_change', 0)
+            },
+            'test_mode': 'pinyin',
+            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
+        }
+
+        return jsonify({'status': 'success', 'result': result}), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Pinyin submission error: {e}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'Failed to submit pinyin test'}), 500
+
+
 @tests_bp.route('/test/<identifier>', methods=['GET'])
 #@supabase_jwt_required
 def get_test_with_ratings(identifier):
@@ -842,7 +959,7 @@ def get_test_with_ratings(identifier):
         select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
-            'vocab_token_map, '
+            'vocab_token_map, pinyin_payload, '
             'dim_languages(language_code, language_name)'
         )
 
@@ -890,6 +1007,9 @@ def get_test_with_ratings(identifier):
             for rating in ratings_result.data
         }
         
+        # Pop pinyin payload (only present for Chinese tests)
+        pinyin_payload = test.pop('pinyin_payload', None)
+
         # Load definitions for vocab token map sense IDs
         token_map = test.pop('vocab_token_map', None) or []
         definitions = {}
@@ -915,9 +1035,11 @@ def get_test_with_ratings(identifier):
             "questions_data": questions_result.data,
             "skill_ratings": ratings,
             "vocab_token_map": token_map,
-            "definitions": definitions
+            "definitions": definitions,
         }
-        
+        if pinyin_payload is not None:
+            response_data["pinyin_payload"] = pinyin_payload
+
         return jsonify(response_data)
 
     except Exception as e:

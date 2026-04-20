@@ -94,6 +94,17 @@ class Config:
     MAX_INPUT_LENGTH = 2000
 
     # ==========================================================================
+    # VOCABULARY LADDER PIPELINE
+    # ==========================================================================
+    VOCAB_PIPELINE_MODELS = {
+        'prompt1': os.getenv('VOCAB_PROMPT1_MODEL', 'google/gemini-2.5-flash-lite'),
+        'prompt2': os.getenv('VOCAB_PROMPT2_MODEL', 'anthropic/claude-sonnet-4-6'),
+        'prompt3': os.getenv('VOCAB_PROMPT3_MODEL', 'anthropic/claude-sonnet-4-6'),
+    }
+    VOCAB_DOJO_SESSION_SIZE = int(os.getenv('VOCAB_DOJO_SESSION_SIZE', '20'))
+    VOCAB_SENTENCES_PER_WORD = 10
+
+    # ==========================================================================
     # EXERCISE SCHEDULING
     # ==========================================================================
     DEFAULT_EXERCISE_SESSION_SIZE = 20

@@ -54,6 +54,9 @@ class VocabularyKnowledgeService:
             # Auto-create flashcards for words entering the learning zone
             self._auto_create_flashcards(user_id, language_id, results)
 
+            # Frequency inference: boost common words when rare words are mastered
+            self._trigger_frequency_inference(user_id, language_id, results)
+
             return results
 
         except Exception as e:
@@ -61,21 +64,29 @@ class VocabularyKnowledgeService:
             return []
 
     def update_from_word_test(
-        self, user_id: str, sense_id: int, is_correct: bool, language_id: int
+        self, user_id: str, sense_id: int, is_correct: bool, language_id: int,
+        exercise_type: str | None = None,
     ) -> dict | None:
         """
         Update BKT after a single word quiz answer (strong signal).
+
+        Args:
+            exercise_type: If provided, uses exercise-type-specific BKT
+                parameters (e.g. recognition vs production slip/guess).
 
         Returns:
             {sense_id, p_known_before, p_known_after, status} or None
         """
         try:
-            response = self.db.rpc('update_vocabulary_from_word_test', {
+            params = {
                 'p_user_id': user_id,
                 'p_sense_id': sense_id,
                 'p_is_correct': is_correct,
                 'p_language_id': language_id,
-            }).execute()
+            }
+            if exercise_type is not None:
+                params['p_exercise_type'] = exercise_type
+            response = self.db.rpc('update_vocabulary_from_word_test', params).execute()
 
             results = response.data or []
             if results:
@@ -85,6 +96,10 @@ class VocabularyKnowledgeService:
                     f"correct={is_correct}, "
                     f"p_known {row.get('out_p_known_before')} → {row.get('out_p_known_after')}"
                 )
+
+                # Frequency inference: boost common words when rare words are mastered
+                self._trigger_frequency_inference(user_id, language_id, [row])
+
                 return row
             return None
 
@@ -213,17 +228,84 @@ class VocabularyKnowledgeService:
             except Exception as e:
                 logger.error(f"Failed to insert quiz result for sense {r['sense_id']}: {e}")
 
-            # Update BKT (strong signal)
+            # Update BKT (strong signal — word quiz is definition match MCQ)
             bkt_result = self.update_from_word_test(
                 user_id=user_id,
                 sense_id=r['sense_id'],
                 is_correct=r['is_correct'],
                 language_id=language_id,
+                exercise_type='definition_match',
             )
             if bkt_result:
                 bkt_updates.append(bkt_result)
 
         return bkt_updates
+
+    def apply_contextual_inference(
+        self, user_id: str, language_id: int,
+        test_id: str, question_results: list[dict], score_ratio: float,
+    ) -> int:
+        """Apply dampened BKT update to contextual words not directly tested.
+
+        Fetches the test's vocab_sense_ids (all transcript vocabulary) and
+        the questions' sense_ids (directly tested vocabulary), computes the
+        difference, and applies a dampened positive BKT update to the
+        contextual senses.
+
+        Returns count of senses updated.
+        """
+        if score_ratio < 0.50:
+            return 0
+
+        try:
+            # Get all transcript sense_ids
+            test_resp = (
+                self.db.table('tests')
+                .select('vocab_sense_ids')
+                .eq('id', str(test_id))
+                .single()
+                .execute()
+            )
+            all_transcript_senses = set(test_resp.data.get('vocab_sense_ids') or [])
+            if not all_transcript_senses:
+                return 0
+
+            # Get directly tested sense_ids from questions
+            questions_resp = (
+                self.db.table('questions')
+                .select('sense_ids')
+                .eq('test_id', str(test_id))
+                .execute()
+            )
+            direct_senses = set()
+            for q in (questions_resp.data or []):
+                if q.get('sense_ids'):
+                    direct_senses.update(q['sense_ids'])
+
+            # Contextual senses = transcript senses NOT directly tested
+            contextual_senses = list(all_transcript_senses - direct_senses)
+            if not contextual_senses:
+                return 0
+
+            resp = self.db.rpc('bkt_contextual_inference', {
+                'p_user_id': user_id,
+                'p_language_id': language_id,
+                'p_contextual_sense_ids': contextual_senses,
+                'p_score_ratio': score_ratio,
+            }).execute()
+
+            updated = resp.data if isinstance(resp.data, int) else 0
+            if updated:
+                logger.info(
+                    f"Contextual inference: test={test_id}, "
+                    f"score={score_ratio:.0%}, "
+                    f"{updated}/{len(contextual_senses)} contextual senses boosted"
+                )
+            return updated
+
+        except Exception as e:
+            logger.error(f"Contextual inference failed for test {test_id}: {e}")
+            return 0
 
     def _auto_create_flashcards(
         self, user_id: str, language_id: int, bkt_results: list[dict]
@@ -302,3 +384,41 @@ class VocabularyKnowledgeService:
 
         except Exception as e:
             logger.error(f"Failed to auto-create flashcards: {e}")
+
+    def _trigger_frequency_inference(
+        self, user_id: str, language_id: int, bkt_results: list[dict]
+    ):
+        """Boost common words when a rare word reaches 'known' status.
+
+        For each sense that just crossed p_known >= 0.90, calls
+        bkt_infer_from_frequency() to raise floors on common untracked words.
+        """
+        for r in bkt_results:
+            p_after = float(
+                r.get('out_p_known_after') or r.get('p_known_after', 0)
+            )
+            p_before = float(
+                r.get('out_p_known_before') or r.get('p_known_before', 0)
+            )
+            # Only fire when the word just crossed the threshold
+            if p_after >= 0.90 and p_before < 0.90:
+                sense_id = r.get('out_sense_id') or r.get('sense_id')
+                if sense_id is None:
+                    continue
+                try:
+                    resp = self.db.rpc('bkt_infer_from_frequency', {
+                        'p_user_id': user_id,
+                        'p_language_id': language_id,
+                        'p_known_sense_id': sense_id,
+                        'p_new_p_known': p_after,
+                    }).execute()
+                    boosted = resp.data if resp.data else 0
+                    if boosted:
+                        logger.info(
+                            f"Frequency inference: sense={sense_id} → "
+                            f"boosted {boosted} common words"
+                        )
+                except Exception as e:
+                    logger.error(
+                        f"Frequency inference failed for sense {sense_id}: {e}"
+                    )

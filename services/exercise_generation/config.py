@@ -12,6 +12,8 @@ ALL_EXERCISE_TYPES: list[str] = [
     'odd_collocation_out', 'verb_noun_match',
     'style_sentence_completion', 'style_pattern_match', 'style_voice_transform',
     'style_transition_fill', 'style_imitation',
+    # Vocabulary ladder types
+    'phonetic_recognition', 'definition_match', 'morphology_slot',
 ]
 
 # Exercise types that require an MCQ options array
@@ -19,6 +21,7 @@ MCQ_TYPES: FrozenSet[str] = frozenset({
     'cloze_completion', 'tl_nl_translation', 'collocation_gap_fill',
     'odd_one_out', 'odd_collocation_out',
     'style_sentence_completion', 'style_pattern_match', 'style_transition_fill',
+    'phonetic_recognition', 'definition_match', 'morphology_slot',
 })
 
 # Expected option counts per MCQ type
@@ -31,6 +34,9 @@ EXPECTED_OPTION_COUNT: dict[str, int] = {
     'style_sentence_completion': 4,
     'style_pattern_match':       4,
     'style_transition_fill':     4,
+    'phonetic_recognition':      4,
+    'definition_match':          4,
+    'morphology_slot':           4,
 }
 
 # --- Required JSONB fields per type ------------------------------------------
@@ -58,6 +64,11 @@ REQUIRED_FIELDS_BY_TYPE: dict[str, list[str]] = {
     'style_voice_transform':     ['original_sentence', 'rewritten_sentence', 'instruction'],
     'style_transition_fill':     ['paragraph_with_blank', 'correct', 'options'],
     'style_imitation':           ['instruction', 'model_answer', 'grading_notes'],
+    # Vocabulary ladder types
+    'phonetic_recognition':      ['word', 'pronunciation', 'options', 'correct_answer'],
+    'definition_match':          ['word', 'correct_definition', 'options'],
+    'morphology_slot':           ['sentence_with_blank', 'correct_answer', 'base_form',
+                                  'form_label', 'options'],
 }
 
 # --- Distribution targets per grammar pattern --------------------------------

@@ -105,6 +105,7 @@ class GeneratedQuestion:
     choices: List[str]
     answer: str
     question_type_id: Optional[int] = None
+    distractor_types: Optional[List[str]] = None
 
 
 @dataclass
@@ -696,6 +697,8 @@ class TestDatabaseClient:
             }
             if q.question_type_id:
                 row['question_type_id'] = q.question_type_id
+            if q.distractor_types:
+                row['distractor_types'] = q.distractor_types
             rows.append(row)
 
         response = self.client.table('questions') \
@@ -710,7 +713,8 @@ class TestDatabaseClient:
         self,
         test_id: UUID,
         initial_elo: int,
-        has_audio: bool = True
+        has_audio: bool = True,
+        language_id: int = None
     ) -> None:
         """
         Insert initial skill ratings for a test.
@@ -719,15 +723,20 @@ class TestDatabaseClient:
             test_id: Test UUID
             initial_elo: Starting ELO rating
             has_audio: Whether the test has audio
+            language_id: Language ID (1=Chinese) — pinyin type only for Chinese
         """
         # Get active test types from dim_test_types
         active_types = self.get_active_test_types()
 
-        # Filter based on audio availability
-        types_to_create = [
-            t for t in active_types
-            if not t['requires_audio'] or has_audio
-        ]
+        # Filter based on audio availability and language
+        types_to_create = []
+        for t in active_types:
+            if t['requires_audio'] and not has_audio:
+                continue
+            # Pinyin type is Chinese-only
+            if t['type_code'] == 'pinyin' and language_id != 1:
+                continue
+            types_to_create.append(t)
 
         if not types_to_create:
             logger.warning(f"No skill ratings to create for test {test_id}")

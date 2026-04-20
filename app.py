@@ -37,6 +37,8 @@ from routes.users import users_bp
 from routes.payments import payments_bp
 from routes.mystery import mystery_bp
 from routes.conversations import conversations_bp
+from routes.vocab_dojo import vocab_dojo_bp
+from routes.vocab_admin import vocab_admin_bp
 
 
 def create_app(config_class=Config):
@@ -210,6 +212,8 @@ def _register_blueprints(app):
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
     app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
+    app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
+    app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
 
     app.logger.info("Blueprints registered")
 
@@ -296,6 +300,11 @@ def _register_web_routes(app):
         """Render test taking page (client-side rendered)"""
         return render_template('test.html')
 
+    @app.route('/test/<slug>/pinyin')
+    def pinyin_test_page(slug):
+        """Render pinyin tone trainer page (client-side rendered)"""
+        return render_template('test_pinyin.html')
+
     @app.route('/flashcards')
     def flashcards():
         """Render flashcards review page"""
@@ -315,6 +324,16 @@ def _register_web_routes(app):
     def mystery_page(slug):
         """Render mystery playing page"""
         return render_template('mystery.html')
+
+    @app.route('/vocab-dojo')
+    def vocab_dojo():
+        """Render vocabulary dojo page"""
+        return render_template('vocab_dojo.html')
+
+    @app.route('/admin/vocab-preview')
+    def admin_vocab_preview():
+        """Render admin vocabulary preview page"""
+        return render_template('admin_vocab_preview.html')
 
     @app.route('/conversations')
     def conversations():

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Vocab Preview | Admin{% endblock %}
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-header { padding: 20px 0; border-bottom: 1px solid var(--border-default); background: var(--bg-surface); }
+    .word-card { background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md); padding: 24px; margin-bottom: 20px; }
+    .word-title { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .word-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .meta-badge { background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 8px; padding: 4px 12px; font-size: 13px; }
+    .level-section { background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-default); padding: 20px; margin-bottom: 16px; }
+    .level-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .level-num { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--primary); color: white; font-weight: 700; font-size: 14px; }
+    .level-name { font-weight: 600; font-size: 16px; }
+    .json-toggle { font-size: 13px; color: var(--primary); cursor: pointer; margin-left: auto; }
+    .json-block { display: none; background: var(--bg-muted); border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 12px; max-height: 300px; overflow: auto; }
+    .json-block.show { display: block; }
+    .exercise-preview { padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: rgba(30,64,175,0.02); }
+    .preview-option { padding: 8px 14px; border: 1px solid var(--border-default); border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+    .preview-option.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
+    .preview-option.distractor { border-color: var(--border-default); }
+    .asset-status { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
+    .asset-status.valid { background: rgba(5,150,105,0.1); color: var(--success); }
+    .asset-status.invalid { background: rgba(220,38,38,0.1); color: var(--danger); }
+    .asset-status.missing { background: var(--bg-muted); color: var(--text-muted); }
+
+    .search-bar { max-width: 500px; margin: 20px auto; }
+    .search-bar input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-default); border-radius: 12px; font-size: 15px; }
+    .search-bar input:focus { border-color: var(--primary); outline: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="preview-header">
+    <div class="container">
+        <h1 style="font-size:22px;font-weight:700;margin:0">Vocabulary Preview</h1>
+        <p style="color:var(--text-secondary);margin:4px 0 0;font-size:14px">Inspect generated exercises for any word</p>
+    </div>
+</header>
+
+<main class="container" style="padding-top:20px;padding-bottom:40px;">
+    <div class="search-bar">
+        <input type="number" id="senseIdInput" placeholder="Enter sense_id..." onkeydown="if(event.key==='Enter')loadPreview()">
+        <div class="d-flex gap-2 mt-2">
+            <select id="langSelect" class="form-select" style="max-width:150px">
+                <option value="2" selected>English</option>
+                <option value="1">Chinese</option>
+                <option value="3">Japanese</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadPreview()">Load Preview</button>
+        </div>
+    </div>
+
+    <div id="previewContent"></div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    function authFetch(url) {
+        const token = localStorage.getItem('jwt_token');
+        return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    }
+
+    function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    const LADDER_NAMES = {
+        1: 'Phonetic/Orthographic', 2: 'Definition Match', 3: 'Cloze Completion',
+        4: 'Morphology Slot', 5: 'Collocation Gap', 6: 'Semantic Discrimination',
+        7: 'Spot Incorrect', 8: 'Collocation Repair', 9: 'Jumbled Sentence'
+    };
+
+    window.loadPreview = async function() {
+        const senseId = document.getElementById('senseIdInput').value;
+        const langId = document.getElementById('langSelect').value;
+        if (!senseId) return;
+
+        const container = document.getElementById('previewContent');
+        container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-secondary)">Loading...</p>';
+
+        try {
+            const data = await authFetch(`/api/admin/vocab/word/${senseId}/preview?language_id=${langId}`);
+            if (data.status !== 'success') {
+                container.innerHTML = `<p style="color:var(--danger)">Error: ${esc(data.error || 'Unknown error')}</p>`;
+                return;
+            }
+            renderPreview(data, container);
+        } catch (e) {
+            container.innerHTML = `<p style="color:var(--danger)">Fetch error: ${esc(e.message)}</p>`;
+        }
+    };
+
+    function renderPreview(data, container) {
+        const w = data.word || {};
+        const exercises = data.exercises || [];
+        const assets = data.assets || {};
+
+        let h = `<div class="word-card">
+            <div class="word-title">${esc(w.lemma)}</div>
+            <div class="word-meta">
+                <span class="meta-badge">POS: ${esc(w.pos)}</span>
+                <span class="meta-badge">Class: ${esc(w.semantic_class)}</span>
+                <span class="meta-badge">Tier: ${esc(w.complexity_tier)}</span>
+                ${w.ipa ? `<span class="meta-badge">IPA: ${esc(w.ipa)}</span>` : ''}
+            </div>
+            <p style="margin-top:12px;color:var(--text-secondary)">${esc(w.definition)}</p>
+            <div style="margin-top:12px;display:flex;gap:8px;">`;
+
+        ['prompt1_core', 'prompt2_exercises', 'prompt3_transforms'].forEach(at => {
+            const a = assets[at];
+            if (a && a.is_valid) h += `<span class="asset-status valid"><i class="fas fa-check-circle"></i> ${at.replace('prompt','P').replace('_',' ')}</span>`;
+            else if (a) h += `<span class="asset-status invalid"><i class="fas fa-exclamation-circle"></i> ${at.replace('prompt','P').replace('_',' ')}</span>`;
+            else h += `<span class="asset-status missing"><i class="fas fa-minus-circle"></i> ${at.replace('prompt','P').replace('_',' ')}</span>`;
+        });
+        h += '</div></div>';
+
+        // Active levels
+        const activeLevels = w.active_levels || [1,2,3,4,5,6,7,8,9];
+        h += `<p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">Active levels: ${activeLevels.join(', ')}</p>`;
+
+        // Exercises by level
+        const byLevel = {};
+        exercises.forEach(ex => { byLevel[ex.ladder_level] = ex; });
+
+        activeLevels.forEach(lv => {
+            const ex = byLevel[lv];
+            h += `<div class="level-section">
+                <div class="level-header">
+                    <div class="level-num">${lv}</div>
+                    <div class="level-name">${LADDER_NAMES[lv] || 'Level ' + lv}</div>
+                    ${ex ? '<span class="asset-status valid" style="margin-left:auto"><i class="fas fa-check"></i> Generated</span>' : '<span class="asset-status missing" style="margin-left:auto"><i class="fas fa-minus"></i> Missing</span>'}
+                </div>`;
+
+            if (ex) {
+                h += `<div class="exercise-preview">${renderExercisePreview(ex, lv)}</div>`;
+                h += `<div class="json-toggle" onclick="this.nextElementSibling.classList.toggle('show')">Toggle JSON</div>`;
+                h += `<div class="json-block"><pre>${esc(JSON.stringify(ex.content, null, 2))}</pre></div>`;
+            }
+
+            h += '</div>';
+        });
+
+        // Raw assets toggle
+        h += '<h3 style="margin-top:24px;font-size:16px;font-weight:600">Raw Assets</h3>';
+        Object.entries(assets).forEach(([type, asset]) => {
+            h += `<div class="level-section">
+                <div class="json-toggle" style="margin-bottom:8px" onclick="this.nextElementSibling.classList.toggle('show')">${esc(type)} (${asset.model_used}) — click to expand</div>
+                <div class="json-block"><pre>${esc(JSON.stringify(asset.content, null, 2))}</pre></div>
+            </div>`;
+        });
+
+        container.innerHTML = h;
+    }
+
+    function renderExercisePreview(ex, level) {
+        const c = ex.content || {};
+        let h = `<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">${esc(ex.exercise_type)}</div>`;
+
+        if (c.options && Array.isArray(c.options)) {
+            // MCQ preview
+            if (c.sentence_with_blank) h += `<p style="font-size:15px;margin-bottom:12px">${esc(c.sentence_with_blank)}</p>`;
+            if (c.sentence) h += `<p style="font-size:15px;margin-bottom:12px">${esc(c.sentence)}</p>`;
+            c.options.forEach(o => {
+                const text = typeof o === 'object' ? (o.text || o) : o;
+                const isCorrect = text === (c.correct_answer || c.correct || c.correct_definition || c.correct_collocate || '');
+                h += `<div class="preview-option ${isCorrect ? 'correct' : 'distractor'}">${isCorrect ? '<i class="fas fa-check me-2" style="color:var(--success)"></i>' : ''} ${esc(text)}</div>`;
+            });
+            if (c.explanation) h += `<div style="margin-top:8px;font-size:13px;color:var(--text-secondary)"><em>${esc(c.explanation)}</em></div>`;
+        } else if (c.sentences && Array.isArray(c.sentences)) {
+            // Sentence-based preview (L6, L7)
+            c.sentences.forEach(s => {
+                const isCorrect = level === 7 ? !s.is_correct : s.is_correct;
+                h += `<div class="preview-option ${isCorrect ? 'correct' : 'distractor'}">${esc(s.text)}</div>`;
+            });
+        } else if (c.sentence_with_error) {
+            h += `<p style="font-size:15px">${esc(c.sentence_with_error)}</p>`;
+            h += `<div style="margin-top:8px;font-size:14px">Error: <strong style="color:var(--danger)">${esc(c.error_word)}</strong> &rarr; <strong style="color:var(--success)">${esc(c.correct_word)}</strong></div>`;
+        } else if (c.original_sentence) {
+            h += `<p style="font-size:15px">${esc(c.original_sentence)}</p>`;
+            if (c.chunks) h += `<p style="font-size:13px;color:var(--text-secondary)">Chunks: ${c.chunks.join(' | ')}</p>`;
+        } else {
+            h += `<p style="font-size:13px;color:var(--text-muted)">Preview not available for this type</p>`;
+        }
+
+        return h;
+    }
+})();
+</script>
+{% endblock %}

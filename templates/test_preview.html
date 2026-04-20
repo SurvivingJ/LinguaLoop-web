@@ -9,7 +9,7 @@
 /* Test Type Selector - Custom Radio Buttons */
 .test-type-selector {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
     margin-top: 12px;
 }
@@ -284,6 +284,18 @@
                                     <span data-i18n="test_preview.dictation">Dictation</span>
                                 </label>
                             </div>
+
+                            <div class="test-type-option" id="pinyinOptionWrapper" style="display: none;">
+                                <input type="radio"
+                                       name="testType"
+                                       id="pinyinOption"
+                                       value="pinyin"
+                                       onchange="updateDifficultyDisplay('pinyin')">
+                                <label for="pinyinOption" class="test-type-label">
+                                    <i class="bi bi-translate"></i>
+                                    <span data-i18n="test_preview.pinyin">Pinyin Tones</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -481,6 +493,11 @@
         document.getElementById('testTopic').textContent = test.topic || 'General';
         document.getElementById('testDifficulty').textContent = `Level ${test.difficulty || 1}`;
 
+        // Show pinyin option for Chinese tests only
+        if (test.language === 'cn' || test.language_id === 1) {
+            document.getElementById('pinyinOptionWrapper').style.display = 'block';
+        }
+
         // Audio availability
         if (test.audio_generated || test.audio_url) {
             document.getElementById('audioAvailable').classList.remove('d-none');
@@ -595,7 +612,11 @@
             sessionStorage.setItem('currentTestType', selectedTestType);
 
             // Navigate to test taking screen
-            window.location.href = `/test/${testSlug}?type=${selectedTestType}`;
+            if (selectedTestType === 'pinyin') {
+                window.location.href = `/test/${testSlug}/pinyin`;
+            } else {
+                window.location.href = `/test/${testSlug}?type=${selectedTestType}`;
+            }
 
         } catch (error) {
             console.error('Error starting test:', error);

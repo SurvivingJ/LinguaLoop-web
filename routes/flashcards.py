@@ -153,6 +153,7 @@ def submit_review() -> ApiResponse:
             sense_id=row['sense_id'],
             is_correct=is_correct,
             language_id=row['language_id'],
+            exercise_type='text_flashcard',
         )
 
         return api_success({

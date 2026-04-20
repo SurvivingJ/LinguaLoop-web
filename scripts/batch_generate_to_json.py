@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Superseded by scripts/run_test_generation_cli.py
 """
 Batch Test Generation Script - JSON Output
 

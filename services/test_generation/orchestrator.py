@@ -11,8 +11,9 @@ Coordinates the test generation workflow:
 
 import time
 import logging
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
+from typing import Callable, List, Optional
 from uuid import UUID, uuid4
 
 from .config import test_gen_config
@@ -39,6 +40,26 @@ from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
+
+DIFFICULTY_LABELS = {
+    1: 'beginner', 2: 'beginner', 3: 'elementary',
+    4: 'intermediate', 5: 'intermediate', 6: 'upper-int',
+    7: 'advanced', 8: 'advanced', 9: 'advanced',
+}
+
+
+@dataclass
+class BatchConfig:
+    """Configuration for a batch test generation run."""
+    language_code: str                                # 'cn', 'en', 'jp'
+    count: int = 20                                   # tests to generate
+    test_type: str = 'listening'                      # 'listening' | 'reading'
+    difficulty: Optional[int] = None                  # 1-9 or None (balanced)
+    topic_source: str = 'queue'                       # 'queue'
+    dry_run: bool = False
+    start_index: int = 0                              # resume from index
+    delay_ms: int = 0                                 # ms between LLM calls
+    stop_check: Optional[Callable[[], bool]] = field(default=None, repr=False)
 
 
 class NoQueueItemsError(Exception):
@@ -218,7 +239,8 @@ class TestGenerationOrchestrator:
         topic: Topic,
         lang_config: LanguageConfig,
         category_name: str,
-        difficulty: int
+        difficulty: int,
+        test_type: str = 'listening',
     ) -> bool:
         """
         Generate a single test at specified difficulty.
@@ -228,11 +250,12 @@ class TestGenerationOrchestrator:
             lang_config: Language configuration
             category_name: Category name
             difficulty: Difficulty level 1-9
+            test_type: 'listening' or 'reading'
 
         Returns:
             bool: True if successful
         """
-        logger.info(f"Generating test: difficulty={difficulty}")
+        logger.info(f"Generating test: difficulty={difficulty}, type={test_type}")
 
         # Get tier config
         cefr_config = self.db.get_cefr_config(difficulty)
@@ -286,6 +309,10 @@ class TestGenerationOrchestrator:
 
         logger.debug(f"Generated prose: {len(prose.split())} words")
 
+        # Validation gate: prose length
+        if not prose or len(prose.strip()) < 50:
+            raise ValueError(f"Prose too short: {len(prose.strip()) if prose else 0} chars (min 50)")
+
         # Step 1.5: Generate title
         title_template = self.db.get_prompt_template(
             'title_generation',
@@ -337,30 +364,34 @@ class TestGenerationOrchestrator:
             for error in errors:
                 logger.warning(f"Question validation: {error}")
 
-        if len(valid_questions) < 3:
+        min_questions = max(3, test_gen_config.questions_per_test - 1)
+        if len(valid_questions) < min_questions:
             raise ValueError(
-                f"Too few valid questions: {len(valid_questions)}/5"
+                f"Too few valid questions: {len(valid_questions)}/{test_gen_config.questions_per_test}"
             )
 
         # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
         test_id = uuid4()
 
-        # Step 4: Generate audio
-        voice = self.audio_synthesizer.select_voice(
-            voice_ids=lang_config.tts_voice_ids,
-            language_code=lang_config.language_code
-        )
-
+        # Step 4: Generate audio (listening tests only)
         audio_url = ""
-        if not test_gen_config.dry_run:
-            audio_url = self.audio_synthesizer.generate_and_upload(
-                text=prose,
-                file_id=str(test_id),
-                voice=voice,
-                speed=lang_config.tts_speed
+        if test_type == 'listening':
+            voice = self.audio_synthesizer.select_voice(
+                voice_ids=lang_config.tts_voice_ids,
+                language_code=lang_config.language_code
             )
+
+            if not test_gen_config.dry_run:
+                audio_url = self.audio_synthesizer.generate_and_upload(
+                    text=prose,
+                    file_id=str(test_id),
+                    voice=voice,
+                    speed=lang_config.tts_speed
+                )
+            else:
+                logger.info(f"[DRY RUN] Would generate audio: {test_id}.mp3")
         else:
-            logger.info(f"[DRY RUN] Would generate audio: {test_id}.mp3")
+            logger.info(f"Skipping audio generation for {test_type} test")
 
         # Step 5: Save to database
         if not test_gen_config.dry_run:
@@ -391,7 +422,8 @@ class TestGenerationOrchestrator:
                     question_text=q['question'],
                     choices=q['choices'],
                     answer=q['answer'],
-                    question_type_id=type_id
+                    question_type_id=type_id,
+                    distractor_types=q.get('distractor_types')
                 ))
             self.db.insert_questions(db_questions)
 
@@ -399,8 +431,21 @@ class TestGenerationOrchestrator:
             self.db.insert_test_skill_ratings(
                 test_id=test_id,
                 initial_elo=initial_elo,
-                has_audio=bool(audio_url)
+                has_audio=bool(audio_url),
+                language_id=lang_config.id
             )
+
+            # Generate pinyin payload for Chinese tests
+            if lang_config.id == 1 and prose:
+                try:
+                    from services.pinyin_service import process_passage
+                    pinyin_payload = process_passage(prose)
+                    self.db.client.table('tests').update({
+                        'pinyin_payload': pinyin_payload
+                    }).eq('id', str(test_id)).execute()
+                    logger.info(f"Pinyin payload generated for {slug}")
+                except Exception as e:
+                    logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
 
             logger.info(f"Test saved: {slug}")
 
@@ -485,15 +530,20 @@ class TestGenerationOrchestrator:
                     'vocab_token_map': token_map,
                 }).eq('id', str(test_id)).execute()
 
-                # Assign all sense_ids to every question in this test
-                # (comprehension questions test understanding of the whole passage)
+                # Assign per-question sense_ids: match vocab lemmas against
+                # each question's text + choices (not all transcript senses)
                 questions = db.table('questions') \
-                    .select('id') \
+                    .select('id, question_text, choices, answer') \
                     .eq('test_id', str(test_id)) \
                     .execute()
+
+                lemma_to_sense = self._build_sense_lookup(db, sense_ids)
                 for q in (questions.data or []):
+                    q_senses = self._match_question_senses(
+                        q, lemma_to_sense, sense_ids
+                    )
                     db.table('questions') \
-                        .update({'sense_ids': sense_ids}) \
+                        .update({'sense_ids': q_senses}) \
                         .eq('id', q['id']) \
                         .execute()
 
@@ -546,6 +596,40 @@ class TestGenerationOrchestrator:
                 lemma_to_sense[lemma] = sense_id
 
         return lemma_to_sense
+
+    @staticmethod
+    def _match_question_senses(
+        question: dict,
+        lemma_to_sense: dict[str, int],
+        all_sense_ids: list[int],
+    ) -> list[int]:
+        """Determine which sense_ids are relevant to a specific question.
+
+        Matches vocabulary lemmas against the question text + answer choices.
+        Falls back to all_sense_ids if no matches found (shouldn't happen
+        for well-formed questions about the passage).
+        """
+        # Build the searchable text from question text + choices + answer
+        text_parts = [question.get('question_text', '')]
+        choices = question.get('choices') or []
+        if isinstance(choices, list):
+            text_parts.extend(choices)
+        answer = question.get('answer', '')
+        if answer:
+            text_parts.append(answer)
+        searchable = ' '.join(text_parts).lower()
+
+        matched_senses = []
+        for lemma, sense_id in lemma_to_sense.items():
+            if lemma.lower() in searchable:
+                matched_senses.append(sense_id)
+
+        # Fallback: if no vocab matched (e.g. inference questions),
+        # assign all senses so BKT still gets signal from this question
+        if not matched_senses:
+            return all_sense_ids
+
+        return matched_senses
 
     def _build_token_map(
         self, db, transcript: str, language_code: str, language_id: int,
@@ -720,3 +804,239 @@ class TestGenerationOrchestrator:
         )
 
         return self._process_queue_item(item)
+
+    # ============================================================
+    # BATCH GENERATION (count-based, balanced difficulty)
+    # ============================================================
+
+    def run_batch(self, config: BatchConfig) -> TestGenMetrics:
+        """
+        Generate a fixed number of tests with balanced difficulty distribution.
+
+        When config.difficulty is None, tests are spread evenly across
+        target_difficulties (default [1,3,6,9]).  When set, all tests
+        use that single difficulty level.
+
+        Args:
+            config: BatchConfig with language, count, difficulty, etc.
+
+        Returns:
+            TestGenMetrics with per-run statistics.
+        """
+        start_time = time.time()
+
+        # Apply dry_run override
+        original_dry_run = test_gen_config.dry_run
+        if config.dry_run:
+            test_gen_config.dry_run = True
+
+        self.metrics = TestGenMetrics(run_date=datetime.utcnow())
+
+        try:
+            # Resolve language
+            lang_config = self.db.get_language_config_by_code(config.language_code)
+            if not lang_config:
+                raise ValueError(f"Unknown language code: {config.language_code}")
+
+            # Build difficulty schedule
+            difficulty_schedule = self._build_difficulty_schedule(
+                config.count, config.difficulty
+            )
+
+            logger.info("=" * 60)
+            logger.info("Batch Test Generation")
+            logger.info("=" * 60)
+            logger.info(
+                f"Language: {lang_config.language_name} | "
+                f"Type: {config.test_type} | Count: {config.count}"
+            )
+            if config.difficulty:
+                logger.info(f"Fixed difficulty: {config.difficulty}")
+            else:
+                diff_counts = {}
+                for d in difficulty_schedule:
+                    diff_counts[d] = diff_counts.get(d, 0) + 1
+                logger.info(f"Balanced distribution: {diff_counts}")
+            logger.info(f"Dry run: {config.dry_run}")
+            logger.info("=" * 60)
+
+            # Fetch queue items
+            pending_status_id = self.db._get_status_id('pending')
+            queue_resp = self.db.client.table('production_queue') \
+                .select('*') \
+                .eq('status_id', pending_status_id) \
+                .eq('language_id', lang_config.id) \
+                .limit(config.count) \
+                .execute()
+
+            queue_items = queue_resp.data or []
+            if not queue_items:
+                logger.warning("No pending queue items for %s", config.language_code)
+                return self._finalize(start_time)
+
+            # Track per-difficulty results for summary
+            diff_stats: dict[int, dict[str, int]] = {}
+            for d in set(difficulty_schedule):
+                diff_stats[d] = {'generated': 0, 'skipped': 0, 'errors': 0}
+
+            # Main generation loop
+            for i, diff in enumerate(difficulty_schedule):
+                if i < config.start_index:
+                    continue
+
+                # Stop check
+                if config.stop_check and config.stop_check():
+                    logger.info("Stop requested — aborting at [%d/%d]", i + 1, config.count)
+                    break
+
+                # Pick queue item (cycle if fewer items than count)
+                qi_idx = i % len(queue_items)
+                qi_row = queue_items[qi_idx]
+
+                topic = self.db.get_topic(UUID(qi_row['topic_id']))
+                if not topic:
+                    logger.warning("[%d/%d] Topic not found: %s — skipping",
+                                   i + 1, config.count, qi_row['topic_id'])
+                    diff_stats[diff]['skipped'] += 1
+                    continue
+
+                category_name = self.db.get_category_name(topic.category_id)
+
+                try:
+                    success = self._generate_test(
+                        topic=topic,
+                        lang_config=lang_config,
+                        category_name=category_name,
+                        difficulty=diff,
+                        test_type=config.test_type,
+                    )
+                    if success:
+                        self.metrics.tests_generated += 1
+                        diff_stats[diff]['generated'] += 1
+                        logger.info(
+                            "[%d/%d] %s | %s | diff=%d (%s) | pass",
+                            i + 1, config.count, config.language_code,
+                            config.test_type, diff,
+                            DIFFICULTY_LABELS.get(diff, '?'),
+                        )
+                    else:
+                        diff_stats[diff]['skipped'] += 1
+                        logger.info(
+                            "[%d/%d] %s | %s | diff=%d | skip",
+                            i + 1, config.count, config.language_code,
+                            config.test_type, diff,
+                        )
+
+                except Exception as e:
+                    self.metrics.tests_failed += 1
+                    diff_stats[diff]['errors'] += 1
+                    logger.error(
+                        "[%d/%d] %s | %s | diff=%d | ERROR: %s",
+                        i + 1, config.count, config.language_code,
+                        config.test_type, diff, str(e),
+                    )
+
+                # Rate limiting
+                if config.delay_ms > 0:
+                    time.sleep(config.delay_ms / 1000.0)
+
+            # Mark processed queue items complete (first batch only)
+            if not config.dry_run and self.metrics.tests_generated > 0:
+                for qi_row in queue_items:
+                    try:
+                        self.db.mark_queue_completed(
+                            UUID(qi_row['id']),
+                            self.metrics.tests_generated,
+                        )
+                    except Exception:
+                        pass
+
+            # Log summary table
+            self._log_batch_summary(
+                lang_config.language_name, config.test_type, diff_stats
+            )
+
+            return self._finalize(start_time)
+
+        except Exception as e:
+            logger.exception(f"Batch generation failed: {e}")
+            if self.metrics:
+                self.metrics.error_message = str(e)
+            return self._finalize(start_time)
+
+        finally:
+            test_gen_config.dry_run = original_dry_run
+
+    @staticmethod
+    def _build_difficulty_schedule(
+        count: int, fixed_difficulty: Optional[int] = None,
+    ) -> list[int]:
+        """Build an ordered list of difficulty levels for the batch.
+
+        When *fixed_difficulty* is set every slot uses that value.
+        Otherwise slots are distributed evenly across target_difficulties,
+        with remainder going to the middle levels.
+        """
+        if fixed_difficulty is not None:
+            return [fixed_difficulty] * count
+
+        difficulties = list(test_gen_config.target_difficulties)
+        if not difficulties:
+            difficulties = [1, 3, 6, 9]
+
+        per_level = count // len(difficulties)
+        remainder = count % len(difficulties)
+
+        # Distribute remainder to middle difficulties first
+        mid = len(difficulties) // 2
+        schedule: list[int] = []
+        for idx, d in enumerate(difficulties):
+            n = per_level
+            # Give remainder to indices nearest the middle
+            dist_from_mid = abs(idx - mid)
+            if remainder > 0 and dist_from_mid <= remainder:
+                # Simpler: just hand out remainder round-robin from the middle out
+                pass
+            schedule.extend([d] * n)
+
+        # Distribute remainder round-robin starting from middle
+        remainder_indices = sorted(
+            range(len(difficulties)),
+            key=lambda i: abs(i - mid),
+        )
+        for r in range(remainder):
+            d = difficulties[remainder_indices[r % len(remainder_indices)]]
+            schedule.append(d)
+
+        return schedule
+
+    @staticmethod
+    def _log_batch_summary(
+        language_name: str,
+        test_type: str,
+        diff_stats: dict[int, dict[str, int]],
+    ) -> None:
+        """Log a formatted summary table of batch results."""
+        logger.info("")
+        logger.info("=" * 50)
+        logger.info("  Batch Complete")
+        logger.info("=" * 50)
+        logger.info(f"  Language: {language_name} | Type: {test_type}")
+        logger.info("  %-12s %-10s %-8s %-6s", "Difficulty", "Generated", "Skipped", "Errors")
+        logger.info("  " + "-" * 40)
+
+        total_gen = total_skip = total_err = 0
+        for diff in sorted(diff_stats.keys()):
+            s = diff_stats[diff]
+            label = DIFFICULTY_LABELS.get(diff, '?')
+            logger.info(
+                "  %-12s %-10d %-8d %-6d",
+                f"{diff} ({label})", s['generated'], s['skipped'], s['errors'],
+            )
+            total_gen += s['generated']
+            total_skip += s['skipped']
+            total_err += s['errors']
+
+        logger.info("  " + "-" * 40)
+        logger.info("  %-12s %-10d %-8d %-6d", "TOTAL", total_gen, total_skip, total_err)
+        logger.info("=" * 50)

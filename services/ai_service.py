@@ -1,3 +1,4 @@
+# LEGACY: Use services.test_generation.orchestrator for batch generation
 from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
 import json
 import logging
