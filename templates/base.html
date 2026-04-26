@@ -107,17 +107,10 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url_for('exercises') }}"
-                           class="nav-link {% if request.endpoint == 'exercises' %}active{% endif %}"
-                           data-i18n="common.nav.exercises">
-                            Exercises
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('mysteries') }}"
-                           class="nav-link {% if request.endpoint == 'mysteries' or request.endpoint == 'mystery_page' %}active{% endif %}"
-                           data-i18n="common.nav.mysteries">
-                            Mysteries
+                        <a href="{{ url_for('vocab_dojo') }}"
+                           class="nav-link {% if request.endpoint == 'vocab_dojo' %}active{% endif %}"
+                           data-i18n="common.nav.vocab_dojo">
+                            Vocab Dojo
                         </a>
                     </li>
                     <li class="nav-item">
