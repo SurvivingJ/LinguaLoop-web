@@ -3,7 +3,7 @@ title: Exercises — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./exercises.md
-last_updated: 2026-04-10
+last_updated: 2026-04-25
 dependencies:
   - "exercises table"
   - "exercise_attempts table"
@@ -28,6 +28,16 @@ Generation (batch, admin-triggered or pack pipeline):
     → LLM client (OpenRouter, language-specific model)
     → Validator (schema + linguistic + pedagogical)
     → exercises table (immutable after validation)
+
+Full Pipeline (admin dashboard, single-button end-to-end):
+  POST /api/run/full-pipeline → _do_full_pipeline()
+    → Step 1: VocabBackfillRunner (vocab + senses + token maps)
+    → Step 2: TokenMapBackfillRunner (straggler token maps)
+    → Step 3: run_backfill (per-question sense_ids)
+    → Step 4: BackfillRunner (test skill ratings)
+    → Step 5: ExerciseBackfillRunner (vocab + grammar + style)
+    → Step 6: run_collocation_batch (collocations, with idempotency)
+  All steps idempotent, stoppable between steps via is_task_stopped()
 
 Vocabulary Ladder Generation (per word):
   Word Intake → POS routing → Language Spec
@@ -114,7 +124,16 @@ services/exercise_generation/
     ├── style.py
     ├── context_spectrum.py
     ├── timed_speed_round.py
+    ├── spot_incorrect.py
+    ├── style.py
     └── flashcard.py
+
+scripts/                             # Backfill scripts (used by Full Pipeline)
+├── backfill_vocab.py                # VocabBackfillRunner: vocab + senses + token maps
+├── backfill_token_maps.py           # TokenMapBackfillRunner: straggler token maps
+├── backfill_question_sense_ids.py   # Per-question sense_ids matching
+├── backfill_test_skill_ratings.py   # Test skill ratings with ELO
+└── backfill_exercises.py            # ExerciseBackfillRunner: vocab + grammar + style
 
 services/vocabulary_ladder/
 ├── scheduler.py             # ExerciseScheduler (session building)
@@ -144,6 +163,10 @@ services/vocabulary_ladder/
 
 5. **Generate-once, cache-forever**
    - Rationale: Assessment validity requires stable items. LLM output variance (even at temperature=0) makes regeneration unreliable. Spaced repetition signals require item stability.
+
+6. **Full Pipeline as unified backfill orchestrator**
+   - Rationale: Running 5+ backfill scripts manually in the correct order is error-prone. A single admin button runs them sequentially with per-step try/except so one failure doesn't block subsequent steps.
+   - File: `routes/admin_local.py` — `_do_full_pipeline()` function
 
 ## Related Pages
 

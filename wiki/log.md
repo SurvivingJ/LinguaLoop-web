@@ -1,5 +1,58 @@
 # Activity Log
 
+## 2026-04-25 feature | Full Pipeline admin tab
+
+Source: `routes/admin_local.py`, `templates/admin_dashboard.html`, `static/js/admin-dashboard.js`, `scripts/backfill_question_sense_ids.py`.
+
+**Pages updated: 5**
+- `overview/project.tech.md` — Rewrote Admin Pipeline Dashboard section: replaced outdated `/admin/vocab` description with full 9-tab dashboard architecture, including endpoint/runner table for all tabs and detailed Full Pipeline step breakdown
+- `features/exercises.md` — Added Full Pipeline as generation trigger in Business Rules; corrected Exercise Sources (added conversation + style, removed outdated study_pack)
+- `features/exercises.tech.md` — Added Full Pipeline to Architecture Overview diagram; added backfill scripts to Generator Architecture tree; added architectural decision #6 (unified backfill orchestrator)
+- `pages/pages-overview.md` — Added `/admin` route with `admin_dashboard.html` template
+- `log.md` — This entry
+
+Notes: The Full Pipeline tab is the 9th admin dashboard tab. It orchestrates 6 existing backfill scripts sequentially (vocab → token maps → question sense IDs → skill ratings → exercises → collocations) via `_do_full_pipeline()` in `admin_local.py`. All steps are idempotent with per-step try/except. Also fixed exercises.md which listed an outdated `study_pack` source type instead of the actual `conversation` and `style` source types.
+
+---
+
+## 2026-04-24 update | Style analysis schema added to wiki
+
+Source: `migrations/style_analysis_tables.sql`, `migrations/style_exercise_fk.sql`.
+
+**Pages updated: 3**
+- `database/schema.tech.md` — Added 3 tables (`corpus_style_profiles`, `style_pack_items`, `pack_style_items`), added `style_pack_item_id` FK + `chk_source_fk` constraint to `exercises`, added 'style' to `exercise_source_type` enum, updated `collocation_packs.pack_type` CHECK, updated table count 62 → 65
+- `features/corpus-analysis.tech.md` — Added style tables to Database Impact section and dependencies
+- `wiki/log.md` — This entry
+
+Notes: These tables were created by `style_analysis_tables.sql` (applied after `corpus_analysis_tables.sql`) and `style_exercise_fk.sql` but had never been documented in the wiki. The style exercise generators and orchestrator wiring were also added in this session (see backfill audit).
+
+---
+
+## 2026-04-21 ingest | Pinyin Tone Trainer feature
+
+Source: `migrations/add_pinyin_mode.sql`, `services/pinyin_service.py`, `routes/tests.py`, `templates/test_pinyin.html`, `scripts/batch_generate_pinyin.py`.
+
+**Pages created: 2**
+- `features/pinyin-trainer.md` — Prose: Chinese tone-guessing game, sandhi rules, polyphone handling, user flow
+- `features/pinyin-trainer.tech.md` — Tech spec: pypinyin pipeline, token schema, submit-pinyin endpoint, batch script, architectural decisions
+
+**Pages updated: 4**
+- `database/schema.tech.md` — Added `pinyin_payload` JSONB column to `tests` table; updated `dim_test_types` description to include pinyin
+- `database/schema.md` — Updated `dim_test_types` description to include pinyin
+- `features/comprehension-tests.md` — Added Pinyin Tones to Test Types list; added cross-reference to pinyin-trainer page
+- `index.md` — Added 2 pinyin-trainer pages, page count 41 → 43, updated date
+
+**Key details:**
+1. **Chinese-only** test mode using existing test transcripts as source material
+2. **Pre-computed pinyin_payload** JSONB on `tests` table — tokenised characters with base/context tones, sandhi rules, word context
+3. **Deterministic sandhi engine** — third-tone, yi, bu rules applied via `pinyin_service._apply_sandhi()`
+4. **Polyphone handling** — jieba segmentation + 45-char watchlist + optional DeepSeek LLM resolution (batch only)
+5. **Reuses `process_test_submission` RPC** with synthetic accuracy-based response for ELO updates
+6. **Keyboard arrows + touch swipes** mapped to tone contours (right=T1, up=T2, left=T3, down=T4, tap/space=neutral)
+7. **Batch backfill script** (`scripts/batch_generate_pinyin.py`) with --resolve-polyphones and --dry-run flags
+
+---
+
 ## 2026-04-16 implementation | Phase 7 BKT improvements
 
 Source: `migrations/phase7_bkt_improvements.sql`, code changes in 5 Python files.

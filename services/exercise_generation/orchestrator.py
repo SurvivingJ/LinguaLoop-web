@@ -4,7 +4,7 @@ import uuid
 import logging
 from services.exercise_generation.config import (
     GRAMMAR_DISTRIBUTION, VOCABULARY_DISTRIBUTION, COLLOCATION_DISTRIBUTION,
-    CONVERSATION_DISTRIBUTION, PHASE_MAP,
+    CONVERSATION_DISTRIBUTION, STYLE_DISTRIBUTION, PHASE_MAP,
 )
 from services.exercise_generation.transcript_miner import get_sentence_pool
 from services.exercise_generation.generators.cloze             import ClozeGenerator
@@ -19,6 +19,11 @@ from services.exercise_generation.generators.collocation       import (
 from services.exercise_generation.generators.verb_noun_match   import VerbNounMatchGenerator
 from services.exercise_generation.generators.context_spectrum  import ContextSpectrumGenerator
 from services.exercise_generation.generators.timed_speed_round import TimedSpeedRoundGenerator
+from services.exercise_generation.generators.style import (
+    StyleSentenceCompletionGenerator, StylePatternMatchGenerator,
+    StyleVoiceTransformGenerator, StyleTransitionFillGenerator,
+    StyleImitationGenerator,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +120,7 @@ class ExerciseGenerationOrchestrator:
             'vocabulary':   VOCABULARY_DISTRIBUTION,
             'collocation':  COLLOCATION_DISTRIBUTION,
             'conversation': CONVERSATION_DISTRIBUTION,
+            'style':        STYLE_DISTRIBUTION,
         }[source_type]
 
     def _build_generators(
@@ -170,11 +176,20 @@ class ExerciseGenerationOrchestrator:
             'spot_incorrect_sentence': SpotIncorrectGenerator(**kw),
         }
 
+        style_generators = {
+            'style_sentence_completion': StyleSentenceCompletionGenerator(**kw),
+            'style_pattern_match':       StylePatternMatchGenerator(**kw),
+            'style_voice_transform':     StyleVoiceTransformGenerator(**kw),
+            'style_transition_fill':     StyleTransitionFillGenerator(**kw),
+            'style_imitation':           StyleImitationGenerator(**kw),
+        }
+
         return {
             'grammar':      grammar_generators,
             'vocabulary':   vocabulary_generators,
             'collocation':  collocation_generators,
             'conversation': conversation_generators,
+            'style':        style_generators,
         }[source_type]
 
     def _batch_insert(self, rows: list[dict]) -> None:

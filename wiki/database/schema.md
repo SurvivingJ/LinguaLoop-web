@@ -23,7 +23,7 @@ Lookup tables that rarely change. Cached at startup by DimensionService.
 - **dim_languages** (RLS) — supported target languages with per-language AI model config (separate models for exercises, sentences, conversations, vocab prompts), TTS voice IDs, and TTS speed. Model columns are being migrated to `language_model_config` table.
 - **language_model_config** — normalized key-value store for per-language LLM model assignments (task_key + model_name). Replaces the growing model columns on dim_languages.
 - **dim_complexity_tiers** (RLS) — 6 age-based difficulty bands (replacing CEFR) with ELO ranges and word-count ranges
-- **dim_test_types** (RLS) — reading, listening, dictation
+- **dim_test_types** (RLS) — reading, listening, dictation, pinyin
 - **dim_question_types** (RLS) — cognitive-level classifications for MC questions (6 types)
 - **dim_subscription_tiers** (RLS) — free, premium, enterprise with daily limits, token grants, and feature flags (admin, moderator, generate, custom, analytics)
 - **dim_status** (RLS) — shared status dimension (5 codes: active, pending, etc.)

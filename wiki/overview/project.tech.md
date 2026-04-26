@@ -3,7 +3,7 @@ title: LinguaLoop — Technical Specification
 type: overview-tech
 status: in-progress
 prose_page: ./project.md
-last_updated: 2026-04-10
+last_updated: 2026-04-25
 dependencies:
   - "Supabase (PostgreSQL + Auth + RLS)"
   - "Flask 2.x"
@@ -150,20 +150,47 @@ Key configuration loaded from `.env` via `config.py`:
 
 ## Admin Pipeline Dashboard
 
-The admin dashboard (`/admin/vocab`) is the primary interface for manually triggering and monitoring content generation pipelines. It is **not** a user-facing feature — it is an internal tool for the developer/admin.
-
-### Requirements
-- **Manual trigger** for each pipeline stage (conversation generation → vocabulary extraction → exercise generation → validation)
-- **Per-stage controls** — ability to run individual stages independently
-- **Debugging stats** — success/failure counts, error messages, stage timing for each pipeline run
-- **Spot-check UI** — preview generated content (conversations, exercises, vocabulary items) directly from the dashboard before approving
-- **Pipeline status** — visual indicator of which stages have completed, which are pending, which failed
+The admin dashboard (`/admin`) is the primary interface for manually triggering and monitoring content generation pipelines. It is **not** a user-facing feature — it is an internal tool for the developer/admin.
 
 ### Architecture
+- Entry point: `admin_app.py` (local-only Flask app)
+- Route: `routes/admin_local.py` (Blueprint: `/admin`)
+- Template: `templates/admin_dashboard.html` (single-page, 9 tabbed sections)
+- JavaScript: `static/js/admin-dashboard.js` (vanilla JS, event wiring + SSE consumption)
+- Background tasks: `_run_in_thread()` spawns daemon threads, captures logs via `QueueLogHandler`, streams via Server-Sent Events
+- Stop mechanism: `is_task_stopped()` checks a `threading.Event`; frontend POSTs `/api/task-stop/<task_id>`
+
+### Dashboard Tabs (9)
+
+| Tab | Endpoint | Runner | Purpose |
+|-----|----------|--------|---------|
+| Corpus Ingestion | `POST /api/run/corpus-ingest` | `CorpusIngestionService` | Ingest URL/text/transcripts, extract collocations, optional style analysis |
+| Topic Generation | `POST /api/run/topic-generation` | `TopicGenerationOrchestrator` | Auto-generate or manually insert topics + queue for languages |
+| Test Generation | `POST /api/run/test-generation` | `TestGenerationOrchestrator` | Generate comprehension tests from production queue |
+| Exercise Generation | `POST /api/run/exercise-generation` | `run_grammar_batch`, `run_vocabulary_batch`, `run_collocation_batch` | Generate exercises for selected grammar/vocab/collocation sources |
+| Style Analysis | `POST /api/run/style-analysis` | `CorpusIngestionService._run_style_pipeline` | Analyze writing style from existing/new corpus |
+| Conversations | `POST /api/run/conversation-generation` | `ConversationBatchProcessor` | Generate dialogues + exercises per domain |
+| Mysteries | `POST /api/run/mystery-generation` | `MysteryGenerationOrchestrator` | Generate murder mystery stories |
+| Pinyin Backfill | `POST /api/run/pinyin-backfill` | `pinyin_service.process_passage` | Backfill pinyin payloads for Chinese tests |
+| **Full Pipeline** | `POST /api/run/full-pipeline` | Orchestrates 6 backfill steps | End-to-end content pipeline for a single language (see below) |
+
+### Full Pipeline Tab
+
+Runs the entire content pipeline end-to-end for a single language with one button click. All steps are idempotent — safe to run repeatedly.
+
+**Steps (sequential, with stop checks between each):**
+
+1. **Vocab Backfill** (`VocabBackfillRunner`) — Extract vocabulary from unprocessed tests, create `dim_vocabulary` + `dim_word_senses`, write `vocab_sense_ids` + `vocab_token_map`
+2. **Token Map Backfill** (`TokenMapBackfillRunner`) — Fill `vocab_token_map` for tests that have senses but no token map, with `create_missing=True`
+3. **Question Sense IDs** (`run_backfill`) — Match vocab lemmas against question text/choices, write per-question `sense_ids[]`
+4. **Test Skill Ratings** (`BackfillRunner`) — Create `test_skill_ratings` rows with difficulty-based ELO for tests missing them
+5. **Exercise Backfill** (`ExerciseBackfillRunner`) — Generate exercises for vocabulary senses + grammar patterns + style items without exercises
+6. **Collocation Exercises** (`run_collocation_batch` with idempotency wrapper) — Generate exercises for collocations without exercises
+
+### Vocab Preview Dashboard
 - Route: `routes/vocab_admin.py` (Blueprint: `/api/admin/vocab`)
 - Template: `templates/admin_vocab_preview.html`
-- All generation runs locally (no serverless/cloud functions) — the admin triggers pipelines via the dashboard, generation executes server-side
-- Pipeline telemetry stored in `test_generation_runs` table (reused for all pipeline types)
+- Separate from the main admin dashboard; provides spot-check UI for generated vocabulary items
 
 ## Related Pages
 

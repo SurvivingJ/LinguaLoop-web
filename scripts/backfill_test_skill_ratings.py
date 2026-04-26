@@ -32,16 +32,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Difficulty to ELO mapping (matches get_initial_elo() in database_client.py)
+# Difficulty 1-9 spans Age Tiers T1-T6 (Toddler → Educated Professional)
 DIFFICULTY_ELO_MAP = {
-    1: 800,   # A1
-    2: 950,   # A1+
-    3: 1100,  # A2
-    4: 1250,  # B1
-    5: 1400,  # B1+
-    6: 1550,  # B2
-    7: 1700,  # C1
-    8: 1850,  # C1+
-    9: 2000   # C2
+    1: 800,   # T1 (Toddler)
+    2: 950,   # T1-T2
+    3: 1100,  # T2 (Child)
+    4: 1250,  # T3 (Teenager)
+    5: 1400,  # T3-T4
+    6: 1550,  # T4 (Young Adult)
+    7: 1700,  # T5 (Adult)
+    8: 1850,  # T5-T6
+    9: 2000   # T6 (Educated Professional)
 }
 
 
@@ -67,9 +68,10 @@ class BackfillRunner:
             .execute()
         existing_ids = {r['test_id'] for r in (existing.data or [])}
 
-        # Get all tests
+        # Get all active tests
         tests = self.db.table('tests') \
             .select('id, slug, difficulty, audio_url') \
+            .eq('is_active', True) \
             .execute()
 
         # Filter to those missing ratings
@@ -115,7 +117,6 @@ class BackfillRunner:
                 'test_id': test_id,
                 'test_type_id': t['id'],
                 'elo_rating': elo,
-                'volatility': 1.0,
                 'total_attempts': 0
             }
             for t in types_to_create

@@ -90,6 +90,9 @@ class ExerciseBackfillRunner:
             'patterns_processed': 0,
             'patterns_skipped': 0,
             'patterns_failed': 0,
+            'style_items_processed': 0,
+            'style_items_skipped': 0,
+            'style_items_failed': 0,
             'exercises_created': 0,
         }
 
@@ -112,8 +115,13 @@ class ExerciseBackfillRunner:
         if self.source in ('grammar', 'all'):
             self._run_grammar(existing_grammar)
 
+        if self.source in ('style', 'all'):
+            existing_style = self._get_existing_style_sources()
+            self._run_style(existing_style)
+
         self._print_summary()
-        return (self.stats['senses_failed'] + self.stats['patterns_failed']) == 0
+        return (self.stats['senses_failed'] + self.stats['patterns_failed']
+                + self.stats['style_items_failed']) == 0
 
     def _run_vocabulary(self, existing: set[int]) -> None:
         sense_ids = self._get_senses_for_language()
@@ -247,6 +255,85 @@ class ExerciseBackfillRunner:
             logger.error("  sense_id=%d FAILED: %s", sense_id, exc)
             self.stats['senses_failed'] += 1
 
+    def _get_existing_style_sources(self) -> set[int]:
+        """Query exercises table to find which style pack items already have exercises."""
+        try:
+            rows = self.db.table('exercises') \
+                .select('style_pack_item_id') \
+                .eq('source_type', 'style') \
+                .not_.is_('style_pack_item_id', 'null') \
+                .execute()
+            return {r['style_pack_item_id'] for r in (rows.data or [])}
+        except Exception as exc:
+            logger.warning("Could not load existing style exercises: %s", exc)
+            return set()
+
+    def _get_style_items_for_language(self) -> list[dict]:
+        """Fetch all style_pack_items for this language."""
+        rows = self.db.table('style_pack_items') \
+            .select('id, item_type, item_text, item_data, language_id') \
+            .eq('language_id', self.language_id) \
+            .execute()
+        return rows.data or []
+
+    def _run_style(self, existing: set[int]) -> None:
+        items = self._get_style_items_for_language()
+        if not items:
+            logger.info("No style pack items found for language=%s", self.language_code)
+            return
+
+        logger.info("Found %d style pack items for language=%s",
+                     len(items), self.language_code)
+
+        to_process = [it for it in items if it['id'] not in existing]
+        logger.info("%d items already have exercises, %d to process",
+                     len(items) - len(to_process), len(to_process))
+
+        if self.limit:
+            to_process = to_process[:self.limit]
+
+        if not to_process:
+            logger.info("No style pack items to process")
+            return
+
+        for i, item in enumerate(to_process):
+            logger.info("[style %d/%d] Processing style_pack_item_id=%d (%s)",
+                         i + 1, len(to_process), item['id'], item['item_type'])
+            self._process_style_item(item)
+            if i < len(to_process) - 1 and self.delay > 0:
+                time.sleep(self.delay)
+
+    def _process_style_item(self, item: dict) -> None:
+        if self.dry_run:
+            logger.info("  [DRY RUN] Would generate exercises for style_pack_item_id=%d", item['id'])
+            self.stats['style_items_skipped'] += 1
+            return
+
+        try:
+            # Build a single-item sentence pool from the style_pack_item
+            sentence_pool = [{
+                'sentence': item.get('item_text', ''),
+                'id': item['id'],
+                'item_type': item.get('item_type', ''),
+                'item_text': item.get('item_text', ''),
+                'item_data': item.get('item_data', {}),
+                'complexity_tier': 'T3',
+                'source': 'style_pack_item',
+            }]
+
+            result = self.orchestrator.run(
+                'style', item['id'], self.language_id,
+                phases=self.phases, sentence_pool=sentence_pool,
+            )
+            total = result.get('total', 0)
+            self.stats['style_items_processed'] += 1
+            self.stats['exercises_created'] += total
+            logger.info("  style_pack_item_id=%d: %d exercises (batch=%s)",
+                         item['id'], total, result.get('batch_id', '?'))
+        except Exception as exc:
+            logger.error("  style_pack_item_id=%d FAILED: %s", item['id'], exc)
+            self.stats['style_items_failed'] += 1
+
     def _process_pattern(self, pattern_id: int) -> None:
         if self.dry_run:
             logger.info("  [DRY RUN] Would generate exercises for pattern_id=%d", pattern_id)
@@ -276,6 +363,9 @@ class ExerciseBackfillRunner:
         logger.info("  Patterns processed: %d", self.stats['patterns_processed'])
         logger.info("  Patterns skipped:   %d", self.stats['patterns_skipped'])
         logger.info("  Patterns failed:    %d", self.stats['patterns_failed'])
+        logger.info("  Style processed:    %d", self.stats['style_items_processed'])
+        logger.info("  Style skipped:      %d", self.stats['style_items_skipped'])
+        logger.info("  Style failed:       %d", self.stats['style_items_failed'])
         logger.info("  Exercises created:  %d", self.stats['exercises_created'])
         logger.info("=" * 60)
 
@@ -284,7 +374,7 @@ def main():
     parser = argparse.ArgumentParser(description='Backfill exercises for existing vocabulary and grammar')
     parser.add_argument('--language', required=True, choices=['cn', 'en', 'jp'],
                         help='Language code to process')
-    parser.add_argument('--source', choices=['vocabulary', 'grammar', 'all'], default='all',
+    parser.add_argument('--source', choices=['vocabulary', 'grammar', 'style', 'all'], default='all',
                         help='Source type to process (default: all)')
     parser.add_argument('--dry-run', action='store_true',
                         help='Preview changes without writing to DB')

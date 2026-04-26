@@ -49,6 +49,7 @@ The vocabulary matching uses **set-based operations** (not vector embeddings): e
 - **Reading** — text transcript displayed; user reads and answers
 - **Listening** — audio played; transcript hidden until after submission
 - **Dictation** — (type exists in schema; implementation status TBD)
+- **Pinyin Tones** — Chinese only; interactive tone-guessing game using the test transcript. See [[features/pinyin-trainer]].
 
 ## Constraints & Edge Cases
 
@@ -75,4 +76,5 @@ The vocabulary matching uses **set-based operations** (not vector embeddings): e
 - [[algorithms/elo-ranking]] — ELO calculation
 - [[features/vocabulary-knowledge]] — BKT updates from test results
 - [[features/language-packs]] — Pack-associated comprehension tests
+- [[features/pinyin-trainer]] — Pinyin tone trainer (Chinese-only test mode)
 - [[database/schema.tech]] — `tests`, `questions`, `test_attempts`, `test_skill_ratings` tables

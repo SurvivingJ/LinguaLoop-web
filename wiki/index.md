@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-04-16 | Pages: 41
+Last updated: 2026-04-25 | Pages: 43
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -26,6 +26,8 @@ Last updated: 2026-04-16 | Pages: 41
 - [[features/token-economy.tech]] — Payment flow technical spec
 - [[features/vocab-dojo]] — Adaptive vocab exercise serving with 40/40/20 session split
 - [[features/vocab-dojo.tech]] — ExerciseScheduler, anti-repetition, get_exercise_session RPC
+- [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules
+- [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
 
 ## Algorithms
 - [[algorithms/elo-ranking]] — Dual-ELO system for user-test matching

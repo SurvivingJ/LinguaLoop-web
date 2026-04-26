@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-04-14
+last_updated: 2026-04-24
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -18,7 +18,7 @@ breaking_change_risk: medium
 
 The schema lives in Supabase PostgreSQL with Row-Level Security (RLS) policies on user-facing tables. It uses a tiered dependency structure (Tier 0 = no FKs, through Tier 5 = deepest dependencies). All tables are in the `public` schema unless otherwise noted. Authentication delegates to Supabase `auth.users` with a mirror `users` table in public.
 
-**Total tables:** 62 (users_backup dropped; user_exercise_history, language_model_config, daily_test_load_items added)
+**Total tables:** 65 (users_backup dropped; user_exercise_history, language_model_config, daily_test_load_items, corpus_style_profiles, style_pack_items, pack_style_items added)
 **Enum types:** 1 (`exercise_source_type`)
 **Views:** 3
 **Triggers:** 11 across 9 tables
@@ -69,13 +69,13 @@ Supported languages with AI model configuration, TTS settings, and grammar tooli
 - **Unique:** `dim_languages_language_code_key (language_code)`
 - **Indexes:** `idx_dim_languages_active (is_active)`, `idx_dim_languages_code (language_code)`
 - **RLS:** Enabled
-- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, mysteries, dim_grammar_patterns, mystery_attempts, exercises, corpus_sources, corpus_collocations, collocation_packs, word_assets
+- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, mysteries, dim_grammar_patterns, mystery_attempts, exercises, corpus_sources, corpus_collocations, collocation_packs, corpus_style_profiles, style_pack_items, word_assets
 
 ---
 
 ### `dim_test_types`
 
-Test/skill types (reading, listening, dictation, etc.).
+Test/skill types (reading, listening, dictation, pinyin).
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
@@ -548,6 +548,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 | `is_featured` | boolean | YES | false | |
 | `is_custom` | boolean | YES | false | |
 | `generation_model` | text | YES | 'gpt-4.1-nano' | |
+| `pinyin_payload` | jsonb | YES | | Tokenised pinyin data for Chinese tests (tone trainer) |
 | `audio_generated` | boolean | YES | false | |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
@@ -984,18 +985,19 @@ Tables for vocabulary knowledge tracking, flashcards, exercises, and the word la
 
 ### `exercises`
 
-Generated exercises sourced from grammar patterns, vocabulary senses, collocations, or conversations.
+Generated exercises sourced from grammar patterns, vocabulary senses, collocations, conversations, or style pack items.
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
 | `id` | uuid | NO | gen_random_uuid() | PK |
 | `language_id` | integer | NO | | FK -> dim_languages |
 | `exercise_type` | text | NO | | Free-text exercise type identifier |
-| `source_type` | exercise_source_type | NO | | ENUM: grammar/vocabulary/collocation/conversation |
+| `source_type` | exercise_source_type | NO | | ENUM: grammar/vocabulary/collocation/conversation/style |
 | `grammar_pattern_id` | integer | YES | | FK -> dim_grammar_patterns (when source_type='grammar') |
 | `word_sense_id` | integer | YES | | FK -> dim_word_senses (when source_type='vocabulary') |
 | `corpus_collocation_id` | integer | YES | | (when source_type='collocation') |
 | `conversation_id` | uuid | YES | | FK -> conversations (when source_type='conversation') |
+| `style_pack_item_id` | bigint | YES | | FK -> style_pack_items (when source_type='style') |
 | `word_asset_id` | bigint | YES | | FK -> word_assets |
 | `content` | jsonb | NO | | Exercise content (questions, answers, etc.) |
 | `tags` | jsonb | NO | '{}' | |
@@ -1012,8 +1014,9 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 | `created_at` | timestamptz | NO | now() | |
 
 - **Primary Key:** `exercises_pkey (id)`
-- **Indexes:** `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_content_gin GIN (content)`, `idx_exercises_conversation (conversation_id WHERE NOT NULL)`, `idx_exercises_grammar (grammar_pattern_id WHERE NOT NULL)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `idx_exercises_language (language_id)`, `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_source (source_type)`, `idx_exercises_tags_gin GIN (tags)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_type (exercise_type)`
-- **Foreign Keys:** `language_id` -> `dim_languages.id`, `grammar_pattern_id` -> `dim_grammar_patterns.id`, `word_sense_id` -> `dim_word_senses.id`, `word_asset_id` -> `word_assets.id`, `conversation_id` -> `conversations.id`
+- **Indexes:** `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_content_gin GIN (content)`, `idx_exercises_conversation (conversation_id WHERE NOT NULL)`, `idx_exercises_grammar (grammar_pattern_id WHERE NOT NULL)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `idx_exercises_language (language_id)`, `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_source (source_type)`, `idx_exercises_style_item (style_pack_item_id WHERE NOT NULL)`, `idx_exercises_tags_gin GIN (tags)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_type (exercise_type)`
+- **Foreign Keys:** `language_id` -> `dim_languages.id`, `grammar_pattern_id` -> `dim_grammar_patterns.id`, `word_sense_id` -> `dim_word_senses.id`, `word_asset_id` -> `word_assets.id`, `conversation_id` -> `conversations.id`, `style_pack_item_id` -> `style_pack_items.id`
+- **Constraints:** `chk_source_fk` — at least one of `grammar_pattern_id`, `word_sense_id`, `corpus_collocation_id`, `conversation_id`, `style_pack_item_id` must be non-null
 - **RLS:** Disabled
 - **Referenced by:** exercise_attempts
 
@@ -1230,9 +1233,9 @@ Admin review queue for vocabulary items flagged during generation or validation.
 
 ---
 
-## 6. Corpus & Collocation System
+## 6. Corpus, Collocation & Style System
 
-Tables for corpus-based collocation extraction and study packs.
+Tables for corpus-based collocation extraction, writing-style profiling, and study packs.
 
 ---
 
@@ -1309,7 +1312,7 @@ Themed packs of collocations for study.
 | `language_id` | integer | NO | | FK -> dim_languages |
 | `tags` | text[] | YES | '{}' | |
 | `source_type` | text | YES | 'corpus' | |
-| `pack_type` | text | YES | 'topic' | CHECK: author/genre/topic |
+| `pack_type` | text | YES | 'topic' | CHECK: author/genre/topic/style |
 | `total_items` | integer | YES | 0 | |
 | `difficulty_range` | text | YES | | |
 | `is_public` | boolean | YES | true | |
@@ -1318,7 +1321,7 @@ Themed packs of collocations for study.
 - **Primary Key:** `collocation_packs_pkey (id)`
 - **Foreign Keys:** `language_id` -> `dim_languages.id`
 - **RLS:** Disabled
-- **Referenced by:** pack_collocations, user_pack_selections
+- **Referenced by:** pack_collocations, user_pack_selections, pack_style_items
 
 ---
 
@@ -1353,6 +1356,77 @@ Tracks which collocation packs a user has selected. Rebuilt in Phase 2: user_id 
 - **Primary Key:** `(user_id, pack_id)` (composite)
 - **Foreign Keys:** `user_id` -> `users.id` ON DELETE CASCADE, `pack_id` -> `collocation_packs.id` ON DELETE CASCADE
 - **RLS:** Enabled (Phase 2). Policies: users manage own selections, service_role full access.
+
+---
+
+### `corpus_style_profiles`
+
+Writing-style profile for a corpus source. One row per source, containing extracted linguistic features (n-grams, sentence patterns, syntactic preferences, discourse markers) as JSONB.
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | nextval() | PK |
+| `corpus_source_id` | bigint | NO | | FK -> corpus_sources ON DELETE CASCADE. UNIQUE |
+| `language_id` | integer | NO | | FK -> dim_languages |
+| `raw_frequency_ngrams` | jsonb | YES | '{}' | Raw frequency n-gram data |
+| `characteristic_ngrams` | jsonb | YES | '{}' | Statistically characteristic n-grams |
+| `sentence_structures` | jsonb | YES | '{}' | POS-template sentence patterns |
+| `syntactic_preferences` | jsonb | YES | '{}' | e.g. passive_ratio, subordinate clause frequency |
+| `discourse_patterns` | jsonb | YES | '{}' | Discourse markers and transitions |
+| `vocabulary_profile` | jsonb | YES | '{}' | Vocabulary richness, register indicators |
+| `total_tokens` | integer | YES | 0 | |
+| `total_sentences` | integer | YES | 0 | |
+| `reference_source_id` | bigint | YES | | FK -> corpus_sources. Comparison baseline source |
+| `created_at` | timestamptz | YES | now() | |
+| `updated_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `corpus_style_profiles_pkey (id)`
+- **Unique:** `corpus_style_profiles_corpus_source_id_key (corpus_source_id)`
+- **Indexes:** `idx_style_profiles_language (language_id)`
+- **Foreign Keys:** `corpus_source_id` -> `corpus_sources.id` ON DELETE CASCADE, `language_id` -> `dim_languages.id`, `reference_source_id` -> `corpus_sources.id`
+- **RLS:** Disabled
+
+---
+
+### `style_pack_items`
+
+Individual learnable items extracted from a style profile. Each row represents one characteristic feature (n-gram, sentence pattern, syntactic feature, discourse marker) that can be turned into exercises.
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | nextval() | PK |
+| `corpus_source_id` | bigint | NO | | FK -> corpus_sources ON DELETE CASCADE |
+| `language_id` | integer | NO | | FK -> dim_languages |
+| `item_type` | text | NO | | CHECK: frequent_ngram/characteristic_ngram/sentence_pattern/syntactic_feature/discourse_pattern/vocabulary_item |
+| `item_text` | text | NO | | The characteristic text (n-gram, POS template, feature label, marker) |
+| `item_data` | jsonb | YES | '{}' | Type-specific metadata (example sentences, frequency, keyness) |
+| `frequency` | integer | YES | 0 | Raw occurrence count in source |
+| `keyness_score` | float | YES | 0.0 | Statistical distinctiveness vs reference corpus |
+| `sort_order` | integer | YES | 0 | Display ordering within a pack |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `style_pack_items_pkey (id)`
+- **Indexes:** `idx_style_pack_items_source_type (corpus_source_id, item_type)`
+- **Foreign Keys:** `corpus_source_id` -> `corpus_sources.id` ON DELETE CASCADE, `language_id` -> `dim_languages.id`
+- **RLS:** Disabled
+- **Referenced by:** pack_style_items, exercises
+
+---
+
+### `pack_style_items`
+
+Junction table: collocation pack <-> style item. Links style items into packs (pack_type='style').
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | nextval() | PK |
+| `pack_id` | bigint | NO | | FK -> collocation_packs ON DELETE CASCADE |
+| `style_item_id` | bigint | NO | | FK -> style_pack_items ON DELETE CASCADE |
+
+- **Primary Key:** `pack_style_items_pkey (id)`
+- **Unique:** `pack_style_items_pack_id_style_item_id_key (pack_id, style_item_id)`
+- **Foreign Keys:** `pack_id` -> `collocation_packs.id` ON DELETE CASCADE, `style_item_id` -> `style_pack_items.id` ON DELETE CASCADE
+- **RLS:** Disabled
 
 ---
 
@@ -1713,7 +1787,8 @@ CREATE TYPE exercise_source_type AS ENUM (
   'grammar',
   'vocabulary',
   'collocation',
-  'conversation'
+  'conversation',
+  'style'
 );
 ```
 

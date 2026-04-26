@@ -3,7 +3,7 @@ title: Exercises
 type: feature
 status: in-progress
 tech_page: ./exercises.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-04-25
 open_questions: []
 ---
 
@@ -64,7 +64,8 @@ All generated assets include TL reasoning for every option (correct and incorrec
 - **Grammar** (`source_type = 'grammar'`) — exercises targeting a specific `dim_grammar_patterns` entry
 - **Vocabulary** (`source_type = 'vocabulary'`) — exercises targeting a specific `dim_word_senses` entry
 - **Collocation** (`source_type = 'collocation'`) — exercises targeting a specific `corpus_collocations` entry
-- **Study Pack** (`source_type = 'study_pack'`) — exercises targeting a `study_pack_items` entry
+- **Conversation** (`source_type = 'conversation'`) — exercises targeting a `conversations` entry
+- **Style** (`source_type = 'style'`) — exercises targeting a `style_pack_items` entry
 
 ## Constraints & Edge Cases
 
@@ -76,10 +77,11 @@ All generated assets include TL reasoning for every option (correct and incorrec
 
 ## Business Rules
 
-- Exercises are generated in batches at content creation time (test generation, pack generation, vocabulary ladder pipeline).
+- Exercises are generated in batches at content creation time (test generation, pack generation, vocabulary ladder pipeline) or via the admin dashboard's **Full Pipeline** tab which runs the entire content pipeline end-to-end.
 - Exercise generation is language-aware — different LLM models per language, with language-spec routing for grammar exercises.
 - Each exercise type has its own generator class in `services/exercise_generation/generators/`.
 - Generate-once, use-forever: exercises are immutable after validation. Regeneration only via QA repair workflow.
+- The Full Pipeline (admin dashboard) runs 6 sequential steps: vocab extraction → token maps → question sense IDs → test skill ratings → exercise backfill (vocab + grammar + style) → collocation exercises. All steps are idempotent.
 
 ## Related Pages
 

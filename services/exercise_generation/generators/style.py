@@ -34,19 +34,16 @@ class _StyleGeneratorBase(ExerciseGenerator):
             'language_id':           self.language_id,
             'exercise_type':         self.exercise_type,
             'source_type':           self.source_type,
+            'style_pack_item_id':    sentence_dict.get('id'),
             'content':               content,
             'tags':                  {
                 'source_type': 'style',
-                'style_item_id': sentence_dict.get('id'),
                 'item_type': sentence_dict.get('item_type'),
                 'pack_id': source_id,
             },
             'complexity_tier':        sentence_dict.get('complexity_tier'),
             'is_active':             True,
             'generation_batch_id':   generation_batch_id,
-            'grammar_pattern_id':    None,
-            'word_sense_id':         None,
-            'corpus_collocation_id': None,
         }
 
 

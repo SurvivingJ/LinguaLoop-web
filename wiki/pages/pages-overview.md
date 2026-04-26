@@ -2,7 +2,7 @@
 title: UI Pages Overview
 type: page
 status: in-progress
-last_updated: 2026-04-10
+last_updated: 2026-04-25
 open_questions: []
 ---
 
@@ -32,6 +32,7 @@ LinguaLoop uses server-rendered Jinja2 templates with vanilla JavaScript for cli
 | `/conversations` | `conversation_list.html` | Browse conversations |
 | `/conversation/<id>` | `conversation_reader.html` | Read a conversation |
 | `/vocab-dojo` | `vocab_dojo.html` | Vocabulary dojo (new) |
+| `/admin` | `admin_dashboard.html` | Admin pipeline dashboard (9 tabs: corpus, topics, tests, exercises, style, conversations, mysteries, pinyin, full pipeline) |
 | `/admin/vocab-preview` | `admin_vocab_preview.html` | Admin vocab preview |
 | `/logout` | (redirect) | Redirects to `/login` |
 
