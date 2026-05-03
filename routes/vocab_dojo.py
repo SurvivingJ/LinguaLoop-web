@@ -30,6 +30,10 @@ def get_dojo_session() -> ApiResponse:
         from services.supabase_factory import get_supabase_admin
         db = get_supabase_admin()
 
+        # Lazy-init: ensure user_word_ladder rows exist for words that have
+        # exercises but no ladder entry yet (e.g. newly uploaded words).
+        _ensure_ladder_rows(db, g.current_user_id, language_id)
+
         resp = db.rpc('get_ladder_session', {
             'p_user_id': g.current_user_id,
             'p_language_id': language_id,
@@ -363,3 +367,52 @@ def submit_stress_test_result() -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting stress test result: %s", e)
         return server_error("Failed to submit stress test result")
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _ensure_ladder_rows(db, user_id: str, language_id: int) -> None:
+    """Create user_word_ladder rows for word senses that have exercises but
+    no ladder entry yet. This bridges the gap between admin word upload
+    (which creates exercises) and the dojo session (which needs ladder rows).
+    """
+    try:
+        # Find senses with active ladder exercises for this language
+        ex_resp = (
+            db.table('exercises')
+            .select('word_sense_id')
+            .eq('language_id', language_id)
+            .eq('is_active', True)
+            .not_.is_('ladder_level', 'null')
+            .execute()
+        )
+        all_sense_ids = list({row['word_sense_id'] for row in (ex_resp.data or [])})
+        if not all_sense_ids:
+            return
+
+        # Find which of those already have a ladder row for this user
+        existing_resp = (
+            db.table('user_word_ladder')
+            .select('sense_id')
+            .eq('user_id', user_id)
+            .in_('sense_id', all_sense_ids)
+            .execute()
+        )
+        existing = {row['sense_id'] for row in (existing_resp.data or [])}
+        missing = [sid for sid in all_sense_ids if sid not in existing]
+
+        if not missing:
+            return
+
+        # Init ladder rows for missing senses
+        from services.vocabulary_ladder.ladder_service import LadderService
+        service = LadderService()
+        for sense_id in missing:
+            service.init_ladder(user_id, sense_id, language_id)
+
+        logger.info("Initialized %d ladder rows for user %s", len(missing), user_id)
+
+    except Exception as e:
+        logger.error("Failed to ensure ladder rows: %s", e)

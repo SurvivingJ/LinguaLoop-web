@@ -1,0 +1,1776 @@
+{
+  "config": {
+    "language_id": 1,
+    "language_name": "Chinese",
+    "language_code": "cn",
+    "judge_model": "qwen/qwen-2.5-72b-instruct",
+    "contestant_models": [
+      "deepseek/deepseek-v4-flash",
+      "qwen/qwen-plus-2025-07-28"
+    ],
+    "generation_types": [
+      "prose",
+      "questions"
+    ],
+    "num_trials": 3,
+    "model_pricing": {
+      "x-ai/grok-4.3": {
+        "prompt": 1.25e-06,
+        "completion": 2.5e-06
+      },
+      "ibm-granite/granite-4.1-8b": {
+        "prompt": 5e-08,
+        "completion": 1e-07
+      },
+      "openrouter/owl-alpha": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "poolside/laguna-xs.2:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "poolside/laguna-m.1:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "~anthropic/claude-haiku-latest": {
+        "prompt": 1e-06,
+        "completion": 5e-06
+      },
+      "~openai/gpt-mini-latest": {
+        "prompt": 7.5e-07,
+        "completion": 4.5e-06
+      },
+      "~google/gemini-pro-latest": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "~moonshotai/kimi-latest": {
+        "prompt": 7.4e-07,
+        "completion": 3.49e-06
+      },
+      "~google/gemini-flash-latest": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "~anthropic/claude-sonnet-latest": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "~openai/gpt-latest": {
+        "prompt": 5e-06,
+        "completion": 3e-05
+      },
+      "qwen/qwen3.5-plus-20260420": {
+        "prompt": 4e-07,
+        "completion": 2.4e-06
+      },
+      "qwen/qwen3.6-flash": {
+        "prompt": 2.5e-07,
+        "completion": 1.5e-06
+      },
+      "qwen/qwen3.6-35b-a3b": {
+        "prompt": 1.612e-07,
+        "completion": 9.6525e-07
+      },
+      "qwen/qwen3.6-max-preview": {
+        "prompt": 1.04e-06,
+        "completion": 6.24e-06
+      },
+      "qwen/qwen3.6-27b": {
+        "prompt": 3.25e-07,
+        "completion": 3.25e-06
+      },
+      "openai/gpt-5.5-pro": {
+        "prompt": 3e-05,
+        "completion": 0.00018
+      },
+      "openai/gpt-5.5": {
+        "prompt": 5e-06,
+        "completion": 3e-05
+      },
+      "deepseek/deepseek-v4-pro": {
+        "prompt": 4.35e-07,
+        "completion": 8.7e-07
+      },
+      "deepseek/deepseek-v4-flash": {
+        "prompt": 1.4e-07,
+        "completion": 2.8e-07
+      },
+      "inclusionai/ling-2.6-1t:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "tencent/hy3-preview:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "xiaomi/mimo-v2.5-pro": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "xiaomi/mimo-v2.5": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "openai/gpt-5.4-image-2": {
+        "prompt": 8e-06,
+        "completion": 1.5e-05
+      },
+      "inclusionai/ling-2.6-flash": {
+        "prompt": 8e-08,
+        "completion": 2.4e-07
+      },
+      "~anthropic/claude-opus-latest": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "openrouter/pareto-code": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "baidu/qianfan-ocr-fast:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "moonshotai/kimi-k2.6": {
+        "prompt": 7.4e-07,
+        "completion": 3.49e-06
+      },
+      "anthropic/claude-opus-4.7": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "anthropic/claude-opus-4.6-fast": {
+        "prompt": 3e-05,
+        "completion": 0.00015
+      },
+      "z-ai/glm-5.1": {
+        "prompt": 1.05e-06,
+        "completion": 3.5e-06
+      },
+      "google/gemma-4-26b-a4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-4-26b-a4b-it": {
+        "prompt": 6e-08,
+        "completion": 3.3e-07
+      },
+      "google/gemma-4-31b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-4-31b-it": {
+        "prompt": 1.3e-07,
+        "completion": 3.8e-07
+      },
+      "qwen/qwen3.6-plus": {
+        "prompt": 3.25e-07,
+        "completion": 1.95e-06
+      },
+      "z-ai/glm-5v-turbo": {
+        "prompt": 1.2e-06,
+        "completion": 4e-06
+      },
+      "arcee-ai/trinity-large-thinking": {
+        "prompt": 2.2e-07,
+        "completion": 8.5e-07
+      },
+      "x-ai/grok-4.20-multi-agent": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "x-ai/grok-4.20": {
+        "prompt": 1.25e-06,
+        "completion": 2.5e-06
+      },
+      "google/lyria-3-pro-preview": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/lyria-3-clip-preview": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "kwaipilot/kat-coder-pro-v2": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "rekaai/reka-edge": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "xiaomi/mimo-v2-omni": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "xiaomi/mimo-v2-pro": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "minimax/minimax-m2.7": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "openai/gpt-5.4-nano": {
+        "prompt": 2e-07,
+        "completion": 1.25e-06
+      },
+      "openai/gpt-5.4-mini": {
+        "prompt": 7.5e-07,
+        "completion": 4.5e-06
+      },
+      "mistralai/mistral-small-2603": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "z-ai/glm-5-turbo": {
+        "prompt": 1.2e-06,
+        "completion": 4e-06
+      },
+      "nvidia/nemotron-3-super-120b-a12b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-3-super-120b-a12b": {
+        "prompt": 9e-08,
+        "completion": 4.5e-07
+      },
+      "bytedance-seed/seed-2.0-lite": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "qwen/qwen3.5-9b": {
+        "prompt": 1e-07,
+        "completion": 1.5e-07
+      },
+      "openai/gpt-5.4-pro": {
+        "prompt": 3e-05,
+        "completion": 0.00018
+      },
+      "openai/gpt-5.4": {
+        "prompt": 2.5e-06,
+        "completion": 1.5e-05
+      },
+      "inception/mercury-2": {
+        "prompt": 2.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/gpt-5.3-chat": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "google/gemini-3.1-flash-lite-preview": {
+        "prompt": 2.5e-07,
+        "completion": 1.5e-06
+      },
+      "bytedance-seed/seed-2.0-mini": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "google/gemini-3.1-flash-image-preview": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "qwen/qwen3.5-35b-a3b": {
+        "prompt": 1.625e-07,
+        "completion": 1.3e-06
+      },
+      "qwen/qwen3.5-27b": {
+        "prompt": 1.95e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3.5-122b-a10b": {
+        "prompt": 2.6e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen3.5-flash-02-23": {
+        "prompt": 6.5e-08,
+        "completion": 2.6e-07
+      },
+      "liquid/lfm-2-24b-a2b": {
+        "prompt": 3e-08,
+        "completion": 1.2e-07
+      },
+      "google/gemini-3.1-pro-preview-customtools": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "openai/gpt-5.3-codex": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "aion-labs/aion-2.0": {
+        "prompt": 8e-07,
+        "completion": 1.6e-06
+      },
+      "google/gemini-3.1-pro-preview": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "anthropic/claude-sonnet-4.6": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "qwen/qwen3.5-plus-02-15": {
+        "prompt": 2.6e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3.5-397b-a17b": {
+        "prompt": 3.9e-07,
+        "completion": 2.34e-06
+      },
+      "minimax/minimax-m2.5:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "minimax/minimax-m2.5": {
+        "prompt": 1.5e-07,
+        "completion": 1.15e-06
+      },
+      "z-ai/glm-5": {
+        "prompt": 6e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen3-max-thinking": {
+        "prompt": 7.8e-07,
+        "completion": 3.9e-06
+      },
+      "anthropic/claude-opus-4.6": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "qwen/qwen3-coder-next": {
+        "prompt": 1.2e-07,
+        "completion": 8e-07
+      },
+      "openrouter/free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "stepfun/step-3.5-flash": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "arcee-ai/trinity-large-preview": {
+        "prompt": 1.5e-07,
+        "completion": 4.5e-07
+      },
+      "moonshotai/kimi-k2.5": {
+        "prompt": 4.4e-07,
+        "completion": 2e-06
+      },
+      "upstage/solar-pro-3": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "minimax/minimax-m2-her": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "writer/palmyra-x5": {
+        "prompt": 6e-07,
+        "completion": 6e-06
+      },
+      "liquid/lfm-2.5-1.2b-thinking:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "liquid/lfm-2.5-1.2b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-audio": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-audio-mini": {
+        "prompt": 6e-07,
+        "completion": 2.4e-06
+      },
+      "z-ai/glm-4.7-flash": {
+        "prompt": 6e-08,
+        "completion": 4e-07
+      },
+      "openai/gpt-5.2-codex": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "allenai/olmo-3.1-32b-instruct": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "bytedance-seed/seed-1.6-flash": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "bytedance-seed/seed-1.6": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "minimax/minimax-m2.1": {
+        "prompt": 2.9e-07,
+        "completion": 9.5e-07
+      },
+      "z-ai/glm-4.7": {
+        "prompt": 3.8e-07,
+        "completion": 1.74e-06
+      },
+      "google/gemini-3-flash-preview": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "xiaomi/mimo-v2-flash": {
+        "prompt": 9e-08,
+        "completion": 2.9e-07
+      },
+      "nvidia/nemotron-3-nano-30b-a3b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-3-nano-30b-a3b": {
+        "prompt": 5e-08,
+        "completion": 2e-07
+      },
+      "openai/gpt-5.2-chat": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "openai/gpt-5.2-pro": {
+        "prompt": 2.1e-05,
+        "completion": 0.000168
+      },
+      "openai/gpt-5.2": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "mistralai/devstral-2512": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "relace/relace-search": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "z-ai/glm-4.6v": {
+        "prompt": 3e-07,
+        "completion": 9e-07
+      },
+      "nex-agi/deepseek-v3.1-nex-n1": {
+        "prompt": 1.35e-07,
+        "completion": 5e-07
+      },
+      "essentialai/rnj-1-instruct": {
+        "prompt": 1.5e-07,
+        "completion": 1.5e-07
+      },
+      "openrouter/bodybuilder": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "openai/gpt-5.1-codex-max": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "amazon/nova-2-lite-v1": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "mistralai/ministral-14b-2512": {
+        "prompt": 2e-07,
+        "completion": 2e-07
+      },
+      "mistralai/ministral-8b-2512": {
+        "prompt": 1.5e-07,
+        "completion": 1.5e-07
+      },
+      "mistralai/ministral-3b-2512": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "mistralai/mistral-large-2512": {
+        "prompt": 5e-07,
+        "completion": 1.5e-06
+      },
+      "arcee-ai/trinity-mini": {
+        "prompt": 4.5e-08,
+        "completion": 1.5e-07
+      },
+      "deepseek/deepseek-v3.2-speciale": {
+        "prompt": 4e-07,
+        "completion": 1.2e-06
+      },
+      "deepseek/deepseek-v3.2": {
+        "prompt": 2.52e-07,
+        "completion": 3.78e-07
+      },
+      "prime-intellect/intellect-3": {
+        "prompt": 2e-07,
+        "completion": 1.1e-06
+      },
+      "anthropic/claude-opus-4.5": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "allenai/olmo-3-32b-think": {
+        "prompt": 1.5e-07,
+        "completion": 5e-07
+      },
+      "google/gemini-3-pro-image-preview": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "x-ai/grok-4.1-fast": {
+        "prompt": 2e-07,
+        "completion": 5e-07
+      },
+      "deepcogito/cogito-v2.1-671b": {
+        "prompt": 1.25e-06,
+        "completion": 1.25e-06
+      },
+      "openai/gpt-5.1": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-chat": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-codex": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-codex-mini": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "moonshotai/kimi-k2-thinking": {
+        "prompt": 6e-07,
+        "completion": 2.5e-06
+      },
+      "amazon/nova-premier-v1": {
+        "prompt": 2.5e-06,
+        "completion": 1.25e-05
+      },
+      "perplexity/sonar-pro-search": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "mistralai/voxtral-small-24b-2507": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "openai/gpt-oss-safeguard-20b": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "nvidia/nemotron-nano-12b-v2-vl:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-nano-12b-v2-vl": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "minimax/minimax-m2": {
+        "prompt": 2.55e-07,
+        "completion": 1e-06
+      },
+      "qwen/qwen3-vl-32b-instruct": {
+        "prompt": 1.04e-07,
+        "completion": 4.16e-07
+      },
+      "ibm-granite/granite-4.0-h-micro": {
+        "prompt": 1.7e-08,
+        "completion": 1.1e-07
+      },
+      "openai/gpt-5-image-mini": {
+        "prompt": 2.5e-06,
+        "completion": 2e-06
+      },
+      "anthropic/claude-haiku-4.5": {
+        "prompt": 1e-06,
+        "completion": 5e-06
+      },
+      "qwen/qwen3-vl-8b-thinking": {
+        "prompt": 1.17e-07,
+        "completion": 1.365e-06
+      },
+      "qwen/qwen3-vl-8b-instruct": {
+        "prompt": 8e-08,
+        "completion": 5e-07
+      },
+      "openai/gpt-5-image": {
+        "prompt": 1e-05,
+        "completion": 1e-05
+      },
+      "openai/o3-deep-research": {
+        "prompt": 1e-05,
+        "completion": 4e-05
+      },
+      "openai/o4-mini-deep-research": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "baidu/ernie-4.5-21b-a3b-thinking": {
+        "prompt": 7e-08,
+        "completion": 2.8e-07
+      },
+      "google/gemini-2.5-flash-image": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "qwen/qwen3-vl-30b-a3b-thinking": {
+        "prompt": 1.3e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3-vl-30b-a3b-instruct": {
+        "prompt": 1.3e-07,
+        "completion": 5.2e-07
+      },
+      "openai/gpt-5-pro": {
+        "prompt": 1.5e-05,
+        "completion": 0.00012
+      },
+      "z-ai/glm-4.6": {
+        "prompt": 3.9e-07,
+        "completion": 1.9e-06
+      },
+      "anthropic/claude-sonnet-4.5": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "deepseek/deepseek-v3.2-exp": {
+        "prompt": 2.7e-07,
+        "completion": 4.1e-07
+      },
+      "thedrummer/cydonia-24b-v4.1": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "relace/relace-apply-3": {
+        "prompt": 8.5e-07,
+        "completion": 1.25e-06
+      },
+      "google/gemini-2.5-flash-lite-preview-09-2025": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-vl-235b-a22b-thinking": {
+        "prompt": 2.6e-07,
+        "completion": 2.6e-06
+      },
+      "qwen/qwen3-vl-235b-a22b-instruct": {
+        "prompt": 2e-07,
+        "completion": 8.8e-07
+      },
+      "qwen/qwen3-max": {
+        "prompt": 7.8e-07,
+        "completion": 3.9e-06
+      },
+      "qwen/qwen3-coder-plus": {
+        "prompt": 6.5e-07,
+        "completion": 3.25e-06
+      },
+      "openai/gpt-5-codex": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "deepseek/deepseek-v3.1-terminus": {
+        "prompt": 2.1e-07,
+        "completion": 7.9e-07
+      },
+      "x-ai/grok-4-fast": {
+        "prompt": 2e-07,
+        "completion": 5e-07
+      },
+      "alibaba/tongyi-deepresearch-30b-a3b": {
+        "prompt": 9e-08,
+        "completion": 4.5e-07
+      },
+      "qwen/qwen3-coder-flash": {
+        "prompt": 1.95e-07,
+        "completion": 9.75e-07
+      },
+      "qwen/qwen3-next-80b-a3b-thinking": {
+        "prompt": 9.75e-08,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen3-next-80b-a3b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "qwen/qwen3-next-80b-a3b-instruct": {
+        "prompt": 9e-08,
+        "completion": 1.1e-06
+      },
+      "qwen/qwen-plus-2025-07-28:thinking": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen-plus-2025-07-28": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "nvidia/nemotron-nano-9b-v2:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-nano-9b-v2": {
+        "prompt": 4e-08,
+        "completion": 1.6e-07
+      },
+      "moonshotai/kimi-k2-0905": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "qwen/qwen3-30b-a3b-thinking-2507": {
+        "prompt": 8e-08,
+        "completion": 4e-07
+      },
+      "x-ai/grok-code-fast-1": {
+        "prompt": 2e-07,
+        "completion": 1.5e-06
+      },
+      "nousresearch/hermes-4-70b": {
+        "prompt": 1.3e-07,
+        "completion": 4e-07
+      },
+      "nousresearch/hermes-4-405b": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "deepseek/deepseek-chat-v3.1": {
+        "prompt": 1.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/gpt-4o-audio-preview": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "mistralai/mistral-medium-3.1": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "baidu/ernie-4.5-21b-a3b": {
+        "prompt": 7e-08,
+        "completion": 2.8e-07
+      },
+      "baidu/ernie-4.5-vl-28b-a3b": {
+        "prompt": 1.4e-07,
+        "completion": 5.6e-07
+      },
+      "z-ai/glm-4.5v": {
+        "prompt": 6e-07,
+        "completion": 1.8e-06
+      },
+      "ai21/jamba-large-1.7": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/gpt-5-chat": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5-mini": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "openai/gpt-5-nano": {
+        "prompt": 5e-08,
+        "completion": 4e-07
+      },
+      "openai/gpt-oss-120b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-oss-120b": {
+        "prompt": 3.9e-08,
+        "completion": 1.8e-07
+      },
+      "openai/gpt-oss-20b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-oss-20b": {
+        "prompt": 3e-08,
+        "completion": 1.4e-07
+      },
+      "anthropic/claude-opus-4.1": {
+        "prompt": 1.5e-05,
+        "completion": 7.5e-05
+      },
+      "mistralai/codestral-2508": {
+        "prompt": 3e-07,
+        "completion": 9e-07
+      },
+      "qwen/qwen3-coder-30b-a3b-instruct": {
+        "prompt": 7e-08,
+        "completion": 2.7e-07
+      },
+      "qwen/qwen3-30b-a3b-instruct-2507": {
+        "prompt": 9e-08,
+        "completion": 3e-07
+      },
+      "z-ai/glm-4.5": {
+        "prompt": 6e-07,
+        "completion": 2.2e-06
+      },
+      "z-ai/glm-4.5-air:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "z-ai/glm-4.5-air": {
+        "prompt": 1.3e-07,
+        "completion": 8.5e-07
+      },
+      "qwen/qwen3-235b-a22b-thinking-2507": {
+        "prompt": 1.495e-07,
+        "completion": 1.495e-06
+      },
+      "z-ai/glm-4-32b": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "qwen/qwen3-coder:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "qwen/qwen3-coder": {
+        "prompt": 2.2e-07,
+        "completion": 1.8e-06
+      },
+      "bytedance/ui-tars-1.5-7b": {
+        "prompt": 1e-07,
+        "completion": 2e-07
+      },
+      "google/gemini-2.5-flash-lite": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-235b-a22b-2507": {
+        "prompt": 7.1e-08,
+        "completion": 1e-07
+      },
+      "switchpoint/router": {
+        "prompt": 8.5e-07,
+        "completion": 3.4e-06
+      },
+      "moonshotai/kimi-k2": {
+        "prompt": 5.7e-07,
+        "completion": 2.3e-06
+      },
+      "mistralai/devstral-medium": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "mistralai/devstral-small": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "x-ai/grok-4": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemma-3n-e2b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "tencent/hunyuan-a13b-instruct": {
+        "prompt": 1.4e-07,
+        "completion": 5.7e-07
+      },
+      "tngtech/deepseek-r1t2-chimera": {
+        "prompt": 3e-07,
+        "completion": 1.1e-06
+      },
+      "morph/morph-v3-large": {
+        "prompt": 9e-07,
+        "completion": 1.9e-06
+      },
+      "morph/morph-v3-fast": {
+        "prompt": 8e-07,
+        "completion": 1.2e-06
+      },
+      "baidu/ernie-4.5-vl-424b-a47b": {
+        "prompt": 4.2e-07,
+        "completion": 1.25e-06
+      },
+      "baidu/ernie-4.5-300b-a47b": {
+        "prompt": 2.8e-07,
+        "completion": 1.1e-06
+      },
+      "mistralai/mistral-small-3.2-24b-instruct": {
+        "prompt": 7.5e-08,
+        "completion": 2e-07
+      },
+      "minimax/minimax-m1": {
+        "prompt": 4e-07,
+        "completion": 2.2e-06
+      },
+      "google/gemini-2.5-flash": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "google/gemini-2.5-pro": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/o3-pro": {
+        "prompt": 2e-05,
+        "completion": 8e-05
+      },
+      "x-ai/grok-3-mini": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "x-ai/grok-3": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemini-2.5-pro-preview": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "deepseek/deepseek-r1-0528": {
+        "prompt": 5e-07,
+        "completion": 2.15e-06
+      },
+      "anthropic/claude-opus-4": {
+        "prompt": 1.5e-05,
+        "completion": 7.5e-05
+      },
+      "anthropic/claude-sonnet-4": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemma-3n-e4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3n-e4b-it": {
+        "prompt": 6e-08,
+        "completion": 1.2e-07
+      },
+      "mistralai/mistral-medium-3": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "google/gemini-2.5-pro-preview-05-06": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "arcee-ai/spotlight": {
+        "prompt": 1.8e-07,
+        "completion": 1.8e-07
+      },
+      "arcee-ai/maestro-reasoning": {
+        "prompt": 9e-07,
+        "completion": 3.3e-06
+      },
+      "arcee-ai/virtuoso-large": {
+        "prompt": 7.5e-07,
+        "completion": 1.2e-06
+      },
+      "arcee-ai/coder-large": {
+        "prompt": 5e-07,
+        "completion": 8e-07
+      },
+      "meta-llama/llama-guard-4-12b": {
+        "prompt": 1.8e-07,
+        "completion": 1.8e-07
+      },
+      "qwen/qwen3-30b-a3b": {
+        "prompt": 8e-08,
+        "completion": 2.8e-07
+      },
+      "qwen/qwen3-8b": {
+        "prompt": 5e-08,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-14b": {
+        "prompt": 6e-08,
+        "completion": 2.4e-07
+      },
+      "qwen/qwen3-32b": {
+        "prompt": 8e-08,
+        "completion": 2.4e-07
+      },
+      "qwen/qwen3-235b-a22b": {
+        "prompt": 4.55e-07,
+        "completion": 1.82e-06
+      },
+      "openai/o4-mini-high": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "openai/o3": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/o4-mini": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "openai/gpt-4.1": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/gpt-4.1-mini": {
+        "prompt": 4e-07,
+        "completion": 1.6e-06
+      },
+      "openai/gpt-4.1-nano": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "alfredpros/codellama-7b-instruct-solidity": {
+        "prompt": 8e-07,
+        "completion": 1.2e-06
+      },
+      "x-ai/grok-3-mini-beta": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "x-ai/grok-3-beta": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "meta-llama/llama-4-maverick": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "meta-llama/llama-4-scout": {
+        "prompt": 8e-08,
+        "completion": 3e-07
+      },
+      "deepseek/deepseek-chat-v3-0324": {
+        "prompt": 2e-07,
+        "completion": 7.7e-07
+      },
+      "openai/o1-pro": {
+        "prompt": 0.00015,
+        "completion": 0.0006
+      },
+      "mistralai/mistral-small-3.1-24b-instruct": {
+        "prompt": 3.5e-07,
+        "completion": 5.6e-07
+      },
+      "google/gemma-3-4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-4b-it": {
+        "prompt": 4e-08,
+        "completion": 8e-08
+      },
+      "google/gemma-3-12b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-12b-it": {
+        "prompt": 4e-08,
+        "completion": 1.3e-07
+      },
+      "cohere/command-a": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-4o-mini-search-preview": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "openai/gpt-4o-search-preview": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "rekaai/reka-flash-3": {
+        "prompt": 1e-07,
+        "completion": 2e-07
+      },
+      "google/gemma-3-27b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-27b-it": {
+        "prompt": 8e-08,
+        "completion": 1.6e-07
+      },
+      "thedrummer/skyfall-36b-v2": {
+        "prompt": 5.5e-07,
+        "completion": 8e-07
+      },
+      "perplexity/sonar-reasoning-pro": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "perplexity/sonar-pro": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "perplexity/sonar-deep-research": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "google/gemini-2.0-flash-lite-001": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "anthropic/claude-3.7-sonnet": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "anthropic/claude-3.7-sonnet:thinking": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "mistralai/mistral-saba": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "meta-llama/llama-guard-3-8b": {
+        "prompt": 4.8e-07,
+        "completion": 3e-08
+      },
+      "openai/o3-mini-high": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "google/gemini-2.0-flash-001": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen-vl-plus": {
+        "prompt": 1.365e-07,
+        "completion": 4.095e-07
+      },
+      "aion-labs/aion-1.0": {
+        "prompt": 4e-06,
+        "completion": 8e-06
+      },
+      "aion-labs/aion-1.0-mini": {
+        "prompt": 7e-07,
+        "completion": 1.4e-06
+      },
+      "aion-labs/aion-rp-llama-3.1-8b": {
+        "prompt": 8e-07,
+        "completion": 1.6e-06
+      },
+      "qwen/qwen-vl-max": {
+        "prompt": 5.2e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen-turbo": {
+        "prompt": 3.25e-08,
+        "completion": 1.3e-07
+      },
+      "qwen/qwen2.5-vl-72b-instruct": {
+        "prompt": 2.5e-07,
+        "completion": 7.5e-07
+      },
+      "qwen/qwen-plus": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen-max": {
+        "prompt": 1.04e-06,
+        "completion": 4.16e-06
+      },
+      "openai/o3-mini": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "mistralai/mistral-small-24b-instruct-2501": {
+        "prompt": 5e-08,
+        "completion": 8e-08
+      },
+      "deepseek/deepseek-r1-distill-qwen-32b": {
+        "prompt": 2.9e-07,
+        "completion": 2.9e-07
+      },
+      "perplexity/sonar": {
+        "prompt": 1e-06,
+        "completion": 1e-06
+      },
+      "deepseek/deepseek-r1-distill-llama-70b": {
+        "prompt": 7e-07,
+        "completion": 8e-07
+      },
+      "deepseek/deepseek-r1": {
+        "prompt": 7e-07,
+        "completion": 2.5e-06
+      },
+      "minimax/minimax-01": {
+        "prompt": 2e-07,
+        "completion": 1.1e-06
+      },
+      "microsoft/phi-4": {
+        "prompt": 6.5e-08,
+        "completion": 1.4e-07
+      },
+      "sao10k/l3.1-70b-hanami-x1": {
+        "prompt": 3e-06,
+        "completion": 3e-06
+      },
+      "deepseek/deepseek-chat": {
+        "prompt": 3.2e-07,
+        "completion": 8.9e-07
+      },
+      "sao10k/l3.3-euryale-70b": {
+        "prompt": 6.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/o1": {
+        "prompt": 1.5e-05,
+        "completion": 6e-05
+      },
+      "cohere/command-r7b-12-2024": {
+        "prompt": 3.75e-08,
+        "completion": 1.5e-07
+      },
+      "meta-llama/llama-3.3-70b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "meta-llama/llama-3.3-70b-instruct": {
+        "prompt": 1e-07,
+        "completion": 3.2e-07
+      },
+      "amazon/nova-lite-v1": {
+        "prompt": 6e-08,
+        "completion": 2.4e-07
+      },
+      "amazon/nova-micro-v1": {
+        "prompt": 3.5e-08,
+        "completion": 1.4e-07
+      },
+      "amazon/nova-pro-v1": {
+        "prompt": 8e-07,
+        "completion": 3.2e-06
+      },
+      "openai/gpt-4o-2024-11-20": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "mistralai/mistral-large-2411": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "mistralai/mistral-large-2407": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "mistralai/pixtral-large-2411": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "qwen/qwen-2.5-coder-32b-instruct": {
+        "prompt": 6.6e-07,
+        "completion": 1e-06
+      },
+      "thedrummer/unslopnemo-12b": {
+        "prompt": 4e-07,
+        "completion": 4e-07
+      },
+      "anthropic/claude-3.5-haiku": {
+        "prompt": 8e-07,
+        "completion": 4e-06
+      },
+      "anthracite-org/magnum-v4-72b": {
+        "prompt": 3e-06,
+        "completion": 5e-06
+      },
+      "qwen/qwen-2.5-7b-instruct": {
+        "prompt": 4e-08,
+        "completion": 1e-07
+      },
+      "nvidia/llama-3.1-nemotron-70b-instruct": {
+        "prompt": 1.2e-06,
+        "completion": 1.2e-06
+      },
+      "inflection/inflection-3-productivity": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "inflection/inflection-3-pi": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "thedrummer/rocinante-12b": {
+        "prompt": 1.7e-07,
+        "completion": 4.3e-07
+      },
+      "meta-llama/llama-3.2-3b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "meta-llama/llama-3.2-3b-instruct": {
+        "prompt": 5.1e-08,
+        "completion": 3.4e-07
+      },
+      "meta-llama/llama-3.2-1b-instruct": {
+        "prompt": 2.7e-08,
+        "completion": 2e-07
+      },
+      "meta-llama/llama-3.2-11b-vision-instruct": {
+        "prompt": 2.45e-07,
+        "completion": 2.45e-07
+      },
+      "qwen/qwen-2.5-72b-instruct": {
+        "prompt": 3.6e-07,
+        "completion": 4e-07
+      },
+      "cohere/command-r-plus-08-2024": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "cohere/command-r-08-2024": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "sao10k/l3.1-euryale-70b": {
+        "prompt": 8.5e-07,
+        "completion": 8.5e-07
+      },
+      "nousresearch/hermes-3-llama-3.1-70b": {
+        "prompt": 3e-07,
+        "completion": 3e-07
+      },
+      "nousresearch/hermes-3-llama-3.1-405b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nousresearch/hermes-3-llama-3.1-405b": {
+        "prompt": 1e-06,
+        "completion": 1e-06
+      },
+      "sao10k/l3-lunaris-8b": {
+        "prompt": 4e-08,
+        "completion": 5e-08
+      },
+      "openai/gpt-4o-2024-08-06": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "meta-llama/llama-3.1-8b-instruct": {
+        "prompt": 2e-08,
+        "completion": 5e-08
+      },
+      "meta-llama/llama-3.1-70b-instruct": {
+        "prompt": 4e-07,
+        "completion": 4e-07
+      },
+      "mistralai/mistral-nemo": {
+        "prompt": 2e-08,
+        "completion": 3e-08
+      },
+      "openai/gpt-4o-mini-2024-07-18": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "openai/gpt-4o-mini": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "google/gemma-2-27b-it": {
+        "prompt": 6.5e-07,
+        "completion": 6.5e-07
+      },
+      "sao10k/l3-euryale-70b": {
+        "prompt": 1.48e-06,
+        "completion": 1.48e-06
+      },
+      "nousresearch/hermes-2-pro-llama-3-8b": {
+        "prompt": 1.4e-07,
+        "completion": 1.4e-07
+      },
+      "openai/gpt-4o-2024-05-13": {
+        "prompt": 5e-06,
+        "completion": 1.5e-05
+      },
+      "openai/gpt-4o": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "meta-llama/llama-3-8b-instruct": {
+        "prompt": 3e-08,
+        "completion": 4e-08
+      },
+      "meta-llama/llama-3-70b-instruct": {
+        "prompt": 5.1e-07,
+        "completion": 7.4e-07
+      },
+      "mistralai/mixtral-8x22b-instruct": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "microsoft/wizardlm-2-8x22b": {
+        "prompt": 6.2e-07,
+        "completion": 6.2e-07
+      },
+      "openai/gpt-4-turbo": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "anthropic/claude-3-haiku": {
+        "prompt": 2.5e-07,
+        "completion": 1.25e-06
+      },
+      "mistralai/mistral-large": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "openai/gpt-4-turbo-preview": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "openai/gpt-3.5-turbo-0613": {
+        "prompt": 1e-06,
+        "completion": 2e-06
+      },
+      "mistralai/mixtral-8x7b-instruct": {
+        "prompt": 5.4e-07,
+        "completion": 5.4e-07
+      },
+      "alpindale/goliath-120b": {
+        "prompt": 3.75e-06,
+        "completion": 7.5e-06
+      },
+      "openrouter/auto": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "openai/gpt-4-1106-preview": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "openai/gpt-3.5-turbo-instruct": {
+        "prompt": 1.5e-06,
+        "completion": 2e-06
+      },
+      "mistralai/mistral-7b-instruct-v0.1": {
+        "prompt": 1.1e-07,
+        "completion": 1.9e-07
+      },
+      "openai/gpt-3.5-turbo-16k": {
+        "prompt": 3e-06,
+        "completion": 4e-06
+      },
+      "mancer/weaver": {
+        "prompt": 7.5e-07,
+        "completion": 1e-06
+      },
+      "undi95/remm-slerp-l2-13b": {
+        "prompt": 4.5e-07,
+        "completion": 6.5e-07
+      },
+      "gryphe/mythomax-l2-13b": {
+        "prompt": 6e-08,
+        "completion": 6e-08
+      },
+      "openai/gpt-4-0314": {
+        "prompt": 3e-05,
+        "completion": 6e-05
+      },
+      "openai/gpt-4": {
+        "prompt": 3e-05,
+        "completion": 6e-05
+      },
+      "openai/gpt-3.5-turbo": {
+        "prompt": 5e-07,
+        "completion": 1.5e-06
+      }
+    }
+  },
+  "trials": [
+    {
+      "trial_num": 1,
+      "difficulty": 2,
+      "tier": "T1",
+      "topic_concept": "How to properly store fresh herbs to maximize their lifespan",
+      "generation_type": "prose",
+      "shared_prose": null,
+      "label_to_model": {
+        "A": "qwen/qwen-plus-2025-07-28",
+        "B": "deepseek/deepseek-v4-flash"
+      },
+      "model_outputs": {
+        "deepseek/deepseek-v4-flash": {
+          "model_id": "deepseek/deepseek-v4-flash",
+          "raw_output": "新鲜香草买回家，别急着放冰箱。试试像养花一样，把它们插在水杯里，放在窗边。每天换一次水，就能保持新鲜好几天。如果想存更久，用湿纸巾轻轻包住根部，再装进保鲜袋，放冰箱冷藏。这样处理，香草就不会很快变干或烂掉。",
+          "prompt_tokens": 159,
+          "completion_tokens": 214,
+          "cost_usd": 8.218e-05,
+          "latency_seconds": 3.917135238647461,
+          "error": null
+        },
+        "qwen/qwen-plus-2025-07-28": {
+          "model_id": "qwen/qwen-plus-2025-07-28",
+          "raw_output": "新鲜香草放冰箱容易坏。最好的方法是把香草像花一样插在杯子里，加一点水，再用塑料袋轻轻盖住，放进冰箱。香菜、葱、薄荷都可以这样保存。记得每天换水，这样能放一周左右。如果香草干了，可以洗一洗再用冷水泡几分钟，就会变新鲜。",
+          "prompt_tokens": 163,
+          "completion_tokens": 79,
+          "cost_usd": 0.00010400000000000001,
+          "latency_seconds": 1.7616732120513916,
+          "error": null
+        }
+      },
+      "judge_scores": {
+        "qwen/qwen-plus-2025-07-28": {
+          "naturalness": 8.0,
+          "vocabulary_appropriateness": 7.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 9.0,
+          "engagement": 8.0,
+          "length_compliance": 7.0,
+          "difficulty_calibration": 8.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "The passage is well-written and mostly natural, with some slightly advanced vocabulary. It stays on topic and is engaging, but slightly exceeds the target length."
+        },
+        "deepseek/deepseek-v4-flash": {
+          "naturalness": 9.0,
+          "vocabulary_appropriateness": 8.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 9.0,
+          "engagement": 9.0,
+          "length_compliance": 7.0,
+          "difficulty_calibration": 8.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "The passage is very natural and engaging, with appropriate vocabulary for the level. It stays on topic and provides useful tips, but is slightly longer than the target range."
+        }
+      },
+      "judge_output": {
+        "model_id": "qwen/qwen-2.5-72b-instruct",
+        "raw_output": "{\n  \"evaluations\": {\n    \"A\": {\n      \"naturalness\": 8,\n      \"vocabulary_appropriateness\": 7,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 9,\n      \"engagement\": 8,\n      \"length_compliance\": 7,\n      \"difficulty_calibration\": 8,\n      \"reasoning\": \"The passage is well-written and mostly natural, with some slightly advanced vocabulary. It stays on topic and is engaging, but slightly exceeds the target length.\"\n    },\n    \"B\": {\n      \"naturalness\": 9,\n      \"vocabulary_appropriateness\": 8,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 9,\n      \"engagement\": 9,\n      \"length_compliance\": 7,\n      \"difficulty_calibration\": 8,\n      \"reasoning\": \"The passage is very natural and engaging, with appropriate vocabulary for the level. It stays on topic and provides useful tips, but is slightly longer than the target range.\"\n    }\n  }\n}",
+        "prompt_tokens": 1047,
+        "completion_tokens": 223,
+        "cost_usd": 0.00046612,
+        "latency_seconds": 10.28133487701416,
+        "error": null
+      }
+    },
+    {
+      "trial_num": 2,
+      "difficulty": 4,
+      "tier": "T3",
+      "topic_concept": "How communal dining fosters community bonds",
+      "generation_type": "questions",
+      "shared_prose": "围桌用餐不仅能填饱肚子，还能加深邻里之间的联系。在中国，家庭聚餐和朋友小聚时，大家围坐在一起，共享美食，这种用餐方式不仅仅是吃饭，更是一种社交活动。每个人都可以在餐桌上分享自己的故事和心情，彼此之间的距离也因为这些亲密的交流而拉近。不仅如此，这种聚餐还能增强社区的凝聚力，让大家更加团结。无论是在节日还是日常，围桌用餐都是增进人际关系的绝佳方式。通过这样的活动，社区成员之间的了解和信任也会逐渐加深，形成更加和谐的社区氛围。",
+      "label_to_model": {
+        "A": "qwen/qwen-plus-2025-07-28",
+        "B": "deepseek/deepseek-v4-flash"
+      },
+      "model_outputs": {
+        "deepseek/deepseek-v4-flash": {
+          "model_id": "deepseek/deepseek-v4-flash",
+          "raw_output": "[\n  {\n    \"question\": \"根据文章，围桌用餐除了能填饱肚子，还能起到什么作用？\",\n    \"choices\": [\"节省时间\", \"加深邻里联系\", \"提高厨艺\", \"增加收入\"],\n    \"answer\": \"加深邻里联系\",\n    \"type_code\": \"literal_detail\"\n  },\n  {\n    \"question\": \"文中“凝聚力”一词最可能的意思是？\",\n    \"choices\": [\"团结的力量\", \"食物的味道\", \"个人的能力\", \"家庭的关系\"],\n    \"answer\": \"团结的力量\",\n    \"type_code\": \"vocabulary_context\"\n  },\n  {\n    \"question\": \"这篇文章主要想表达什么？\",\n    \"choices\": [\"围桌用餐是重要的文化传统\", \"围桌用餐能增进人际关系和社区和谐\", \"中国家庭聚餐很丰盛\", \"节日聚餐比日常聚餐更重要\"],\n    \"answer\": \"围桌用餐能增进人际关系和社区和谐\",\n    \"type_code\": \"main_idea\"\n  },\n  {\n    \"question\": \"以下哪项是文章中用来支持围桌用餐能拉近邻里关系的具体例子？\",\n    \"choices\": [\"大家围坐在一起\", \"分享故事和心情\", \"节日聚餐\", \"增加信任\"],\n    \"answer\": \"分享故事和心情\",\n    \"type_code\": \"supporting_detail\"\n  },\n  {\n    \"question\": \"根据文章，如果社区经常组织围桌用餐，最可能带来什么结果？\",\n    \"choices\": [\"人们会减少外出吃饭\", \"邻里之间会更加陌生\", \"社区氛围会更加和谐\", \"食物浪费会增多\"],\n    \"answer\": \"社区氛围会更加和谐\",\n    \"type_code\": \"inference\"\n  }\n]",
+          "prompt_tokens": 331,
+          "completion_tokens": 828,
+          "cost_usd": 0.00027818,
+          "latency_seconds": 12.089548826217651,
+          "error": null
+        },
+        "qwen/qwen-plus-2025-07-28": {
+          "model_id": "qwen/qwen-plus-2025-07-28",
+          "raw_output": "[\n  {\n    \"question\": \"根据文章，围桌用餐在中国通常与哪些人一起进行？\",\n    \"choices\": [\n      \"陌生人\",\n      \"家庭成员和朋友\",\n      \"公司同事\",\n      \"学校师生\"\n    ],\n    \"answer\": \"家庭成员和朋友\",\n    \"type_code\": \"literal_detail\"\n  },\n  {\n    \"question\": \"文中“凝聚力”一词最可能指的是什么？\",\n    \"choices\": [\n      \"餐桌的物理强度\",\n      \"社区成员之间的团结程度\",\n      \"食物的粘稠度\",\n      \"聚餐活动的频率\"\n    ],\n    \"answer\": \"社区成员之间的团结程度\",\n    \"type_code\": \"vocabulary_context\"\n  },\n  {\n    \"question\": \"这篇文章的主要观点是什么？\",\n    \"choices\": [\n      \"围桌用餐比独自吃饭更健康\",\n      \"中国传统节日离不开美食\",\n      \"围桌用餐有助于促进人际关系和社区和谐\",\n      \"现代人应更多使用外卖服务\"\n    ],\n    \"answer\": \"围桌用餐有助于促进人际关系和社区和谐\",\n    \"type_code\": \"main_idea\"\n  },\n  {\n    \"question\": \"以下哪一项是文章中提到的围桌用餐带来的具体好处？\",\n    \"choices\": [\n      \"减少烹饪时间\",\n      \"提高个人饮食营养\",\n      \"增加社区成员间的了解和信任\",\n      \"降低餐厅消费成本\"\n    ],\n    \"answer\": \"增加社区成员间的了解和信任\",\n    \"type_code\": \"supporting_detail\"\n  },\n  {\n    \"question\": \"根据文章内容，我们可以推断出什么？\",\n    \"choices\": [\n      \"围桌用餐正在被现代生活方式完全取代\",\n      \"只有在节日才适合进行围桌聚餐\",\n      \"缺乏交流的社区可能从围桌用餐中受益\",\n      \"围桌用餐的主要目的是品尝美食\"\n    ],\n    \"answer\": \"缺乏交流的社区可能从围桌用餐中受益\",\n    \"type_code\": \"inference\"\n  }\n]",
+          "prompt_tokens": 340,
+          "completion_tokens": 427,
+          "cost_usd": 0.00042146,
+          "latency_seconds": 5.160398721694946,
+          "error": null
+        }
+      },
+      "judge_scores": {
+        "qwen/qwen-plus-2025-07-28": {
+          "naturalness": null,
+          "vocabulary_appropriateness": null,
+          "grammar_accuracy": null,
+          "topic_adherence": null,
+          "engagement": null,
+          "length_compliance": null,
+          "difficulty_calibration": null,
+          "question_quality": 9.0,
+          "distractor_quality": 8.0,
+          "cognitive_level_match": 9.0,
+          "answer_correctness": 10.0,
+          "language_accuracy": 10.0,
+          "judge_reasoning": "Questions are clear and test comprehension effectively. Distractors are plausible but incorrect. Cognitive levels match the declared type codes, and all answers are correct and defensible."
+        },
+        "deepseek/deepseek-v4-flash": {
+          "naturalness": null,
+          "vocabulary_appropriateness": null,
+          "grammar_accuracy": null,
+          "topic_adherence": null,
+          "engagement": null,
+          "length_compliance": null,
+          "difficulty_calibration": null,
+          "question_quality": 8.0,
+          "distractor_quality": 7.0,
+          "cognitive_level_match": 8.0,
+          "answer_correctness": 10.0,
+          "language_accuracy": 10.0,
+          "judge_reasoning": "Questions are clear and test comprehension well. Distractors are generally plausible but slightly less varied. Cognitive levels match the declared type codes, and all answers are correct and defensible."
+        }
+      },
+      "judge_output": {
+        "model_id": "qwen/qwen-2.5-72b-instruct",
+        "raw_output": "{\n  \"evaluations\": {\n    \"A\": {\n      \"question_quality\": 9,\n      \"distractor_quality\": 8,\n      \"cognitive_level_match\": 9,\n      \"answer_correctness\": 10,\n      \"language_accuracy\": 10,\n      \"reasoning\": \"Questions are clear and test comprehension effectively. Distractors are plausible but incorrect. Cognitive levels match the declared type codes, and all answers are correct and defensible.\"\n    },\n    \"B\": {\n      \"question_quality\": 8,\n      \"distractor_quality\": 7,\n      \"cognitive_level_match\": 8,\n      \"answer_correctness\": 10,\n      \"language_accuracy\": 10,\n      \"reasoning\": \"Questions are clear and test comprehension well. Distractors are generally plausible but slightly less varied. Cognitive levels match the declared type codes, and all answers are correct and defensible.\"\n    }\n  }\n}",
+        "prompt_tokens": 1577,
+        "completion_tokens": 199,
+        "cost_usd": 0.00064732,
+        "latency_seconds": 8.524867296218872,
+        "error": null
+      }
+    },
+    {
+      "trial_num": 3,
+      "difficulty": 8,
+      "tier": "T6",
+      "topic_concept": "The environmental impact of fast fashion and sustainable alternatives",
+      "generation_type": "prose",
+      "shared_prose": null,
+      "label_to_model": {
+        "A": "deepseek/deepseek-v4-flash",
+        "B": "qwen/qwen-plus-2025-07-28"
+      },
+      "model_outputs": {
+        "deepseek/deepseek-v4-flash": {
+          "model_id": "deepseek/deepseek-v4-flash",
+          "raw_output": "快时尚，这个词听起来充满活力，仿佛下一秒就能把T台上的潮流穿在自己身上。然而，当我们沉浸在“买买买”的快乐中时，很少有人会停下来想一想：那条只穿过一两次的牛仔裤，那件因为“过时”而被塞进衣柜角落的连衣裙，它们最终去了哪里？\n\n事实上，时尚产业已经成为全球第二大污染源，仅次于石油化工。为了追求低廉的价格和快速的更替，品牌商们大量使用合成纤维，比如聚酯纤维。这些材料不仅在生产过程中消耗巨量的水和能源，更可怕的是，它们无法自然降解。一件普通的化纤T恤，在填埋场里可能需要几百年才能分解，而在这个过程中，它还会释放出有害的微塑料，渗入土壤和地下水，最终通过食物链回到我们的餐桌。这听起来有些讽刺，不是吗？我们追求美，却无形中加速了环境的恶化。\n\n不过，希望并非遥不可及。越来越多的人开始反思这种“穿一次就扔”的消费模式，并寻找可持续的替代方案。比如，“慢时尚”的理念正悄然兴起。它提倡购买经典、耐穿的款式，而非追逐转瞬即逝的流行。此外，选择有机棉、亚麻、天丝等天然或再生纤维制成的衣物，也能大大减轻环境负担。你还可以尝试“古着”或二手交易，让旧衣服获得第二次生命。当然，最简单的行动就是从今天开始，问问自己：“我真的需要这件衣服吗？”一句简单的自问，或许就能避免一次不必要的消费。\n\n改变，往往始于一个微小的选择。与其被潮流的洪流裹挟，不如做一个清醒的消费者。毕竟，真正的时尚，不该以牺牲地球的未来为代价。",
+          "prompt_tokens": 158,
+          "completion_tokens": 352,
+          "cost_usd": 0.00012068,
+          "latency_seconds": 31.678274393081665,
+          "error": null
+        },
+        "qwen/qwen-plus-2025-07-28": {
+          "model_id": "qwen/qwen-plus-2025-07-28",
+          "raw_output": "你知道每年全球生产的服装中有多少最终被扔进垃圾场吗？据估计，这个数字超过了九千万吨。快时尚产业正以惊人的速度消耗地球资源，从大量用水到化学品污染河流，再到生产运输过程中排放的温室气体，每一个环节都对环境造成沉重负担。许多廉价衣物只穿几次就被丢弃，而这些合成纤维制成的衣服可能需要数百年才能分解。\n\n更令人担忧的是，为了追求低价和快速上新，许多品牌忽视了工人的权益和生产过程中的环保标准。一条牛仔裤的生产可能消耗多达七千升水——相当于一个人七年饮水量的总和。这样的消费模式显然不可持续。\n\n幸运的是，越来越多的人开始反思自己的购物习惯，并寻求更环保的选择。比如，购买二手衣物或参与衣物交换活动，不仅经济实惠，还能延长衣物的使用寿命。许多人也开始支持本地设计师或使用有机棉、大麻、再生纤维等环保材料的品牌。这些材料对环境的伤害更小，生产过程也更清洁。\n\n此外，“慢时尚”理念正在兴起。它鼓励人们少买、精买，选择质量好、耐穿的经典款式。有人甚至开始学习简单缝纫，自己修补旧衣，让旧物焕然一新。这些看似微小的行动，汇聚起来却能带来巨大改变。\n\n保护环境不一定要做出巨大牺牲，从衣柜开始，我们每个人都能为地球减负。下次购物前，不妨问自己：我真的需要这件衣服吗？它能穿多久？也许这个简单的思考，就是改变的开始。",
+          "prompt_tokens": 164,
+          "completion_tokens": 327,
+          "cost_usd": 0.0002977,
+          "latency_seconds": 5.2058892250061035,
+          "error": null
+        }
+      },
+      "judge_scores": {
+        "deepseek/deepseek-v4-flash": {
+          "naturalness": 9.0,
+          "vocabulary_appropriateness": 9.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 9.0,
+          "engagement": 9.0,
+          "length_compliance": 10.0,
+          "difficulty_calibration": 9.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "The passage is well-written and engaging, with a natural flow and appropriate vocabulary for T6. It stays on topic and provides depth, making it highly engaging for the reader."
+        },
+        "qwen/qwen-plus-2025-07-28": {
+          "naturalness": 8.0,
+          "vocabulary_appropriateness": 8.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 9.0,
+          "engagement": 8.0,
+          "length_compliance": 10.0,
+          "difficulty_calibration": 8.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "The passage is clear and on-topic, with good vocabulary and grammar. However, it is slightly less engaging and the vocabulary is a bit less sophisticated compared to Response A, making it a bit less challenging for T6."
+        }
+      },
+      "judge_output": {
+        "model_id": "qwen/qwen-2.5-72b-instruct",
+        "raw_output": "{\n  \"evaluations\": {\n    \"A\": {\n      \"naturalness\": 9,\n      \"vocabulary_appropriateness\": 9,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 9,\n      \"engagement\": 9,\n      \"length_compliance\": 10,\n      \"difficulty_calibration\": 9,\n      \"reasoning\": \"The passage is well-written and engaging, with a natural flow and appropriate vocabulary for T6. It stays on topic and provides depth, making it highly engaging for the reader.\"\n    },\n    \"B\": {\n      \"naturalness\": 8,\n      \"vocabulary_appropriateness\": 8,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 9,\n      \"engagement\": 8,\n      \"length_compliance\": 10,\n      \"difficulty_calibration\": 8,\n      \"reasoning\": \"The passage is clear and on-topic, with good vocabulary and grammar. However, it is slightly less engaging and the vocabulary is a bit less sophisticated compared to Response A, making it a bit less challenging for T6.\"\n    }\n  }\n}",
+        "prompt_tokens": 1589,
+        "completion_tokens": 241,
+        "cost_usd": 0.00066844,
+        "latency_seconds": 8.150927782058716,
+        "error": null
+      }
+    }
+  ],
+  "started_at": "2026-05-01T10:32:04.401146+00:00",
+  "completed_at": "2026-05-01T10:33:38.893582+00:00",
+  "total_cost_by_model": {
+    "deepseek/deepseek-v4-flash": 0.00048104,
+    "qwen/qwen-plus-2025-07-28": 0.0008231600000000001
+  },
+  "judge_cost": 0.0018881999999999998,
+  "aggregate_scores": {
+    "deepseek/deepseek-v4-flash": {
+      "naturalness": 9.0,
+      "vocabulary_appropriateness": 8.5,
+      "grammar_accuracy": 9.0,
+      "topic_adherence": 9.0,
+      "engagement": 9.0,
+      "length_compliance": 8.5,
+      "difficulty_calibration": 8.5,
+      "question_quality": 8.0,
+      "distractor_quality": 7.0,
+      "cognitive_level_match": 8.0,
+      "answer_correctness": 10.0,
+      "language_accuracy": 10.0
+    },
+    "qwen/qwen-plus-2025-07-28": {
+      "naturalness": 8.0,
+      "vocabulary_appropriateness": 7.5,
+      "grammar_accuracy": 9.0,
+      "topic_adherence": 9.0,
+      "engagement": 8.0,
+      "length_compliance": 8.5,
+      "difficulty_calibration": 8.0,
+      "question_quality": 9.0,
+      "distractor_quality": 8.0,
+      "cognitive_level_match": 9.0,
+      "answer_correctness": 10.0,
+      "language_accuracy": 10.0
+    }
+  },
+  "winner_by_category": {
+    "naturalness": "deepseek/deepseek-v4-flash",
+    "vocabulary_appropriateness": "deepseek/deepseek-v4-flash",
+    "grammar_accuracy": "deepseek/deepseek-v4-flash",
+    "topic_adherence": "deepseek/deepseek-v4-flash",
+    "engagement": "deepseek/deepseek-v4-flash",
+    "length_compliance": "deepseek/deepseek-v4-flash",
+    "difficulty_calibration": "deepseek/deepseek-v4-flash",
+    "question_quality": "qwen/qwen-plus-2025-07-28",
+    "distractor_quality": "qwen/qwen-plus-2025-07-28",
+    "cognitive_level_match": "qwen/qwen-plus-2025-07-28",
+    "answer_correctness": "deepseek/deepseek-v4-flash",
+    "language_accuracy": "deepseek/deepseek-v4-flash"
+  },
+  "overall_winner": "deepseek/deepseek-v4-flash"
+}

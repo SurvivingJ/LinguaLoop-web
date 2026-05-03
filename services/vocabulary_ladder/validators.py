@@ -10,11 +10,24 @@ Does NOT do semantic quality checks — that's for a future QA system.
 """
 
 import logging
+import re
 from typing import Optional
 
 from config import Config
+from services.vocabulary_ladder.config import get_sentence_target
 
 logger = logging.getLogger(__name__)
+
+
+def contains_target_whole_word(sentence: str, word: str) -> bool:
+    """Return True if `word` appears as a whole word in `sentence`.
+
+    Word-boundary aware: rejects "new" inside "knew" or "renewal".
+    Case-insensitive.
+    """
+    if not sentence or not word:
+        return False
+    return re.search(rf'\b{re.escape(word)}\b', sentence, re.IGNORECASE) is not None
 
 
 class VocabAssetValidator:
@@ -68,14 +81,15 @@ class VocabAssetValidator:
                     errors.append(f"Sentence {i} is not a dict")
                     continue
                 text = sent.get('text', '')
-                substr = sent.get('target_substring', '')
+                target = get_sentence_target(sent)
                 if not text:
                     errors.append(f"Sentence {i} has empty text")
-                if not substr:
-                    errors.append(f"Sentence {i} has empty target_substring")
-                elif substr.lower() not in text.lower():
+                if not target:
+                    errors.append(f"Sentence {i} has empty target_word")
+                elif not contains_target_whole_word(text, target):
                     errors.append(
-                        f"Sentence {i}: target_substring '{substr}' not found in text"
+                        f"Sentence {i}: target_word '{target}' is not a whole-word "
+                        f"match in text (substring inside another word does not count)"
                     )
 
         # Morphological forms

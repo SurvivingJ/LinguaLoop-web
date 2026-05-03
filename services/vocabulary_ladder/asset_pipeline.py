@@ -94,6 +94,20 @@ class VocabAssetPipeline:
         semantic_class = core_asset.get('semantic_class', '')
         active_levels = compute_active_levels(semantic_class)
 
+        # Aggressively gate L5 (Collocation Gap) on corpus evidence of a fixed
+        # collocation. P1 happily returns 'advertising' as a primary_collocate
+        # for "personalize", which produces synonym-soup distractors. Drop L5
+        # entirely unless we have a high-PMI corpus_collocations row backing
+        # the (lemma, collocate) pair.
+        if 5 in active_levels and not self._collocation_is_fixed(
+            core_asset, language_id,
+        ):
+            active_levels = [lv for lv in active_levels if lv != 5]
+            logger.info(
+                "Dropping L5 for sense %s — primary_collocate %r failed PMI gate",
+                sense_id, core_asset.get('primary_collocate'),
+            )
+
         # Step 3: Run Prompts 2A, 2B, 3A, 3B in parallel
         p2_gen = ExerciseAssetGenerator(self.db, language_id)
         p3_gen = TransformAssetGenerator(self.db, language_id)
@@ -226,7 +240,7 @@ class VocabAssetPipeline:
     ) -> list[dict]:
         """Pull existing sentences from tests/conversations that contain this word.
 
-        Returns list of dicts with: text, target_substring, source, complexity_tier.
+        Returns list of dicts with: text, target_word, source, complexity_tier.
         """
         # Get the lemma for this sense
         try:
@@ -247,11 +261,13 @@ class VocabAssetPipeline:
 
         sentences = []
 
-        # Search test transcripts
+        # Search test transcripts. Neither tests.tier (subscription tier) nor
+        # tests.difficulty (1-9) maps cleanly to the T1/T2/T3 complexity scale
+        # this pipeline uses, so corpus sentences are tagged 'T3' by default.
         try:
             test_resp = (
                 self.db.table('tests')
-                .select('transcript, complexity_tier')
+                .select('transcript')
                 .eq('language_id', language_id)
                 .not_.is_('transcript', 'null')
                 .limit(50)
@@ -261,50 +277,49 @@ class VocabAssetPipeline:
                 transcript = test.get('transcript', '')
                 if not transcript:
                     continue
-                tier = test.get('complexity_tier', 'T3')
                 found = self._extract_sentences_with_word(
-                    transcript, lemma, 'corpus', tier
+                    transcript, lemma, 'corpus', 'T3'
                 )
                 sentences.extend(found)
                 if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
                     break
         except Exception as e:
-            logger.debug("Corpus sentence search in tests failed: %s", e)
+            logger.warning("Corpus sentence search in tests failed: %s", e)
 
-        # Search conversation transcripts if needed
+        # Search conversation transcripts if needed. The conversations table
+        # stores dialogue in `turns` (JSONB array of turn dicts) and has no
+        # complexity_tier column.
         if len(sentences) < Config.VOCAB_SENTENCES_PER_WORD:
             try:
                 conv_resp = (
                     self.db.table('conversations')
-                    .select('content, complexity_tier')
+                    .select('turns')
                     .eq('language_id', language_id)
-                    .not_.is_('content', 'null')
+                    .not_.is_('turns', 'null')
                     .limit(30)
                     .execute()
                 )
                 for conv in (conv_resp.data or []):
-                    content = conv.get('content', '')
-                    if not content:
+                    turns = conv.get('turns')
+                    if not turns:
                         continue
-                    tier = conv.get('complexity_tier', 'T3')
-                    # Content may be JSON (dialogue turns) or plain text
-                    if isinstance(content, list):
+                    if isinstance(turns, list):
                         text = ' '.join(
-                            turn.get('text', '') for turn in content
+                            turn.get('text', '') for turn in turns
                             if isinstance(turn, dict)
                         )
-                    elif isinstance(content, str):
-                        text = content
+                    elif isinstance(turns, str):
+                        text = turns
                     else:
                         continue
                     found = self._extract_sentences_with_word(
-                        text, lemma, 'corpus', tier
+                        text, lemma, 'corpus', 'T3'
                     )
                     sentences.extend(found)
                     if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
                         break
             except Exception as e:
-                logger.debug("Corpus sentence search in conversations failed: %s", e)
+                logger.warning("Corpus sentence search in conversations failed: %s", e)
 
         # Deduplicate and limit
         seen = set()
@@ -331,24 +346,82 @@ class VocabAssetPipeline:
             # Fallback: simple period splitting
             sents = [s.strip() for s in text.split('.') if s.strip()]
 
+        # Whole-word match only — `lemma_lower in sent.lower()` would otherwise
+        # accept "new" inside "knew" or "renewal".
+        import re
         lemma_lower = lemma.lower()
+        pattern = re.compile(rf'\b{re.escape(lemma_lower)}\b', re.IGNORECASE)
         for sent in sents:
             sent = sent.strip()
-            if len(sent) < 10 or lemma_lower not in sent.lower():
+            if len(sent) < 10:
+                continue
+            m = pattern.search(sent)
+            if not m:
                 continue
 
-            # Find the exact substring match (case-preserving)
-            idx = sent.lower().index(lemma_lower)
-            target_substring = sent[idx:idx + len(lemma)]
+            # Preserve original case from the sentence.
+            target_word = sent[m.start():m.end()]
 
             results.append({
                 'text': sent,
-                'target_substring': target_substring,
+                'target_word': target_word,
                 'source': source,
                 'complexity_tier': tier,
             })
 
         return results
+
+    # ------------------------------------------------------------------
+    # L5 collocation gate
+    # ------------------------------------------------------------------
+
+    # PMI threshold borrowed from the rest of the corpus pipeline. Pairs
+    # below this score are statistically unremarkable co-occurrences, not
+    # fixed collocations — bad distractor material for L5.
+    L5_PMI_THRESHOLD = 5.0
+
+    def _collocation_is_fixed(self, core_asset: dict, language_id: int) -> bool:
+        """True if (lemma, primary_collocate) has corpus evidence as a fixed pair.
+
+        Looks up `corpus_collocations` for the (head_word, collocate) tuple in
+        either order (P1 doesn't tell us which side is the head). Requires a
+        `pmi_score` at or above L5_PMI_THRESHOLD. Returns False on any miss
+        or DB error — the caller drops L5 in that case, which is the safe
+        default for a quality-sensitive exercise.
+        """
+        lemma = self._extract_lemma_from_core(core_asset)
+        collocate = (core_asset.get('primary_collocate') or '').strip()
+        if not lemma or not collocate or collocate.lower() == 'null':
+            return False
+
+        try:
+            resp = (
+                self.db.table('corpus_collocations')
+                .select('pmi_score, head_word, collocate')
+                .eq('language_id', language_id)
+                .or_(
+                    f'and(head_word.eq.{lemma},collocate.eq.{collocate}),'
+                    f'and(head_word.eq.{collocate},collocate.eq.{lemma})'
+                )
+                .gte('pmi_score', self.L5_PMI_THRESHOLD)
+                .limit(1)
+                .execute()
+            )
+            return bool(resp.data)
+        except Exception as e:
+            logger.warning(
+                "corpus_collocations lookup failed for (%r, %r): %s",
+                lemma, collocate, e,
+            )
+            return False
+
+    def _extract_lemma_from_core(self, core_asset: dict) -> str:
+        """Pull the lemma off the first sentence's target_word (alias-aware)."""
+        sentences = core_asset.get('sentences') or []
+        if not sentences:
+            return ''
+        from services.vocabulary_ladder.config import get_sentence_target
+        return (get_sentence_target(sentences[0]) or '').strip().lower()
 
     # ------------------------------------------------------------------
     # Storage
@@ -422,10 +495,10 @@ class VocabAssetPipeline:
     def _update_vocabulary_metadata(self, sense_id: int, core_asset: dict):
         """Update dim_vocabulary.semantic_class and dim_word_senses phonetics."""
         try:
-            # Get vocab_id from sense
+            # Get vocab_id and current definition from sense
             resp = (
                 self.db.table('dim_word_senses')
-                .select('vocab_id')
+                .select('vocab_id, definition')
                 .eq('id', sense_id)
                 .single()
                 .execute()
@@ -446,6 +519,15 @@ class VocabAssetPipeline:
                 updates['morphological_forms'] = core_asset['morphological_forms']
             if core_asset.get('pronunciation'):
                 updates['pronunciation'] = core_asset['pronunciation']
+
+            # Replace placeholder definitions with the LLM-generated one. The
+            # admin upload helper writes "Definition for {lemma}" when no
+            # definition is supplied — once P1 runs, we have a real one.
+            new_def = (core_asset.get('definition') or '').strip()
+            if new_def:
+                current = (resp.data.get('definition') if resp.data else '') or ''
+                if not current or current.startswith('Definition for '):
+                    updates['definition'] = new_def
 
             if updates:
                 self.db.table('dim_word_senses').update(updates).eq('id', sense_id).execute()

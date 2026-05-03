@@ -98,9 +98,8 @@ def clean_json_response(text: str) -> str:
     """
     Strip markdown code fences and return the outermost JSON object or array.
 
-    Checks for objects {…} first, arrays […] second — this matches the
-    existing behaviour in ai_service._clean_json_response where question
-    responses are objects that contain choice arrays.
+    Extracts whichever JSON structure ({…} or […]) starts first, ensuring
+    arrays like [{…}, {…}] aren't misinterpreted as bare objects.
 
     Raises ValueError if the input is empty after stripping.
     Returns the cleaned string unchanged if no JSON structure is found
@@ -123,15 +122,24 @@ def clean_json_response(text: str) -> str:
         text = text.rsplit('```', 1)[0]
     text = text.strip()
 
-    # 4. Extract outermost JSON structure — objects before arrays
+    # 4. Extract outermost JSON structure — whichever starts first wins
     obj_start = text.find('{')
     obj_end   = text.rfind('}')
-    if obj_start != -1 and obj_end != -1 and obj_start < obj_end:
-        return text[obj_start:obj_end + 1]
-
     arr_start = text.find('[')
     arr_end   = text.rfind(']')
-    if arr_start != -1 and arr_end != -1 and arr_start < arr_end:
+
+    has_obj = obj_start != -1 and obj_end != -1 and obj_start < obj_end
+    has_arr = arr_start != -1 and arr_end != -1 and arr_start < arr_end
+
+    if has_obj and has_arr:
+        # Whichever delimiter appears first is the outermost structure
+        if arr_start < obj_start:
+            return text[arr_start:arr_end + 1]
+        else:
+            return text[obj_start:obj_end + 1]
+    elif has_obj:
+        return text[obj_start:obj_end + 1]
+    elif has_arr:
         return text[arr_start:arr_end + 1]
 
     return text

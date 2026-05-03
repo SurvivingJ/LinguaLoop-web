@@ -1,0 +1,1598 @@
+{
+  "config": {
+    "language_id": 2,
+    "language_name": "English",
+    "language_code": "en",
+    "judge_model": "google/gemini-2.0-flash-001",
+    "contestant_models": [
+      "google/gemini-2.0-flash-001",
+      "deepseek/deepseek-chat"
+    ],
+    "generation_types": [
+      "prose"
+    ],
+    "num_trials": 1,
+    "model_pricing": {
+      "~anthropic/claude-haiku-latest": {
+        "prompt": 1e-06,
+        "completion": 5e-06
+      },
+      "~openai/gpt-mini-latest": {
+        "prompt": 7.5e-07,
+        "completion": 4.5e-06
+      },
+      "~google/gemini-pro-latest": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "~moonshotai/kimi-latest": {
+        "prompt": 7.448e-07,
+        "completion": 4.655e-06
+      },
+      "~google/gemini-flash-latest": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "~anthropic/claude-sonnet-latest": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "~openai/gpt-latest": {
+        "prompt": 5e-06,
+        "completion": 3e-05
+      },
+      "qwen/qwen3.5-plus-20260420": {
+        "prompt": 4e-07,
+        "completion": 2.4e-06
+      },
+      "qwen/qwen3.6-flash": {
+        "prompt": 2.5e-07,
+        "completion": 1.5e-06
+      },
+      "qwen/qwen3.6-35b-a3b": {
+        "prompt": 1.612e-07,
+        "completion": 9.6525e-07
+      },
+      "qwen/qwen3.6-max-preview": {
+        "prompt": 1.3e-06,
+        "completion": 7.8e-06
+      },
+      "qwen/qwen3.6-27b": {
+        "prompt": 5e-07,
+        "completion": 2e-06
+      },
+      "openai/gpt-5.5-pro": {
+        "prompt": 3e-05,
+        "completion": 0.00018
+      },
+      "openai/gpt-5.5": {
+        "prompt": 5e-06,
+        "completion": 3e-05
+      },
+      "deepseek/deepseek-v4-pro": {
+        "prompt": 4.35e-07,
+        "completion": 8.7e-07
+      },
+      "deepseek/deepseek-v4-flash": {
+        "prompt": 1.4e-07,
+        "completion": 2.8e-07
+      },
+      "inclusionai/ling-2.6-1t:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "tencent/hy3-preview:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "xiaomi/mimo-v2.5-pro": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "xiaomi/mimo-v2.5": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "openai/gpt-5.4-image-2": {
+        "prompt": 8e-06,
+        "completion": 1.5e-05
+      },
+      "inclusionai/ling-2.6-flash:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "~anthropic/claude-opus-latest": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "openrouter/pareto-code": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "baidu/qianfan-ocr-fast:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "moonshotai/kimi-k2.6": {
+        "prompt": 7.448e-07,
+        "completion": 4.655e-06
+      },
+      "anthropic/claude-opus-4.7": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "anthropic/claude-opus-4.6-fast": {
+        "prompt": 3e-05,
+        "completion": 0.00015
+      },
+      "z-ai/glm-5.1": {
+        "prompt": 1.05e-06,
+        "completion": 3.5e-06
+      },
+      "google/gemma-4-26b-a4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-4-26b-a4b-it": {
+        "prompt": 6e-08,
+        "completion": 3.3e-07
+      },
+      "google/gemma-4-31b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-4-31b-it": {
+        "prompt": 1.3e-07,
+        "completion": 3.8e-07
+      },
+      "qwen/qwen3.6-plus": {
+        "prompt": 3.25e-07,
+        "completion": 1.95e-06
+      },
+      "z-ai/glm-5v-turbo": {
+        "prompt": 1.2e-06,
+        "completion": 4e-06
+      },
+      "arcee-ai/trinity-large-thinking": {
+        "prompt": 2.2e-07,
+        "completion": 8.5e-07
+      },
+      "x-ai/grok-4.20-multi-agent": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "x-ai/grok-4.20": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "google/lyria-3-pro-preview": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/lyria-3-clip-preview": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "kwaipilot/kat-coder-pro-v2": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "rekaai/reka-edge": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "xiaomi/mimo-v2-omni": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "xiaomi/mimo-v2-pro": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "minimax/minimax-m2.7": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "openai/gpt-5.4-nano": {
+        "prompt": 2e-07,
+        "completion": 1.25e-06
+      },
+      "openai/gpt-5.4-mini": {
+        "prompt": 7.5e-07,
+        "completion": 4.5e-06
+      },
+      "mistralai/mistral-small-2603": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "z-ai/glm-5-turbo": {
+        "prompt": 1.2e-06,
+        "completion": 4e-06
+      },
+      "nvidia/nemotron-3-super-120b-a12b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-3-super-120b-a12b": {
+        "prompt": 9e-08,
+        "completion": 4.5e-07
+      },
+      "bytedance-seed/seed-2.0-lite": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "qwen/qwen3.5-9b": {
+        "prompt": 1e-07,
+        "completion": 1.5e-07
+      },
+      "openai/gpt-5.4-pro": {
+        "prompt": 3e-05,
+        "completion": 0.00018
+      },
+      "openai/gpt-5.4": {
+        "prompt": 2.5e-06,
+        "completion": 1.5e-05
+      },
+      "inception/mercury-2": {
+        "prompt": 2.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/gpt-5.3-chat": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "google/gemini-3.1-flash-lite-preview": {
+        "prompt": 2.5e-07,
+        "completion": 1.5e-06
+      },
+      "bytedance-seed/seed-2.0-mini": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "google/gemini-3.1-flash-image-preview": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "qwen/qwen3.5-35b-a3b": {
+        "prompt": 1.625e-07,
+        "completion": 1.3e-06
+      },
+      "qwen/qwen3.5-27b": {
+        "prompt": 1.95e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3.5-122b-a10b": {
+        "prompt": 2.6e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen3.5-flash-02-23": {
+        "prompt": 6.5e-08,
+        "completion": 2.6e-07
+      },
+      "liquid/lfm-2-24b-a2b": {
+        "prompt": 3e-08,
+        "completion": 1.2e-07
+      },
+      "google/gemini-3.1-pro-preview-customtools": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "openai/gpt-5.3-codex": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "aion-labs/aion-2.0": {
+        "prompt": 8e-07,
+        "completion": 1.6e-06
+      },
+      "google/gemini-3.1-pro-preview": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "anthropic/claude-sonnet-4.6": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "qwen/qwen3.5-plus-02-15": {
+        "prompt": 2.6e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3.5-397b-a17b": {
+        "prompt": 3.9e-07,
+        "completion": 2.34e-06
+      },
+      "minimax/minimax-m2.5:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "minimax/minimax-m2.5": {
+        "prompt": 1.5e-07,
+        "completion": 1.15e-06
+      },
+      "z-ai/glm-5": {
+        "prompt": 6e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen3-max-thinking": {
+        "prompt": 7.8e-07,
+        "completion": 3.9e-06
+      },
+      "anthropic/claude-opus-4.6": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "qwen/qwen3-coder-next": {
+        "prompt": 1.4e-07,
+        "completion": 8e-07
+      },
+      "openrouter/free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "stepfun/step-3.5-flash": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "arcee-ai/trinity-large-preview": {
+        "prompt": 1.5e-07,
+        "completion": 4.5e-07
+      },
+      "moonshotai/kimi-k2.5": {
+        "prompt": 4.4e-07,
+        "completion": 2e-06
+      },
+      "upstage/solar-pro-3": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "minimax/minimax-m2-her": {
+        "prompt": 3e-07,
+        "completion": 1.2e-06
+      },
+      "writer/palmyra-x5": {
+        "prompt": 6e-07,
+        "completion": 6e-06
+      },
+      "liquid/lfm-2.5-1.2b-thinking:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "liquid/lfm-2.5-1.2b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-audio": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-audio-mini": {
+        "prompt": 6e-07,
+        "completion": 2.4e-06
+      },
+      "z-ai/glm-4.7-flash": {
+        "prompt": 6e-08,
+        "completion": 4e-07
+      },
+      "openai/gpt-5.2-codex": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "allenai/olmo-3.1-32b-instruct": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "bytedance-seed/seed-1.6-flash": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "bytedance-seed/seed-1.6": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "minimax/minimax-m2.1": {
+        "prompt": 2.9e-07,
+        "completion": 9.5e-07
+      },
+      "z-ai/glm-4.7": {
+        "prompt": 3.8e-07,
+        "completion": 1.74e-06
+      },
+      "google/gemini-3-flash-preview": {
+        "prompt": 5e-07,
+        "completion": 3e-06
+      },
+      "mistralai/mistral-small-creative": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "xiaomi/mimo-v2-flash": {
+        "prompt": 9e-08,
+        "completion": 2.9e-07
+      },
+      "nvidia/nemotron-3-nano-30b-a3b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-3-nano-30b-a3b": {
+        "prompt": 5e-08,
+        "completion": 2e-07
+      },
+      "openai/gpt-5.2-chat": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "openai/gpt-5.2-pro": {
+        "prompt": 2.1e-05,
+        "completion": 0.000168
+      },
+      "openai/gpt-5.2": {
+        "prompt": 1.75e-06,
+        "completion": 1.4e-05
+      },
+      "mistralai/devstral-2512": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "relace/relace-search": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "z-ai/glm-4.6v": {
+        "prompt": 3e-07,
+        "completion": 9e-07
+      },
+      "nex-agi/deepseek-v3.1-nex-n1": {
+        "prompt": 1.35e-07,
+        "completion": 5e-07
+      },
+      "essentialai/rnj-1-instruct": {
+        "prompt": 1.5e-07,
+        "completion": 1.5e-07
+      },
+      "openrouter/bodybuilder": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "openai/gpt-5.1-codex-max": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "amazon/nova-2-lite-v1": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "mistralai/ministral-14b-2512": {
+        "prompt": 2e-07,
+        "completion": 2e-07
+      },
+      "mistralai/ministral-8b-2512": {
+        "prompt": 1.5e-07,
+        "completion": 1.5e-07
+      },
+      "mistralai/ministral-3b-2512": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "mistralai/mistral-large-2512": {
+        "prompt": 5e-07,
+        "completion": 1.5e-06
+      },
+      "arcee-ai/trinity-mini": {
+        "prompt": 4.5e-08,
+        "completion": 1.5e-07
+      },
+      "deepseek/deepseek-v3.2-speciale": {
+        "prompt": 4e-07,
+        "completion": 1.2e-06
+      },
+      "deepseek/deepseek-v3.2": {
+        "prompt": 2.52e-07,
+        "completion": 3.78e-07
+      },
+      "prime-intellect/intellect-3": {
+        "prompt": 2e-07,
+        "completion": 1.1e-06
+      },
+      "anthropic/claude-opus-4.5": {
+        "prompt": 5e-06,
+        "completion": 2.5e-05
+      },
+      "allenai/olmo-3-32b-think": {
+        "prompt": 1.5e-07,
+        "completion": 5e-07
+      },
+      "google/gemini-3-pro-image-preview": {
+        "prompt": 2e-06,
+        "completion": 1.2e-05
+      },
+      "x-ai/grok-4.1-fast": {
+        "prompt": 2e-07,
+        "completion": 5e-07
+      },
+      "deepcogito/cogito-v2.1-671b": {
+        "prompt": 1.25e-06,
+        "completion": 1.25e-06
+      },
+      "openai/gpt-5.1": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-chat": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-codex": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5.1-codex-mini": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "moonshotai/kimi-k2-thinking": {
+        "prompt": 6e-07,
+        "completion": 2.5e-06
+      },
+      "amazon/nova-premier-v1": {
+        "prompt": 2.5e-06,
+        "completion": 1.25e-05
+      },
+      "perplexity/sonar-pro-search": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "mistralai/voxtral-small-24b-2507": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "openai/gpt-oss-safeguard-20b": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "nvidia/nemotron-nano-12b-v2-vl:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-nano-12b-v2-vl": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "minimax/minimax-m2": {
+        "prompt": 2.55e-07,
+        "completion": 1e-06
+      },
+      "qwen/qwen3-vl-32b-instruct": {
+        "prompt": 1.04e-07,
+        "completion": 4.16e-07
+      },
+      "ibm-granite/granite-4.0-h-micro": {
+        "prompt": 1.7e-08,
+        "completion": 1.1e-07
+      },
+      "openai/gpt-5-image-mini": {
+        "prompt": 2.5e-06,
+        "completion": 2e-06
+      },
+      "anthropic/claude-haiku-4.5": {
+        "prompt": 1e-06,
+        "completion": 5e-06
+      },
+      "qwen/qwen3-vl-8b-thinking": {
+        "prompt": 1.17e-07,
+        "completion": 1.365e-06
+      },
+      "qwen/qwen3-vl-8b-instruct": {
+        "prompt": 8e-08,
+        "completion": 5e-07
+      },
+      "openai/gpt-5-image": {
+        "prompt": 1e-05,
+        "completion": 1e-05
+      },
+      "openai/o3-deep-research": {
+        "prompt": 1e-05,
+        "completion": 4e-05
+      },
+      "openai/o4-mini-deep-research": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "baidu/ernie-4.5-21b-a3b-thinking": {
+        "prompt": 7e-08,
+        "completion": 2.8e-07
+      },
+      "google/gemini-2.5-flash-image": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "qwen/qwen3-vl-30b-a3b-thinking": {
+        "prompt": 1.3e-07,
+        "completion": 1.56e-06
+      },
+      "qwen/qwen3-vl-30b-a3b-instruct": {
+        "prompt": 1.3e-07,
+        "completion": 5.2e-07
+      },
+      "openai/gpt-5-pro": {
+        "prompt": 1.5e-05,
+        "completion": 0.00012
+      },
+      "z-ai/glm-4.6": {
+        "prompt": 3.9e-07,
+        "completion": 1.9e-06
+      },
+      "anthropic/claude-sonnet-4.5": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "deepseek/deepseek-v3.2-exp": {
+        "prompt": 2.7e-07,
+        "completion": 4.1e-07
+      },
+      "thedrummer/cydonia-24b-v4.1": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "relace/relace-apply-3": {
+        "prompt": 8.5e-07,
+        "completion": 1.25e-06
+      },
+      "google/gemini-2.5-flash-lite-preview-09-2025": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-vl-235b-a22b-thinking": {
+        "prompt": 2.6e-07,
+        "completion": 2.6e-06
+      },
+      "qwen/qwen3-vl-235b-a22b-instruct": {
+        "prompt": 2e-07,
+        "completion": 8.8e-07
+      },
+      "qwen/qwen3-max": {
+        "prompt": 7.8e-07,
+        "completion": 3.9e-06
+      },
+      "qwen/qwen3-coder-plus": {
+        "prompt": 6.5e-07,
+        "completion": 3.25e-06
+      },
+      "openai/gpt-5-codex": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "deepseek/deepseek-v3.1-terminus": {
+        "prompt": 2.1e-07,
+        "completion": 7.9e-07
+      },
+      "x-ai/grok-4-fast": {
+        "prompt": 2e-07,
+        "completion": 5e-07
+      },
+      "alibaba/tongyi-deepresearch-30b-a3b": {
+        "prompt": 9e-08,
+        "completion": 4.5e-07
+      },
+      "qwen/qwen3-coder-flash": {
+        "prompt": 1.95e-07,
+        "completion": 9.75e-07
+      },
+      "qwen/qwen3-next-80b-a3b-thinking": {
+        "prompt": 9.75e-08,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen3-next-80b-a3b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "qwen/qwen3-next-80b-a3b-instruct": {
+        "prompt": 9e-08,
+        "completion": 1.1e-06
+      },
+      "qwen/qwen-plus-2025-07-28:thinking": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen-plus-2025-07-28": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "nvidia/nemotron-nano-9b-v2:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nvidia/nemotron-nano-9b-v2": {
+        "prompt": 4e-08,
+        "completion": 1.6e-07
+      },
+      "moonshotai/kimi-k2-0905": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "qwen/qwen3-30b-a3b-thinking-2507": {
+        "prompt": 8e-08,
+        "completion": 4e-07
+      },
+      "x-ai/grok-code-fast-1": {
+        "prompt": 2e-07,
+        "completion": 1.5e-06
+      },
+      "nousresearch/hermes-4-70b": {
+        "prompt": 1.3e-07,
+        "completion": 4e-07
+      },
+      "nousresearch/hermes-4-405b": {
+        "prompt": 1e-06,
+        "completion": 3e-06
+      },
+      "deepseek/deepseek-chat-v3.1": {
+        "prompt": 1.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/gpt-4o-audio-preview": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "mistralai/mistral-medium-3.1": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "baidu/ernie-4.5-21b-a3b": {
+        "prompt": 7e-08,
+        "completion": 2.8e-07
+      },
+      "baidu/ernie-4.5-vl-28b-a3b": {
+        "prompt": 1.4e-07,
+        "completion": 5.6e-07
+      },
+      "z-ai/glm-4.5v": {
+        "prompt": 6e-07,
+        "completion": 1.8e-06
+      },
+      "ai21/jamba-large-1.7": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/gpt-5-chat": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-5-mini": {
+        "prompt": 2.5e-07,
+        "completion": 2e-06
+      },
+      "openai/gpt-5-nano": {
+        "prompt": 5e-08,
+        "completion": 4e-07
+      },
+      "openai/gpt-oss-120b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-oss-120b": {
+        "prompt": 3.9e-08,
+        "completion": 1.9e-07
+      },
+      "openai/gpt-oss-20b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "openai/gpt-oss-20b": {
+        "prompt": 3e-08,
+        "completion": 1.4e-07
+      },
+      "anthropic/claude-opus-4.1": {
+        "prompt": 1.5e-05,
+        "completion": 7.5e-05
+      },
+      "mistralai/codestral-2508": {
+        "prompt": 3e-07,
+        "completion": 9e-07
+      },
+      "qwen/qwen3-coder-30b-a3b-instruct": {
+        "prompt": 7e-08,
+        "completion": 2.7e-07
+      },
+      "qwen/qwen3-30b-a3b-instruct-2507": {
+        "prompt": 9e-08,
+        "completion": 3e-07
+      },
+      "z-ai/glm-4.5": {
+        "prompt": 6e-07,
+        "completion": 2.2e-06
+      },
+      "z-ai/glm-4.5-air:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "z-ai/glm-4.5-air": {
+        "prompt": 1.3e-07,
+        "completion": 8.5e-07
+      },
+      "qwen/qwen3-235b-a22b-thinking-2507": {
+        "prompt": 1.495e-07,
+        "completion": 1.495e-06
+      },
+      "z-ai/glm-4-32b": {
+        "prompt": 1e-07,
+        "completion": 1e-07
+      },
+      "qwen/qwen3-coder:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "qwen/qwen3-coder": {
+        "prompt": 2.2e-07,
+        "completion": 1.8e-06
+      },
+      "bytedance/ui-tars-1.5-7b": {
+        "prompt": 1e-07,
+        "completion": 2e-07
+      },
+      "google/gemini-2.5-flash-lite": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-235b-a22b-2507": {
+        "prompt": 7.1e-08,
+        "completion": 1e-07
+      },
+      "switchpoint/router": {
+        "prompt": 8.5e-07,
+        "completion": 3.4e-06
+      },
+      "moonshotai/kimi-k2": {
+        "prompt": 5.7e-07,
+        "completion": 2.3e-06
+      },
+      "mistralai/devstral-medium": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "mistralai/devstral-small": {
+        "prompt": 1e-07,
+        "completion": 3e-07
+      },
+      "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "x-ai/grok-4": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemma-3n-e2b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "tencent/hunyuan-a13b-instruct": {
+        "prompt": 1.4e-07,
+        "completion": 5.7e-07
+      },
+      "tngtech/deepseek-r1t2-chimera": {
+        "prompt": 3e-07,
+        "completion": 1.1e-06
+      },
+      "morph/morph-v3-large": {
+        "prompt": 9e-07,
+        "completion": 1.9e-06
+      },
+      "morph/morph-v3-fast": {
+        "prompt": 8e-07,
+        "completion": 1.2e-06
+      },
+      "baidu/ernie-4.5-vl-424b-a47b": {
+        "prompt": 4.2e-07,
+        "completion": 1.25e-06
+      },
+      "baidu/ernie-4.5-300b-a47b": {
+        "prompt": 2.8e-07,
+        "completion": 1.1e-06
+      },
+      "mistralai/mistral-small-3.2-24b-instruct": {
+        "prompt": 7.5e-08,
+        "completion": 2e-07
+      },
+      "minimax/minimax-m1": {
+        "prompt": 4e-07,
+        "completion": 2.2e-06
+      },
+      "google/gemini-2.5-flash": {
+        "prompt": 3e-07,
+        "completion": 2.5e-06
+      },
+      "google/gemini-2.5-pro": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "openai/o3-pro": {
+        "prompt": 2e-05,
+        "completion": 8e-05
+      },
+      "x-ai/grok-3-mini": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "x-ai/grok-3": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemini-2.5-pro-preview": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "deepseek/deepseek-r1-0528": {
+        "prompt": 5e-07,
+        "completion": 2.15e-06
+      },
+      "anthropic/claude-opus-4": {
+        "prompt": 1.5e-05,
+        "completion": 7.5e-05
+      },
+      "anthropic/claude-sonnet-4": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "google/gemma-3n-e4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3n-e4b-it": {
+        "prompt": 6e-08,
+        "completion": 1.2e-07
+      },
+      "mistralai/mistral-medium-3": {
+        "prompt": 4e-07,
+        "completion": 2e-06
+      },
+      "google/gemini-2.5-pro-preview-05-06": {
+        "prompt": 1.25e-06,
+        "completion": 1e-05
+      },
+      "arcee-ai/spotlight": {
+        "prompt": 1.8e-07,
+        "completion": 1.8e-07
+      },
+      "arcee-ai/maestro-reasoning": {
+        "prompt": 9e-07,
+        "completion": 3.3e-06
+      },
+      "arcee-ai/virtuoso-large": {
+        "prompt": 7.5e-07,
+        "completion": 1.2e-06
+      },
+      "arcee-ai/coder-large": {
+        "prompt": 5e-07,
+        "completion": 8e-07
+      },
+      "meta-llama/llama-guard-4-12b": {
+        "prompt": 1.8e-07,
+        "completion": 1.8e-07
+      },
+      "qwen/qwen3-30b-a3b": {
+        "prompt": 8e-08,
+        "completion": 2.8e-07
+      },
+      "qwen/qwen3-8b": {
+        "prompt": 5e-08,
+        "completion": 4e-07
+      },
+      "qwen/qwen3-14b": {
+        "prompt": 6e-08,
+        "completion": 2.4e-07
+      },
+      "qwen/qwen3-32b": {
+        "prompt": 8e-08,
+        "completion": 2.4e-07
+      },
+      "qwen/qwen3-235b-a22b": {
+        "prompt": 4.55e-07,
+        "completion": 1.82e-06
+      },
+      "openai/o4-mini-high": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "openai/o3": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/o4-mini": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "openai/gpt-4.1": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "openai/gpt-4.1-mini": {
+        "prompt": 4e-07,
+        "completion": 1.6e-06
+      },
+      "openai/gpt-4.1-nano": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "alfredpros/codellama-7b-instruct-solidity": {
+        "prompt": 8e-07,
+        "completion": 1.2e-06
+      },
+      "x-ai/grok-3-mini-beta": {
+        "prompt": 3e-07,
+        "completion": 5e-07
+      },
+      "x-ai/grok-3-beta": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "meta-llama/llama-4-maverick": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "meta-llama/llama-4-scout": {
+        "prompt": 8e-08,
+        "completion": 3e-07
+      },
+      "deepseek/deepseek-chat-v3-0324": {
+        "prompt": 2e-07,
+        "completion": 7.7e-07
+      },
+      "openai/o1-pro": {
+        "prompt": 0.00015,
+        "completion": 0.0006
+      },
+      "mistralai/mistral-small-3.1-24b-instruct": {
+        "prompt": 3.5e-07,
+        "completion": 5.6e-07
+      },
+      "google/gemma-3-4b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-4b-it": {
+        "prompt": 4e-08,
+        "completion": 8e-08
+      },
+      "google/gemma-3-12b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-12b-it": {
+        "prompt": 4e-08,
+        "completion": 1.3e-07
+      },
+      "cohere/command-a": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "openai/gpt-4o-mini-search-preview": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "openai/gpt-4o-search-preview": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "rekaai/reka-flash-3": {
+        "prompt": 1e-07,
+        "completion": 2e-07
+      },
+      "google/gemma-3-27b-it:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "google/gemma-3-27b-it": {
+        "prompt": 8e-08,
+        "completion": 1.6e-07
+      },
+      "thedrummer/skyfall-36b-v2": {
+        "prompt": 5.5e-07,
+        "completion": 8e-07
+      },
+      "perplexity/sonar-reasoning-pro": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "perplexity/sonar-pro": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "perplexity/sonar-deep-research": {
+        "prompt": 2e-06,
+        "completion": 8e-06
+      },
+      "qwen/qwq-32b": {
+        "prompt": 1.5e-07,
+        "completion": 5.8e-07
+      },
+      "google/gemini-2.0-flash-lite-001": {
+        "prompt": 7.5e-08,
+        "completion": 3e-07
+      },
+      "anthropic/claude-3.7-sonnet": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "anthropic/claude-3.7-sonnet:thinking": {
+        "prompt": 3e-06,
+        "completion": 1.5e-05
+      },
+      "mistralai/mistral-saba": {
+        "prompt": 2e-07,
+        "completion": 6e-07
+      },
+      "meta-llama/llama-guard-3-8b": {
+        "prompt": 4.8e-07,
+        "completion": 3e-08
+      },
+      "openai/o3-mini-high": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "google/gemini-2.0-flash-001": {
+        "prompt": 1e-07,
+        "completion": 4e-07
+      },
+      "qwen/qwen-vl-plus": {
+        "prompt": 1.365e-07,
+        "completion": 4.095e-07
+      },
+      "aion-labs/aion-1.0": {
+        "prompt": 4e-06,
+        "completion": 8e-06
+      },
+      "aion-labs/aion-1.0-mini": {
+        "prompt": 7e-07,
+        "completion": 1.4e-06
+      },
+      "aion-labs/aion-rp-llama-3.1-8b": {
+        "prompt": 8e-07,
+        "completion": 1.6e-06
+      },
+      "qwen/qwen-vl-max": {
+        "prompt": 5.2e-07,
+        "completion": 2.08e-06
+      },
+      "qwen/qwen-turbo": {
+        "prompt": 3.25e-08,
+        "completion": 1.3e-07
+      },
+      "qwen/qwen2.5-vl-72b-instruct": {
+        "prompt": 2.5e-07,
+        "completion": 7.5e-07
+      },
+      "qwen/qwen-plus": {
+        "prompt": 2.6e-07,
+        "completion": 7.8e-07
+      },
+      "qwen/qwen-max": {
+        "prompt": 1.04e-06,
+        "completion": 4.16e-06
+      },
+      "openai/o3-mini": {
+        "prompt": 1.1e-06,
+        "completion": 4.4e-06
+      },
+      "mistralai/mistral-small-24b-instruct-2501": {
+        "prompt": 5e-08,
+        "completion": 8e-08
+      },
+      "deepseek/deepseek-r1-distill-qwen-32b": {
+        "prompt": 2.9e-07,
+        "completion": 2.9e-07
+      },
+      "perplexity/sonar": {
+        "prompt": 1e-06,
+        "completion": 1e-06
+      },
+      "deepseek/deepseek-r1-distill-llama-70b": {
+        "prompt": 7e-07,
+        "completion": 8e-07
+      },
+      "deepseek/deepseek-r1": {
+        "prompt": 7e-07,
+        "completion": 2.5e-06
+      },
+      "minimax/minimax-01": {
+        "prompt": 2e-07,
+        "completion": 1.1e-06
+      },
+      "microsoft/phi-4": {
+        "prompt": 6.5e-08,
+        "completion": 1.4e-07
+      },
+      "sao10k/l3.1-70b-hanami-x1": {
+        "prompt": 3e-06,
+        "completion": 3e-06
+      },
+      "deepseek/deepseek-chat": {
+        "prompt": 3.2e-07,
+        "completion": 8.9e-07
+      },
+      "sao10k/l3.3-euryale-70b": {
+        "prompt": 6.5e-07,
+        "completion": 7.5e-07
+      },
+      "openai/o1": {
+        "prompt": 1.5e-05,
+        "completion": 6e-05
+      },
+      "cohere/command-r7b-12-2024": {
+        "prompt": 3.75e-08,
+        "completion": 1.5e-07
+      },
+      "meta-llama/llama-3.3-70b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "meta-llama/llama-3.3-70b-instruct": {
+        "prompt": 1e-07,
+        "completion": 3.2e-07
+      },
+      "amazon/nova-lite-v1": {
+        "prompt": 6e-08,
+        "completion": 2.4e-07
+      },
+      "amazon/nova-micro-v1": {
+        "prompt": 3.5e-08,
+        "completion": 1.4e-07
+      },
+      "amazon/nova-pro-v1": {
+        "prompt": 8e-07,
+        "completion": 3.2e-06
+      },
+      "openai/gpt-4o-2024-11-20": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "mistralai/mistral-large-2411": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "mistralai/mistral-large-2407": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "mistralai/pixtral-large-2411": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "qwen/qwen-2.5-coder-32b-instruct": {
+        "prompt": 6.6e-07,
+        "completion": 1e-06
+      },
+      "thedrummer/unslopnemo-12b": {
+        "prompt": 4e-07,
+        "completion": 4e-07
+      },
+      "anthropic/claude-3.5-haiku": {
+        "prompt": 8e-07,
+        "completion": 4e-06
+      },
+      "anthracite-org/magnum-v4-72b": {
+        "prompt": 3e-06,
+        "completion": 5e-06
+      },
+      "qwen/qwen-2.5-7b-instruct": {
+        "prompt": 4e-08,
+        "completion": 1e-07
+      },
+      "nvidia/llama-3.1-nemotron-70b-instruct": {
+        "prompt": 1.2e-06,
+        "completion": 1.2e-06
+      },
+      "inflection/inflection-3-productivity": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "inflection/inflection-3-pi": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "thedrummer/rocinante-12b": {
+        "prompt": 1.7e-07,
+        "completion": 4.3e-07
+      },
+      "meta-llama/llama-3.2-3b-instruct:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "meta-llama/llama-3.2-3b-instruct": {
+        "prompt": 5.1e-08,
+        "completion": 3.4e-07
+      },
+      "meta-llama/llama-3.2-1b-instruct": {
+        "prompt": 2.7e-08,
+        "completion": 2e-07
+      },
+      "meta-llama/llama-3.2-11b-vision-instruct": {
+        "prompt": 2.45e-07,
+        "completion": 2.45e-07
+      },
+      "qwen/qwen-2.5-72b-instruct": {
+        "prompt": 3.6e-07,
+        "completion": 4e-07
+      },
+      "cohere/command-r-plus-08-2024": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "cohere/command-r-08-2024": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "sao10k/l3.1-euryale-70b": {
+        "prompt": 8.5e-07,
+        "completion": 8.5e-07
+      },
+      "nousresearch/hermes-3-llama-3.1-70b": {
+        "prompt": 3e-07,
+        "completion": 3e-07
+      },
+      "nousresearch/hermes-3-llama-3.1-405b:free": {
+        "prompt": 0.0,
+        "completion": 0.0
+      },
+      "nousresearch/hermes-3-llama-3.1-405b": {
+        "prompt": 1e-06,
+        "completion": 1e-06
+      },
+      "sao10k/l3-lunaris-8b": {
+        "prompt": 4e-08,
+        "completion": 5e-08
+      },
+      "openai/gpt-4o-2024-08-06": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "meta-llama/llama-3.1-8b-instruct": {
+        "prompt": 2e-08,
+        "completion": 5e-08
+      },
+      "meta-llama/llama-3.1-70b-instruct": {
+        "prompt": 4e-07,
+        "completion": 4e-07
+      },
+      "mistralai/mistral-nemo": {
+        "prompt": 2e-08,
+        "completion": 4e-08
+      },
+      "openai/gpt-4o-mini-2024-07-18": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "openai/gpt-4o-mini": {
+        "prompt": 1.5e-07,
+        "completion": 6e-07
+      },
+      "google/gemma-2-27b-it": {
+        "prompt": 6.5e-07,
+        "completion": 6.5e-07
+      },
+      "sao10k/l3-euryale-70b": {
+        "prompt": 1.48e-06,
+        "completion": 1.48e-06
+      },
+      "nousresearch/hermes-2-pro-llama-3-8b": {
+        "prompt": 1.4e-07,
+        "completion": 1.4e-07
+      },
+      "openai/gpt-4o-2024-05-13": {
+        "prompt": 5e-06,
+        "completion": 1.5e-05
+      },
+      "openai/gpt-4o": {
+        "prompt": 2.5e-06,
+        "completion": 1e-05
+      },
+      "meta-llama/llama-3-8b-instruct": {
+        "prompt": 3e-08,
+        "completion": 4e-08
+      },
+      "meta-llama/llama-3-70b-instruct": {
+        "prompt": 5.1e-07,
+        "completion": 7.4e-07
+      },
+      "mistralai/mixtral-8x22b-instruct": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "microsoft/wizardlm-2-8x22b": {
+        "prompt": 6.2e-07,
+        "completion": 6.2e-07
+      },
+      "openai/gpt-4-turbo": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "anthropic/claude-3-haiku": {
+        "prompt": 2.5e-07,
+        "completion": 1.25e-06
+      },
+      "mistralai/mistral-large": {
+        "prompt": 2e-06,
+        "completion": 6e-06
+      },
+      "openai/gpt-4-turbo-preview": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "openai/gpt-3.5-turbo-0613": {
+        "prompt": 1e-06,
+        "completion": 2e-06
+      },
+      "mistralai/mixtral-8x7b-instruct": {
+        "prompt": 5.4e-07,
+        "completion": 5.4e-07
+      },
+      "alpindale/goliath-120b": {
+        "prompt": 3.75e-06,
+        "completion": 7.5e-06
+      },
+      "openrouter/auto": {
+        "prompt": -1.0,
+        "completion": -1.0
+      },
+      "openai/gpt-4-1106-preview": {
+        "prompt": 1e-05,
+        "completion": 3e-05
+      },
+      "openai/gpt-3.5-turbo-instruct": {
+        "prompt": 1.5e-06,
+        "completion": 2e-06
+      },
+      "mistralai/mistral-7b-instruct-v0.1": {
+        "prompt": 1.1e-07,
+        "completion": 1.9e-07
+      },
+      "openai/gpt-3.5-turbo-16k": {
+        "prompt": 3e-06,
+        "completion": 4e-06
+      },
+      "mancer/weaver": {
+        "prompt": 7.5e-07,
+        "completion": 1e-06
+      },
+      "undi95/remm-slerp-l2-13b": {
+        "prompt": 4.5e-07,
+        "completion": 6.5e-07
+      },
+      "gryphe/mythomax-l2-13b": {
+        "prompt": 6e-08,
+        "completion": 6e-08
+      },
+      "openai/gpt-4-0314": {
+        "prompt": 3e-05,
+        "completion": 6e-05
+      },
+      "openai/gpt-4": {
+        "prompt": 3e-05,
+        "completion": 6e-05
+      },
+      "openai/gpt-3.5-turbo": {
+        "prompt": 5e-07,
+        "completion": 1.5e-06
+      }
+    }
+  },
+  "trials": [
+    {
+      "trial_num": 1,
+      "difficulty": 4,
+      "tier": "T3",
+      "topic_concept": "How different cultures approach the concept of time",
+      "generation_type": "prose",
+      "shared_prose": null,
+      "label_to_model": {
+        "A": "deepseek/deepseek-chat",
+        "B": "google/gemini-2.0-flash-001"
+      },
+      "model_outputs": {
+        "google/gemini-2.0-flash-001": {
+          "model_id": "google/gemini-2.0-flash-001",
+          "raw_output": "Time. It's something we all experience, but how we *think* about time can be very different depending on where we come from. In some cultures, like in many Western countries, time is seen as a valuable resource. Being \"on time\" is important, schedules are strictly followed, and people often feel stressed about \"wasting\" time. This can be called a \"linear\" view of time.\n\nOther cultures have a more flexible approach. For example, in some Latin American countries, relationships are often considered more important than sticking to a strict schedule. Being a little late is usually acceptable. Life flows at a different pace. It's not that these cultures don't value time, but they prioritize different things, like connection and enjoying the present moment. These cultures often have a \"cyclical\" view of time, where things happen when they need to happen.",
+          "prompt_tokens": 157,
+          "completion_tokens": 180,
+          "cost_usd": 8.77e-05,
+          "latency_seconds": 3.84236478805542,
+          "error": null
+        },
+        "deepseek/deepseek-chat": {
+          "model_id": "deepseek/deepseek-chat",
+          "raw_output": "**How Different Cultures Approach the Concept of Time**  \n\nTime is viewed differently around the world, shaping daily life and social interactions. In many Western cultures, punctuality is highly valued—being late can seem rude or unprofessional. Meetings start on time, and schedules are tightly planned.  \n\nIn contrast, some cultures have a more relaxed approach. In parts of Latin America or the Middle East, arriving a bit late is often acceptable, as relationships matter more than strict timing. Events may start when everyone arrives, not at a set hour.  \n\nEast Asian cultures, like Japan, emphasize respect for others’ time. Being early shows consideration, and delays are avoided. Meanwhile, in some African cultures, time is fluid, focusing on natural rhythms rather than clocks.  \n\nUnderstanding these differences helps avoid misunderstandings. Whether time is seen as strict or flexible, each approach reflects deeper cultural values.",
+          "prompt_tokens": 156,
+          "completion_tokens": 176,
+          "cost_usd": 0.00020656,
+          "latency_seconds": 6.205584526062012,
+          "error": null
+        }
+      },
+      "judge_scores": {
+        "deepseek/deepseek-chat": {
+          "naturalness": 8.0,
+          "vocabulary_appropriateness": 8.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 10.0,
+          "engagement": 7.0,
+          "length_compliance": 10.0,
+          "difficulty_calibration": 8.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "Response A is well-written and clearly addresses the topic. The vocabulary is appropriate for the T3 level, and the grammar is accurate. It provides a good overview of different cultural perspectives on time, although it could be slightly more engaging."
+        },
+        "google/gemini-2.0-flash-001": {
+          "naturalness": 9.0,
+          "vocabulary_appropriateness": 8.0,
+          "grammar_accuracy": 9.0,
+          "topic_adherence": 10.0,
+          "engagement": 8.0,
+          "length_compliance": 10.0,
+          "difficulty_calibration": 8.0,
+          "question_quality": null,
+          "distractor_quality": null,
+          "cognitive_level_match": null,
+          "answer_correctness": null,
+          "language_accuracy": null,
+          "judge_reasoning": "Response B is also well-written and engaging. It uses slightly more conversational language, which makes it feel more natural. The vocabulary is suitable for the T3 level, and the grammar is accurate. The explanation of linear vs. cyclical time is helpful."
+        }
+      },
+      "judge_output": {
+        "model_id": "google/gemini-2.0-flash-001",
+        "raw_output": "```json\n{\n  \"evaluations\": {\n    \"A\": {\n      \"naturalness\": 8,\n      \"vocabulary_appropriateness\": 8,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 10,\n      \"engagement\": 7,\n      \"length_compliance\": 10,\n      \"difficulty_calibration\": 8,\n      \"reasoning\": \"Response A is well-written and clearly addresses the topic. The vocabulary is appropriate for the T3 level, and the grammar is accurate. It provides a good overview of different cultural perspectives on time, although it could be slightly more engaging.\"\n    },\n    \"B\": {\n      \"naturalness\": 9,\n      \"vocabulary_appropriateness\": 8,\n      \"grammar_accuracy\": 9,\n      \"topic_adherence\": 10,\n      \"engagement\": 8,\n      \"length_compliance\": 10,\n      \"difficulty_calibration\": 8,\n      \"reasoning\": \"Response B is also well-written and engaging. It uses slightly more conversational language, which makes it feel more natural. The vocabulary is suitable for the T3 level, and the grammar is accurate. The explanation of linear vs. cyclical time is helpful.\"\n    }\n  }\n}\n```",
+        "prompt_tokens": 1278,
+        "completion_tokens": 292,
+        "cost_usd": 0.0002446,
+        "latency_seconds": 2.662572145462036,
+        "error": null
+      }
+    }
+  ],
+  "started_at": "2026-04-27T22:04:50.657100+00:00",
+  "completed_at": "2026-04-27T22:05:03.538781+00:00",
+  "total_cost_by_model": {
+    "google/gemini-2.0-flash-001": 8.77e-05,
+    "deepseek/deepseek-chat": 0.00020656
+  },
+  "judge_cost": 0.0002446,
+  "aggregate_scores": {
+    "google/gemini-2.0-flash-001": {
+      "naturalness": 9.0,
+      "vocabulary_appropriateness": 8.0,
+      "grammar_accuracy": 9.0,
+      "topic_adherence": 10.0,
+      "engagement": 8.0,
+      "length_compliance": 10.0,
+      "difficulty_calibration": 8.0
+    },
+    "deepseek/deepseek-chat": {
+      "naturalness": 8.0,
+      "vocabulary_appropriateness": 8.0,
+      "grammar_accuracy": 9.0,
+      "topic_adherence": 10.0,
+      "engagement": 7.0,
+      "length_compliance": 10.0,
+      "difficulty_calibration": 8.0
+    }
+  },
+  "winner_by_category": {
+    "naturalness": "google/gemini-2.0-flash-001",
+    "vocabulary_appropriateness": "google/gemini-2.0-flash-001",
+    "grammar_accuracy": "google/gemini-2.0-flash-001",
+    "topic_adherence": "google/gemini-2.0-flash-001",
+    "engagement": "google/gemini-2.0-flash-001",
+    "length_compliance": "google/gemini-2.0-flash-001",
+    "difficulty_calibration": "google/gemini-2.0-flash-001"
+  },
+  "overall_winner": "google/gemini-2.0-flash-001"
+}

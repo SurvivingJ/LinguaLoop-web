@@ -115,14 +115,21 @@ class VocabBackfillRunner:
 
     def _preload_vocab_cache(self):
         """Load existing dim_vocabulary rows for this language into local cache."""
-        response = self.db.table('dim_vocabulary') \
-            .select('id, lemma') \
-            .eq('language_id', self.language_id) \
-            .execute()
-
-        if response.data:
-            for row in response.data:
+        # PostgREST caps a single response at 1000 rows by default, so paginate.
+        PAGE_SIZE = 1000
+        offset = 0
+        while True:
+            response = self.db.table('dim_vocabulary') \
+                .select('id, lemma') \
+                .eq('language_id', self.language_id) \
+                .range(offset, offset + PAGE_SIZE - 1) \
+                .execute()
+            rows = response.data or []
+            for row in rows:
                 self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
+            if len(rows) < PAGE_SIZE:
+                break
+            offset += PAGE_SIZE
 
         logger.info(f"Pre-loaded {len(self._vocab_cache)} existing vocab entries for {self.language_code}")
 
@@ -190,15 +197,13 @@ class VocabBackfillRunner:
             self.stats['vocab_created'] += 1
             return fake_id
 
-        response = self.db.table('dim_vocabulary') \
-            .insert(row) \
-            .execute()
-
-        if response.data and len(response.data) > 0:
+        try:
+            response = self.db.table('dim_vocabulary') \
+                .insert(row) \
+                .execute()
             vocab_id = response.data[0]['id']
-        else:
-            # Race condition: another process inserted it
-            # Look it up instead
+        except Exception:
+            # Duplicate: look up the existing row
             lookup = self.db.table('dim_vocabulary') \
                 .select('id') \
                 .eq('lemma', lemma) \
@@ -206,6 +211,9 @@ class VocabBackfillRunner:
                 .single() \
                 .execute()
             vocab_id = lookup.data['id']
+            self.stats['vocab_reused'] += 1
+            self._vocab_cache[cache_key] = vocab_id
+            return vocab_id
 
         self._vocab_cache[cache_key] = vocab_id
         self.stats['vocab_created'] += 1

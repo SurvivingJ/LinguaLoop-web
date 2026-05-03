@@ -205,8 +205,9 @@ def list_words() -> ApiResponse:
                     asset_map[sid] = {}
                 asset_map[sid][row['asset_type']] = row['is_valid']
 
-        # Batch check which senses have ladder exercises
+        # Batch check which senses have ladder exercises (count + levels)
         exercise_count_map = {}
+        exercise_levels_map: dict[int, list[int]] = {}
         if sense_ids:
             ex_resp = (
                 db.table('exercises')
@@ -219,6 +220,9 @@ def list_words() -> ApiResponse:
             for row in (ex_resp.data or []):
                 sid = row['word_sense_id']
                 exercise_count_map[sid] = exercise_count_map.get(sid, 0) + 1
+                exercise_levels_map.setdefault(sid, []).append(row['ladder_level'])
+            for sid in exercise_levels_map:
+                exercise_levels_map[sid] = sorted(set(exercise_levels_map[sid]))
 
         # Build response
         words = []
@@ -236,6 +240,7 @@ def list_words() -> ApiResponse:
                 'has_prompt2': assets.get('prompt2_exercises', False),
                 'has_prompt3': assets.get('prompt3_transforms', False),
                 'exercise_count': exercise_count_map.get(sid, 0),
+                'levels': exercise_levels_map.get(sid, []),
             })
 
         return api_success({'words': words, 'count': len(words)})
@@ -243,6 +248,50 @@ def list_words() -> ApiResponse:
     except Exception as e:
         logger.error("Error listing words: %s", e)
         return server_error("Failed to list words")
+
+
+@vocab_admin_bp.route('/word/<int:sense_id>/wipe', methods=['POST'])
+def wipe_word(sense_id: int) -> ApiResponse:
+    """Hard-delete word_assets and exercises for a sense — used before regenerate."""
+    try:
+        from services.supabase_factory import get_supabase_admin
+        db = get_supabase_admin()
+
+        ex_resp = db.table('exercises').delete().eq('word_sense_id', sense_id).execute()
+        as_resp = db.table('word_assets').delete().eq('sense_id', sense_id).execute()
+
+        return api_success({
+            'sense_id': sense_id,
+            'exercises_deleted': len(ex_resp.data or []),
+            'assets_deleted': len(as_resp.data or []),
+        })
+    except Exception as e:
+        logger.error("Wipe failed for sense %s: %s", sense_id, e)
+        return server_error("Failed to wipe word")
+
+
+@vocab_admin_bp.route('/word/<int:sense_id>/level/<int:level>', methods=['DELETE'])
+def remove_level(sense_id: int, level: int) -> ApiResponse:
+    """Soft-delete exercises at one ladder level for one sense."""
+    try:
+        from services.supabase_factory import get_supabase_admin
+        db = get_supabase_admin()
+
+        resp = (
+            db.table('exercises')
+            .update({'is_active': False})
+            .eq('word_sense_id', sense_id)
+            .eq('ladder_level', level)
+            .execute()
+        )
+        return api_success({
+            'sense_id': sense_id,
+            'level': level,
+            'removed': len(resp.data or []),
+        })
+    except Exception as e:
+        logger.error("Remove level %s for sense %s failed: %s", level, sense_id, e)
+        return server_error("Failed to remove level")
 
 
 @vocab_admin_bp.route('/word/<int:sense_id>/preview', methods=['GET'])

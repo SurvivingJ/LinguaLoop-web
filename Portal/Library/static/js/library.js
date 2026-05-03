@@ -214,17 +214,21 @@
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             const html5Qr = new Html5Qrcode("scanner-region", {
                 formatsToSupport: BARCODE_FORMATS,
+                useBarCodeDetectorIfSupported: true,
             });
             state.scanner = html5Qr;
 
-            // Responsive qrbox: 80% of scanner region width, capped at 250px
-            const regionWidth = $("scanner-region").clientWidth;
-            const qrboxSize = Math.min(250, Math.floor(regionWidth * 0.8));
+            // EAN-13 barcodes are wide rectangles — a square qrbox prevents
+            // the full barcode from fitting inside the scan region.
+            const qrboxFn = (vw, vh) => ({
+                width: Math.min(Math.floor(vw * 0.9), 360),
+                height: Math.min(Math.floor(vh * 0.4), 160),
+            });
 
             html5Qr
                 .start(
                     { facingMode: "environment" },
-                    { fps: 10, qrbox: qrboxSize },
+                    { fps: 15, qrbox: qrboxFn, aspectRatio: 1.7777 },
                     onScanSuccess,
                     () => {} // ignore per-frame scan misses
                 )
@@ -248,6 +252,7 @@
         if (!file) return;
         const html5Qr = new Html5Qrcode("scanner-region", {
             formatsToSupport: BARCODE_FORMATS,
+            useBarCodeDetectorIfSupported: true,
         });
         html5Qr
             .scanFile(file, /* showImage */ false)

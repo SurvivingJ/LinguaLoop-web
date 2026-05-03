@@ -15,20 +15,33 @@ from typing import Optional
 
 from config import Config
 from services.llm_service import call_llm
+from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
-    PROMPT1_KEY_MAP, SENTENCE_KEY_MAP, MORPH_FORM_KEY_MAP, remap_keys,
+    PROMPT1_KEY_MAP, SENTENCE_KEY_MAP, MORPH_FORM_KEY_MAP,
+    get_sentence_target, remap_keys,
 )
+from services.vocabulary_ladder.asset_generators._renderer import render_template
 
 logger = logging.getLogger(__name__)
+
+TASK_NAME = 'vocab_prompt1_core'
 
 
 class CoreAssetGenerator:
     """Generates Prompt 1 assets: classification, definition, sentences."""
 
-    def __init__(self, db, language_id: int, model: str | None = None):
+    def __init__(self, db, language_id: int):
         self.db = db
         self.language_id = language_id
-        self.model = model or Config.VOCAB_PIPELINE_MODELS['prompt1']
+        # Lazy-resolved on first generate() — pulls model+template from Supabase.
+        self._cfg: dict | None = None
+
+    @property
+    def model(self) -> str:
+        """Model string for the active prompt config (used by storage layer)."""
+        if self._cfg is None:
+            self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
+        return self._cfg['model']
 
     def generate(
         self,
@@ -40,7 +53,8 @@ class CoreAssetGenerator:
         Args:
             sense_id: The dim_word_senses ID.
             corpus_sentences: Pre-existing sentences from tests/conversations.
-                Each dict has keys: text, target_substring, source, complexity_tier.
+                Each dict has keys: text, target_word (alias-aware: legacy
+                rows may have target_substring), source, complexity_tier.
 
         Returns:
             Descriptive-keyed dict ready for word_assets storage, or None on failure.
@@ -62,13 +76,17 @@ class CoreAssetGenerator:
         prompt_text = self._build_prompt(
             lemma, existing_def, complexity_tier,
             corpus_sentences, sentences_needed,
+            sense_id=sense_id,
         )
 
+        cfg = self._cfg  # populated by _build_prompt → _load_template
         try:
             raw = call_llm(
                 prompt_text,
-                model=self.model,
+                model=cfg['model'],
+                provider=cfg['provider'],
                 temperature=0.3,
+                max_tokens=8192,
                 response_format='json',
             )
         except Exception as e:
@@ -118,43 +136,33 @@ class CoreAssetGenerator:
         complexity_tier: str,
         corpus_sentences: list[dict],
         sentences_needed: int,
+        sense_id: int | None = None,
     ) -> str:
         """Load prompt template and fill variables."""
         template = self._load_template()
 
         corpus_json = json.dumps(
-            [{'1': s['text'], '2': s['target_substring']}
+            [{'1': s.get('text', ''), '2': get_sentence_target(s)}
              for s in corpus_sentences],
             ensure_ascii=False,
         ) if corpus_sentences else '[]'
 
-        return template.format(
+        return render_template(
+            template,
             word=lemma,
             existing_definition=existing_definition or 'None provided',
+            sense_id=str(sense_id) if sense_id is not None else '',
+            sense_definition=existing_definition or '',
             complexity_tier=complexity_tier,
             corpus_sentences_json=corpus_json,
             sentences_needed=sentences_needed,
         )
 
     def _load_template(self) -> str:
-        """Fetch the active prompt template from the database."""
-        try:
-            resp = (
-                self.db.table('prompt_templates')
-                .select('template_text')
-                .eq('task_name', 'vocab_prompt1_core')
-                .eq('language_id', self.language_id)
-                .eq('is_active', True)
-                .order('version', desc=True)
-                .limit(1)
-                .execute()
-            )
-            if resp.data:
-                return resp.data[0]['template_text']
-        except Exception as e:
-            logger.error("Failed to load prompt1 template: %s", e)
-
-        raise RuntimeError("No active vocab_prompt1_core template found")
+        """Fetch the active prompt template from the database (Supabase-driven)."""
+        if self._cfg is None:
+            self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
+        return self._cfg['template']
 
     def _remap_output(self, raw: dict) -> dict | None:
         """Transform numeric-keyed LLM output to descriptive keys."""

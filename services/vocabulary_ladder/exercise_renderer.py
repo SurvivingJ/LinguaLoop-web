@@ -18,6 +18,7 @@ from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
     LADDER_LEVELS, compute_active_levels,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
+    get_sentence_target,
 )
 
 logger = logging.getLogger(__name__)
@@ -211,7 +212,7 @@ class LadderExerciseRenderer:
 
         # Get the lemma
         sentences = core.get('sentences', [])
-        word = sentences[0].get('target_substring', '') if sentences else ''
+        word = get_sentence_target(sentences[0]) if sentences else ''
 
         return {
             'word': word,
@@ -237,7 +238,7 @@ class LadderExerciseRenderer:
 
         sentence = sentences[sent_idx]
         text = sentence.get('text', '')
-        target = sentence.get('target_substring', '')
+        target = get_sentence_target(sentence)
         if not text or not target:
             return None
 
@@ -282,7 +283,7 @@ class LadderExerciseRenderer:
 
         sentence = sentences[sent_idx]
         text = sentence.get('text', '')
-        target = sentence.get('target_substring', '')
+        target = get_sentence_target(sentence)
         if not text or not target:
             return None
 
@@ -352,7 +353,7 @@ class LadderExerciseRenderer:
             'sentence': blanked,
             'correct': collocate,
             'options': option_list,
-            'collocation': f"{sentence.get('target_substring', '')} + {collocate}",
+            'collocation': f"{get_sentence_target(sentence)} + {collocate}",
         }
 
     def _render_semantic_discrimination(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
@@ -393,7 +394,7 @@ class LadderExerciseRenderer:
         return {
             'sentences': all_sentences,
             'explanation': explanation,
-            'target_word': correct_sent.get('target_substring', ''),
+            'target_word': get_sentence_target(correct_sent),
         }
 
     def _render_spot_incorrect(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:

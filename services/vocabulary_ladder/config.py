@@ -402,14 +402,28 @@ PROMPT1_KEY_MAP: dict[str, str] = {
     '7': 'syllable_count',
     '8': 'sentences',
     '9': 'morphological_forms',
+    '10': 'register',
+    '11': 'sense_fingerprint',
 }
 
 SENTENCE_KEY_MAP: dict[str, str] = {
     '1': 'text',
-    '2': 'target_substring',
+    '2': 'target_word',
     '3': 'source',
     '4': 'complexity_tier',
 }
+
+
+def get_sentence_target(sentence: dict) -> str:
+    """Read the target word from a sentence dict, alias-aware for legacy data.
+
+    New rows use 'target_word'; legacy word_assets rows still use the old
+    'target_substring' key. Read both to keep historical data working until
+    a regeneration cycle replaces it.
+    """
+    if not isinstance(sentence, dict):
+        return ''
+    return sentence.get('target_word') or sentence.get('target_substring', '') or ''
 
 MORPH_FORM_KEY_MAP: dict[str, str] = {
     '1': 'form',

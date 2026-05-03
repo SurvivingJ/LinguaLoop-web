@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-04-25 | Pages: 43
+Last updated: 2026-05-03 | Pages: 44
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -12,6 +12,7 @@ Last updated: 2026-04-25 | Pages: 43
 - [[features/language-packs.tech]] — 7-stage pack generation pipeline
 - [[features/exercises]] — 21 exercise types across 4 phases, age-tier difficulty
 - [[features/exercises.tech]] — 3-prompt LLM pipeline, numeric JSON schema, validation
+- [[features/exercise-generation-prompts]] — Verbatim text of vocab pipeline Prompts 1/2/3 (current P1 v4 / P2 v2 / P3 v2 active templates + deactivated history)
 - [[features/vocabulary-knowledge]] — BKT vocabulary tracking with FSRS-informed decay, contextual + frequency inference
 - [[features/vocabulary-knowledge.tech]] — BKT formula, transit parameter, decay model, inference mechanisms
 - [[features/flashcards]] — FSRS spaced-repetition review

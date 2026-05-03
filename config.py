@@ -96,11 +96,10 @@ class Config:
     # ==========================================================================
     # VOCABULARY LADDER PIPELINE
     # ==========================================================================
-    VOCAB_PIPELINE_MODELS = {
-        'prompt1': os.getenv('VOCAB_PROMPT1_MODEL', 'google/gemini-2.5-flash-lite'),
-        'prompt2': os.getenv('VOCAB_PROMPT2_MODEL', 'anthropic/claude-sonnet-4-6'),
-        'prompt3': os.getenv('VOCAB_PROMPT3_MODEL', 'anthropic/claude-sonnet-4-6'),
-    }
+    # Model selection lives in Supabase (prompt_templates.model + .provider),
+    # paired per (task_name, language_id). Use services.prompt_service.
+    # get_template_config() to fetch. No code-level default — missing rows
+    # fail loudly so misconfiguration surfaces immediately.
     VOCAB_DOJO_SESSION_SIZE = int(os.getenv('VOCAB_DOJO_SESSION_SIZE', '20'))
     VOCAB_SENTENCES_PER_WORD = 10
 

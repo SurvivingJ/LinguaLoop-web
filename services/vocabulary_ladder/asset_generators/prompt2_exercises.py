@@ -15,21 +15,31 @@ import logging
 
 from config import Config
 from services.llm_service import call_llm
+from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
     PROMPT2_LEVELS, OPTION_KEY_MAP, DEFAULT_SENTENCE_ASSIGNMENTS,
-    SENTENCE_ASSIGNMENTS_A, remap_keys,
+    SENTENCE_ASSIGNMENTS_A, get_sentence_target, remap_keys,
 )
+from services.vocabulary_ladder.asset_generators._renderer import render_template
 
 logger = logging.getLogger(__name__)
+
+TASK_NAME = 'vocab_prompt2_exercises'
 
 
 class ExerciseAssetGenerator:
     """Generates Prompt 2 assets: phonetic, cloze, collocation gap, semantic."""
 
-    def __init__(self, db, language_id: int, model: str | None = None):
+    def __init__(self, db, language_id: int):
         self.db = db
         self.language_id = language_id
-        self.model = model or Config.VOCAB_PIPELINE_MODELS['prompt2']
+        self._cfg: dict | None = None
+
+    @property
+    def model(self) -> str:
+        if self._cfg is None:
+            self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
+        return self._cfg['model']
 
     def generate(
         self,
@@ -37,6 +47,7 @@ class ExerciseAssetGenerator:
         core_asset: dict,
         active_levels: list[int],
         sentence_assignments: dict[int, int] | None = None,
+        used_distractors: list[str] | None = None,
     ) -> dict | None:
         """Generate exercise assets for Prompt 2 levels.
 
@@ -46,6 +57,9 @@ class ExerciseAssetGenerator:
             active_levels: Which ladder levels are active for this word.
             sentence_assignments: Map of level → sentence index to use.
                 Defaults to SENTENCE_ASSIGNMENTS_A for backward compat.
+            used_distractors: Distractor texts already assigned elsewhere in
+                this item set; passed to the LLM so it doesn't repeat them.
+                Defaults to [].
 
         Returns:
             Descriptive-keyed dict with level_1, level_3, level_5, level_6 keys,
@@ -53,6 +67,8 @@ class ExerciseAssetGenerator:
         """
         if sentence_assignments is None:
             sentence_assignments = SENTENCE_ASSIGNMENTS_A
+        if used_distractors is None:
+            used_distractors = []
 
         # Filter to only P2 levels that are active
         p2_active = sorted(lv for lv in active_levels if lv in PROMPT2_LEVELS)
@@ -60,68 +76,95 @@ class ExerciseAssetGenerator:
             logger.warning("No Prompt 2 levels active for sense %s", sense_id)
             return {}
 
-        prompt_text = self._build_prompt(core_asset, p2_active, sentence_assignments)
+        prompt_text = self._build_prompt(
+            core_asset, p2_active, sentence_assignments, used_distractors,
+        )
+        cfg = self._cfg
 
-        try:
-            raw = call_llm(
-                prompt_text,
-                model=self.model,
-                temperature=0.4,
-                response_format='json',
-            )
-        except Exception as e:
-            logger.error("Prompt 2 LLM call failed for sense %s: %s", sense_id, e)
+        raw = self._call_with_retry(prompt_text, cfg, p2_active, sense_id)
+        if raw is None:
             return None
 
         return self._remap_output(raw, p2_active, sentence_assignments)
 
+    def _call_with_retry(
+        self, prompt_text: str, cfg: dict, p2_active: list[int], sense_id: int,
+    ) -> dict | None:
+        """Single LLM call, retry once if any active level is missing or call fails."""
+        for attempt in (1, 2):
+            try:
+                raw = call_llm(
+                    prompt_text,
+                    model=cfg['model'],
+                    provider=cfg['provider'],
+                    temperature=0.4,
+                    max_tokens=8192,
+                    response_format='json',
+                )
+            except Exception as e:
+                logger.warning(
+                    "Prompt 2 LLM call attempt %d failed for sense %s: %s",
+                    attempt, sense_id, e,
+                )
+                if attempt == 2:
+                    logger.error("Prompt 2 gave up for sense %s after 2 attempts", sense_id)
+                    return None
+                continue
+
+            missing = [lv for lv in p2_active if str(lv) not in (raw or {})]
+            if not missing:
+                return raw
+            if attempt == 1:
+                logger.warning(
+                    "Prompt 2 missing levels %s for sense %s — retrying once",
+                    missing, sense_id,
+                )
+            else:
+                logger.error(
+                    "Prompt 2 still missing levels %s for sense %s after retry — accepting partial",
+                    missing, sense_id,
+                )
+                return raw
+        return None
+
     def _build_prompt(
         self, core_asset: dict, active_levels: list[int],
         sentence_assignments: dict[int, int],
+        used_distractors: list[str],
     ) -> str:
         """Load prompt template and fill variables."""
         template = self._load_template()
 
         sentences = core_asset.get('sentences', [])
         sentences_json = json.dumps(
-            [{'index': i, 'text': s.get('text', ''), 'target': s.get('target_substring', '')}
+            [{'index': i, 'text': s.get('text', ''), 'target': get_sentence_target(s)}
              for i, s in enumerate(sentences)],
             ensure_ascii=False,
         )
 
-        return template.format(
+        return render_template(
+            template,
             word=self._extract_lemma(core_asset),
             pos=core_asset.get('pos', ''),
             semantic_class=core_asset.get('semantic_class', ''),
             complexity_tier=self._extract_tier(core_asset),
             definition=core_asset.get('definition', ''),
             primary_collocate=core_asset.get('primary_collocate') or 'null',
+            register=core_asset.get('register') or 'neutral',
+            sense_fingerprint=core_asset.get('sense_fingerprint') or '',
             sentences_json=sentences_json,
             active_levels_json=json.dumps([str(lv) for lv in active_levels]),
+            used_distractors_json=json.dumps(used_distractors, ensure_ascii=False),
             level_3_sentence_index=sentence_assignments.get(3, 0),
             level_5_sentence_index=sentence_assignments.get(5, 2),
             level_6_sentence_index=sentence_assignments.get(6, 3),
         )
 
     def _load_template(self) -> str:
-        """Fetch the active prompt template."""
-        try:
-            resp = (
-                self.db.table('prompt_templates')
-                .select('template_text')
-                .eq('task_name', 'vocab_prompt2_exercises')
-                .eq('language_id', self.language_id)
-                .eq('is_active', True)
-                .order('version', desc=True)
-                .limit(1)
-                .execute()
-            )
-            if resp.data:
-                return resp.data[0]['template_text']
-        except Exception as e:
-            logger.error("Failed to load prompt2 template: %s", e)
-
-        raise RuntimeError("No active vocab_prompt2_exercises template found")
+        """Fetch the active prompt template from the database (Supabase-driven)."""
+        if self._cfg is None:
+            self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
+        return self._cfg['template']
 
     def _remap_output(
         self, raw: dict, active_levels: list[int],
@@ -202,7 +245,7 @@ class ExerciseAssetGenerator:
         """Extract the word text from core asset sentences."""
         sentences = core_asset.get('sentences', [])
         if sentences:
-            return sentences[0].get('target_substring', '')
+            return get_sentence_target(sentences[0])
         return ''
 
     def _extract_tier(self, core_asset: dict) -> str:
