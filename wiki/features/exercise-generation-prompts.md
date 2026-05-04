@@ -3,10 +3,11 @@ title: Exercise Generation Prompts — Verbatim Reference
 type: feature-tech
 status: complete
 prose_page: ./exercises.md
-last_updated: 2026-05-03
+last_updated: 2026-05-05
 dependencies:
-  - "prompt_templates table (Supabase)"
+  - "prompt_templates table (Supabase) — model + provider are now first-class tracked columns"
   - "corpus_collocations table (Supabase) — used by L5 PMI gate"
+  - "services/prompt_service.py — single choke point for model lookup"
   - "services/vocabulary_ladder/asset_pipeline.py"
   - "services/vocabulary_ladder/asset_generators/prompt1_core.py"
   - "services/vocabulary_ladder/asset_generators/prompt2_exercises.py"

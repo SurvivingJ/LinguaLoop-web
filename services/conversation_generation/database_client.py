@@ -671,9 +671,17 @@ class ConversationDatabaseClient:
         return response.data
 
     def get_conversation_model(self, language_id: int) -> str:
-        """Get the conversation model for a language."""
-        lang = self.get_language_config(language_id)
-        return lang.get('conversation_model') or 'google/gemini-2.0-flash-001'
+        """Get the conversation model for a language.
+
+        Reads from prompt_templates.model (single source of truth) via the
+        `conversation_generation` task entry. Falls back to the historical
+        default only if the row exists but `model` is somehow null —
+        get_template_config raises if the row is missing entirely, which
+        is the right behaviour (we want to surface mis-seeded data).
+        """
+        from services.prompt_service import get_template_config
+        cfg = get_template_config(self.client, 'conversation_generation', language_id)
+        return cfg['model']
 
     # ============================================================
     # PROMPT TEMPLATE OPERATIONS

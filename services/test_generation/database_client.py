@@ -301,6 +301,22 @@ class TestDatabaseClient:
     # LANGUAGE CONFIGURATION
     # ============================================================
 
+    def _resolve_models(self, language_id: int) -> tuple[str, str]:
+        """Resolve (prose_model, question_model) for a language.
+
+        Reads from prompt_templates.model — the single source of truth.
+        Picks representative tasks: 'prose_generation' for the prose model
+        and 'question_literal_detail' for the question model. All six
+        question_* tasks share one model in the seed data, so any of them
+        gives the same answer.
+        """
+        from services.prompt_service import get_template_config
+        prose_cfg = get_template_config(self.client, 'prose_generation', language_id)
+        question_cfg = get_template_config(
+            self.client, 'question_literal_detail', language_id,
+        )
+        return prose_cfg['model'], question_cfg['model']
+
     def get_language_config(self, language_id: int) -> Optional[LanguageConfig]:
         """
         Fetch language configuration with model settings.
@@ -335,13 +351,15 @@ class TestDatabaseClient:
             except Exception:
                 tts_voice_ids = ['alloy']
 
+        prose_model, question_model = self._resolve_models(row['id'])
+
         config = LanguageConfig(
             id=row['id'],
             language_code=row['language_code'],
             language_name=row['language_name'],
             native_name=row.get('native_name') or row['language_name'],
-            prose_model=row.get('prose_model', 'google/gemini-2.0-flash-exp'),
-            question_model=row.get('question_model', 'google/gemini-2.0-flash-exp'),
+            prose_model=prose_model,
+            question_model=question_model,
             tts_voice_ids=tts_voice_ids,
             tts_speed=float(row.get('tts_speed', 1.0)),
             grammar_check_enabled=row.get('grammar_check_enabled', False)
@@ -394,13 +412,15 @@ class TestDatabaseClient:
             except Exception:
                 tts_voice_ids = ['alloy']
 
+        prose_model, question_model = self._resolve_models(row['id'])
+
         config = LanguageConfig(
             id=row['id'],
             language_code=row['language_code'],
             language_name=row['language_name'],
             native_name=row.get('native_name') or row['language_name'],
-            prose_model=row.get('prose_model', 'google/gemini-2.0-flash-exp'),
-            question_model=row.get('question_model', 'google/gemini-2.0-flash-exp'),
+            prose_model=prose_model,
+            question_model=question_model,
             tts_voice_ids=tts_voice_ids,
             tts_speed=float(row.get('tts_speed', 1.0)),
             grammar_check_enabled=row.get('grammar_check_enabled', False)

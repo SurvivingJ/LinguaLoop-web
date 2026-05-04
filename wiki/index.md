@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-05-03 | Pages: 44
+Last updated: 2026-05-05 | Pages: 44
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists

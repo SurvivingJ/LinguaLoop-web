@@ -511,6 +511,290 @@ body {
     color: #e0e0e0;
 }
 
+.btn-danger {
+    background: #c33;
+    color: #fff;
+}
+
+.btn-danger:disabled {
+    background: #3a1f1f;
+    color: #777;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+/* ── Select Mode ──────────────────────────────────────────────────── */
+
+.select-fab {
+    position: fixed;
+    bottom: 156px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #7c8aff;
+    border: 1px solid #333;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.select-fab:hover {
+    background: #222;
+    transform: scale(1.08);
+}
+
+body.select-mode .select-fab {
+    background: #7c8aff;
+    color: #fff;
+    border-color: #7c8aff;
+    box-shadow: 0 4px 16px rgba(124, 138, 255, 0.35);
+}
+
+.select-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: #141414;
+    border-top: 1px solid #222;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.select-count {
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.select-bar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.select-bar .btn {
+    padding: 0 16px;
+    height: 40px;
+    font-size: 0.9rem;
+}
+
+body.select-mode {
+    padding-bottom: 88px;
+}
+
+body.select-mode .scan-fab,
+body.select-mode .view-toggle-fab {
+    display: none !important;
+}
+
+.card.selectable {
+    cursor: pointer;
+    position: relative;
+}
+
+.card.selected {
+    border-color: #7c8aff;
+    box-shadow: 0 0 0 2px #7c8aff;
+}
+
+.card-checkmark {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.85);
+    border: 2px solid #555;
+    color: #fff;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.card.selected .card-checkmark {
+    background: #7c8aff;
+    border-color: #7c8aff;
+}
+
+/* ── Bulk Add Modal ───────────────────────────────────────────────── */
+
+.bulk-modal {
+    max-width: 600px;
+}
+
+.bulk-step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bulk-hint {
+    color: #999;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.bulk-textarea {
+    width: 100%;
+    min-height: 180px;
+    background: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #e0e0e0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.95rem;
+    resize: vertical;
+    outline: none;
+}
+
+.bulk-textarea:focus {
+    border-color: #7c8aff;
+}
+
+.bulk-results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.bulk-row {
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 12px;
+    background: #0f0f0f;
+}
+
+.bulk-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.bulk-row-isbn {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.bulk-row-skip {
+    background: none;
+    border: 1px solid #333;
+    color: #888;
+    font-family: inherit;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.bulk-row-skip:hover {
+    color: #fff;
+    border-color: #555;
+}
+
+.bulk-row.skipped {
+    opacity: 0.4;
+}
+
+.bulk-row.skipped .bulk-row-skip {
+    color: #7c8aff;
+    border-color: #7c8aff;
+}
+
+.bulk-options {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.bulk-option {
+    flex: 0 0 auto;
+    width: 110px;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    text-align: left;
+}
+
+.bulk-option:hover {
+    border-color: #444;
+}
+
+.bulk-option.picked {
+    border-color: #7c8aff;
+    background: rgba(124, 138, 255, 0.1);
+}
+
+.bulk-option-thumb {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #1a1a2e;
+    display: block;
+}
+
+.bulk-option-thumb-placeholder {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 4px;
+    background: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7c8aff;
+}
+
+.bulk-option-title {
+    font-size: 0.75rem;
+    color: #fff;
+    margin-top: 4px;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.bulk-option-meta {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bulk-row-empty {
+    color: #888;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
 /* ── Toast ────────────────────────────────────────────────────────── */
 
 .toast-container {
@@ -926,6 +1210,13 @@ body.tower-mode .view-toggle-fab {
 
     .view-toggle-fab {
         bottom: 84px;
+        right: 16px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .select-fab {
+        bottom: 134px;
         right: 16px;
         width: 42px;
         height: 42px;

@@ -11,6 +11,9 @@
         scanner: null,
         viewMode: localStorage.getItem("library-view-mode") || "grid",
         colorThief: null,
+        selectMode: false,
+        selected: new Set(),
+        bulkRows: [],
     };
 
     // ── DOM refs ─────────────────────────────────────────────────────
@@ -42,6 +45,13 @@
     const detailTitle = $("detail-title");
     const detailAuthor = $("detail-author");
     const detailMeta = $("detail-meta");
+    const selectFab = $("select-fab");
+    const selectBar = $("select-bar");
+    const selectCount = $("select-count");
+    const selectDeleteBtn = $("select-delete-btn");
+    const selectCancelBtn = $("select-cancel-btn");
+    const bulkModal = $("bulk-modal");
+    const bulkResults = $("bulk-results");
 
     // ── Data loading ─────────────────────────────────────────────────
 
@@ -86,11 +96,17 @@
         cardGrid.innerHTML = "";
         emptyState.style.display = data.length ? "none" : "block";
 
+        const isBook = state.activeTab === "books";
+        const selectable = isBook && state.selectMode;
+
         data.forEach((item) => {
             const card = document.createElement("div");
             card.className = "card";
+            if (selectable) {
+                card.classList.add("selectable");
+                if (state.selected.has(item.isbn)) card.classList.add("selected");
+            }
 
-            const isBook = state.activeTab === "books";
             const isWatched = state.activeTab === "watched";
             const coverSrc = isBook ? item.cover_url : (isWatched ? item.cover_url : item.cover_base64);
             const icon = isBook ? "fa-book" : "fa-eye";
@@ -107,6 +123,13 @@
                 card.appendChild(img);
             } else {
                 card.appendChild(makePlaceholder(icon));
+            }
+
+            if (selectable) {
+                const check = document.createElement("div");
+                check.className = "card-checkmark";
+                check.innerHTML = `<i class="fas fa-check"></i>`;
+                card.appendChild(check);
             }
 
             const info = document.createElement("div");
@@ -136,7 +159,11 @@
             }
 
             card.appendChild(info);
-            card.addEventListener("click", () => showDetail(item));
+            if (selectable) {
+                card.addEventListener("click", () => toggleCardSelection(item, card));
+            } else {
+                card.addEventListener("click", () => showDetail(item));
+            }
             cardGrid.appendChild(card);
         });
     }
@@ -177,9 +204,13 @@
         document.querySelectorAll(".tab").forEach((t) => {
             t.classList.toggle("active", t.dataset.tab === type);
         });
+        // Leaving books exits select mode
+        if (type !== "books" && state.selectMode) exitSelectMode();
         scanFab.style.display = type === "books" ? "flex" : "none";
         addWatchedFab.style.display = type === "watched" ? "flex" : "none";
         viewToggle.style.display = type === "books" ? "flex" : "none";
+        // Select FAB only on books grid view
+        selectFab.style.display = (type === "books" && state.viewMode === "grid") ? "flex" : "none";
         searchInput.value = "";
         updateCounts();
 
@@ -777,6 +808,12 @@
         viewToggleIcon.className = isTower ? "fas fa-th" : "fas fa-layer-group";
         viewToggle.title = isTower ? "Switch to grid" : "Switch to tower";
 
+        // Tower mode doesn't support multi-select
+        if (isTower && state.selectMode) exitSelectMode();
+        if (state.activeTab === "books") {
+            selectFab.style.display = isTower ? "none" : "flex";
+        }
+
         if (state.activeTab === "books") {
             if (isTower) {
                 cardGrid.style.display = "none";
@@ -903,6 +940,307 @@
         await saveWatched(item);
     });
 
+    // ── Select Mode (multi-select + bulk delete) ─────────────────────
+
+    function enterSelectMode() {
+        if (state.activeTab !== "books" || state.viewMode === "tower") return;
+        state.selectMode = true;
+        state.selected.clear();
+        document.body.classList.add("select-mode");
+        selectBar.style.display = "flex";
+        updateSelectionUI();
+        renderCards(state.books);
+    }
+
+    function exitSelectMode() {
+        state.selectMode = false;
+        state.selected.clear();
+        document.body.classList.remove("select-mode");
+        selectBar.style.display = "none";
+        if (state.activeTab === "books" && state.viewMode === "grid") {
+            renderCards(state.books);
+        }
+    }
+
+    function toggleCardSelection(item, cardEl) {
+        if (!item.isbn) {
+            showToast("This book has no ISBN — can't be selected", "error");
+            return;
+        }
+        if (state.selected.has(item.isbn)) {
+            state.selected.delete(item.isbn);
+            cardEl.classList.remove("selected");
+        } else {
+            state.selected.add(item.isbn);
+            cardEl.classList.add("selected");
+        }
+        updateSelectionUI();
+    }
+
+    function updateSelectionUI() {
+        const n = state.selected.size;
+        selectCount.textContent = n === 1 ? "1 selected" : `${n} selected`;
+        selectDeleteBtn.disabled = n === 0;
+    }
+
+    async function deleteSelected() {
+        const isbns = Array.from(state.selected);
+        if (!isbns.length) return;
+        const ok = window.confirm(
+            `Delete ${isbns.length} book${isbns.length === 1 ? "" : "s"}? This can't be undone.`
+        );
+        if (!ok) return;
+
+        const results = await Promise.allSettled(
+            isbns.map((isbn) =>
+                fetch(`/api/books/${encodeURIComponent(isbn)}`, { method: "DELETE" })
+            )
+        );
+
+        const deletedSet = new Set();
+        let failed = 0;
+        results.forEach((r, i) => {
+            if (r.status === "fulfilled" && r.value.ok) deletedSet.add(isbns[i]);
+            else failed += 1;
+        });
+
+        state.books = state.books.filter((b) => !deletedSet.has(b.isbn));
+        updateCounts();
+        exitSelectMode();
+        renderView();
+
+        if (failed === 0) {
+            showToast(`Deleted ${deletedSet.size} book${deletedSet.size === 1 ? "" : "s"}`);
+        } else if (deletedSet.size === 0) {
+            showToast("Delete failed — try again", "error");
+        } else {
+            showToast(`Deleted ${deletedSet.size}, ${failed} failed`, "error");
+        }
+    }
+
+    // ── Bulk Add (paste many ISBNs, pick a cover for each) ──────────
+
+    function openBulkModal() {
+        $("bulk-isbns").value = "";
+        $("bulk-step-input").style.display = "flex";
+        $("bulk-step-pick").style.display = "none";
+        bulkResults.innerHTML = "";
+        state.bulkRows = [];
+        bulkModal.style.display = "flex";
+    }
+
+    function parseIsbns(raw) {
+        return Array.from(
+            new Set(
+                raw
+                    .split(/[\s,;]+/)
+                    .map((s) => s.replace(/[-\s]/g, "").trim())
+                    .filter((s) => /^\d{10}(\d{3})?$/.test(s))
+            )
+        );
+    }
+
+    async function bulkLookup() {
+        const raw = $("bulk-isbns").value;
+        const isbns = parseIsbns(raw);
+        if (!isbns.length) {
+            showToast("No valid ISBNs found (need 10 or 13 digits)", "error");
+            return;
+        }
+
+        // Filter out any already in the library
+        const existing = new Set(state.books.map((b) => b.isbn).filter(Boolean));
+        const dupes = isbns.filter((i) => existing.has(i));
+        const fresh = isbns.filter((i) => !existing.has(i));
+
+        if (!fresh.length) {
+            showToast("All those ISBNs are already in your library", "error");
+            return;
+        }
+        if (dupes.length) {
+            showToast(`${dupes.length} already in library — skipping`, "error");
+        }
+
+        loadingOverlay.style.display = "flex";
+
+        // Sequential with small delay to be polite to free APIs
+        const rows = [];
+        for (const isbn of fresh) {
+            try {
+                const [g, ol] = await Promise.allSettled([
+                    fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`).then((r) => r.json()),
+                    fetch(`https://openlibrary.org/isbn/${isbn}.json`).then((r) => r.json()),
+                ]);
+                const options = compileOptions(
+                    g.status === "fulfilled" ? g.value : null,
+                    ol.status === "fulfilled" ? ol.value : null,
+                    isbn
+                );
+                rows.push({
+                    isbn,
+                    options,
+                    pickedIdx: options.length === 1 ? 0 : -1,
+                    skipped: options.length === 0,
+                });
+            } catch {
+                rows.push({ isbn, options: [], pickedIdx: -1, skipped: true });
+            }
+        }
+
+        loadingOverlay.style.display = "none";
+        state.bulkRows = rows;
+        renderBulkResults();
+        $("bulk-step-input").style.display = "none";
+        $("bulk-step-pick").style.display = "flex";
+    }
+
+    function renderBulkResults() {
+        bulkResults.innerHTML = "";
+
+        state.bulkRows.forEach((row, rowIdx) => {
+            const rowEl = document.createElement("div");
+            rowEl.className = "bulk-row";
+            if (row.skipped) rowEl.classList.add("skipped");
+
+            const header = document.createElement("div");
+            header.className = "bulk-row-header";
+            const isbnLabel = document.createElement("span");
+            isbnLabel.className = "bulk-row-isbn";
+            isbnLabel.textContent = `ISBN ${row.isbn}`;
+            header.appendChild(isbnLabel);
+
+            const skipBtn = document.createElement("button");
+            skipBtn.type = "button";
+            skipBtn.className = "bulk-row-skip";
+            skipBtn.textContent = row.skipped ? "Skipped" : "Skip";
+            skipBtn.addEventListener("click", () => {
+                row.skipped = !row.skipped;
+                if (row.skipped) row.pickedIdx = -1;
+                renderBulkResults();
+            });
+            header.appendChild(skipBtn);
+            rowEl.appendChild(header);
+
+            if (row.options.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "bulk-row-empty";
+                empty.textContent = "No results found — skipped.";
+                rowEl.appendChild(empty);
+            } else {
+                const opts = document.createElement("div");
+                opts.className = "bulk-options";
+                row.options.forEach((opt, optIdx) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "bulk-option";
+                    if (!row.skipped && row.pickedIdx === optIdx) btn.classList.add("picked");
+
+                    if (opt.cover_url) {
+                        const img = document.createElement("img");
+                        img.className = "bulk-option-thumb";
+                        img.loading = "lazy";
+                        img.src = opt.cover_url;
+                        img.alt = opt.title;
+                        img.onerror = function () {
+                            this.replaceWith(makeBulkPlaceholder());
+                        };
+                        btn.appendChild(img);
+                    } else {
+                        btn.appendChild(makeBulkPlaceholder());
+                    }
+
+                    const t = document.createElement("div");
+                    t.className = "bulk-option-title";
+                    t.textContent = opt.title || "(untitled)";
+                    btn.appendChild(t);
+
+                    const m = document.createElement("div");
+                    m.className = "bulk-option-meta";
+                    m.textContent = [opt.author, opt.year].filter(Boolean).join(" · ");
+                    btn.appendChild(m);
+
+                    btn.addEventListener("click", () => {
+                        row.skipped = false;
+                        row.pickedIdx = row.pickedIdx === optIdx ? -1 : optIdx;
+                        renderBulkResults();
+                    });
+                    opts.appendChild(btn);
+                });
+                rowEl.appendChild(opts);
+            }
+
+            bulkResults.appendChild(rowEl);
+        });
+
+        const pickedCount = state.bulkRows.filter(
+            (r) => !r.skipped && r.pickedIdx >= 0
+        ).length;
+        const saveBtn = $("bulk-save-btn");
+        saveBtn.disabled = pickedCount === 0;
+        saveBtn.innerHTML = pickedCount
+            ? `<i class="fas fa-save"></i> Save ${pickedCount} book${pickedCount === 1 ? "" : "s"}`
+            : `<i class="fas fa-save"></i> Save selected`;
+    }
+
+    function makeBulkPlaceholder() {
+        const div = document.createElement("div");
+        div.className = "bulk-option-thumb-placeholder";
+        div.innerHTML = `<i class="fas fa-book"></i>`;
+        return div;
+    }
+
+    async function saveBulkSelected() {
+        const picks = state.bulkRows
+            .filter((r) => !r.skipped && r.pickedIdx >= 0)
+            .map((r) => r.options[r.pickedIdx]);
+
+        if (!picks.length) return;
+
+        closeModal("bulk-modal");
+        loadingOverlay.style.display = "flex";
+
+        let saved = 0;
+        let failed = 0;
+        for (const opt of picks) {
+            const toSave = { ...opt };
+            delete toSave.source;
+            try {
+                const res = await fetch("/api/books", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(toSave),
+                });
+                if (res.status === 201) {
+                    const savedBook = await res.json();
+                    state.books.push(savedBook);
+                    saved += 1;
+                    if (!savedBook.spine_color && savedBook.cover_url) {
+                        extractSpineColor(savedBook.cover_url).then((color) => {
+                            savedBook.spine_color = color;
+                            persistSpineColor(savedBook.isbn, color);
+                        });
+                    }
+                } else {
+                    failed += 1;
+                }
+            } catch {
+                failed += 1;
+            }
+        }
+
+        loadingOverlay.style.display = "none";
+        updateCounts();
+        renderView();
+
+        if (failed === 0) {
+            showToast(`Added ${saved} book${saved === 1 ? "" : "s"}`);
+        } else if (saved === 0) {
+            showToast("All saves failed — try again", "error");
+        } else {
+            showToast(`Added ${saved}, ${failed} failed`, "error");
+        }
+    }
+
     // ── Init ─────────────────────────────────────────────────────────
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -938,6 +1276,33 @@
             stopScanner();
             openManualModal("");
         });
+
+        $("bulk-entry-link").addEventListener("click", () => {
+            stopScanner();
+            openBulkModal();
+        });
+
+        $("bulk-lookup-btn").addEventListener("click", bulkLookup);
+        $("bulk-save-btn").addEventListener("click", saveBulkSelected);
+
+        // Force digits-only on the bulk paste textarea (preserve newlines, strip rest)
+        $("bulk-isbns").addEventListener("input", (e) => {
+            const cleaned = e.target.value.replace(/[^0-9\sxX,;-]/g, "");
+            if (cleaned !== e.target.value) e.target.value = cleaned;
+        });
+
+        // Select-mode wiring
+        selectFab.addEventListener("click", () => {
+            if (state.selectMode) exitSelectMode();
+            else enterSelectMode();
+        });
+        selectCancelBtn.addEventListener("click", exitSelectMode);
+        selectDeleteBtn.addEventListener("click", deleteSelected);
+
+        // Show select FAB on initial load (default tab is books, default view is grid unless restored)
+        if (state.activeTab === "books" && state.viewMode !== "tower") {
+            selectFab.style.display = "flex";
+        }
 
         // Detail modal — click backdrop to close
         detailModal.addEventListener("click", (e) => {

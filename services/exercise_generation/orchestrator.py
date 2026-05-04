@@ -104,15 +104,22 @@ class ExerciseGenerationOrchestrator:
         return {'batch_id': batch_id, 'counts': counts, 'total': total}
 
     def _load_models(self, language_id: int) -> tuple[str, str]:
-        """Fetch exercise_model and exercise_sentence_model from dim_languages."""
-        row = self.db.table('dim_languages') \
-            .select('exercise_model, exercise_sentence_model') \
-            .eq('id', language_id).single().execute().data
-        default = 'google/gemini-flash-1.5'
-        return (
-            (row or {}).get('exercise_model') or default,
-            (row or {}).get('exercise_sentence_model') or default,
+        """Resolve the exercise_model and exercise_sentence_model for a language.
+
+        Reads from prompt_templates.model — the single source of truth.
+        Every legacy exercise-generation task shares one model and every
+        sentence-mining task shares another, so picking one representative
+        task per role gives the same answer the old dim_languages columns
+        used to surface.
+        """
+        from services.prompt_service import get_template_config
+        exercise_cfg = get_template_config(
+            self.db, 'cloze_distractor_generation', language_id,
         )
+        sentence_cfg = get_template_config(
+            self.db, 'exercise_sentence_generation', language_id,
+        )
+        return exercise_cfg['model'], sentence_cfg['model']
 
     def _get_distribution(self, source_type: str) -> dict[str, int]:
         return {

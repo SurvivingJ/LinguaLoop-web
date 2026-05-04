@@ -95,14 +95,20 @@ class VocabularyExtractionPipeline:
         if not lemma_tokens:
             return []
 
-        # Step 2: Phrase detection (skip if disabled for language)
+        # Step 2: Phrase detection (skip if disabled for language).
+        # Model comes from prompt_templates.model on the vocab_phrase_detection
+        # task — single source of truth.
         phrases: list[dict] = []
         if nlp_meta.phrase_detection_enabled:
+            from services.prompt_service import get_template_config
+            phrase_cfg = get_template_config(
+                self._db.client, 'vocab_phrase_detection', lang_config.id,
+            )
             phrases = self._phrase_detector.detect(
                 lemma_tokens=lemma_tokens,
                 original_text=text,
                 language_id=lang_config.id,
-                model=lang_config.prose_model,
+                model=phrase_cfg['model'],
             )
 
         # Step 3: Replace component lemmas with combined phrases
@@ -214,14 +220,20 @@ class VocabularyExtractionPipeline:
         if not lemma_tokens:
             return []
 
-        # Step 2: Phrase detection (skip if disabled for language)
+        # Step 2: Phrase detection (skip if disabled for language).
+        # Model comes from prompt_templates.model on the vocab_phrase_detection
+        # task — single source of truth.
         phrases: list[dict] = []
         if nlp_meta.phrase_detection_enabled:
+            from services.prompt_service import get_template_config
+            phrase_cfg = get_template_config(
+                self._db.client, 'vocab_phrase_detection', lang_config.id,
+            )
             phrases = self._phrase_detector.detect(
                 lemma_tokens=lemma_tokens,
                 original_text=text,
                 language_id=lang_config.id,
-                model=lang_config.prose_model,
+                model=phrase_cfg['model'],
             )
 
         # Build lookup maps for metadata

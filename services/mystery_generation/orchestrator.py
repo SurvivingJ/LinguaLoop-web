@@ -10,14 +10,17 @@ Coordinates the full mystery generation workflow:
 6. VocabularyExtractionPipeline extracts vocab
 7. MysteryDatabaseClient saves everything
 
-Uses per-language models from dim_languages (prose_model, question_model)
-and per-language prompt templates from prompt_templates table.
+Per-task models are loaded from prompt_templates.model — the single source
+of truth. Per-language prompt templates are loaded from the same rows.
+Plot and scene use Sonnet (creative writing); question, clue, and
+deduction use Flash Lite (structural).
 """
 
 import logging
 from typing import Optional, List, Dict
 from uuid import uuid4
 
+from services.prompt_service import get_template_config
 from .config import mystery_gen_config
 from .database_client import MysteryDatabaseClient
 from .agents import PlotArchitect, SceneWriter, MysteryQuestionGenerator, ClueDesigner
@@ -63,21 +66,36 @@ class MysteryGenerationOrchestrator:
         Returns:
             Mystery ID (UUID string)
         """
-        # Get language config (includes prose_model, question_model from dim_languages)
+        # Get language config (language_name + language_code only — model
+        # selection now lives in prompt_templates).
         lang_config = self.db.get_language_config(language_id)
         if not lang_config:
             raise ValueError(f"Unknown language_id: {language_id}")
 
         language_name = lang_config.get('language_name', 'English')
         language_code = lang_config.get('language_code', 'en')
-        prose_model = lang_config.get('prose_model', 'google/gemini-2.0-flash-exp')
-        question_model = lang_config.get('question_model', 'google/gemini-2.0-flash-exp')
         complexity_tier = mystery_gen_config.difficulty_to_tier.get(difficulty, 'B1')
+
+        # Per-task model lookups — single source of truth on prompt_templates.
+        # Plot + scene get the strong creative-writing model; question, clue,
+        # and deduction get the cheap structural model.
+        plot_cfg = get_template_config(self.db.client, 'mystery_plot', language_id)
+        scene_cfg = get_template_config(self.db.client, 'mystery_scene', language_id)
+        question_cfg = get_template_config(self.db.client, 'mystery_question', language_id)
+        clue_cfg = get_template_config(self.db.client, 'mystery_clue', language_id)
+        deduction_cfg = get_template_config(self.db.client, 'mystery_deduction', language_id)
+
+        plot_model = plot_cfg['model']
+        scene_model = scene_cfg['model']
+        question_model = question_cfg['model']
+        clue_model = clue_cfg['model']
+        deduction_model = deduction_cfg['model']
 
         logger.info(
             f"Starting mystery generation: {language_name} {complexity_tier} "
             f"(difficulty={difficulty}, archetype={archetype}, "
-            f"prose_model={prose_model}, question_model={question_model})"
+            f"plot_model={plot_model}, scene_model={scene_model}, "
+            f"question_model={question_model})"
         )
 
         # Fetch per-language prompt templates
@@ -90,7 +108,7 @@ class MysteryGenerationOrchestrator:
             complexity_tier=complexity_tier,
             archetype=archetype,
             target_vocab=target_vocab,
-            model_override=prose_model,
+            model_override=plot_model,
             prompt_template=templates.get('mystery_plot'),
         )
 
@@ -111,7 +129,7 @@ class MysteryGenerationOrchestrator:
                 language_name=language_name,
                 complexity_tier=complexity_tier,
                 previous_summary=previous_summary,
-                model_override=prose_model,
+                model_override=scene_model,
                 prompt_template=templates.get('mystery_scene'),
             )
 
@@ -142,7 +160,7 @@ class MysteryGenerationOrchestrator:
                 deduction_qs = self.question_generator.generate_deduction_question(
                     story_bible=story_bible,
                     clue_texts=clue_texts,
-                    model_override=question_model,
+                    model_override=deduction_model,
                     prompt_template=templates.get('mystery_deduction'),
                 )
                 questions = comprehension_qs + deduction_qs
@@ -154,7 +172,7 @@ class MysteryGenerationOrchestrator:
                 story_bible=story_bible,
                 scene_outline=scene_outline,
                 previous_clues=clue_texts,
-                model_override=prose_model,
+                model_override=clue_model,
                 prompt_template=templates.get('mystery_clue'),
             )
             clue_text = clue_result.get('clue_text', '')
@@ -221,7 +239,7 @@ class MysteryGenerationOrchestrator:
             'archetype': archetype,
             'target_vocab_ids': vocab_ids,
             'vocab_sense_ids': sense_ids,
-            'generation_model': prose_model,
+            'generation_model': plot_model,
         }
 
         mystery_id = self.db.save_mystery(
