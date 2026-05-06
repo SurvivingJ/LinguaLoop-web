@@ -547,7 +547,26 @@
     };
 
     const TONE_NAMES = { 1: '1st (flat)', 2: '2nd (rising)', 3: '3rd (dip)', 4: '4th (falling)', 5: 'Neutral' };
-    const TONE_MARKS = { 1: '\u0304', 2: '\u0301', 3: '\u030C', 4: '\u0300', 5: '' };
+
+    // Converts bare pinyin + tone number to tone-marked pinyin (e.g. "ni", 2 \u2192 "n\u00ED")
+    // Placement rules: a/e always takes the mark; ou \u2192 o takes it; otherwise last vowel.
+    function toToneMarked(pinyinText, tone) {
+        if (!pinyinText || tone === 5) return pinyinText;
+        const idx = tone - 1;
+        const marks = {
+            a: ['\u0101','\u00E1','\u01CE','\u00E0'], e: ['\u0113','\u00E9','\u011B','\u00E8'],
+            i: ['\u012B','\u00ED','\u01D0','\u00EC'], o: ['\u014D','\u00F3','\u01D2','\u00F2'],
+            u: ['\u016B','\u00FA','\u01D4','\u00F9'], v: ['\u01D6','\u01D8','\u01DA','\u01DC'],
+        };
+        if (pinyinText.includes('a')) return pinyinText.replace('a', marks.a[idx]);
+        if (pinyinText.includes('e')) return pinyinText.replace('e', marks.e[idx]);
+        if (pinyinText.includes('ou')) return pinyinText.replace('o', marks.o[idx]);
+        for (let i = pinyinText.length - 1; i >= 0; i--) {
+            const ch = pinyinText[i];
+            if (marks[ch]) return pinyinText.slice(0, i) + marks[ch][idx] + pinyinText.slice(i + 1);
+        }
+        return pinyinText;
+    }
 
     // ========================================================================
     // INITIALIZATION
@@ -682,7 +701,7 @@
             // Show pinyin
             const pinyinEl = el.querySelector('.char-pinyin');
             if (pinyinEl) {
-                pinyinEl.textContent = token.pinyin_text + token.context_tone;
+                pinyinEl.textContent = toToneMarked(token.pinyin_text, token.context_tone);
             }
 
             // Flash animation
@@ -834,7 +853,7 @@
                     ${token.char}
                 </div>
                 <div class="error-pinyin">
-                    ${token.pinyin_text}${token.context_tone}
+                    ${toToneMarked(token.pinyin_text, token.context_tone)}
                     <span style="color: var(--text-muted); margin-left: 4px;">(${token.word})</span>
                 </div>
                 <div class="error-tones">
