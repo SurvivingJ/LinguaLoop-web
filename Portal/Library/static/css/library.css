@@ -795,6 +795,65 @@ body.select-mode .view-toggle-fab {
     font-style: italic;
 }
 
+/* ── Cover Picker Modal ──────────────────────────────────────────── */
+
+.cover-picker-modal {
+    max-width: 720px;
+}
+
+.cover-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.cover-picker-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    padding: 24px 0;
+    font-size: 0.9rem;
+}
+
+.cover-pick-tile {
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.15s;
+}
+
+.cover-pick-tile:hover {
+    border-color: #7c8aff;
+    transform: translateY(-2px);
+}
+
+.cover-pick-img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #1a1a2e;
+    display: block;
+}
+
+.cover-pick-source {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+#detail-find-cover-btn {
+    margin-top: 12px;
+}
+
 /* ── Toast ────────────────────────────────────────────────────────── */
 
 .toast-container {
@@ -1006,9 +1065,7 @@ body.tower-mode .tower-particles {
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 60%;
+    flex-shrink: 0;
     line-height: 1.2;
     position: relative;
     z-index: 1;
@@ -1025,7 +1082,8 @@ body.tower-mode .tower-particles {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 30%;
+    flex-shrink: 1;
+    min-width: 0;
     line-height: 1.2;
     position: relative;
     z-index: 1;

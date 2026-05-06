@@ -91,6 +91,7 @@
         </label>
         <button id="manual-entry-link" class="link-btn">Enter ISBN manually</button>
         <button id="bulk-entry-link" class="link-btn">Bulk add many ISBNs</button>
+        <button id="bulk-covers-link" class="link-btn">Bulk add missing covers</button>
     </div>
 
     <!-- Selection modal -->
@@ -186,8 +187,41 @@
                 <div id="detail-title" class="detail-title"></div>
                 <div id="detail-author" class="detail-author"></div>
                 <div id="detail-meta" class="detail-meta"></div>
+                <button id="detail-find-cover-btn" class="btn btn-secondary" style="display:none;">
+                    <i class="fas fa-image"></i> Find cover image
+                </button>
                 <button class="detail-close" data-close="detail-modal">Close</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Cover picker modal (single book) -->
+    <div id="cover-picker-modal" class="modal-overlay" style="display:none;">
+        <div class="modal cover-picker-modal">
+            <div class="modal-header">
+                <h2>Choose a cover</h2>
+                <button class="close-btn" data-close="cover-picker-modal">&times;</button>
+            </div>
+            <p id="cover-picker-subtitle" class="bulk-hint"></p>
+            <div id="cover-picker-grid" class="cover-picker-grid"></div>
+            <div id="cover-picker-empty" class="bulk-row-empty" style="display:none;">
+                No covers found. Try adjusting the title or author.
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk-cover modal (retroactive) -->
+    <div id="bulk-cover-modal" class="modal-overlay" style="display:none;">
+        <div class="modal bulk-modal">
+            <div class="modal-header">
+                <h2>Add missing covers</h2>
+                <button class="close-btn" data-close="bulk-cover-modal">&times;</button>
+            </div>
+            <p id="bulk-cover-summary" class="bulk-hint"></p>
+            <div id="bulk-cover-results" class="bulk-results"></div>
+            <button id="bulk-cover-save-btn" class="btn btn-primary" disabled>
+                <i class="fas fa-save"></i> Save selected
+            </button>
         </div>
     </div>
 

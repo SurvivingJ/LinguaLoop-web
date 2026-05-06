@@ -62,6 +62,135 @@ def update_book_color(isbn):
     return jsonify({"error": "Book not found"}), 404
 
 
+@app.route("/api/books/<isbn>/cover", methods=["PATCH"])
+def update_book_cover(isbn):
+    data = request.get_json(silent=True)
+    cover_url = data.get("cover_url", "") if data else ""
+    if not cover_url:
+        return jsonify({"error": "cover_url is required"}), 400
+    books = storage.load_books()
+    for book in books:
+        if book.get("isbn") == isbn:
+            book["cover_url"] = cover_url
+            # Reset spine color so it gets re-extracted from the new cover
+            if "spine_color" in book:
+                del book["spine_color"]
+            storage.save_books(books)
+            return jsonify({"isbn": isbn, "cover_url": cover_url})
+    return jsonify({"error": "Book not found"}), 404
+
+
+# ── Cover image search ──────────────────────────────────────────────
+
+def _google_books_covers(title, author, limit=20):
+    """Search Google Books by title+author and return cover URLs."""
+    parts = []
+    if title:
+        parts.append(f'intitle:"{title}"')
+    if author:
+        parts.append(f'inauthor:"{author}"')
+    if not parts:
+        return []
+    q = "+".join(parts)
+    url = (
+        "https://www.googleapis.com/books/v1/volumes"
+        f"?q={q}&maxResults={min(limit, 40)}&printType=books"
+    )
+    try:
+        r = http_requests.get(url, timeout=8)
+        r.raise_for_status()
+        items = (r.json() or {}).get("items") or []
+    except Exception:
+        return []
+
+    covers = []
+    for it in items:
+        v = it.get("volumeInfo", {}) or {}
+        links = v.get("imageLinks") or {}
+        # Prefer larger images when available
+        thumb = (
+            links.get("extraLarge")
+            or links.get("large")
+            or links.get("medium")
+            or links.get("thumbnail")
+            or links.get("smallThumbnail")
+            or ""
+        )
+        if not thumb:
+            continue
+        thumb = thumb.replace("http:", "https:").replace("&edge=curl", "")
+        covers.append({
+            "url": thumb,
+            "title": v.get("title", ""),
+            "author": ", ".join(v.get("authors") or []),
+            "source": "google",
+        })
+    return covers
+
+
+def _openlibrary_covers(title, author, limit=20):
+    """Search Open Library by title+author and return cover URLs."""
+    if not (title or author):
+        return []
+    params = []
+    if title:
+        params.append(f"title={http_requests.utils.quote(title)}")
+    if author:
+        params.append(f"author={http_requests.utils.quote(author)}")
+    params.append(f"limit={min(limit, 40)}")
+    url = "https://openlibrary.org/search.json?" + "&".join(params)
+    try:
+        r = http_requests.get(url, timeout=8)
+        r.raise_for_status()
+        docs = (r.json() or {}).get("docs") or []
+    except Exception:
+        return []
+
+    covers = []
+    for d in docs:
+        cover_id = d.get("cover_i")
+        if not cover_id:
+            continue
+        covers.append({
+            "url": f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg",
+            "title": d.get("title", ""),
+            "author": ", ".join(d.get("author_name") or []),
+            "source": "openlibrary",
+        })
+    return covers
+
+
+@app.route("/api/cover-search")
+def cover_search():
+    title = (request.args.get("title") or "").strip()
+    author = (request.args.get("author") or "").strip()
+    limit = int(request.args.get("limit") or 10)
+    if not title and not author:
+        return jsonify({"error": "title or author is required"}), 400
+
+    g_covers = _google_books_covers(title, author, limit=limit * 2)
+    ol_covers = _openlibrary_covers(title, author, limit=limit * 2)
+
+    # Interleave so the user sees diversity from both sources at the top
+    merged = []
+    for pair in zip(g_covers, ol_covers):
+        merged.extend(pair)
+    merged.extend(g_covers[len(ol_covers):])
+    merged.extend(ol_covers[len(g_covers):])
+
+    seen = set()
+    out = []
+    for c in merged:
+        if c["url"] in seen:
+            continue
+        seen.add(c["url"])
+        out.append(c)
+        if len(out) >= limit:
+            break
+
+    return jsonify({"covers": out})
+
+
 @app.route("/api/books/<isbn>", methods=["DELETE"])
 def delete_book(isbn):
     books = storage.load_books()

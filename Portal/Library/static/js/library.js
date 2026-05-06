@@ -14,6 +14,9 @@
         selectMode: false,
         selected: new Set(),
         bulkRows: [],
+        detailItem: null,
+        coverPickerBook: null,
+        bulkCoverRows: [],
     };
 
     // ── DOM refs ─────────────────────────────────────────────────────
@@ -52,6 +55,15 @@
     const selectCancelBtn = $("select-cancel-btn");
     const bulkModal = $("bulk-modal");
     const bulkResults = $("bulk-results");
+    const coverPickerModal = $("cover-picker-modal");
+    const coverPickerGrid = $("cover-picker-grid");
+    const coverPickerSubtitle = $("cover-picker-subtitle");
+    const coverPickerEmpty = $("cover-picker-empty");
+    const detailFindCoverBtn = $("detail-find-cover-btn");
+    const bulkCoverModal = $("bulk-cover-modal");
+    const bulkCoverResults = $("bulk-cover-results");
+    const bulkCoverSummary = $("bulk-cover-summary");
+    const bulkCoverSaveBtn = $("bulk-cover-save-btn");
 
     // ── Data loading ─────────────────────────────────────────────────
 
@@ -565,6 +577,10 @@
         const coverSrc = isBook ? item.cover_url : (isWatched ? item.cover_url : item.cover_base64);
         const icon = isBook ? "fa-book" : "fa-eye";
 
+        state.detailItem = item;
+        // Show "Find cover" only for books that don't have a usable cover URL
+        detailFindCoverBtn.style.display = (isBook && !item.cover_url) ? "flex" : "none";
+
         // Cover
         detailCoverWrap.innerHTML = "";
         if (coverSrc) {
@@ -721,6 +737,20 @@
 
     // ── Tower Rendering ──────────────────────────────────────────────
 
+    function measureSpineTitleWidth(title, author) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        ctx.font = 'bold 12px Georgia, "Palatino Linotype", serif';
+        const titlePx = ctx.measureText(title.toUpperCase()).width * 1.04;
+        let authorPx = 0;
+        if (author) {
+            ctx.font = '10px Georgia, "Palatino Linotype", serif';
+            authorPx = ctx.measureText(author).width * 1.02;
+        }
+        const content = titlePx + (author ? authorPx + 8 : 0) + 32 + 20;
+        return Math.max(180, Math.min(content, 460));
+    }
+
     function renderTower(books, searchQuery) {
         towerStack.innerHTML = "";
 
@@ -742,8 +772,8 @@
 
         books.forEach((book) => {
             const pageCount = book.page_count || 300;
-            const spineHeight = Math.max(22, 22 + pageCount * 0.075);
-            const spineWidth = Math.max(200, 200 + pageCount * 0.02);
+            const spineHeight = Math.min(110, Math.max(18, 12 + pageCount * 0.1));
+            const spineWidth = measureSpineTitleWidth(book.title, book.author);
 
             // Drift from previous angle: small step, clamped to [-3, 3]
             prevRot = Math.max(-3, Math.min(3, prevRot + (Math.random() * 1.6 - 0.8)));
@@ -1241,6 +1271,282 @@
         }
     }
 
+    // ── Cover search (single book) ───────────────────────────────────
+
+    async function searchCovers(title, author, limit) {
+        const params = new URLSearchParams();
+        if (title) params.set("title", title);
+        if (author) params.set("author", author);
+        params.set("limit", String(limit || 10));
+        const res = await fetch("/api/cover-search?" + params.toString());
+        if (!res.ok) throw new Error("search failed");
+        const data = await res.json();
+        return data.covers || [];
+    }
+
+    async function openCoverPicker(book) {
+        if (!book) return;
+        state.coverPickerBook = book;
+        coverPickerSubtitle.textContent = book.author
+            ? `${book.title} — ${book.author}`
+            : book.title;
+        coverPickerGrid.innerHTML = `<div class="cover-picker-loading">Searching...</div>`;
+        coverPickerEmpty.style.display = "none";
+        coverPickerModal.style.display = "flex";
+
+        try {
+            const covers = await searchCovers(book.title, book.author, 10);
+            renderCoverPicker(covers);
+        } catch {
+            coverPickerGrid.innerHTML = "";
+            coverPickerEmpty.style.display = "block";
+            coverPickerEmpty.textContent = "Cover search failed — try again.";
+        }
+    }
+
+    function renderCoverPicker(covers) {
+        coverPickerGrid.innerHTML = "";
+        if (!covers.length) {
+            coverPickerEmpty.style.display = "block";
+            coverPickerEmpty.textContent = "No covers found. Try adjusting the title or author.";
+            return;
+        }
+        coverPickerEmpty.style.display = "none";
+
+        covers.forEach((c) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "cover-pick-tile";
+
+            const img = document.createElement("img");
+            img.className = "cover-pick-img";
+            img.loading = "lazy";
+            img.src = c.url;
+            img.alt = c.title || "cover";
+            img.onerror = function () {
+                btn.remove();
+            };
+            btn.appendChild(img);
+
+            const src = document.createElement("div");
+            src.className = "cover-pick-source";
+            src.textContent = c.source === "google" ? "Google Books" : "Open Library";
+            btn.appendChild(src);
+
+            btn.addEventListener("click", () => applyPickedCover(c.url));
+            coverPickerGrid.appendChild(btn);
+        });
+    }
+
+    async function applyPickedCover(url) {
+        const book = state.coverPickerBook;
+        if (!book || !book.isbn) {
+            showToast("This book has no ISBN — can't update cover", "error");
+            return;
+        }
+        try {
+            const res = await fetch(
+                `/api/books/${encodeURIComponent(book.isbn)}/cover`,
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cover_url: url }),
+                }
+            );
+            if (!res.ok) {
+                showToast("Failed to save cover", "error");
+                return;
+            }
+            book.cover_url = url;
+            delete book.spine_color;
+            // Re-extract spine color in the background
+            extractSpineColor(url).then((color) => {
+                book.spine_color = color;
+                persistSpineColor(book.isbn, color);
+                if (state.viewMode === "tower") renderTower(state.books, searchInput.value);
+            });
+            closeModal("cover-picker-modal");
+            // Refresh detail view if still open showing this book
+            if (state.detailItem === book) showDetail(book);
+            renderView();
+            showToast("Cover updated!");
+        } catch {
+            showToast("Network error — try again", "error");
+        }
+    }
+
+    // ── Bulk add covers (retroactive) ────────────────────────────────
+
+    function openBulkCoverModal() {
+        const missing = state.books.filter((b) => !b.cover_url && b.isbn);
+        bulkCoverModal.style.display = "flex";
+        bulkCoverResults.innerHTML = "";
+        bulkCoverSummary.textContent = "";
+        bulkCoverSaveBtn.disabled = true;
+        state.bulkCoverRows = [];
+
+        if (!missing.length) {
+            bulkCoverSummary.textContent = "All books already have covers.";
+            return;
+        }
+        bulkCoverSummary.textContent =
+            `Searching covers for ${missing.length} book${missing.length === 1 ? "" : "s"}...`;
+        bulkCoverLookup(missing);
+    }
+
+    async function bulkCoverLookup(books) {
+        loadingOverlay.style.display = "flex";
+        const rows = [];
+        for (const book of books) {
+            try {
+                const covers = await searchCovers(book.title, book.author, 6);
+                rows.push({
+                    book,
+                    covers,
+                    pickedIdx: -1,
+                    skipped: covers.length === 0,
+                });
+            } catch {
+                rows.push({ book, covers: [], pickedIdx: -1, skipped: true });
+            }
+        }
+        loadingOverlay.style.display = "none";
+        state.bulkCoverRows = rows;
+        bulkCoverSummary.textContent =
+            `Pick a cover for each book, or skip ones to leave alone (${rows.length} total).`;
+        renderBulkCoverResults();
+    }
+
+    function renderBulkCoverResults() {
+        bulkCoverResults.innerHTML = "";
+
+        state.bulkCoverRows.forEach((row, rowIdx) => {
+            const rowEl = document.createElement("div");
+            rowEl.className = "bulk-row";
+            if (row.skipped) rowEl.classList.add("skipped");
+
+            const header = document.createElement("div");
+            header.className = "bulk-row-header";
+            const label = document.createElement("span");
+            label.className = "bulk-row-isbn";
+            label.textContent = row.book.author
+                ? `${row.book.title} — ${row.book.author}`
+                : row.book.title;
+            header.appendChild(label);
+
+            const skipBtn = document.createElement("button");
+            skipBtn.type = "button";
+            skipBtn.className = "bulk-row-skip";
+            skipBtn.textContent = row.skipped ? "Skipped" : "Skip";
+            skipBtn.addEventListener("click", () => {
+                row.skipped = !row.skipped;
+                if (row.skipped) row.pickedIdx = -1;
+                renderBulkCoverResults();
+            });
+            header.appendChild(skipBtn);
+            rowEl.appendChild(header);
+
+            if (row.covers.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "bulk-row-empty";
+                empty.textContent = "No covers found — skipped.";
+                rowEl.appendChild(empty);
+            } else {
+                const opts = document.createElement("div");
+                opts.className = "bulk-options";
+                row.covers.forEach((c, optIdx) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "bulk-option";
+                    if (!row.skipped && row.pickedIdx === optIdx) btn.classList.add("picked");
+
+                    const img = document.createElement("img");
+                    img.className = "bulk-option-thumb";
+                    img.loading = "lazy";
+                    img.src = c.url;
+                    img.alt = c.title || row.book.title;
+                    img.onerror = function () {
+                        this.replaceWith(makeBulkPlaceholder());
+                    };
+                    btn.appendChild(img);
+
+                    const m = document.createElement("div");
+                    m.className = "bulk-option-meta";
+                    m.textContent = c.source === "google" ? "Google" : "Open Library";
+                    btn.appendChild(m);
+
+                    btn.addEventListener("click", () => {
+                        row.skipped = false;
+                        row.pickedIdx = row.pickedIdx === optIdx ? -1 : optIdx;
+                        renderBulkCoverResults();
+                    });
+                    opts.appendChild(btn);
+                });
+                rowEl.appendChild(opts);
+            }
+
+            bulkCoverResults.appendChild(rowEl);
+        });
+
+        const pickedCount = state.bulkCoverRows.filter(
+            (r) => !r.skipped && r.pickedIdx >= 0
+        ).length;
+        bulkCoverSaveBtn.disabled = pickedCount === 0;
+        bulkCoverSaveBtn.innerHTML = pickedCount
+            ? `<i class="fas fa-save"></i> Save ${pickedCount} cover${pickedCount === 1 ? "" : "s"}`
+            : `<i class="fas fa-save"></i> Save selected`;
+    }
+
+    async function saveBulkCovers() {
+        const picks = state.bulkCoverRows
+            .filter((r) => !r.skipped && r.pickedIdx >= 0)
+            .map((r) => ({ book: r.book, url: r.covers[r.pickedIdx].url }));
+
+        if (!picks.length) return;
+
+        closeModal("bulk-cover-modal");
+        loadingOverlay.style.display = "flex";
+
+        let saved = 0;
+        let failed = 0;
+        for (const { book, url } of picks) {
+            try {
+                const res = await fetch(
+                    `/api/books/${encodeURIComponent(book.isbn)}/cover`,
+                    {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ cover_url: url }),
+                    }
+                );
+                if (res.ok) {
+                    book.cover_url = url;
+                    delete book.spine_color;
+                    saved += 1;
+                    extractSpineColor(url).then((color) => {
+                        book.spine_color = color;
+                        persistSpineColor(book.isbn, color);
+                    });
+                } else {
+                    failed += 1;
+                }
+            } catch {
+                failed += 1;
+            }
+        }
+
+        loadingOverlay.style.display = "none";
+        renderView();
+
+        if (failed === 0) {
+            showToast(`Updated ${saved} cover${saved === 1 ? "" : "s"}`);
+        } else if (saved === 0) {
+            showToast("All updates failed — try again", "error");
+        } else {
+            showToast(`Updated ${saved}, ${failed} failed`, "error");
+        }
+    }
+
     // ── Init ─────────────────────────────────────────────────────────
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1282,8 +1588,17 @@
             openBulkModal();
         });
 
+        $("bulk-covers-link").addEventListener("click", () => {
+            stopScanner();
+            openBulkCoverModal();
+        });
+
         $("bulk-lookup-btn").addEventListener("click", bulkLookup);
         $("bulk-save-btn").addEventListener("click", saveBulkSelected);
+        bulkCoverSaveBtn.addEventListener("click", saveBulkCovers);
+        detailFindCoverBtn.addEventListener("click", () => {
+            if (state.detailItem) openCoverPicker(state.detailItem);
+        });
 
         // Force digits-only on the bulk paste textarea (preserve newlines, strip rest)
         $("bulk-isbns").addEventListener("input", (e) => {
