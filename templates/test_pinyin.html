@@ -547,7 +547,27 @@
     };
 
     const TONE_NAMES = { 1: '1st (flat)', 2: '2nd (rising)', 3: '3rd (dip)', 4: '4th (falling)', 5: 'Neutral' };
-    const TONE_MARKS = { 1: '\u0304', 2: '\u0301', 3: '\u030C', 4: '\u0300', 5: '' };
+    function applyToneMark(syllable, tone) {
+        const TONE_TABLE = {
+            'a': ['\u0101', '\u00E1', '\u01CE', '\u00E0'],
+            'e': ['\u0113', '\u00E9', '\u011B', '\u00E8'],
+            'i': ['\u012B', '\u00ED', '\u01D0', '\u00EC'],
+            'o': ['\u014D', '\u00F3', '\u01D2', '\u00F2'],
+            'u': ['\u016B', '\u00FA', '\u01D4', '\u00F9'],
+            '\u00FC': ['\u01D6', '\u01D8', '\u01DA', '\u01DC'],
+            'v': ['\u01D6', '\u01D8', '\u01DA', '\u01DC'],
+        };
+        if (tone < 1 || tone > 4) return syllable.replace(/v/g, '\u00FC');
+        const idx = tone - 1;
+        if (syllable.includes('a')) return syllable.replace('a', TONE_TABLE['a'][idx]);
+        if (syllable.includes('e')) return syllable.replace('e', TONE_TABLE['e'][idx]);
+        if (syllable.includes('ou')) return syllable.replace('o', TONE_TABLE['o'][idx]);
+        for (let i = syllable.length - 1; i >= 0; i--) {
+            const ch = syllable[i];
+            if (TONE_TABLE[ch]) return syllable.slice(0, i) + TONE_TABLE[ch][idx] + syllable.slice(i + 1);
+        }
+        return syllable.replace(/v/g, '\u00FC');
+    }
 
     // ========================================================================
     // INITIALIZATION
@@ -682,7 +702,7 @@
             // Show pinyin
             const pinyinEl = el.querySelector('.char-pinyin');
             if (pinyinEl) {
-                pinyinEl.textContent = token.pinyin_text + token.context_tone;
+                pinyinEl.textContent = applyToneMark(token.pinyin_text, token.context_tone);
             }
 
             // Flash animation
@@ -834,7 +854,7 @@
                     ${token.char}
                 </div>
                 <div class="error-pinyin">
-                    ${token.pinyin_text}${token.context_tone}
+                    ${applyToneMark(token.pinyin_text, token.context_tone)}
                     <span style="color: var(--text-muted); margin-left: 4px;">(${token.word})</span>
                 </div>
                 <div class="error-tones">
