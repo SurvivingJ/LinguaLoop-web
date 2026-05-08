@@ -97,11 +97,7 @@ Previously ALL transcript senses were assigned to EVERY question. Now each quest
 
 Related senses (e.g., synonyms, near-synonyms) are tracked independently. Learning "happy" doesn't affect p_known for "glad". For closely related word senses, there's an opportunity to propagate partial evidence.
 
-### 2. First-Attempt Gating Inconsistency
-
-`ExerciseSessionService.record_attempt_with_updates()` still calls BKT on every attempt (not just first attempts). The ladder service correctly gates on `is_first_attempt`. Non-ladder exercises can inflate p_known on retries.
-
-### 3. Data-Driven Parameter Calibration
+### 2. Data-Driven Parameter Calibration
 
 All slip/guess/transit values are hand-tuned. With sufficient exercise_attempts data (~50k rows), parameters could be fitted from observed data using EM.
 
@@ -119,7 +115,7 @@ All slip/guess/transit values are hand-tuned. With sufficient exercise_attempts 
 | Per-question sense_ids fix | Phase 7 | ✅ Done | High — foundational accuracy |
 | Sentence-level contextual inference | Phase 7 | ✅ Done | High — implicit knowledge |
 | `get_session_senses()` RPC | Phase 7 | ✅ Done | High — all BKT math in SQL |
-| First-attempt gating fix | — | ❌ TODO | Medium — prevents BKT inflation |
+| First-attempt gating fix | — | ✅ Done | Medium — prevents BKT inflation on retries |
 | Cross-sense propagation | — | ❌ TODO | Medium — deferred |
 | Data-driven calibration | — | ❌ TODO (needs ~50k rows) | Very high |
 

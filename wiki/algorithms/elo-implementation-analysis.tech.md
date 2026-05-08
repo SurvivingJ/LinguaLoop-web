@@ -3,7 +3,7 @@ title: ELO System — Implementation Analysis (Technical)
 type: algorithm-tech
 status: in-progress
 prose_page: ./elo-implementation-analysis.md
-last_updated: 2026-04-11
+last_updated: 2026-05-08
 dependencies:
   - "calculate_elo_rating() — plpgsql IMMUTABLE"
   - "calculate_volatility_multiplier() — plpgsql IMMUTABLE"
@@ -38,7 +38,9 @@ User submits test answers (JSON array of question_id + selected_answer)
         ├── GET OR CREATE test_skill_ratings (default ELO 1400)
         │
         ├── IF first attempt:
-        │     ├── Inline ELO calc (NOT calling calculate_elo_rating!)  ◄── BUG
+        │     ├── calculate_volatility_multiplier(user_tests_taken, user_last_date)
+        │     ├── calculate_elo_rating(user, test, pct, K=32, vol)   — user-side
+        │     ├── calculate_elo_rating(test, user, 1-pct, K=16, 1.0) — test-side
         │     ├── UPDATE user_skill_ratings (elo, tests_taken, last_test_date)
         │     └── UPDATE test_skill_ratings (elo, total_attempts)
         │
@@ -52,9 +54,9 @@ Post-insert triggers:
   test_attempts INSERT → update_test_attempts_count() → recount per-test
 ```
 
-## Migration History: V1 → V2
+## Migration History: V1 → V2 → V3
 
-Two migration files document the evolution of the ELO calculation:
+Three migration files document the evolution of the ELO calculation:
 
 ### V1 (`migrations/elo_functions.sql`)
 
@@ -74,7 +76,7 @@ Key V1 differences from V2:
 - **Schema used text columns** — `language TEXT` and `skill_type TEXT` instead of FK integer IDs
 - Used SELECT-then-INSERT/UPDATE pattern (no ON CONFLICT)
 
-### V2 (`migrations/process_test_submission_v2.sql`) — Current
+### V2 (`migrations/process_test_submission_v2.sql`)
 
 Rewrote the function with server-side answer grading (p_responses JSONB instead of pre-calculated score). In the process, volatility was **intentionally dropped** and the ELO calc was inlined:
 
@@ -102,29 +104,31 @@ Key V2 changes:
 
 The helper functions (`calculate_elo_rating`, `calculate_volatility_multiplier`) were **not deleted** — they still exist in the database but are no longer called by any code path.
 
-### Impact Assessment
+### V3 (`migrations/wire_volatility_and_exclude_attempted.sql`) — Current
 
-The volatility removal means:
-- **New users** (<10 tests) calibrate at the same speed as established users — slower convergence for newcomers
-- **Returning users** (>90 days inactive) get no re-calibration boost — ELO may be stale after long breaks
-- **Test K-factor doubling** (16→32) makes test ELO more volatile, which may be intentional for a smaller corpus
-
-### Fix: Re-enable Volatility
-
-Replace the inlined block in V2 with calls to the existing helpers:
+Re-wires volatility into the user-side calculation and restores the asymmetric K-factor for tests. The inlined math is replaced with calls to `calculate_volatility_multiplier()` and `calculate_elo_rating()` (which already existed in the live DB but had been disconnected since V2):
 
 ```sql
--- Calculate volatility for user (not for test — tests don't get "rusty")
 DECLARE
-  v_vol numeric;
+  v_user_volatility numeric;
 BEGIN
-  v_vol := calculate_volatility_multiplier(v_user_tests_taken, v_user_last_date, 1.0);
-  v_new_user_elo := calculate_elo_rating(v_user_elo, v_test_elo, v_percentage_decimal, 32, v_vol);
-  v_new_test_elo := calculate_elo_rating(v_test_elo, v_user_elo, 1.0 - v_percentage_decimal, 32, 1.0);
+  v_user_volatility := calculate_volatility_multiplier(
+      v_user_tests_taken, v_user_last_date, 1.0
+  );
+
+  -- User: K=32 with volatility (1.5x for new users, 2.0x for new + inactive)
+  v_new_user_elo := calculate_elo_rating(
+      v_user_elo, v_test_elo, v_percentage_decimal, 32, v_user_volatility
+  );
+
+  -- Test: K=16, no volatility (tests don't go rusty)
+  v_new_test_elo := calculate_elo_rating(
+      v_test_elo, v_user_elo, 1.0 - v_percentage_decimal, 16, 1.0
+  );
 END;
 ```
 
-The variables `v_user_tests_taken` and `v_user_last_date` are already fetched earlier in the function. No new queries needed.
+V3 differs from V1 in one principled way: V1 applied a volatility multiplier to the test side too (`calculate_volatility_multiplier(v_test_attempts, NULL, 1.0)`). V3 hardcodes test volatility to 1.0 because the inactivity-decay branch of the multiplier doesn't apply to tests — they don't get rusty — and the new-test branch is more cleanly handled by the difficulty-seeded backfill (`scripts/backfill_test_skill_ratings.py`). The variables `v_user_tests_taken` and `v_user_last_date` are already fetched earlier in the function; no new queries.
 
 ## Backfill Script: Test ELO Seeding
 
@@ -153,7 +157,7 @@ The backfill creates ratings per `(test_id, test_type_id)` pair, filtering by `r
 | Feature | `get_recommended_test` | `get_recommended_tests` | `get_vocab_recommendations` |
 |---------|----------------------|------------------------|-----------------------------|
 | Returns | 0 or 1 test | Multiple tests | Multiple tests |
-| Excludes attempted | **No** | Yes | No (but filters by vocab) |
+| Excludes attempted | Yes (V3) | Yes | No (but filters by vocab) |
 | Tier check (free/premium) | No | Yes | No |
 | ELO matching | Expanding radius | Closest match ranking | ±200 range |
 | Vocab-aware | No | No | Yes (3–7% unknown) |
@@ -168,11 +172,12 @@ For each radius:
   IF found → return it
 ```
 
-**Issues:**
-1. No exclusion of previously attempted tests
-2. Sequential loop (5 queries worst case) — could be a single CTE with CASE
-3. Returns a random test within the first matching radius — not the closest match
-4. Doesn't check subscription tier
+**V3 (`migrations/wire_volatility_and_exclude_attempted.sql`)** added a `NOT EXISTS` against `test_attempts` inside the loop's `WHERE` so each radius pass excludes tests the user has attempted.
+
+**Remaining issues:**
+1. Sequential loop (5 queries worst case) — could be a single CTE with CASE
+2. Returns a random test within the first matching radius — not the closest match
+3. Doesn't check subscription tier
 
 ### `get_recommended_tests` — Closest Match
 
@@ -280,15 +285,9 @@ ALTER TABLE test_skill_ratings
 RD decays (increases) with inactivity using the Glicko-2 formula:
 `new_RD = min(350, sqrt(RD² + σ²))` applied during each rating period.
 
-### 3. Single-Recommendation Fix
+### ~~3. Single-Recommendation Fix~~ — APPLIED 2026-05-08
 
-```sql
--- Add to get_recommended_test, inside the LOOP:
-AND NOT EXISTS (
-    SELECT 1 FROM test_attempts ta
-    WHERE ta.user_id = p_user_id AND ta.test_id = t.id
-)
-```
+Implemented in `migrations/wire_volatility_and_exclude_attempted.sql` — see "Recommendation Functions" above.
 
 ### ~~4. Missing UNIQUE Constraints~~ — RESOLVED
 

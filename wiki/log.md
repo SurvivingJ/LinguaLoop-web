@@ -1,5 +1,133 @@
 # Activity Log
 
+## 2026-05-08 fix | First-attempt gating in ExerciseSessionService.record_attempt_with_updates
+
+Source: Remaining gap #2 in `wiki/algorithms/bkt-implementation-analysis.md` ("First-Attempt Gating Inconsistency"). Non-ladder exercise attempts called `update_from_word_test()` on every retry, double-counting BKT evidence and inflating `p_known` on second/third attempts at the same exercise. The ladder service (`LadderService.record_attempt()`) already gated BKT on `is_first_attempt`, but the daily-session path didn't.
+
+**Files updated: 3**
+- `services/exercise_session_service.py` — In `record_attempt_with_updates()`, added a `(user_id, exercise_id)` existence check against `exercise_attempts` *before* inserting the new attempt row to derive `is_first_attempt` server-side (no client trust). The BKT call (`VocabularyKnowledgeService.update_from_word_test`) is now wrapped in `if is_first_attempt:` so retries no longer apply the Bayesian update. The attempt insert, exercise stats counters (`attempt_count`/`correct_count`), and FSRS scheduling (`_update_fsrs_for_exercise`) all still run on every attempt — FSRS reviews are legitimate scheduling signals on retries even when BKT shouldn't compound. The `is_first_attempt` flag is included in the response payload so callers/telemetry can observe gating.
+- `wiki/algorithms/bkt-implementation-analysis.md` — Removed gap #2 from "Remaining Gaps"; renumbered the remaining gap (Data-Driven Parameter Calibration) #2 → #2; flipped the "First-attempt gating fix" row in the Implementation History table from ❌ TODO → ✅ Done with updated impact note.
+- `wiki/algorithms/bkt-implementation-analysis.tech.md` — Replaced the "Remaining observation" paragraph in *Exercises → BKT* with a "Phase 7 fix — First-attempt gating" paragraph describing the server-side derivation and the FSRS-still-runs-on-retries semantics. Flipped section 7 ("First-Attempt Gating Consistency") from ❌ NOT YET IMPLEMENTED → ✅ IMPLEMENTED with a paragraph documenting the existence-check approach and noting the response payload now exposes the flag.
+
+Notes: Chose server-side derivation over a `is_first_attempt` request parameter (which is what the ladder route uses) because (a) it doesn't require frontend changes, (b) it can't be spoofed, and (c) it correctly classifies retries that span page reloads. The cost is one extra SELECT per attempt, which is a single indexed lookup on `(user_id, exercise_id)`. The ladder route trusts client-supplied `is_first_attempt` because the ladder UI controls retry semantics tightly via the SQL RPC; the daily-session UI does not.
+
+Verification:
+1. Submit a new exercise attempt for a vocabulary exercise the user has never seen → response includes `is_first_attempt: true` and `bkt_update` populated.
+2. Submit again with the same `exercise_id` → response includes `is_first_attempt: false` and no `bkt_update` field.
+3. `SELECT p_known FROM user_vocabulary_knowledge` for the affected sense should not move on the second submission.
+4. FSRS scheduling on `user_flashcards` should still update on the second submission (stability/difficulty/due_date change).
+
+---
+
+## 2026-05-08 fix | Wire up ELO volatility and exclude attempted tests in single rec
+
+Source: Priorities 1 and 2 of `wiki/algorithms/elo-implementation-analysis.md`. Both fixes already existed in `migrations/phase3_rpc_fixes.sql` (sections 3.1 and 3.2, dated 2026-04-12) but were never applied to the live database — verified by reading `db_schema_live.sql` and confirming the V2 inlined ELO and the missing `NOT EXISTS` were both still present, alongside four other unapplied phase3 changes. To avoid pulling unrelated phase3 changes into scope, the two relevant rewrites were extracted into a fresh, narrowly-scoped migration.
+
+**Files created: 1**
+- `migrations/wire_volatility_and_exclude_attempted.sql` — Two `CREATE OR REPLACE FUNCTION` blocks. First, `process_test_submission()` replaces the V2 inlined ELO math with calls to the existing `calculate_volatility_multiplier()` and `calculate_elo_rating()` helpers — restoring user-side volatility (1.5x for <10 tests, +0.5x for >90 days inactive) and asymmetric K-factors (32 user / 16 test). Diverges from V1 by hardcoding test volatility to 1.0; tests don't go rusty so the inactivity branch of the multiplier doesn't apply, and the new-test branch is more cleanly handled by the difficulty-seeded backfill. Second, `get_recommended_test()` adds an `AND NOT EXISTS (SELECT 1 FROM test_attempts ta WHERE ta.user_id = p_user_id AND ta.test_id = t.id)` inside the expanding-radius `WHERE`, matching the behaviour of `get_recommended_tests()`. If the user has exhausted all tests in the language, the function returns nothing and the existing `/api/tests/random` 404 path serves clean degradation. Idempotent (`CREATE OR REPLACE`); no signature changes; no Python or service-layer edits required.
+
+**Files updated: 3**
+- `wiki/algorithms/elo-implementation-analysis.md` — Removed the two fixed gaps from the "Other Discrepancies" table; replaced "Critical Finding: Volatility Intentionally Removed in V2" header with "Volatility: Removed in V2, Restored in V3 (2026-05-08)" and added a paragraph describing what V3 actually does; added a "Recently Fixed (2026-05-08)" section above "What Needs Improvement" pointing at the new migration; deleted Priority 1 and Priority 2; renumbered remaining priorities 3-6 → 1-4; struck the two completed rows from the Quantitative Impact Assessment table; bumped `last_updated` to 2026-05-08; removed the now-resolved volatility-integration question from `open_questions` (the question of *whether* volatility belongs in `process_test_submission` is now answered by V3 having shipped).
+- `wiki/algorithms/elo-implementation-analysis.tech.md` — Updated the architecture map to show the new helper-call sequence in place of the `◄── BUG` annotation; renamed "Migration History: V1 → V2" to "V1 → V2 → V3" and added a V3 section with the new code block plus a paragraph explaining the principled deviation from V1 (test volatility hardcoded to 1.0 because tests don't go rusty); deleted the now-applied "Fix: Re-enable Volatility" code block; flipped the "Excludes attempted" row in the recommendation comparison table from "**No**" to "Yes (V3)"; replaced the "Issues" list under `get_recommended_test` with a "V3" applied callout plus the three remaining issues; replaced the "Single-Recommendation Fix" code block under "Proposed Improvements" with a strikethrough pointing back at the V3 section; bumped `last_updated`.
+- `wiki/log.md` — This entry.
+
+Notes: The other four phase3 fixes (`can_use_free_test` actual-usage check, `get_token_balance` real lookup, `update_skill_attempts_count` COUNT(*) → increment, `get_distractors` SECURITY DEFINER + auth check) remain unapplied. The 2026-04-15 wiki log entry described them as synced because the *wiki was* updated to match the migration file's intent — but the migration itself never ran against Supabase. Each of those is a real fix that's worth picking up; left out here to keep this scope narrow.
+
+Verification (deferred until migration is applied via Supabase MCP `apply_migration`):
+1. New-user submission produces ~1.5× the ELO swing of an established user for an identical result (user K=32 × volatility 1.5 = effective 48; baseline V2 was 32). Confirm via `SELECT user_elo_after - user_elo_before FROM test_attempts ORDER BY created_at DESC LIMIT 1`.
+2. Test ELO change is roughly half the magnitude of the user change (K=16 vs K=32 × volatility), opposite sign.
+3. `SELECT * FROM get_recommended_test(<uuid>, <lang_id>);` repeated calls never return a test the user has attempted.
+4. Sanity: `SELECT calculate_volatility_multiplier(5, NULL, 1.0);` → 1.5; `SELECT calculate_volatility_multiplier(50, CURRENT_DATE, 1.0);` → 1.0.
+
+---
+
+## 2026-05-07 sync | Wiki/code reconciliation — Model Arena documented; pinyin-trainer updated for scoring + tone-mark changes
+
+Source: Codebase survey requested after the brand and theming work. Compared `git log` and the actual `services/` and `templates/` trees against the wiki and identified two material divergences: a complete subsystem (`services/model_arena/`, `routes/model_arena.py`) had no wiki page, and the pinyin-trainer pages were stale relative to two commits (`d056a169` scoring fix, `0a46c254` tone-mark rendering).
+
+**Files created: 2**
+- `wiki/features/model-arena.md` — Prose page describing the admin/operator tool that runs blind head-to-head OpenRouter model comparisons across prose generation and comprehension question generation, with a judge model scoring contestants on strict rubrics. Captures the operator workflow, business rules (admin-only, OpenRouter-only, no automatic feedback into production routing), and open questions (statistical significance estimation, automatic vs manual model swap, expansion to vocab-pipeline tasks).
+- `wiki/features/model-arena.tech.md` — Technical specification covering the 6-file `services/model_arena/` module layout, the dataclass surface (`ArenaConfig`, `JudgeScores`, `TrialResult`, `ArenaResults`), the four-endpoint blueprint at `routes/model_arena.py` (`/api/models`, `/api/run/arena`, `/<id>/status|stop|results`), trial-execution detail for both prose and questions modes (including the rationale for having the judge model write the shared prose for questions trials), persistence to `data/arena_runs/{arena_id}.json`, OpenRouter pricing integration with 1h cache, and five key architectural decisions (blind-relabelled per-trial shuffle, judge-writes-shared-prose, OpenRouter-as-unified-provider, cooperative-cancel via `stop_check`, fixed temperatures matching production).
+
+**Files updated: 3**
+- `wiki/features/pinyin-trainer.md` — Bumped last-updated to 2026-05-07. Tightened the *How It Works* step that describes pinyin reveal to mention the precomposed tone marks. Replaced the *Accuracy-based scoring* edge-case bullet with an *Error-penalised accuracy* bullet that documents the new formula `(total − errors) / total` and explains why the old `correct_count / total` calc always returned 100% (wrong answers retry in place).
+- `wiki/features/pinyin-trainer.tech.md` — Bumped last-updated. Rewrote the `submit-pinyin` *Arguments* section to clarify that `correct_chars` is now the client-encoded `max(0, total - error_count)`, not `state.correctCount`. Replaced the bare *Rendering* sub-bullet about pinyin with a full *Tone-mark rendering* subsection documenting the `applyToneMark(syllable, tone)` algorithm — its precomposed-glyph table for ā/á/ǎ/à and the ü family, its vowel-priority rules (a > e > o-of-ou > rightmost vowel), and why the precomposed approach replaced the previous appended-combining-diacritic path. Added a *Recent Changes (2026-05-06 → 07)* section anchoring both fixes to their commits.
+- `wiki/index.md` — Added `[[features/model-arena]]` and `[[features/model-arena.tech]]` under the Features section. Bumped page count 45 → 47.
+
+Notes: No code changes in this entry — wiki-only sync. The `services/model_arena/` subsystem itself was introduced in commit `778972dd` ("Exercise generation upgrades; library scanning upgrades") on the same day as the prompt-template and L5/L8 work but had not been written up. The pinyin-trainer changes shipped in `0a46c254` (tone marks) and `d056a169` (scoring), both predating the most recent wiki update of those pages — the prose page `last_updated` was 2026-04-21, so roughly two weeks of drift was reconciled.
+
+Out-of-scope (flagged):
+- The `Portal/Library/`, `Portal/MathDojo/`, `Portal/MusicDojo/`, `Portal/hub/` sibling apps under `linguadojo.com` are not part of the WebApp wiki's scope. They surface in the git log (commits about "library functionality", "music dojo improv gen", etc.) but live outside `WebApp/`. If the wiki is ever expanded to cover the full `linguadojo.com` portfolio, those would need their own documentation root rather than being wedged into the language-learning app's wiki.
+- The earlier `git status` working-tree changes to `services/vocabulary_ladder/config.py`, `services/vocabulary_ladder/validators.py`, and `wiki/features/exercise-generation-prompts.md` were already covered by the 2026-05-07 Chinese-vocab-prompt-seed entry below; no further sync needed.
+- Two known stale areas were noted but **not** updated in this pass because the underlying code questions are still open: the master tasklist (still shows 0 tasks because language-packs design is blocked), and the three implementation-analysis docs (ELO / BKT / ladder) which document gaps that haven't been closed yet — the analyses are correct as-is.
+
+---
+
+## 2026-05-07 decision | Brand name reconciled: LinguaDojo (camel-case)
+
+Source: Brand-architect interrogation session. Surfaced a long-standing inconsistency — the wiki documentation and `CLAUDE.md` refer to the project as `LinguaLoop`, while the production codebase has been using `LinguaDojo` (camel-case) throughout: page titles, logo wordmark, the `window.LINGUADOJO` global, all four locales of i18n strings, production subdomains (`audio.linguadojo.com`, `library.linguadojo.com`, etc.), and the R2 audio bucket. The Project Knowledge corpus explicitly noted "Product Name: LinguaDojo (formerly LinguaLoop)" but no formal ADR captured the decision. This entry records the reconciliation and locks the casing as `LinguaDojo`.
+
+The session also produced an alternative-name research pass over ~20 etymologically-rich candidates surfacing 7 with credible domain availability (Stoa, Caesura, Verbarium, Fermata, Hapax, Refrain, Phrasis). None were adopted; the existing `LinguaDojo` brand was kept. The exploration is archived in the ADR for historical reference rather than as a recommendation.
+
+**Files created: 1**
+- `wiki/decisions/ADR-004-brand-name.md` — Records the formal adoption of `LinguaDojo` as canonical brand text, documents the codebase reality that informed it, and archives the seven considered alternatives with full etymology and domain-status notes plus the ~20-entry eliminated-candidate appendix.
+
+**Files updated: 1**
+- `wiki/index.md` — Added ADR-004 to the Decisions section; bumped page count 44 → 45 and last-updated to 2026-05-07.
+
+Notes: Brand-text only. The wiki and `CLAUDE.md` continue to say "LinguaLoop" — those references are not retroactively renamed by this entry. The accompanying brand brief (palette: Inkstone & Vermilion; typography: IBM Plex family; web architecture: vanilla HTML/CSS/JS over Flask) lives in the planning artifact at `~/.claude/plans/role-objective-you-happy-panda.md` and is reference material — not implemented as part of this entry.
+
+---
+
+## 2026-05-07 fix | Reframe English L1 in vocab_prompt2_exercises as listening-only (v3)
+
+Source: While analysing whether the Chinese-side decisions reverse-applied to English, surfaced that English L1 had the same framing problem the Chinese seeding fixed — the prompt instructed the LLM to pick "form-similar" distractors (Levenshtein, first/last letter) for an exercise the renderer ([services/vocabulary_ladder/exercise_renderer.py:155](../../services/vocabulary_ladder/exercise_renderer.py#L155)) actually plays as audio-then-MCQ. Visual lookalikes test the wrong skill: "tough" / "though" look identical and sound completely different.
+
+**Files created: 1**
+- `migrations/reframe_english_l1_listening.sql` — Deactivates `vocab_prompt2_exercises` v2 for `language_id=2` and inserts v3. v3 swaps the L1 block for "Listening Recognition" with phonetic-only distractor types (homophones, near-homophones, minimal pairs, mishear-able rhymes) and an explicit anti-rule against visual-similarity distractors. L3, L5, L6, the global rules, and the output schema are byte-identical to v2. Model unchanged: `anthropic/claude-opus-4-7`.
+
+**Files updated: 1**
+- `wiki/features/exercise-generation-prompts.md` — Bumped EN P2 from v2 to v3 in the deployment table; rewrote the cross-cutting "Stronger L1 distractor rules" summary bullet to describe listening-only distractor families; updated both L1 verbatim blocks (the v2 design-intent section is renamed to v3 active and given a v3-vs-v2 changelog header; the legacy v1 section is correctly marked deactivated).
+
+Notes: This is a behavioural change for English vocab generation but not a schema change — only the prompt text differs. Existing word_assets generated under v2 are untouched; future generations use v3. Pairs symmetrically with the Chinese P2 v1 deployed earlier today (which restricts CN L1 distractors to tonal confusables, the Mandarin manifestation of the same audio-confusable principle).
+
+Out-of-scope (flagged):
+- Regenerating existing English word_assets to take advantage of the listening reframe — operator decision; v3 will apply to all new generations automatically.
+- The English TTS pipeline that L1 actually consumes — already deployed and working for English (uses OpenAI TTS via `dim_languages.tts_voice_ids`); only Chinese still lacks a TTS renderer.
+
+---
+
+## 2026-05-07 feature | Seed Chinese vocab pipeline prompt templates (language_id=1)
+
+Source: Generation for sense 20125 (起来) errored with `No active prompt_templates row for task_name='vocab_prompt1_core' language_id=1`. The 2026-05-05 refactor noted this as out-of-scope follow-up; this entry resolves it.
+
+**Files created: 1**
+- `migrations/seed_chinese_vocab_prompts.sql` — Inserts v1 of `vocab_prompt1_core`, `vocab_prompt2_exercises`, `vocab_prompt3_transforms` for `language_id=1`. All three rows have `model`/`provider` set at insert time. Uses `$PROMPT$…$PROMPT$` dollar-quoting and `ON CONFLICT (task_name, language_id, version) DO NOTHING` for idempotency.
+
+**Files updated: 3**
+- `services/vocabulary_ladder/validators.py` — Extended `VALID_POS` and `VALID_SEMANTIC_CLASSES` to allow Chinese enum values (名词/动词/具体名词/抽象名词/etc.); rewrote `contains_target_whole_word` to fall back to substring presence for non-ASCII targets, since `\b` regex doesn't yield word boundaries between Hanzi.
+- `services/vocabulary_ladder/config.py` — Extended `COLLOCATION_SKIP_CLASSES` to recognise `具体名词` alongside `concrete_noun` so the L5/L8 skip gate works for Chinese (academic since `corpus_collocations` is empty for Chinese, but consistent with the data model).
+- `wiki/features/exercise-generation-prompts.md` — Added a Chinese row to the deployment table; updated the open-questions list to lift the CN-absent question, flag JP-still-absent and Chinese-TTS-still-required, and noted the validators.py dependency.
+
+**Design decisions** (captured during planning interview):
+- L4 reinterpreted as compound-completion slot (Chinese has no inflectional morphology, so the English morphology-slot frame doesn't translate).
+- L1 distractors restricted to tonal confusables (same syllable, different tones — e.g. 妈/麻/马/骂 for monosyllabic targets, or one-syllable-tone-shift for disyllabic targets like 起来).
+- Sentence-length caps measured in Hanzi characters: T1:10, T2:16, T3:22, T4:30, T5:40, T6:no cap.
+- Substring rule: sense-match — target characters must appear contiguously AND with the locked sense (replaces the English "whole word" rule that doesn't apply to a script without word boundaries).
+- L6/L7 error categories: wrong measure word, misplaced aspect particle (了/着/过), word-order errors, misused directional/resultative complement.
+- All learner-facing fields and enum values in Chinese (no English in the prompt body except `{curly-brace variables}`, `JSON`, and `.md`).
+- Models: Qwen family — `qwen/qwen-2.5-72b-instruct` for P1 (cheaper, runs more often), `qwen/qwen-max` for P2/P3 (more nuanced distractor / error generation).
+
+Notes: Chinese L5/L8 will silently skip for every word until `corpus_collocations` is populated for `language_id=1` — the PMI gate at `asset_pipeline.py:102-109` handles this naturally. Chinese L1 listening exercises will render but cannot actually play audio until a Chinese TTS pipeline ships (P1's `pronunciation` field stores the pinyin, but no renderer consumes it yet). Both items are documented as open follow-ups in the feature page.
+
+Out-of-scope (flagged):
+- Japanese (`language_id=3`) seeds — same shape but distinct grammar / kana mixing / keigo register; defer.
+- Chinese TTS pipeline for L1 listening exercises — most pressing follow-up.
+- Populating `corpus_collocations` for Chinese to enable L5/L8.
+- Iteration on the prompts after observing real Qwen output for 起来 — particles are an unusually hard test case.
+
+---
+
 ## 2026-05-05 refactor | Centralise model+provider on prompt_templates; retire dim_languages model columns
 
 Source: Today's hotfix surfaced a structural problem — `prompt_templates.model`/`.provider` weren't tracked in source migrations and several rows had NULL values, while a parallel set of `dim_languages.*_model` columns held the same routing information for non-vocab features. Two sources of truth that drifted apart silently.

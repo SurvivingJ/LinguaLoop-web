@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-05-05 | Pages: 44
+Last updated: 2026-05-07 | Pages: 47
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -29,6 +29,8 @@ Last updated: 2026-05-05 | Pages: 44
 - [[features/vocab-dojo.tech]] — ExerciseScheduler, anti-repetition, get_exercise_session RPC
 - [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
+- [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
+- [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 
 ## Algorithms
 - [[algorithms/elo-ranking]] — Dual-ELO system for user-test matching
@@ -62,6 +64,7 @@ Last updated: 2026-05-05 | Pages: 44
 - [[decisions/ADR-001-dual-elo]] — Dual ELO rating system
 - [[decisions/ADR-002-bkt-per-sense]] — BKT at word-sense granularity
 - [[decisions/ADR-003-age-tiers]] — Age-tier difficulty replacing CEFR for LLM generation
+- [[decisions/ADR-004-brand-name]] — Brand name: LinguaDojo (formal reconciliation of wiki ↔ codebase; alternatives archived)
 
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status

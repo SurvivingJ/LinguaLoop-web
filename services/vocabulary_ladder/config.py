@@ -202,7 +202,7 @@ WORD_STATES: list[str] = [
 # ---------------------------------------------------------------------------
 
 COLLOCATION_LEVELS: set[int] = {5, 8}
-COLLOCATION_SKIP_CLASSES: set[str] = {'concrete_noun'}
+COLLOCATION_SKIP_CLASSES: set[str] = {'concrete_noun', '具体名词'}
 
 
 def compute_active_levels(semantic_class: str | None) -> list[int]:

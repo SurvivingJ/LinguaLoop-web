@@ -3,7 +3,7 @@ title: Pinyin Tone Trainer
 type: feature
 status: complete
 tech_page: ./pinyin-trainer.tech.md
-last_updated: 2026-04-21
+last_updated: 2026-05-07
 open_questions: []
 ---
 
@@ -28,7 +28,7 @@ A learner studying Chinese opens a test preview page and sees a "Pinyin Tones" o
 7. The learner inputs a tone guess:
    - **Keyboard:** Right = Tone 1, Up = Tone 2, Left = Tone 3, Down = Tone 4, Space = Neutral
    - **Touch:** Swipe right = T1, swipe up = T2, swipe left = T3, swipe down = T4, tap = Neutral
-8. If **correct**: the character is coloured by its tone, pinyin appears below it, and the game advances to the next character.
+8. If **correct**: the character is coloured by its tone, the pinyin syllable appears below it with the proper tone mark on the correct vowel (ā / á / ǎ / à for 1st/2nd/3rd/4th, no mark for neutral), and the game advances to the next character.
 9. If **incorrect**: the character shakes, and an error modal appears showing:
    - The character and its word context
    - The guessed tone vs. the correct tone
@@ -64,7 +64,7 @@ Some Chinese characters have multiple valid pronunciations depending on context 
 - **No audio input** — this is a visual/input game, not speech recognition.
 - **Punctuation excluded** — punctuation characters are rendered but not interactive.
 - **ELO integration** — uses the same dual-ELO system as other test types, with a separate pinyin skill rating per test.
-- **Accuracy-based scoring** — the accuracy percentage drives ELO calculation (not per-question correctness).
+- **Error-penalised accuracy** — accuracy is computed as `(total_chars − error_count) / total_chars`, NOT `correct_count / total_chars`. Wrong answers retry in place until correct, so `correct_count` always equals `total_chars` at game end and is not informative; the score must come from the count of mistakes the learner made along the way. This is the metric the ELO update consumes.
 - **Sandhi coverage** — only the three most common rule sets are implemented; rarer sandhi patterns are not covered.
 
 ## Business Rules

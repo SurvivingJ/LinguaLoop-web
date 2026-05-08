@@ -124,7 +124,7 @@ upserted:         INSERT ... ON CONFLICT → upsert with evidence counters
 
 **Phase 7 — Transit parameter:** All three update functions now apply a transit credit after the Bayesian update: `p_post + (1 - p_post) * P_TRANSIT`. Transit values: comprehension=0.02, recognition=0.05, recall/nuanced=0.08, production=0.10.
 
-**Remaining observation**: The exercise session service (`record_attempt_with_updates()`) calls BKT for **every** exercise attempt, not just first attempts. The ladder service (`record_attempt()`) only calls BKT for first attempts (`if is_first_attempt`). This inconsistency means non-ladder exercises update BKT on retries too, potentially inflating p_known on second/third attempts.
+**Phase 7 fix — First-attempt gating:** `ExerciseSessionService.record_attempt_with_updates()` now derives `is_first_attempt` server-side by querying `exercise_attempts` for any prior row matching `(user_id, exercise_id)` before inserting the new attempt. BKT is gated on `is_first_attempt`; the attempt row, exercise stats counters, and FSRS scheduling still update on every attempt. This matches the ladder service's gating semantics without trusting the client.
 
 ## Table: user_vocabulary_knowledge
 
@@ -218,9 +218,9 @@ v_p_post := v_p_post + (1.0 - v_p_post) * v_p_transit;
 
 **Prerequisite fix:** `TestOrchestrator._match_question_senses()` now assigns per-question sense_ids by matching vocab lemmas against question text + choices, instead of assigning all transcript senses to every question.
 
-### 7. First-Attempt Gating Consistency — ❌ NOT YET IMPLEMENTED
+### 7. First-Attempt Gating Consistency — ✅ IMPLEMENTED
 
-`ExerciseSessionService.record_attempt_with_updates()` still calls BKT on every attempt, not just first attempts. The inconsistency with the ladder service remains.
+`ExerciseSessionService.record_attempt_with_updates()` now derives `is_first_attempt` server-side via a `(user_id, exercise_id)` existence check on `exercise_attempts` before inserting the new row. BKT updates are gated on this flag; FSRS scheduling, exercise stats counters, and the attempt insert still run on every call. This matches `LadderService.record_attempt()`'s gating semantics. The flag is also returned to the client in the response payload for telemetry.
 
 ### 8. Harmonize Phase Thresholds — ✅ IMPLEMENTED (Phase 5)
 

@@ -3,7 +3,7 @@ title: Pinyin Tone Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./pinyin-trainer.md
-last_updated: 2026-04-21
+last_updated: 2026-05-07
 dependencies:
   - "tests table (pinyin_payload JSONB column)"
   - "dim_test_types (pinyin row)"
@@ -100,12 +100,12 @@ Each element in the `pinyin_payload` JSON array:
 - **Handler:** `routes/tests.py:847-948`
 - **Auth:** JWT required
 - **Arguments:**
-  - `correct_chars: int` — characters answered correctly
-  - `total_chars: int` — total playable characters
+  - `correct_chars: int` — count of characters that **never received an incorrect guess**, computed client-side as `max(0, total_chars - error_count)`. Despite the field name, this is **not** `state.correctCount` (which always equals `total_chars` at game end because wrong answers retry in place).
+  - `total_chars: int` — total playable characters (`state.playableTokens.length`)
   - `time_taken: int` — seconds elapsed
-  - `errors: array` — (optional) error log objects
+  - `errors: array` — (optional) error log objects, capped at 50 entries
 - **Processing:**
-  1. Calculate accuracy: `correct_chars / total_chars`
+  1. Calculate accuracy: `correct_chars / total_chars` (where the client has already encoded the error penalty into `correct_chars`)
   2. Look up test by slug, verify `language_id == 1`
   3. Get pinyin `test_type_id` via `DimensionService.get_test_type_id('pinyin')`
   4. Build synthetic response: `[{question_id: first_question_id, selected_answer: "pinyin_accuracy_{accuracy:.2f}"}]`
@@ -192,8 +192,24 @@ Applied in order, each rule checks consecutive token pairs:
 - Characters in flex-wrap grid at 2rem font size
 - Current character scaled 1.25x with underline
 - Completed characters coloured by tone (CSS variables `--tone-1` through `--tone-5`)
-- Pinyin romanisation revealed below each character on correct answer
-- Error modal overlays game with character, word context, tones, and sandhi explanation
+- Pinyin romanisation revealed below each character on correct answer **with the proper diacritical tone mark applied to the correct vowel** (ā á ǎ à for tones 1–4, no mark for neutral). See *Tone-mark rendering* below.
+- Error modal overlays game with character, word context, the correctly-marked pinyin, the available tones, and the sandhi explanation if any.
+
+**Tone-mark rendering — `applyToneMark(syllable, tone)` (`test_pinyin.html:547-572`):**
+
+A precomposed Unicode glyph table maps each vowel × tone (1–4) to the one-character precomposed form. The function picks which vowel to mark using standard pinyin orthography rules:
+
+| Priority | Rule | Example |
+|---|---|---|
+| 1 | If `a` is present, mark `a`. | `hao` (3) → `hǎo` |
+| 2 | Else if `e` is present, mark `e`. | `hen` (3) → `hěn` |
+| 3 | Else if the diphthong `ou` is present, mark `o`. | `hou` (4) → `hòu` |
+| 4 | Else mark the rightmost remaining vowel. | `liu` (4) → `liù` |
+| ü-handling | Replace literal `v` with `ü`; ü has its own precomposed table for ǖ ǘ ǚ ǜ. | `nv` (3) → `nǚ` |
+
+Tone 5 (neutral) renders the bare syllable without diacritics. Out-of-range tone numbers fall back to the bare-syllable form with `v→ü` substitution.
+
+This replaced an earlier display path that appended bare combining-diacritic codepoints (`̄`, `́`, `̌`, `̀`) to the syllable. Combining marks render reliably enough on most fonts but produce awkward placement (often on the *first* character rather than the orthographically correct vowel), which the precomposed table fixes.
 
 **Grading thresholds:**
 
@@ -261,6 +277,11 @@ Usage:
 - Unit test: token generation from sample Chinese passages
 - Integration test: submit-pinyin endpoint with mock accuracy data, verify ELO changes
 - Edge cases: empty transcript, all-punctuation text, polyphone-heavy passages, 100% and 0% accuracy submissions
+
+## Recent Changes (2026-05-06 → 07)
+
+- **Scoring fix** (`d056a169`): the client now sends `correct_chars = max(0, total - error_count)` rather than `state.correctCount`. The previous behaviour computed accuracy from `correctCount`, which always equalled `total` at game end because wrong answers retry in place — yielding a flat 100% score regardless of how many attempts the learner needed. The new formula penalises errors (one error → 1 lost point, regardless of how many retries followed). The server-side `accuracy = correct_chars / total_chars` calc is unchanged; the change is purely in what `correct_chars` denotes.
+- **Tone-mark display** (`0a46c254`): replaced the appended-combining-mark display path with the precomposed-glyph `applyToneMark()` function described above. Affects both the in-game `.char-pinyin` element and the error modal's `.error-pinyin` block.
 
 ## Related Pages
 

@@ -1,61 +1,124 @@
 /* ============================================
-   LinguaDojo Custom Styles
-   Design System: Educational Focus
+   LinguaDojo — Inkstone & Vermilion design system
+   Default theme: scholar's-desk palette anchored on
+   ink, parchment, and a single Pompeiian-red accent.
+   Anti-positioning: explicitly NOT gamified consumer
+   ed-tech (no neon greens, no cobalt-on-white).
    ============================================ */
 
-/* CSS Variables */
 :root {
-  /* Primary Colors */
-  --primary: #1e40af;
-  --primary-hover: #1e3a8a;
-  --success: #059669;
-  --success-hover: #047857;
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
-  --warning: #ea580c;
-  --info: #0284c7;
-  --accent: #f59e0b;
+  /* ----- Brand-native tokens (the source of truth) ----- */
+  --ink:            #0E1116;  /* warmed near-black, printed-type */
+  --ink-soft:       #2A2D33;
+  --graphite:       #4A4843;  /* sepia-leaning muted text */
+  --parchment:      #F5F1E8;  /* warm paper, default surface */
+  --parchment-soft: #ECE6D6;
+  --paper:          #FFFFFF;  /* elevated surface (cards, modals) */
+  --rule:           #D9D2C2;  /* hairline borders */
+  --rule-strong:    #B8B0A0;
 
-  /* Neutral Slate Scale */
-  --slate-900: #0f172a;
-  --slate-800: #1e293b;
-  --slate-700: #334155;
-  --slate-600: #475569;
-  --slate-500: #64748b;
-  --slate-400: #94a3b8;
-  --slate-300: #cbd5e1;
-  --slate-200: #e2e8f0;
-  --slate-100: #f1f5f9;
-  --slate-50: #f8fafc;
+  --vermilion:      #B5331E;  /* primary accent — Pompeiian red, manuscript rubrication */
+  --vermilion-deep: #8C2516;
+  --vermilion-wash: #F4DCD4;  /* selected-row tint */
 
-  /* Semantic Surface & Text (theme-overridable) */
-  --bg-body: var(--slate-50);
-  --bg-surface: #ffffff;
-  --bg-surface-hover: var(--slate-50);
-  --bg-muted: var(--slate-100);
-  --text-primary: var(--slate-900);
-  --text-secondary: var(--slate-600);
-  --text-muted: var(--slate-500);
-  --border-default: var(--slate-200);
-  --border-strong: var(--slate-300);
-  --focus-ring: rgba(30, 64, 175, 0.1);
+  --moss:           #4A6B3A;  /* success — deep olive, never lime */
+  --brass:          #B8862C;  /* warning — aged brass / mustard */
+  --oxblood:        #7A2222;  /* error — dried-blood */
+  --lapis:          #2D4A6B;  /* info — deep manuscript blue */
 
-  /* Semantic Backgrounds */
-  --success-bg: #d1fae5;
-  --danger-bg: #fee2e2;
-  --warning-bg: #fed7aa;
-  --info-bg: #e0f2fe;
-  --selected-bg: #dbeafe;
+  /* ----- Legacy tokens kept for backwards compatibility -----
+     The downstream CSS still references these names; they now
+     resolve to the brand-native palette above so existing
+     selectors automatically inherit the new look. */
+  --primary:        var(--vermilion);
+  --primary-hover:  var(--vermilion-deep);
+  --success:        var(--moss);
+  --success-hover:  #3A5530;
+  --danger:         var(--oxblood);
+  --danger-hover:   #5E1A1A;
+  --warning:        var(--brass);
+  --info:           var(--lapis);
+  --accent:         var(--brass);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.15);
+  /* Warm neutral scale (replaces the old cool slate scale).
+     Variable names retained because utility classes consume them. */
+  --slate-900: var(--ink);
+  --slate-800: #1A1D23;
+  --slate-700: var(--ink-soft);
+  --slate-600: var(--graphite);
+  --slate-500: #6B695F;
+  --slate-400: #8E8B7F;
+  --slate-300: var(--rule-strong);
+  --slate-200: var(--rule);
+  --slate-100: var(--parchment-soft);
+  --slate-50:  var(--parchment);
 
-  /* Transitions */
-  --transition-fast: all 0.15s ease;
-  --transition-base: all 0.2s ease;
-  --transition-slow: all 0.3s ease;
+  /* Semantic surface & text (theme-overridable) */
+  --bg-body:          var(--parchment);
+  --bg-surface:       var(--paper);
+  --bg-surface-hover: var(--parchment-soft);
+  --bg-muted:         var(--parchment-soft);
+  --text-primary:     var(--ink);
+  --text-secondary:   var(--graphite);
+  --text-muted:       #6B695F;
+  --border-default:   var(--rule);
+  --border-strong:    var(--rule-strong);
+  --focus-ring:       rgba(181, 51, 30, 0.18);
+
+  /* Semantic backgrounds — earthy, never shrill */
+  --success-bg:  #E2EAD9;
+  --danger-bg:   #EAD4D4;
+  --warning-bg:  #F2E5CC;
+  --info-bg:     #DAE0E9;
+  --selected-bg: var(--vermilion-wash);
+
+  /* Shadows — ink-tinted, restrained */
+  --shadow-sm: 0 1px 2px rgba(14, 17, 22, 0.06);
+  --shadow-md: 0 2px 8px rgba(14, 17, 22, 0.08);
+  --shadow-lg: 0 16px 48px rgba(14, 17, 22, 0.18);
+
+  /* Bootstrap overrides so framework chrome inherits the brand */
+  --bs-body-bg:        var(--bg-body);
+  --bs-body-color:     var(--text-primary);
+  --bs-border-color:   var(--border-default);
+  --bs-secondary-color: var(--text-muted);
+  --bs-emphasis-color: var(--text-primary);
+  --bs-link-color:     var(--vermilion);
+  --bs-link-hover-color: var(--vermilion-deep);
+
+  /* ----- Typography ----- */
+  --font-sans:  "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "IBM Plex Serif", "Source Serif Pro", Charter, "Iowan Old Style", Georgia, serif;
+  --font-mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs:      0.8rem;     /* 12.8px */
+  --text-sm:      0.875rem;   /* 14px */
+  --text-base:    1rem;       /* 16px */
+  --text-lg:      1.25rem;    /* 20px */
+  --text-xl:      1.5625rem;  /* 25px */
+  --text-2xl:     1.953rem;   /* 31.25px */
+  --text-3xl:     2.441rem;   /* 39px */
+  --text-display: 4rem;       /* 64px */
+
+  --leading-tight:    1.2;
+  --leading-snug:     1.35;
+  --leading-normal:   1.6;
+  --leading-relaxed:  1.75;
+
+  /* Spacing — 4px base */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px;  --space-10: 40px; --space-12: 48px;
+  --space-16: 64px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast:  120ms;
+  --duration-base:  200ms;
+
+  --transition-fast: all 0.12s var(--ease-standard);
+  --transition-base: all 0.2s  var(--ease-standard);
+  --transition-slow: all 0.3s  var(--ease-standard);
   --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -65,28 +128,77 @@
 body {
   background: var(--bg-body);
   color: var(--text-secondary);
-  font-size: 16px;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv02", "cv11";
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
-  font-weight: 600;
-  line-height: 1.2;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.005em;
 }
 
-h1 { font-size: 28px; font-weight: 700; }
-h2 { font-size: 24px; }
-h3 { font-size: 20px; }
+h1 { font-size: var(--text-3xl); font-weight: 600; }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); font-weight: 600; }
+h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
 
 a {
-  color: var(--primary);
+  color: var(--vermilion);
   text-decoration: none;
   transition: var(--transition-fast);
 }
 
 a:hover {
+  color: var(--vermilion-deep);
   text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* Editorial long-form passages (lesson body, reading exercises in target
+   languages, articles). Caps line length for readability and uses Plex Serif. */
+.editorial,
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  max-width: 65ch;
+  color: var(--text-primary);
+}
+
+.editorial p + p,
+.prose p + p { margin-top: var(--space-4); }
+
+/* Tabular / data displays — pinyin tone digits, ELO numbers, scores. */
+.font-mono,
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selection */
+::selection {
+  background: var(--vermilion-wash);
+  color: var(--ink);
+}
+
+/* Honour user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ============================================
@@ -136,7 +248,7 @@ a:hover {
   background: var(--success-hover);
   border-color: var(--success-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 4px 12px rgba(74, 107, 58, 0.22);
 }
 
 /* Secondary Button */
@@ -161,7 +273,7 @@ a:hover {
 .btn-danger:focus {
   background: var(--danger-hover);
   border-color: var(--danger-hover);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  box-shadow: 0 4px 12px rgba(122, 34, 34, 0.22);
 }
 
 /* Icon Button */
@@ -287,7 +399,7 @@ a:hover {
 }
 
 .form-control.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 3px rgba(122, 34, 34, 0.15);
 }
 
 /* Seamless Input Groups */
@@ -385,9 +497,9 @@ a:hover {
 }
 
 .progress-bar {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+  background: var(--vermilion);
   border-radius: 4px;
-  transition: width 0.4s ease;
+  transition: width 0.4s var(--ease-standard);
 }
 
 /* Milestone Marker */
@@ -402,10 +514,10 @@ a:hover {
 }
 
 .milestone.completed {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-  animation: pulse 0.4s ease;
+  background: var(--brass);
+  border-color: var(--brass);
+  box-shadow: 0 0 6px rgba(184, 134, 44, 0.35);
+  animation: pulse 0.4s var(--ease-standard);
 }
 
 /* Spinner */
@@ -504,14 +616,16 @@ a:hover {
   border-radius: 4px;
 }
 
-/* Level Badge */
+/* Level Badge — brass on ink, the master's mark */
 .badge-level {
-  background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  background: var(--brass);
+  color: var(--paper);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-sm);
 }
 
 .badge-level.level-up {
@@ -568,7 +682,7 @@ a:hover {
 }
 
 .modal-backdrop {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(14, 17, 22, 0.45);
   backdrop-filter: blur(2px);
 }
 
@@ -637,8 +751,8 @@ a:hover {
 }
 
 .chart-bar {
-  background: linear-gradient(180deg, var(--primary) 0%, var(--info) 100%);
-  border-radius: 4px 4px 0 0;
+  background: var(--vermilion);
+  border-radius: 2px 2px 0 0;
   transition: var(--transition-slow);
 }
 
@@ -699,16 +813,29 @@ a:hover {
   animation: slideUp 0.3s ease;
 }
 
-/* Logo Styling */
+/* Logo / wordmark — editorial serif, ink-on-parchment */
 .logo {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: -0.5px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  font-feature-settings: "lnum";
+}
+
+[data-theme="midnight"] .logo {
+  color: var(--text-primary);
+}
+
+.logo:hover {
+  color: var(--vermilion);
+  text-decoration: none;
 }
 
 .tagline {
-  font-size: 14px;
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-style: italic;
   color: var(--text-muted);
 }
 
@@ -742,57 +869,72 @@ footer,
 }
 
 /* ============================================
-   Theme: Midnight (Dark)
+   Theme: Midnight — Inkstone & Vermilion, inverted.
+   The dojo at night: ink as ground, parchment as text,
+   vermilion brightened to hold contrast on dark.
    ============================================ */
 [data-theme="midnight"] {
-  --primary: #60a5fa;
-  --primary-hover: #93bbfd;
-  --success: #34d399;
-  --success-hover: #6ee7b7;
-  --danger: #f87171;
-  --danger-hover: #fca5a5;
-  --warning: #fb923c;
-  --info: #38bdf8;
-  --accent: #fbbf24;
+  --vermilion:      #D44833;  /* brightened for dark-mode contrast */
+  --vermilion-deep: #E85B43;
+  --vermilion-wash: rgba(212, 72, 51, 0.18);
 
-  --slate-900: #f1f5f9;
-  --slate-800: #e2e8f0;
-  --slate-700: #cbd5e1;
-  --slate-600: #94a3b8;
-  --slate-500: #64748b;
-  --slate-400: #475569;
-  --slate-300: #334155;
-  --slate-200: #1e293b;
-  --slate-100: #1a2332;
-  --slate-50: #0f172a;
+  --moss:    #6B8B5E;
+  --brass:   #D4A140;
+  --oxblood: #B5494A;
+  --lapis:   #5479A2;
 
-  --bg-body: #0c1222;
-  --bg-surface: #1a2332;
-  --bg-surface-hover: #1e293b;
-  --bg-muted: #162032;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-default: #2a3a4e;
-  --border-strong: #374a60;
-  --focus-ring: rgba(96, 165, 250, 0.2);
+  --primary:        var(--vermilion);
+  --primary-hover:  var(--vermilion-deep);
+  --success:        var(--moss);
+  --success-hover:  #7A9D6C;
+  --danger:         var(--oxblood);
+  --danger-hover:   #C76060;
+  --warning:        var(--brass);
+  --info:           var(--lapis);
+  --accent:         var(--brass);
 
-  --success-bg: rgba(52, 211, 153, 0.15);
-  --danger-bg: rgba(248, 113, 113, 0.15);
-  --warning-bg: rgba(251, 146, 60, 0.15);
-  --info-bg: rgba(56, 189, 248, 0.15);
-  --selected-bg: rgba(96, 165, 250, 0.15);
+  /* Inverted warm-neutral scale */
+  --slate-900: #F5F1E8;
+  --slate-800: #ECE6D6;
+  --slate-700: #D9D2C2;
+  --slate-600: #B8B0A0;
+  --slate-500: #8E8B7F;
+  --slate-400: #6B695F;
+  --slate-300: #4A4843;
+  --slate-200: #2A2D33;
+  --slate-100: #1A1D23;
+  --slate-50:  #0E1116;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --bg-body:          #0E1116;
+  --bg-surface:       #1A1D23;
+  --bg-surface-hover: #232730;
+  --bg-muted:         #1F2228;
+  --text-primary:     #F5F1E8;
+  --text-secondary:   #D9D2C2;
+  --text-muted:       #8E8B7F;
+  --border-default:   #2A2D33;
+  --border-strong:    #4A4843;
+  --focus-ring:       rgba(212, 72, 51, 0.28);
+
+  --success-bg:  rgba(107, 139, 94, 0.18);
+  --danger-bg:   rgba(181, 73, 74, 0.20);
+  --warning-bg:  rgba(212, 161, 64, 0.18);
+  --info-bg:     rgba(84, 121, 162, 0.18);
+  --selected-bg: var(--vermilion-wash);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
 
   /* Bootstrap overrides */
-  --bs-body-bg: var(--bg-body);
-  --bs-body-color: var(--text-primary);
-  --bs-border-color: var(--border-default);
-  --bs-card-color: var(--text-primary);
+  --bs-body-bg:        var(--bg-body);
+  --bs-body-color:     var(--text-primary);
+  --bs-border-color:   var(--border-default);
+  --bs-card-color:     var(--text-primary);
   --bs-secondary-color: var(--text-muted);
+  --bs-emphasis-color: var(--text-primary);
+  --bs-link-color:     var(--vermilion);
+  --bs-link-hover-color: var(--vermilion-deep);
   color-scheme: dark;
 }
 

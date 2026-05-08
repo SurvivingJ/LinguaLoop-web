@@ -437,17 +437,17 @@
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="loading-spinner">
         <div class="spinner-icon"></div>
-        <p class="mb-0 text-slate-600">Loading pinyin data...</p>
+        <p class="mb-0 text-slate-600" data-i18n="pinyin.loading">Loading pinyin data...</p>
     </div>
 </div>
 
 <!-- Error State -->
 <div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
-        <h5><i class="fas fa-exclamation-triangle me-2"></i>Error</h5>
+        <h5><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pinyin.error.title">Error</span></h5>
         <p id="errorMessage" class="mb-2"></p>
         <a href="/tests" class="btn btn-danger">
-            <i class="fas fa-arrow-left me-2"></i>Back to Tests
+            <i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>
         </a>
     </div>
 </div>
@@ -459,12 +459,12 @@
             <div class="col">
                 <h5 class="mb-0">
                     <i class="bi bi-translate text-primary me-2"></i>
-                    <span id="testTitle">Pinyin Tone Trainer</span>
+                    <span id="testTitle" data-i18n="pinyin.title">Pinyin Tone Trainer</span>
                 </h5>
             </div>
             <div class="col-auto">
                 <span class="badge bg-primary me-2" id="testLanguage"></span>
-                <span class="badge bg-info">Pinyin</span>
+                <span class="badge bg-info" data-i18n="pinyin.badge">Pinyin</span>
                 <span class="ms-2 text-slate-500">
                     <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
                 </span>
@@ -508,9 +508,9 @@
             <span>T4</span>
         </div>
         <div class="control-item">
-            <span class="control-key">Space</span>
+            <span class="control-key" data-i18n="pinyin.space">Space</span>
             <span class="tone-dot" style="background: var(--tone-5);"></span>
-            <span>Neutral</span>
+            <span data-i18n="pinyin.neutral">Neutral</span>
         </div>
     </div>
 </div>
@@ -586,6 +586,9 @@
             if (!state.slug) throw new Error('No test slug in URL');
 
             await LinguaMetadata.load();
+            if (window.LinguaI18n && window.LinguaI18n.init) {
+                await window.LinguaI18n.init();
+            }
             await loadTestData();
             renderPassage();
             setupInputHandlers();
@@ -616,13 +619,13 @@
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!resp.ok) throw new Error(`Failed to load test: ${resp.statusText}`);
+        if (!resp.ok) throw new Error(LinguaI18n.t('pinyin.error.load_failed', { status: resp.statusText }));
 
         const data = await resp.json();
         state.testData = data.test_data;
 
         if (!data.pinyin_payload || data.pinyin_payload.length === 0) {
-            throw new Error('This test does not have pinyin data. Please try a different Chinese test.');
+            throw new Error(LinguaI18n.t('pinyin.error.no_data'));
         }
 
         state.allTokens = data.pinyin_payload;
@@ -636,11 +639,11 @@
         });
 
         if (state.playableTokens.length === 0) {
-            throw new Error('No playable characters found in this passage.');
+            throw new Error(LinguaI18n.t('pinyin.error.no_chars'));
         }
 
         // Set header info
-        document.getElementById('testTitle').textContent = state.testData.title || 'Pinyin Tone Trainer';
+        document.getElementById('testTitle').textContent = state.testData.title || LinguaI18n.t('pinyin.title');
         const langName = LinguaMetadata.getNativeName(state.testData.language) || 'Chinese';
         document.getElementById('testLanguage').textContent = langName;
     }
@@ -841,7 +844,7 @@
         if (token.is_sandhi && token.sandhi_rule) {
             sandhiHtml = `
                 <div class="sandhi-explanation">
-                    <strong><i class="bi bi-info-circle me-1"></i>Tone Sandhi Rule:</strong><br>
+                    <strong><i class="bi bi-info-circle me-1"></i>${LinguaI18n.t('pinyin.sandhi_rule')}</strong><br>
                     ${token.sandhi_rule}
                 </div>
             `;
@@ -860,17 +863,17 @@
                 <div class="error-tones">
                     <div class="tone-label">
                         <div class="tone-num" style="color: ${toneColor(guessedTone)}">${guessedTone}</div>
-                        <div class="tone-desc">Your answer</div>
+                        <div class="tone-desc">${LinguaI18n.t('pinyin.your_answer')}</div>
                     </div>
                     <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
                     <div class="tone-label">
                         <div class="tone-num" style="color: ${toneColor(token.context_tone)}">${token.context_tone}</div>
-                        <div class="tone-desc">Correct</div>
+                        <div class="tone-desc">${LinguaI18n.t('pinyin.correct')}</div>
                     </div>
                 </div>
                 ${sandhiHtml}
                 <button class="error-continue-btn" onclick="window._dismissError()">
-                    Continue <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span>
+                    ${LinguaI18n.t('pinyin.continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span>
                 </button>
             </div>
         `;
@@ -939,10 +942,10 @@
 
     function showResults(accuracy, timeSec) {
         let grade = 'poor';
-        let label = 'Keep Practicing';
-        if (accuracy >= 95) { grade = 'excellent'; label = 'Excellent!'; }
-        else if (accuracy >= 80) { grade = 'good'; label = 'Great Job!'; }
-        else if (accuracy >= 60) { grade = 'fair'; label = 'Good Effort'; }
+        let label = LinguaI18n.t('pinyin.grade.poor');
+        if (accuracy >= 95) { grade = 'excellent'; label = LinguaI18n.t('pinyin.grade.excellent'); }
+        else if (accuracy >= 80) { grade = 'good'; label = LinguaI18n.t('pinyin.grade.good'); }
+        else if (accuracy >= 60) { grade = 'fair'; label = LinguaI18n.t('pinyin.grade.fair'); }
 
         const minutes = Math.floor(timeSec / 60);
         const seconds = timeSec % 60;
@@ -953,33 +956,33 @@
                 <div class="results-card">
                     <h3>${label}</h3>
                     <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Tone Accuracy</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">${LinguaI18n.t('pinyin.tone_accuracy')}</p>
 
                     <div class="results-stats">
                         <div class="stat-box">
                             <div class="stat-value">${state.correctCount}/${state.playableTokens.length}</div>
-                            <div class="stat-label">Characters</div>
+                            <div class="stat-label">${LinguaI18n.t('pinyin.stat.characters')}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value">${timeStr}</div>
-                            <div class="stat-label">Time</div>
+                            <div class="stat-label">${LinguaI18n.t('pinyin.stat.time')}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value">${state.errorCount}</div>
-                            <div class="stat-label">Mistakes</div>
+                            <div class="stat-label">${LinguaI18n.t('pinyin.stat.mistakes')}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value" id="eloChangeDisplay">--</div>
-                            <div class="stat-label">ELO Change</div>
+                            <div class="stat-label">${LinguaI18n.t('pinyin.stat.elo_change')}</div>
                         </div>
                     </div>
 
                     <div class="d-flex gap-2 mt-3">
                         <a href="/test/${state.slug}/preview" class="btn btn-outline-primary flex-fill">
-                            <i class="bi bi-arrow-repeat me-1"></i>Retry
+                            <i class="bi bi-arrow-repeat me-1"></i>${LinguaI18n.t('pinyin.retry')}
                         </a>
                         <a href="/tests" class="btn btn-primary flex-fill">
-                            <i class="bi bi-list-ul me-1"></i>All Tests
+                            <i class="bi bi-list-ul me-1"></i>${LinguaI18n.t('pinyin.all_tests')}
                         </a>
                     </div>
                 </div>

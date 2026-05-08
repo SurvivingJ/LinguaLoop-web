@@ -23,26 +23,35 @@ def contains_target_whole_word(sentence: str, word: str) -> bool:
     """Return True if `word` appears as a whole word in `sentence`.
 
     Word-boundary aware: rejects "new" inside "knew" or "renewal".
-    Case-insensitive.
+    Case-insensitive. For non-ASCII targets (CJK, Arabic, etc.) word
+    boundaries don't apply — fall back to a contiguous-substring check;
+    sense-match is enforced by the LLM via prompt rules.
     """
     if not sentence or not word:
         return False
+    if not word.isascii():
+        return word in sentence
     return re.search(rf'\b{re.escape(word)}\b', sentence, re.IGNORECASE) is not None
 
 
 class VocabAssetValidator:
     """Validates word asset content from each prompt."""
 
-    # Valid POS values
+    # Valid POS values (English + Chinese; Chinese adds compound-result and
+    # directional-complement categories that English doesn't have).
     VALID_POS = {
         'noun', 'verb', 'adjective', 'adverb', 'preposition',
         'conjunction', 'pronoun', 'determiner', 'interjection',
+        '名词', '动词', '形容词', '副词', '介词', '连词', '代词',
+        '量词', '助词', '叹词', '方向补语', '结果补语', '情态动词',
     }
 
-    # Valid semantic classes
+    # Valid semantic classes (English + Chinese mirror).
     VALID_SEMANTIC_CLASSES = {
         'concrete_noun', 'abstract_noun', 'action_verb', 'state_verb',
-        'adjective', 'adverb', 'other',
+        'adjective', 'adverb', 'function_word', 'other',
+        '具体名词', '抽象名词', '动作动词', '状态动词',
+        '形容词', '副词', '功能词', '其他',
     }
 
     def validate_prompt1(self, content: dict) -> tuple[bool, list[str]]:

@@ -191,6 +191,20 @@ class ExerciseSessionService:
         exercise_type = exercise.get('exercise_type')
         sense_id = exercise.get('word_sense_id')
 
+        # Determine whether this is the user's first attempt at this exercise.
+        # BKT is gated on first attempts only — repeat attempts on the same
+        # exercise would double-count evidence and inflate p_known. This
+        # mirrors the gating in LadderService.record_attempt().
+        prior_resp = (
+            self.db.table('exercise_attempts')
+            .select('id')
+            .eq('user_id', user_id)
+            .eq('exercise_id', exercise_id)
+            .limit(1)
+            .execute()
+        )
+        is_first_attempt = not bool(prior_resp.data)
+
         # 2. Insert attempt with denormalized columns
         attempt_row = {
             'user_id': user_id,
@@ -212,7 +226,11 @@ class ExerciseSessionService:
             updates['correct_count'] = (exercise.get('correct_count') or 0) + 1
         self.db.table('exercises').update(updates).eq('id', exercise_id).execute()
 
-        result = {'is_correct': is_correct, 'exercise_type': exercise_type}
+        result = {
+            'is_correct': is_correct,
+            'exercise_type': exercise_type,
+            'is_first_attempt': is_first_attempt,
+        }
 
         # 4. BKT + FSRS updates for vocabulary exercises
         if sense_id:
@@ -227,19 +245,21 @@ class ExerciseSessionService:
             language_id = lang_resp.data.get('language_id') if lang_resp.data else None
 
             if language_id:
-                # BKT update
-                knowledge_svc = VocabularyKnowledgeService(self.db)
-                bkt_result = knowledge_svc.update_from_word_test(
-                    user_id=user_id,
-                    sense_id=sense_id,
-                    is_correct=is_correct,
-                    language_id=language_id,
-                    exercise_type=exercise_type,
-                )
-                if bkt_result:
-                    result['bkt_update'] = bkt_result
+                # BKT update — first attempts only, to avoid inflating p_known on retries.
+                if is_first_attempt:
+                    knowledge_svc = VocabularyKnowledgeService(self.db)
+                    bkt_result = knowledge_svc.update_from_word_test(
+                        user_id=user_id,
+                        sense_id=sense_id,
+                        is_correct=is_correct,
+                        language_id=language_id,
+                        exercise_type=exercise_type,
+                    )
+                    if bkt_result:
+                        result['bkt_update'] = bkt_result
 
-                # FSRS update if flashcard exists
+                # FSRS update if flashcard exists — runs on every attempt; each
+                # review is a legitimate scheduling signal regardless of repeat.
                 self._update_fsrs_for_exercise(
                     user_id, sense_id, is_correct, time_taken_ms
                 )
