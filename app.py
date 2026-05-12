@@ -66,7 +66,10 @@ def create_app(config_class=Config):
     
     # Initialize all services
     _initialize_services(app)
-    
+
+    # Background scheduler (nightly IRT calibration, etc.)
+    _initialize_scheduler(app)
+
     # Register blueprints
     _register_blueprints(app)
     
@@ -193,6 +196,49 @@ def _initialize_services(app):
     except Exception as e:
         app.logger.error(f"Vocabulary pipeline error: {e}")
         app.vocab_pipeline = None
+
+
+def _initialize_scheduler(app):
+    """Start the APScheduler background scheduler with nightly jobs.
+
+    Opt-out via DISABLE_SCHEDULER=true (used by tests and one-off CLI runs).
+    Cross-worker safety is enforced inside each job via Postgres advisory
+    locks (see services/irt/calibrator.irt_try_lock) — APScheduler running
+    in every gunicorn worker is fine; only one will acquire the lock.
+    """
+    if os.environ.get('DISABLE_SCHEDULER', '').lower() in ('1', 'true', 'yes'):
+        app.logger.info("Scheduler disabled via DISABLE_SCHEDULER")
+        return
+
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        from apscheduler.triggers.cron import CronTrigger
+    except ImportError:
+        app.logger.warning("APScheduler not installed — nightly jobs will not run")
+        return
+
+    scheduler = BackgroundScheduler(timezone='UTC')
+
+    def _run_irt_calibration():
+        try:
+            from services.irt.calibrator import calibrate_all_active_languages
+            summaries = calibrate_all_active_languages()
+            app.logger.info("Nightly IRT calibration: %s", summaries)
+        except Exception as exc:
+            app.logger.exception("Nightly IRT calibration crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_irt_calibration,
+        trigger=CronTrigger(hour=4, minute=0),
+        id='irt_calibration_nightly',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    scheduler.start()
+    app.scheduler = scheduler
+    app.logger.info("APScheduler started (irt_calibration_nightly @ 04:00 UTC)")
 
 
 def _register_blueprints(app):

@@ -5,6 +5,15 @@ Builds personalised exercise sessions by combining:
 - FSRS due flashcards (spaced repetition reviews)
 - BKT uncertainty-zone words (active learning)
 - New/encountered words (introduction)
+- Vocabulary ladder content (delegated to get_ladder_session)
+- Supplementary grammar/collocation exercises
+- Virtual jumbled sentences from past test transcripts (Python-only,
+  depends on language-specific tokenisation)
+
+Session selection lives entirely in the SQL RPC `get_exercise_session`
+(migrations/phase9_get_exercise_session.sql). This service orchestrates:
+RPC call → append virtual picks → cache → enrich for frontend.
+Per-attempt updates (BKT, FSRS, lapse penalty) remain Python.
 
 Follows the TestService singleton pattern.
 """
@@ -12,65 +21,15 @@ Follows the TestService singleton pattern.
 import logging
 import random
 from datetime import date, datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from uuid import uuid4
 
 from config import Config
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
-from services.exercise_generation.config import PHASE_MAP
-from services.conversation_generation.categorical_maps import TIER_TO_PHASE
 
 logger = logging.getLogger(__name__)
-
-# Phase thresholds: p_known → phase letter
-# Canonical source: SQL function bkt_phase() in phase5_algorithm_fixes.sql
-# Keep these values in sync with the DB function.
-_PHASE_THRESHOLDS = [
-    (0.30, 'A'),
-    (0.55, 'B'),
-    (0.80, 'C'),
-]
-
-# Tier → phase mapping for grammar/collocation exercises (imported from categorical_maps)
-# TIER_TO_PHASE: T1→A, T2→A, T3→B, T4→C, T5→D, T6→D
-
-
-def _determine_phase(p_known: float) -> str:
-    """Map a p_known probability to a cognitive phase (A-D)."""
-    for threshold, phase in _PHASE_THRESHOLDS:
-        if p_known < threshold:
-            return phase
-    return 'D'
-
-
-def _get_eligible_types_weighted(phase: str) -> Tuple[List[str], List[float]]:
-    """Return (exercise_types, weights) using weighted cumulative phases.
-
-    Primary phase gets 70% weight, one phase below gets 30%.
-    Phase A words get 100% phase A.
-    """
-    phase_order = ['A', 'B', 'C', 'D']
-    idx = phase_order.index(phase)
-    primary_types = PHASE_MAP[phase]
-
-    if idx == 0:
-        weights = [1.0 / len(primary_types)] * len(primary_types)
-        return primary_types, weights
-
-    secondary_types = PHASE_MAP[phase_order[idx - 1]]
-    all_types = primary_types + secondary_types
-    weights = (
-        [0.70 / len(primary_types)] * len(primary_types)
-        + [0.30 / len(secondary_types)] * len(secondary_types)
-    )
-    return all_types, weights
-
-
-def _pick_weighted_type(types: List[str], weights: List[float]) -> str:
-    """Pick a single exercise type using weighted random selection."""
-    return random.choices(types, weights=weights, k=1)[0]
 
 
 class ExerciseSessionService:
@@ -258,8 +217,8 @@ class ExerciseSessionService:
                     if bkt_result:
                         result['bkt_update'] = bkt_result
 
-                # FSRS update if flashcard exists — runs on every attempt; each
-                # review is a legitimate scheduling signal regardless of repeat.
+                # FSRS schedule update — every attempt is legitimate scheduling signal,
+                # so this runs regardless of is_first_attempt.
                 self._update_fsrs_for_exercise(
                     user_id, sense_id, is_correct, time_taken_ms
                 )
@@ -273,150 +232,53 @@ class ExerciseSessionService:
     def _compute_session(
         self, user_id: str, language_id: int, session_size: int
     ) -> List[Dict]:
-        """Core scheduling algorithm: select exercises for today's session."""
+        """Build today's session via the get_exercise_session SQL RPC.
 
-        dist = Config.EXERCISE_SLOT_DISTRIBUTION
-        due_slots = round(session_size * dist['due_review'])
-        learning_slots = round(session_size * dist['active_learning'])
-        new_slots = session_size - due_slots - learning_slots
+        Steps:
+          1. Call the RPC for vocab / ladder / supplementary picks.
+          2. Append up to 3 virtual jumbled sentences from the user's past
+             test transcripts (Python-side because tokenisation is
+             language-specific).
+          3. Shuffle so the session isn't grouped by bucket.
+        """
+        picks: List[Dict] = []
 
-        cooldown_days = Config.EXERCISE_COOLDOWN_DAYS
-        recent_ids = self._get_recent_exercise_ids(user_id, cooldown_days)
-
-        # --- Single RPC: fetch all candidate senses with decay applied ---
-        bucket_map = {'due': [], 'learning': [], 'new': []}
         try:
-            resp = self.db.rpc('get_session_senses', {
+            from services.irt.calibrator import compute_user_theta_for_selection
+            user_theta = compute_user_theta_for_selection(self.db, user_id, language_id)
+        except Exception as e:
+            logger.warning(f"Theta lookup failed; defaulting to 0.0: {e}")
+            user_theta = 0.0
+
+        try:
+            resp = self.db.rpc('get_exercise_session', {
                 'p_user_id': user_id,
                 'p_language_id': language_id,
-                'p_due_limit': due_slots * 3,
-                'p_learning_limit': learning_slots * 3,
-                'p_new_limit': new_slots * 3,
+                'p_session_size': session_size,
+                'p_user_theta': user_theta,
             }).execute()
 
             for row in (resp.data or []):
-                bucket = row.get('out_bucket', 'learning')
-                bucket_map.setdefault(bucket, []).append({
-                    'sense_id': row['out_sense_id'],
-                    'p_known': float(row['out_effective_p_known']),
+                picks.append({
+                    'exercise_id': row['out_exercise_id'],
+                    'sense_id': row.get('out_sense_id'),
+                    'exercise_type': row['out_exercise_type'],
+                    'slot_type': row['out_slot_type'],
+                    'phase': row.get('out_phase') or '',
+                    'is_virtual': False,
                 })
         except Exception as e:
-            logger.error(f"get_session_senses RPC failed: {e}")
+            logger.error(f"get_exercise_session RPC failed: {e}")
 
-        due_senses = bucket_map.get('due', [])
-        learning_senses = bucket_map.get('learning', [])
-        new_senses = bucket_map.get('new', [])
-
-        # Also add new flashcards as fallback for the new bucket
-        if len(new_senses) < new_slots:
-            existing_new_ids = {s['sense_id'] for s in new_senses}
-            try:
-                fc_resp = (
-                    self.db.table('user_flashcards')
-                    .select('sense_id')
-                    .eq('user_id', user_id)
-                    .eq('language_id', language_id)
-                    .eq('state', 'new')
-                    .limit(new_slots)
-                    .execute()
-                )
-                for row in (fc_resp.data or []):
-                    sid = row['sense_id']
-                    if sid not in existing_new_ids:
-                        new_senses.append({'sense_id': sid, 'p_known': 0.10})
-                        existing_new_ids.add(sid)
-            except Exception as e:
-                logger.error(f"Error fetching new flashcard senses: {e}")
-
-        # --- Bucket 1: FSRS due reviews ---
-        due_picks = self._select_exercises_for_senses(
-            due_senses, language_id, recent_ids, due_slots, 'due_review'
-        )
-
-        picked_sense_ids = {item['sense_id'] for item in due_picks if item.get('sense_id')}
-
-        # --- Bucket 2: Active learning (uncertainty zone) ---
-        learning_senses_filtered = [
-            s for s in learning_senses if s['sense_id'] not in picked_sense_ids
-        ]
-        learning_picks = self._select_exercises_for_senses(
-            learning_senses_filtered, language_id, recent_ids, learning_slots, 'active_learning'
-        )
-
-        picked_sense_ids.update(
-            item['sense_id'] for item in learning_picks if item.get('sense_id')
-        )
-
-        # --- Bucket 3: New/encountered words ---
-        new_senses_filtered = [
-            s for s in new_senses if s['sense_id'] not in picked_sense_ids
-        ]
-        new_picks = self._select_exercises_for_senses(
-            new_senses_filtered, language_id, recent_ids, new_slots, 'new_word'
-        )
-
-        # --- Overflow redistribution ---
-        all_picks = due_picks + learning_picks + new_picks
-        remaining = session_size - len(all_picks)
-
-        if remaining > 0:
-            picked_exercise_ids = {item['exercise_id'] for item in all_picks}
-            picked_sense_ids.update(
-                item['sense_id'] for item in new_picks if item.get('sense_id')
-            )
-
-            for bucket_senses, slot_type in [
-                (due_senses, 'due_review'),
-                (learning_senses, 'active_learning'),
-                (new_senses, 'new_word'),
-            ]:
-                if remaining <= 0:
-                    break
-                overflow = self._select_exercises_for_senses(
-                    [s for s in bucket_senses
-                     if s['sense_id'] not in picked_sense_ids],
-                    language_id,
-                    recent_ids | picked_exercise_ids,
-                    remaining,
-                    slot_type,
-                )
-                all_picks.extend(overflow)
-                picked_exercise_ids.update(item['exercise_id'] for item in overflow)
-                picked_sense_ids.update(
-                    item['sense_id'] for item in overflow if item.get('sense_id')
-                )
-                remaining = session_size - len(all_picks)
-
-        # --- Grammar/collocation supplementary fill ---
-        remaining = session_size - len(all_picks)
-        if remaining > 0:
-            picked_exercise_ids = {item['exercise_id'] for item in all_picks}
-            supplementary = self._get_supplementary_exercises(
-                user_id, language_id, remaining,
-                recent_ids | picked_exercise_ids
-            )
-            all_picks.extend(supplementary)
-
-        # --- Bucket 5: Vocabulary ladder exercises ---
-        remaining = session_size - len(all_picks)
-        ladder_slots = min(remaining, 5)
-        if ladder_slots > 0:
-            picked_exercise_ids = {item['exercise_id'] for item in all_picks}
-            ladder_picks = self._get_ladder_exercises(
-                user_id, language_id, ladder_slots,
-                recent_ids | picked_exercise_ids
-            )
-            all_picks.extend(ladder_picks)
-
-        # --- Bucket 6: User test sentence jumbled exercises ---
-        remaining = session_size - len(all_picks)
-        user_test_slots = min(remaining, 3)
-        if user_test_slots > 0:
+        # Append up to 3 virtual jumbled sentences from past tests.
+        # Capped at 3 historically; never displace real exercises.
+        virtual_slots = min(3, max(0, session_size - len(picks)))
+        if virtual_slots > 0:
             test_sentences = self._get_user_test_sentences(
-                user_id, language_id, user_test_slots
+                user_id, language_id, virtual_slots
             )
             for sent in test_sentences:
-                all_picks.append({
+                picks.append({
                     'exercise_id': f"virtual-jumbled-{uuid4()}",
                     'sense_id': None,
                     'exercise_type': 'jumbled_sentence',
@@ -429,173 +291,17 @@ class ExerciseSessionService:
                     },
                 })
 
-        # Shuffle so session isn't grouped by bucket
-        random.shuffle(all_picks)
-        return all_picks
-
-    def _select_exercises_for_senses(
-        self,
-        senses: List[Dict],
-        language_id: int,
-        exclude_ids: set,
-        max_count: int,
-        slot_type: str,
-    ) -> List[Dict]:
-        """For each sense, select one exercise using phase-gated weighted types."""
-        picks = []
-
-        for sense in senses:
-            if len(picks) >= max_count:
-                break
-
-            sense_id = sense['sense_id']
-            p_known = sense['p_known']
-            phase = _determine_phase(p_known)
-            eligible_types, weights = _get_eligible_types_weighted(phase)
-
-            # Try to find an exercise matching a weighted-random type
-            # Shuffle type order by weight to try preferred types first
-            type_indices = list(range(len(eligible_types)))
-            random.shuffle(type_indices)
-            # Sort by weight descending so we try high-weight types first
-            type_indices.sort(key=lambda i: weights[i], reverse=True)
-
-            found = False
-            for idx in type_indices:
-                etype = eligible_types[idx]
-                try:
-                    resp = (
-                        self.db.table('exercises')
-                        .select('id, exercise_type, content')
-                        .eq('word_sense_id', sense_id)
-                        .eq('language_id', language_id)
-                        .eq('exercise_type', etype)
-                        .eq('is_active', True)
-                        .limit(5)
-                        .execute()
-                    )
-                    candidates = [
-                        row for row in (resp.data or [])
-                        if row['id'] not in exclude_ids
-                    ]
-                    if candidates:
-                        chosen = random.choice(candidates)
-                        picks.append({
-                            'exercise_id': chosen['id'],
-                            'sense_id': sense_id,
-                            'exercise_type': chosen['exercise_type'],
-                            'slot_type': slot_type,
-                            'phase': phase,
-                        })
-                        exclude_ids.add(chosen['id'])
-                        found = True
-                        break
-                except Exception as e:
-                    logger.error(f"Error selecting exercise for sense {sense_id}: {e}")
-
-            if not found:
-                # Try any exercise for this sense regardless of type
-                try:
-                    resp = (
-                        self.db.table('exercises')
-                        .select('id, exercise_type, content')
-                        .eq('word_sense_id', sense_id)
-                        .eq('language_id', language_id)
-                        .eq('is_active', True)
-                        .limit(5)
-                        .execute()
-                    )
-                    candidates = [
-                        row for row in (resp.data or [])
-                        if row['id'] not in exclude_ids
-                    ]
-                    if candidates:
-                        chosen = random.choice(candidates)
-                        picks.append({
-                            'exercise_id': chosen['id'],
-                            'sense_id': sense_id,
-                            'exercise_type': chosen['exercise_type'],
-                            'slot_type': slot_type,
-                            'phase': phase,
-                        })
-                        exclude_ids.add(chosen['id'])
-                except Exception as e:
-                    logger.error(f"Error in fallback exercise selection: {e}")
-
-        return picks
-
-    def _get_supplementary_exercises(
-        self, user_id: str, language_id: int, count: int,
-        exclude_ids: set,
-    ) -> List[Dict]:
-        """Fill remaining slots with grammar/collocation exercises by complexity tier."""
-        # Estimate user's complexity tier from average p_known
-        try:
-            avg_resp = (
-                self.db.table('user_vocabulary_knowledge')
-                .select('p_known')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .limit(100)
-                .execute()
-            )
-            p_values = [float(r['p_known']) for r in (avg_resp.data or [])]
-            avg_p = sum(p_values) / len(p_values) if p_values else 0.3
-        except Exception:
-            avg_p = 0.3
-
-        # Map avg p_known to complexity tiers
-        if avg_p < 0.20:
-            complexity_tiers = ['T1', 'T2']
-        elif avg_p < 0.40:
-            complexity_tiers = ['T2', 'T3']
-        elif avg_p < 0.60:
-            complexity_tiers = ['T3', 'T4']
-        elif avg_p < 0.80:
-            complexity_tiers = ['T4', 'T5']
-        else:
-            complexity_tiers = ['T5', 'T6']
-
-        picks = []
-        try:
-            resp = (
-                self.db.table('exercises')
-                .select('id, exercise_type, complexity_tier, grammar_pattern_id, '
-                        'corpus_collocation_id')
-                .eq('language_id', language_id)
-                .eq('is_active', True)
-                .in_('complexity_tier', complexity_tiers)
-                .is_('word_sense_id', 'null')  # non-vocabulary exercises
-                .limit(count * 3)
-                .execute()
-            )
-
-            candidates = [
-                row for row in (resp.data or [])
-                if row['id'] not in exclude_ids
-            ]
-            random.shuffle(candidates)
-
-            for row in candidates[:count]:
-                tier = row.get('complexity_tier', 'T3')
-                phase = TIER_TO_PHASE.get(tier, 'B')
-                picks.append({
-                    'exercise_id': row['id'],
-                    'sense_id': None,
-                    'exercise_type': row['exercise_type'],
-                    'slot_type': 'supplementary',
-                    'phase': phase,
-                })
-
-        except Exception as e:
-            logger.error(f"Error fetching supplementary exercises: {e}")
-
+        random.shuffle(picks)
         return picks
 
     def _get_user_test_sentences(
         self, user_id: str, language_id: int, count: int
     ) -> List[Dict]:
-        """Pull sentences from tests the user scored >50% on."""
+        """Pull sentences from tests the user scored >50% on.
+
+        Stays in Python because tokenisation is language-specific
+        (jieba for Chinese, etc.) via LanguageProcessor.
+        """
         try:
             resp = (
                 self.db.table('test_attempts')
@@ -639,80 +345,6 @@ class ExerciseSessionService:
         except Exception as e:
             logger.error(f"Error fetching user test sentences: {e}")
             return []
-
-    def _get_ladder_exercises(
-        self, user_id: str, language_id: int, count: int,
-        exclude_ids: set,
-    ) -> List[Dict]:
-        """Fetch vocabulary ladder exercises for the daily session.
-
-        Selects words with ladder exercises, picks one exercise per word
-        at the user's current ladder level.
-        """
-        try:
-            from services.vocabulary_ladder.ladder_service import LadderService
-            ladder_svc = LadderService(self.db)
-            words = ladder_svc.get_words_for_session(user_id, language_id, count * 2)
-
-            picks = []
-            for word in words:
-                if len(picks) >= count:
-                    break
-
-                sense_id = word['sense_id']
-                level = word['current_level']
-
-                # Find an exercise at this level
-                try:
-                    resp = (
-                        self.db.table('exercises')
-                        .select('id, exercise_type')
-                        .eq('word_sense_id', sense_id)
-                        .eq('ladder_level', level)
-                        .eq('language_id', language_id)
-                        .eq('is_active', True)
-                        .limit(1)
-                        .execute()
-                    )
-                    candidates = [
-                        r for r in (resp.data or [])
-                        if r['id'] not in exclude_ids
-                    ]
-                    if candidates:
-                        chosen = candidates[0]
-                        picks.append({
-                            'exercise_id': chosen['id'],
-                            'sense_id': sense_id,
-                            'exercise_type': chosen['exercise_type'],
-                            'slot_type': 'ladder',
-                            'phase': 'B',
-                        })
-                        exclude_ids.add(chosen['id'])
-                except Exception as e:
-                    logger.error(f"Ladder exercise lookup failed for sense {sense_id}: {e}")
-
-            return picks
-        except Exception as e:
-            logger.error(f"Ladder exercise selection failed: {e}")
-            return []
-
-    def _get_recent_exercise_ids(self, user_id: str, days: int) -> set:
-        """Get exercise IDs the user has seen within the cooldown window."""
-        try:
-            cutoff = datetime.now(timezone.utc)
-            # Approximate by fetching recent attempts
-            resp = (
-                self.db.table('exercise_attempts')
-                .select('exercise_id')
-                .eq('user_id', user_id)
-                .order('created_at', desc=True)
-                .limit(500)
-                .execute()
-            )
-            return {row['exercise_id'] for row in (resp.data or [])}
-        except Exception as e:
-            logger.error(f"Error fetching recent exercise IDs: {e}")
-            return set()
 
     # ------------------------------------------------------------------
     # Internal: FSRS update

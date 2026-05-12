@@ -1,479 +1,445 @@
 ---
 title: Vocabulary Ladder & Exercise System — Implementation Analysis (Technical)
 type: algorithm-tech
-status: complete
+status: in-progress
 prose_page: ./ladder-implementation-analysis.md
-last_updated: 2026-04-15
+last_updated: 2026-05-12
 dependencies:
-  - "services/vocabulary_ladder/ladder_service.py — LadderService"
-  - "services/vocabulary_ladder/config.py — LADDER_LEVELS, BKT_TO_LEVEL"
+  - "migrations/phase8_momentum_bands.sql — Momentum Bands core (1184 lines)"
+  - "migrations/phase9_get_exercise_session.sql — daily-session SQL RPC + helpers"
+  - "migrations/phase10_ladder_advancement_demotion.sql — cross-session gate + demotion (replaces ladder_record_attempt)"
+  - "services/vocabulary_ladder/ladder_service.py — thin Python wrapper (~345 lines)"
+  - "services/vocabulary_ladder/config.py — constants and helpers (~448 lines)"
   - "services/vocabulary_ladder/asset_pipeline.py — VocabAssetPipeline"
-  - "services/vocabulary_ladder/asset_generators/ — 3 prompt generators"
+  - "services/vocabulary_ladder/asset_generators/ — three prompt generators"
   - "services/vocabulary_ladder/validators.py — VocabAssetValidator"
-  - "services/vocabulary_ladder/exercise_renderer.py"
-  - "services/exercise_session_service.py — ExerciseSessionService"
-  - "services/exercise_generation/config.py — PHASE_MAP, type registries"
-  - "services/vocabulary/knowledge_service.py — VocabularyKnowledgeService"
-  - "services/vocabulary/fsrs.py — FSRS scheduler"
-  - "exercises table"
-  - "exercise_attempts table"
-  - "word_assets table"
-  - "user_word_ladder table"
-  - "user_exercise_sessions table"
-  - "user_vocabulary_knowledge table"
-  - "user_flashcards table"
-breaking_change_risk: medium
+  - "services/exercise_session_service.py — daily mixed-session orchestrator (~500 lines; Phase 9 slim-down)"
+  - "routes/vocab_dojo.py — six endpoints"
+  - "routes/exercises.py — daily session endpoints"
+  - "user_word_ladder, user_vocabulary_knowledge, user_flashcards tables"
+  - "exercises, word_assets, exercise_attempts, user_exercise_history tables"
+  - "user_exercise_sessions table (daily session cache)"
+breaking_change_risk: high
 ---
 
 # Vocabulary Ladder & Exercise System — Implementation Analysis (Technical)
 
-## Architecture: Two Paths
+## Architecture: Two SQL-RPC Surfaces
 
 ```
-Path A: Vocabulary Ladder (per-word progression)
-═══════════════════════════════════════════════
-  Offline:
-    VocabAssetPipeline.generate_for_sense(sense_id)
-      → CoreAssetGenerator (Prompt 1: Gemini Flash Lite)
-        → definition, collocate, 6 sentences, POS, semantic_class
-      → ExerciseAssetGenerator (Prompt 2: Claude Sonnet)
-        → L1 phonetic, L3 cloze, L5 collocation gap, L6 semantic disc
-      → TransformAssetGenerator (Prompt 3: Claude Sonnet)
-        → L4 morphology, L7 spot incorrect, L8 collocation repair
-      → VocabAssetValidator → word_assets table → exercises table
+Path A: Vocabulary Dojo (per-word ladder)
+═════════════════════════════════════════
+  GET /api/vocab-dojo/session   ([routes/vocab_dojo.py:14])
+    → _ensure_ladder_rows(): lazy-init user_word_ladder for senses
+                              that have exercises but no row yet
+    → db.rpc('get_ladder_session', user, language, count)
+        WITH candidates AS (...due, exists check...),
+             scored AS (...priority + target_family...),
+             top_words AS (LIMIT count),
+             seen_today AS (...user_exercise_history...),
+             word_exercises AS (RANK by family/variant/random),
+             selected AS (rn=1)
+        → 15-column TABLE return
 
-  Online:
-    LadderService.get_exercises_for_session(user_id, language_id)
-      → get_words_for_session: batch-query FSRS + BKT + ladder state
-      → batch_fetch_exercises: match (sense_id, level) → exercises
-      → enrich with lemma/definition/pronunciation
+  POST /api/vocab-dojo/attempt
+    → LadderService.record_attempt(...) → ladder_record_attempt RPC
 
-    LadderService.record_attempt(user_id, sense_id, exercise_id, ...)
-      → INSERT exercise_attempts
-      → IF first_attempt AND correct: advance ladder level
-      → Update BKT via knowledge_svc.update_from_word_test()
-      → Update FSRS via schedule_review()
+  POST /api/vocab-dojo/gate, /gate/result
+    → assemble_gate (Python) → pass_gate (RPC) OR
+      record_attempt(exercise_context='gate') per failed item
+
+  POST /api/vocab-dojo/stress-test, /stress-test/result
+    → assemble_stress_test (Python) → graduate (RPC, FSRS handoff)
 
 
-Path B: Daily Exercise Session (mixed sources)
-═══════════════════════════════════════════════
-  ExerciseSessionService.get_or_create_daily_session(user_id, language_id)
-    → Check user_exercise_sessions cache (today's session)
+Path B: Daily Mixed Session (Phase 9, single SQL RPC)
+═════════════════════════════════════════════════════
+  GET /api/exercises/session   ([routes/exercises.py:128])
+    → ExerciseSessionService.get_or_create_daily_session()
+    → Cache lookup: user_exercise_sessions WHERE load_date = today
     → If stale, _compute_session():
-        Bucket 1 (40%): FSRS due senses → phase-gated exercise selection
-        Bucket 2 (40%): BKT uncertainty zone (0.25-0.75) → exercises
-        Bucket 3 (20%): New/encountered senses (<0.30) → Phase A exercises
-        Bucket 4 (fill): Supplementary grammar/collocation by complexity tier
-        Bucket 5 (≤5):  Ladder exercises via LadderService
-        Bucket 6 (≤3):  Virtual jumbled sentences from past test transcripts
-    → Shuffle → Cache in user_exercise_sessions → Return enriched session
+        db.rpc('get_exercise_session', user, language, session_size)
+            WITH recent_seen (user_exercise_history, 7-day window),
+                 raw_senses (get_session_senses ★),
+                 new_fallback (user_flashcards.state='new'),
+                 senses_deduped (PARTITION BY sense_id, prefer due>learning>new),
+                 ladder_picks (get_ladder_session ★, cap 5),
+                 sense_candidates JOIN exercises (phase weight),
+                 ranked_sense_picks (ROW_NUMBER per sense),
+                 vocab_picks_capped (PARTITION BY bucket, 40/40/20),
+                 supplementary_picks (word_sense_id IS NULL, tier window),
+                 UNION ALL → priority DESC, RANDOM() → LIMIT
+        → Append up to 3 virtual jumbled-sentence picks
+          (Python: LanguageProcessor.split_sentences/tokenize)
+        → Shuffle
+    → cache to user_exercise_sessions → enrich for frontend
 ```
 
-## Ladder Config: What's Actually Defined
+The Phase 9 RPC delegates to two existing RPCs internally — `get_session_senses` (Phase 7) for due/learning/new bucket assignment with FSRS decay, and `get_ladder_session` (Phase 8) for ladder picks. Family-aware ladder selection lives in one place.
 
-File: `services/vocabulary_ladder/config.py`
+## File Inventory (current)
+
+| File | Purpose | Approx. lines |
+|------|---------|--------------|
+| `migrations/phase8_momentum_bands.sql` | Canonical: schema + 9 RPCs + new prompt | 1184 |
+| `services/vocabulary_ladder/ladder_service.py` | Thin RPC wrapper + battery assembly | 345 |
+| `services/vocabulary_ladder/config.py` | Levels, rings, gates, stress test, helpers | 448 |
+| `services/vocabulary_ladder/asset_pipeline.py` | 3-prompt orchestrator | ~404 |
+| `services/vocabulary_ladder/asset_generators/prompt1_core.py` | Gemini Flash: classification + 10 sentences | — |
+| `services/vocabulary_ladder/asset_generators/prompt2_exercises.py` | Sonnet: L1/3/5/6 exercises (A/B variants) | — |
+| `services/vocabulary_ladder/asset_generators/prompt3_transforms.py` | Sonnet: L4/7/8 exercises (A/B variants) | — |
+| `services/vocabulary_ladder/validators.py` | Schema + linguistic + pedagogical validation | — |
+| `services/vocabulary_ladder/exercise_renderer.py` | Frontend-ready formatting | — |
+| `services/exercise_session_service.py` | Daily-session orchestrator (RPC call + virtual picks + cache + enrich) | ~500 |
+| `migrations/phase9_get_exercise_session.sql` | `get_exercise_session` RPC + phase/tier helpers | ~280 |
+| `services/exercise_generation/config.py` | PHASE_MAP, type registries | ~178 |
+| `routes/vocab_dojo.py` | Six dojo endpoints | ~419 |
+
+## Ladder Config: What's Defined ([services/vocabulary_ladder/config.py](../../services/vocabulary_ladder/config.py))
 
 ```python
 LADDER_LEVELS = {
-    1: {'name': 'Phonetic/Orthographic', 'exercise_type': 'phonetic_recognition',    'prompt': 'prompt2'},
-    2: {'name': 'Definition Match',      'exercise_type': 'definition_match',        'prompt': 'database'},
-    3: {'name': 'Cloze Completion',      'exercise_type': 'cloze_completion',        'prompt': 'prompt2'},
-    4: {'name': 'Morphology Slot',       'exercise_type': 'morphology_slot',         'prompt': 'prompt3'},
-    5: {'name': 'Collocation Gap',       'exercise_type': 'collocation_gap_fill',    'prompt': 'prompt2'},
-    6: {'name': 'Semantic Discrimination','exercise_type': 'semantic_discrimination', 'prompt': 'prompt2'},
-    7: {'name': 'Spot Incorrect',        'exercise_type': 'spot_incorrect_sentence', 'prompt': 'prompt3'},
-    8: {'name': 'Collocation Repair',    'exercise_type': 'collocation_repair',      'prompt': 'prompt3'},
-    9: {'name': 'Jumbled Sentence',      'exercise_type': 'jumbled_sentence',        'prompt': 'local'},
+    1: {'name': 'Phonetic/Orthographic',  'exercise_type': 'phonetic_recognition',
+        'prompt': 'prompt2', 'family': 'form_recognition',         'ring': 1},
+    2: {'name': 'Definition Match',       'exercise_type': 'definition_match',
+        'prompt': 'database', 'family': 'form_recognition',        'ring': 1},
+    3: {'name': 'Cloze Completion',       'exercise_type': 'cloze_completion',
+        'prompt': 'prompt2', 'family': 'meaning_recall',           'ring': 2},
+    4: {'name': 'Morphology Slot',        'exercise_type': 'morphology_slot',
+        'prompt': 'prompt3', 'family': 'form_production',          'ring': 2},
+    5: {'name': 'Collocation Gap',        'exercise_type': 'collocation_gap_fill',
+        'prompt': 'prompt2', 'family': 'collocation',              'ring': 2},
+    6: {'name': 'Semantic Discrimination','exercise_type': 'semantic_discrimination',
+        'prompt': 'prompt2', 'family': 'semantic_discrimination',  'ring': 3},
+    7: {'name': 'Spot Incorrect',         'exercise_type': 'spot_incorrect_sentence',
+        'prompt': 'prompt3', 'family': 'semantic_discrimination',  'ring': 3},
+    8: {'name': 'Collocation Repair',     'exercise_type': 'collocation_repair',
+        'prompt': 'prompt3', 'family': 'collocation',              'ring': 4},
+    9: {'name': 'Jumbled Sentence',       'exercise_type': 'jumbled_sentence',
+        'prompt': 'local', 'family': 'form_production',            'ring': 4},
 }
 ```
 
 Generation sources per level:
-- **Prompt 2** (Claude Sonnet): Levels 1, 3, 5, 6 — lexical/semantic exercises
-- **Prompt 3** (Claude Sonnet): Levels 4, 7, 8 — grammar/structural exercises
-- **Database**: Level 2 — definition match from dim_word_senses definitions
-- **Local**: Level 9 — jumbled sentence via backend tokenization (no LLM)
+- **Prompt 2** (Claude Sonnet): L1, L3, L5, L6 — lexical/semantic
+- **Prompt 3** (Claude Sonnet): L4, L7, L8 — grammar/structural
+- **Database**: L2 — definition match from `dim_word_senses.definition` (no LLM)
+- **Local**: L9 — backend jumbled-sentence tokenisation (no LLM)
 
-BKT → Starting Level mapping:
+BKT → starting level mapping (consumed by `init_ladder` only; runtime progression is family/ring-driven):
 ```python
-BKT_TO_LEVEL = [
-    (0.15, 1),   # p_known < 0.15 → start at Level 1
-    (0.40, 3),   # p_known < 0.40 → start at Level 3
-    (0.60, 5),   # p_known < 0.60 → start at Level 5
-    (0.80, 7),   # p_known < 0.80 → start at Level 7
-    (1.01, 9),   # p_known ≥ 0.80 → start at Level 9
-]
+BKT_TO_LEVEL = [(0.15, 1), (0.40, 3), (0.60, 5), (0.80, 7), (1.01, 9)]
 ```
 
-## LadderService: Attempt Processing Detail
+## `ladder_record_attempt` — Attempt Processing Detail
 
-File: `services/vocabulary_ladder/ladder_service.py`, method `record_attempt()`
+[migrations/phase8_momentum_bands.sql:386-749](../../migrations/phase8_momentum_bands.sql#L386-L749)
 
 ```
-record_attempt(user_id, sense_id, exercise_id, is_correct, is_first_attempt, time_taken_ms)
+ladder_record_attempt(user, sense, exercise, is_correct, is_first_attempt,
+                       time_ms, language, exercise_type, level, exercise_context)
   │
-  ├── Get current ladder row from user_word_ladder
-  │     (if not exists: default level=1, active_levels=[1..9])
+  ├── 1. Resolve exercise metadata (type, level, language) from exercises
+  │      if not provided. Compute family via ladder_get_family(level).
   │
-  ├── INSERT exercise_attempts row
+  ├── 2. SELECT user_word_ladder ... FOR UPDATE (lock).
+  │      If missing, derive active_levels from semantic_class:
+  │        concrete_noun → [1,2,3,4,6,7,9]; else [1,2,3,4,5,6,7,8,9]
+  │      INSERT default row (current_level=1, ring=1, state='new').
   │
-  ├── IF is_first_attempt:
-  │     ├── Update BKT: knowledge_svc.update_from_word_test()
-  │     ├── IF is_correct:
-  │     │     ├── new_level = next_active_level(current, active_levels)
-  │     │     ├── UPSERT user_word_ladder with new_level  ◄── IMMEDIATE promotion
-  │     │     └── Update FSRS (rating = EASY if <5s, else GOOD)
-  │     └── IF not correct:
-  │           ├── result['requeue'] = True                ◄── NO demotion
-  │           └── Update FSRS (rating = AGAIN)
+  ├── 3. INSERT exercise_attempts (Phase 4 trigger syncs user_exercise_history).
   │
-  └── IF not first_attempt:
-        ├── IF correct: requeue = False (move on)
-        └── IF not correct: requeue = True (try again)
-```
-
-### Missing From Implementation
-
-1. ~~**No `first_try_success_count`**~~ — ✅ Column exists (Phase 4), Python logic not yet updated
-2. ~~**No `first_try_failure_count`**~~ — ✅ Column exists (Phase 4), Python logic not yet updated
-3. ~~**No `word_state` tracking**~~ — ✅ Column exists (Phase 4, states: new/active/fragile/stable/mastered), Python logic not yet updated
-4. **No inter-session validation** — `last_success_session_date` column exists (Phase 4), Python not yet using it
-5. **No capstone level** — ladder ends at L9 (jumbled sentence)
-
-## ExerciseSessionService: The 6-Bucket Algorithm
-
-File: `services/exercise_session_service.py`, method `_compute_session()`
-
-### Bucket Distribution
-
-```python
-dist = Config.EXERCISE_SLOT_DISTRIBUTION
-# Expected: {'due_review': 0.40, 'active_learning': 0.40, 'new_word': 0.20}
-# For session_size=20: due=8, learning=8, new=4
-```
-
-### Bucket 1: FSRS Due Reviews
-
-```
-user_flashcards WHERE due_date <= TODAY AND state IN ('review', 'relearning')
-  → JOIN user_vocabulary_knowledge for p_known
-  → Phase = _determine_phase(p_known)  [thresholds: 0.30/0.55/0.80]
-  → Select exercise by weighted-random type within phase
-```
-
-### Bucket 2: Active Learning (BKT Uncertainty)
-
-```
-user_vocabulary_knowledge WHERE p_known BETWEEN 0.25 AND 0.75
-  AND status NOT IN ('user_marked_unknown', 'unknown')
-  → Sort by p*(1-p) DESC (maximum entropy)
-  → Select exercises with phase-gated types
-```
-
-### Bucket 3: New Words
-
-```
-user_vocabulary_knowledge WHERE p_known < 0.30
-  AND status IN ('encountered', 'unknown')
-  → Fallback: user_flashcards WHERE state = 'new'
-  → Phase A exercises only
-```
-
-### Bucket 4: Supplementary (Grammar/Collocation)
-
-```
-exercises WHERE word_sense_id IS NULL  (non-vocabulary)
-  AND complexity_tier IN (estimated from avg p_known)
-  → Random selection
-```
-
-### Bucket 5: Ladder Exercises (≤5)
-
-```
-LadderService.get_words_for_session() → up to 5 words
-  → For each: find exercise at current_level
-```
-
-### Bucket 6: Virtual Jumbled Sentences (≤3)
-
-```
-test_attempts WHERE percentage > 50
-  → tests.transcript → split into sentences
-  → Filter by word count ≥ 3
-  → Create virtual exercises (not stored in DB)
-```
-
-### Overflow Redistribution
-
-If any bucket returns fewer exercises than its allocation, remaining slots are filled from other buckets in priority order (due → learning → new). If still not full, supplementary grammar/collocation exercises fill the gap.
-
-## Exercise Selection: Phase-Gated Weighted Sampling
-
-```python
-def _get_eligible_types_weighted(phase):
-    """Primary phase gets 70%, previous phase gets 30%."""
-    # Phase A: 100% A types (no prior phase)
-    # Phase B: 70% B types + 30% A types
-    # Phase C: 70% C types + 30% B types
-    # Phase D: 70% D types + 30% C types
-```
-
-Types per phase (from `PHASE_MAP`):
-- **A**: text_flashcard, listening_flashcard, cloze_completion
-- **B**: jumbled_sentence, spot_incorrect_*, tl_nl_translation, nl_tl_translation, style_sentence_completion, style_transition_fill
-- **C**: semantic_discrimination, collocation_gap_fill, collocation_repair, odd_*, style_pattern_match, style_voice_transform
-- **D**: verb_noun_match, context_spectrum, timed_speed_round, style_imitation
-
-### N+1 Query Pattern
-
-`_select_exercises_for_senses()` executes one DB query per sense per type attempt. For 8 senses × ~5 type attempts each = ~40 queries. This is the main performance bottleneck.
-
-**Fix**: Batch-fetch all exercises for selected senses in one query, then filter in Python:
-
-```python
-# Instead of: for each sense, for each type, query DB
-# Do: SELECT * FROM exercises WHERE word_sense_id IN (...) AND language_id = ...
-# Then: filter by type in Python
-```
-
-## Asset Pipeline: 3-Prompt Flow
-
-File: `services/vocabulary_ladder/asset_pipeline.py`
-
-```
-VocabAssetPipeline.generate_for_sense(sense_id, language_id)
+  ├── 4. Family BKT update on family_confidence (JSONB).
+  │      Context-specific rates:
+  │        standard:    learn=0.15 slip=0.12
+  │        gate:        learn=0.18 slip=0.10
+  │        stress_test: learn=0.20 slip=0.12
+  │      Clamp [0.02, 0.98]. Recompute p_known_overall.
   │
-  ├── Check existing: _assets_exist() [all 3 types valid?]
+  ├── 5. BRANCH:
+  │   │
+  │   ├── If word_state='mastered' AND NOT correct: LAPSE PATH
+  │   │     - Extra 30% penalty on failed family
+  │   │     - word_state='relearning', review_due_at=tomorrow
+  │   │     - fsrs_schedule_review(..., p_rating=1)
+  │   │     - UPDATE user_flashcards
+  │   │
+  │   └── ELSE: NORMAL PATH
+  │         - Momentum band scheduling (low/medium/high → +1/+1/+2 days)
+  │         - First-attempt failure overrides to tomorrow
+  │         - required_families := ladder_ring_families(current_ring, active_levels)
+  │         - min_conf_threshold := 0.50 (R1,R2) | 0.65 (R3) | 0.72 (R4)
+  │         - ring_cleared := all required_families ≥ threshold
+  │         - Ring transitions:
+  │             R1 cleared → R2 (automatic)
+  │             R2 cleared, !gate_a → v_gate_pending='gate_a'
+  │             R3 cleared, !gate_b → v_gate_pending='gate_b'
+  │         - Compute word_state:
+  │             R4 + gate_b + ring_cleared + p_known≥0.88 → 'pre_mastery'
+  │             gate_pending != null                       → 'gated'
+  │             ring≤1, p_known<0.20                       → 'new'
+  │             else                                       → 'active'
+  │         - If word_state='pre_mastery', check stress_test_ready
+  │           (every active family ≥ 0.72).
   │
-  ├── Fetch corpus sentences from tests + conversations
+  ├── 6. UPDATE user_word_ladder
+  │      - family_confidence, current_ring, word_state, review_due_at
+  │      - Phase 4 counters: total_attempts, first_try_success_count,
+  │        first_try_failure_count, consecutive_failures,
+  │        last_success_session_date (all written, none read)
+  │      - last_exercised_family (used by consecutive_failures heuristic)
   │
-  ├── Prompt 1: CoreAssetGenerator.generate()
-  │     → Output: pos, semantic_class, definition, collocate, pronunciation, IPA, syllable_count, 6 sentences, morphological_forms
-  │     → Validate: VocabAssetValidator.validate_prompt1()
-  │     → Store: word_assets (asset_type='prompt1_core')
-  │     → Side effect: update dim_vocabulary.semantic_class + dim_word_senses phonetics
+  ├── 7. UPSERT user_vocabulary_knowledge via bkt_update_exercise.
+  │      If is_lapse: bkt_apply_lapse_penalty.
   │
-  ├── Compute active_levels from semantic_class
-  │
-  ├── Prompt 2: ExerciseAssetGenerator.generate()
-  │     → Output: L1, L3, L5 (if active), L6 exercises with options + reasoning
-  │     → Validate: VocabAssetValidator.validate_prompt2()
-  │     → Store: word_assets (asset_type='prompt2_exercises')
-  │
-  └── Prompt 3: TransformAssetGenerator.generate()
-        → Output: L4, L7, L8 (if active) exercises with options + reasoning
-        → Validate: VocabAssetValidator.validate_prompt3()
-        → Store: word_assets (asset_type='prompt3_transforms')
+  └── 8. RETURN jsonb:
+        is_correct, family, family_confidence, p_known_overall,
+        current_ring, word_state, review_due_at, requeue,
+        gate_pending, stress_test_ready, bkt_p_known, is_lapse
 ```
 
-### Corpus Sentence Sourcing
+### Phase 4 counter columns — now mostly wired in (Phase 10, 2026-05-12)
 
-Before generating, the pipeline searches for existing sentences containing the target word:
-1. Search test transcripts (`tests.transcript`)
-2. Search conversation content (`conversations.content`)
-3. Extract sentences containing the lemma
-4. These corpus sentences reduce LLM generation needs (Prompt 1 generates `6 - len(corpus)` sentences)
+After Phase 10, the read-side of these columns looks like:
 
-## Database Tables: Actual vs Wiki
+| Column | Read by Phase 10? | Effect |
+|---|---|---|
+| `consecutive_failures` | ✅ | Computed pre-UPDATE into `v_new_consecutive_failures`; demotion fires when ≥ 3 on a ring-gating family |
+| `last_exercised_family` | ✅ | Already used by the per-family `consecutive_failures` heuristic |
+| `family_success_dates` *(new Phase 10)* | ✅ | Drives cross-session advancement gate (≥ 2 distinct dates per required family) |
+| `last_success_session_date` | ❌ | Still written, never read. Redundant with `family_success_dates` |
+| `first_try_success_count` | ❌ | Still written, never read |
+| `first_try_failure_count` | ❌ | Still written, never read |
+| `total_attempts` | ❌ | Still written, never read. Pure observability |
 
-### `user_word_ladder` (actual — updated Phase 4)
+The remaining unread columns (`last_success_session_date`, `first_try_success_count`, `first_try_failure_count`, `total_attempts`) are flagged as open_question on the prose page; candidates for removal in a future schema cleanup.
+
+## `ladder_pass_gate` — Gate Pass
+
+[phase8_momentum_bands.sql:761-822](../../migrations/phase8_momentum_bands.sql#L761-L822)
+
+```
+ladder_pass_gate(user, sense, gate_name)
+  → SELECT ... FOR UPDATE
+  → gates_passed[gate_name] = true
+  → new_ring = 3 (gate_a) | 4 (gate_b)
+  → word_state: if new_ring≥4 AND gate_b AND p_known≥0.88 → 'pre_mastery' else 'active'
+  → review_due_at = tomorrow
+  → RETURN: gate, passed=true, new_ring, word_state, p_known_overall
+```
+
+Gate **failure** is not a separate RPC. Python calls `ladder_record_attempt` for each failed battery exercise with `exercise_context = 'gate'`. The route then returns `{passed: false, word_state: 'active'}` shape ([routes/vocab_dojo.py:278-280](../../routes/vocab_dojo.py#L278-L280)).
+
+## `ladder_graduate` — Stress Test Pass
+
+[phase8_momentum_bands.sql:836-933](../../migrations/phase8_momentum_bands.sql#L836-L933)
+
+```
+ladder_graduate(user, sense, stress_test_score, language)
+  → SELECT ... FOR UPDATE
+  → p_known := ladder_compute_p_known(family_confidence)
+  → stress_bonus := 1.0 (≥0.90) | 0.5 (≥0.80) | 0.0 (else)
+  → stability   := clamp(7 + 21·p_known + 6·stress_bonus, 7, 34)
+  → family_stddev over the 5 active families
+  → variance_penalty := min(1.5, stddev·4)
+  → difficulty  := clamp(8 − 5·p_known + variance_penalty, 2, 8.5)
+  → due_date    := today + round(0.6·stability)
+  → UPDATE user_word_ladder
+        word_state='mastered', stress_test_score=score, review_due_at=NULL
+  → UPSERT user_flashcards (state='review', reps≥1, lapses=0)
+  → RETURN: word_state, stress_test_score, fsrs_stability, fsrs_difficulty,
+            fsrs_due_date, p_known_overall
+```
+
+## `get_ladder_session` — Session Builder
+
+[phase8_momentum_bands.sql:1005-1184](../../migrations/phase8_momentum_bands.sql#L1005-L1184)
+
+Returns a `TABLE` with 15 `out_*` columns. CTE pipeline:
+
+| CTE | Purpose |
+|-----|---------|
+| `candidates` | `user_word_ladder` rows with active state and `review_due_at <= now()`, joined to a row in `exercises` with a ladder level. Computes overdue/weakness/gate/novelty/relapse subscores. |
+| `scored` | Adds `priority = 0.35·overdue + 0.25·weakness + 0.20·gate + 0.10·novelty + 0.10·relapse` and `target_family` (weakest in current ring). |
+| `top_words` | Top `p_count` words by priority. |
+| `seen_today` | DISTINCT `exercise_id` from `user_exercise_history` for today's `session_date`. |
+| `word_exercises` | Joins `exercises` for each top word, `ROW_NUMBER() OVER (PARTITION BY sense_id ORDER BY target-family-match, seen-today, variant-alternation, random())`. |
+| `selected` | `rn = 1`. |
+| Final SELECT | Joins `dim_word_senses` + `dim_vocabulary` for lemma/definition/pronunciation. |
+
+Variant alternation logic ([phase8_momentum_bands.sql:1142-1148](../../migrations/phase8_momentum_bands.sql#L1142-L1148)): prefer the variant *not* equal to the most recent exercise the user did for this sense. (The SQL compares variant strings against an exercise-id-cast-to-text via a correlated subquery — a subtle code smell, but functionally correct in tests because `'A' != 'some-uuid'` always.)
+
+## Daily Session: `get_exercise_session` RPC (Phase 9)
+
+[migrations/phase9_get_exercise_session.sql](../../migrations/phase9_get_exercise_session.sql)
 
 ```sql
-CREATE TABLE user_word_ladder (
-    user_id                    uuid NOT NULL REFERENCES users(id),
-    sense_id                   integer NOT NULL REFERENCES dim_word_senses(id),
-    current_level              integer NOT NULL DEFAULT 1 CHECK (current_level BETWEEN 1 AND 9),
-    active_levels              integer[] NOT NULL DEFAULT '{1,2,3,4,5,6,7,8,9}',
-    updated_at                 timestamptz NOT NULL DEFAULT now(),
-    -- Phase 4 additions:
-    first_try_success_count    integer NOT NULL DEFAULT 0,
-    first_try_failure_count    integer NOT NULL DEFAULT 0,
-    consecutive_failures       integer NOT NULL DEFAULT 0,
-    total_attempts             integer NOT NULL DEFAULT 0,
-    word_state                 text NOT NULL DEFAULT 'active'
-                               CHECK (word_state IN ('new', 'active', 'fragile', 'stable', 'mastered')),
-    last_success_session_date  date,
-    review_due_at              timestamptz,
-    PRIMARY KEY (user_id, sense_id)
-);
+get_exercise_session(p_user_id uuid, p_language_id smallint, p_session_size int DEFAULT 20)
+RETURNS TABLE(
+    out_exercise_id     uuid,
+    out_sense_id        integer,
+    out_exercise_type   text,
+    out_content         jsonb,
+    out_complexity_tier text,
+    out_phase           text,        -- 'A'|'B'|'C'|'D'
+    out_slot_type       text,        -- 'due_review'|'active_learning'|'new_word'|'ladder'|'supplementary'
+    out_priority        numeric
+)
+```
+
+CTE pipeline:
+
+| # | CTE | Source / Rule |
+|---|-----|---------------|
+| 1 | `recent_seen` | `user_exercise_history` WHERE `session_date >= today − 7 days` — indexed anti-repetition (replaces the legacy 500-row scan of `exercise_attempts`) |
+| 2 | `raw_senses` | `get_session_senses(user, lang, due*3, learning*3, new*3)` — Phase 7 RPC, applies BKT decay + bucket assignment |
+| 3 | `new_fallback` | `user_flashcards.state='new'` for senses not in `raw_senses` (top-up if Phase 7 returns < `new_slots`) |
+| 4 | `senses_deduped` | `ROW_NUMBER() OVER (PARTITION BY sense_id ORDER BY due>learning>new)`, keep `rn=1` |
+| 5 | `ladder_picks` | `get_ladder_session(user, lang, LEAST(5, session_size))` — Phase 8 RPC; priority bumped + 1.0 |
+| 6 | `sense_candidates` | JOIN `exercises` per sense; `exercise_type_phase_weight(type, phase)` per row; exclude `recent_seen` + ladder picks |
+| 7 | `ranked_sense_picks` | `ROW_NUMBER() OVER (PARTITION BY sense_id ORDER BY type_weight DESC, RANDOM())` |
+| 8 | `vocab_picks_capped` | Of `rn=1`s, `ROW_NUMBER() OVER (PARTITION BY bucket ORDER BY type_weight DESC, RANDOM())` |
+| 9 | `vocab_picks` | Keep per-bucket `bucket_rn ≤ slot_allocation`; map bucket → slot_type; compute `priority` from bucket anchor + 0.1 × type_weight |
+| 10 | `supplementary_picks` | `exercises WHERE word_sense_id IS NULL AND complexity_tier = ANY(tier_window_for_p_known(avg(p_known)))`; cap = `session_size − ladder_picks − vocab_picks` |
+| 11 | Final SELECT | UNION ALL → `ORDER BY priority DESC, RANDOM() LIMIT session_size` |
+
+`exercise_type_phase_weight(exercise_type, phase)`: mirrors the Python `_get_eligible_types_weighted` rule — A: 100% A; B: 70% B + 30% A; C: 70% C + 30% B; D: 70% D + 30% C. Any-type fallback gets weight 0.001 so it can still be picked if nothing else is available.
+
+`tier_window_for_p_known(avg)`: returns the same `[T1,T2]` / `[T2,T3]` / … windows as the Python `_get_supplementary_exercises`.
+
+Slot distribution (40/40/20):
+- `due_slots := ROUND(session_size * 0.40)` (8 for size=20)
+- `learning_slots := ROUND(session_size * 0.40)` (8 for size=20)
+- `new_slots := session_size − due − learning` (4 for size=20)
+- Ladder cap: `LEAST(5, session_size)`
+- Supplementary fills the gap to `session_size`.
+
+### Python wrapper (`ExerciseSessionService._compute_session`)
+
+```python
+# services/exercise_session_service.py
+resp = self.db.rpc('get_exercise_session', {
+    'p_user_id': user_id,
+    'p_language_id': language_id,
+    'p_session_size': session_size,
+}).execute()
+picks = [{...} for row in (resp.data or [])]
+# Append up to 3 virtual jumbled sentences (language-specific tokenisation)
+picks += [...]
+random.shuffle(picks)
+return picks
+```
+
+The Python service now contains zero scheduling logic. The four old helpers (`_select_exercises_for_senses`, `_get_supplementary_exercises`, `_get_ladder_exercises`, `_get_recent_exercise_ids`) were deleted along with the module-level phase-weighting helpers.
+
+### Virtual jumbled sentences (still Python)
+
+Bucket 6 is the one piece that stays in Python because it depends on `LanguageProcessor.split_sentences()` / `tokenize()` — jieba for Chinese, etc. After the RPC returns, `_compute_session` appends up to 3 virtual picks with `exercise_id = f"virtual-jumbled-{uuid4()}"`. The frontend identifies them by the `virtual-` prefix and `is_virtual: true` flag; the `/api/exercises/attempt` route short-circuits them with no DB write.
+
+## Schema: `user_word_ladder` (post-Phase-8)
+
+```sql
+-- Phase 1/2 columns
+user_id                    uuid NOT NULL REFERENCES users(id),
+sense_id                   integer NOT NULL REFERENCES dim_word_senses(id),
+current_level              integer NOT NULL DEFAULT 1 CHECK (current_level BETWEEN 1 AND 9),
+active_levels              integer[] NOT NULL DEFAULT '{1,2,3,4,5,6,7,8,9}',
+updated_at                 timestamptz NOT NULL DEFAULT now(),
+
+-- Phase 4 columns (written by Phase 8 RPC, never read for progression)
+first_try_success_count    integer NOT NULL DEFAULT 0,
+first_try_failure_count    integer NOT NULL DEFAULT 0,
+consecutive_failures       integer NOT NULL DEFAULT 0,
+total_attempts             integer NOT NULL DEFAULT 0,
+word_state                 text NOT NULL DEFAULT 'active',  -- CHECK rewritten in Phase 8
+last_success_session_date  date,
+review_due_at              timestamptz,
+
+-- Phase 8 columns (canonical progression state)
+family_confidence          jsonb NOT NULL DEFAULT
+                           '{"form_recognition":0.10,"meaning_recall":0.10,
+                              "form_production":0.10,"collocation":0.10,
+                              "semantic_discrimination":0.10,"contextual_use":0.10}',
+gates_passed               jsonb NOT NULL DEFAULT '{"gate_a":false,"gate_b":false}',
+current_ring               integer NOT NULL DEFAULT 1 CHECK (current_ring BETWEEN 1 AND 4),
+stress_test_score          real,
+last_exercised_family      text,
+
+PRIMARY KEY (user_id, sense_id)
+
+-- Phase 8 CHECK constraint:
+CHECK (word_state IN ('new','active','gated','pre_mastery','relearning','mastered'))
 
 -- Indexes:
-CREATE INDEX idx_user_word_ladder_review_due ON user_word_ladder(user_id, review_due_at)
-    WHERE review_due_at IS NOT NULL;
-CREATE INDEX idx_user_word_ladder_state ON user_word_ladder(user_id, word_state);
+idx_user_word_ladder_user        (user_id)
+idx_user_word_ladder_review_due  (user_id, review_due_at) WHERE review_due_at IS NOT NULL
+idx_user_word_ladder_state       (user_id, word_state)
+idx_user_word_ladder_ring        (user_id, current_ring)
 ```
 
-**Note:** The Phase 4 columns enable the promotion/demotion counter logic (promote after 2 cross-session successes, demote after 3 consecutive first-attempt failures) and word state tracking. The `word_state` values differ from the original wiki proposal (uses `new/active/fragile/stable/mastered` instead of `new/learning/fragile_receptive/stable_receptive/fragile_productive/stable_productive`).
+The Phase 4 word_state values `'fragile'` and `'stable'` were data-migrated to `'active'` and the constraint replaced ([phase8_momentum_bands.sql:61-68](../../migrations/phase8_momentum_bands.sql#L61-L68)).
 
-### `exercises` (relevant columns for ladder)
+## Schema: Related
 
-```sql
--- Ladder-specific columns:
+`exercises` ladder columns:
+```
 ladder_level    integer CHECK (ladder_level BETWEEN 1 AND 9 OR ladder_level IS NULL)
 word_sense_id   integer REFERENCES dim_word_senses(id)
-word_asset_id   bigint REFERENCES word_assets(id)
-
--- Ladder-specific indexes:
-idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level IS NOT NULL)
-idx_exercises_sense (word_sense_id WHERE NOT NULL)
+word_asset_id   bigint  REFERENCES word_assets(id)
+tags            jsonb  -- includes {"variant": "A" | "B"} for variant exercises
 ```
 
-### `user_exercise_sessions` (daily session cache)
-
+`user_exercise_history` (Phase 4 anti-repetition table; populated by trigger from `exercise_attempts`):
 ```sql
-CREATE TABLE user_exercise_sessions (
-    user_id       uuid NOT NULL REFERENCES users(id),
-    language_id   integer NOT NULL,
-    load_date     date NOT NULL DEFAULT CURRENT_DATE,
-    exercise_ids  jsonb NOT NULL,      -- Array of exercise selection dicts
-    completed_ids jsonb DEFAULT '[]',  -- Exercise IDs already completed
-    session_size  integer NOT NULL,
-    PRIMARY KEY (user_id, language_id)
-);
+id, user_id, language_id, exercise_id, sense_id, exercise_type,
+is_correct, is_first_attempt, session_date, created_at
 ```
+Indexed for the anti-repetition query: `(user_id, language_id, session_date, exercise_id)`.
 
-Session is cached per (user, language) pair. Recomputed when `load_date != today`.
-
-### `user_exercise_history` — ✅ CREATED (Phase 4)
-
-Purpose-built anti-repetition table, auto-populated via trigger from `exercise_attempts`:
-
+`user_exercise_sessions` (daily session cache, Path B only):
 ```sql
-CREATE TABLE user_exercise_history (
-    id               bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id          uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    language_id      smallint NOT NULL REFERENCES dim_languages(id),
-    exercise_id      uuid NOT NULL REFERENCES exercises(id),
-    sense_id         integer REFERENCES dim_word_senses(id),
-    exercise_type    text NOT NULL,
-    is_correct       boolean NOT NULL,
-    is_first_attempt boolean NOT NULL DEFAULT true,
-    session_date     date NOT NULL DEFAULT CURRENT_DATE,
-    created_at       timestamptz NOT NULL DEFAULT now()
-);
-
--- Indexes:
-CREATE INDEX idx_ueh_anti_repeat ON user_exercise_history(user_id, language_id, session_date, exercise_id);
-CREATE INDEX idx_ueh_user_lang_date ON user_exercise_history(user_id, language_id, session_date DESC);
-CREATE INDEX idx_ueh_user_sense ON user_exercise_history(user_id, sense_id, created_at DESC);
+user_id, language_id, load_date, exercise_ids jsonb, completed_ids jsonb, session_size
+PRIMARY KEY (user_id, language_id)
 ```
-
-Replaces the old pattern of scanning 500 rows from `exercise_attempts`. The `sync_exercise_history()` trigger copies data on every `exercise_attempts` INSERT.
 
 ## Improvements — Implementation Status
 
-### 1. Promotion Counter Schema — ✅ IMPLEMENTED (Phase 4)
+| Item | Status | Notes |
+|------|--------|-------|
+| Promotion counter schema (Phase 4 columns) | ✅ Added to schema | Written every attempt; never read for progression |
+| Family-BKT × rings × gates × stress test (Phase 8) | ✅ Live | Canonical implementation in `phase8_momentum_bands.sql` |
+| FSRS handoff on graduation | ✅ Live | `ladder_graduate` seeds stability/difficulty/due_date |
+| FSRS-4.5 ported to SQL | ✅ Live | `fsrs_schedule_review` (used on lapse path) |
+| A/B exercise variants | ✅ Live | `word_assets.asset_type` CHECK expanded; session builder alternates via `exercises.tags->>'variant'` |
+| `user_exercise_history` anti-repetition table | ✅ Live | Trigger-populated; consumed by `get_ladder_session.seen_today` |
+| Daily-session N+1 fix | ✅ Live (Phase 9) | Folded into the new RPC: one JOIN over candidate senses replaces ~40 per-sense queries |
+| Daily-session bucket-5 → `get_ladder_session` delegation | ✅ Live (Phase 9) | `get_exercise_session` calls `get_ladder_session` internally with `LEAST(5, session_size)` |
+| Daily-session → single SQL `get_exercise_session` RPC | ✅ Live (Phase 9) | [migrations/phase9_get_exercise_session.sql](../../migrations/phase9_get_exercise_session.sql) |
+| Cross-session promotion gating | ✅ Live (Phase 10) | New `family_success_dates` JSONB; ring clears only if every required family has ≥ 2 distinct success dates |
+| Ring demotion on consecutive_failures | ✅ Live (Phase 10) | Triggered when consecutive_failures ≥ 3 on a ring-gating family; resets only the exit gate of the dropped-into ring |
+| L10 Capstone Production | Not done | `contextual_use` family weighted but no exercise type; caps overall p_known at ≈0.92 |
+| IRT calibration | ✅ Live (Phase 11) | Nightly 2PL fit from `user_exercise_history` (first-attempts only) into `irt_difficulty` / `irt_discrimination`. `get_exercise_session` weights candidate items by `exp(-0.5 · ((b − θ_user)/σ)²)` with σ=1.0 once `irt_n_attempts ≥ 20`; otherwise falls back to flat weight so new content still surfaces. Runner: [services/irt/calibrator.py](../../services/irt/calibrator.py). |
 
-Columns added to `user_word_ladder`: `first_try_success_count`, `first_try_failure_count`, `consecutive_failures`, `total_attempts`, `word_state`, `last_success_session_date`, `review_due_at`. See table DDL above.
+## Asset Pipeline (unchanged shape, Phase 8 tweaks)
 
-**Note:** The Python-side `LadderService.record_attempt()` has NOT yet been updated to use these columns. The schema is in place but the promotion/demotion logic still uses the old immediate-promotion behavior. Python code changes needed:
+Pipeline shape per [[features/exercises.tech]]. Phase 8 changes:
+- **Prompt 1 v2** (`vocab_prompt1_core`, language_id=2): generates **10 sentences** (was 6) so A/B variants can pick from disjoint pools. Other prompt templates unchanged.
+- **A/B variants:** `word_assets.asset_type` accepts `prompt2_exercises_A`, `prompt2_exercises_B`, `prompt3_transforms_A`, `prompt3_transforms_B`. Variant A consumes sentence indices 0–5; Variant B consumes 6–9 with selective reuse. Variant is stored on each generated `exercises.tags->>'variant'`.
 
-```python
-def record_attempt(self, ...):
-    if is_first_attempt:
-        progress.total_attempts += 1
-        if is_correct:
-            today = date.today()
-            if progress.last_success_session_date != today:
-                progress.first_try_success_count += 1
-                progress.last_success_session_date = today
-            progress.consecutive_failures = 0
-
-            if progress.first_try_success_count >= 2:
-                promote(progress)
-                progress.first_try_success_count = 0
-        else:
-            progress.consecutive_failures += 1
-            progress.first_try_success_count = 0
-            if progress.consecutive_failures >= 3:
-                demote(progress)
-                progress.consecutive_failures = 0
+Sentence-to-level assignment (variant A vs B; for asset generators):
 ```
-
-### 2. Session Builder N+1 Fix
-
-Replace per-sense exercise queries with a batch approach:
-
-```python
-def _select_exercises_batch(self, senses, language_id, exclude_ids):
-    """Batch-fetch all exercises for selected senses in one query."""
-    sense_ids = [s['sense_id'] for s in senses]
-    resp = (
-        self.db.table('exercises')
-        .select('id, exercise_type, content, word_sense_id')
-        .eq('language_id', language_id)
-        .eq('is_active', True)
-        .in_('word_sense_id', sense_ids)
-        .limit(len(senses) * 10)
-        .execute()
-    )
-    # Group by sense_id
-    by_sense = defaultdict(list)
-    for row in (resp.data or []):
-        if row['id'] not in exclude_ids:
-            by_sense[row['word_sense_id']].append(row)
-
-    # For each sense, pick best exercise by phase
-    picks = []
-    for sense in senses:
-        candidates = by_sense.get(sense['sense_id'], [])
-        phase = _determine_phase(sense['p_known'])
-        eligible_types, weights = _get_eligible_types_weighted(phase)
-        # ... weighted selection from candidates
-    return picks
+A: L3=0  L4=1  L5=2  L6=3  L7=4 (correct 0,1,2)  L8=4  L9=5
+B: L3=6  L4=7  L5=8  L6=9  L7=0 (correct 6,7,9)  L8=8  L9=3
 ```
-
-### 3. Create user_exercise_history Table — ✅ IMPLEMENTED (Phase 4)
-
-Table created with auto-populate trigger. See table DDL in the Database Tables section above.
-
-**Note:** Python-side `_get_recent_exercise_ids()` in `ExerciseSessionService` has NOT yet been updated to query `user_exercise_history` instead of scanning `exercise_attempts`. The table is populated and indexed, but the session builder still uses the old pattern.
-
-### 4. Level 10 Capstone Architecture (Sketch)
-
-```python
-# New exercise type: 'capstone_production'
-# Generated at runtime, not pre-cached
-
-class CapstoneExercise:
-    def generate_prompt(self, sense_id, language_id):
-        """Create a translation/production task containing the target word."""
-        # Fetch a corpus sentence containing the word
-        # Present in NL, ask for TL translation
-        # OR: present a scenario, ask learner to write a sentence using the word
-
-    def grade_response(self, user_response, target_word, context):
-        """LLM-grade the response for correctness and natural use."""
-        # Check: target word present and correctly used
-        # Check: grammatically correct
-        # Check: semantically appropriate
-        # Return: score (0-1), feedback text
-
-# Cost management:
-# - Only Level 9 graduates trigger capstone (small population)
-# - Cache grading rubrics per sense
-# - Use cheap model (Gemini Flash) for grading, not Sonnet
-```
-
-## File Inventory
-
-| File | Purpose | Lines |
-|------|---------|-------|
-| `services/vocabulary_ladder/config.py` | Ladder levels, BKT mapping, POS routing | ~166 |
-| `services/vocabulary_ladder/ladder_service.py` | Session building, attempt recording, FSRS/BKT integration | ~515 |
-| `services/vocabulary_ladder/asset_pipeline.py` | 3-prompt orchestrator, corpus sourcing, storage | ~404 |
-| `services/vocabulary_ladder/validators.py` | Schema + linguistic + pedagogical validation | — |
-| `services/vocabulary_ladder/exercise_renderer.py` | Frontend-ready exercise formatting | — |
-| `services/vocabulary_ladder/asset_generators/prompt1_core.py` | Gemini Flash: classification + sentences | — |
-| `services/vocabulary_ladder/asset_generators/prompt2_exercises.py` | Claude Sonnet: L1,3,5,6 exercises | — |
-| `services/vocabulary_ladder/asset_generators/prompt3_transforms.py` | Claude Sonnet: L4,7,8 exercises | — |
-| `services/exercise_session_service.py` | Daily session builder (6 buckets) | ~1003 |
-| `services/exercise_generation/config.py` | PHASE_MAP, type registries, distributions | ~178 |
 
 ## Related Pages
 
 - [[algorithms/ladder-implementation-analysis]] — Prose analysis
-- [[algorithms/vocabulary-ladder.tech]] — Original specification
+- [[algorithms/vocabulary-ladder.tech]] — Current ladder spec (Momentum Bands)
 - [[features/exercises.tech]] — Exercise table schema
-- [[features/vocab-dojo.tech]] — Exercise serving algorithm
-- [[algorithms/bkt-implementation-analysis.tech]] — BKT analysis (feeds into ladder)
+- [[features/vocab-dojo.tech]] — Session builder + endpoints
+- [[features/flashcards.tech]] — FSRS source for `fsrs_schedule_review`
+- [[algorithms/bkt-implementation-analysis.tech]] — BKT analysis (overall p_known)
 - [[database/schema.tech]] — Full table DDL
+- [[database/rpcs.tech]] — Full RPC definitions
+- [[decisions/ADR-005-momentum-bands]] — Decision record

@@ -1002,8 +1002,11 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 | `content` | jsonb | NO | | Exercise content (questions, answers, etc.) |
 | `tags` | jsonb | NO | '{}' | |
 | `difficulty_static` | numeric | YES | | |
-| `irt_difficulty` | numeric | NO | 0.0 | Item Response Theory difficulty |
-| `irt_discrimination` | numeric | NO | 1.0 | IRT discrimination parameter |
+| `irt_difficulty` | numeric | NO | 0.0 | Item Response Theory difficulty (tier-seeded; nightly-fitted once `irt_n_attempts ≥ 20`) |
+| `irt_discrimination` | numeric | NO | 1.0 | IRT discrimination parameter (tier-seeded; nightly-fitted once `irt_n_attempts ≥ 20`) |
+| `irt_n_attempts` | integer | NO | 0 | Phase 11. Number of first-attempt observations that fed the latest IRT fit. 0 = never calibrated. |
+| `irt_calibrated_at` | timestamptz | YES | | Phase 11. Timestamp of the latest successful IRT fit; NULL = still on tier-seeded values. |
+| `irt_se_difficulty` | numeric(5,3) | YES | | Phase 11. Standard error of the fitted `irt_difficulty` from the inverse Hessian. NULL when the Hessian wasn't invertible. |
 | `complexity_tier` | text | YES | | CHECK: T1-T6 |
 | `ladder_level` | integer | YES | | CHECK: 1-9 or NULL. Vocabulary ladder level |
 | `pattern_code` | text | YES | | Denormalized grammar pattern code |
@@ -1014,7 +1017,7 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 | `created_at` | timestamptz | NO | now() | |
 
 - **Primary Key:** `exercises_pkey (id)`
-- **Indexes:** `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_content_gin GIN (content)`, `idx_exercises_conversation (conversation_id WHERE NOT NULL)`, `idx_exercises_grammar (grammar_pattern_id WHERE NOT NULL)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `idx_exercises_language (language_id)`, `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_source (source_type)`, `idx_exercises_style_item (style_pack_item_id WHERE NOT NULL)`, `idx_exercises_tags_gin GIN (tags)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_type (exercise_type)`
+- **Indexes:** `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_content_gin GIN (content)`, `idx_exercises_conversation (conversation_id WHERE NOT NULL)`, `idx_exercises_grammar (grammar_pattern_id WHERE NOT NULL)`, `idx_exercises_irt_calibrated (irt_calibrated_at WHERE NOT NULL)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `idx_exercises_language (language_id)`, `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_source (source_type)`, `idx_exercises_style_item (style_pack_item_id WHERE NOT NULL)`, `idx_exercises_tags_gin GIN (tags)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_type (exercise_type)`
 - **Foreign Keys:** `language_id` -> `dim_languages.id`, `grammar_pattern_id` -> `dim_grammar_patterns.id`, `word_sense_id` -> `dim_word_senses.id`, `word_asset_id` -> `word_assets.id`, `conversation_id` -> `conversations.id`, `style_pack_item_id` -> `style_pack_items.id`
 - **Constraints:** `chk_source_fk` — at least one of `grammar_pattern_id`, `word_sense_id`, `corpus_collocation_id`, `conversation_id`, `style_pack_item_id` must be non-null
 - **RLS:** Disabled
@@ -1160,26 +1163,36 @@ FSRS-based spaced repetition flashcards for vocabulary senses.
 
 ### `user_word_ladder`
 
-Per-user vocabulary ladder progression (9 levels per sense) with promotion/demotion tracking.
+Per-user vocabulary ladder progression. Canonical progression state is the Phase 8 Momentum Bands columns (`family_confidence`, `current_ring`, `gates_passed`, `stress_test_score`, `last_exercised_family`). The Phase 4 counter columns are still written by `ladder_record_attempt` ([phase8_momentum_bands.sql:664-695](../../migrations/phase8_momentum_bands.sql#L664-L695)) but are not consumed by any progression code path — they survive as observability data. See [[decisions/ADR-005-momentum-bands]].
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
 | `user_id` | uuid | NO | | FK -> users |
 | `sense_id` | integer | NO | | FK -> dim_word_senses |
-| `current_level` | integer | NO | 1 | CHECK: 1-9 |
-| `active_levels` | integer[] | NO | '{1,2,3,4,5,6,7,8,9}' | Which levels are still in play |
-| `first_try_success_count` | integer | NO | 0 | Cross-session success counter for promotion (Phase 4) |
-| `first_try_failure_count` | integer | NO | 0 | Failure counter for demotion (Phase 4) |
-| `consecutive_failures` | integer | NO | 0 | Consecutive first-attempt failures (Phase 4) |
-| `total_attempts` | integer | NO | 0 | Total attempts across all sessions (Phase 4) |
-| `word_state` | text | NO | 'active' | CHECK: new/active/fragile/stable/mastered (Phase 4) |
-| `last_success_session_date` | date | YES | | Date of last successful session for cross-session validation (Phase 4) |
-| `review_due_at` | timestamptz | YES | | Scheduled review time (Phase 4) |
+| `current_level` | integer | NO | 1 | CHECK: 1-9; legacy/metadata after Phase 8 |
+| `active_levels` | integer[] | NO | '{1,2,3,4,5,6,7,8,9}' | Concrete nouns get [1,2,3,4,6,7,9] |
 | `updated_at` | timestamptz | NO | now() | |
+| **Phase 4 (counters)** | | | | *Written on every attempt; never read* |
+| `first_try_success_count` | integer | NO | 0 | First-attempt successes (lifetime) |
+| `first_try_failure_count` | integer | NO | 0 | First-attempt failures (lifetime) |
+| `consecutive_failures` | integer | NO | 0 | Reset to 0 on any correct; per-family-tracked via `last_exercised_family` |
+| `total_attempts` | integer | NO | 0 | Total attempts across all sessions |
+| `word_state` | text | NO | 'active' | CHECK: new/active/gated/pre_mastery/relearning/mastered (Phase 8 rewrote the CHECK; Phase 4 `fragile`/`stable` values migrated to `active`) |
+| `last_success_session_date` | date | YES | | Date of last first-attempt success |
+| `review_due_at` | timestamptz | YES | | Next scheduled review (NULL for mastered — FSRS owns scheduling) |
+| **Phase 8 (Momentum Bands — canonical)** | | | | |
+| `family_confidence` | jsonb | NO | `{form_recognition:0.10, meaning_recall:0.10, form_production:0.10, collocation:0.10, semantic_discrimination:0.10, contextual_use:0.10}` | Per-family BKT confidence (clamped 0.02–0.98 at update time) |
+| `gates_passed` | jsonb | NO | `{gate_a:false, gate_b:false}` | Threshold gate completion flags |
+| `current_ring` | integer | NO | 1 | CHECK: 1-4 |
+| `stress_test_score` | real | YES | | Last stress test score (0.0–1.0); NULL if not yet taken |
+| `last_exercised_family` | text | YES | | Used by `consecutive_failures` heuristic |
+| **Phase 10 (advancement gating + demotion)** | | | | |
+| `family_success_dates` | jsonb | NO | `{form_recognition:[], meaning_recall:[], form_production:[], collocation:[], semantic_discrimination:[], contextual_use:[]}` | Per-family ISO date arrays of first-attempt successes, trimmed to most recent 2. Used by ring-advancement cross-session gate (≥ 2 distinct dates required) and reset on demotion for the demoted-into-ring families. |
 
 - **Primary Key:** `user_word_ladder_pkey (user_id, sense_id)`
-- **Indexes:** `idx_user_word_ladder_user (user_id)`, `idx_user_word_ladder_review_due (user_id, review_due_at WHERE review_due_at IS NOT NULL)`, `idx_user_word_ladder_state (user_id, word_state)`
+- **Indexes:** `idx_user_word_ladder_user (user_id)`, `idx_user_word_ladder_review_due (user_id, review_due_at WHERE review_due_at IS NOT NULL)`, `idx_user_word_ladder_state (user_id, word_state)`, `idx_user_word_ladder_ring (user_id, current_ring)`
 - **Foreign Keys:** `user_id` -> `users.id`, `sense_id` -> `dim_word_senses.id`
+- **CHECK constraints:** `user_word_ladder_word_state_check CHECK (word_state IN ('new','active','gated','pre_mastery','relearning','mastered'))`, `user_word_ladder_current_ring_check CHECK (current_ring BETWEEN 1 AND 4)`, `user_word_ladder_current_level_check CHECK (current_level BETWEEN 1 AND 9)`
 - **RLS:** Disabled
 
 ---
@@ -1861,8 +1874,16 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 - `get_recommended_test(user_id, language_id)` -> tests row -- expanding-radius ELO match, now excludes attempted tests (Phase 3)
 - `get_recommended_tests(user_id, language)` -> table -- ranked candidate tests
 
-### Exercise Serving (Vocab Dojo)
-- `get_exercise_session(p_user_id, p_language_id, p_session_size)` -> table -- CTE-based session builder with 40/40/20 split (FSRS due / BKT uncertainty / new words)
+### Exercise Serving (Vocab Dojo, Phase 8 Momentum Bands)
+- `get_ladder_session(p_user_id, p_language_id, p_count)` -> table -- per-word ladder session builder with priority scoring (0.35·overdue + 0.25·weakness + 0.20·gate + 0.10·novelty + 0.10·relapse), family-aware target selection, A/B variant alternation, seen-today anti-repetition
+- `ladder_record_attempt(...)` -> jsonb -- atomic family-BKT update, ring/gate evaluation, lapse handling, FSRS schedule on lapse
+- `ladder_pass_gate(p_user_id, p_sense_id, p_gate_name)` -> jsonb -- ring advancement after passing a gate battery
+- `ladder_graduate(p_user_id, p_sense_id, p_stress_test_score, p_language_id)` -> jsonb -- FSRS handoff (seeds stability/difficulty/due_date) on stress test pass
+- Helpers: `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review` (FSRS-4.5 port to PostgreSQL)
+
+### Exercise Serving (Daily Mixed Session, Phase 9)
+- `get_exercise_session(p_user_id, p_language_id, p_session_size)` -> table -- single SQL session builder for `/api/exercises/session`. Combines FSRS due, BKT uncertainty, new words, ladder content (delegated to `get_ladder_session`), and supplementary grammar/collocation. Uses `user_exercise_history` (indexed) for 7-day anti-repetition.
+- Helpers: `exercise_type_phase_weight` (PHASE_MAP weighting), `tier_window_for_p_known`, `tier_to_phase`
 
 ### Auth & Tokens
 - `is_admin(user_id)`, `is_moderator(user_id)` -> boolean

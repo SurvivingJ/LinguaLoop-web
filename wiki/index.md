@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-05-07 | Pages: 47
+Last updated: 2026-05-12 (Phase 11 IRT calibration) | Pages: 48
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -25,8 +25,8 @@ Last updated: 2026-05-07 | Pages: 47
 - [[features/corpus-analysis.tech]] — Corpus analysis technical spec
 - [[features/token-economy]] — Token-based access and Stripe payments
 - [[features/token-economy.tech]] — Payment flow technical spec
-- [[features/vocab-dojo]] — Adaptive vocab exercise serving with 40/40/20 session split
-- [[features/vocab-dojo.tech]] — ExerciseScheduler, anti-repetition, get_exercise_session RPC
+- [[features/vocab-dojo]] — Per-word vocabulary ladder serving (ring/family/gate/stress-test progression)
+- [[features/vocab-dojo.tech]] — get_ladder_session RPC, priority scoring, gate/stress-test orchestration
 - [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
@@ -65,6 +65,7 @@ Last updated: 2026-05-07 | Pages: 47
 - [[decisions/ADR-002-bkt-per-sense]] — BKT at word-sense granularity
 - [[decisions/ADR-003-age-tiers]] — Age-tier difficulty replacing CEFR for LLM generation
 - [[decisions/ADR-004-brand-name]] — Brand name: LinguaDojo (formal reconciliation of wiki ↔ codebase; alternatives archived)
+- [[decisions/ADR-005-momentum-bands]] — Vocabulary ladder switched from first-try counters to family-BKT × rings × gates × stress test (Phase 8)
 
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status

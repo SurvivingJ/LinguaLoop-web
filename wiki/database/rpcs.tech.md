@@ -3,9 +3,13 @@ title: "RPC & Functions — Technical Specification"
 type: api-tech
 status: complete
 prose_page: ../database/rpcs.md
-last_updated: 2026-04-16
+last_updated: 2026-05-12
 dependencies:
   - "All tables in schema.tech.md"
+  - "migrations/phase8_momentum_bands.sql — vocabulary ladder RPCs"
+  - "migrations/phase9_get_exercise_session.sql — daily-session RPC"
+  - "migrations/add_irt_calibration_metadata.sql — IRT persistence + lock RPCs"
+  - "migrations/phase11_irt_selection.sql — IRT-aware get_exercise_session"
 breaking_change_risk: high
 ---
 
@@ -15,12 +19,12 @@ breaking_change_risk: high
 
 | Metric | Value |
 |--------|-------|
-| Total application functions | 48 |
-| SECURITY DEFINER | 24 |
-| SECURITY INVOKER | 24 |
+| Total application functions | 65 |
+| SECURITY DEFINER | 27 |
+| SECURITY INVOKER | 38 |
 | Trigger functions | 6 |
-| Pure/IMMUTABLE functions | 10 |
-| STABLE functions | 10 |
+| Pure/IMMUTABLE functions | 16 |
+| STABLE functions | 13 |
 | Extension functions (not documented here) | 199 (pgvector, intarray, pg_trgm) |
 
 ### Categories at a Glance
@@ -41,6 +45,9 @@ breaking_change_risk: high
 | Category / Topic Matching | 2 | `get_next_category`, `match_topics` |
 | Prompt Templates | 1 | `get_prompt_template` |
 | Utility / Triggers | 2 | `update_updated_at_column`, `sync_exercise_history` |
+| Vocabulary Ladder (Phase 8) | 9 | `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review`, `ladder_record_attempt`, `ladder_pass_gate`, `ladder_graduate`, `get_ladder_session` |
+| Exercise Session (Phase 9 + 11) | 4 | `exercise_type_phase_weight`, `tier_window_for_p_known`, `tier_to_phase`, `get_exercise_session` (Phase 11 adds the `p_user_theta` parameter and Gaussian IRT weight) |
+| IRT Calibration (Phase 11) | 4 | `irt_apply_calibration`, `irt_compute_user_theta`, `irt_try_lock`, `irt_release_lock` |
 
 ---
 
@@ -2350,6 +2357,306 @@ $function$
 
 - **Trigger:** `trigger_sync_exercise_history` AFTER INSERT ON `exercise_attempts` FOR EACH ROW.
 - **Key behaviors:** Joins exercises table for language_id. Defaults is_first_attempt to true. Session_date = CURRENT_DATE. Exception handler ensures main insert always succeeds.
+
+---
+
+## Vocabulary Ladder (Phase 8 Momentum Bands)
+
+The vocabulary ladder progression engine lives entirely inside these RPCs. All schema mutations to `user_word_ladder` (family confidence, ring, gates, word_state, FSRS handoff) go through them. Source: [migrations/phase8_momentum_bands.sql](../../migrations/phase8_momentum_bands.sql). Design rationale: [[decisions/ADR-005-momentum-bands]].
+
+---
+
+### `ladder_get_family(p_level integer): text`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Maps ladder level (1–9) to cognitive family. Pure function.
+
+```sql
+SELECT CASE p_level
+    WHEN 1 THEN 'form_recognition'
+    WHEN 2 THEN 'form_recognition'
+    WHEN 3 THEN 'meaning_recall'
+    WHEN 4 THEN 'form_production'
+    WHEN 5 THEN 'collocation'
+    WHEN 6 THEN 'semantic_discrimination'
+    WHEN 7 THEN 'semantic_discrimination'
+    WHEN 8 THEN 'collocation'
+    WHEN 9 THEN 'form_production'
+END;
+```
+
+---
+
+### `ladder_get_ring(p_level integer): integer`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Maps ladder level (1–9) to ring number (1–4). Pure.
+
+```sql
+SELECT CASE
+    WHEN p_level BETWEEN 1 AND 2 THEN 1
+    WHEN p_level BETWEEN 3 AND 5 THEN 2
+    WHEN p_level BETWEEN 6 AND 7 THEN 3
+    WHEN p_level BETWEEN 8 AND 9 THEN 4
+END;
+```
+
+---
+
+### `ladder_ring_families(p_ring integer, p_active_levels integer[]): text[]`
+
+- **Security:** INVOKER
+- **Language:** plpgsql (IMMUTABLE)
+- **Description:** Returns the cognitive families required to clear a given ring, computed from the word's active_levels. Concrete nouns (whose active_levels exclude 5 and 8) get a smaller required set for R2 and R4.
+
+| Ring | Required if active | Family |
+|------|--------------------|--------|
+| 1 | L1 or L2 active | form_recognition |
+| 2 | L3 active | meaning_recall |
+| 2 | L4 active | form_production |
+| 2 | L5 active | collocation |
+| 3 | L6 or L7 active | semantic_discrimination |
+| 4 | L8 active | collocation |
+| 4 | L9 active | form_production |
+
+---
+
+### `ladder_compute_p_known(p_fc jsonb): numeric`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Weighted aggregate of family confidences. Mirrors `services/vocabulary_ladder/config.py::compute_p_known_overall`.
+
+```
+p_known = 0.12·form_recognition + 0.18·meaning_recall + 0.20·form_production
+        + 0.16·collocation + 0.16·semantic_discrimination + 0.18·contextual_use
+```
+
+Rounds to 4 decimals.
+
+---
+
+### `fsrs_schedule_review(p_stability real, p_difficulty real, p_last_review date, p_reps integer, p_lapses integer, p_state text, p_rating integer, p_review_date date DEFAULT CURRENT_DATE): jsonb`
+
+- **Security:** INVOKER
+- **Language:** plpgsql (STABLE)
+- **Description:** Port of FSRS-4.5 to PostgreSQL ([services/vocabulary/fsrs.py](../../services/vocabulary/fsrs.py)). Used by `ladder_record_attempt` on the lapse path. Encodes the 17 default FSRS weights inline. Returns `jsonb` with `stability, difficulty, due_date, state, reps, lapses`.
+- **States:** `new | learning | review | relearning`.
+- **Ratings:** `1=again, 2=hard, 3=good, 4=easy`.
+- **Constants:** `retention=0.9`, `max_interval=365` days.
+
+---
+
+### `ladder_record_attempt(p_user_id uuid, p_sense_id integer, p_exercise_id uuid, p_is_correct boolean, p_is_first_attempt boolean, p_time_taken_ms integer DEFAULT NULL, p_language_id smallint DEFAULT NULL, p_exercise_type text DEFAULT NULL, p_ladder_level integer DEFAULT NULL, p_exercise_context text DEFAULT 'standard'): jsonb`
+
+- **Security:** INVOKER
+- **Language:** plpgsql
+- **Description:** Atomic write path for one exercise attempt. Locks `user_word_ladder` `FOR UPDATE`, updates family confidence, evaluates ring clearing / gate transitions / lapse path / **cross-session advancement gate / ring demotion**, writes all progression-state columns, UPSERTs `user_vocabulary_knowledge`, and (on lapse) updates `user_flashcards` + applies BKT lapse penalty. Redefined by [migrations/phase10_ladder_advancement_demotion.sql](../../migrations/phase10_ladder_advancement_demotion.sql) to layer cross-session validation and demotion onto Phase 8.
+- **`p_exercise_context`:** `'standard' | 'gate' | 'stress_test'` — controls family BKT learn/slip rates (standard: 0.15/0.12, gate: 0.18/0.10, stress_test: 0.20/0.12).
+- **Cross-session advancement gate (Phase 10):** A ring clears only if (a) every required family is ≥ its confidence threshold AND (b) every required family has first-attempt successes on ≥ 2 distinct calendar days, tracked in `family_success_dates` (JSONB, trimmed to the most recent 2 dates per family).
+- **Ring demotion (Phase 10):** A first-attempt failure on a family that's required by the current ring demotes the word by one ring when `consecutive_failures ≥ 3`. R1 is the floor — no further demotion. Only the gate guarding exit from the dropped-into ring resets (gate_a on demote→R2, gate_b on demote→R3); other gates survive. `family_success_dates` for the demoted-into-ring required families is cleared; the learner must re-establish cross-session stability.
+- **Returns JSONB:**
+  ```
+  is_correct boolean
+  family text                                   -- which family this attempt updated
+  family_confidence jsonb                       -- full new family_confidence map
+  family_success_sessions jsonb                 -- per-family count of distinct cross-session
+                                                --   successes (capped at 2 by storage trim).
+                                                --   New in Phase 10.
+  p_known_overall numeric                       -- weighted aggregate
+  current_ring integer                          -- after this attempt (may be demoted)
+  word_state text                               -- after this attempt
+  review_due_at timestamptz                     -- next scheduled review
+  requeue boolean                               -- = NOT correct AND is_first_attempt
+  gate_pending text|null                        -- 'gate_a' | 'gate_b' | null
+  stress_test_ready boolean                     -- true if all active families ≥ 0.72
+  bkt_p_known numeric                           -- new overall BKT (separate from family)
+  is_lapse boolean                              -- true if mastered word just failed
+  demoted boolean                               -- true if this attempt triggered a ring drop.
+                                                --   New in Phase 10.
+  ```
+- **Side effects:**
+  - `INSERT exercise_attempts` (Phase 4 trigger fans out to `user_exercise_history`).
+  - `UPDATE user_word_ladder` (all Phase 8 columns + Phase 10 `family_success_dates` + Phase 4 counters: `total_attempts`, `first_try_success_count`, `first_try_failure_count`, `consecutive_failures`, `last_success_session_date`, `last_exercised_family`). On demotion, `consecutive_failures` resets to 0.
+  - `UPSERT user_vocabulary_knowledge` via `bkt_update_exercise`.
+  - **Lapse path** (mastered + failed): extra 30% confidence penalty; `word_state := 'relearning'`; if a `user_flashcards` row exists, call `fsrs_schedule_review` with rating=1 and UPDATE; call `bkt_apply_lapse_penalty`.
+- **Auto-init:** If no `user_word_ladder` row exists for (user, sense), INSERT a default row with semantic-class-derived `active_levels` (`{1,2,3,4,6,7,9}` for concrete nouns, else `{1,2,3,4,5,6,7,8,9}`), `current_ring=1`, `word_state='new'`.
+
+---
+
+### `ladder_pass_gate(p_user_id uuid, p_sense_id integer, p_gate_name text): jsonb`
+
+- **Security:** INVOKER
+- **Language:** plpgsql
+- **Description:** Marks a threshold gate as passed and advances the ring. Called from Python after the gate battery has been evaluated client-side (`/api/vocab-dojo/gate/result` with `passed=true`). Gate **failure** doesn't have a dedicated RPC — failed batteries call `ladder_record_attempt` per item with `exercise_context='gate'` instead.
+- **`p_gate_name`:** `'gate_a'` (unlocks R3) or `'gate_b'` (unlocks R4).
+- **Returns JSONB:** `{ gate, passed: true, new_ring, word_state, p_known_overall }`.
+- **Side effects:** `gates_passed[name] := true`; `current_ring := 3|4`; `word_state` recomputed (becomes `'pre_mastery'` if R4+gate_b+p_known≥0.88, else `'active'`); `review_due_at := tomorrow`.
+
+---
+
+### `ladder_graduate(p_user_id uuid, p_sense_id integer, p_stress_test_score real, p_language_id smallint): jsonb`
+
+- **Security:** INVOKER
+- **Language:** plpgsql
+- **Description:** Graduation handoff from the ladder to FSRS-4.5. Called after a passing stress test (`/api/vocab-dojo/stress-test/result` with `passed=true`).
+- **FSRS seeding from acquisition trace:**
+  ```
+  stress_bonus    = 1.0 if score ≥ 0.90 else 0.5 if ≥ 0.80 else 0.0
+  stability       = clamp(7 + 21·p_known + 6·stress_bonus, 7, 34)
+  family_stddev   = stddev_pop of the 5 active family confidences
+  variance_penalty= min(1.5, family_stddev · 4)
+  difficulty      = clamp(8 − 5·p_known + variance_penalty, 2, 8.5)
+  first_due       = today + round(0.6 · stability)
+  ```
+- **Returns JSONB:** `{ word_state: 'mastered', stress_test_score, fsrs_stability, fsrs_difficulty, fsrs_due_date, p_known_overall }`.
+- **Side effects:** `word_state := 'mastered'`, `stress_test_score := score`, `review_due_at := NULL` (FSRS owns scheduling from here); UPSERTs `user_flashcards` with `state='review'`, `reps≥1`, `lapses=0`.
+
+---
+
+### `get_ladder_session(p_user_id uuid, p_language_id smallint, p_count integer DEFAULT 20): TABLE(...)`
+
+- **Security:** INVOKER
+- **Language:** plpgsql (STABLE)
+- **Description:** The Vocab Dojo session builder. Single SQL function: scores candidate words by priority, picks top N, picks one exercise per word preferring target-family + unseen variant + not-seen-today.
+- **Priority:**
+  ```
+  0.35·overdue_score + 0.25·weakness_score + 0.20·gate_urgency
+  + 0.10·novelty_score + 0.10·relapse_score
+  ```
+  - `overdue_score`: `LEAST(7, days_overdue) / 7`
+  - `weakness_score`: ring-threshold − min(family confidences), floor 0; thresholds 0.50 / 0.50 / 0.65 / 0.72 by ring
+  - `gate_urgency`: 1 if `word_state='gated'`
+  - `novelty_score`: 0.5 if `last_exercised_family IS NULL`
+  - `relapse_score`: 1 if `word_state='relearning'`
+- **Anti-repetition:** correlated CTE against `user_exercise_history` for today's `session_date` — seen-today exercises are *deprioritised*, not eliminated (so users with a single exercise per word still get content).
+- **Variant alternation:** prefers `exercises.tags->>'variant'` not equal to the last seen exercise for this sense.
+- **Returns TABLE** (15 columns, all prefixed `out_`):
+  ```
+  out_sense_id, out_exercise_id, out_exercise_type, out_content,
+  out_ladder_level, out_family, out_p_known, out_word_state,
+  out_lemma, out_definition, out_pronunciation, out_variant,
+  out_is_gate (= word_state='gated'),
+  out_is_stress_test (= word_state='pre_mastery'),
+  out_priority
+  ```
+- **Used by:** `/api/vocab-dojo/session` ([routes/vocab_dojo.py:14-70](../../routes/vocab_dojo.py#L14-L70)).
+
+---
+
+## Exercise Session (Phase 9 Daily Mixed Session)
+
+The daily mixed exercise session is built by a single SQL RPC `get_exercise_session` plus three immutable helper functions. Source: [migrations/phase9_get_exercise_session.sql](../../migrations/phase9_get_exercise_session.sql). Replaces the Python 6-bucket builder; ladder content is delegated to `get_ladder_session` (Phase 8) internally.
+
+---
+
+### `exercise_type_phase_weight(p_exercise_type text, p_phase text): numeric`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Per-(exercise_type, phase) weight used by `get_exercise_session` to rank candidate exercises within a sense. Mirrors `services/exercise_session_service.py::_get_eligible_types_weighted` and the `PHASE_MAP` registry in `services/exercise_generation/config.py`.
+- **Rule:**
+  - Phase A: 100% of weight on A types (3 types, 1/3 each).
+  - Phase B: 70% on B types (7 types, 0.10 each) + 30% on A types (3 types, 0.10 each).
+  - Phase C: 70% on C types (7 types) + 30% on B types (7 types).
+  - Phase D: 70% on D types (4 types, 0.175 each) + 30% on C types (7 types).
+  - Any unrecognised type: 0.001 (still selectable as last-resort fallback).
+
+---
+
+### `tier_window_for_p_known(p_avg numeric): text[]`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Maps a user's average vocabulary `p_known` to the complexity-tier window used to pick supplementary grammar/collocation exercises. Mirrors the heuristic in `services/exercise_session_service.py::_get_supplementary_exercises`.
+
+| Average p_known | Tier window |
+|---|---|
+| < 0.20 | [T1, T2] |
+| < 0.40 | [T2, T3] |
+| < 0.60 | [T3, T4] |
+| < 0.80 | [T4, T5] |
+| ≥ 0.80 | [T5, T6] |
+
+---
+
+### `tier_to_phase(p_tier text): text`
+
+- **Security:** INVOKER
+- **Language:** SQL (IMMUTABLE)
+- **Description:** Maps a complexity tier (T1–T6) to a phase letter (A/B/C/D). Used to label supplementary exercises in the session output. Mirrors `services/conversation_generation/categorical_maps.py::TIER_TO_PHASE`.
+
+```
+T1, T2 → A    T3 → B    T4 → C    T5, T6 → D
+```
+
+---
+
+### `get_exercise_session(p_user_id uuid, p_language_id smallint, p_session_size integer DEFAULT 20, p_user_theta numeric DEFAULT 0.0): TABLE(...)`
+
+- **Security:** INVOKER
+- **Language:** plpgsql (STABLE)
+- **Description:** Daily mixed-session builder. Single SQL function returning up to `p_session_size` candidate exercises across due / learning / new / ladder / supplementary slots. Anti-repetition via the indexed `user_exercise_history` table (7-day window). Ladder content delegated to `get_ladder_session` (cap 5). Virtual jumbled-sentence picks are NOT produced here — they depend on language-specific tokenisation and are appended by the Python caller.
+- **Phase 11 IRT term:** `sense_candidates.type_weight` is multiplied by `EXP(-0.5 · ((irt_difficulty − p_user_theta)/σ)²)` (σ=1.0 logit) when `irt_n_attempts ≥ 20`, else 1.0. Source: [migrations/phase11_irt_selection.sql](../../migrations/phase11_irt_selection.sql). The Python wrapper computes `p_user_theta` via `irt_compute_user_theta` and passes it in.
+- **Slot distribution** (40/40/20 from session_size):
+  - `due_slots := ROUND(p_session_size * 0.40)`
+  - `learning_slots := ROUND(p_session_size * 0.40)`
+  - `new_slots := p_session_size − due − learning`
+  - `ladder_cap := LEAST(5, p_session_size)`
+  - Supplementary fills the remaining gap.
+- **CTE pipeline:**
+  1. `recent_seen` — DISTINCT `exercise_id` from `user_exercise_history` (last 7 days).
+  2. `raw_senses` — `get_session_senses(user, lang, due*3, learning*3, new*3)` returns due / learning / new candidates with BKT-decay applied.
+  3. `new_fallback` — `user_flashcards.state='new'` for senses missing from `raw_senses`.
+  4. `senses_deduped` — collapses duplicates across buckets (prefer due > learning > new).
+  5. `ladder_picks` — `get_ladder_session(user, lang, ladder_cap)`; priority bumped by +1.0 to anchor above vocab.
+  6. `sense_candidates` — JOIN `exercises` for each deduped sense, attach `exercise_type_phase_weight`, exclude `recent_seen` and ladder picks.
+  7. `ranked_sense_picks` — `ROW_NUMBER() OVER (PARTITION BY sense_id ORDER BY type_weight DESC, RANDOM())`.
+  8. `vocab_picks_capped` — of `sense_rn = 1`, `ROW_NUMBER() OVER (PARTITION BY bucket ORDER BY type_weight DESC, RANDOM())`; keep `bucket_rn ≤ slot_allocation`.
+  9. `vocab_picks` — map bucket → slot_type; priority = bucket-anchor (0.9 / 0.6 / 0.3) + 0.1 × type_weight.
+  10. `supplementary_picks` — `exercises WHERE word_sense_id IS NULL AND complexity_tier = ANY(tier_window_for_p_known(avg))`; cap = `session_size − ladder − vocab`.
+  11. Final UNION ALL → `ORDER BY priority DESC, RANDOM() LIMIT p_session_size`.
+- **Returns TABLE** (8 columns, all prefixed `out_`):
+  ```
+  out_exercise_id    uuid
+  out_sense_id       integer       -- NULL for supplementary picks
+  out_exercise_type  text
+  out_content        jsonb
+  out_complexity_tier text
+  out_phase          text          -- 'A'|'B'|'C'|'D'
+  out_slot_type      text          -- 'due_review'|'active_learning'|'new_word'|'ladder'|'supplementary'
+  out_priority       numeric
+  ```
+- **Used by:** `/api/exercises/session` via `ExerciseSessionService.get_or_create_daily_session()` ([services/exercise_session_service.py](../../services/exercise_session_service.py)).
+- **Performance:** one round-trip per session build (vs the prior ~40 per-sense queries). Indexed lookups on `user_exercise_history(user_id, language_id, session_date, exercise_id)`, `exercises(word_sense_id, language_id)`, `exercises(complexity_tier)`.
+
+---
+
+## IRT Calibration (Phase 11)
+
+Source: [migrations/add_irt_calibration_metadata.sql](../../migrations/add_irt_calibration_metadata.sql). Three small RPCs supporting the nightly 2PL fit (see [services/irt/calibrator.py](../../services/irt/calibrator.py)) plus an advisory-lock pair for cross-worker exclusion.
+
+### `irt_apply_calibration(p_exercise_id uuid, p_discrimination numeric, p_difficulty numeric, p_se_difficulty numeric, p_n_attempts integer): void`
+
+- **Security:** DEFINER
+- **Language:** sql
+- **Description:** Persists one fitted exercise in a single round-trip. Updates `irt_discrimination`, `irt_difficulty`, `irt_se_difficulty`, `irt_n_attempts`, and stamps `irt_calibrated_at = now()` server-side.
+- **Used by:** `services/irt/calibrator.py::_persist_calibration`.
+
+### `irt_compute_user_theta(p_user_id uuid, p_language_id smallint): numeric`
+
+- **Security:** INVOKER
+- **Language:** sql (STABLE)
+- **Description:** Returns the logit of the user's clipped first-attempt accuracy in `user_exercise_history` for the given language. Clip range `[0.05, 0.95]` so 0% / 100% users don't produce ±infinity. Returns `0.0` for users with no first-attempt history.
+- **Used by:** `services/exercise_session_service.py::_compute_session` to compute `p_user_theta` for `get_exercise_session`. Also used by the Python calibrator for consistency.
+
+### `irt_try_lock(): boolean`, `irt_release_lock(): boolean`
+
+- **Security:** DEFINER
+- **Language:** sql
+- **Description:** Wrappers around `pg_try_advisory_lock(8901234567890123)` / `pg_advisory_unlock(8901234567890123)` so the supabase python client can call them by name. Used by `calibrate_all_active_languages` to ensure only one gunicorn worker runs the nightly sweep even though APScheduler starts in every process.
 
 ---
 

@@ -1,221 +1,113 @@
 ---
-title: Vocabulary Ladder & Exercise System — Implementation Analysis & Improvements
+title: Vocabulary Ladder & Exercise System — Implementation Analysis
 type: algorithm
 status: in-progress
 tech_page: ./ladder-implementation-analysis.tech.md
-last_updated: 2026-04-11
+last_updated: 2026-05-12
 open_questions:
-  - "Should the two session builders (ExerciseSessionService and LadderService) be consolidated?"
-  - "When will Level 10 (Capstone Production) be implemented?"
-  - "Should demotion be implemented before or after accumulating more attempt data?"
+  - "Are the legacy Phase 4 columns first_try_success_count and first_try_failure_count still useful now that consecutive_failures drives demotion and a new family_success_dates JSONB drives advancement? They remain written but never read; candidates for removal in a future migration."
 ---
 
-# Vocabulary Ladder & Exercise System — Implementation Analysis & Improvements
+# Vocabulary Ladder & Exercise System — Implementation Analysis
 
 ## Purpose
 
-This page analyses the vocabulary ladder (9-level progression) and exercise serving system as implemented in the codebase, identifies significant discrepancies between documentation and code, and proposes improvements.
+This page is the **current audit** of how the vocabulary ladder is implemented, what's working, and what should change. The previous audit (last_updated 2026-04-11) described a per-level chain with first-try-success counters and "no demotion." That audit is now obsolete: Phase 8 (2026-04-18, [migrations/phase8_momentum_bands.sql](../../migrations/phase8_momentum_bands.sql)) replaced the chain with a **Momentum Bands** model — per-family BKT × four rings × two threshold gates × stress test. See [[decisions/ADR-005-momentum-bands]] for why. This audit refreshes the analysis against the post-Phase-8 codebase as of 2026-05-11.
 
-## Current State Summary
+## What's Actually There
 
-The system has three major components:
+Three layers:
 
-1. **Asset Pipeline** (`VocabAssetPipeline`) — 3-prompt LLM generation of immutable exercise assets per word sense
-2. **Ladder Service** (`LadderService`) — Per-user per-word level tracking and session building
-3. **Exercise Session Service** (`ExerciseSessionService`) — The primary daily session builder using a 6-bucket algorithm
+1. **Asset Pipeline** (`VocabAssetPipeline`) — 3-prompt LLM generation of immutable per-sense exercises into `word_assets` and `exercises`. Phase 8 added A/B variants and bumped Prompt 1 sentence count to 10.
+2. **Ladder Service** ([services/vocabulary_ladder/ladder_service.py](../../services/vocabulary_ladder/ladder_service.py)) — thin Python wrapper around three RPCs (`ladder_record_attempt`, `ladder_pass_gate`, `ladder_graduate`). Adds Python-side battery assembly for gates and stress tests. **Has no session-building responsibilities anymore.** The old `get_exercises_for_session()` and `get_words_for_session()` methods are gone.
+3. **Session Builders** — two SQL surfaces, each backed by a single RPC:
+   - **`/api/vocab-dojo/session`** → `get_ladder_session` SQL RPC. [routes/vocab_dojo.py:14-70](../../routes/vocab_dojo.py#L14-L70).
+   - **`/api/exercises/session`** → `get_exercise_session` SQL RPC (Phase 9, 2026-05-12). The Python service is now a thin wrapper that calls the RPC, appends up to 3 virtual jumbled-sentence picks (language-specific tokenisation stays Python), caches, and enriches. The previously broken bucket-5 disappears: ladder content is sourced from `get_ladder_session` inside the new RPC.
 
-## Critical Discrepancies: Wiki vs Code
+The full ladder picture is documented in [[algorithms/vocabulary-ladder.tech]].
 
-### 1. Nine Levels, Not Ten
+## Where the Previous Audit Was Wrong
 
-The wiki describes a 10-level ladder with Level 10 being "Capstone Production" (free-text, LLM-graded). **The code only defines 9 levels** (config.py LADDER_LEVELS maps 1–9). Level 10 is not implemented — there's no exercise type for it, no generation pipeline, and no runtime LLM grading path.
+The 2026-04-11 audit listed six "critical discrepancies." All six now read differently:
 
-The `user_word_ladder.current_level` column has a CHECK constraint of 1–9, confirming the 9-level implementation.
-
-### 2. Simplified Promotion (No 2-Session Requirement)
-
-The wiki describes promotion requiring "first-try success in 2 separate spaced-repetition sessions." The code promotes on **any single first-attempt correct answer**:
-
-```python
-# ladder_service.py:275-279
-if is_correct:
-    new_level = next_active_level(current_level, active_levels)
-    if new_level:
-        self._update_ladder(user_id, sense_id, new_level, active_levels)
-```
-
-There's no `first_try_success_count`, no session tracking, no inter-session validation. One correct first attempt = immediate promotion.
-
-### 3. No Demotion
-
-The wiki describes demotion after "2 consecutive first-attempt failures." The code does not implement demotion at all. When a first attempt fails, the exercise is requeued within the session, but the ladder level never decreases:
-
-```python
-# ladder_service.py:288-290
-else:
-    result['requeue'] = True  # Re-serve later in session
-    self._update_fsrs(...)     # Update FSRS, but level unchanged
-```
-
-### 4. Missing Table: `user_word_progress`
-
-The wiki's vocabulary-ladder.tech.md describes a `user_word_progress` table with columns: `first_try_success_count`, `first_try_failure_count`, `word_state`, `total_attempts`, `review_due_at`. **This table does not exist.** The actual table is `user_word_ladder` with a simpler schema:
-
-| Column | Type | Notes |
-|--------|------|-------|
-| `user_id` | uuid | PK part 1 |
-| `sense_id` | integer | PK part 2 |
-| `current_level` | integer | CHECK 1–9 |
-| `active_levels` | integer[] | Which levels are active (skips for concrete nouns) |
-| `updated_at` | timestamptz | |
-
-No word_state, no attempt counters, no review scheduling at the ladder level.
-
-### 5. Exercise Type Names Differ
-
-| Wiki Level | Wiki Exercise Type | Code Exercise Type | Match? |
-|------------|-------------------|-------------------|--------|
-| 1 | Listening Flashcard | `phonetic_recognition` | Different name |
-| 2 | Text Flashcard | `definition_match` | Different name |
-| 3 | Cloze Completion | `cloze_completion` | ✓ |
-| 4 | Grammar Slot | `morphology_slot` | Different name |
-| 5 | Collocation Gap Fill | `collocation_gap_fill` | ✓ |
-| 6 | Semantic Discrimination | `semantic_discrimination` | ✓ |
-| 7 | Spot Incorrect Sentence | `spot_incorrect_sentence` | ✓ |
-| 8 | Collocation Repair | `collocation_repair` | ✓ |
-| 9 | Jumbled Sentence | `jumbled_sentence` | ✓ |
-| 10 | Capstone Production | Not implemented | Missing |
-
-### 6. Two Competing Session Builders
-
-The codebase has two independent session-building systems:
-
-- **`ExerciseSessionService`** (the main one) — builds daily sessions with 6 buckets: FSRS due, active learning, new words, supplementary grammar/collocation, ladder exercises, user test sentences
-- **`LadderService`** — has its own `get_exercises_for_session()` method that selects words and exercises
-
-`ExerciseSessionService` calls `LadderService` as bucket 5 (limited to 5 exercises per session). But `LadderService` also has a standalone session path via the vocab dojo route.
+| 2026-04-11 claim | 2026-05-11 reality |
+|---|---|
+| Ladder is 9 levels, not 10. Level 10 Capstone Production is missing. | Still 9 live exercise types. But a sixth cognitive family (`contextual_use`) is reserved in `FAMILY_WEIGHTS` with weight 0.18 and slot for the future capstone. Its absence caps any word's overall p_known at ≈ 0.92 until L10 ships. |
+| Promotion happens on any single first-try success. | Replaced. Promotion is now ring-based: a ring clears when every required family meets its threshold (R1/R2: 0.50, R3: 0.65, R4: 0.72). R2→R3 and R3→R4 are additionally gated by 3-exercise threshold gates. R4 cleared + Gate B passed + p_known ≥ 0.88 + every active family ≥ 0.72 → 8-exercise stress test → `mastered` + FSRS handoff. |
+| No demotion exists in the code. | Partially true. Mastered words that fail are demoted to `relearning` via the lapse path, with a 30% extra confidence penalty on the failed family. Pre-mastery words can never lose a ring or fail back to a lower ring — even repeated failure only erodes family confidence. |
+| The `user_word_progress` table is missing. | Confirmed — never created. The single live table is `user_word_ladder` with Phase 4 + Phase 8 columns combined. |
+| Exercise type names differ from the wiki ladder. | Resolved. The earlier wiki used learner-facing names (e.g. "Listening Flashcard"). Code uses precise names (`phonetic_recognition`). [[algorithms/vocabulary-ladder.tech]] now uses the code names. |
+| Two competing session builders. | As of Phase 9 (2026-05-12), two paths, both SQL-RPC-driven: `get_ladder_session` for the dojo, `get_exercise_session` for the daily mixed session. The Python `ExerciseSessionService` shrank from a 6-bucket builder (~1000 lines) to a thin wrapper (~500 lines) that calls the RPC, appends virtual picks, caches, and enriches. `LadderService` is RPC-only. |
 
 ## What Works Well
 
-### 1. Generate-Once Architecture
+### Atomic, transaction-safe progression in SQL
 
-The 3-prompt pipeline (`VocabAssetPipeline`) generates immutable exercise assets stored in `word_assets`. This is the right design — exercise content doesn't change, making spaced repetition signals meaningful and avoiding LLM cost on every session.
+Every attempt path goes through one RPC (`ladder_record_attempt`) that locks the user's ladder row `FOR UPDATE`, performs all confidence / ring / state / FSRS updates, and returns a single JSONB payload. No Python-level race conditions are possible. Side effects are auditable via one function.
 
-### 2. POS-Aware Level Routing
+### Family-level skill resolution
 
-Concrete nouns skip collocation levels (5, 8) via `compute_active_levels()`. This avoids pedagogically meaningless exercises and reduces the ladder from 9 to 7 levels for those words.
+A word's profile is now a six-vector (`family_confidence` JSONB), not a single scalar. The session builder picks the *weakest family in the current ring* as the target — so two learners with the same overall p_known but different family profiles get materially different next exercises.
 
-### 3. BKT-Informed Starting Levels
+### Single source of truth for the dojo
 
-New words don't start at Level 1 unconditionally. `bkt_to_starting_level()` maps p_known to a starting level, so words the learner probably already knows skip basic recognition exercises. This prevents boredom.
+`get_ladder_session` is the entire dojo session builder. Priority weights, anti-repetition (seen-today filter against `user_exercise_history`), and variant alternation are all in one SQL function. No Python orchestration to keep in sync.
 
-### 4. Language-Specific Adaptation
+### Frontend-friendly RPC returns
 
-The language spec system (`en.json`, `zh.json`, `ja.json`) adapts Level 4 exercises based on typological features: morphology for English, particles/measure words for Chinese, both for Japanese.
+Both `get_ladder_session` and `ladder_record_attempt` return everything the frontend needs in one trip: gate flags, stress-test readiness, family confidences, overall p_known, FSRS data. The frontend can branch to the gate/stress-test flow without an extra round trip.
 
-### 5. Validation Pipeline
+### Concrete-noun routing preserved
 
-Generated exercises pass through schema, linguistic, and pedagogical validation before being stored. Invalid assets are flagged (`is_valid=false`, `validation_errors` array) for admin review.
+`ladder_ring_families(ring, active_levels)` consults `active_levels` so a concrete noun's R2 doesn't require collocation. The Phase 8 model didn't break the Phase 2 POS-aware routing.
 
-### 6. Rich Session Composition
+### A/B variants
 
-`ExerciseSessionService._compute_session()` is a sophisticated 6-bucket algorithm:
-1. FSRS due reviews (40%)
-2. BKT uncertainty zone (40%)
-3. New/encountered words (20%)
-4. Supplementary grammar/collocation fill
-5. Vocabulary ladder exercises (up to 5)
-6. Virtual jumbled sentences from user's past test transcripts
-
-This produces varied, engaging sessions.
+Phase 8 added optional A/B exercise variants for several types. The session builder alternates them by reading `exercises.tags->>'variant'` and comparing against `user_exercise_history`. Reduces memorisation effects without changing the offline asset pipeline shape.
 
 ## What Needs Improvement
 
-### Priority 1: Implement Proper Promotion Tracking (Medium effort, High impact)
+### Priority 1: ✅ Resolved (Phase 9, 2026-05-12)
 
-Add promotion counters to `user_word_ladder`:
+Daily-session bucket-5 was rebuilt in SQL. The Python `ExerciseSessionService._compute_session()` is replaced by a call to the new `get_exercise_session` RPC ([migrations/phase9_get_exercise_session.sql](../../migrations/phase9_get_exercise_session.sql)). Inside that RPC, ladder content comes from `get_ladder_session` — single source of truth for ladder selection. The four Python helpers that backed the broken bucket (`_select_exercises_for_senses`, `_get_supplementary_exercises`, `_get_ladder_exercises`, `_get_recent_exercise_ids`) were deleted along with the module-level phase-weighting helpers.
 
-```sql
-ALTER TABLE user_word_ladder
-    ADD COLUMN first_try_success_count integer DEFAULT 0,
-    ADD COLUMN first_try_failure_count integer DEFAULT 0,
-    ADD COLUMN word_state text DEFAULT 'new';
-```
+### Priority 2: ✅ Resolved (Phase 10, 2026-05-12)
 
-Then gate promotion on 2 successes across separate sessions (not just calendar days — actual distinct session IDs):
+Phase 10 layers two counter-driven behaviours onto `ladder_record_attempt` ([migrations/phase10_ladder_advancement_demotion.sql](../../migrations/phase10_ladder_advancement_demotion.sql)):
 
-- Track `last_success_session_id` and `current_success_session_id`
-- Promote only when both are non-null and different
+- **Cross-session advancement gate.** A new `family_success_dates` JSONB column tracks per-family first-attempt-success calendar dates (trimmed to the most recent 2). Ring advancement now requires both (a) family confidence ≥ ring threshold AND (b) ≥ 2 distinct dates in the family's success-date array. Prevents same-day farming.
+- **Ring demotion.** When `consecutive_failures ≥ 3` on a family that gates the current ring, the word drops one ring. The gate guarding exit from the dropped-into ring resets (gate_a on demote→R2, gate_b on demote→R3); other gates survive. `family_success_dates` for the demoted-into-ring required families is cleared. R1 is the floor.
 
-### Priority 2: Implement Demotion (Small effort, Medium impact)
+The legacy `first_try_success_count` and `first_try_failure_count` columns remain written but unread — flagged as open_question for a future cleanup.
 
-When first-attempt failure count reaches 2 consecutive sessions, drop one level:
+### Priority 3: ✅ Resolved (Phase 9, 2026-05-12)
 
-```python
-if not is_correct and is_first_attempt:
-    progress.first_try_failure_count += 1
-    if progress.first_try_failure_count >= 2:
-        prev_level = get_prev_active_level(current_level, active_levels)
-        if prev_level:
-            update_ladder(user_id, sense_id, prev_level, active_levels)
-```
+Shipped together with Priority 1. The `get_exercise_session` RPC mirrors `get_ladder_session` in shape: a single CTE pipeline (recent-seen → session_senses → ladder_picks → vocab_picks → supplementary_picks → UNION ALL → priority-ordered LIMIT). The Python service is ~500 lines (down from ~1000) and contains no scheduling logic — it's call → append virtual → cache → enrich.
 
-For the final level, demote to the highest stable receptive level (Level 6 or 7).
+### Priority 4: Ship the L10 capstone — `contextual_use` family (L, Very high impact)
 
-### Priority 3: Consolidate Session Builders (Medium effort, High impact)
+`contextual_use` is weighted into overall p_known at 0.18 but has no live exercise type. This means every word's overall p_known is capped at ≈ 0.92 (the contribution of the 0.10 default for `contextual_use`). The stress test composition reserves 2/8 slots for `contextual_use` exercises that don't exist — `assemble_stress_test` falls back to the highest available level. Once shipped, a Level 10 free-text capstone graded by a small LLM would close this loop. Needs: new exercise type, runtime LLM call, grading rubric, cost management.
 
-The two session builders create maintenance burden and inconsistency. Consolidate:
+### Priority 5: IRT difficulty calibration ✅ Resolved (Phase 11)
 
-- Move ladder-specific logic into `ExerciseSessionService` as a first-class bucket
-- Let `LadderService` focus on progression (attempt recording, level management)
-- The SQL-based `get_exercise_session` RPC (currently in the wiki but not connected to the Python code) should be the single source of truth for session building
-
-### Priority 4: Implement Level 10 — Capstone Production (Large effort, High impact)
-
-This is the most impactful missing feature. A learner completing 9 levels of receptive/recall exercises hasn't proven they can produce the word. The capstone would:
-
-- Present a target sentence for translation or a prompt requiring the target word
-- Use runtime LLM grading (Claude or GPT) to evaluate the response
-- Provide detailed feedback on grammatical/semantic accuracy
-- Only pass if the target word is used correctly in context
-
-Requires: new exercise type, runtime LLM call, grading rubric, cost management.
-
-### Priority 5: Anti-Repetition at Ladder Level (Small effort, Medium impact)
-
-The `ExerciseSessionService` has anti-repetition guards (cooldown window from `exercise_attempts`), but the `LadderService` doesn't implement any. The same exercise could be served on consecutive sessions. Add:
-
-- Exercise cooldown: same exercise_id not re-served within 3 days
-- If only one exercise exists for a (sense, level) pair, skip the word for that session
-
-### Priority 6: IRT Difficulty Calibration (Medium effort, Medium impact)
-
-The `exercises` table already has `irt_difficulty` and `irt_discrimination` columns (defaulting to 0.0 and 1.0). These are never updated from actual attempt data. A background job could periodically fit IRT parameters:
-
-```python
-# For each exercise with >20 attempts:
-irt_difficulty = -log(correct_count / (attempt_count - correct_count))
-```
-
-This would enable adaptive exercise selection — choose exercises at the learner's current difficulty frontier rather than by type alone.
+Shipped 2026-05-12 as [migrations/add_irt_calibration_metadata.sql](../../migrations/add_irt_calibration_metadata.sql) (3 new columns + `irt_apply_calibration` / `irt_compute_user_theta` RPCs) + [migrations/phase11_irt_selection.sql](../../migrations/phase11_irt_selection.sql) (Gaussian IRT weight inside `get_exercise_session`). The fitter is [services/irt/calibrator.py](../../services/irt/calibrator.py) — 2PL MLE via `scipy.optimize.minimize`, with a tier-seed prior pull (k=10 pseudocounts) so newly-eligible items don't swing on one cohort. Runs nightly at 04:00 UTC via APScheduler ([app.py](../../app.py)), guarded by a Postgres advisory lock. Triggerable on demand from the admin dashboard's IRT Calibration tab.
 
 ## Quantitative Impact Assessment
 
-| Improvement | Dev Effort | User Impact | Data Risk |
-|-------------|-----------|-------------|-----------|
-| Proper promotion tracking | M (4–8h) | High — prevents premature advancement | Low (additive schema) |
-| Demotion logic | S (2–4h) | Medium — catches regression | Low |
-| Consolidate session builders | M (4–8h) | Medium — consistency + maintainability | Low |
-| Level 10 capstone | L (2–3d) | Very high — completes the learning arc | Medium (runtime LLM cost) |
-| Anti-repetition in ladder | XS (1–2h) | Medium — prevents staleness | None |
-| IRT calibration | M (4–8h) | Medium — better exercise targeting | None |
+| Improvement | Dev effort | User impact | Data risk | Status |
+|-------------|-----------|-------------|-----------|--------|
+| Fix daily-session bucket-5 + consolidate daily-session into SQL | M (1–2d) | High — restores daily ladder slot, one source of truth | Low | ✅ Phase 9, 2026-05-12 |
+| Cross-session advancement gating + ring demotion (counter-driven) | M (4–8h) | Medium — guards against single-day farming; structural step-back signal | Low | ✅ Phase 10, 2026-05-12 |
+| L10 capstone (`contextual_use`) | L (2–3d) | Very high — unlocks mastery ceiling | Medium (runtime LLM cost) | Open |
+| IRT calibration | M (4–8h) | Medium — better targeting within a family | None | ✅ Phase 11, 2026-05-12 |
 
 ## Related Pages
 
-- [[algorithms/ladder-implementation-analysis.tech]] — Technical details with code references
-- [[algorithms/vocabulary-ladder]] — Original ladder design
-- [[algorithms/vocabulary-ladder.tech]] — Original ladder technical specification
+- [[algorithms/ladder-implementation-analysis.tech]] — Technical analysis with code references
+- [[algorithms/vocabulary-ladder]] — Current ladder design (Momentum Bands)
+- [[algorithms/vocabulary-ladder.tech]] — Current ladder technical specification
 - [[features/exercises]] — Exercise type inventory
 - [[features/vocab-dojo]] — Adaptive exercise serving
-- [[features/vocabulary-knowledge]] — BKT integration
+- [[features/vocabulary-knowledge]] — BKT integration (overall p_known)
 - [[algorithms/bkt-implementation-analysis]] — BKT analysis (interacts with ladder)
+- [[decisions/ADR-005-momentum-bands]] — Decision behind the refactor
