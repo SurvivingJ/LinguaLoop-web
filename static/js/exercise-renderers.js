@@ -524,12 +524,38 @@ const ExRenderers = (function () {
     // ── New ladder renderers ──
 
     function renderPhonetic(ex, c, w) {
+        const hasAudio = !!c.audio_url;
+        // When audio is present, the IPA + written pronunciation would give
+        // away the answer (the learner is supposed to identify the spoken
+        // word from 4 written choices). Show only the play button.
         const prompt = `<div class="phonetic-display">` +
-            (c.ipa ? `<div class="ipa">${escHtml(c.ipa)}</div>` : '') +
-            (c.pronunciation ? `<div class="pron">${escHtml(c.pronunciation)}</div>` : '') +
-            (c.syllable_count ? `<div style="font-size:13px;color:var(--text-muted);margin-top:4px">${c.syllable_count} syllables</div>` : '') +
+            (hasAudio
+                ? `<button type="button" class="audio-play-btn" id="phoneticPlayBtn" aria-label="Play audio">
+                       <i class="fas fa-volume-up"></i>
+                   </button>
+                   <div style="font-size:13px;color:var(--text-muted);margin-top:8px">Tap to replay</div>`
+                : (c.ipa ? `<div class="ipa">${escHtml(c.ipa)}</div>` : '') +
+                  (c.pronunciation ? `<div class="pron">${escHtml(c.pronunciation)}</div>` : '') +
+                  (c.syllable_count ? `<div style="font-size:13px;color:var(--text-muted);margin-top:4px">${c.syllable_count} syllables</div>` : '')
+            ) +
             `</div>`;
-        mcq('Phonetic Recognition', null, 'Which word matches this pronunciation?', prompt, c.options || [], c.correct_answer || '', c.explanation || '', w);
+        mcq('Phonetic Recognition', null, hasAudio ? 'Which word did you hear?' : 'Which word matches this pronunciation?',
+            prompt, c.options || [], c.correct_answer || '', c.explanation || '', w);
+
+        if (hasAudio) {
+            const playAudio = () => {
+                try {
+                    const a = new Audio(c.audio_url);
+                    a.play().catch(e => console.error('Audio playback failed:', e));
+                } catch (e) {
+                    console.error('Audio init failed:', e);
+                }
+            };
+            const btn = document.getElementById('phoneticPlayBtn');
+            if (btn) btn.addEventListener('click', playAudio);
+            // Auto-play once on first render so the learner doesn't have to tap.
+            playAudio();
+        }
     }
 
     function renderDefinitionMatch(ex, c, w) {

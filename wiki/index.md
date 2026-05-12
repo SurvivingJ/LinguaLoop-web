@@ -1,5 +1,5 @@
 # LinguaLoop Wiki Index
-Last updated: 2026-05-12 (Phase 11 IRT calibration) | Pages: 48
+Last updated: 2026-05-12 (Phase 11 IRT calibration + Chinese TTS) | Pages: 48
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists

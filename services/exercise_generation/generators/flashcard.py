@@ -72,10 +72,14 @@ class FlashcardGenerator(ExerciseGenerator):
         if not self.audio_synthesizer:
             return None
         try:
+            from services.exercise_generation.audio_voice import pick_voice
+            voice, speed = pick_voice(self.db, self.language_id)
             file_id = str(uuid.uuid4())
             audio_url = self.audio_synthesizer.generate_and_upload(
                 text=sentence,
                 file_id=file_id,
+                voice=voice,
+                speed=speed,
             )
         except Exception:
             return None

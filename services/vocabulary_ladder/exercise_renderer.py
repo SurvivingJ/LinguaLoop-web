@@ -27,8 +27,9 @@ logger = logging.getLogger(__name__)
 class LadderExerciseRenderer:
     """Renders word_assets into exercises table rows for each ladder level."""
 
-    def __init__(self, db=None):
+    def __init__(self, db=None, audio_synthesizer=None):
         self.db = db or get_supabase_admin()
+        self.audio_synthesizer = audio_synthesizer
 
     def render_all(self, sense_id: int, language_id: int) -> list[dict]:
         """Render exercises for all active ladder levels for a word sense.
@@ -155,7 +156,8 @@ class LadderExerciseRenderer:
     def _render_phonetic(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
         """L1: Phonetic/orthographic recognition.
 
-        Content matches MCQ format: word, pronunciation, 4 options.
+        Content matches MCQ format: word, pronunciation, 4 options, plus an
+        audio_url of the spoken target so the frontend can play it.
         """
         level_data = p2.get('level_1', {})
         if not level_data:
@@ -172,11 +174,14 @@ class LadderExerciseRenderer:
 
         explanations = level_data.get('explanations', {})
 
+        audio_url = self._generate_l1_audio(correct_answer, sense_id, language_id)
+
         return {
             'word': correct_answer,
             'pronunciation': core.get('pronunciation', ''),
             'ipa': core.get('ipa', ''),
             'syllable_count': core.get('syllable_count'),
+            'audio_url': audio_url,
             'options': option_texts,
             'correct_answer': correct_answer,
             'explanation': explanations.get(correct_answer, ''),
@@ -185,6 +190,30 @@ class LadderExerciseRenderer:
                 for text in option_texts if text != correct_answer
             },
         }
+
+    def _generate_l1_audio(self, target: str, sense_id: int, language_id: int) -> str | None:
+        """TTS the L1 target word and upload to R2.
+
+        Returns the public URL, or None if no synthesizer is configured /
+        generation fails. The slug is deterministic per (sense, language)
+        so re-rendering reuses the existing R2 object.
+        """
+        if not self.audio_synthesizer or not target:
+            return None
+        try:
+            from services.exercise_generation.audio_voice import pick_voice
+            voice, speed = pick_voice(self.db, language_id)
+            slug = f'l1_{sense_id}_{language_id}'
+            return self.audio_synthesizer.generate_and_upload(
+                text=target,
+                file_id=slug,
+                voice=voice,
+                speed=speed,
+            )
+        except Exception as exc:
+            logger.warning("L1 audio generation failed for sense %s lang %s: %s",
+                           sense_id, language_id, exc)
+            return None
 
     def _render_definition_match(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
         """L2: Definition match from database.

@@ -260,6 +260,7 @@ _ensure_ladder_rows(db, user, language):
 ## Future Direction
 
 - **Daily-session merge into SQL** — ✅ Shipped (Phase 9, 2026-05-12). `get_exercise_session` RPC mirrors this design and delegates ladder picks to `get_ladder_session` internally. See [[algorithms/ladder-implementation-analysis]] and [[database/rpcs.tech]].
+- **L1 audio rendering** — ✅ Shipped (2026-05-12). [services/vocabulary_ladder/exercise_renderer.py](../../services/vocabulary_ladder/exercise_renderer.py)::`_render_phonetic` calls Azure TTS (via [services/test_generation/agents/audio_synthesizer.py](../../services/test_generation/agents/audio_synthesizer.py)) using the language-specific voices in `dim_languages.tts_voice_ids`, stores the public R2 URL under `exercises.content.audio_url`, slugged deterministically as `l1_{sense_id}_{language_id}`. Frontend `renderPhonetic` (`static/js/exercise-renderers.js`) auto-plays and hides the IPA/pronunciation text when an `audio_url` is present (otherwise the answer is given away). Voice config helper: [services/exercise_generation/audio_voice.py](../../services/exercise_generation/audio_voice.py). Chinese voices seeded by [migrations/seed_chinese_tts_voices.sql](../../migrations/seed_chinese_tts_voices.sql). Listening flashcard audio is now also language-aware via the same helper.
 - **Level 10 capstone** — `contextual_use` family is weighted but has no live exercise. Stress test composition reserves 2/8 slots for it. Until shipped, the stress-test assembler falls back to the highest available level for those slots.
 
 ## Related Pages
