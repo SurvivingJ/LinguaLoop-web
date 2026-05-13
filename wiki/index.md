@@ -70,3 +70,6 @@ Last updated: 2026-05-13 (closed 3 audit gaps — admin auth on vocab_admin, dai
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status
 - [[tasklist/language-packs.tasks]] — Language Packs task breakdown
+
+## Lessons
+- [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes

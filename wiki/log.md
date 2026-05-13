@@ -1,5 +1,31 @@
 # Activity Log
 
+## 2026-05-13 follow-up | Restore admin dashboard vocab browser after admin auth fix
+
+Source: The 2026-05-13 admin-auth fix (entry below) added `@admin_required` to every route in [routes/vocab_admin.py](../routes/vocab_admin.py), which immediately broke the local admin dashboard's Vocab Browser tab — [static/js/admin-dashboard.js](../static/js/admin-dashboard.js) hits `/api/admin/vocab/*` with plain `fetch()` (no Authorization header), so all 4 calls now return `401 Token missing`. Per user direction, production security on `/api/admin/vocab/*` must remain, and the local dashboard should regain access without weakening that.
+
+**Approach.** Mirror the 4 dashboard-relevant handlers into [routes/admin_local.py](../routes/admin_local.py) (the local-only `admin_local_bp` mounted only by [admin_app.py](../admin_app.py)) under a new `/admin/api/vocab/*` prefix with no decorator — auth is provided by deployment posture, consistent with the rest of `admin_local.py`. Dashboard JS repointed at the new paths. Production `/api/admin/vocab/*` and its `@admin_required` gate are untouched. The other production route still hitting `/api/admin/vocab/*` is [templates/admin_vocab_preview.html](../templates/admin_vocab_preview.html) (at `/admin/vocab-preview`), which uses `authFetch` to send a Bearer token — that caller is unaffected.
+
+The 3 other vocab_admin routes (`upload-words`, `generate-assets`, `render-exercises`) are not called from the dashboard, so they're not mirrored — they stay only on the production surface behind `@admin_required`.
+
+**Files modified: 4**
+- [routes/admin_local.py](../routes/admin_local.py) — added imports (`api_success`, `bad_request`, `server_error`) and a new section `# ── Vocab admin browser (local mirror of /api/admin/vocab) ───` with 4 handlers (`vocab_list_words`, `vocab_preview_word`, `vocab_wipe_word`, `vocab_remove_level`). Handler bodies copied verbatim from [routes/vocab_admin.py](../routes/vocab_admin.py) lines 163-301 — keep in lockstep.
+- [static/js/admin-dashboard.js](../static/js/admin-dashboard.js) — 4 single-line URL changes from `/api/admin/vocab/*` to `/admin/api/vocab/*` (lines 880, 952, 1051, 1060).
+- [wiki/api/rpcs.tech.md](api/rpcs.tech.md) — added a callout to the `/api/admin/vocab` section pointing at the mirror; added a new "Vocab browser mirror" sub-section under admin_local.py listing the 4 new routes; `last_updated` bumped.
+- [wiki/log.md](log.md) — this entry.
+
+Notes:
+- **Duplication is intentional.** The user-selected design accepts ~140 lines of duplicated route bodies as the price of keeping the production decorator firm and the local dashboard auth-free. A header comment in the new section flags the lockstep requirement.
+- **Response shape is identical.** Both endpoints use `utils.responses.api_success(...)` which returns `{"status": "success", "data": {...}}` — the existing dashboard JS already checks `data.status === 'success'`, so no parsing changes were needed.
+- **`admin_vocab_preview.html` is not in scope.** That separate admin page (mounted at `/admin/vocab-preview` in production too) uses `authFetch()` with a Bearer token; it correctly hits the production-gated `/api/admin/vocab/*` route and continues to work.
+
+Verification (passed):
+1. `grep -r "/api/admin/vocab" static/` → zero matches. ✅
+2. `grep -r "/admin/api/vocab" static/` → exactly 4 matches in `static/js/admin-dashboard.js` (lines 880, 952, 1051, 1060). ✅
+3. Smoke (deferred to next admin_app.py run): hit `/admin` → Vocab Browser tab → verify list/preview/wipe/level-remove all return 200 in DevTools Network and no 401s in Flask stdout.
+
+---
+
 ## 2026-05-13 fix | Close 3 audit-flagged gaps — admin auth, daily_test_loads FK, get_recommended_tests signature
 
 Source: Cleanup pass on the three remaining issues from the 2026-05-12 wiki audit ([wiki/log.md](log.md) entry below) — `vocab_admin` had no auth in production, `daily_test_loads.user_id` FK'd to `auth.users` instead of `public.users` like every other user-owning table, and `get_recommended_tests` was the lone RPC taking `p_language text` instead of `p_language_id smallint`. Per user direction, `admin_local_bp` and `model_arena_bp` are out of scope — they live only in `admin_app.py` which is run only on the operator's local machine, so deployment posture is sufficient.

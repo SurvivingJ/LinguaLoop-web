@@ -3,7 +3,7 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-05-13
+last_updated: 2026-05-13 (vocab browser mirror added to admin_local)
 dependencies:
   - "Flask Blueprints (15 in `routes/`)"
   - "Supabase JWT middleware (`middleware/auth.py`)"
@@ -278,6 +278,8 @@ All `@jwt_required`.
 
 All routes guarded by `@admin_required` (requires `users.subscription_tier IN ('admin','moderator')`). The blueprint is registered in **production** ([app.py:262](../../app.py#L262)), so the decorator is the only access boundary.
 
+> *The local admin dashboard's Vocab Browser tab does not hit these directly — it uses the auth-free local mirror at `/admin/api/vocab/*` (see the **Vocab browser mirror** section under admin_local.py below). The production-facing routes here are still hit by [templates/admin_vocab_preview.html](../../templates/admin_vocab_preview.html) (at `/admin/vocab-preview`), which uses `authFetch` to send the operator's admin JWT.*
+
 | Method | Path | Auth | Body / Query | Notes |
 |---|---|---|---|---|
 | POST | `/upload-words` | `@admin_required` | `{language_id, words: [{lemma, definition?, pos?, complexity_tier?}, ...]}` | Three-step pipeline: (1) upsert `dim_vocabulary` + `dim_word_senses`, (2) `VocabAssetPipeline.generate_batch()` to fill `word_assets`, (3) `LadderExerciseRenderer.render_all()` to materialise `exercises` rows. Returns `{senses_processed, assets_generated, exercises_rendered, ...}`. |
@@ -315,6 +317,17 @@ Url-prefix `/admin`. ⚠ No auth decorators — relies on being a local-only app
 | `/api/categories` | `categories` rows |
 | `/api/queue-counts` | Counts across `production_queue` by status |
 | `/api/conversation-domains` | `conversation_domains` rows |
+
+### Vocab browser mirror
+
+Local-only duplicates of the dashboard-relevant routes in [routes/vocab_admin.py](../../routes/vocab_admin.py). Handler bodies are copied verbatim; the only differences are URL prefix (`/admin/api/vocab/*` vs `/api/admin/vocab/*`) and the absence of `@admin_required` (auth is provided by deployment posture on admin_local_bp). Added 2026-05-13 so the dashboard's Vocab Browser tab works after the production routes were gated. **Keep in lockstep with vocab_admin.py.**
+
+| Method | Path | Body / Query | Mirrors |
+|---|---|---|---|
+| GET | `/api/vocab/words` | `language_id (req), limit≤200, offset` | `vocab_admin.list_words` |
+| GET | `/api/vocab/word/<sense_id>/preview` | `language_id (req)` | `vocab_admin.preview_word` |
+| POST | `/api/vocab/word/<sense_id>/wipe` | — | `vocab_admin.wipe_word` |
+| DELETE | `/api/vocab/word/<sense_id>/level/<level>` | — | `vocab_admin.remove_level` |
 
 ### Pipeline runners (POST, all return `{task_id}` immediately)
 
