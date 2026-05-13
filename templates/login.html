@@ -122,6 +122,14 @@
                                 >
                             </div>
                             
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="remember-device" checked>
+                                <label class="form-check-label" for="remember-device"
+                                       data-i18n="login.remember_device">
+                                    Remember this device for 6 months
+                                </label>
+                            </div>
+
                             <button type="submit" class="btn btn-success w-100 mb-2" data-i18n="login.verify">
                                 Verify & Continue
                             </button>
@@ -266,25 +274,37 @@
         showLoading();
         
         try {
+            const rememberDevice = document.getElementById('remember-device').checked;
+
             const response = await fetch('/api/auth/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                credentials: 'same-origin',
+                body: JSON.stringify({
                     email: email,
-                    otp_code: otp 
+                    otp_code: otp,
+                    remember_device: rememberDevice
                 })
             });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Store JWT and user data
-                localStorage.setItem('jwt_token', data.jwt_token);
-                localStorage.setItem('user_data', JSON.stringify(data.user));
 
-                // Store refresh token for silent token refresh
+            const data = await response.json();
+
+            if (data.success) {
+                // If the server set a device cookie, persist Supabase tokens to
+                // localStorage so they survive browser restarts. Otherwise use
+                // sessionStorage so they vanish when the tab closes — matching
+                // the "don't remember this device" intent.
+                const store = data.remembered ? localStorage : sessionStorage;
+                const otherStore = data.remembered ? sessionStorage : localStorage;
+                // Clear the other tier so we never read a stale token from there.
+                otherStore.removeItem('jwt_token');
+                otherStore.removeItem('refresh_token');
+                otherStore.removeItem('user_data');
+
+                store.setItem('jwt_token', data.jwt_token);
+                store.setItem('user_data', JSON.stringify(data.user));
                 if (data.refresh_token) {
-                    localStorage.setItem('refresh_token', data.refresh_token);
+                    store.setItem('refresh_token', data.refresh_token);
                 }
 
                 // Redirect new users to welcome page, returning users to language selection
@@ -387,8 +407,8 @@
         });
     })();
 
-    // Check if already logged in
-    if (localStorage.getItem('jwt_token')) {
+    // Check if already logged in (covers both storage tiers).
+    if (localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token')) {
         window.location.href = '/language-selection';
     }
 })();

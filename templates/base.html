@@ -22,11 +22,15 @@
                 document.documentElement.setAttribute('data-theme', theme);
             }
         })();
-        // Redirect to login if no auth token on protected pages
+        // Redirect to login if no auth token on protected pages. The auth
+        // storage shim that lets localStorage.getItem fall back to
+        // sessionStorage is installed later in this file, so we check both
+        // explicitly here.
         (function() {
             var publicPaths = ['/', '/login', '/signup', '/logout'];
             var path = window.location.pathname;
-            if (!localStorage.getItem('jwt_token') && publicPaths.indexOf(path) === -1) {
+            var hasToken = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+            if (!hasToken && publicPaths.indexOf(path) === -1) {
                 window.location.href = '/login';
             }
         })();
@@ -247,25 +251,86 @@
     <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
 
     <script>
+        // -------------------------------------------------------------------
+        // Token storage: remembered devices use localStorage (survives browser
+        // restarts); unremembered devices use sessionStorage (cleared on tab
+        // close).
+        //
+        // Many existing templates read `localStorage.getItem('jwt_token')`
+        // directly. To avoid touching every call site, we install a narrow
+        // shim that makes those three auth keys fall back to sessionStorage
+        // when not present in localStorage. New code should use `_getStored`.
+        // -------------------------------------------------------------------
+        (function installAuthStorageShim() {
+            const FALLBACK_KEYS = new Set(['jwt_token', 'refresh_token', 'user_data']);
+            const origGetItem = Storage.prototype.getItem;
+            const origLocalGetItem = localStorage.getItem.bind(localStorage);
+            const origSessionGetItem = sessionStorage.getItem.bind(sessionStorage);
+            // Override only on the localStorage instance — sessionStorage is left alone.
+            localStorage.getItem = function(key) {
+                const v = origLocalGetItem(key);
+                if (v !== null) return v;
+                if (FALLBACK_KEYS.has(key)) return origSessionGetItem(key);
+                return null;
+            };
+        })();
+
+        function _tokenStore() {
+            return sessionStorage.getItem('jwt_token') ? sessionStorage : localStorage;
+        }
+        function _getStored(key) {
+            return sessionStorage.getItem(key) || localStorage.getItem(key);
+        }
+        function _clearAllTokens() {
+            ['jwt_token', 'refresh_token', 'user_data'].forEach(k => {
+                sessionStorage.removeItem(k);
+                localStorage.removeItem(k);
+            });
+        }
+
         // Global configuration - accessible from all pages
         window.LINGUADOJO = {
             API_BASE: "{{ url_for('index') }}",
-            JWT_TOKEN: localStorage.getItem('jwt_token'),
-            USER_DATA: JSON.parse(localStorage.getItem('user_data') || '{}')
+            JWT_TOKEN: _getStored('jwt_token'),
+            USER_DATA: JSON.parse(_getStored('user_data') || '{}')
         };
 
         /**
+         * Ask the server to silently re-authenticate this browser via the
+         * trusted-device cookie. Returns true on success and writes the new
+         * access token to localStorage. Used as the last resort before
+         * bouncing the user to /login.
+         */
+        async function _tryDeviceRestore() {
+            try {
+                const r = await fetch('/api/auth/device-restore', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                });
+                if (!r.ok) return false;
+                const data = await r.json();
+                if (!data.success || !data.jwt_token) return false;
+                // device-restore always lands the user on a remembered device,
+                // so write to localStorage and wipe sessionStorage.
+                ['jwt_token', 'refresh_token', 'user_data'].forEach(k => sessionStorage.removeItem(k));
+                localStorage.setItem('jwt_token', data.jwt_token);
+                if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
+                window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+                return true;
+            } catch (e) {
+                console.error('device-restore error:', e);
+                return false;
+            }
+        }
+
+        /**
          * Authenticated fetch wrapper with automatic token refresh.
-         * Use this instead of fetch() for API calls that require authentication.
-         *
-         * @param {string} url - The URL to fetch
-         * @param {object} options - Fetch options (method, body, etc.)
-         * @returns {Promise<Response>} - The fetch response
+         * On 401: try the Supabase refresh token first; if that fails, try
+         * the trusted-device cookie; only then bounce to /login.
          */
         window.authFetch = async function(url, options = {}) {
-            const token = localStorage.getItem('jwt_token');
+            const token = _getStored('jwt_token');
 
-            // Set up headers with auth token
             options.headers = {
                 'Content-Type': 'application/json',
                 ...options.headers,
@@ -273,60 +338,40 @@
             };
 
             let response = await fetch(url, options);
+            if (response.status !== 401) return response;
 
-            // If 401 Unauthorized, try to refresh the token
-            if (response.status === 401) {
-                const refreshToken = localStorage.getItem('refresh_token');
-
-                if (refreshToken) {
-                    try {
-                        console.log('Token expired, attempting refresh...');
-                        const refreshResponse = await fetch('/api/auth/refresh-token', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ refresh_token: refreshToken })
-                        });
-
-                        if (refreshResponse.ok) {
-                            const data = await refreshResponse.json();
-
-                            // Store new tokens
-                            localStorage.setItem('jwt_token', data.jwt_token);
-                            localStorage.setItem('refresh_token', data.refresh_token);
-                            window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
-
-                            console.log('Token refreshed successfully, retrying request...');
-
-                            // Retry the original request with new token
-                            options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
-                            response = await fetch(url, options);
-                        } else {
-                            // Refresh failed - clear tokens and redirect to login
-                            console.error('Token refresh failed, redirecting to login');
-                            localStorage.removeItem('jwt_token');
-                            localStorage.removeItem('refresh_token');
-                            localStorage.removeItem('user_data');
-                            window.location.href = '/login';
-                            return response;
-                        }
-                    } catch (e) {
-                        console.error('Token refresh error:', e);
-                        localStorage.removeItem('jwt_token');
-                        localStorage.removeItem('refresh_token');
-                        localStorage.removeItem('user_data');
-                        window.location.href = '/login';
-                        return response;
+            // ---- Step 1: try Supabase refresh token if present ------------
+            const refreshToken = _getStored('refresh_token');
+            if (refreshToken) {
+                try {
+                    const refreshResponse = await fetch('/api/auth/refresh-token', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refresh_token: refreshToken })
+                    });
+                    if (refreshResponse.ok) {
+                        const data = await refreshResponse.json();
+                        const store = _tokenStore();
+                        store.setItem('jwt_token', data.jwt_token);
+                        if (data.refresh_token) store.setItem('refresh_token', data.refresh_token);
+                        window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+                        options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
+                        return await fetch(url, options);
                     }
-                } else {
-                    // No refresh token available - redirect to login
-                    console.log('No refresh token, redirecting to login');
-                    localStorage.removeItem('jwt_token');
-                    localStorage.removeItem('user_data');
-                    window.location.href = '/login';
-                    return response;
+                } catch (e) {
+                    console.error('refresh-token error:', e);
                 }
             }
 
+            // ---- Step 2: try the trusted-device cookie --------------------
+            if (await _tryDeviceRestore()) {
+                options.headers['Authorization'] = `Bearer ${window.LINGUADOJO.JWT_TOKEN}`;
+                return await fetch(url, options);
+            }
+
+            // ---- Step 3: give up; send the user to /login -----------------
+            _clearAllTokens();
+            window.location.href = '/login';
             return response;
         };
 
@@ -365,13 +410,22 @@
 
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
+                logoutBtn.addEventListener('click', async function(e) {
                     e.preventDefault();
-
-                    localStorage.removeItem('jwt_token');
-                    localStorage.removeItem('refresh_token');
-                    localStorage.removeItem('user_data');
-
+                    // Best-effort server logout so the trusted-device row is
+                    // revoked and the cookie cleared. We don't block redirect
+                    // on failure — local state still gets wiped either way.
+                    const token = _getStored('jwt_token');
+                    if (token) {
+                        try {
+                            await fetch('/api/auth/logout', {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                headers: { 'Authorization': `Bearer ${token}` },
+                            });
+                        } catch (err) { /* ignore */ }
+                    }
+                    _clearAllTokens();
                     window.location.href = '/login';
                 });
             }
@@ -395,7 +449,7 @@
                     document.getElementById('reportError').classList.add('d-none');
 
                     try {
-                        const token = localStorage.getItem('jwt_token');
+                        const token = _getStored('jwt_token');
                         if (!token) throw new Error('Please log in');
 
                         const res = await fetch('/api/reports/submit', {

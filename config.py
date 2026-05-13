@@ -28,6 +28,19 @@ class Config:
     JWT_TOKEN_LOCATION = ["headers", "cookies"]
 
     # ==========================================================================
+    # TRUSTED DEVICE / "REMEMBER THIS DEVICE"
+    # ==========================================================================
+    # Long-lived rolling session credential issued when the user checks the
+    # "Remember this device" box on login. Stored as a hashed token in the
+    # trusted_devices table and as an HttpOnly cookie on the device.
+    REMEMBER_DEVICE_DURATION = timedelta(days=180)
+    DEVICE_COOKIE_NAME = "lingualoop_device"
+    DEVICE_COOKIE_PATH = "/api/auth"
+    # Salt for sha256(ip + salt) audit hashing — *not* a security boundary,
+    # just keeps raw IPs out of the DB. Falls back to SECRET_KEY if unset.
+    DEVICE_IP_HASH_SALT = os.environ.get('DEVICE_IP_HASH_SALT', '')
+
+    # ==========================================================================
     # CORS - Uses environment variable with fallback
     # ==========================================================================
     CORS_ORIGINS = [

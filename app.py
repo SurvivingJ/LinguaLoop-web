@@ -19,6 +19,7 @@ from services.service_factory import ServiceFactory
 from services.r2_service import R2Service
 from services.prompt_service import PromptService
 from services.auth_service import AuthService
+from services.device_service import DeviceService
 from middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
 from utils.responses import api_success, bad_request, server_error, service_unavailable
@@ -129,6 +130,7 @@ def _initialize_services(app):
             app.supabase = get_supabase()
             app.supabase_service = get_supabase_admin()
             app.auth_service = AuthService(app.supabase)
+            app.device_service = DeviceService(supabase_admin=app.supabase_service)
             app.logger.info("Supabase clients initialized via SupabaseFactory")
 
             # Initialize dimension table cache for fast lookups (use service client to bypass RLS)
@@ -145,6 +147,7 @@ def _initialize_services(app):
         app.supabase = None
         app.supabase_service = None
         app.auth_service = None
+        app.device_service = None
 
     try:
         service_factory = ServiceFactory(Config)
@@ -246,6 +249,7 @@ def _register_blueprints(app):
     auth_middleware = AuthMiddleware(app.supabase)
     auth_bp.auth_service = app.auth_service
     auth_bp.auth_middleware = auth_middleware
+    auth_bp.device_service = app.device_service
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tests_bp, url_prefix='/api/tests')

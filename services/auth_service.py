@@ -1,9 +1,10 @@
 from supabase import Client, create_client
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Optional
 import logging
 import uuid
 import os
+import jwt as pyjwt
 
 
 class AuthService:
@@ -233,6 +234,49 @@ class AuthService:
             self.logger.error(f'Logout error: {e}')
             return {'success': False, 'error': 'Logout failed'}
     
+    def mint_session_for_user(self, user_id: str, email: str) -> Dict:
+        """Mint a Supabase-shaped access token for a known user.
+
+        Used by /api/auth/device-restore when a valid trusted-device cookie is
+        presented and we need to hand the browser a fresh JWT without going
+        through the OTP email flow. The token is signed locally with the
+        project's JWT secret (the same secret PostgREST uses to validate
+        ``auth.uid()`` for RLS — Supabase dashboard → Settings → API → JWT
+        Secret), so it is indistinguishable from a token issued by Supabase's
+        auth server. Read from JWT_SECRET_KEY in the environment.
+
+        We deliberately do NOT issue a Supabase refresh token here — the
+        device cookie IS the long-lived refresh credential. When this access
+        token expires, the frontend calls /device-restore again.
+        """
+        secret = os.environ.get('JWT_SECRET_KEY')
+        if not secret or secret == 'jwt-secret-change-in-production':
+            self.logger.error(
+                'JWT_SECRET_KEY not configured (or still the default placeholder) — '
+                'cannot mint session for device-restore'
+            )
+            return {'success': False, 'error': 'Server misconfigured'}
+
+        now = datetime.now(timezone.utc)
+        # Match Supabase's default access token lifetime (1h).
+        exp = now + timedelta(hours=1)
+        payload = {
+            'aud': 'authenticated',
+            'role': 'authenticated',
+            'sub': user_id,
+            'email': email,
+            'session_id': str(uuid.uuid4()),
+            'is_anonymous': False,
+            'iat': int(now.timestamp()),
+            'exp': int(exp.timestamp()),
+        }
+        try:
+            token = pyjwt.encode(payload, secret, algorithm='HS256')
+            return {'success': True, 'jwt_token': token}
+        except Exception as e:
+            self.logger.error(f'mint_session_for_user failed: {e}')
+            return {'success': False, 'error': 'Failed to mint session'}
+
     def refresh_session(self, refresh_token: str) -> Dict:
         """
         Refresh user session using a valid refresh token.
