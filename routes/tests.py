@@ -11,7 +11,7 @@ from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.test_service import (
     TestService, DimensionService, get_test_service,
-    parse_language_id, LANGUAGE_ID_TO_NAME, VALID_LANGUAGE_IDS
+    parse_language_id, VALID_LANGUAGE_IDS
 )
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 
@@ -123,12 +123,10 @@ def get_recommended_tests():
     if not language_id:
         return jsonify({"error": "Invalid or missing language_id"}), 400
 
-    language = LANGUAGE_ID_TO_NAME.get(language_id, 'chinese')
-
     try:
         result = current_app.supabase_service.rpc('get_recommended_tests', {
             'p_user_id': user_id,
-            'p_language': language
+            'p_language_id': language_id
         }).execute()
 
         return jsonify({

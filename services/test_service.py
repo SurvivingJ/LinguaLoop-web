@@ -532,11 +532,10 @@ class TestService:
 
         # Step 3: Fill remaining slots with new ELO-matched tests
         if num_new > 0:
-            language_name = LANGUAGE_ID_TO_NAME.get(language_id, 'chinese')
             try:
                 recommended_result = self.admin.rpc('get_recommended_tests', {
                     'p_user_id': user_id,
-                    'p_language': language_name
+                    'p_language_id': language_id
                 }).execute()
 
                 recommended = recommended_result.data or []

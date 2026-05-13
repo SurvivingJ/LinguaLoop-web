@@ -1,5 +1,5 @@
-# LinguaLoop Wiki Index
-Last updated: 2026-05-12 (Phase 11 IRT calibration + Chinese TTS) | Pages: 48
+# LinguaDojo Wiki Index
+Last updated: 2026-05-13 (closed 3 audit gaps — admin auth on vocab_admin, daily_test_loads FK, get_recommended_tests signature) | Pages: 48
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists

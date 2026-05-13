@@ -4,6 +4,7 @@
 from flask import Blueprint, request, render_template
 import logging
 
+from middleware.auth import admin_required
 from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
@@ -11,6 +12,7 @@ vocab_admin_bp = Blueprint("vocab_admin", __name__)
 
 
 @vocab_admin_bp.route('/upload-words', methods=['POST'])
+@admin_required
 def upload_words() -> ApiResponse:
     """Upload a word list and trigger asset generation.
 
@@ -84,6 +86,7 @@ def upload_words() -> ApiResponse:
 
 
 @vocab_admin_bp.route('/generate-assets', methods=['POST'])
+@admin_required
 def generate_assets() -> ApiResponse:
     """Trigger asset generation for specific sense IDs.
 
@@ -119,6 +122,7 @@ def generate_assets() -> ApiResponse:
 
 
 @vocab_admin_bp.route('/render-exercises', methods=['POST'])
+@admin_required
 def render_exercises() -> ApiResponse:
     """Render exercises from existing word_assets for specific senses.
 
@@ -157,6 +161,7 @@ def render_exercises() -> ApiResponse:
 
 
 @vocab_admin_bp.route('/words', methods=['GET'])
+@admin_required
 def list_words() -> ApiResponse:
     """List words with their asset generation status.
 
@@ -251,6 +256,7 @@ def list_words() -> ApiResponse:
 
 
 @vocab_admin_bp.route('/word/<int:sense_id>/wipe', methods=['POST'])
+@admin_required
 def wipe_word(sense_id: int) -> ApiResponse:
     """Hard-delete word_assets and exercises for a sense — used before regenerate."""
     try:
@@ -271,6 +277,7 @@ def wipe_word(sense_id: int) -> ApiResponse:
 
 
 @vocab_admin_bp.route('/word/<int:sense_id>/level/<int:level>', methods=['DELETE'])
+@admin_required
 def remove_level(sense_id: int, level: int) -> ApiResponse:
     """Soft-delete exercises at one ladder level for one sense."""
     try:
@@ -295,6 +302,7 @@ def remove_level(sense_id: int, level: int) -> ApiResponse:
 
 
 @vocab_admin_bp.route('/word/<int:sense_id>/preview', methods=['GET'])
+@admin_required
 def preview_word(sense_id: int) -> ApiResponse:
     """Get visual preview data for a word's exercises (JSON API).
 

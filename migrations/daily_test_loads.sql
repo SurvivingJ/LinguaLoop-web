@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS daily_test_loads (
     id BIGSERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     language_id INTEGER NOT NULL,
     load_date DATE NOT NULL DEFAULT CURRENT_DATE,
     test_ids JSONB NOT NULL,                          -- [{test_id, slot_type, test_type, original_percentage}]
@@ -17,13 +17,5 @@ CREATE TABLE IF NOT EXISTS daily_test_loads (
 CREATE INDEX IF NOT EXISTS idx_daily_loads_lookup
     ON daily_test_loads(user_id, language_id, load_date);
 
--- RLS policies
-ALTER TABLE daily_test_loads ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can read own daily loads"
-    ON daily_test_loads FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own daily loads"
-    ON daily_test_loads FOR UPDATE
-    USING (auth.uid() = user_id);
+-- RLS policies live in migrations/enable_rls_on_user_owned_tables.sql
+-- (dtl_own_data / dtl_service_role / dtl_admin_view). RLS is enabled there too.

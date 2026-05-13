@@ -3,7 +3,7 @@ title: "RPC & Functions — Technical Specification"
 type: api-tech
 status: complete
 prose_page: ../database/rpcs.md
-last_updated: 2026-05-12
+last_updated: 2026-05-13
 dependencies:
   - "All tables in schema.tech.md"
   - "migrations/phase8_momentum_bands.sql — vocabulary ladder RPCs"
@@ -687,38 +687,30 @@ $function$
 
 ---
 
-### `get_recommended_tests(p_user_id uuid, p_language text): TABLE(...)`
+### `get_recommended_tests(p_user_id uuid, p_language_id smallint): TABLE(...)`
 
 - **Security:** DEFINER
 - **Language:** plpgsql
-- **Description:** Returns multiple recommended tests for a user by language name/code. Resolves language dynamically. Checks subscription tier for premium access. Excludes tests the user has already attempted. Returns up to 3 tests per test type (listening, reading, dictation), deduplicated by test_id, sorted by ELO proximity.
+- **Description:** Returns multiple recommended tests for a user by language id. Checks subscription tier for premium access. Excludes tests the user has already attempted. Returns up to 3 tests per test type (listening, reading, dictation), deduplicated by test_id, sorted by ELO proximity.
+- **Migration history:** Signature changed 2026-05-13 from `(uuid, text)` to `(uuid, smallint)` via [migrations/fix_get_recommended_tests_signature.sql](../../migrations/fix_get_recommended_tests_signature.sql) — the prior `text` form did an in-function lookup against `dim_languages` and was the only RPC accepting a language code/name string; all other RPCs take `p_language_id smallint` directly.
 
 **Returns:** `TABLE(test_id uuid, slug text, test_type text, title text, difficulty_level integer, elo_rating integer, elo_diff integer, tier text)`
 
 ```sql
-CREATE OR REPLACE FUNCTION public.get_recommended_tests(p_user_id uuid, p_language text)
+CREATE OR REPLACE FUNCTION public.get_recommended_tests(
+  p_user_id     uuid,
+  p_language_id smallint
+)
  RETURNS TABLE(test_id uuid, slug text, test_type text, title text, difficulty_level integer, elo_rating integer, elo_diff integer, tier text)
  LANGUAGE plpgsql
  SECURITY DEFINER
  SET search_path TO 'public'
 AS $function$
 DECLARE
-  v_language_id SMALLINT;
   v_user_tier_code TEXT;
-  v_is_premium BOOLEAN;
+  v_is_premium     BOOLEAN;
 BEGIN
-  -- 1. Resolve Language ID
-  SELECT id INTO v_language_id
-  FROM dim_languages
-  WHERE LOWER(language_code) = LOWER(p_language) 
-     OR LOWER(language_name) = LOWER(p_language)
-  LIMIT 1;
-
-  IF v_language_id IS NULL THEN
-    RAISE EXCEPTION 'Language not found: %', p_language;
-  END IF;
-
-  -- 2. Determine User Access Level
+  -- 1. Determine User Access Level
   SELECT st.tier_code INTO v_user_tier_code
   FROM users u
   JOIN dim_subscription_tiers st ON u.subscription_tier_id = st.id
@@ -726,7 +718,7 @@ BEGIN
 
   v_is_premium := (v_user_tier_code NOT ILIKE '%free%');
 
-  -- 3. Execute Recommendation Logic (unique test_ids only)
+  -- 2. Execute Recommendation Logic (unique test_ids only)
   RETURN QUERY
   WITH target_types AS (
     SELECT id AS type_id, type_code
@@ -734,14 +726,14 @@ BEGIN
     WHERE type_code IN ('listening', 'reading', 'dictation')
   ),
   user_stats AS (
-    SELECT 
+    SELECT
       tt.type_id,
       tt.type_code,
       COALESCE(usr.elo_rating, 1200) as current_elo
     FROM target_types tt
-    LEFT JOIN user_skill_ratings usr 
-      ON usr.user_id = p_user_id 
-      AND usr.language_id = v_language_id 
+    LEFT JOIN user_skill_ratings usr
+      ON usr.user_id = p_user_id
+      AND usr.language_id = p_language_id
       AND usr.test_type_id = tt.type_id
   ),
   all_candidates AS (
@@ -761,16 +753,16 @@ BEGIN
     FROM user_stats us
     JOIN test_skill_ratings tsr ON tsr.test_type_id = us.type_id
     JOIN tests t ON t.id = tsr.test_id
-    WHERE t.language_id = v_language_id
+    WHERE t.language_id = p_language_id
       AND t.is_active = true
       AND (
-        t.tier = 'free-tier' 
+        t.tier = 'free-tier'
         OR (t.tier != 'free-tier' AND v_is_premium)
       )
       AND NOT EXISTS (
-        SELECT 1 
-        FROM test_attempts ta 
-        WHERE ta.user_id = p_user_id 
+        SELECT 1
+        FROM test_attempts ta
+        WHERE ta.user_id = p_user_id
           AND ta.test_id = t.id
       )
   ),
@@ -793,7 +785,7 @@ $function$
 ```
 
 - **Key behaviors:** Free-tier users only see `free-tier` tests. Already-attempted tests are excluded. Top 3 per test type, deduplicated.
-- **Tables read:** `dim_languages`, `users`, `dim_subscription_tiers`, `dim_test_types`, `user_skill_ratings`, `test_skill_ratings`, `tests`, `test_attempts`.
+- **Tables read:** `users`, `dim_subscription_tiers`, `dim_test_types`, `user_skill_ratings`, `test_skill_ratings`, `tests`, `test_attempts`.
 
 ---
 

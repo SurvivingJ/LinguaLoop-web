@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-04-24
+last_updated: 2026-05-13
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -18,10 +18,12 @@ breaking_change_risk: medium
 
 The schema lives in Supabase PostgreSQL with Row-Level Security (RLS) policies on user-facing tables. It uses a tiered dependency structure (Tier 0 = no FKs, through Tier 5 = deepest dependencies). All tables are in the `public` schema unless otherwise noted. Authentication delegates to Supabase `auth.users` with a mirror `users` table in public.
 
-**Total tables:** 65 (users_backup dropped; user_exercise_history, language_model_config, daily_test_load_items, corpus_style_profiles, style_pack_items, pack_style_items added)
-**Enum types:** 1 (`exercise_source_type`)
-**Views:** 3
-**Triggers:** 11 across 9 tables
+**Total tables:** 64 (confirmed via live Supabase introspection 2026-05-12; `language_model_config` was dropped by the 2026-05-05 model-routing refactor — see [migrations/drop_dim_languages_model_columns.sql](../../migrations/drop_dim_languages_model_columns.sql))
+**Enum types:** 1 (`exercise_source_type` — values: `grammar, vocabulary, collocation, conversation, style`)
+**Views:** 3 (`corpus_statistics`, `vw_distractor_error_analysis`, `vw_exercise_performance_by_type`)
+**Triggers:** 11 across 8 tables
+**RLS coverage:** 36 enabled / 28 disabled (see [[database/schema]] for the audit snapshot)
+**Application RPCs:** ~77 plpgsql/sql functions (plus ~199 extension functions from pgvector, pg_trgm, intarray)
 
 ## Extensions
 
@@ -39,7 +41,7 @@ These tables have no outbound foreign keys (Tier 0). They define the reference d
 
 ### `dim_languages`
 
-Supported languages with AI model configuration, TTS settings, and grammar tooling.
+Supported languages with TTS settings and grammar tooling. **As of the 2026-05-05 model-routing refactor, the per-task model columns (`prose_model`, `question_model`, `exercise_model`, `exercise_sentence_model`, `conversation_model`, `vocab_prompt1_model`, `vocab_prompt2_model`, `vocab_prompt3_model`) have been dropped** — model assignment per (task_name, language_id) now lives exclusively on [`prompt_templates.model`](#prompt_templates). The 2026-05-12 Chinese TTS migration seeded `tts_voice_ids` with Azure neural voices for the active languages and fixed a long-standing config rot where the English row contained the OpenAI voice catalogue (which the Azure runtime silently ignored).
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
@@ -51,15 +53,7 @@ Supported languages with AI model configuration, TTS settings, and grammar tooli
 | `iso_639_3` | char(3) | YES | | |
 | `is_active` | boolean | YES | true | |
 | `display_order` | integer | YES | 0 | |
-| `prose_model` | varchar | YES | 'google/gemini-2.5-flash-lite' | LLM model for prose generation (OpenRouter format) |
-| `question_model` | varchar | YES | 'google/gemini-2.5-flash-lite' | LLM model for question generation |
-| `exercise_model` | text | YES | | |
-| `exercise_sentence_model` | text | YES | | |
-| `conversation_model` | text | YES | | |
-| `vocab_prompt1_model` | text | YES | | |
-| `vocab_prompt2_model` | text | YES | | |
-| `vocab_prompt3_model` | text | YES | | |
-| `tts_voice_ids` | jsonb | YES | '["alloy","echo","fable","onyx","nova","shimmer"]' | Array of OpenAI voice IDs |
+| `tts_voice_ids` | jsonb | YES | (per-language, see below) | Array of Azure neural voice IDs. Seeded 2026-05-12: Chinese row gets `[zh-CN-XiaoxiaoMultilingualNeural, zh-CN-YunxiNeural, zh-CN-YunyangNeural]`; English row gets `[en-US-AvaMultilingualNeural, en-US-AndrewMultilingualNeural, en-US-BrianMultilingualNeural, en-US-EmmaMultilingualNeural]` |
 | `tts_speed` | numeric | YES | 1.0 | CHECK: 0.25-4.0. TTS playback speed multiplier |
 | `grammar_check_enabled` | boolean | YES | true | Enable LanguageTool grammar validation |
 | `created_at` | timestamptz | YES | now() | |
@@ -309,26 +303,11 @@ Grammar pattern definitions for exercise generation.
 
 ---
 
-### `language_model_config`
+### ~~`language_model_config`~~ — **DROPPED 2026-05-05**
 
-Normalized key-value store for per-language LLM model assignments (Phase 4). Replaces the growing model columns on `dim_languages`. Old columns are NOT dropped yet — they will be deprecated after all Python callers migrate.
+This table was scaffolded by Phase 4 (2026-04-15) to normalise per-language LLM model assignments away from the growing `dim_languages.*_model` columns, but no code ever read from it. The 2026-05-05 model-routing refactor took a different approach: **`prompt_templates.model` is now the single source of truth** (one row per `(task_name, language_id, version)`, plus a `model` and `provider` column). Both the legacy `dim_languages.*_model` columns and this entire table were dropped by [`migrations/drop_dim_languages_model_columns.sql`](../../migrations/drop_dim_languages_model_columns.sql) and are confirmed absent in the live schema as of 2026-05-12.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | integer | NO | GENERATED ALWAYS AS IDENTITY | PK |
-| `language_id` | smallint | NO | | FK -> dim_languages |
-| `task_key` | text | NO | | e.g. prose, question, exercise, exercise_sentence, conversation, vocab_prompt1, vocab_prompt2, vocab_prompt3 |
-| `model_name` | text | NO | | OpenRouter model ID |
-| `is_active` | boolean | NO | true | |
-| `created_at` | timestamptz | YES | now() | |
-| `updated_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `language_model_config_pkey (id)`
-- **Unique:** `(language_id, task_key)`
-- **Indexes:** `idx_lmc_language (language_id)`, `idx_lmc_task (task_key, language_id WHERE is_active=true)`
-- **Foreign Keys:** `language_id` -> `dim_languages.id`
-- **RLS:** Disabled
-- **Helper RPC:** `get_model_for_task(task_key, language_id)` returns model_name with active filter.
+The `get_model_for_task(p_task_key text, p_language_id smallint)` RPC still exists in the live DB but its query path is now via `prompt_templates`; verify the SQL body if relying on it.
 
 ---
 
@@ -783,8 +762,8 @@ Daily test sets assigned to users for their study session.
 - **Primary Key:** `daily_test_loads_pkey (id)`
 - **Unique:** `daily_test_loads_user_id_language_id_load_date_key (user_id, language_id, load_date)`
 - **Indexes:** `idx_daily_loads_lookup (user_id, language_id, load_date)`
-- **Foreign Keys:** `user_id` -> `auth.users.id`
-- **RLS:** Disabled
+- **Foreign Keys:** `user_id` -> `public.users.id` ON DELETE CASCADE (fixed 2026-05-13 via [migrations/fix_daily_test_loads_user_id_fk.sql](../../migrations/fix_daily_test_loads_user_id_fk.sql); previously FK'd to `auth.users.id`).
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `dtl_own_data` (ALL where `auth.uid() = user_id`), `dtl_service_role` (ALL where `auth.role() = 'service_role'`), `dtl_admin_view` (SELECT where `is_admin(auth.uid())`).
 - **Note:** JSONB columns (test_ids, completed_test_ids) are being migrated to `daily_test_load_items` junction table.
 
 ---
@@ -804,7 +783,7 @@ Junction table for daily_test_loads test IDs with FK integrity (Phase 4). Replac
 - **Primary Key:** `(load_id, test_id)` (composite)
 - **Indexes:** `idx_dtli_load (load_id)`, `idx_dtli_test (test_id)`
 - **Foreign Keys:** `load_id` -> `daily_test_loads.id` ON DELETE CASCADE, `test_id` -> `tests.id`
-- **RLS:** Disabled (matches daily_test_loads pattern)
+- **RLS:** Enabled (2026-05-12). No `user_id` column — policies join through `load_id -> daily_test_loads.user_id`. Policies: `dtli_own_data` (ALL where `EXISTS (... daily_test_loads d WHERE d.id = load_id AND d.user_id = auth.uid())`), `dtli_service_role` (ALL where `auth.role() = 'service_role'`), `dtli_admin_view` (SELECT where `is_admin(auth.uid()) OR EXISTS ...`).
 
 ---
 
@@ -1046,7 +1025,7 @@ Records each exercise attempt by a user.
 - **Primary Key:** `exercise_attempts_pkey (id)`
 - **Indexes:** `idx_ea_exercise_id (exercise_id)`, `idx_ea_user_created (user_id, created_at DESC)`, `idx_ea_user_response_gin GIN (user_response)`, `idx_ea_user_sense_type (user_id, sense_id, exercise_type, created_at DESC)`
 - **Foreign Keys:** `user_id` -> `users.id`, `exercise_id` -> `exercises.id`
-- **RLS:** Disabled
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `ea_own_data` (ALL where `auth.uid() = user_id`), `ea_service_role` (ALL where `auth.role() = 'service_role'`), `ea_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---
 
@@ -1127,7 +1106,7 @@ Bayesian Knowledge Tracing (BKT) state for each user-sense pair.
 - **Unique:** `user_vocabulary_knowledge_user_id_sense_id_key (user_id, sense_id)`
 - **Indexes:** `idx_uvk_user_language (user_id, language_id)`, `idx_uvk_user_pknown (user_id, p_known)`, `idx_uvk_user_status (user_id, status)`
 - **Foreign Keys:** `user_id` -> `users.id`, `sense_id` -> `dim_word_senses.id`, `language_id` -> `dim_languages.id`
-- **RLS:** Disabled
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `uvk_own_data` (ALL where `auth.uid() = user_id`), `uvk_service_role` (ALL where `auth.role() = 'service_role'`), `uvk_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---
 
@@ -1157,7 +1136,7 @@ FSRS-based spaced repetition flashcards for vocabulary senses.
 - **Unique:** `user_flashcards_user_id_sense_id_key (user_id, sense_id)`
 - **Indexes:** `idx_uf_user_due (user_id, language_id, due_date)`, `idx_uf_user_state (user_id, state)`
 - **Foreign Keys:** `user_id` -> `users.id`, `sense_id` -> `dim_word_senses.id`, `language_id` -> `dim_languages.id`
-- **RLS:** Disabled
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `uf_own_data` (ALL where `auth.uid() = user_id`), `uf_service_role` (ALL where `auth.role() = 'service_role'`), `uf_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---
 
@@ -1193,7 +1172,7 @@ Per-user vocabulary ladder progression. Canonical progression state is the Phase
 - **Indexes:** `idx_user_word_ladder_user (user_id)`, `idx_user_word_ladder_review_due (user_id, review_due_at WHERE review_due_at IS NOT NULL)`, `idx_user_word_ladder_state (user_id, word_state)`, `idx_user_word_ladder_ring (user_id, current_ring)`
 - **Foreign Keys:** `user_id` -> `users.id`, `sense_id` -> `dim_word_senses.id`
 - **CHECK constraints:** `user_word_ladder_word_state_check CHECK (word_state IN ('new','active','gated','pre_mastery','relearning','mastered'))`, `user_word_ladder_current_ring_check CHECK (current_ring BETWEEN 1 AND 4)`, `user_word_ladder_current_level_check CHECK (current_level BETWEEN 1 AND 9)`
-- **RLS:** Disabled
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `uwl_own_data` (ALL where `auth.uid() = user_id`), `uwl_service_role` (ALL where `auth.role() = 'service_role'`), `uwl_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---
 
@@ -1216,7 +1195,7 @@ Individual word quiz results within a test attempt.
 - **Primary Key:** `word_quiz_results_pkey (id)`
 - **Indexes:** `idx_wqr_attempt (attempt_id)`, `idx_wqr_user (user_id)`
 - **Foreign Keys:** `user_id` -> `users.id`, `attempt_id` -> `test_attempts.id`, `sense_id` -> `dim_word_senses.id`
-- **RLS:** Disabled
+- **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `wqr_own_data` (ALL where `auth.uid() = user_id`), `wqr_service_role` (ALL where `auth.role() = 'service_role'`), `wqr_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---
 
@@ -1872,7 +1851,7 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 
 ### Test Serving
 - `get_recommended_test(user_id, language_id)` -> tests row -- expanding-radius ELO match, now excludes attempted tests (Phase 3)
-- `get_recommended_tests(user_id, language)` -> table -- ranked candidate tests
+- `get_recommended_tests(user_id, language_id)` -> table -- ranked candidate tests
 
 ### Exercise Serving (Vocab Dojo, Phase 8 Momentum Bands)
 - `get_ladder_session(p_user_id, p_language_id, p_count)` -> table -- per-word ladder session builder with priority scoring (0.35·overdue + 0.25·weakness + 0.20·gate + 0.10·novelty + 0.10·relapse), family-aware target selection, A/B variant alternation, seen-today anti-repetition
