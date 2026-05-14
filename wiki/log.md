@@ -1,5 +1,21 @@
 # Activity Log
 
+## 2026-05-15 change | Pinyin test history fix on Chinese profile dashboard
+
+User report: "the pinyin test history does not properly update." Plan at [`C:\Users\James\.claude\plans\the-pinyin-test-history-foamy-parnas.md`](../../.claude/plans/the-pinyin-test-history-foamy-parnas.md).
+
+Root cause: [submit_pinyin_attempt](../routes/tests.py) at `routes/tests.py:871` built a synthetic response `{selected_answer: "pinyin_accuracy_0.87"}` and called `process_test_submission`. The RPC ignores the synthetic value — it iterates the test's real MC `questions` and string-compares each correct answer against the synthetic string. The comparison always fails, so every pinyin attempt landed in `test_attempts` with `score=0, total_questions=<n_mc>, percentage=0` and the user's pinyin ELO dropped on every play. Confirmed pre-fix: 2 pinyin rows in `test_attempts`, both 0/N; user pinyin ELO at 1177 (down from 1200 default).
+
+Fix shipped:
+- New RPC [migrations/process_pinyin_submission.sql](../migrations/process_pinyin_submission.sql): accepts `p_correct_chars` / `p_total_chars` directly, writes truthful `test_attempts.score / total_questions / percentage`, reuses the K=32 ELO formula and `test_attempts` triggers. Applied to remote project.
+- [routes/tests.py:871](../routes/tests.py#L871) (`submit_pinyin_attempt`): removed the synthetic-response block and the unused `questions` lookup; now calls a new `_call_pinyin_submission_rpc` helper that hits the dedicated RPC.
+- [templates/profile.html](../templates/profile.html): added a `SKILL_ICONS` map (listening 🎧, reading 📖, dictation ✍️, pinyin 🀄) used by `renderSkillTabs` and `renderStats`; `renderHistory` now renders pinyin rows as `87/100 chars` to disambiguate from MC-question scores.
+- i18n: added `test_list.pinyin` to [en](../static/i18n/en.json), [zh](../static/i18n/zh.json), [ja](../static/i18n/ja.json), [es](../static/i18n/es.json).
+- Cleanup [migrations/cleanup_corrupt_pinyin_attempts.sql](../migrations/cleanup_corrupt_pinyin_attempts.sql): deleted 2 corrupt pinyin attempts, recomputed `tests.total_attempts` for affected tests, reset all pinyin `user_skill_ratings` to 1200 and `test_skill_ratings` to 1400. Applied to remote project.
+- Wiki: [features/pinyin-trainer.tech.md](features/pinyin-trainer.tech.md) — updated architectural-decision section #2 ("Reuse RPC with synthetic response" → "Dedicated `process_pinyin_submission` RPC") with the failure-mode explanation; bumped dependencies/last_updated; appended Recent Changes entry. [database/rpcs.tech.md](database/rpcs.tech.md) — catalogued the new RPC and the cleanup migration.
+
+Pages updated: 3. Pages created: 0. Open questions remaining: 0.
+
 ## 2026-05-15 change | Jumbled & cloze exercise pipeline revamp
 
 Two exercise types were producing low-quality output. Plan at [`C:\Users\James\.claude\plans\plan-out-how-to-toasty-willow.md`](../../.claude/plans/plan-out-how-to-toasty-willow.md). Both sections shipped together.

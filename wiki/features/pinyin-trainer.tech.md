@@ -3,13 +3,13 @@ title: Pinyin Tone Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./pinyin-trainer.md
-last_updated: 2026-05-07
+last_updated: 2026-05-15
 dependencies:
   - "tests table (pinyin_payload JSONB column)"
-  - "dim_test_types (pinyin row)"
+  - "dim_test_types (pinyin row, id=11)"
   - "test_skill_ratings (pinyin entries)"
   - "test_attempts table"
-  - "process_test_submission() RPC"
+  - "process_pinyin_submission() RPC"
   - "pypinyin library"
   - "jieba library"
   - "DeepSeek LLM (optional polyphone resolution)"
@@ -34,7 +34,7 @@ Payload Generation (admin-triggered or automatic on test creation):
 Game Serving (user-facing):
   /test/{slug}/pinyin          → renders test_pinyin.html template
   GET /api/tests/test/{slug}   → returns test_data + pinyin_payload
-  POST /api/tests/{slug}/submit-pinyin → grade + ELO update via process_test_submission()
+  POST /api/tests/{slug}/submit-pinyin → grade + ELO update via process_pinyin_submission()
 ```
 
 ## Database Impact
@@ -97,7 +97,7 @@ Each element in the `pinyin_payload` JSON array:
 ### `POST /api/tests/{slug}/submit-pinyin`
 
 - **Purpose:** Submit pinyin game results and update ELO
-- **Handler:** `routes/tests.py:847-948`
+- **Handler:** `routes/tests.py:871-960` (`submit_pinyin_attempt`)
 - **Auth:** JWT required
 - **Arguments:**
   - `correct_chars: int` — count of characters that **never received an incorrect guess**, computed client-side as `max(0, total_chars - error_count)`. Despite the field name, this is **not** `state.correctCount` (which always equals `total_chars` at game end because wrong answers retry in place).
@@ -108,9 +108,8 @@ Each element in the `pinyin_payload` JSON array:
   1. Calculate accuracy: `correct_chars / total_chars` (where the client has already encoded the error penalty into `correct_chars`)
   2. Look up test by slug, verify `language_id == 1`
   3. Get pinyin `test_type_id` via `DimensionService.get_test_type_id('pinyin')`
-  4. Build synthetic response: `[{question_id: first_question_id, selected_answer: "pinyin_accuracy_{accuracy:.2f}"}]`
-  5. Call `process_test_submission` RPC with pinyin type_id — RPC handles ELO calc and attempt recording
-  6. Parse ELO changes from RPC response
+  4. Call `process_pinyin_submission` RPC with `p_correct_chars` and `p_total_chars` — RPC writes `test_attempts.score = correct_chars`, `total_questions = total_chars`, computes ELO, returns standard envelope
+  5. Parse ELO changes from RPC response
 - **Returns:**
   ```json
   {
@@ -252,9 +251,9 @@ Usage:
    - **Rationale:** Pinyin extraction + sandhi rules are deterministic for a given transcript. Computing once and storing as JSONB avoids repeated processing per user session. Payload is ~1-3KB per test.
    - **Alternatives rejected:** On-the-fly computation — adds latency and requires pypinyin/jieba on the serving path.
 
-2. **Reuse `process_test_submission` RPC with synthetic response**
-   - **Rationale:** The existing RPC already handles ELO updates, attempt recording, and skill ratings atomically. A synthetic response (`pinyin_accuracy_0.87`) maps accuracy to the existing grading mechanism.
-   - **Alternatives rejected:** Separate pinyin submission RPC — would duplicate ELO logic.
+2. **Dedicated `process_pinyin_submission` RPC** (revised 2026-05-15)
+   - **Rationale:** Pinyin produces a pre-counted (correct_chars, total_chars) pair — there are no MC questions to validate. An earlier design fed a synthetic response into `process_test_submission`, but that RPC iterates the test's real `questions` rows and string-compares each correct answer against the synthetic value; the comparison always failed, so every attempt was recorded as `score=0, total_questions=<n_mc>, percentage=0` and ELO dropped. The dedicated RPC takes accuracy directly, writes truthful score/total/percentage rows, and reuses the same K=32 ELO formula and atomicity guarantees as `process_test_submission`.
+   - **Alternatives rejected:** Extending `process_test_submission` with optional precomputed-score parameters — mixes concerns and touches a function used by all comprehension test types. Direct INSERT from Python — duplicates ELO math, no atomic security_definer guarantees.
 
 3. **Deterministic sandhi rules with optional LLM fallback**
    - **Rationale:** The three main sandhi rules cover the vast majority of cases. LLM resolution is expensive and only needed for ambiguous polyphones, so it runs as a batch job, not per-request.
@@ -278,6 +277,11 @@ Usage:
 - Integration test: submit-pinyin endpoint with mock accuracy data, verify ELO changes
 - Edge cases: empty transcript, all-punctuation text, polyphone-heavy passages, 100% and 0% accuracy submissions
 
+## Recent Changes (2026-05-15)
+
+- **Dedicated submission RPC** (`process_pinyin_submission`): replaced the synthetic-response-into-`process_test_submission` path, which silently scored every pinyin attempt as 0/N_mc and dragged user pinyin ELO down on every play. The new RPC writes `test_attempts.score = correct_chars`, `total_questions = total_chars`, `percentage = accuracy * 100` and uses the same ELO formula as the comprehension-test RPC. Corrupt historical rows for `test_type_id = 11` were deleted and pinyin user/test ELOs reset to defaults via `migrations/cleanup_corrupt_pinyin_attempts.sql`.
+- **Profile dashboard rendering** (`templates/profile.html`): introduced a `SKILL_ICONS` map (listening 🎧, reading 📖, dictation ✍️, pinyin 🀄) used by both `renderSkillTabs` and `renderStats`. Pinyin history rows now render as `87/100 chars` to disambiguate from MC test scores. Added `test_list.pinyin` to en/zh/ja/es i18n bundles.
+
 ## Recent Changes (2026-05-06 → 07)
 
 - **Scoring fix** (`d056a169`): the client now sends `correct_chars = max(0, total - error_count)` rather than `state.correctCount`. The previous behaviour computed accuracy from `correctCount`, which always equalled `total` at game end because wrong answers retry in place — yielding a flat 100% score regardless of how many attempts the learner needed. The new formula penalises errors (one error → 1 lost point, regardless of how many retries followed). The server-side `accuracy = correct_chars / total_chars` calc is unchanged; the change is purely in what `correct_chars` denotes.
@@ -289,4 +293,4 @@ Usage:
 - [[features/comprehension-tests.tech]] — Parent test engine
 - [[algorithms/elo-ranking.tech]] — ELO formula shared by pinyin mode
 - [[database/schema.tech]] — `tests.pinyin_payload`, `dim_test_types`, `test_skill_ratings`
-- [[database/rpcs.tech]] — `process_test_submission` RPC
+- [[database/rpcs.tech]] — `process_pinyin_submission` RPC

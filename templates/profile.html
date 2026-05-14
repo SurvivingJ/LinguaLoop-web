@@ -102,6 +102,16 @@
     let historyOffset = {};
     const HISTORY_PAGE_SIZE = 25;
 
+    const SKILL_ICONS = {
+        listening: '🎧',
+        reading: '📖',
+        dictation: '✍️',
+        pinyin: '🀄',
+    };
+    function skillIcon(skillCode) {
+        return SKILL_ICONS[skillCode] || '📖';
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         console.log('==================================================');
         console.log('=== PROFILE PAGE - DOMContentLoaded FIRED ===');
@@ -245,7 +255,7 @@
                     data-test-type-id="${skill.test_type_id}"
                     type="button"
                     role="tab">
-                    ${skillCode === 'listening' ? '🎧' : '📖'} ${window.LinguaI18n ? window.LinguaI18n.t('test_list.' + skillCode) : skill.skill_name}
+                    ${skillIcon(skillCode)} ${window.LinguaI18n ? window.LinguaI18n.t('test_list.' + skillCode) : skill.skill_name}
                 </button>
             </li>
         `;
@@ -354,7 +364,7 @@
                             <h1 class="mb-0 mt-2">${skill.elo_rating}</h1>
                             <small class="text-muted">${LinguaI18n.t('profile.elo_rating')}</small>
                         </div>
-                        <span style="font-size: 3rem;">${skillCode === 'listening' ? '🎧' : '📖'}</span>
+                        <span style="font-size: 3rem;">${skillIcon(skillCode)}</span>
                     </div>
                     <div class="row mt-3 pt-3 border-top">
                         <div class="col-md-6 text-center">
@@ -476,6 +486,11 @@
         const html = history.map((test, index) => {
             console.log(`Rendering history item ${index}:`, test);
             const scoreClass = test.percentage >= 80 ? 'success' : test.percentage >= 60 ? 'primary' : test.percentage >= 40 ? 'warning' : 'danger';
+            const isPinyin = (selectedSkill && selectedSkill.code === 'pinyin')
+                || test.test_type_id === (selectedLang && selectedLang.skills && selectedLang.skills.pinyin && selectedLang.skills.pinyin.test_type_id);
+            const scoreLabel = isPinyin
+                ? `${test.score}/${test.total_questions} chars`
+                : `${test.score}/${test.total_questions}`;
 
             return `
                 <div class="card mb-2">
@@ -488,7 +503,7 @@
                                 </small>
                             </div>
                             <div class="text-end ms-3">
-                                <h5 class="mb-0 text-${scoreClass}">${test.score}/${test.total_questions}</h5>
+                                <h5 class="mb-0 text-${scoreClass}">${scoreLabel}</h5>
                                 <small class="text-muted">ELO: ${test.user_elo_after || 'N/A'}</small>
                             </div>
                         </div>

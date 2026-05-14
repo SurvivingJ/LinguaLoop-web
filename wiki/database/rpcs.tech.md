@@ -1024,6 +1024,26 @@ $function$
 
 ---
 
+### `process_pinyin_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_correct_chars integer, p_total_chars integer, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL): jsonb`
+
+- **Security:** DEFINER
+- **Language:** plpgsql
+- **Migration:** `migrations/process_pinyin_submission.sql` (2026-05-15)
+- **Description:** Accuracy-based test submission for the Pinyin Tone Trainer. The pinyin trainer does not use MC questions, so `process_test_submission`'s question-validation loop cannot grade pinyin attempts (every synthetic-response submission scored 0/N_mc). This RPC takes pre-counted `correct_chars` / `total_chars` directly and records the attempt with truthful score/total/percentage. ELO update reuses the same K=32 formula as `process_test_submission`.
+- **Arguments:**
+  - `p_correct_chars` — characters answered without ever needing a retry (`max(0, total_chars - error_count)`)
+  - `p_total_chars` — playable characters in the test
+  - other args mirror `process_test_submission`
+- **Validates:** `auth.uid()` matches `p_user_id`; `p_total_chars > 0`; `0 <= p_correct_chars <= p_total_chars`.
+- **Side effects:** inserts `test_attempts` row; get-or-creates and updates `user_skill_ratings` + `test_skill_ratings`; upserts `user_languages.last_test_date / total_tests_taken`.
+- **Returns:** JSONB envelope identical in shape to `process_test_submission` (`success`, `attempt_id`, `user_elo_before/after/change`, `test_elo_before/after/change`, `score`, `total_questions`, `percentage`, ...).
+
+---
+
+> **Cleanup migration (2026-05-15):** `migrations/cleanup_corrupt_pinyin_attempts.sql` deleted all `test_attempts` rows for the pinyin type (test_type_id = 11) that were produced by the broken synthetic-response path, recomputed `tests.total_attempts` for affected tests, and reset pinyin `user_skill_ratings` to ELO 1200 / `test_skill_ratings` to ELO 1400.
+
+---
+
 ### `update_test_attempts_count(): trigger`
 
 - **Security:** INVOKER

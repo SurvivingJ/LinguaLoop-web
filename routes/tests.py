@@ -665,6 +665,32 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
         return jsonify({"error": "Failed to process test submission"}), 500
 
 
+def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars):
+    """Call the process_pinyin_submission RPC (accuracy-based, no MC questions).
+
+    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
+    """
+    try:
+        response = client.rpc('process_pinyin_submission', {
+            'p_user_id': user_id,
+            'p_test_id': test_id,
+            'p_language_id': language_id,
+            'p_test_type_id': test_type_id,
+            'p_correct_chars': int(correct_chars),
+            'p_total_chars': int(total_chars),
+            'p_was_free_test': True,
+            'p_idempotency_key': str(uuid4()),
+        }).execute()
+        return response.data
+    except Exception as e:
+        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
+        if isinstance(error_data, dict) and error_data.get('success'):
+            current_app.logger.info(f"Pinyin RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
+            return error_data
+        current_app.logger.error(f"Pinyin RPC call failed: {error_data}")
+        return jsonify({"error": "Failed to process pinyin submission"}), 500
+
+
 def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
     """Run BKT vocabulary tracking and build a word quiz from question results.
 
@@ -847,9 +873,9 @@ def submit_test_attempt(slug):
 def submit_pinyin_attempt(slug):
     """Submit pinyin tone trainer results.
 
-    Accepts accuracy-based scoring (no MC questions). Creates a test_attempts
-    record and updates ELO via the standard RPC by passing a single synthetic
-    response whose correctness is derived from accuracy.
+    Accepts accuracy-based scoring (correct_chars / total_chars) and delegates
+    to process_pinyin_submission, which records the attempt and updates ELO
+    without referencing the test's MC questions.
     """
     try:
         if not current_app.supabase_service:
@@ -888,28 +914,10 @@ def submit_pinyin_attempt(slug):
         if not pinyin_type_id:
             return jsonify({"error": "Pinyin test type not configured"}), 500
 
-        # Get the first question ID to use as a synthetic response for the RPC
-        # The RPC expects at least one response with a question_id
-        questions_result = current_app.supabase_service.table('questions') \
-            .select('id') \
-            .eq('test_id', test_id) \
-            .limit(1) \
-            .execute()
-
-        if questions_result.data:
-            question_id = str(questions_result.data[0]['id'])
-        else:
-            question_id = str(uuid4())
-
-        # Build a synthetic response: correct if accuracy >= 80%
-        db_responses = [{
-            "question_id": question_id,
-            "selected_answer": f"pinyin_accuracy_{accuracy:.2f}"
-        }]
-
-        rpc_result = _call_submission_rpc(
+        rpc_result = _call_pinyin_submission_rpc(
             current_app.supabase_service, current_user_id,
-            test_id, language_id, pinyin_type_id, db_responses
+            test_id, language_id, pinyin_type_id,
+            correct_chars, total_chars,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result
