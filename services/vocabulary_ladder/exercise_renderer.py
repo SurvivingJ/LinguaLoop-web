@@ -91,18 +91,25 @@ class LadderExerciseRenderer:
                     if content is None:
                         continue
 
+                    # Lift the per-render judge sidecar into tags, if present.
+                    judge_meta = content.pop('__judge_meta', None)
+
                     exercise_type = LADDER_LEVELS[level]['exercise_type']
+                    tags = {
+                        'ladder_level': level,
+                        'semantic_class': semantic_class,
+                        'variant': variant['key'],
+                    }
+                    if judge_meta is not None:
+                        tags['cloze_judge'] = judge_meta
+
                     row = {
                         'id': str(uuid4()),
                         'language_id': language_id,
                         'exercise_type': exercise_type,
                         'source_type': 'vocabulary',
                         'content': content,
-                        'tags': {
-                            'ladder_level': level,
-                            'semantic_class': semantic_class,
-                            'variant': variant['key'],
-                        },
+                        'tags': tags,
                         'complexity_tier': tier,
                         'is_active': True,
                         'word_sense_id': sense_id,
@@ -255,7 +262,14 @@ class LadderExerciseRenderer:
 
         Output format matches existing ClozeGenerator:
         {sentence_with_blank, original_sentence, correct_answer, options, explanation}
+
+        Distractors are routed through cloze_judge to drop any that could
+        themselves pass as the correct answer. If fewer than 3 survive the
+        judge, the L3 variant is skipped (returns None) and the caller
+        either falls back to the alternate variant pool or omits L3.
         """
+        from services.exercise_generation.cloze_judge import filter_distractors
+
         level_data = p2.get('level_3', {})
         if not level_data:
             return None
@@ -278,9 +292,23 @@ class LadderExerciseRenderer:
         distractors = [
             o.get('text', '') for o in options_data
             if not o.get('is_correct') and o.get('text')
-        ]
+        ][:3]
 
-        option_list = [correct] + distractors[:3]
+        kept, judge_meta = filter_distractors(
+            self.db,
+            sentence_with_blank=blanked,
+            correct_answer=correct,
+            distractors=distractors,
+            language_id=language_id,
+        )
+        if len(kept) < 3:
+            logger.info(
+                "L3 cloze_judge rejected %d/%d distractors for sense %s; skipping variant",
+                judge_meta['rejected'], len(distractors), sense_id,
+            )
+            return None
+
+        option_list = [correct] + kept[:3]
         random.shuffle(option_list)
 
         explanations = level_data.get('explanations', {})
@@ -294,6 +322,7 @@ class LadderExerciseRenderer:
             'distractor_tags': {},
             'word_definition': core.get('definition', ''),
             'target_word': target,
+            '__judge_meta': judge_meta,
         }
 
     def _render_morphology_slot(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:

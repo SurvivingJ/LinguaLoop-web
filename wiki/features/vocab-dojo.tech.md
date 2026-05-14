@@ -31,7 +31,9 @@ GET /api/vocab-dojo/session?language_id=...&count=20
            word_exercises, selected → 15-column TABLE
   → For each exercise: attach LADDER_LEVELS[level] name/family
   → For 'jumbled_sentence' content lacking 'chunks':
-      prepare_jumbled_content(content, language)   (backend tokenisation)
+      prepare_jumbled_content(content, language)   (backend constituent
+      chunking via LanguageProcessor.chunk_sentence; falls back to
+      word-level tokenisation only for sentences too short to chunk)
   → Return { exercises: [...], count: N }
 
 POST /api/vocab-dojo/attempt

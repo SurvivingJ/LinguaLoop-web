@@ -1,5 +1,27 @@
 # Activity Log
 
+## 2026-05-15 change | Jumbled & cloze exercise pipeline revamp
+
+Two exercise types were producing low-quality output. Plan at [`C:\Users\James\.claude\plans\plan-out-how-to-toasty-willow.md`](../../.claude/plans/plan-out-how-to-toasty-willow.md). Both sections shipped together.
+
+**Section A — Jumbled Sentence.** Root cause: serve-time [`prepare_jumbled_content`](../services/exercise_generation/language_processor.py) called `tokenize()` instead of `chunk_sentence()`, so every learner saw one-word-per-chunk despite a multi-word chunker existing on the same class.
+- [services/exercise_generation/language_processor.py](../services/exercise_generation/language_processor.py): flipped the call to `chunk_sentence`; rewrote `EnglishProcessor.chunk_sentence` with a spaCy dep-parse anchor algorithm (each token belongs to the chunk whose anchor is its closest ancestor that's either ROOT or a direct constituent child of ROOT). Added pronoun-subject + verb merging so "She made | a wise decision | yesterday" replaces "She | made | a wise decision | yesterday"; multi-word subject NPs remain distinct from the verb chunk. Rewrote `ChineseProcessor.chunk_sentence` with `jieba.posseg` (coverb/conjunction starters, NP→predicate transitions, sticky particles). Tightened `JapaneseProcessor` to skip punct/space and cap at 6.
+- [tests/test_exercise_generation/test_chunk_sentence.py](../tests/test_exercise_generation/test_chunk_sentence.py): 70 new tests — chunk-count range, full token coverage, no dangling function-word singletons, multi-word majority, pronoun-subject merge, multi-word subject preservation, Chinese coverb attachment, end-to-end `prepare_jumbled_content`.
+
+**Section B — Cloze Completion.** Two interventions:
+- *Prompt strengthening.* New migration [migrations/cloze_distractor_quality.sql](../migrations/cloze_distractor_quality.sql) supersedes `vocab_prompt2_exercises` lang=2 v3 → v4 (English) and lang=1 v1 → v2 (Chinese), changing **only the L3 block** in each — every distractor now requires an explicit failure-dimension tag (`semantic`/`collocational`/`aspectual`/`register`/`valency`) and a substitution audit (swap the target with a near-synonym; if the distractor becomes valid, reject it). At least two distinct failure dimensions must appear across the three distractors. Legacy `cloze_distractor_generation` bumped v1 → v2 with the same rules in single-block form.
+- *Post-generation Distractor Judge.* New task `cloze_distractor_judge` v1 (cheap model: `google/gemini-2.5-flash-lite`). New module [services/exercise_generation/cloze_judge.py](../services/exercise_generation/cloze_judge.py) (`judge_distractors`, `filter_distractors`). Wired into both pipelines:
+  - [services/exercise_generation/generators/cloze.py](../services/exercise_generation/generators/cloze.py) — judge after `_generate_distractors`; on rejection, retry once; if still <3 valid distractors, return None. Judge metadata recorded under `exercises.tags.cloze_judge` via overridden `_build_tags`.
+  - [services/vocabulary_ladder/exercise_renderer.py](../services/vocabulary_ladder/exercise_renderer.py) `_render_cloze` — judge applied before option shuffle; rejected distractors dropped; if <3 remain, return None so the variant is skipped. A `__judge_meta` sidecar in returned content is lifted into `tags['cloze_judge']` at row construction.
+  - Judge failure mode (template missing, LLM down, malformed JSON): falls back to keeping all distractors and logs a warning — degrades to generator quality, never silently drops content.
+- *Tests.* 14 new tests across [test_cloze_judge.py](../tests/test_exercise_generation/test_cloze_judge.py) (template loading, verdict parsing, fallback behaviour, cache) and [test_cloze_generator.py](../tests/test_exercise_generation/test_cloze_generator.py) (judge-keep, judge-reject-retry, judge-reject-final-fail, tag propagation).
+
+**Test suite:** 232 passed, 1 skipped, 1 pre-existing failure on `test_difficulty_frequency.py::test_tier_still_dominates` (unrelated, present on main before this change).
+
+**Wiki updates:** [wiki/features/exercise-generation-prompts.md](features/exercise-generation-prompts.md) (added Prompt 2 v4 L3 block, judge prompt verbatim, legacy v2 prompt), [wiki/features/exercises.tech.md](features/exercises.tech.md) (judge in cloze flow, chunk_sentence at serve time), [wiki/features/vocab-dojo.tech.md](features/vocab-dojo.tech.md) (chunking note).
+
+**Out of scope (per user scoping decisions during planning):** LLM-based jumbled chunking at generation time; validator-level lemma/inflection/substring checks (the judge subsumes most of these). Japanese chunker rewrite was limited to robustness fixes since `ja_core_news_sm` is not installed locally; live spaCy testing was English + Chinese only.
+
 ## 2026-05-13 follow-up | Restore admin dashboard vocab browser after admin auth fix
 
 Source: The 2026-05-13 admin-auth fix (entry below) added `@admin_required` to every route in [routes/vocab_admin.py](../routes/vocab_admin.py), which immediately broke the local admin dashboard's Vocab Browser tab — [static/js/admin-dashboard.js](../static/js/admin-dashboard.js) hits `/api/admin/vocab/*` with plain `fetch()` (no Authorization header), so all 4 calls now return `401 Token missing`. Per user direction, production security on `/api/admin/vocab/*` must remain, and the local dashboard should regain access without weakening that.

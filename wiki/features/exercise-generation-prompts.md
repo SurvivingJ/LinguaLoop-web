@@ -3,7 +3,7 @@ title: Exercise Generation Prompts — Verbatim Reference
 type: feature-tech
 status: complete
 prose_page: ./exercises.md
-last_updated: 2026-05-07
+last_updated: 2026-05-14
 dependencies:
   - "prompt_templates table (Supabase) — model + provider are now first-class tracked columns"
   - "corpus_collocations table (Supabase) — used by L5 PMI gate"
@@ -422,6 +422,105 @@ Literal JSON template:
     ]
   }
 }
+```
+
+---
+
+## Prompt 2 v4 (active, 2026-05-14) — L3 strengthening
+
+**Change scope:** [migrations/cloze_distractor_quality.sql](../../migrations/cloze_distractor_quality.sql) supersedes v3 by replacing **only the Level 3 block** of the English (language_id=2) template; L1, L5, L6 are preserved verbatim from v3. A parallel Chinese (language_id=1) update bumps that template from v1 → v2 with the equivalent L3 strengthening (see migration for the Chinese text). v3/v1 are marked `is_active=false` but retained for audit.
+
+Replacement L3 block (English v4):
+
+```
+Level "3" (Cloze Completion):
+- Use sentence at index {level_3_sentence_index}.
+- Correct option = the target word as it appears in that sentence (its exact inflected form).
+- 3 distractors: same POS as the target, grammatically valid in the slot, but contextually wrong.
+- Do NOT use any homophone or near-homophone of the target as a distractor here.
+- MANDATORY per-distractor self-check before emitting each distractor:
+  (a) Failure dimension — tag each distractor with exactly one reason it fails in this sentence, chosen from:
+        - "semantic"      : refers to a wrong class of referent / wrong concept
+        - "collocational" : does not co-occur naturally with the surrounding lexis in this sentence
+        - "aspectual"     : wrong lexical aspect / event structure (stative vs telic vs activity)
+        - "register"      : wrong formality, domain, or social fit for this sentence
+        - "valency"       : wrong argument structure (e.g. transitive vs intransitive, wrong preposition complement)
+      Put the tag in the option's "3" (explanation) as a leading label, e.g. "semantic: ...".
+  (b) Substitution audit — silently consider one common synonym of the target word and ask: if I swapped that synonym in for the target, would my distractor become a valid completion? If yes, REJECT this distractor and choose a different one. The distractor must be wrong for THIS sentence even under near-synonym variants of the target.
+- Across the 3 distractors, at least TWO distinct failure dimensions must appear. No four near-identical "wrong-but-similar" options.
+- Final pre-output check: silently re-read the sentence with each distractor in the blank. If any reads as natural, replace it before emitting.
+```
+
+Prompt-level self-check is supplemented by a runtime **Distractor Judge** pass — see [Prompt: `cloze_distractor_judge` v1](#prompt-cloze_distractor_judge-v1) below.
+
+---
+
+## Prompt: `cloze_distractor_judge` v1 (active, 2026-05-14)
+
+New task added to `prompt_templates`. A cheap-model verifier (default `google/gemini-2.5-flash-lite`) that rules on each distractor produced by the cloze generator. Any distractor judged to be acceptable in context is rejected upstream by [`services/exercise_generation/cloze_judge.py`](../../services/exercise_generation/cloze_judge.py); the rejection count, model, and version are recorded under `exercises.tags.cloze_judge`.
+
+Asymmetric design: the cloze generator runs on a strong model (Opus/Qwen-max), while the judge runs on a fast cheap model. Pipelines that invoke the judge:
+- [services/vocabulary_ladder/exercise_renderer.py](../../services/vocabulary_ladder/exercise_renderer.py) `_render_cloze` — drops rejects, returns `None` if fewer than 3 valid distractors remain so the variant is skipped.
+- [services/exercise_generation/generators/cloze.py](../../services/exercise_generation/generators/cloze.py) `generate_one` — on rejection, retries `_generate_distractors` once; if still short, returns `None` and the orchestrator moves on to the next sentence.
+
+```
+You are a strict cloze-test judge. A learner is shown a sentence with a blank and 4 options. Exactly ONE option is the intended correct answer; the other 3 must each be clearly wrong in this sentence. Your job is to rule on each candidate distractor and flag any that could in fact pass as a valid completion.
+
+Sentence with blank: {sentence_with_blank}
+Intended correct answer: {correct_answer}
+Candidate distractors:
+{distractors_numbered}
+
+For EACH distractor, rule as follows:
+- "keep"   = grammatical in the slot but CLEARLY semantically, collocationally, aspectually, register-wise, or valency-wise wrong in THIS sentence. The distractor would never be marked correct by a competent native speaker.
+- "reject" = the distractor could itself be selected by a competent reader as a valid completion of this sentence (i.e. it is grammatically AND semantically acceptable, even if less idiomatic than the intended answer). Synonyms, near-synonyms, and contextually appropriate alternatives must all be REJECTed.
+
+Be conservative: if you are unsure whether a distractor is acceptable in context, REJECT it. A good cloze test has zero ambiguous distractors.
+
+Return JSON ONLY, keyed by the 1-based index of each distractor, with verdict and a short reason (<= 12 words):
+{"1": {"verdict": "keep|reject", "reason": "..."}, "2": {"verdict": "keep|reject", "reason": "..."}, "3": {"verdict": "keep|reject", "reason": "..."}}
+
+No prose outside the JSON. No markdown fences.
+```
+
+Failure mode on judge errors (template missing, LLM down, malformed JSON): the judge falls back to keeping every distractor and logs a warning. This is intentional — we'd rather degrade to the generator's own quality than drop content.
+
+---
+
+## Prompt: `cloze_distractor_generation` v2 (active, 2026-05-14) — legacy generator
+
+Strengthened version of the legacy single-block cloze distractor prompt used by [services/exercise_generation/generators/cloze.py](../../services/exercise_generation/generators/cloze.py) for non-vocab-ladder sources (grammar, conversation, collocation). v1 marked inactive. Same failure-dimension + substitution-audit rules as Prompt 2 v4 L3, in single-block form.
+
+```
+Sentence: {original_sentence}
+Blank: {sentence_with_blank}
+Correct answer: {correct_answer}
+Learner level: {complexity_tier}
+
+Generate exactly 3 distractors that are wrong completions of this sentence.
+
+Hard rules:
+1. Each distractor must be the same part of speech as the correct answer.
+2. Each distractor must be grammatically valid in the blank slot.
+3. Each distractor must be contextually WRONG in this specific sentence.
+4. Distractors must NOT be homophones, near-homophones, inflected variants of the correct answer, or substrings of it.
+
+Mandatory per-distractor self-check before emitting each one:
+(a) Failure dimension — assign exactly one reason it fails here, from:
+    - "semantic"      : wrong referent class / wrong concept
+    - "collocational" : does not co-occur naturally with the surrounding lexis
+    - "aspectual"     : wrong lexical aspect / event structure
+    - "register"      : wrong formality / domain / social fit
+    - "valency"       : wrong argument structure / wrong complement
+(b) Substitution audit — consider one common synonym of the correct answer and silently swap it in. If your distractor would become a valid completion under that synonym, REJECT the distractor and pick a different one.
+
+Across the 3 distractors, at least TWO distinct failure dimensions must appear.
+Re-read the sentence with each distractor in the blank as a final check. If any reads naturally, replace it before emitting.
+
+Return JSON:
+{"distractors": ["word1","word2","word3"], "distractor_tags": {"word1":"semantic","word2":"collocational","word3":"valency"}, "explanation": "Brief explanation of why the correct answer is right."}
+
+Put the correct answer first in any option lists — do NOT shuffle.
 ```
 
 ---

@@ -3,7 +3,7 @@ title: Exercises — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./exercises.md
-last_updated: 2026-04-25
+last_updated: 2026-05-15
 dependencies:
   - "exercises table"
   - "exercise_attempts table"
@@ -26,8 +26,17 @@ Generation (batch, admin-triggered or pack pipeline):
   ExerciseOrchestrator
     → BaseGenerator subclass per type
     → LLM client (OpenRouter, language-specific model)
+    → [cloze only] cloze_judge.filter_distractors (cheap-model verifier that
+      rejects distractors which could themselves pass as the correct answer;
+      result recorded under exercises.tags.cloze_judge)
     → Validator (schema + linguistic + pedagogical)
     → exercises table (immutable after validation)
+
+Serve-time (jumbled_sentence only):
+  routes/* + exercise_session_service
+    → prepare_jumbled_content(content, language_id)
+       calls LanguageProcessor.chunk_sentence (constituent-aware, multi-word)
+       falls back to tokenize() only for sentences too short to chunk
 
 Full Pipeline (admin dashboard, single-button end-to-end):
   POST /api/run/full-pipeline → _do_full_pipeline()
@@ -114,8 +123,9 @@ services/exercise_generation/
 ├── llm_client.py            # OpenRouter wrapper
 ├── validators.py            # Output validation
 ├── config.py                # Generation settings, phase maps, distributions
+├── cloze_judge.py           # Post-gen distractor judge (rejects distractors that could pass as the correct answer)
 └── generators/
-    ├── cloze.py
+    ├── cloze.py             # ClozeGenerator: target select → distractor gen → cloze_judge filter (1 retry, skip if <3 valid remain)
     ├── translation.py
     ├── jumbled_sentence.py
     ├── verb_noun_match.py

@@ -53,7 +53,17 @@
       "Bash(git -C \"c:/Users/James/Documents/Coding/LinguaLoop/WebApp\" log --oneline -- migrations/vocabulary_ladder_schema.sql migrations/replace_cefr_with_age_tiers.sql migrations/conversation_generation_tables.sql migrations/phase8_momentum_bands.sql)",
       "Bash(ls -la /c/Users/James/Documents/Coding/LinguaLoop/WebApp/*.py)",
       "Bash(PORT=5050 python admin_app.py)",
-      "Bash(python)"
+      "Bash(python)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -c \"import spacy; nlp=spacy.load\\('ja_core_news_sm'\\); doc=nlp\\('私は学校に行きます'\\); print\\('\\\\n'.join\\(f'{t.text} pos={t.pos_} dep={t.dep_} head={t.head.text}' for t in doc\\)\\)\")",
+      "Bash(venv/Scripts/python.exe -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/ -x --tb=short)",
+      "Bash(git stash *)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_difficulty_frequency.py::TestAttachDifficultyWithFrequency::test_tier_still_dominates --tb=line)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/ --deselect tests/test_exercise_generation/test_difficulty_frequency.py::TestAttachDifficultyWithFrequency::test_tier_still_dominates --tb=short)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_chunk_sentence.py -v --tb=short)",
+      "Bash(xargs -I{} grep -l \"cloze_distractor_generation\" migrations/{})",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_cloze_judge.py -v --tb=short)",
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_cloze_generator.py tests/test_exercise_generation/test_cloze_judge.py -v --tb=short)"
     ]
   }
 }
