@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}Listening Lab - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ll-shell {
+        max-width: 880px;
+        margin: 0 auto;
+    }
+
+    /* ===== Header ===== */
+    .ll-header {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ll-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--slate-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .ll-subtitle {
+        font-size: 14px;
+        color: var(--slate-600);
+        margin-bottom: 1rem;
+    }
+
+    /* ===== Tier Stepper (4 pills: 0.75/0.9/1.0/1.15) ===== */
+    .tier-pills {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .tier-pill {
+        min-width: 64px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 2px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-fast);
+    }
+
+    .tier-pill.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .tier-pill.completed {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+
+    .tier-pill.locked {
+        opacity: 0.4;
+    }
+
+    .tier-connector {
+        width: 18px;
+        height: 2px;
+        background: var(--border-strong);
+    }
+
+    .tier-connector.completed {
+        background: var(--success);
+    }
+
+    /* ===== Body Card ===== */
+    .ll-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .ll-section-bar {
+        padding: 0.9rem 1.5rem;
+        border-bottom: 1px solid var(--border-default);
+        background: var(--bg-muted);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--slate-800);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ll-section-body {
+        padding: 1.5rem;
+    }
+
+    /* ===== Audio Player ===== */
+    .ll-audio-block {
+        background: var(--bg-body);
+        border: 1px solid var(--border-default);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .ll-audio-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--slate-600);
+    }
+
+    .ll-current-speed {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 15px;
+    }
+
+    .ll-audio-block audio {
+        width: 100%;
+    }
+
+    .ll-play-count {
+        font-size: 12px;
+        color: var(--slate-500);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== Questions ===== */
+    .question-block {
+        margin-bottom: 1.5rem;
+    }
+
+    .question-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .question-text {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-bottom: 0.75rem;
+    }
+
+    .option-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.7rem 1rem;
+        border: 2px solid var(--border-default);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        background: var(--bg-surface);
+    }
+
+    .option-item:hover { border-color: var(--primary); background: var(--selected-bg); }
+    .option-item.selected { border-color: var(--primary); background: var(--selected-bg); }
+    .option-item.correct { border-color: var(--success); background: var(--success-bg); }
+    .option-item.incorrect { border-color: var(--danger); background: var(--danger-bg); }
+    .option-item.disabled { pointer-events: none; opacity: 0.85; }
+
+    .option-radio {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border-strong);
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .option-item.selected .option-radio {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    .option-item.selected .option-radio::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .option-text {
+        font-size: 14px;
+        color: var(--slate-800);
+    }
+
+    /* ===== Actions ===== */
+    .ll-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+
+    .btn-submit-tier {
+        padding: 0.75rem 1.75rem;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-submit-tier:hover { background: var(--primary-hover); }
+    .btn-submit-tier:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-abandon {
+        padding: 0.75rem 1.25rem;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 8px;
+        border: 1px solid var(--border-default);
+        background: transparent;
+        color: var(--slate-600);
+        cursor: pointer;
+    }
+
+    .btn-abandon:hover { background: var(--bg-muted); }
+
+    /* ===== Feedback / Empty States ===== */
+    .ll-feedback {
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-weight: 500;
+        display: none;
+    }
+
+    .ll-feedback.success {
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success);
+        display: block;
+    }
+
+    .ll-feedback.warn {
+        background: var(--warning-bg);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+        display: block;
+    }
+
+    .ll-feedback.error {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        display: block;
+    }
+
+    .ll-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 280px;
+    }
+
+    .ll-start-cta {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+    }
+
+    .ll-start-cta h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .ll-start-cta p {
+        font-size: 14px;
+        color: var(--slate-600);
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .btn-start {
+        padding: 0.85rem 2rem;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-start:hover { background: var(--primary-hover); }
+
+    /* ===== Completion Modal ===== */
+    .ll-completion-modal .modal-body {
+        text-align: center;
+        padding: 2rem 1.5rem;
+    }
+
+    .ll-completion-icon {
+        font-size: 56px;
+        margin-bottom: 0.5rem;
+    }
+
+    .ll-completion-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--slate-900);
+    }
+
+    .ll-elo-delta {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--success);
+        margin: 0.75rem 0;
+    }
+
+    .ll-elo-delta.negative {
+        color: var(--danger);
+    }
+
+    @media (max-width: 640px) {
+        .tier-pill { min-width: 56px; font-size: 13px; }
+        .tier-connector { width: 8px; }
+        .ll-actions { flex-direction: column-reverse; }
+        .btn-submit-tier, .btn-abandon { width: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="ll-shell">
+
+        <!-- Header with title + tier stepper -->
+        <div class="ll-header">
+            <div class="ll-title" id="passageTitle" data-i18n="listening_lab.loading">Loading…</div>
+            <div class="ll-subtitle" data-i18n="listening_lab.subtitle">
+                Score 4/5 to unlock the next speed.
+            </div>
+            <div class="tier-pills" id="tierPills" role="list" aria-label="Speed tier progress">
+                <div class="tier-pill locked" data-tier="0">0.75&times;</div>
+                <div class="tier-connector"></div>
+                <div class="tier-pill locked" data-tier="1">0.9&times;</div>
+                <div class="tier-connector"></div>
+                <div class="tier-pill locked" data-tier="2">1.0&times;</div>
+                <div class="tier-connector"></div>
+                <div class="tier-pill locked" data-tier="3">1.15&times;</div>
+            </div>
+        </div>
+
+        <!-- Main body card -->
+        <div class="ll-card" id="mainCard">
+            <div class="ll-loading" id="bootLoader">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading…</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Start CTA Template (for fresh sessions) -->
+<template id="startCtaTemplate">
+    <div class="ll-start-cta">
+        <h2 data-i18n="listening_lab.ready_title">Ready to begin?</h2>
+        <p data-i18n="listening_lab.ready_body">
+            You'll hear the passage four times — slow to fast. After each replay, answer 5
+            questions. Score 4 out of 5 to unlock the next speed. Questions never repeat
+            within a session.
+        </p>
+        <button class="btn-start" id="startBtn" data-i18n="listening_lab.start">Start session</button>
+    </div>
+</template>
+
+<!-- Tier Play Template -->
+<template id="tierPlayTemplate">
+    <div class="ll-section-bar">
+        <span>
+            <span data-i18n="listening_lab.tier">Tier</span>
+            <span id="tierNumber"></span>
+            &middot;
+            <span class="ll-current-speed" id="currentSpeed"></span>
+        </span>
+        <span class="ll-play-count" id="playCount"></span>
+    </div>
+    <div class="ll-section-body">
+        <div class="ll-audio-block">
+            <div class="ll-audio-meta">
+                <span data-i18n="listening_lab.listen_then_answer">Listen, then answer the 5 questions below.</span>
+            </div>
+            <audio id="tierAudio" controls preload="auto"></audio>
+        </div>
+
+        <div id="questionsContainer"></div>
+
+        <div class="ll-feedback" id="feedback"></div>
+
+        <div class="ll-actions">
+            <button class="btn-abandon" id="abandonBtn" data-i18n="listening_lab.abandon">End session</button>
+            <button class="btn-submit-tier" id="submitTierBtn" disabled data-i18n="listening_lab.submit">
+                Submit answers
+            </button>
+        </div>
+    </div>
+</template>
+
+<!-- Completion Modal -->
+<div class="modal fade ll-completion-modal" id="completionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="ll-completion-icon" id="completionIcon">🎧</div>
+                <div class="ll-completion-title" id="completionTitle"></div>
+                <div id="completionScore" class="text-slate-600 mb-2"></div>
+                <div class="ll-elo-delta" id="completionEloDelta" style="display: none;"></div>
+                <div id="completionMessage" class="text-slate-600"></div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        id="completionBackBtn" data-i18n="listening_lab.back_to_list">
+                    Back to list
+                </button>
+                <button type="button" class="btn btn-primary" id="completionContinueBtn"
+                        data-i18n="listening_lab.continue">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/listening_lab.js') }}"></script>
+{% endblock %}
