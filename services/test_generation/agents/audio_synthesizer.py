@@ -6,7 +6,8 @@ Generates TTS audio and uploads to R2 storage.
 
 import logging
 import random
-from typing import Optional, List
+import xml.sax.saxutils
+from typing import Optional, List, Dict, Tuple
 import azure.cognitiveservices.speech as speechsdk
 import boto3
 from botocore.config import Config as BotoConfig
@@ -112,7 +113,9 @@ class AudioSynthesizer:
             text: Text to synthesize
             file_id: UUID to use as file name (without .mp3 extension)
             voice: Azure Neural Voice name (default: en-US-AvaMultilingualNeural)
-            speed: Playback speed (currently not supported by Azure SDK in same way as OpenAI)
+            speed: Playback speed multiplier. None or ~1.0 uses plain-text synthesis
+                (bit-identical to pre-SSML output). Other values wrap the text in
+                <prosody rate="N%"> SSML — e.g. 0.75 -> "-25%", 1.15 -> "+15%".
             model: Deprecated parameter (Azure uses voices directly)
 
         Returns:
@@ -143,8 +146,15 @@ class AudioSynthesizer:
                 audio_config=None
             )
 
-            # 4. Generate audio
-            result = synthesizer.speak_text_async(text).get()
+            # 4. Generate audio. Use SSML <prosody rate> when a non-default
+            #    speed is requested; otherwise plain text (preserves byte-exact
+            #    output for existing tests).
+            if speed is not None and abs(speed - 1.0) > 1e-6:
+                ssml = self._build_ssml(text, selected_voice, speed)
+                logger.debug(f"Using SSML rate for {file_id} (speed={speed})")
+                result = synthesizer.speak_ssml_async(ssml).get()
+            else:
+                result = synthesizer.speak_text_async(text).get()
 
             self.api_call_count += 1
 
@@ -216,6 +226,69 @@ class AudioSynthesizer:
         except Exception as e:
             logger.error(f"R2 upload failed for {filename}: {e}")
             raise
+
+    @staticmethod
+    def _voice_to_lang(voice: str) -> str:
+        """Extract the xml:lang code (e.g. 'en-US') from an Azure voice id."""
+        parts = (voice or "").split('-')
+        if len(parts) >= 2:
+            return f"{parts[0]}-{parts[1]}"
+        return "en-US"
+
+    @staticmethod
+    def _build_ssml(text: str, voice: str, speed: float) -> str:
+        """Wrap text in SSML with <prosody rate> derived from a speed multiplier."""
+        # round() avoids float-truncation bugs: int(-9.9999) = -9 but the
+        # intended rate for speed=0.9 is -10%.
+        rate_pct = f"{round((speed - 1.0) * 100):+d}%"
+        lang = AudioSynthesizer._voice_to_lang(voice)
+        safe_text = xml.sax.saxutils.escape(text)
+        return (
+            f'<speak version="1.0" xml:lang="{lang}">'
+            f'<voice name="{voice}">'
+            f'<prosody rate="{rate_pct}">{safe_text}</prosody>'
+            f'</voice></speak>'
+        )
+
+    def generate_speed_variants(
+        self,
+        text: str,
+        base_slug: str,
+        voice: str = None,
+        speeds: Tuple[float, ...] = (0.75, 0.90, 1.00, 1.15),
+    ) -> Dict[float, str]:
+        """
+        Generate N speed-variant MP3s for the same text + voice.
+
+        Args:
+            text: Text to synthesize
+            base_slug: File id stem; variants are uploaded as
+                '{base_slug}-s075.mp3', '-s090.mp3', '-s100.mp3', '-s115.mp3'
+            voice: Azure Neural Voice name. Locked across all variants so the
+                speaker stays consistent through the Listening Lab tier ladder.
+            speeds: Speed multipliers to render.
+
+        Returns:
+            Dict mapping each speed -> public R2 URL.
+
+        Raises:
+            Exception: if any variant fails to synthesize or upload. The caller
+                is responsible for transactional cleanup; partial R2 uploads
+                may remain.
+        """
+        selected_voice = voice or "en-US-AvaMultilingualNeural"
+        urls: Dict[float, str] = {}
+        for speed in speeds:
+            suffix = f"s{int(round(speed * 100)):03d}"  # 0.75 -> s075, 1.15 -> s115
+            file_id = f"{base_slug}-{suffix}"
+            url = self.generate_and_upload(
+                text=text,
+                file_id=file_id,
+                voice=selected_voice,
+                speed=speed,
+            )
+            urls[speed] = url
+        return urls
 
     def select_voice(
         self,
