@@ -3,13 +3,16 @@ title: "RPC & Functions — Technical Specification"
 type: api-tech
 status: complete
 prose_page: ../database/rpcs.md
-last_updated: 2026-05-13
+last_updated: 2026-05-15
 dependencies:
   - "All tables in schema.tech.md"
   - "migrations/phase8_momentum_bands.sql — vocabulary ladder RPCs"
   - "migrations/phase9_get_exercise_session.sql — daily-session RPC"
   - "migrations/add_irt_calibration_metadata.sql — IRT persistence + lock RPCs"
   - "migrations/phase11_irt_selection.sql — IRT-aware get_exercise_session"
+  - "migrations/restore_get_distractors_auth_check.sql — re-adds auth.role() guard on get_distractors (2026-05-15)"
+  - "migrations/add_test_attempts_idempotency_index.sql — partial index for process_test_submission idempotency lookup (2026-05-15)"
+  - "migrations/drop_unused_rpcs.sql — drops 4 dead RPCs (2026-05-15)"
 breaking_change_risk: high
 ---
 
@@ -19,9 +22,9 @@ breaking_change_risk: high
 
 | Metric | Value |
 |--------|-------|
-| Total application functions | 65 |
-| SECURITY DEFINER | 27 |
-| SECURITY INVOKER | 38 |
+| Total application functions | 61 (was 65 — four dropped by `drop_unused_rpcs.sql` 2026-05-15) |
+| SECURITY DEFINER | 25 |
+| SECURITY INVOKER | 36 |
 | Trigger functions | 6 |
 | Pure/IMMUTABLE functions | 16 |
 | STABLE functions | 13 |
@@ -32,18 +35,18 @@ breaking_change_risk: high
 | Category | Count | Functions |
 |----------|-------|-----------|
 | Auth & User Management | 7 | `is_admin`, `is_moderator`, `is_org_member`, `get_org_role`, `handle_new_user`, `create_user_dependencies`, `anonymize_user_data` |
-| Token Economy | 5 | `add_tokens_atomic`, `get_token_balance`, `get_test_token_cost`, `get_daily_free_test_limit`, `can_use_free_test` |
+| Token Economy | 4 | `add_tokens_atomic`, `get_token_balance`, `get_test_token_cost`, `get_daily_free_test_limit` (`can_use_free_test` dropped 2026-05-15 — no callers) |
 | Payment Processing | 1 | `process_stripe_payment` |
 | ELO / Skill Rating | 3 | `calculate_elo_rating`, `calculate_volatility_multiplier`, `update_skill_attempts_count` |
 | Test & Content | 5 | `get_recommended_test`, `get_recommended_tests`, `process_test_submission`, `update_test_attempts_count`, `tests_containing_sense` |
-| Vocabulary & Knowledge (BKT) | 14 | `bkt_update`, `bkt_status`, `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `bkt_apply_decay`, `bkt_effective_p_known`, `bkt_phase`, `bkt_phase_thresholds`, `update_vocabulary_from_test`, `update_vocabulary_from_word_test`, `get_vocab_recommendations`, `get_word_quiz_candidates`, `update_user_vocab_stats` |
+| Vocabulary & Knowledge (BKT) | 13 | `bkt_update`, `bkt_status`, `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `bkt_apply_decay`, `bkt_effective_p_known`, `bkt_phase`, `bkt_phase_thresholds`, `update_vocabulary_from_test`, `update_vocabulary_from_word_test`, `get_word_quiz_candidates`, `update_user_vocab_stats` (`get_vocab_recommendations` dropped 2026-05-15 — no callers) |
 | Vocabulary Lookup | 2 | `batch_lookup_lemmas`, `get_distractors` |
 | Mystery System | 2 | `get_recommended_mysteries`, `process_mystery_submission` |
 | Packs & Content Discovery | 2 | `get_packs_with_user_selection`, `get_active_languages` |
-| Model Config | 1 | `get_model_for_task` |
+| Model Config | 0 | (`get_model_for_task` dropped 2026-05-15 — no callers; model selection is in Python via `services/prompt_service.py`) |
 | Corpus & Collocations | 1 | `get_top_collocations_for_sources` |
 | Category / Topic Matching | 2 | `get_next_category`, `match_topics` |
-| Prompt Templates | 1 | `get_prompt_template` |
+| Prompt Templates | 0 | (`get_prompt_template` dropped 2026-05-15 — no callers; the Python method of the same name on `conversation_generation/database_client.py` is unrelated and remains) |
 | Utility / Triggers | 2 | `update_updated_at_column`, `sync_exercise_history` |
 | Vocabulary Ladder (Phase 8) | 9 | `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review`, `ladder_record_attempt`, `ladder_pass_gate`, `ladder_graduate`, `get_ladder_session` |
 | Exercise Session (Phase 9 + 11) | 4 | `exercise_type_phase_weight`, `tier_window_for_p_known`, `tier_to_phase`, `get_exercise_session` (Phase 11 adds the `p_user_theta` parameter and Gaussian IRT weight) |
@@ -409,6 +412,8 @@ $function$
 ---
 
 ### `can_use_free_test(p_user_id uuid): boolean`
+
+> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Reference retained for history.
 
 - **Security:** DEFINER
 - **Language:** plpgsql
@@ -793,228 +798,62 @@ $function$
 
 - **Security:** DEFINER
 - **Language:** plpgsql
-- **Description:** The primary test submission handler. Validates answers server-side against the `questions` table, calculates score, updates ELO ratings (only on first attempt), records the attempt, and updates user language activity. Supports idempotency via UUID key. Returns a comprehensive JSON result with score, ELO changes, and per-question results.
+- **Security:** DEFINER
+- **Language:** plpgsql
+- **Description:** The primary test submission handler. Validates answers server-side against the `questions` table, calculates score, updates ELO ratings, records the attempt, and updates user language activity. Supports idempotency via UUID key. As of 2026-05-15, repeat attempts no longer skip ELO updates unconditionally — when a repeat is launched from today's daily-load *retry slot*, it earns reduced-volatility ELO via a time-decay factor. See [[decisions/ADR-006-retry-slot-reduced-elo]] and [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql).
 
-```sql
-CREATE OR REPLACE FUNCTION public.process_test_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_responses jsonb, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL::uuid)
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$
-DECLARE
-  v_user_elo integer;
-  v_test_elo integer;
-  v_user_tests_taken integer;
-  v_user_last_date date;
-  v_test_attempts integer;
-  v_percentage numeric;
-  v_percentage_decimal numeric;
-  v_new_user_elo integer;
-  v_new_test_elo integer;
-  v_attempt_id uuid;
-  v_attempt_number integer;
-  v_is_first_attempt boolean;
-  v_existing_attempt record;
-  v_tokens_cost integer;
-  v_score integer := 0;
-  v_total_questions integer := 0;
-  v_question_results jsonb := '[]'::jsonb;
-  v_question_record record;
-  v_user_answer text;
-  v_correct_answer text;
-  v_is_correct boolean;
-BEGIN
-  -- SECURITY VALIDATION
-  IF p_user_id != auth.uid() THEN
-    RAISE EXCEPTION 'Unauthorized: Cannot submit test for another user';
-  END IF;
+The live function body is maintained in [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql) (V4, supersedes V3 [migrations/wire_volatility_and_exclude_attempted.sql](../../migrations/wire_volatility_and_exclude_attempted.sql)) — refer there for the canonical SQL. High-level outline:
 
-  -- INPUT VALIDATION
-  IF p_responses IS NULL OR jsonb_array_length(p_responses) = 0 THEN
-    RAISE EXCEPTION 'No responses provided';
-  END IF;
-
-  -- ANSWER VALIDATION
-  CREATE TEMP TABLE temp_user_responses AS
-  SELECT
-      (elem->>'question_id')::UUID as question_id,
-      elem->>'selected_answer' as selected_answer
-  FROM jsonb_array_elements(p_responses) as elem;
-
-  FOR v_question_record IN (
-      SELECT q.id, q.answer
-      FROM questions q
-      WHERE q.test_id = p_test_id
-      ORDER BY q.created_at
-  ) LOOP
-      SELECT selected_answer INTO v_user_answer
-      FROM temp_user_responses
-      WHERE question_id = v_question_record.id;
-
-      v_user_answer := COALESCE(v_user_answer, '');
-      v_correct_answer := v_question_record.answer #>> '{}';
-      v_is_correct := (v_user_answer = v_correct_answer);
-
-      IF v_is_correct THEN
-          v_score := v_score + 1;
-      END IF;
-
-      v_question_results := v_question_results || jsonb_build_object(
-          'question_id', v_question_record.id::TEXT,
-          'selected_answer', v_user_answer,
-          'correct_answer', v_correct_answer,
-          'is_correct', v_is_correct
-      );
-
-      v_total_questions := v_total_questions + 1;
-  END LOOP;
-
-  DROP TABLE IF EXISTS temp_user_responses;
-
-  -- IDEMPOTENCY CHECK
-  IF p_idempotency_key IS NOT NULL THEN
-    SELECT * INTO v_existing_attempt
-    FROM test_attempts
-    WHERE user_id = p_user_id AND idempotency_key = p_idempotency_key;
-
-    IF FOUND THEN
-      RETURN jsonb_build_object(
-        'success', true,
-        'attempt_id', v_existing_attempt.id,
-        'cached', true,
-        'user_elo_change', COALESCE(
-          v_existing_attempt.user_elo_after - v_existing_attempt.user_elo_before,
-          0
-        ),
-        'message', 'Duplicate submission detected - returning cached result'
-      );
-    END IF;
-  END IF;
-
-  -- GET TOKEN COST
-  v_tokens_cost := get_test_token_cost(p_user_id);
-
-  -- CALCULATE PERCENTAGE
-  v_percentage := (v_score::numeric / v_total_questions::numeric) * 100;
-  v_percentage_decimal := v_percentage / 100.0;
-
-  -- DETERMINE ATTEMPT NUMBER
-  SELECT COUNT(*) INTO v_attempt_number
-  FROM test_attempts
-  WHERE user_id = p_user_id
-    AND test_id = p_test_id
-    AND test_type_id = p_test_type_id;
-
-  v_attempt_number := v_attempt_number + 1;
-  v_is_first_attempt := (v_attempt_number = 1);
-
-  -- GET OR CREATE USER ELO RATING
-  SELECT elo_rating, tests_taken, last_test_date
-  INTO v_user_elo, v_user_tests_taken, v_user_last_date
-  FROM user_skill_ratings
-  WHERE user_id = p_user_id
-    AND language_id = p_language_id
-    AND test_type_id = p_test_type_id;
-
-  IF NOT FOUND THEN
-    v_user_elo := 1200;
-    v_user_tests_taken := 0;
-    v_user_last_date := NULL;
-
-    INSERT INTO user_skill_ratings (
-      user_id, language_id, test_type_id, elo_rating, tests_taken
-    ) VALUES (
-      p_user_id, p_language_id, p_test_type_id, v_user_elo, 0
-    );
-  END IF;
-
-  -- GET OR CREATE TEST ELO RATING
-  SELECT elo_rating, total_attempts
-  INTO v_test_elo, v_test_attempts
-  FROM test_skill_ratings
-  WHERE test_id = p_test_id AND test_type_id = p_test_type_id;
-
-  IF NOT FOUND THEN
-    v_test_elo := 1400;
-    v_test_attempts := 0;
-
-    INSERT INTO test_skill_ratings (
-      test_id, test_type_id, elo_rating, total_attempts
-    ) VALUES (
-      p_test_id, p_test_type_id, v_test_elo, 0
-    );
-  END IF;
-
-  -- CALCULATE ELO CHANGES (ONLY FOR FIRST ATTEMPTS)
-  IF v_is_first_attempt THEN
-    DECLARE
-      expected_user_score numeric;
-      k_factor integer := 32;
-    BEGIN
-      expected_user_score := 1.0 / (1.0 + POWER(10, (v_test_elo - v_user_elo) / 400.0));
-      v_new_user_elo := ROUND(v_user_elo + k_factor * (v_percentage_decimal - expected_user_score));
-      v_new_test_elo := ROUND(v_test_elo + k_factor * ((1.0 - v_percentage_decimal) - (1.0 - expected_user_score)));
-      v_new_user_elo := GREATEST(400, LEAST(3000, v_new_user_elo));
-      v_new_test_elo := GREATEST(400, LEAST(3000, v_new_test_elo));
-    END;
-
-    UPDATE user_skill_ratings
-    SET elo_rating = v_new_user_elo, tests_taken = tests_taken + 1,
-        last_test_date = CURRENT_DATE, updated_at = NOW()
-    WHERE user_id = p_user_id AND language_id = p_language_id AND test_type_id = p_test_type_id;
-
-    UPDATE test_skill_ratings
-    SET elo_rating = v_new_test_elo, total_attempts = total_attempts + 1, updated_at = NOW()
-    WHERE test_id = p_test_id AND test_type_id = p_test_type_id;
-  ELSE
-    v_new_user_elo := v_user_elo;
-    v_new_test_elo := v_test_elo;
-  END IF;
-
-  -- INSERT ATTEMPT RECORD (always store ELO values, not NULL)
-  INSERT INTO test_attempts (
-    user_id, test_id, test_type_id, language_id, score, total_questions,
-    attempt_number, is_first_attempt, user_elo_before, user_elo_after,
-    test_elo_before, test_elo_after, tokens_consumed, was_free_test, idempotency_key
-  ) VALUES (
-    p_user_id, p_test_id, p_test_type_id, p_language_id, v_score, v_total_questions,
-    v_attempt_number, v_is_first_attempt, v_user_elo, v_new_user_elo,
-    v_test_elo, v_new_test_elo,
-    CASE WHEN p_was_free_test THEN 0 ELSE v_tokens_cost END,
-    p_was_free_test, p_idempotency_key
-  )
-  RETURNING id INTO v_attempt_id;
-
-  -- UPDATE USER_LANGUAGES
-  INSERT INTO user_languages (user_id, language_id, total_tests_taken, last_test_date)
-  VALUES (p_user_id, p_language_id, 1, CURRENT_DATE)
-  ON CONFLICT (user_id, language_id)
-  DO UPDATE SET total_tests_taken = user_languages.total_tests_taken + 1,
-    last_test_date = CURRENT_DATE, updated_at = NOW();
-
-  -- RETURN SUCCESS
-  RETURN jsonb_build_object(
-    'success', true, 'attempt_id', v_attempt_id, 'attempt_number', v_attempt_number,
-    'is_first_attempt', v_is_first_attempt, 'user_elo_before', v_user_elo,
-    'user_elo_after', v_new_user_elo, 'user_elo_change', v_new_user_elo - v_user_elo,
-    'test_elo_before', v_test_elo, 'test_elo_after', v_new_test_elo,
-    'test_elo_change', CASE WHEN v_is_first_attempt THEN v_new_test_elo - v_test_elo ELSE 0 END,
-    'tokens_cost', CASE WHEN p_was_free_test THEN 0 ELSE v_tokens_cost END,
-    'score', v_score, 'total_questions', v_total_questions, 'percentage', v_percentage,
-    'question_results', v_question_results,
-    'message', CASE WHEN v_is_first_attempt THEN 'First attempt - ELO updated' ELSE 'Retake - ELO unchanged' END
-  );
-
-EXCEPTION WHEN OTHERS THEN
-  RETURN jsonb_build_object('success', false, 'error', SQLERRM, 'error_detail', SQLSTATE);
-END;
-$function$
+```text
+-- 1. Auth + input validation (unchanged)
+-- 2. Server-side answer grading via TEMP TABLE join on questions
+-- 3. Idempotency: return cached row on matching idempotency_key
+-- 4. Compute percentage, attempt_number, is_first_attempt
+-- 5. Get-or-create user_skill_ratings (default 1200) and test_skill_ratings (default 1400)
+-- 6. v_user_volatility := calculate_volatility_multiplier(tests_taken, last_test_date, 1.0)
+-- 7. ELO branch:
+--    IF v_is_first_attempt THEN
+--      user K=32 * volatility,  test K=16 * 1.0  (status quo)
+--    ELSE
+--      v_is_retry_slot := EXISTS in daily_test_loads.test_ids for today
+--                         where slot_type='retry' AND test_id matches
+--      v_already_earned_today := EXISTS in test_attempts today
+--                                 where elo_reduction_factor IS NOT NULL
+--      IF v_is_retry_slot AND NOT v_already_earned_today THEN
+--        days_since := EXTRACT(EPOCH FROM (NOW() - MAX(prior.created_at))) / 86400
+--        base       := LEAST(1.0, GREATEST(0.20, days_since / 60.0))
+--        prev_best  := MAX( score / total_questions * 100 )
+--        bonus      := 0.25 IF (v_percentage - prev_best) >= 15 ELSE 0
+--        v_factor   := LEAST(1.0, base + bonus)
+--        user K=32 * volatility * v_factor,  test K=16 * v_factor
+--        record v_factor into test_attempts.elo_reduction_factor
+--      ELSE
+--        skip ELO updates (status-quo zero-ELO repeat)
+--      END IF
+--    END IF
+-- 8. UPDATE user_skill_ratings + test_skill_ratings (only when ELO actually moved)
+-- 9. INSERT test_attempts (always, with elo_reduction_factor populated only on eligible repeats)
+-- 10. UPSERT user_languages
+-- 11. Return JSONB: { success, attempt_id, is_first_attempt, user_elo_before/after/change,
+--                     test_elo_before/after/change, elo_reduction_factor, score,
+--                     total_questions, percentage, question_results, message }
+-- EXCEPTION WHEN OTHERS THEN return { success: false, error, error_detail }
 ```
 
 - **Auth:** Caller must be the user (`auth.uid()` check).
-- **Side effects:** Creates/updates `user_skill_ratings`, `test_skill_ratings`, inserts `test_attempts`, upserts `user_languages`.
-- **Key behaviors:** ELO only changes on first attempt per test+type combo. Uses temp table (`ON COMMIT DROP`) for answer lookup. **Phase 3 fix:** Volatility multiplier re-enabled via `calculate_volatility_multiplier()`. Asymmetric K-factors: K=32 with volatility for users, K=16 with no volatility for tests. Catches all exceptions and returns error JSON.
+- **Side effects:** Creates/updates `user_skill_ratings`, `test_skill_ratings`, inserts `test_attempts` (with optional `elo_reduction_factor`), upserts `user_languages`.
+- **Key behaviors:**
+  - ELO change on first attempts is unchanged (K=32 × volatility for users, K=16 for tests).
+  - Repeat attempts now branch on retry-slot eligibility instead of always skipping. Eligible repeats apply a continuous time-decay factor `clamp(0.20, days_since_last/60, 1.0)` plus a `+0.25` improvement bonus, composed into the volatility argument passed to `calculate_elo_rating`. Non-eligible repeats still produce no ELO movement.
+  - Anti-grind: at most one reduced-ELO submission per `(user, test)` per UTC day, gated by `test_attempts.elo_reduction_factor IS NOT NULL` sentinel.
+  - **Phase 3 (2026-05-08):** Volatility multiplier re-enabled via `calculate_volatility_multiplier()`. Asymmetric K-factors retained.
+  - Catches all exceptions and returns error JSON.
 - **Idempotency:** Returns cached result if `idempotency_key` matches existing attempt.
+- **Migration history:**
+  - V1 → [migrations/elo_functions.sql](../../migrations/elo_functions.sql) (text-keyed schema, original)
+  - V2 → `migrations/process_test_submission_v2.sql` (added server-side grading; inlined ELO; volatility dropped — DROPPED)
+  - V3 → [migrations/wire_volatility_and_exclude_attempted.sql](../../migrations/wire_volatility_and_exclude_attempted.sql) (helpers re-wired, asymmetric K restored)
+  - V4 → [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql) (retry-slot reduced-volatility repeats, `elo_reduction_factor` column)
 
 ---
 
@@ -1461,6 +1300,8 @@ $function$
 
 ### `get_vocab_recommendations(p_user_id uuid, p_language_id integer, p_target_unknown_min double precision DEFAULT 0.03, p_target_unknown_max double precision DEFAULT 0.07, p_limit integer DEFAULT 10): TABLE(id uuid, title text, slug text, unknown_pct float, unknown_count integer)`
 
+> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Recommendation logic lives in `get_recommended_test` / `get_recommended_tests`. Reference retained for history.
+
 - **Security:** DEFINER — **Phase 6 fix:** Added `SET search_path TO 'public', 'pg_temp'`. Also: return type changed (column `test_id` → `id`, `double precision` → `float`), default `p_limit` changed from 20 → 10, old signature explicitly dropped first.
 - **Language:** plpgsql
 - **Description:** Recommends tests for vocabulary acquisition by finding tests where the percentage of unknown words falls within a target range (default 3-7%). Uses the user's known sense IDs and ELO rating (within +/-200) to filter. Sorts by proximity to the 5% ideal unknown ratio.
@@ -1633,9 +1474,14 @@ $function$
 
 ### `get_distractors(p_sense_id integer, p_language_id smallint, p_count integer DEFAULT 3): TABLE(out_definition text)`
 
-- **Security:** DEFINER (Phase 3 — was INVOKER with no auth check)
+- **Security:** DEFINER
 - **Language:** plpgsql (STABLE)
-- **Description:** Returns random distractor definitions for a word quiz. Now requires authentication. Selects definitions from the same language that are NOT from the same vocabulary item as the target sense, restricted to primary senses (`sense_rank = 1`).
+- **Description:** Returns random distractor definitions for a word quiz. Selects definitions from the same language that are NOT from the same vocabulary item as the target sense, restricted to primary senses (`sense_rank = 1`).
+
+**Auth-check history:**
+- Phase 3 (2026-04-12): added `IF auth.uid() IS NULL THEN RAISE` and made the function SECURITY DEFINER.
+- `get_distractors_drop_auth_check.sql` (2026-05-03): removed the check because `auth.uid()` returns NULL under the service-role JWT, breaking the admin vocab pipeline. Side effect: any anon caller could enumerate `dim_word_senses.definition`.
+- `restore_get_distractors_auth_check.sql` (2026-05-15): re-added a guard keyed on `auth.role()` so service-role calls still pass while anon is blocked; also `REVOKE EXECUTE ... FROM anon; GRANT EXECUTE ... TO authenticated, service_role` for defense in depth.
 
 ```sql
 CREATE OR REPLACE FUNCTION public.get_distractors(p_sense_id integer, p_language_id smallint, p_count integer DEFAULT 3)
@@ -1646,8 +1492,8 @@ CREATE OR REPLACE FUNCTION public.get_distractors(p_sense_id integer, p_language
  SET search_path TO 'public', 'pg_temp'
 AS $function$
 BEGIN
-    IF auth.uid() IS NULL THEN
-        RAISE EXCEPTION 'Authentication required';
+    IF auth.role() NOT IN ('authenticated', 'service_role') THEN
+        RAISE EXCEPTION 'Authentication required' USING ERRCODE = '42501';
     END IF;
 
     RETURN QUERY
@@ -1664,7 +1510,7 @@ END;
 $function$
 ```
 
-- **Key behaviors:** Random selection. Excludes all senses from the same vocab item. **Phase 3:** Now SECURITY DEFINER with auth check and search_path pinning.
+- **Key behaviors:** Random selection. Excludes all senses from the same vocab item. Role-based guard accepts both authenticated user JWTs and the service-role JWT (used by the admin vocab pipeline).
 
 ---
 
@@ -2223,6 +2069,8 @@ $function$
 
 ### `get_model_for_task(p_task_key text, p_language_id smallint): text`
 
+> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Model selection is handled in Python via `services/prompt_service.py:get_template_config()`, which reads `prompt_templates.model` / `.provider` directly. Reference retained for history.
+
 - **Security:** INVOKER (STABLE)
 - **Language:** plpgsql
 - **Description:** Looks up the active LLM model name for a given task key and language from the `language_model_config` table. Returns NULL if no active config exists. **Phase 4 addition** — part of the normalization that replaces growing model columns on `dim_languages`.
@@ -2261,6 +2109,8 @@ $function$
 ---
 
 ### `get_prompt_template(p_task_name character varying, p_language_id integer DEFAULT 2): text`
+
+> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Note: `conversation_generation/database_client.py` has a Python method of the same name that reads `prompt_templates` directly and is unrelated to this RPC. Reference retained for history.
 
 - **Security:** INVOKER
 - **Language:** plpgsql (STABLE)

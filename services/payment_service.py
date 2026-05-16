@@ -5,7 +5,7 @@ Handles token-based pay-as-you-go payments via Stripe
 
 import logging
 import stripe
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional, Tuple
 from enum import Enum
 from supabase import Client
@@ -68,7 +68,12 @@ class PaymentService:
         """
         try:
             # Get user's token record
-            result = self.supabase.table('user_tokens').select('*').eq('user_id', user_id).execute()
+            result = (
+                self.supabase.table('user_tokens')
+                .select('user_id, purchased_tokens, last_free_token_date')
+                .eq('user_id', user_id)
+                .execute()
+            )
             
             if not result.data:
                 # Create initial token record for new user
@@ -77,14 +82,14 @@ class PaymentService:
                     'total_tokens': self.DAILY_FREE_TOKENS,
                     'purchased_tokens': 0,
                     'free_tokens_today': self.DAILY_FREE_TOKENS,
-                    'last_free_token_date': datetime.utcnow().date().isoformat()
+                    'last_free_token_date': datetime.now(timezone.utc).date().isoformat()
                 }
             
             user_tokens = result.data[0]
             
             # Check if user gets new free tokens today
             last_free_date = datetime.fromisoformat(user_tokens['last_free_token_date']).date()
-            today = datetime.utcnow().date()
+            today = datetime.now(timezone.utc).date()
             
             if last_free_date < today:
                 # Award daily free tokens
@@ -158,7 +163,7 @@ class PaymentService:
             # Update database
             self.supabase.table('user_tokens').update({
                 'purchased_tokens': new_purchased_balance,
-                'updated_at': datetime.utcnow().isoformat()
+                'updated_at': datetime.now(timezone.utc).isoformat()
             }).eq('user_id', user_id).execute()
             
             # Log transaction
@@ -241,22 +246,51 @@ class PaymentService:
             user_id = intent.metadata['user_id']
             package_id = intent.metadata['package_id']
             tokens_purchased = int(intent.metadata['tokens'])
-            
-            # Add tokens to user's account
-            result = self.supabase.table('user_tokens').select('*').eq('user_id', user_id).execute()
-            
+
+            # Idempotency: Stripe retries webhooks on 5xx, so a duplicate
+            # delivery must not double-credit. Bail out if we've already
+            # logged a transaction for this payment_intent_id.
+            existing = (
+                self.supabase.table('token_transactions')
+                .select('id')
+                .eq('payment_intent_id', payment_intent_id)
+                .eq('action', 'purchase')
+                .limit(1)
+                .execute()
+            )
+            if existing.data:
+                logger.info(
+                    "Skipping already-processed payment_intent %s for user %s",
+                    payment_intent_id, user_id,
+                )
+                return {
+                    'success': True,
+                    'tokens_purchased': tokens_purchased,
+                    'package_id': package_id,
+                    'user_id': user_id,
+                    'idempotent': True,
+                }
+
+            # Credit tokens. Read-modify-write between concurrent retries is
+            # still a (small) race window — the idempotency check above is
+            # the real safety net. A DB-side atomic increment would be the
+            # next improvement.
+            result = (
+                self.supabase.table('user_tokens')
+                .select('purchased_tokens')
+                .eq('user_id', user_id)
+                .execute()
+            )
+
             if result.data:
-                current_tokens = result.data[0]['purchased_tokens']
-                new_balance = current_tokens + tokens_purchased
-                
+                new_balance = result.data[0]['purchased_tokens'] + tokens_purchased
                 self.supabase.table('user_tokens').update({
                     'purchased_tokens': new_balance,
-                    'updated_at': datetime.utcnow().isoformat()
+                    'updated_at': datetime.now(timezone.utc).isoformat()
                 }).eq('user_id', user_id).execute()
             else:
-                # Create new token record
                 self._create_user_token_record(user_id, initial_purchased_tokens=tokens_purchased)
-            
+
             # Log purchase transaction
             self._log_token_transaction(
                 user_id=user_id,
@@ -325,18 +359,18 @@ class PaymentService:
         return self.supabase.table('user_tokens').insert({
             'user_id': user_id,
             'purchased_tokens': initial_purchased_tokens,
-            'last_free_token_date': datetime.utcnow().date().isoformat(),
-            'created_at': datetime.utcnow().isoformat(),
-            'updated_at': datetime.utcnow().isoformat()
+            'last_free_token_date': datetime.now(timezone.utc).date().isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'updated_at': datetime.now(timezone.utc).isoformat()
         }).execute()
     
     def _award_daily_free_tokens(self, user_id: str, current_record: Dict) -> Dict:
         """Award daily free tokens to user"""
-        today = datetime.utcnow().date().isoformat()
+        today = datetime.now(timezone.utc).date().isoformat()
         
         updated_record = self.supabase.table('user_tokens').update({
             'last_free_token_date': today,
-            'updated_at': datetime.utcnow().isoformat()
+            'updated_at': datetime.now(timezone.utc).isoformat()
         }).eq('user_id', user_id).execute()
         
         # Log free token award
@@ -362,7 +396,7 @@ class PaymentService:
                 'action': action,
                 'description': description,
                 'payment_intent_id': payment_intent_id,
-                'created_at': datetime.utcnow().isoformat()
+                'created_at': datetime.now(timezone.utc).isoformat()
             }).execute()
         except Exception as e:
             logger.error(f"Error logging transaction: {e}")

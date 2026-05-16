@@ -6,7 +6,7 @@ Uses the existing SupabaseFactory for client management.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Optional, Tuple
 from uuid import UUID
 from dataclasses import dataclass
@@ -370,8 +370,8 @@ class TopicDatabaseClient:
         """
         self.client.table('categories') \
             .update({
-                'last_used_at': datetime.utcnow().isoformat(),
-                'updated_at': datetime.utcnow().isoformat()
+                'last_used_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
             }) \
             .eq('id', category_id) \
             .execute()

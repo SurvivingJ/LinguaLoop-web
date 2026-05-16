@@ -2,7 +2,6 @@
 """Payment routes — token packages and Stripe payment intents."""
 
 from flask import Blueprint, request, g
-from flask_jwt_extended import get_jwt_identity
 import stripe
 import logging
 
@@ -39,13 +38,17 @@ def create_payment_intent() -> ApiResponse:
             return bad_request("Invalid package")
 
         package = Config.TOKEN_PACKAGES[body.package_id]
-        current_user_email = get_jwt_identity()
+        user_id = g.current_user_id
+        if not user_id:
+            return server_error("Authenticated user not found")
 
+        # Metadata keys must match what handle_successful_payment reads
+        # (payment_service.PaymentService.handle_successful_payment).
         intent = stripe.PaymentIntent.create(
             amount=package['price_cents'],
             currency='usd',
             metadata={
-                'user_email': current_user_email,
+                'user_id': user_id,
                 'package_id': body.package_id,
                 'tokens': package['tokens']
             }

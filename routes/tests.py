@@ -562,7 +562,7 @@ def get_tests_with_ratings():
     try:
         language_id_param = request.args.get('language_id')
         difficulty = request.args.get('difficulty')
-        limit = int(request.args.get('limit', 50))
+        limit = request.args.get('limit', 50, type=int) or 50
 
         if not current_app.supabase_service:
             return jsonify({"error": "Database service not configured"}), 500
@@ -784,6 +784,7 @@ def _build_submission_response(rpc_result, test_mode, word_quiz):
             'after': rpc_result.get('test_elo_after'),
             'change': rpc_result.get('test_elo_change', 0)
         },
+        'elo_reduction_factor': rpc_result.get('elo_reduction_factor'),
         'test_mode': test_mode,
         'attempt_id': str(attempt_id) if attempt_id else None,
     }
@@ -1064,13 +1065,13 @@ def get_test_history():
 
         language_id = request.args.get('language_id', type=int)
         test_type_id = request.args.get('test_type_id', type=int)
-        limit = min(int(request.args.get('limit', 25)), 100)
-        offset = int(request.args.get('offset', 0))
+        limit = min(request.args.get('limit', 25, type=int) or 25, 100)
+        offset = max(request.args.get('offset', 0, type=int) or 0, 0)
 
         client = current_app.supabase_service or current_app.supabase
 
         query = client.table('test_attempts')\
-            .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id')\
+            .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id, elo_reduction_factor')\
             .eq('user_id', user_id)\
             .order('created_at', desc=True)\
             .range(offset, offset + limit - 1)
@@ -1122,6 +1123,7 @@ def get_test_history():
                 'total_questions': attempt['total_questions'],
                 'percentage': attempt['percentage'],
                 'user_elo_after': attempt['user_elo_after'],
+                'elo_reduction_factor': attempt.get('elo_reduction_factor'),
                 'created_at': attempt['created_at']
             })
 

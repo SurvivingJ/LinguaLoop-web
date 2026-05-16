@@ -2,17 +2,24 @@
 title: Authentication & Access Control
 type: business-rule
 status: in-progress
-last_updated: 2026-04-10
+last_updated: 2026-05-15
 open_questions:
   - "Global admin role — currently determined by subscription tier is_admin flag. Should there be a separate admin table?"
+  - "Service-role bypass in middleware/auth.py uses the same SUPABASE_SERVICE_ROLE_KEY the backend itself uses. A leak grants full DB access. Replace with a dedicated batch-service credential."
 ---
 
 # Authentication & Access Control
 
+## Startup invariants (2026-05-15)
+
+- `Config.validate()` at app boot raises `RuntimeError` if any of `SECRET_KEY`, `JWT_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` is unset. The previous placeholder defaults (`'temp-secret-change-in-production'`, `'jwt-secret-change-in-production'`) were removed so a misconfigured `.env` can no longer boot the app in an insecure state.
+- `SupabaseFactory.initialize()` runs once in `create_app()` and is the only construction site for Supabase clients. `AuthService` now pulls the admin client from this factory instead of calling `create_client(...)` itself.
+
 ## User Authentication
 
 - Authentication via Supabase Auth (email/password).
-- JWTs issued by Supabase, validated by Flask middleware (`middleware/auth.py`).
+- JWTs issued by Supabase, validated by Flask middleware ([`middleware/auth.py`](../../middleware/auth.py)). Only standalone decorators (`jwt_required`, `admin_required`, `tier_required`) — the class-based `AuthMiddleware` was removed 2026-05-15 (had no callers).
+- The `jwt_required` decorator also accepts the raw `SUPABASE_SERVICE_ROLE_KEY` as a bearer token, used for internal batch jobs. The comparison uses `hmac.compare_digest` (constant-time, 2026-05-15) and every bypass call logs `'Service-role bypass used on %s'`. **Open question above** flags the deeper risk.
 - New users automatically get a `users` row + `user_tokens` row via `handle_new_user()` trigger.
 - Soft-delete via `deleted_at` / `anonymized_at` timestamps (GDPR compliance via `anonymize_user_data()`).
 

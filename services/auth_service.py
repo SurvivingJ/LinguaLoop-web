@@ -1,10 +1,12 @@
-from supabase import Client, create_client
+from supabase import Client
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Optional
 import logging
 import uuid
 import os
 import jwt as pyjwt
+
+from services.supabase_factory import get_supabase_admin
 
 
 class AuthService:
@@ -21,11 +23,16 @@ class AuthService:
     def __init__(self, supabase_client: Client):
         self.supabase = supabase_client  # Regular client for RLS-protected queries
 
-        # Admin client for privileged operations (bypasses RLS)
-        self.supabase_admin = create_client(
-            os.getenv('SUPABASE_URL'),
-            os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-        )
+        # Admin client for privileged operations (bypasses RLS). Reuse the
+        # singleton from SupabaseFactory instead of creating a second client.
+        admin = get_supabase_admin()
+        if admin is None:
+            raise RuntimeError(
+                "AuthService requires the Supabase service role client. "
+                "Ensure SUPABASE_SERVICE_ROLE_KEY is set and "
+                "SupabaseFactory.initialize() ran at startup."
+            )
+        self.supabase_admin = admin
         self.logger = logging.getLogger(__name__)
     
     def send_otp(self, email: str, is_registration: bool = False) -> Dict:

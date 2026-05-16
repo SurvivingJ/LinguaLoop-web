@@ -3,7 +3,7 @@ title: ELO System — Implementation Analysis & Improvements
 type: algorithm
 status: in-progress
 tech_page: ./elo-implementation-analysis.tech.md
-last_updated: 2026-05-08
+last_updated: 2026-05-15
 open_questions:
   - "Is Glicko-2 worth the complexity over standard ELO for this use case?"
   - "Should mystery ELO and test ELO share a unified skill rating model?"
@@ -60,6 +60,12 @@ A backfill script (`scripts/backfill_test_skill_ratings.py`) seeds initial test 
 
 - **Volatility wired back into `process_test_submission`** — user-side K=32 is now multiplied by `calculate_volatility_multiplier(tests_taken, last_test_date)` (1.0 baseline → 1.5 for new users → 2.0 for new and inactive users). Test-side K=16 with no volatility, restoring V1's asymmetric design.
 - **`get_recommended_test` excludes attempted tests** — the expanding-radius loop now carries a `NOT EXISTS` against `test_attempts`, matching the behaviour of `get_recommended_tests()`. If the user has exhausted every test in the language, the function returns nothing and the `/api/tests/random` route serves its existing 404.
+
+## Recently Fixed (2026-05-15)
+
+`migrations/process_test_submission_reduced_repeats.sql` closes the **zero-ELO-on-retry** pedagogical gap:
+
+- **Retry-slot reduced-volatility repeats** — when the daily-load retry slot resurfaces a sub-70% test, retaking it now grants ELO at a time-decay factor `clamp(0.20, days_since_last/60, 1.0)` plus a `+0.25` improvement bonus if the user gains 15+ percentage points over their prior best. Applied symmetrically to user (K=32 × volatility × factor) and test (K=16 × factor). Off-recommendation repeats keep their status-quo 0 ELO. Anti-grind: at most one reduced-ELO submission per `(user, test)` per day, enforced via `test_attempts.elo_reduction_factor IS NOT NULL` sentinel. See [[decisions/ADR-006-retry-slot-reduced-elo]].
 
 ## What Needs Improvement
 

@@ -59,10 +59,13 @@ Test Serving (user-facing):
   2. Grades each question
   3. Checks idempotency
   4. Calculates new ELO for user and test (via `calculate_elo_rating()`)
-  5. Records attempt in `test_attempts`
+     - **First attempt:** full K (user K=32 × volatility; test K=16).
+     - **Repeat attempt + in today's daily-load retry slot:** reduced K via time-decay factor `clamp(0.20, days_since_last/60, 1.0)` plus a +0.25 improvement bonus if score gained ≥15 percentage points over prior best. See [[algorithms/elo-ranking.tech]] and [[decisions/ADR-006-retry-slot-reduced-elo]].
+     - **Repeat attempt off-recommendation:** zero ELO movement (status quo).
+  5. Records attempt in `test_attempts` (including `elo_reduction_factor` if applied)
   6. Updates `user_skill_ratings` and `test_skill_ratings`
   7. Handles free test accounting / token deduction
-- **Returns:** `{success, attempt_id, score, total, percentage, elo_change, question_results}`
+- **Returns:** `{success, attempt_id, score, total, percentage, elo_change, elo_reduction_factor, question_results}`
 
 ## Content Generation Pipeline
 

@@ -20,7 +20,7 @@ from services.r2_service import R2Service
 from services.prompt_service import PromptService
 from services.auth_service import AuthService
 from services.device_service import DeviceService
-from middleware.auth import AuthMiddleware, jwt_required as supabase_jwt_required
+from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
 from utils.responses import api_success, bad_request, server_error, service_unavailable
 from models.requests import VocabularyExtractRequest, ErrorLogRequest
@@ -44,14 +44,16 @@ from routes.vocab_admin import vocab_admin_bp
 
 def create_app(config_class=Config):
     """Create and configure Flask application"""
+    config_class.validate()
+
     app = Flask(__name__)
     app.config.from_object(config_class)
 
     # Disable strict slashes to prevent 308 redirects from /api/tests to /api/tests/
     app.url_map.strict_slashes = False
-    
-    # Set secret key for sessions
-    app.secret_key = config_class.SECRET_KEY if hasattr(config_class, 'SECRET_KEY') else os.urandom(24)
+
+    # Set secret key for sessions (validate() guarantees this is set).
+    app.secret_key = config_class.SECRET_KEY
     
     # Configure logging
     logging.basicConfig(
@@ -246,9 +248,7 @@ def _initialize_scheduler(app):
 
 def _register_blueprints(app):
     """Register all application blueprints"""
-    auth_middleware = AuthMiddleware(app.supabase)
     auth_bp.auth_service = app.auth_service
-    auth_bp.auth_middleware = auth_middleware
     auth_bp.device_service = app.device_service
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')

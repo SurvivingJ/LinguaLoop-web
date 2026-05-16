@@ -6,7 +6,7 @@ Uses the existing SupabaseFactory for client management.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
 from dataclasses import dataclass, field
@@ -175,7 +175,7 @@ class ConversationDatabaseClient:
         update_data: Dict[str, Any] = {
             'status_id': status_id,
             'conversations_generated': conversations_generated,
-            'processed_at': datetime.utcnow().isoformat(),
+            'processed_at': datetime.now(timezone.utc).isoformat(),
         }
         if error_log:
             update_data['error_log'] = error_log

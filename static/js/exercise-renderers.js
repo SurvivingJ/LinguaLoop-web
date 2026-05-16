@@ -31,7 +31,15 @@ const ExRenderers = (function () {
 
     // ── Pure utilities ──
 
+    // Delegate to the canonical escapeHtml in utils.js when available;
+    // fall back to a local implementation so this file is usable on
+    // pages that don't load utils.js (e.g., the admin dashboard).
     function escHtml(s) {
+        if (typeof window !== 'undefined'
+            && window.LinguaUtils
+            && typeof window.LinguaUtils.escapeHtml === 'function') {
+            return window.LinguaUtils.escapeHtml(s);
+        }
         if (!s) return '';
         const d = document.createElement('div');
         d.textContent = s;

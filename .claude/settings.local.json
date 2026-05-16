@@ -63,7 +63,9 @@
       "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_chunk_sentence.py -v --tb=short)",
       "Bash(xargs -I{} grep -l \"cloze_distractor_generation\" migrations/{})",
       "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_cloze_judge.py -v --tb=short)",
-      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_cloze_generator.py tests/test_exercise_generation/test_cloze_judge.py -v --tb=short)"
+      "Bash(PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m pytest tests/test_exercise_generation/test_cloze_generator.py tests/test_exercise_generation/test_cloze_judge.py -v --tb=short)",
+      "Bash(sed 's/CREATE OR REPLACE FUNCTION public\\\\.//')",
+      "Read(//tmp/**)"
     ]
   }
 }

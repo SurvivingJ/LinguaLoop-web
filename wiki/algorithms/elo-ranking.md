@@ -3,7 +3,7 @@ title: ELO Ranking System
 type: algorithm
 status: in-progress
 tech_page: ./elo-ranking.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-05-15
 open_questions:
   - "Test recommendation algorithm needs refinement beyond expanding-radius random selection"
 ---
@@ -37,6 +37,10 @@ New users and returning users (>90 days since last test) have a volatility multi
 - Fewer than 10 tests taken → +0.5 volatility
 - More than 90 days since last test → +0.5 volatility
 
+### Reduced-Volatility Repeats
+
+When the dashboard's daily-load **retry slot** resurfaces a test the user previously scored under 70% on, retaking it now grants a *reduced* ELO change instead of zero. The reduction scales with how long it's been since the last attempt and whether the user genuinely improved — so revisiting a struggle after a month gives meaningful rating movement, while same-day grinding gives only a token nudge. Direct replays from outside the retry slot (history page, slug navigation) still earn 0 ELO. Only the first reduced-ELO submission of a given test per day counts, so users can't accumulate gains by repeating. See [[decisions/ADR-006-retry-slot-reduced-elo]] for the rationale.
+
 ### Test Matching
 
 Tests are recommended based on ELO proximity. The system uses an expanding-radius search:
@@ -51,6 +55,7 @@ Tests are recommended based on ELO proximity. The system uses an expanding-radiu
 - Default K-factor: 32 (standard chess value).
 - Score is fractional (0.0 to 1.0): percentage correct, not binary win/loss.
 - First attempt is distinguished from re-attempts for analytics.
+- Repeat attempts earn 0 ELO unless they come via the daily-load retry slot (where they earn reduced ELO at a time-decay factor between 0.20× and 1.0×).
 
 ## Business Rules
 

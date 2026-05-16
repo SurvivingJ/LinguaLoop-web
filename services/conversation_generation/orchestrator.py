@@ -13,7 +13,7 @@ Coordinates the conversation generation workflow:
 
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
@@ -78,7 +78,7 @@ class ConversationGenerationOrchestrator:
             ConvGenMetrics with run statistics.
         """
         start_time = time.time()
-        self.metrics = ConvGenMetrics(run_date=datetime.utcnow())
+        self.metrics = ConvGenMetrics(run_date=datetime.now(timezone.utc))
 
         logger.info("Starting conversation generation run")
 

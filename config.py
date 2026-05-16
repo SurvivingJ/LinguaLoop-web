@@ -17,13 +17,14 @@ class Config:
     # ==========================================================================
     # CORE SETTINGS
     # ==========================================================================
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'temp-secret-change-in-production')
+    # No default — Config.validate() refuses to start with these unset.
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
     # ==========================================================================
     # JWT SETTINGS
     # ==========================================================================
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-change-in-production')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_TOKEN_LOCATION = ["headers", "cookies"]
 
@@ -232,3 +233,26 @@ class Config:
             Integer language ID, defaulting to 1 (Chinese) if code is not found.
         """
         return Config.LANGUAGE_CODE_TO_ID.get(code.lower(), 1)
+
+    @classmethod
+    def validate(cls) -> None:
+        """Refuse to start the app if any required secret is missing.
+
+        Called once from create_app() before JWTManager / Supabase clients
+        are initialized, so a missing env var fails with a clear message
+        instead of silently falling back to an insecure default.
+        """
+        required = {
+            'SECRET_KEY': cls.SECRET_KEY,
+            'JWT_SECRET_KEY': cls.JWT_SECRET_KEY,
+            'SUPABASE_URL': cls.SUPABASE_URL,
+            'SUPABASE_KEY': cls.SUPABASE_KEY,
+            'SUPABASE_SERVICE_ROLE_KEY': cls.SUPABASE_SERVICE_ROLE_KEY,
+        }
+        missing = [name for name, value in required.items() if not value]
+        if missing:
+            raise RuntimeError(
+                "Missing required environment variables: "
+                + ", ".join(missing)
+                + ". Set them in .env or the deployment environment."
+            )

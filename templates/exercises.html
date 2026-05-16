@@ -555,24 +555,6 @@
         return a;
     }
 
-    function i18n(key, v) {
-        if (typeof LinguaI18n !== 'undefined') return LinguaI18n.t(key, v);
-        const map = {
-            'exercises.next': 'Next', 'exercises.check': 'Check',
-            'exercises.instruction.fill_blank': 'Fill in the blank:',
-            'exercises.instruction.choose_translation': 'Choose the correct translation:',
-            'exercises.instruction.which_sentence': `Which sentence uses "${(v&&v.word)||''}" correctly?`,
-            'exercises.instruction.odd_one_out': 'Which word does not belong?',
-            'exercises.instruction.translate_to_tl': 'Translate into the target language:',
-            'exercises.instruction.collocation_gap_fill': 'Fill in the missing word:',
-            'exercises.instruction.collocation_repair': 'Choose the correct word:',
-            'exercises.instruction.odd_collocation_out': `Which collocation with "${(v&&v.word)||''}" does not fit?`,
-            'exercises.type_placeholder': 'Type your answer...',
-            'exercises.hint': `Hint: ${(v&&v.hint)||''}`,
-        };
-        return map[key] || key;
-    }
-
     // ══════════════════════════════════════════════
     // LANDING
     // ══════════════════════════════════════════════
@@ -588,14 +570,25 @@
     }
     window.backToLanding = showLanding;
 
-    async function initLanding() {
-        buildTypeGrid();
-        await checkDailySession();
+    // Tracks in-flight landing-page fetches so a transition out of the
+    // landing view (or a new initLanding call) can cancel them and prevent
+    // stale responses from overwriting fresh state.
+    let landingAbort = null;
+    function cancelLandingFetches() {
+        if (landingAbort) { try { landingAbort.abort(); } catch (e) {} }
+        landingAbort = null;
     }
 
-    function buildTypeGrid() {
+    async function initLanding() {
+        cancelLandingFetches();
+        landingAbort = new AbortController();
+        buildTypeGrid(landingAbort.signal);
+        await checkDailySession(landingAbort.signal);
+    }
+
+    function buildTypeGrid(signal) {
         // Fetch available types then render cards
-        fetch(`/api/exercises/types?language_id=${langId}`, { headers: hdrs() })
+        fetch(`/api/exercises/types?language_id=${langId}`, { headers: hdrs(), signal })
             .then(r => r.json())
             .then(data => {
                 const types = data.types || [];
@@ -618,12 +611,15 @@
                     els.typeGrid.appendChild(card);
                 });
             })
-            .catch(e => console.error('Failed to load types:', e));
+            .catch(e => {
+                if (e && e.name === 'AbortError') return;
+                console.error('Failed to load types:', e);
+            });
     }
 
-    async function checkDailySession() {
+    async function checkDailySession(signal) {
         try {
-            const resp = await fetch(`/api/exercises/session?language_id=${langId}`, { headers: hdrs() });
+            const resp = await fetch(`/api/exercises/session?language_id=${langId}`, { headers: hdrs(), signal });
             if (!resp.ok) return;
             const data = await resp.json();
             const s = data.session;
@@ -659,6 +655,7 @@
                 <span><i class="fas fa-check-circle"></i> ${completed} done</span>
             `;
         } catch (e) {
+            if (e && e.name === 'AbortError') return;
             console.error('Daily session check failed:', e);
         }
     }
@@ -712,6 +709,9 @@
     // ══════════════════════════════════════════════
 
     async function startPractice(exerciseType) {
+        // Cancel any in-flight landing-page fetches so their late responses
+        // can't overwrite the practice view.
+        cancelLandingFetches();
         state.mode = 'practice';
         state.practiceType = exerciseType;
         state.practiceOffset = 0;

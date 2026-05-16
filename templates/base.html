@@ -289,10 +289,21 @@
         }
 
         // Global configuration - accessible from all pages
+        function _parseUserData() {
+            try {
+                return JSON.parse(_getStored('user_data') || '{}');
+            } catch (e) {
+                // Corrupt storage shouldn't permanently break page load —
+                // drop the bad value and return an empty object.
+                try { localStorage.removeItem('user_data'); } catch (_) {}
+                try { sessionStorage.removeItem('user_data'); } catch (_) {}
+                return {};
+            }
+        }
         window.LINGUADOJO = {
             API_BASE: "{{ url_for('index') }}",
             JWT_TOKEN: _getStored('jwt_token'),
-            USER_DATA: JSON.parse(_getStored('user_data') || '{}')
+            USER_DATA: _parseUserData()
         };
 
         /**

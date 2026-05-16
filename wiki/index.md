@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-13 (closed 3 audit gaps — admin auth on vocab_admin, daily_test_loads FK, get_recommended_tests signature) | Pages: 48
+Last updated: 2026-05-16 (production-code audit + HIGH/MEDIUM/LOW remediation pass — see log.md 2026-05-15) | Pages: 49
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -66,6 +66,7 @@ Last updated: 2026-05-13 (closed 3 audit gaps — admin auth on vocab_admin, dai
 - [[decisions/ADR-003-age-tiers]] — Age-tier difficulty replacing CEFR for LLM generation
 - [[decisions/ADR-004-brand-name]] — Brand name: LinguaDojo (formal reconciliation of wiki ↔ codebase; alternatives archived)
 - [[decisions/ADR-005-momentum-bands]] — Vocabulary ladder switched from first-try counters to family-BKT × rings × gates × stress test (Phase 8)
+- [[decisions/ADR-006-retry-slot-reduced-elo]] — Reduced-volatility ELO on daily-load retry-slot repeats (time-decay factor + improvement bonus)
 
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status

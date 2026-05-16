@@ -1,5 +1,100 @@
 # Activity Log
 
+## 2026-05-15 change | Production-code audit + HIGH/MEDIUM/LOW remediation
+
+Full-codebase audit (Python backend, SQL/RPC layer, JS/templates frontend) followed by a graded remediation pass. Plan + findings at [`C:\Users\James\.claude\plans\crawl-the-code-base-eager-wilkes.md`](../../.claude/plans/crawl-the-code-base-eager-wilkes.md). Three parallel `Explore` agents produced 60+ findings; this entry covers the 22 items shipped and the 9 explicitly skipped.
+
+**HIGH severity (8 of 9 shipped, 1 deferred to user decision).**
+- [config.py](../config.py) — removed the `'temp-secret-change-in-production'` and `'jwt-secret-change-in-production'` fallback defaults; added `Config.validate()` that raises `RuntimeError` at startup if `SECRET_KEY`, `JWT_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, or `SUPABASE_SERVICE_ROLE_KEY` is unset. Wired into [app.py](../app.py) `create_app()` before any other init.
+- [middleware/auth.py](../middleware/auth.py) — service-role-as-bearer-token compare in `jwt_required` switched from `token == service_role_key` to `hmac.compare_digest` (constant-time); also logs `'Service-role bypass used on %s'` so the bypass leaves an audit trail. A `TODO` flags the deeper fix (dedicated batch-service credential separate from the service-role key).
+- [services/auth_service.py](../services/auth_service.py) — `AuthService.__init__` no longer builds a second admin Supabase client via `create_client(...)`. It now pulls the singleton from `SupabaseFactory.get_supabase_admin()` and raises if the factory wasn't initialized.
+- [migrations/restore_get_distractors_auth_check.sql](../migrations/restore_get_distractors_auth_check.sql) (new) — restores an auth guard on `get_distractors` that was removed by `get_distractors_drop_auth_check.sql`. The new guard uses `auth.role() NOT IN ('authenticated', 'service_role')` so service-role calls still pass; `REVOKE EXECUTE ... FROM anon` adds defense-in-depth. **Not applied to remote yet — apply via Supabase MCP when ready.**
+- [templates/base.html](../templates/base.html) — `JSON.parse(_getStored('user_data') || '{}')` now wrapped in try/catch; corrupt storage is cleared instead of permanently breaking page load for that user.
+- [routes/tests.py](../routes/tests.py), [routes/admin_local.py](../routes/admin_local.py) — replaced bare `int(request.args.get('limit', 50))` patterns with Flask's `type=int` coercion so malformed query params no longer 500.
+- [routes/payments.py](../routes/payments.py) — `create_payment_intent` was reading `flask_jwt_extended.get_jwt_identity()` despite being protected by our own `@supabase_jwt_required` decorator (which never populates the flask-jwt-extended context). Switched to `g.current_user_id`. **Found a latent bug along the way:** the route wrote `user_email` into Stripe metadata but `PaymentService.handle_successful_payment` reads `intent.metadata['user_id']` — so the webhook would have raised `KeyError` for any intent created by this route. Metadata key now matches the reader.
+- [static/js/admin-dashboard.js](../static/js/admin-dashboard.js) — `populateTestLanguageChecks` now runs `lang.language_name` through `escapeHtml`; `loadExerciseItems` does the same for `labelFn(item)` output. `vocabBrowser`'s list-item `onclick="vocabBrowser.select(${w.sense_id})"` replaced with delegated handler on `#vbScroll` + `data-sense-id` attribute (idempotent attach via `dataset.delegated`). The 4 other inline onclicks in `renderPreview` use numeric DB IDs (zero XSS risk, CSP-only concern) — left for a future CSP-hardening pass.
+- **Deferred to user**: `process_test_submission` defined in 5 migration files. Consolidation requires knowing which is canonical / how migrations are applied. Surfaced; awaiting decision.
+
+**MEDIUM severity (10 of 14 shipped, 4 skipped with rationale).**
+- [services/payment_service.py](../services/payment_service.py) `handle_successful_payment` — added an **idempotency check** against `token_transactions` where `payment_intent_id = p_payment_intent_id AND action = 'purchase'`. Duplicate Stripe webhook deliveries now return `{idempotent: true}` without re-crediting. Also tightened the `user_tokens` `select('*')` to the three columns consumers actually use (`user_id, purchased_tokens, last_free_token_date`).
+- [routes/vocab_admin.py](../routes/vocab_admin.py) `upload_words` — the per-sense rendering loop swallowed `Exception` silently; it now collects `failed_senses[]` with `{sense_id, error}` and returns it alongside `rendered_count` so the admin UI can surface partial failures.
+- Datetime standardization — replaced all 22 `datetime.utcnow()` calls with `datetime.now(timezone.utc)` across [services/payment_service.py](../services/payment_service.py), [services/test_generation/](../services/test_generation/) (orchestrator + database_client), [services/conversation_generation/](../services/conversation_generation/) (orchestrator + database_client), [services/topic_generation/](../services/topic_generation/) (orchestrator + database_client). `timezone` imports added where missing. `utcnow()` is deprecated in Python 3.12+.
+- [migrations/add_test_attempts_idempotency_index.sql](../migrations/add_test_attempts_idempotency_index.sql) (new) — partial compound index `(user_id, idempotency_key) WHERE idempotency_key IS NOT NULL` for `process_test_submission`'s duplicate-check `SELECT`. Index is partial because most attempts have NULL key.
+- [migrations/drop_unused_rpcs.sql](../migrations/drop_unused_rpcs.sql) (new) — drops 4 verified-dead RPCs: `can_use_free_test(uuid)`, `get_model_for_task(text, smallint)`, `get_prompt_template(varchar, integer)`, `get_vocab_recommendations(uuid, integer, double, double, integer)`. Verified zero Python callers and zero in-SQL callers for each. **Audit was wrong about `calculate_volatility_multiplier` and `calculate_elo_rating`** — both are still called from `process_test_submission_reduced_repeats.sql` (latest active version). Kept.
+- [static/i18n/es.json](../static/i18n/es.json) — added the 8 mystery-feature keys that were missing only from Spanish (`common.nav.mysteries`, `mystery.list_title`, `mystery.list_subtitle`, `mystery.recommended`, `mystery.filter_difficulty`, `mystery.all_levels`, `mystery.no_mysteries`, `mystery.no_mysteries_desc`). All four locales now have exactly 283 keys.
+- [static/js/i18n-manager.js](../static/js/i18n-manager.js) — `t()` now logs `console.warn('[i18n] missing key:', key)` once per missing key instead of silently rendering the dotted key. Future locale drift surfaces immediately in dev.
+- [static/js/admin-dashboard.js](../static/js/admin-dashboard.js) `setupCollocationFilters` — rewritten as a single delegated listener on `.colloc-filter-bar` with a `dataset.delegated` guard. Re-running setup no longer stacks listeners on individual `.btn` elements.
+- [templates/exercises.html](../templates/exercises.html) — `initLanding` now manages an `AbortController`; `startPractice` calls `cancelLandingFetches()` before transitioning so late `/api/exercises/types` and `/api/exercises/session` responses can't overwrite the practice view.
+- **Skipped:** (1) `.in_()` chunking — every call site is bounded by `.range()` pagination or session size; the audit's [unverified] flag was correct. (2) `ORDER BY random()` rewrite — needs EXPLAIN ANALYZE evidence on production data sizes first; the audit itself recommended measuring before rewriting. (3) `corpus_style_profiles.select('*')` — admin-only endpoint, no leak risk worth changing without schema lookup. (4) Rate limiting on expensive endpoints — adds a new dependency and infrastructure decisions; surfaced to user with three implementation options.
+
+**LOW severity (4 of 8 shipped, 4 skipped with rationale).**
+- [static/js/exercise-renderers.js](../static/js/exercise-renderers.js) — `escHtml` now delegates to `window.LinguaUtils.escapeHtml` when available (falls back to the local impl on pages like the admin dashboard that don't load `utils.js`). Three duplicate implementations down to two, with the second being a thin shim.
+- [templates/exercises.html](../templates/exercises.html) — deleted the inline `function i18n(...)` block at lines 558-574. Turned out to be **dead code** (defined but never called inside the IIFE); the audit thought it was a duplicate map but it was unused.
+- [middleware/auth.py](../middleware/auth.py) — deleted the `AuthMiddleware` class (~110 lines, lines 209-319). It was instantiated in [app.py](../app.py) and attached as `auth_bp.auth_middleware`, but no caller ever read that attribute. Removed the import and the assignment too. Net `-140` lines across the two files.
+- **Skipped:** (1) `os.environ.get` vs `os.getenv` mix — purely cosmetic. (2) `logger.debug` containing user IDs — flag only if logs ship to a third-party aggregator; no code change required. (3) `alert()` replacement — the audit pointed at 2 instances, the file actually has 24. Replacing them all is a real toast-system project, not a LOW cleanup. (4) Moving the ~1000-line inline `<script>` in exercises.html — substantial refactor with Jinja-variable plumbing; risk-to-reward unfavourable at LOW priority.
+
+**Verification (in repo):**
+- `python -m compileall config.py app.py middleware/auth.py services/auth_service.py services/payment_service.py routes/tests.py routes/admin_local.py routes/payments.py routes/vocab_admin.py services/test_generation services/conversation_generation services/topic_generation` — all parse.
+- `python -c "import json; [json.load(open(f'static/i18n/{l}.json', encoding='utf-8')) for l in ['en','es','ja','zh']]"` — all valid; all four contain exactly 283 keys.
+- `grep -rn "datetime\.utcnow\(\)" services routes middleware models utils` — zero hits (Portal/ subfolder is out of scope).
+- `grep -rn "AuthMiddleware" .` — zero hits in code (one historical mention remains in this log, which is correct).
+
+**Verification (against running app — owner action required):**
+1. Boot with `.env` missing `SECRET_KEY` → expect `RuntimeError: Missing required environment variables: SECRET_KEY...` at startup instead of silent insecure boot.
+2. Boot with full `.env` → app starts normally; `Config.validate()` is a no-op.
+3. Apply the three new migrations to remote via Supabase MCP: `restore_get_distractors_auth_check.sql`, `add_test_attempts_idempotency_index.sql`, `drop_unused_rpcs.sql`.
+4. Smoke a payment intent: `POST /api/payments/create-intent` → confirm Stripe metadata contains `user_id` (not `user_email`); replay the webhook to confirm the idempotency check returns `idempotent: true` instead of double-crediting.
+5. Smoke admin: open the admin dashboard, click the language test checkboxes (escapeHtml works), and a vocab browser row (data-sense-id delegation works).
+6. Smoke i18n: switch locale to `es`, open the mysteries list, verify no dotted keys appear; switch to a locale and remove one key to confirm `console.warn` fires.
+
+**Wiki updates.**
+- This log entry.
+- [database/rpcs.tech.md](database/rpcs.tech.md) — `get_distractors` documented with the restored `auth.role()` check + drop-then-restore history. `can_use_free_test`, `get_model_for_task`, `get_prompt_template`, `get_vocab_recommendations` marked deprecated / dropped. RPC count revised from 53 to 49.
+- [business-rules/auth-and-access.md](business-rules/auth-and-access.md) — added "Startup invariants" section (`Config.validate`), service-role-bypass note, and a deprecation line for the removed `AuthMiddleware` class.
+- [features/token-economy.tech.md](features/token-economy.tech.md) — added Stripe-webhook idempotency note; removed `can_use_free_test` from the key-functions list (dropped); flagged the recovered `user_id`-vs-`user_email` metadata bug.
+- [index.md](index.md) — header bumped.
+
+Pages updated: 5. Pages created: 0. New migrations queued for apply: 3. Open questions remaining: 2 (rate-limiting strategy, `process_test_submission` migration consolidation).
+
+## 2026-05-15 change | Reduced-volatility ELO on daily-load retry-slot repeats
+
+User intent: when the dashboard's daily-load retry slot resurfaces a test the learner previously scored sub-70% on, retaking it should grant ELO movement at reduced volatility rather than the previous flat zero. Plan at [`C:\Users\James\.claude\plans\i-think-that-if-elegant-pancake.md`](../../.claude/plans/i-think-that-if-elegant-pancake.md). Locked design: retry-slot scope only (not broader `get_recommended_tests`), time-decay factor + improvement bonus, test ELO scales symmetrically.
+
+**Core change.** New migration [migrations/process_test_submission_reduced_repeats.sql](../migrations/process_test_submission_reduced_repeats.sql) — `ALTER TABLE test_attempts ADD COLUMN IF NOT EXISTS elo_reduction_factor numeric NULL` plus a `CREATE OR REPLACE FUNCTION public.process_test_submission(...)` rewrite. Same 7-arg signature; existing Python callers unchanged. Applied to remote project via Supabase MCP. Verified: column exists `numeric NULL`, function signature unchanged.
+
+Inside the rewritten body:
+- First-attempt path is identical to the prior 2026-05-08 V3 behaviour (full K=32 × volatility on user side, K=16 on test side).
+- Repeat-attempt path now branches on three eligibility conditions, all server-side: (i) `is_first_attempt = false`, (ii) test is in today's `daily_test_loads.test_ids` with `slot_type='retry'` for this user+language (JSONB element scan with `(elem->>'test_id')::uuid = p_test_id`), (iii) no prior `test_attempts` row today for this `(user, test)` already has `elo_reduction_factor IS NOT NULL` (anti-grind sentinel).
+- Eligible repeats compute `base = clamp(0.20, days_since_last/60, 1.0)`, `bonus = 0.25` if `(current_percentage − MAX(prior percentage)) ≥ 15` else 0, `factor = LEAST(1.0, base + bonus)`. The factor is composed into the volatility argument passed to `calculate_elo_rating` (user side: `volatility × factor`; test side: `factor`). Same K-factors as today (32 / 16), so the factor naturally scales both updates symmetrically.
+- Applied factor is persisted to `test_attempts.elo_reduction_factor` — NULL when no factor was applied (first attempt with full ELO, or non-eligible repeat with zero ELO).
+
+**API + UI plumbing.**
+- [routes/tests.py](../routes/tests.py) `_build_submission_response` — added `elo_reduction_factor` field to the response so the front-end can badge the result screen.
+- [routes/tests.py](../routes/tests.py) `get_test_history` — added `elo_reduction_factor` to both the `test_attempts` SELECT and the per-row history payload, so the profile history badge has data to render against.
+- [templates/profile.html](../templates/profile.html) `renderHistory` — appends a small `<span class="badge bg-info">Review · {factor}× ELO</span>` next to the test title when `elo_reduction_factor` is non-null. Hovering shows the localised tooltip.
+- i18n: added `profile.review_badge` / `profile.review_badge_tooltip` keys to [en](../static/i18n/en.json), [zh](../static/i18n/zh.json), [ja](../static/i18n/ja.json), [es](../static/i18n/es.json).
+
+**Wiki updates.**
+- New [decisions/ADR-006-retry-slot-reduced-elo.md](decisions/ADR-006-retry-slot-reduced-elo.md) — context, factor formula, anti-grind design, alternatives rejected (flat 0.5×, slot-typed buckets, broadened recommender).
+- [algorithms/elo-ranking.md](algorithms/elo-ranking.md) — added "Reduced-Volatility Repeats" prose section; added repeat-attempt bullet to Constraints.
+- [algorithms/elo-ranking.tech.md](algorithms/elo-ranking.tech.md) — data-flow diagram now shows the three-way branch (first / eligible repeat / non-eligible repeat); added a "Retry-Slot Reduced-Volatility Factor" section with the exact formula and notable values; `test_attempts.elo_reduction_factor` documented in the Tables section.
+- [algorithms/elo-implementation-analysis.md](algorithms/elo-implementation-analysis.md) — appended a "Recently Fixed (2026-05-15)" entry crediting the migration.
+- [features/comprehension-tests.tech.md](features/comprehension-tests.tech.md) — the `POST /api/tests/submit` documentation now lists the first/eligible-repeat/off-recommendation branches and includes `elo_reduction_factor` in the response shape.
+- [index.md](index.md) — page count bumped to 49; ADR-006 added; header updated.
+
+Pages updated: 6. Pages created: 1 (ADR-006). Migrations applied: 1.
+
+**Out of scope (per planning Q1 decision):** Broadening `get_recommended_tests` to include previously-attempted tests under any criteria. The retry-slot remains the only repeat-surface. Surfacing the upcoming factor on the dashboard *before* submission (`up to 0.5× ELO`) was also deferred.
+
+**Verification (deferred to next live submission):**
+1. `\d test_attempts` includes `elo_reduction_factor` column. ✅ (confirmed via MCP `execute_sql`)
+2. `pg_get_function_arguments` for `public.process_test_submission` still returns the 7-arg signature. ✅ (confirmed via MCP)
+3. End-to-end smoke: with a user who has a sub-70% historic attempt currently in today's retry slot, submit a known-score response and verify (a) `test_attempts.is_first_attempt = false`, (b) `elo_reduction_factor` ≈ 0.20 (same-day no-improvement) or ≈ 0.45 (same-day with 15+pp improvement), (c) `user_skill_ratings.elo_rating` and `test_skill_ratings.elo_rating` deltas match `factor × K × (actual − expected)`.
+4. Anti-grind: submit the same test again via direct slug nav; expect `elo_reduction_factor = NULL`, no ELO motion.
+5. Off-recommendation regression: submit a different previously-attempted test that is *not* in today's load; expect `elo_reduction_factor = NULL`, no ELO motion.
+6. First-attempt regression: submit a fresh never-attempted test; expect `elo_reduction_factor = NULL`, full-volatility K=32 motion (unchanged from today).
+7. UI: profile history row for the reduced-ELO repeat shows the `Review · 0.45× ELO` badge in the active locale.
+
 ## 2026-05-15 change | Pinyin test history fix on Chinese profile dashboard
 
 User report: "the pinyin test history does not properly update." Plan at [`C:\Users\James\.claude\plans\the-pinyin-test-history-foamy-parnas.md`](../../.claude/plans/the-pinyin-test-history-foamy-parnas.md).

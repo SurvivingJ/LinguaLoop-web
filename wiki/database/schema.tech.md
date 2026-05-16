@@ -615,6 +615,7 @@ Records each user test completion with ELO snapshots.
 | `idempotency_key` | uuid | YES | | Prevents duplicate submissions |
 | `attempt_number` | integer | YES | 1 | |
 | `is_first_attempt` | boolean | YES | true | |
+| `elo_reduction_factor` | numeric | YES | NULL | 2026-05-15: populated only when reduced-volatility ELO fired on a daily-load retry-slot repeat; NULL otherwise. Used as the once-per-day anti-grind sentinel. See [migration](../../migrations/process_test_submission_reduced_repeats.sql), [[decisions/ADR-006-retry-slot-reduced-elo]]. |
 | `created_at` | timestamptz | YES | now() | |
 
 - **Primary Key:** `test_attempts_pkey (id)`

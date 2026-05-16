@@ -12,7 +12,7 @@ Coordinates the test generation workflow:
 import time
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, List, Optional
 from uuid import UUID, uuid4
 
@@ -125,7 +125,7 @@ class TestGenerationOrchestrator:
         start_time = time.time()
 
         # Initialize metrics
-        self.metrics = TestGenMetrics(run_date=datetime.utcnow())
+        self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
 
         try:
             logger.info("=" * 60)
@@ -743,7 +743,7 @@ class TestGenerationOrchestrator:
             TestGenMetrics: Complete execution statistics
         """
         if self.metrics is None:
-            self.metrics = TestGenMetrics(run_date=datetime.utcnow())
+            self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
 
         self.metrics.execution_time_seconds = int(time.time() - start_time)
 
@@ -830,7 +830,7 @@ class TestGenerationOrchestrator:
         if config.dry_run:
             test_gen_config.dry_run = True
 
-        self.metrics = TestGenMetrics(run_date=datetime.utcnow())
+        self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
 
         try:
             # Resolve language

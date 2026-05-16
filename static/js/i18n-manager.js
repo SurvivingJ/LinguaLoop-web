@@ -103,7 +103,17 @@
      * @returns {string} Translated string, or the key itself if not found.
      */
     function t(key, params) {
-        var text = translations[key] || fallbackTranslations[key] || key;
+        var hit = translations[key] || fallbackTranslations[key];
+        if (hit === undefined) {
+            // Warn once per missing key so locale drift surfaces in the
+            // console instead of silently rendering the key string itself.
+            if (!t._warned) t._warned = {};
+            if (!t._warned[key]) {
+                t._warned[key] = true;
+                try { console.warn('[i18n] missing key:', key); } catch (e) {}
+            }
+        }
+        var text = hit !== undefined ? hit : key;
 
         // Simple pluralization via | separator
         if (params && typeof params.count === 'number' && text.indexOf('|') !== -1) {

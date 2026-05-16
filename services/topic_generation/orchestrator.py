@@ -11,7 +11,7 @@ Coordinates the daily topic generation workflow:
 
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Tuple, Optional, Dict
 from uuid import UUID
 
@@ -107,7 +107,7 @@ class TopicGenerationOrchestrator:
 
             # Initialize metrics
             self.metrics = GenerationMetrics(
-                run_date=datetime.utcnow(),
+                run_date=datetime.now(timezone.utc),
                 category_id=category.id,
                 category_name=category.name
             )
@@ -278,7 +278,7 @@ class TopicGenerationOrchestrator:
         """
         if self.metrics is None:
             self.metrics = GenerationMetrics(
-                run_date=datetime.utcnow(),
+                run_date=datetime.now(timezone.utc),
                 category_id=0,
                 category_name="Unknown"
             )

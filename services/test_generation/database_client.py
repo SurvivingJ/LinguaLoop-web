@@ -6,7 +6,7 @@ Uses the existing SupabaseFactory for client management.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
 from dataclasses import dataclass, field
@@ -220,7 +220,7 @@ class TestDatabaseClient:
         update_data = {
             'status_id': status_id,
             'tests_generated': tests_generated,
-            'processed_at': datetime.utcnow().isoformat()
+            'processed_at': datetime.now(timezone.utc).isoformat()
         }
 
         if error_log:
@@ -888,7 +888,7 @@ class TestDatabaseClient:
         snippet = snippet.strip('-')
 
         # Add timestamp for uniqueness
-        timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
 
         slug = f"{language_code}-d{difficulty}-{snippet}-{timestamp}"
         return slug

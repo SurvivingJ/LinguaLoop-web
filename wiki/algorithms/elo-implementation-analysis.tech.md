@@ -3,7 +3,7 @@ title: ELO System — Implementation Analysis (Technical)
 type: algorithm-tech
 status: in-progress
 prose_page: ./elo-implementation-analysis.md
-last_updated: 2026-05-08
+last_updated: 2026-05-15
 dependencies:
   - "calculate_elo_rating() — plpgsql IMMUTABLE"
   - "calculate_volatility_multiplier() — plpgsql IMMUTABLE"
@@ -54,7 +54,7 @@ Post-insert triggers:
   test_attempts INSERT → update_test_attempts_count() → recount per-test
 ```
 
-## Migration History: V1 → V2 → V3
+## Migration History: V1 → V2 → V3 → V4
 
 Three migration files document the evolution of the ELO calculation:
 
@@ -104,7 +104,7 @@ Key V2 changes:
 
 The helper functions (`calculate_elo_rating`, `calculate_volatility_multiplier`) were **not deleted** — they still exist in the database but are no longer called by any code path.
 
-### V3 (`migrations/wire_volatility_and_exclude_attempted.sql`) — Current
+### V3 (`migrations/wire_volatility_and_exclude_attempted.sql`)
 
 Re-wires volatility into the user-side calculation and restores the asymmetric K-factor for tests. The inlined math is replaced with calls to `calculate_volatility_multiplier()` and `calculate_elo_rating()` (which already existed in the live DB but had been disconnected since V2):
 
@@ -129,6 +129,47 @@ END;
 ```
 
 V3 differs from V1 in one principled way: V1 applied a volatility multiplier to the test side too (`calculate_volatility_multiplier(v_test_attempts, NULL, 1.0)`). V3 hardcodes test volatility to 1.0 because the inactivity-decay branch of the multiplier doesn't apply to tests — they don't get rusty — and the new-test branch is more cleanly handled by the difficulty-seeded backfill (`scripts/backfill_test_skill_ratings.py`). The variables `v_user_tests_taken` and `v_user_last_date` are already fetched earlier in the function; no new queries.
+
+### V4 (`migrations/process_test_submission_reduced_repeats.sql`) — Current
+
+Adds a third ELO-update branch for repeat attempts that come via the daily-load retry slot. Same 7-arg signature; existing callers untouched. Adds `test_attempts.elo_reduction_factor numeric NULL`.
+
+```sql
+-- Eligibility (server-side, no client flag):
+-- 1. is_first_attempt = false
+-- 2. EXISTS in daily_test_loads.test_ids today with slot_type='retry'
+-- 3. NOT EXISTS prior test_attempts today on this (user,test) with elo_reduction_factor IS NOT NULL
+
+IF v_is_retry_slot AND NOT v_already_earned_today THEN
+    SELECT MAX(created_at),
+           MAX((score::numeric / NULLIF(total_questions, 0)::numeric) * 100)
+    INTO v_last_attempt_at, v_prev_best
+    FROM test_attempts
+    WHERE user_id = p_user_id AND test_id = p_test_id;
+
+    v_days_since := EXTRACT(EPOCH FROM (NOW() - COALESCE(v_last_attempt_at, NOW()))) / 86400.0;
+    v_base := LEAST(1.0, GREATEST(0.20, v_days_since / 60.0));
+    v_bonus := CASE WHEN (v_percentage - v_prev_best) >= 15 THEN 0.25 ELSE 0 END;
+    v_factor := LEAST(1.0, v_base + v_bonus);
+
+    -- Compose factor into the volatility argument; K-factors unchanged
+    v_new_user_elo := calculate_elo_rating(
+        v_user_elo, v_test_elo, v_percentage_decimal, 32,
+        v_user_volatility * v_factor
+    );
+    v_new_test_elo := calculate_elo_rating(
+        v_test_elo, v_user_elo, 1.0 - v_percentage_decimal, 16,
+        v_factor
+    );
+    v_record_factor := v_factor;  -- persisted to test_attempts
+END IF;
+```
+
+Design notes:
+- Retry-slot detection is a JSONB element scan against `daily_test_loads.test_ids` (the slot list lives inline in that table; there is no child `daily_test_load_items` table — see [services/test_service.py](../../services/test_service.py)).
+- Anti-grind uses `test_attempts.elo_reduction_factor IS NOT NULL` as a same-day sentinel, set atomically by this RPC. The 24h retry-slot cooldown in `_compute_daily_load` already prevents the slot from re-listing the test the same day; the sentinel catches direct-nav retries that bypass the slot UI.
+- Factor is composed into the volatility argument (not into K) because `calculate_elo_rating` already multiplies `k * volatility` — composition keeps the K=32/K=16 asymmetry intact.
+- The improvement bonus compares against `MAX(percentage)` over all prior attempts, not just the most recent one, so a one-time spike doesn't keep paying out on subsequent repeats.
 
 ## Backfill Script: Test ELO Seeding
 

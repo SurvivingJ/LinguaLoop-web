@@ -7,6 +7,7 @@ Provides both class-based and standalone decorator functions.
 from functools import wraps
 from flask import request, jsonify, g
 from gotrue.errors import AuthApiError, AuthRetryableError
+import hmac
 import os
 import logging
 
@@ -54,9 +55,12 @@ def jwt_required(f):
             return jsonify({'error': 'Token missing'}), 401
 
         try:
-            # Check for service role key (batch operations)
+            # Check for service role key (batch operations).
+            # TODO: replace with a dedicated batch-service credential — the
+            # service-role key is also used by the backend's admin Supabase
+            # client, so a leak here means full DB compromise.
             service_role_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-            if service_role_key and token == service_role_key:
+            if service_role_key and hmac.compare_digest(token, service_role_key):
                 g.supabase_claims = {
                     'sub': 'service-account',
                     'role': 'service_role',
@@ -64,6 +68,7 @@ def jwt_required(f):
                 }
                 g.current_user_id = 'service-account'
                 g.user_id = 'service-account'
+                logger.info('Service-role bypass used on %s', request.path)
                 return f(*args, **kwargs)
 
             # Verify with Supabase Auth
@@ -199,116 +204,3 @@ def tier_required(required_tiers: list):
             return f(*args, **kwargs)
         return decorated
     return decorator
-
-
-# ============================================================================
-# CLASS-BASED MIDDLEWARE - For backwards compatibility with existing code
-# ============================================================================
-
-class AuthMiddleware:
-    """
-    Class-based auth middleware for backwards compatibility.
-    New code should use the standalone decorators above.
-    """
-
-    def __init__(self, supabase_client):
-        self.supabase = supabase_client
-        # Get admin client from factory for privileged operations
-        self.supabase_admin = _get_supabase_admin()
-
-    def jwt_required(self, f):
-        """Decorator for endpoints requiring authentication"""
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            token = _extract_token(request)
-            if not token:
-                return jsonify({'error': 'Token missing'}), 401
-
-            try:
-                user = self.supabase.auth.get_user(token)
-                g.current_user_id = user.user.id
-                g.current_user = user.user
-            except AuthApiError:
-                return jsonify({'error': 'Invalid or expired token'}), 401
-            except AuthRetryableError:
-                return jsonify({'error': 'Authentication service unavailable'}), 503
-            except Exception as e:
-                logger.error(f'Class-based JWT validation failed: {e}')
-                return jsonify({'error': 'Invalid token'}), 401
-
-            return f(*args, **kwargs)
-        return decorated
-
-    def admin_required(self, f):
-        """Decorator for admin-only endpoints"""
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            token = _extract_token(request)
-            if not token:
-                return jsonify({'error': 'Token missing'}), 401
-
-            try:
-                user = self.supabase.auth.get_user(token)
-                g.current_user_id = user.user.id
-
-                # Check admin status using admin client to bypass RLS
-                logger.debug(f"[AUTH] Class-based admin check for user_id={user.user.id}")
-                result = self.supabase_admin.table('users')\
-                    .select('subscription_tier')\
-                    .eq('id', user.user.id)\
-                    .execute()
-
-                if not result.data or result.data[0]['subscription_tier'] not in ['admin', 'moderator']:
-                    logger.warning(f"[AUTH] Admin access denied for user_id={user.user.id}")
-                    return jsonify({'error': 'Admin access required'}), 403
-
-                logger.info(f"[AUTH] Admin access granted (class-based) for user_id={user.user.id}")
-
-            except AuthApiError:
-                return jsonify({'error': 'Invalid or expired token'}), 401
-            except AuthRetryableError:
-                return jsonify({'error': 'Authentication service unavailable'}), 503
-            except Exception as e:
-                logger.error(f'Class-based admin auth failed: {e}')
-                return jsonify({'error': 'Access denied'}), 403
-
-            return f(*args, **kwargs)
-        return decorated
-
-    def tier_required(self, required_tiers: list):
-        """Decorator for subscription tier-based access"""
-        def decorator(f):
-            @wraps(f)
-            def decorated(*args, **kwargs):
-                token = _extract_token(request)
-                if not token:
-                    return jsonify({'error': 'Token missing'}), 401
-
-                try:
-                    user = self.supabase.auth.get_user(token)
-                    g.current_user_id = user.user.id
-
-                    # Check tier using admin client to bypass RLS
-                    logger.debug(f"[AUTH] Class-based tier check for user_id={user.user.id}, required_tiers={required_tiers}")
-                    result = self.supabase_admin.table('users')\
-                        .select('subscription_tier')\
-                        .eq('id', user.user.id)\
-                        .execute()
-
-                    if not result.data or result.data[0]['subscription_tier'] not in required_tiers:
-                        logger.warning(f"[AUTH] Tier access denied for user_id={user.user.id}, has tier={result.data[0]['subscription_tier'] if result.data else 'unknown'}")
-                        return jsonify({'error': f'Requires {" or ".join(required_tiers)} access'}), 403
-
-                    logger.info(f"[AUTH] Tier access granted (class-based) for user_id={user.user.id}")
-
-                except AuthApiError:
-                    return jsonify({'error': 'Invalid or expired token'}), 401
-                except AuthRetryableError:
-                    return jsonify({'error': 'Authentication service unavailable'}), 503
-                except Exception as e:
-                    logger.error(f'Class-based tier auth failed: {e}')
-                    return jsonify({'error': 'Access denied'}), 403
-
-                return f(*args, **kwargs)
-            return decorated
-        return decorator

@@ -70,14 +70,17 @@ def upload_words() -> ApiResponse:
         renderer = LadderExerciseRenderer(db)
 
         rendered_count = 0
+        failed_senses = []
         for sense_id in sense_ids:
             try:
                 exercise_ids = renderer.render_all(sense_id, language_id)
                 rendered_count += len(exercise_ids)
             except Exception as e:
                 logger.error("Exercise rendering failed for sense %s: %s", sense_id, e)
+                failed_senses.append({'sense_id': sense_id, 'error': str(e)})
 
         pipeline_result['exercises_rendered'] = rendered_count
+        pipeline_result['failed_senses'] = failed_senses
         return api_success(pipeline_result)
 
     except Exception as e:
