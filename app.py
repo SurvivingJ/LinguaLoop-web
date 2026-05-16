@@ -37,6 +37,7 @@ from routes.corpus import corpus_bp
 from routes.users import users_bp
 from routes.payments import payments_bp
 from routes.mystery import mystery_bp
+from routes.listening_lab import listening_lab_bp
 from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
@@ -261,6 +262,7 @@ def _register_blueprints(app):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
+    app.register_blueprint(listening_lab_bp, url_prefix='/api/listening-lab')
     app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
@@ -374,6 +376,16 @@ def _register_web_routes(app):
     def mystery_page(slug):
         """Render mystery playing page"""
         return render_template('mystery.html')
+
+    @app.route('/listening-lab')
+    def listening_lab_list():
+        """Render listening lab passage list page"""
+        return render_template('listening_lab_list.html')
+
+    @app.route('/listening-lab/<slug>')
+    def listening_lab_page(slug):
+        """Render listening lab player page"""
+        return render_template('listening_lab.html')
 
     @app.route('/vocab-dojo')
     def vocab_dojo():
