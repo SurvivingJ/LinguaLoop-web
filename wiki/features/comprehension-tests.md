@@ -48,7 +48,7 @@ The vocabulary matching uses **set-based operations** (not vector embeddings): e
 
 - **Reading** — text transcript displayed; user reads and answers
 - **Listening** — audio played; transcript hidden until after submission
-- **Dictation** — (type exists in schema; implementation status TBD)
+- **Dictation** — audio played; user types the full transcript from memory. Grader emits per-word correctness that drives both ELO and vocabulary BKT. See [[features/dictation]].
 - **Pinyin Tones** — Chinese only; interactive tone-guessing game using the test transcript. See [[features/pinyin-trainer]].
 
 ## Constraints & Edge Cases

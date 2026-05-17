@@ -615,7 +615,11 @@ Records each user test completion with ELO snapshots.
 | `idempotency_key` | uuid | YES | | Prevents duplicate submissions |
 | `attempt_number` | integer | YES | 1 | |
 | `is_first_attempt` | boolean | YES | true | |
-| `elo_reduction_factor` | numeric | YES | NULL | 2026-05-15: populated only when reduced-volatility ELO fired on a daily-load retry-slot repeat; NULL otherwise. Used as the once-per-day anti-grind sentinel. See [migration](../../migrations/process_test_submission_reduced_repeats.sql), [[decisions/ADR-006-retry-slot-reduced-elo]]. |
+| `elo_reduction_factor` | numeric | YES | NULL | 2026-05-15: populated when reduced-volatility ELO fired on a daily-load retry-slot repeat (anti-grind sentinel). 2026-05-17: now also carries the composed dictation replay K-multiplier when `replay_count > 1`. See [migration](../../migrations/process_test_submission_reduced_repeats.sql), [[decisions/ADR-006-retry-slot-reduced-elo]]. |
+| `replay_count` | smallint | YES | NULL | 2026-05-17: dictation-only. NULL for non-dictation rows; ≥ 1 for dictation; `1` = no replay penalty. See [migration](../../migrations/add_dictation_mode.sql). |
+| `dictation_word_correct` | integer | YES | NULL | 2026-05-17: dictation-only. Words marked correct after Levenshtein fuzzy tolerance (mirrors `score` for dictation rows). |
+| `dictation_word_total` | integer | YES | NULL | 2026-05-17: dictation-only. Canonical tokens after punctuation removal (mirrors `total_questions` for dictation rows). |
+| `dictation_diff` | jsonb | YES | NULL | 2026-05-17: dictation-only. Per-token opcode array for the result-screen inline diff. Capped at 200 entries server-side. |
 | `created_at` | timestamptz | YES | now() | |
 
 - **Primary Key:** `test_attempts_pkey (id)`

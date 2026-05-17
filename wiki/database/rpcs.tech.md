@@ -696,8 +696,10 @@ $function$
 
 - **Security:** DEFINER
 - **Language:** plpgsql
-- **Description:** Returns multiple recommended tests for a user by language id. Checks subscription tier for premium access. Excludes tests the user has already attempted. Returns up to 3 tests per test type (listening, reading, dictation), deduplicated by test_id, sorted by ELO proximity.
-- **Migration history:** Signature changed 2026-05-13 from `(uuid, text)` to `(uuid, smallint)` via [migrations/fix_get_recommended_tests_signature.sql](../../migrations/fix_get_recommended_tests_signature.sql) — the prior `text` form did an in-function lookup against `dim_languages` and was the only RPC accepting a language code/name string; all other RPCs take `p_language_id smallint` directly.
+- **Description:** Returns multiple recommended tests for a user by language id. Checks subscription tier for premium access. Excludes tests the user has already attempted **for that same test type**. Returns up to 3 tests per test type (listening, reading, dictation), deduplicated by `(test_id, test_type)`, sorted by ELO proximity.
+- **Migration history:**
+  - 2026-05-13 — signature changed from `(uuid, text)` to `(uuid, smallint)` via [migrations/fix_get_recommended_tests_signature.sql](../../migrations/fix_get_recommended_tests_signature.sql).
+  - 2026-05-17 — [migrations/update_get_recommended_tests_for_dictation.sql](../../migrations/update_get_recommended_tests_for_dictation.sql): the `NOT EXISTS test_attempts` exclusion key changed from `(user_id, test_id)` to `(user_id, test_id, test_type_id)` so a user who took the listening version of a test still sees the dictation lane; added an 80-word transcript cap on the dictation lane specifically; CTE filter now requires `dim_test_types.is_active = true`.
 
 **Returns:** `TABLE(test_id uuid, slug text, test_type text, title text, difficulty_level integer, elo_rating integer, elo_diff integer, tier text)`
 
@@ -880,6 +882,24 @@ The live function body is maintained in [migrations/process_test_submission_redu
 ---
 
 > **Cleanup migration (2026-05-15):** `migrations/cleanup_corrupt_pinyin_attempts.sql` deleted all `test_attempts` rows for the pinyin type (test_type_id = 11) that were produced by the broken synthetic-response path, recomputed `tests.total_attempts` for affected tests, and reset pinyin `user_skill_ratings` to ELO 1200 / `test_skill_ratings` to ELO 1400.
+
+---
+
+### `process_dictation_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_word_correct integer, p_word_total integer, p_replay_count smallint, p_diff_payload jsonb, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL): jsonb`
+
+- **Security:** DEFINER
+- **Language:** plpgsql
+- **Migration:** [migrations/process_dictation_submission.sql](../../migrations/process_dictation_submission.sql) (2026-05-17)
+- **Description:** Word-accuracy submission for dictation mode. Tokenization, alignment, and Levenshtein fuzzy matching happen in Python ([services/dictation/grader.py](../../services/dictation/grader.py)); this RPC trusts the count inputs and performs validation, idempotency, ELO arithmetic, and writes only. Pure-SQL Levenshtein over JSONB token arrays was rejected as fragile and harder to test.
+- **Arguments:**
+  - `p_word_correct` / `p_word_total` — word-level counts produced by the grader after normalization + alignment.
+  - `p_replay_count` — number of times the audio was played (≥ 1; 1 = no penalty).
+  - `p_diff_payload` — per-token opcodes for the result-screen inline diff (capped at 200 entries client-side).
+  - other args mirror `process_test_submission`.
+- **Validates:** `auth.uid()` matches `p_user_id`; `p_word_total > 0`; `0 ≤ p_word_correct ≤ p_word_total`; `p_replay_count ≥ 1`.
+- **ELO update:** composes `v_replay_factor = GREATEST(0.5, 1.0 - 0.10 * GREATEST(0, p_replay_count - 1))` into the K factor on first attempts AND retry-slot repeats (multiplicative composition with the retry-decay factor per [[decisions/ADR-006-retry-slot-reduced-elo]]). Persisted to `test_attempts.elo_reduction_factor` so the existing badge renderer in `profile.html` works unchanged.
+- **Side effects:** inserts `test_attempts` row (populating `score`, `total_questions`, `replay_count`, `dictation_word_correct`, `dictation_word_total`, `dictation_diff`, `elo_reduction_factor`); get-or-creates and updates `user_skill_ratings` + `test_skill_ratings`; upserts `user_languages`.
+- **Returns:** JSONB envelope shape identical to `process_pinyin_submission` plus `replay_count`, `replay_factor`, and the `diff` payload.
 
 ---
 

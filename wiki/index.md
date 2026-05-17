@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-16 (production-code audit + HIGH/MEDIUM/LOW remediation pass — see log.md 2026-05-15) | Pages: 49
+Last updated: 2026-05-17 (dictation mode shipped — see log.md 2026-05-17) | Pages: 51
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -8,6 +8,8 @@ Last updated: 2026-05-16 (production-code audit + HIGH/MEDIUM/LOW remediation pa
 ## Features
 - [[features/comprehension-tests]] — Reading/listening MC tests with vocab-based recommendations
 - [[features/comprehension-tests.tech]] — Test engine technical spec
+- [[features/dictation]] — Listen + type the full transcript; per-word BKT signal
+- [[features/dictation.tech]] — Grader, RPC, replay K-multiplier, inline diff UI
 - [[features/language-packs]] — Corpus-first themed study bundles (current priority)
 - [[features/language-packs.tech]] — 7-stage pack generation pipeline
 - [[features/exercises]] — 21 exercise types across 4 phases, age-tier difficulty

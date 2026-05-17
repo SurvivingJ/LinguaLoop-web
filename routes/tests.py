@@ -665,6 +665,38 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
         return jsonify({"error": "Failed to process test submission"}), 500
 
 
+def _call_dictation_submission_rpc(
+    client, user_id, test_id, language_id, test_type_id,
+    word_correct, word_total, replay_count, diff_payload, idempotency_key,
+):
+    """Call the process_dictation_submission RPC.
+
+    Returns the parsed RPC result dict, or a (jsonify_response, status_code)
+    tuple on error.
+    """
+    try:
+        response = client.rpc('process_dictation_submission', {
+            'p_user_id': user_id,
+            'p_test_id': test_id,
+            'p_language_id': language_id,
+            'p_test_type_id': test_type_id,
+            'p_word_correct': int(word_correct),
+            'p_word_total': int(word_total),
+            'p_replay_count': int(replay_count),
+            'p_diff_payload': diff_payload,
+            'p_was_free_test': True,
+            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
+        }).execute()
+        return response.data
+    except Exception as e:
+        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
+        if isinstance(error_data, dict) and error_data.get('success'):
+            current_app.logger.info(f"Dictation RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
+            return error_data
+        current_app.logger.error(f"Dictation RPC call failed: {error_data}")
+        return jsonify({"error": "Failed to process dictation submission"}), 500
+
+
 def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars):
     """Call the process_pinyin_submission RPC (accuracy-based, no MC questions).
 
@@ -955,6 +987,166 @@ def submit_pinyin_attempt(slug):
         return jsonify({'error': 'Failed to submit pinyin test'}), 500
 
 
+@tests_bp.route('/<slug>/submit-dictation', methods=['POST'])
+@supabase_jwt_required
+def submit_dictation_attempt(slug):
+    """Submit a dictation transcript for grading.
+
+    Grades the typed transcript against the canonical one server-side via
+    services.dictation.grader.grade_dictation, then calls
+    process_dictation_submission to persist the attempt + update ELO, and
+    finally fires per-word BKT updates for every transcript word that maps
+    to a dim_word_senses row.
+    """
+    try:
+        if not current_app.supabase_service:
+            return jsonify({"error": "Database service not configured"}), 500
+
+        current_user_id = g.current_user_id
+        data = request.get_json() or {}
+
+        user_transcript = (data.get('user_transcript') or '').strip()
+        replay_count = data.get('replay_count', 1)
+        time_taken = data.get('time_taken', 0)
+        idempotency_key = data.get('idempotency_key') or str(uuid4())
+
+        if not user_transcript:
+            return jsonify({"error": "Empty user_transcript"}), 400
+
+        try:
+            replay_count = max(1, int(replay_count))
+        except (TypeError, ValueError):
+            replay_count = 1
+
+        # Fetch canonical transcript + vocab metadata server-side
+        test_lookup = current_app.supabase_service.table('tests') \
+            .select('id, language_id, transcript, vocab_sense_ids, vocab_token_map') \
+            .eq('slug', slug) \
+            .eq('is_active', True) \
+            .single() \
+            .execute()
+
+        if not test_lookup.data:
+            return jsonify({"error": f"Test not found: {slug}"}), 404
+
+        test = test_lookup.data
+        test_id = test['id']
+        language_id = test['language_id']
+        correct_transcript = (test.get('transcript') or '').strip()
+
+        if not correct_transcript:
+            return jsonify({"error": "Test has no transcript"}), 400
+
+        # Server-side pathological-length guard (see plan §10)
+        if len(user_transcript) > 10 * max(1, len(correct_transcript)):
+            return jsonify({"error": "user_transcript exceeds 10x canonical length"}), 400
+
+        dictation_type_id = DimensionService.get_test_type_id('dictation')
+        if not dictation_type_id:
+            return jsonify({"error": "Dictation test type not configured"}), 500
+
+        language_code = DimensionService.get_language_code(language_id) or ''
+
+        # Grade
+        from services.dictation import grade_dictation
+        result = grade_dictation(correct_transcript, user_transcript, language_code)
+
+        if result.word_total <= 0:
+            return jsonify({"error": "Canonical transcript produced no tokens"}), 500
+
+        # Map canonical tokens → sense_ids via vocab_token_map.
+        # Token map is a list of (surface_form, sense_id) pairs aligned to
+        # the test's tokenization. We do a lemma-agnostic surface match
+        # (post-normalization) on the canonical token strings.
+        token_map = test.get('vocab_token_map') or []
+        if token_map:
+            # Build a lookup from normalized surface → sense_id.
+            from services.dictation.tokenizer import normalize as _norm
+            surface_to_sense = {}
+            for entry in token_map:
+                if not entry or len(entry) < 2:
+                    continue
+                surface, sense_id = entry[0], entry[1]
+                if not sense_id:
+                    continue
+                key = _norm(str(surface))
+                # First mapping wins (avoid overwriting with later duplicates)
+                surface_to_sense.setdefault(key, sense_id)
+
+            for d in result.diff:
+                if d.correct:
+                    d.sense_id = surface_to_sense.get(d.correct)
+
+        diff_payload = result.diff_payload()
+        # Cap stored diff at 200 entries (per plan); but full diff still
+        # returned to client for the current response.
+        diff_payload_stored = diff_payload[:200]
+
+        rpc_result = _call_dictation_submission_rpc(
+            current_app.supabase_service, current_user_id,
+            test_id, language_id, dictation_type_id,
+            result.word_correct, result.word_total, replay_count,
+            diff_payload_stored, idempotency_key,
+        )
+        if isinstance(rpc_result, tuple):
+            return rpc_result
+
+        if not rpc_result or not rpc_result.get('success'):
+            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
+            current_app.logger.error(f"Dictation RPC failed: {error_msg}")
+            return jsonify({"error": "Failed to process dictation submission", "details": error_msg}), 500
+
+        # Per-word BKT updates (fire-and-log, never roll back the attempt)
+        try:
+            knowledge_svc = VocabularyKnowledgeService()
+            bkt_count = 0
+            for d in result.diff:
+                if d.sense_id and d.op in ('equal', 'replace', 'delete'):
+                    knowledge_svc.update_from_word_test(
+                        user_id=current_user_id,
+                        sense_id=d.sense_id,
+                        is_correct=bool(d.is_correct),
+                        language_id=language_id,
+                    )
+                    bkt_count += 1
+            current_app.logger.info(
+                f"Dictation BKT: user={current_user_id} test={test_id} "
+                f"{bkt_count} per-word updates"
+            )
+        except Exception as e:
+            current_app.logger.error(f"Dictation BKT update failed (non-fatal): {e}")
+
+        response = {
+            'accuracy': round(result.accuracy * 100, 1),
+            'word_correct': result.word_correct,
+            'word_total': result.word_total,
+            'replay_count': replay_count,
+            'time_taken': time_taken,
+            'diff': diff_payload,
+            'user_elo_change': {
+                'before': rpc_result.get('user_elo_before'),
+                'after': rpc_result.get('user_elo_after'),
+                'change': rpc_result.get('user_elo_change', 0),
+            },
+            'test_elo_change': {
+                'before': rpc_result.get('test_elo_before'),
+                'after': rpc_result.get('test_elo_after'),
+                'change': rpc_result.get('test_elo_change', 0),
+            },
+            'replay_factor': rpc_result.get('replay_factor'),
+            'elo_reduction_factor': rpc_result.get('elo_reduction_factor'),
+            'test_mode': 'dictation',
+            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
+        }
+
+        return jsonify({'status': 'success', 'result': response}), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Dictation submission error: {e}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'Failed to submit dictation'}), 500
+
+
 @tests_bp.route('/test/<identifier>', methods=['GET'])
 #@supabase_jwt_required
 def get_test_with_ratings(identifier):
@@ -991,6 +1183,13 @@ def get_test_with_ratings(identifier):
         lang_info = test.pop('dim_languages', {}) or {}
         test['language'] = lang_info.get('language_code', 'unknown')
         test['language_name'] = lang_info.get('language_name', 'Unknown')
+
+        # Withhold transcript pre-submit in dictation mode — the entire point
+        # is that the learner types what they hear without seeing the text.
+        mode = (request.args.get('mode') or '').lower()
+        if mode == 'dictation':
+            test.pop('transcript', None)
+            test.pop('vocab_token_map', None)
 
         normalize_audio_url(test)
 

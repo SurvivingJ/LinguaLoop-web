@@ -614,6 +614,8 @@
             // Navigate to test taking screen
             if (selectedTestType === 'pinyin') {
                 window.location.href = `/test/${testSlug}/pinyin`;
+            } else if (selectedTestType === 'dictation') {
+                window.location.href = `/test/${testSlug}/dictation`;
             } else {
                 window.location.href = `/test/${testSlug}?type=${selectedTestType}`;
             }

@@ -1,5 +1,28 @@
 # Activity Log
 
+## 2026-05-17 change | Dictation mode shipped
+
+Implemented dictation as a new test type, end-to-end. The `dictation` row in `dim_test_types` (id=3) had existed as an inactive placeholder since project bootstrap; this change activates it and wires the full pipeline.
+
+**Design (locked via /plan):** whole-passage submission (single textarea, single submit), hybrid word-level scoring with Levenshtein typo tolerance, replays tracked with soft K-multiplier penalty, ignore punctuation + casing + diacritics, per-word BKT updates for every transcript word, reuse all existing listening tests verbatim, inline color-coded diff on the result screen.
+
+**Database** ([migrations/add_dictation_mode.sql](../migrations/add_dictation_mode.sql), [process_dictation_submission.sql](../migrations/process_dictation_submission.sql), [update_get_recommended_tests_for_dictation.sql](../migrations/update_get_recommended_tests_for_dictation.sql)) — activated `dim_test_types.dictation`; added `replay_count`, `dictation_word_correct`, `dictation_word_total`, `dictation_diff` columns to `test_attempts`; backfilled 243 `test_skill_ratings` rows for `test_type_id=3`; new RPC `process_dictation_submission` mirrors `process_pinyin_submission` shape; `get_recommended_tests` changed exclusion key from `(user_id, test_id)` to `(user_id, test_id, test_type_id)` and added an 80-word transcript cap on the dictation lane.
+
+**Backend** ([services/dictation/grader.py](../services/dictation/grader.py), [tokenizer.py](../services/dictation/tokenizer.py)) — new scoring service with `grade_dictation(canonical, user, language_code) → GradingResult`. Pure-Python bounded Levenshtein (no `python-Levenshtein` dependency); `difflib.SequenceMatcher` alignment; lazy `jieba` import for Chinese with char-level fallback for Japanese. [routes/tests.py](../routes/tests.py) gained `POST /api/tests/<slug>/submit-dictation` and a `?mode=dictation` query param on the existing GET handler that strips the canonical transcript pre-submit. [app.py](../app.py) added `GET /test/<slug>/dictation` page route. `DimensionService.get_language_code(language_id)` helper added.
+
+**Frontend** ([templates/test_dictation.html](../templates/test_dictation.html)) — new self-contained client page with audio player, replay counter, speed toggle (1.0x / 0.75x / 0.5x via `playbackRate`, zero TTS cost), textarea, submit button, results overlay with inline diff (correct / wrong / missing / extra). [templates/test_preview.html](../templates/test_preview.html) `startTest()` routing updated to point dictation at `/test/<slug>/dictation`. 22 new `dictation.*` i18n keys added across en / zh / es / ja.
+
+**Replay K-multiplier curve.** `max(0.5, 1.0 - 0.10 * max(0, replay_count - 1))` — one replay free, -10% per additional play, 0.50 floor. Composed multiplicatively with retry-slot factor per [ADR-006](decisions/ADR-006-retry-slot-reduced-elo.md). Persisted to `test_attempts.elo_reduction_factor` so the existing `profile.html` "Review · 0.45× ELO" badge renderer works unchanged. No new ADR; inline-documented.
+
+**Per-word BKT.** Every canonical token that maps to a `dim_word_senses` row (via `tests.vocab_token_map` surface lookup) triggers `VocabularyKnowledgeService.update_from_word_test(sense_id, is_correct)`. One dictation submission ≈ 50-100 BKT data points vs ~5 from a comprehension test — the dominant learning-value upside of this feature.
+
+**Tests** ([tests/test_dictation_grader.py](../tests/test_dictation_grader.py)) — 34 unit tests covering Levenshtein, fuzzy equality thresholds, normalization (case / diacritics / punctuation / apostrophes / hyphens / whitespace), tokenization, perfect/zero match, typo within and beyond tolerance, short-word strictness, extra/missing words, empty transcript, Chinese round-trip, diff payload serialization. All passing. Full pre-existing test suite still passes (the one unrelated `test_difficulty_frequency::test_tier_still_dominates` failure is a flaky `assert 2.1 < 2.1` in exercise generation, untouched here).
+
+**Verification.** `SELECT test_type, COUNT(*) FROM get_recommended_tests(user_uuid, 1::smallint) GROUP BY test_type` returns 3 dictation candidates alongside the existing listening and reading lanes.
+
+**Pages created/updated:** [features/dictation.md](features/dictation.md), [features/dictation.tech.md](features/dictation.tech.md), [index.md](index.md). Cross-references: [features/comprehension-tests.md](features/comprehension-tests.md) (dictation status updated to in-progress → complete).
+
+
 ## 2026-05-15 change | Production-code audit + HIGH/MEDIUM/LOW remediation
 
 Full-codebase audit (Python backend, SQL/RPC layer, JS/templates frontend) followed by a graded remediation pass. Plan + findings at [`C:\Users\James\.claude\plans\crawl-the-code-base-eager-wilkes.md`](../../.claude/plans/crawl-the-code-base-eager-wilkes.md). Three parallel `Explore` agents produced 60+ findings; this entry covers the 22 items shipped and the 9 explicitly skipped.

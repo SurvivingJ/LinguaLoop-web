@@ -141,6 +141,16 @@ class DimensionService:
         return None
 
     @classmethod
+    def get_language_code(cls, language_id: int) -> Optional[str]:
+        """Reverse lookup: language_id → language_code (e.g. 1 → 'cn')."""
+        if language_id is None:
+            return None
+        for row in cls._languages_metadata:
+            if row.get('id') == language_id:
+                return row.get('language_code')
+        return None
+
+    @classmethod
     def get_test_type_id(cls, type_code: str, supabase_client=None) -> Optional[int]:
         """Get test type ID from code (listening, reading, dictation)."""
         if not type_code:

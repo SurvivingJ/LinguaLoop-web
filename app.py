@@ -358,6 +358,11 @@ def _register_web_routes(app):
         """Render pinyin tone trainer page (client-side rendered)"""
         return render_template('test_pinyin.html')
 
+    @app.route('/test/<slug>/dictation')
+    def dictation_test_page(slug):
+        """Render dictation test page (client-side rendered)"""
+        return render_template('test_dictation.html')
+
     @app.route('/flashcards')
     def flashcards():
         """Render flashcards review page"""
