@@ -885,6 +885,22 @@ The live function body is maintained in [migrations/process_test_submission_redu
 
 ---
 
+### `process_pitch_accent_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_correct_units integer, p_total_units integer, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL): jsonb`
+
+- **Security:** DEFINER
+- **Language:** plpgsql
+- **Migration:** [migrations/process_pitch_accent_submission.sql](../../migrations/process_pitch_accent_submission.sql) (2026-05-17)
+- **Description:** Accuracy-based test submission for the Japanese Pitch Accent Trainer. Mirrors `process_pinyin_submission` (parameter rename only) — accepts pre-counted `correct_units` / `total_units` (one unit per accent-phrase word), records the attempt, updates ELO via the same K=32 first-attempt-only formula. The pitch trainer does not use MC questions, so `process_test_submission` cannot grade pitch attempts.
+- **Arguments:**
+  - `p_correct_units` — accent-phrase words guessed without ever needing a retry (`max(0, total_units - error_count)`)
+  - `p_total_units` — playable accent-phrase words in the test
+  - other args mirror `process_test_submission`
+- **Validates:** `auth.uid()` matches `p_user_id`; `p_total_units > 0`; `0 <= p_correct_units <= p_total_units`.
+- **Side effects:** inserts `test_attempts` row; get-or-creates and updates `user_skill_ratings` + `test_skill_ratings`; upserts `user_languages.last_test_date / total_tests_taken`.
+- **Returns:** JSONB envelope identical in shape to `process_pinyin_submission` (`success`, `attempt_id`, `user_elo_before/after/change`, `test_elo_before/after/change`, `score`, `total_questions`, `percentage`, ...).
+
+---
+
 ### `process_dictation_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_word_correct integer, p_word_total integer, p_replay_count smallint, p_diff_payload jsonb, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL): jsonb`
 
 - **Security:** DEFINER

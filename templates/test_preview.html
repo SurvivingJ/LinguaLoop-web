@@ -296,6 +296,18 @@
                                     <span data-i18n="test_preview.pinyin">Pinyin Tones</span>
                                 </label>
                             </div>
+
+                            <div class="test-type-option" id="pitchAccentOptionWrapper" style="display: none;">
+                                <input type="radio"
+                                       name="testType"
+                                       id="pitchAccentOption"
+                                       value="pitch_accent"
+                                       onchange="updateDifficultyDisplay('pitch_accent')">
+                                <label for="pitchAccentOption" class="test-type-label">
+                                    <i class="bi bi-music-note-beamed"></i>
+                                    <span data-i18n="test_preview.pitch_accent">Pitch Accent</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -498,6 +510,11 @@
             document.getElementById('pinyinOptionWrapper').style.display = 'block';
         }
 
+        // Show pitch accent option for Japanese tests only
+        if (test.language === 'jp' || test.language === 'ja' || test.language_id === 3) {
+            document.getElementById('pitchAccentOptionWrapper').style.display = 'block';
+        }
+
         // Audio availability
         if (test.audio_generated || test.audio_url) {
             document.getElementById('audioAvailable').classList.remove('d-none');
@@ -614,6 +631,8 @@
             // Navigate to test taking screen
             if (selectedTestType === 'pinyin') {
                 window.location.href = `/test/${testSlug}/pinyin`;
+            } else if (selectedTestType === 'pitch_accent') {
+                window.location.href = `/test/${testSlug}/pitch-accent`;
             } else if (selectedTestType === 'dictation') {
                 window.location.href = `/test/${testSlug}/dictation`;
             } else {

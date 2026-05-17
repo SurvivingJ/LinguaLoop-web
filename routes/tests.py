@@ -723,6 +723,32 @@ def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type
         return jsonify({"error": "Failed to process pinyin submission"}), 500
 
 
+def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units):
+    """Call the process_pitch_accent_submission RPC (accuracy-based, no MC questions).
+
+    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
+    """
+    try:
+        response = client.rpc('process_pitch_accent_submission', {
+            'p_user_id': user_id,
+            'p_test_id': test_id,
+            'p_language_id': language_id,
+            'p_test_type_id': test_type_id,
+            'p_correct_units': int(correct_units),
+            'p_total_units': int(total_units),
+            'p_was_free_test': True,
+            'p_idempotency_key': str(uuid4()),
+        }).execute()
+        return response.data
+    except Exception as e:
+        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
+        if isinstance(error_data, dict) and error_data.get('success'):
+            current_app.logger.info(f"Pitch accent RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
+            return error_data
+        current_app.logger.error(f"Pitch accent RPC call failed: {error_data}")
+        return jsonify({"error": "Failed to process pitch accent submission"}), 500
+
+
 def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
     """Run BKT vocabulary tracking and build a word quiz from question results.
 
@@ -987,6 +1013,92 @@ def submit_pinyin_attempt(slug):
         return jsonify({'error': 'Failed to submit pinyin test'}), 500
 
 
+@tests_bp.route('/<slug>/submit-pitch-accent', methods=['POST'])
+@supabase_jwt_required
+def submit_pitch_accent_attempt(slug):
+    """Submit pitch accent trainer results.
+
+    Accepts accuracy-based scoring (correct_units / total_units, one unit per
+    accent phrase) and delegates to process_pitch_accent_submission, which
+    records the attempt and updates ELO without referencing the test's MC
+    questions.
+    """
+    try:
+        if not current_app.supabase_service:
+            return jsonify({"error": "Database service not configured"}), 500
+
+        current_user_id = g.current_user_id
+        data = request.get_json() or {}
+
+        correct_units = data.get('correct_units', 0)
+        total_units = data.get('total_units', 0)
+        time_taken = data.get('time_taken', 0)
+
+        if total_units <= 0:
+            return jsonify({"error": "Invalid total_units"}), 400
+
+        accuracy = correct_units / total_units
+
+        test_lookup = current_app.supabase_service.table('tests') \
+            .select('id, language_id') \
+            .eq('slug', slug) \
+            .eq('is_active', True) \
+            .single() \
+            .execute()
+
+        if not test_lookup.data:
+            return jsonify({"error": f"Test not found: {slug}"}), 404
+
+        test_id = test_lookup.data['id']
+        language_id = test_lookup.data['language_id']
+
+        if language_id != 3:
+            return jsonify({"error": "Pitch accent mode is only available for Japanese tests"}), 400
+
+        pitch_type_id = DimensionService.get_test_type_id('pitch_accent')
+        if not pitch_type_id:
+            return jsonify({"error": "Pitch accent test type not configured"}), 500
+
+        rpc_result = _call_pitch_accent_submission_rpc(
+            current_app.supabase_service, current_user_id,
+            test_id, language_id, pitch_type_id,
+            correct_units, total_units,
+        )
+        if isinstance(rpc_result, tuple):
+            return rpc_result
+
+        if not rpc_result or not rpc_result.get('success'):
+            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
+            current_app.logger.error(f"Pitch accent RPC failed: {error_msg}")
+            return jsonify({"error": "Failed to process pitch accent submission"}), 500
+
+        result = {
+            'accuracy': round(accuracy * 100, 1),
+            'correct_units': correct_units,
+            'total_units': total_units,
+            'time_taken': time_taken,
+            'user_elo_change': {
+                'before': rpc_result.get('user_elo_before'),
+                'after': rpc_result.get('user_elo_after'),
+                'change': rpc_result.get('user_elo_change', 0)
+            },
+            'test_elo_change': {
+                'before': rpc_result.get('test_elo_before'),
+                'after': rpc_result.get('test_elo_after'),
+                'change': rpc_result.get('test_elo_change', 0)
+            },
+            'test_mode': 'pitch_accent',
+            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
+        }
+
+        return jsonify({'status': 'success', 'result': result}), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Pitch accent submission error: {e}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'Failed to submit pitch accent test'}), 500
+
+
 @tests_bp.route('/<slug>/submit-dictation', methods=['POST'])
 @supabase_jwt_required
 def submit_dictation_attempt(slug):
@@ -1158,7 +1270,7 @@ def get_test_with_ratings(identifier):
         select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
-            'vocab_token_map, pinyin_payload, '
+            'vocab_token_map, pinyin_payload, pitch_payload, '
             'dim_languages(language_code, language_name)'
         )
 
@@ -1215,6 +1327,8 @@ def get_test_with_ratings(identifier):
         
         # Pop pinyin payload (only present for Chinese tests)
         pinyin_payload = test.pop('pinyin_payload', None)
+        # Pop pitch accent payload (only present for Japanese tests)
+        pitch_payload = test.pop('pitch_payload', None)
 
         # Load definitions for vocab token map sense IDs
         token_map = test.pop('vocab_token_map', None) or []
@@ -1245,6 +1359,8 @@ def get_test_with_ratings(identifier):
         }
         if pinyin_payload is not None:
             response_data["pinyin_payload"] = pinyin_payload
+        if pitch_payload is not None:
+            response_data["pitch_payload"] = pitch_payload
 
         return jsonify(response_data)
 

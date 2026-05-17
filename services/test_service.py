@@ -293,6 +293,19 @@ class TestService:
                     except Exception as e:
                         logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
 
+            # Generate pitch accent payload for Japanese tests
+            if language_id == 3:
+                transcript = test_data.get("transcript", "")
+                if transcript:
+                    try:
+                        from services.pitch_accent_service import process_passage as process_pitch_passage
+                        pitch_payload = process_pitch_passage(transcript)
+                        self.admin.table('tests').update({
+                            'pitch_payload': pitch_payload
+                        }).eq('id', test_id).execute()
+                    except Exception as e:
+                        logger.warning(f"Pitch accent payload generation failed (non-fatal): {e}")
+
             return test_id
 
         except Exception as e:
@@ -313,6 +326,12 @@ class TestService:
             pinyin_id = DimensionService.get_test_type_id('pinyin', self.admin)
             if pinyin_id:
                 type_ids.append(pinyin_id)
+
+        # Add pitch_accent skill rating for Japanese tests
+        if language_id == 3:
+            pitch_id = DimensionService.get_test_type_id('pitch_accent', self.admin)
+            if pitch_id:
+                type_ids.append(pitch_id)
 
         now = datetime.now(timezone.utc).isoformat()
 

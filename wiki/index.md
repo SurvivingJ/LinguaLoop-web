@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-17 (dictation mode shipped — see log.md 2026-05-17) | Pages: 51
+Last updated: 2026-05-17 (Pitch Accent Trainer for Japanese — see log.md 2026-05-17) | Pages: 53
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -31,6 +31,8 @@ Last updated: 2026-05-17 (dictation mode shipped — see log.md 2026-05-17) | Pa
 - [[features/vocab-dojo.tech]] — get_ladder_session RPC, priority scoring, gate/stress-test orchestration
 - [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
+- [[features/pitch-accent-trainer]] — Japanese pitch-accent game mode (heiban/atamadaka/nakadaka/odaka), Quick + Contour renderers
+- [[features/pitch-accent-trainer.tech]] — pyopenjtalk pipeline, mora segmentation, pitch_payload schema, submit-pitch-accent endpoint
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 

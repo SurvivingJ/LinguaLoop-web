@@ -1,0 +1,1297 @@
+{% extends "base.html" %}
+
+{% block title %}Pitch Accent Trainer | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-heiban: #43A047;
+        --accent-atamadaka: #E53935;
+        --accent-nakadaka: #F57C00;
+        --accent-odaka: #1E88E5;
+        --accent-unknown: #9E9E9E;
+        --pitch-h: #1E88E5;
+        --pitch-l: #475569;
+    }
+
+    .pa-header {
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-default);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pa-progress-bar {
+        height: 6px;
+        background: var(--border-default);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .pa-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+        transition: width 0.3s ease;
+    }
+
+    .mode-toggle {
+        display: inline-flex;
+        background: var(--bg-muted);
+        border-radius: 8px;
+        padding: 3px;
+        gap: 2px;
+    }
+    .mode-toggle button {
+        border: none;
+        background: transparent;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .mode-toggle button.active {
+        background: var(--bg-surface);
+        color: var(--primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .passage-container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 20px 120px;
+    }
+
+    .passage-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        font-size: 1.6rem;
+        line-height: 1.6;
+        justify-content: flex-start;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .word-token {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 2px;
+        position: relative;
+        cursor: default;
+        transition: all 0.2s ease;
+    }
+    .word-token.upcoming { color: var(--slate-400); }
+    .word-token.current { transform: scale(1.18); margin: 0 6px; }
+    .word-token.current .word-surface {
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 2px;
+    }
+    .word-token.completed { opacity: 1; }
+    .word-token.error-flash { animation: shake 0.3s ease; }
+    .word-token.correct-flash { animation: pop 0.2s ease; }
+    .word-token.punctuation { color: var(--slate-500); }
+
+    .word-token.cls-heiban    .word-surface { color: var(--accent-heiban); }
+    .word-token.cls-atamadaka .word-surface { color: var(--accent-atamadaka); }
+    .word-token.cls-nakadaka  .word-surface { color: var(--accent-nakadaka); }
+    .word-token.cls-odaka     .word-surface { color: var(--accent-odaka); }
+    .word-token.cls-unknown   .word-surface { color: var(--accent-unknown); }
+
+    .word-surface {
+        position: relative;
+        z-index: 1;
+    }
+    .word-kana-mini {
+        font-size: 0.45em;
+        color: var(--text-muted);
+        line-height: 1;
+        margin-top: 2px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        font-family: var(--bs-font-monospace, monospace);
+    }
+    .word-token.completed .word-kana-mini { opacity: 1; }
+
+    .contour-mini {
+        margin-top: 4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    .word-token.completed .contour-mini { opacity: 1; }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+    }
+    @keyframes pop {
+        0% { transform: scale(1.18); }
+        50% { transform: scale(1.35); }
+        100% { transform: scale(1); }
+    }
+
+    /* Contour scratchpad (Mode B) */
+    .scratchpad {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        padding: 16px 20px 12px;
+        margin: 24px auto 0;
+        max-width: 520px;
+        box-shadow: var(--shadow-sm);
+    }
+    .scratch-word {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+    .scratch-instruction {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+
+    .scratch-track {
+        display: grid;
+        gap: 6px;
+        margin: 0 auto;
+    }
+    .scratch-row {
+        display: grid;
+        align-items: center;
+        gap: 8px;
+    }
+    .scratch-row-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-align: right;
+        padding-right: 4px;
+    }
+    .scratch-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+    }
+    .scratch-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--border-strong);
+        transition: all 0.15s ease;
+    }
+    .scratch-cell:hover .scratch-dot { background: var(--primary); transform: scale(1.3); }
+    .scratch-cell.selected .scratch-dot {
+        background: var(--primary);
+        transform: scale(1.8);
+        box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+    }
+    .scratch-cell.selected.row-high .scratch-dot { background: var(--pitch-h); }
+    .scratch-cell.selected.row-low  .scratch-dot { background: var(--pitch-l); }
+    .scratch-cell.current { background: rgba(30, 136, 229, 0.05); border: 1px dashed var(--primary); }
+
+    .scratch-mora-row {
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-align: center;
+        color: var(--text-primary);
+        padding-top: 4px;
+    }
+    .scratch-mora-row .particle { color: var(--text-muted); font-weight: 400; }
+
+    .scratch-svg {
+        pointer-events: none;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        overflow: visible;
+    }
+    .scratch-wrap { position: relative; }
+
+    .scratch-submit {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .scratch-submit:hover { background: var(--primary-hover); }
+    .scratch-submit:disabled { background: var(--border-strong); cursor: not-allowed; }
+
+    /* Bottom controls */
+    .controls-hint {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border-default);
+        padding: 12px 20px;
+        z-index: 50;
+    }
+    .controls-grid {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    .control-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    .control-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 8px;
+        border: 2px solid var(--border-strong);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+    .class-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* Error Modal */
+    .error-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.4);
+        z-index: 200;
+        animation: fadeIn 0.15s ease;
+    }
+    .error-modal {
+        position: fixed;
+        z-index: 201;
+        background: var(--bg-surface);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 28px 24px;
+        animation: slideUp 0.2s ease;
+        width: 90%;
+        max-width: 460px;
+    }
+    @media (min-width: 481px) {
+        .error-modal {
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+    @media (max-width: 480px) {
+        .error-modal {
+            bottom: 0; left: 0; right: 0;
+            width: 100%; max-width: 100%;
+            border-radius: 16px 16px 0 0;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+        }
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .error-word {
+        font-size: 2.4rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 4px;
+    }
+    .error-kana {
+        text-align: center;
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+    .error-classes {
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        margin-bottom: 16px;
+    }
+    .class-label { text-align: center; }
+    .class-label .class-name { font-size: 1rem; font-weight: 700; }
+    .class-label .class-desc { font-size: 0.78rem; color: var(--text-muted); }
+    .accent-explanation {
+        background: var(--info-bg);
+        border-left: 4px solid var(--info);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.9rem;
+        color: var(--slate-700);
+        margin-bottom: 16px;
+    }
+    .error-continue-btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: var(--primary);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .error-continue-btn:hover { background: var(--primary-hover); }
+
+    /* Results */
+    .results-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--bg-body);
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+    .results-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 32px;
+        width: 90%;
+        max-width: 480px;
+        text-align: center;
+    }
+    .results-accuracy {
+        font-size: 4rem;
+        font-weight: 800;
+        margin: 16px 0 8px;
+    }
+    .results-accuracy.excellent { color: var(--success); }
+    .results-accuracy.good { color: var(--accent-nakadaka); }
+    .results-accuracy.fair { color: var(--warning); }
+    .results-accuracy.poor { color: var(--danger); }
+    .results-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 20px 0;
+    }
+    .stat-box {
+        padding: 12px;
+        background: var(--bg-muted);
+        border-radius: 8px;
+    }
+    .stat-box .stat-value { font-size: 1.4rem; font-weight: 700; }
+    .stat-box .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Loading */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    .loading-spinner {
+        background: var(--bg-surface);
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+    }
+    .spinner-icon {
+        border: 4px solid var(--border-default);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+        .passage-grid { font-size: 1.35rem; line-height: 1.55; }
+        .controls-grid { gap: 8px; }
+        .control-item { font-size: 11px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p>
+    </div>
+</div>
+
+<div id="errorState" class="container py-5" style="display: none;">
+    <div class="alert alert-danger">
+        <h5><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h5>
+        <p id="errorMessage" class="mb-2"></p>
+        <a href="/tests" class="btn btn-danger">
+            <i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>
+        </a>
+    </div>
+</div>
+
+<div class="pa-header" id="paHeader" style="display: none;">
+    <div class="container py-3">
+        <div class="row align-items-center g-2">
+            <div class="col-12 col-md-auto">
+                <h5 class="mb-0">
+                    <i class="bi bi-music-note-beamed text-primary me-2"></i>
+                    <span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span>
+                </h5>
+            </div>
+            <div class="col-12 col-md-auto ms-md-auto d-flex align-items-center gap-2 flex-wrap">
+                <div class="mode-toggle" id="modeToggle">
+                    <button type="button" data-mode="quick" class="active">
+                        <i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span>
+                    </button>
+                    <button type="button" data-mode="contour">
+                        <i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span>
+                    </button>
+                </div>
+                <span class="badge bg-primary" id="testLanguage"></span>
+                <span class="text-slate-500">
+                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="pa-progress-bar">
+        <div class="pa-progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+</div>
+
+<div class="passage-container" id="passageContainer" style="display: none;">
+    <div class="passage-grid" id="passageGrid"></div>
+    <div id="scratchpadContainer"></div>
+</div>
+
+<div class="controls-hint" id="controlsHint" style="display: none;">
+    <div class="controls-grid" id="controlsGrid"></div>
+</div>
+
+<div id="errorModalContainer"></div>
+<div id="resultsContainer"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // =====================================================================
+    // STATE
+    // =====================================================================
+    const state = {
+        slug: null,
+        testData: null,
+        allTokens: [],         // full payload including punctuation
+        playableTokens: [],    // content words only
+        playableIndices: [],   // map playable index → allTokens index
+        currentIndex: 0,
+        correctCount: 0,
+        errorCount: 0,
+        errors: [],
+        startTime: null,
+        timerInterval: null,
+        isComplete: false,
+        isPaused: false,
+        mode: 'quick',          // 'quick' | 'contour'
+        contourInput: [],       // working array of 'H'/'L'/null for current token
+        contourCursor: 0,       // current mora being edited in contour mode
+    };
+
+    const CLASS_INFO = {
+        heiban:    { key: 'pitch.class.heiban',    keyShort: '←', keyName: 'ArrowLeft',  arrow: '←', desc: 'pitch.class.heiban_desc' },
+        atamadaka: { key: 'pitch.class.atamadaka', keyShort: '↑', keyName: 'ArrowUp',    arrow: '↑', desc: 'pitch.class.atamadaka_desc' },
+        nakadaka:  { key: 'pitch.class.nakadaka',  keyShort: '→', keyName: 'ArrowRight', arrow: '→', desc: 'pitch.class.nakadaka_desc' },
+        odaka:     { key: 'pitch.class.odaka',     keyShort: '↓', keyName: 'ArrowDown',  arrow: '↓', desc: 'pitch.class.odaka_desc' },
+    };
+
+    const KEY_TO_CLASS = {
+        'ArrowLeft':  'heiban',
+        'ArrowUp':    'atamadaka',
+        'ArrowRight': 'nakadaka',
+        'ArrowDown':  'odaka',
+    };
+
+    function t(key, fallback) {
+        try { return (window.LinguaI18n && LinguaI18n.t) ? LinguaI18n.t(key) : (fallback || key); }
+        catch (e) { return fallback || key; }
+    }
+
+    // =====================================================================
+    // INITIALIZATION
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+        try {
+            showLoading(true);
+
+            const parts = window.location.pathname.split('/');
+            const testIdx = parts.indexOf('test');
+            state.slug = parts[testIdx + 1];
+            if (!state.slug) throw new Error('No test slug in URL');
+
+            if (window.LinguaMetadata) await LinguaMetadata.load();
+            if (window.LinguaI18n && window.LinguaI18n.init) await window.LinguaI18n.init();
+
+            // Restore saved mode preference
+            try {
+                const savedMode = localStorage.getItem('pa_mode');
+                if (savedMode === 'quick' || savedMode === 'contour') state.mode = savedMode;
+            } catch (e) {}
+
+            await loadTestData();
+            renderPassage();
+            setupInputHandlers();
+            setupModeToggle();
+            renderControls();
+            startTimer();
+
+            document.getElementById('paHeader').style.display = 'block';
+            document.getElementById('passageContainer').style.display = 'block';
+            document.getElementById('controlsHint').style.display = 'block';
+
+            // Sync toggle UI to state.mode
+            document.querySelectorAll('#modeToggle button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === state.mode);
+            });
+
+            highlightCurrent();
+            showLoading(false);
+
+        } catch (err) {
+            console.error('Pitch accent init error:', err);
+            showError(err.message);
+            showLoading(false);
+        }
+    }
+
+    // =====================================================================
+    // DATA LOADING
+    // =====================================================================
+    async function loadTestData() {
+        const token = localStorage.getItem('jwt_token');
+        const resp = await fetch(`/api/tests/test/${state.slug}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!resp.ok) throw new Error(t('pitch.error.load_failed', 'Failed to load test'));
+
+        const data = await resp.json();
+        state.testData = data.test_data;
+
+        if (!data.pitch_payload || data.pitch_payload.length === 0) {
+            throw new Error(t('pitch.error.no_data', 'No pitch accent data is available for this test yet.'));
+        }
+
+        state.allTokens = data.pitch_payload;
+        state.allTokens.forEach((tok, i) => {
+            if (!tok.is_punctuation && tok.mora_count > 0 && tok.pattern_class !== 'unknown') {
+                state.playableIndices.push(i);
+                state.playableTokens.push(tok);
+            }
+        });
+
+        if (state.playableTokens.length === 0) {
+            throw new Error(t('pitch.error.no_words', 'No drillable words found in this passage.'));
+        }
+
+        document.getElementById('testTitle').textContent = state.testData.title || t('pitch.title', 'Pitch Accent Trainer');
+        const langName = (window.LinguaMetadata && LinguaMetadata.getNativeName)
+            ? LinguaMetadata.getNativeName(state.testData.language) : '日本語';
+        document.getElementById('testLanguage').textContent = langName || '日本語';
+    }
+
+    // =====================================================================
+    // RENDERING — passage grid
+    // =====================================================================
+    function renderPassage() {
+        const grid = document.getElementById('passageGrid');
+        grid.innerHTML = '';
+
+        state.allTokens.forEach((token, idx) => {
+            const el = document.createElement('span');
+            el.className = 'word-token';
+            el.dataset.index = idx;
+
+            if (token.is_punctuation) {
+                el.classList.add('punctuation');
+                el.innerHTML = `<span class="word-surface">${escapeHtml(token.surface)}</span>`;
+            } else if (token.pattern_class === 'unknown') {
+                el.classList.add('punctuation');
+                el.innerHTML = `<span class="word-surface" title="No accent data">${escapeHtml(token.surface)}</span>`;
+            } else {
+                el.classList.add('upcoming');
+                el.innerHTML =
+                    `<span class="word-surface">${escapeHtml(token.surface)}</span>` +
+                    `<span class="word-kana-mini">&nbsp;</span>` +
+                    `<span class="contour-mini"></span>`;
+            }
+
+            grid.appendChild(el);
+        });
+    }
+
+    function highlightCurrent() {
+        if (state.isComplete) return;
+
+        const prev = document.querySelector('.word-token.current');
+        if (prev) prev.classList.remove('current');
+
+        const allIdx = state.playableIndices[state.currentIndex];
+        const el = document.querySelector(`.word-token[data-index="${allIdx}"]`);
+        if (el) {
+            el.classList.remove('upcoming');
+            el.classList.add('current');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        if (state.mode === 'contour') {
+            resetContourInput();
+            renderScratchpad();
+        } else {
+            clearScratchpad();
+        }
+
+        updateProgress();
+    }
+
+    function markCompleted(playableIdx, token) {
+        const allIdx = state.playableIndices[playableIdx];
+        const el = document.querySelector(`.word-token[data-index="${allIdx}"]`);
+        if (!el) return;
+
+        el.classList.remove('current', 'upcoming');
+        el.classList.add('completed', `cls-${token.pattern_class}`);
+
+        const kanaEl = el.querySelector('.word-kana-mini');
+        if (kanaEl) kanaEl.textContent = token.kana || '';
+
+        const contourEl = el.querySelector('.contour-mini');
+        if (contourEl) contourEl.innerHTML = miniContourSvg(token);
+
+        el.classList.add('correct-flash');
+        setTimeout(() => el.classList.remove('correct-flash'), 200);
+    }
+
+    function flashError(playableIdx) {
+        const allIdx = state.playableIndices[playableIdx];
+        const el = document.querySelector(`.word-token[data-index="${allIdx}"]`);
+        if (el) {
+            el.classList.add('error-flash');
+            setTimeout(() => el.classList.remove('error-flash'), 300);
+        }
+    }
+
+    function updateProgress() {
+        const total = state.playableTokens.length;
+        const pct = total > 0 ? (state.currentIndex / total * 100) : 0;
+        document.getElementById('progressFill').style.width = pct + '%';
+    }
+
+    function miniContourSvg(token) {
+        const moraCount = token.mora_count + (token.trailing_particle ? 1 : 0);
+        if (moraCount <= 0) return '';
+        const w = Math.max(40, moraCount * 14);
+        const h = 18;
+        const stepX = w / moraCount;
+        const yHigh = 4;
+        const yLow = h - 4;
+        const pts = [];
+        for (let i = 0; i < token.contour.length; i++) {
+            const x = stepX * i + stepX / 2;
+            pts.push([x, token.contour[i] === 'H' ? yHigh : yLow]);
+        }
+        if (token.trailing_particle && token.trailing_particle_pitch) {
+            const x = stepX * token.contour.length + stepX / 2;
+            pts.push([x, token.trailing_particle_pitch === 'H' ? yHigh : yLow]);
+        }
+        const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
+        const dots = pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.2" fill="currentColor"/>`).join('');
+        return `<svg width="${w}" height="${h}" style="display:block; color: var(--primary);">` +
+               `<path d="${path}" stroke="currentColor" stroke-width="1.5" fill="none"/>` +
+               dots +
+               `</svg>`;
+    }
+
+    // =====================================================================
+    // QUICK MODE LOGIC
+    // =====================================================================
+    function handleClassInput(guessedClass) {
+        if (state.isComplete || state.isPaused) return;
+        if (state.mode !== 'quick') return;
+
+        const token = state.playableTokens[state.currentIndex];
+        if (!token) return;
+
+        if (guessedClass === token.pattern_class) {
+            acceptToken(token);
+        } else {
+            rejectToken(token, { mode: 'quick', guessedClass });
+        }
+    }
+
+    // =====================================================================
+    // CONTOUR MODE LOGIC
+    // =====================================================================
+    function resetContourInput() {
+        const token = state.playableTokens[state.currentIndex];
+        if (!token) { state.contourInput = []; state.contourCursor = 0; return; }
+        state.contourInput = new Array(token.mora_count).fill(null);
+        state.contourCursor = 0;
+    }
+
+    function clearScratchpad() {
+        const wrap = document.getElementById('scratchpadContainer');
+        if (wrap) wrap.innerHTML = '';
+    }
+
+    function renderScratchpad() {
+        const wrap = document.getElementById('scratchpadContainer');
+        if (!wrap) return;
+        const token = state.playableTokens[state.currentIndex];
+        if (!token) { wrap.innerHTML = ''; return; }
+
+        const moraCount = token.mora_count;
+        const hasParticle = !!token.trailing_particle;
+        const cols = moraCount + (hasParticle ? 1 : 0);
+
+        // grid-template-columns: [label] [mora x N] [optional particle]
+        const colTemplate = `60px repeat(${cols}, 1fr)`;
+
+        let highRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};">`;
+        highRow += `<div class="scratch-row-label">HIGH</div>`;
+        for (let i = 0; i < moraCount; i++) {
+            const sel = state.contourInput[i] === 'H' ? 'selected row-high' : '';
+            const cur = i === state.contourCursor ? 'current' : '';
+            highRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="H"><span class="scratch-dot"></span></div>`;
+        }
+        if (hasParticle) {
+            // Particle dots are reference-only, not selectable; show '·' to indicate.
+            highRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
+        }
+        highRow += `</div>`;
+
+        let lowRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};">`;
+        lowRow += `<div class="scratch-row-label">LOW</div>`;
+        for (let i = 0; i < moraCount; i++) {
+            const sel = state.contourInput[i] === 'L' ? 'selected row-low' : '';
+            const cur = i === state.contourCursor ? 'current' : '';
+            lowRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="L"><span class="scratch-dot"></span></div>`;
+        }
+        if (hasParticle) {
+            lowRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
+        }
+        lowRow += `</div>`;
+
+        let moraRow = `<div class="scratch-row scratch-mora-row" style="grid-template-columns: ${colTemplate};">`;
+        moraRow += `<div></div>`;
+        for (let i = 0; i < moraCount; i++) {
+            moraRow += `<div>${escapeHtml(token.mora[i] || '')}</div>`;
+        }
+        if (hasParticle) {
+            moraRow += `<div class="particle">${escapeHtml(token.trailing_particle)}</div>`;
+        }
+        moraRow += `</div>`;
+
+        const ready = state.contourInput.every(v => v !== null);
+        const submitLabel = t('pitch.contour.submit', 'Submit (Enter)');
+        const inst = t('pitch.contour.instruction', 'Click HIGH or LOW for each mora. Then press Enter.');
+
+        wrap.innerHTML = `
+            <div class="scratchpad" id="scratchpad">
+                <div class="scratch-word">${escapeHtml(token.surface)}</div>
+                <div class="scratch-instruction">${inst}</div>
+                <div class="scratch-wrap">
+                    <div class="scratch-track">${highRow}${lowRow}${moraRow}</div>
+                </div>
+                <button class="scratch-submit" id="scratchSubmit" ${ready ? '' : 'disabled'}>
+                    ${submitLabel}
+                </button>
+            </div>
+        `;
+
+        wrap.querySelectorAll('.scratch-cell[data-mora]').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const m = parseInt(cell.dataset.mora, 10);
+                const p = cell.dataset.pitch;
+                setContourMora(m, p);
+            });
+        });
+        wrap.querySelector('#scratchSubmit').addEventListener('click', submitContour);
+    }
+
+    function setContourMora(moraIdx, pitch) {
+        if (state.isComplete || state.isPaused) return;
+        if (state.mode !== 'contour') return;
+        state.contourInput[moraIdx] = pitch;
+        state.contourCursor = Math.min(moraIdx + 1, state.contourInput.length - 1);
+        renderScratchpad();
+    }
+
+    function moveContourCursor(delta) {
+        if (state.mode !== 'contour') return;
+        state.contourCursor = Math.max(0, Math.min(state.contourInput.length - 1, state.contourCursor + delta));
+        renderScratchpad();
+    }
+
+    function submitContour() {
+        if (state.isComplete || state.isPaused) return;
+        if (state.mode !== 'contour') return;
+        const token = state.playableTokens[state.currentIndex];
+        if (!token) return;
+        if (state.contourInput.some(v => v === null)) return;
+
+        const { valid, derivedAccent, reason } = analyzeContour(state.contourInput);
+
+        if (!valid) {
+            rejectToken(token, { mode: 'contour', reason });
+            return;
+        }
+        if (derivedAccent === token.accent) {
+            acceptToken(token);
+        } else {
+            rejectToken(token, { mode: 'contour', derivedAccent });
+        }
+    }
+
+    // Returns { valid, derivedAccent, reason }
+    // valid = obeys the two universal rules: mora1 != mora2, at most one H→L drop.
+    // derivedAccent = mora-after-drop, or 0 if heiban.
+    function analyzeContour(contour) {
+        if (contour.length === 0) return { valid: false, reason: 'empty' };
+        if (contour.length >= 2 && contour[0] === contour[1]) {
+            return { valid: false, reason: 'mora1_eq_mora2' };
+        }
+        let drops = 0;
+        let dropAt = 0; // 0 means "no drop" → heiban
+        let rises = 0;
+        for (let i = 1; i < contour.length; i++) {
+            if (contour[i - 1] === 'H' && contour[i] === 'L') { drops++; dropAt = i; }
+            if (contour[i - 1] === 'L' && contour[i] === 'H') {
+                // A second rise after a drop is illegal.
+                if (drops > 0) rises++;
+            }
+        }
+        if (drops > 1) return { valid: false, reason: 'multiple_drops' };
+        if (rises > 0) return { valid: false, reason: 'rise_after_drop' };
+
+        // Special: atamadaka pattern HLLL... — drop after mora 1.
+        // dropAt is the index where pitch first becomes L; accent = dropAt (1-indexed).
+        // For heiban (drops=0, contour all-H after initial L), accent = 0.
+        // For odaka, drop is at contour.length, but contour can't express that — we treat
+        // "ends on H with no internal drop" as either heiban (if mora1=L) or undefined.
+        // To match pyopenjtalk's accent convention with the trailing-particle visible
+        // only as reference, our derivedAccent stays in [0, mora_count].
+
+        const accent = drops === 0 ? 0 : dropAt;
+        return { valid: true, derivedAccent: accent };
+    }
+
+    // =====================================================================
+    // SHARED ACCEPT / REJECT
+    // =====================================================================
+    function acceptToken(token) {
+        markCompleted(state.currentIndex, token);
+        state.correctCount++;
+        state.currentIndex++;
+        if (state.currentIndex >= state.playableTokens.length) {
+            completeGame();
+        } else {
+            highlightCurrent();
+        }
+    }
+
+    function rejectToken(token, info) {
+        state.errorCount++;
+        flashError(state.currentIndex);
+        state.errors.push({
+            surface: token.surface,
+            kana: token.kana,
+            accent: token.accent,
+            pattern_class: token.pattern_class,
+            mode: info.mode,
+            info: info,
+        });
+        showErrorModal(token, info);
+    }
+
+    // =====================================================================
+    // ERROR MODAL
+    // =====================================================================
+    function showErrorModal(token, info) {
+        state.isPaused = true;
+
+        // Build full contour visualization including trailing particle.
+        const moraCount = token.mora_count + (token.trailing_particle ? 1 : 0);
+        const cellW = 36;
+        const svgW = Math.max(160, moraCount * cellW);
+        const svgH = 90;
+        const yHigh = 18;
+        const yLow = svgH - 30;
+        const stepX = svgW / moraCount;
+        const pts = [];
+        for (let i = 0; i < token.contour.length; i++) {
+            pts.push([stepX * i + stepX / 2, token.contour[i] === 'H' ? yHigh : yLow]);
+        }
+        if (token.trailing_particle && token.trailing_particle_pitch) {
+            pts.push([stepX * token.contour.length + stepX / 2, token.trailing_particle_pitch === 'H' ? yHigh : yLow]);
+        }
+        const pathD = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
+        const dots = pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(--primary)"/>`).join('');
+        let moraLabels = '';
+        for (let i = 0; i < token.mora.length; i++) {
+            moraLabels += `<text x="${stepX * i + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-primary)">${escapeHtml(token.mora[i] || '')}</text>`;
+        }
+        if (token.trailing_particle) {
+            moraLabels += `<text x="${stepX * token.contour.length + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-muted)">${escapeHtml(token.trailing_particle)}</text>`;
+        }
+
+        const className = t(CLASS_INFO[token.pattern_class].key, token.pattern_class);
+        const classDesc = t(CLASS_INFO[token.pattern_class].desc, '');
+
+        let yourAnswerHtml = '';
+        if (info.mode === 'quick' && info.guessedClass) {
+            const guessName = t(CLASS_INFO[info.guessedClass].key, info.guessedClass);
+            yourAnswerHtml = `
+                <div class="error-classes">
+                    <div class="class-label">
+                        <div class="class-name" style="color: var(--accent-${info.guessedClass})">${escapeHtml(guessName)}</div>
+                        <div class="class-desc">${t('pitch.your_answer', 'Your answer')}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
+                    <div class="class-label">
+                        <div class="class-name" style="color: var(--accent-${token.pattern_class})">${escapeHtml(className)}</div>
+                        <div class="class-desc">${t('pitch.correct', 'Correct')}</div>
+                    </div>
+                </div>
+            `;
+        } else if (info.mode === 'contour' && info.reason) {
+            const reasonMsg = {
+                mora1_eq_mora2: t('pitch.error.mora1_eq_mora2', 'Mora 1 and mora 2 must differ in pitch.'),
+                multiple_drops: t('pitch.error.multiple_drops', 'A Japanese word has at most one H→L drop.'),
+                rise_after_drop: t('pitch.error.rise_after_drop', 'Pitch cannot rise again after it has fallen.'),
+                empty: t('pitch.error.empty', 'No contour was submitted.'),
+            }[info.reason] || info.reason;
+            yourAnswerHtml = `<div class="accent-explanation">${escapeHtml(reasonMsg)}</div>`;
+        } else if (info.mode === 'contour' && typeof info.derivedAccent === 'number') {
+            yourAnswerHtml = `
+                <div class="accent-explanation">
+                    ${t('pitch.error.wrong_drop', 'Close — your contour is valid, but the drop is in the wrong place.')}
+                </div>
+            `;
+        }
+
+        const html = `
+            <div class="error-backdrop" id="errorBackdrop" onclick="window._dismissError()"></div>
+            <div class="error-modal">
+                <div class="error-word cls-${token.pattern_class}" style="color: var(--accent-${token.pattern_class})">
+                    ${escapeHtml(token.surface)}
+                </div>
+                <div class="error-kana">${escapeHtml(token.kana || '')}</div>
+                ${yourAnswerHtml}
+                <div style="text-align: center; margin: 8px 0 12px;">
+                    <svg width="${svgW}" height="${svgH}" style="max-width: 100%;">
+                        <line x1="0" y1="${yHigh}" x2="${svgW}" y2="${yHigh}" stroke="var(--border-default)" stroke-dasharray="3 4"/>
+                        <line x1="0" y1="${yLow}"  x2="${svgW}" y2="${yLow}"  stroke="var(--border-default)" stroke-dasharray="3 4"/>
+                        <text x="2" y="${yHigh - 4}" font-size="10" fill="var(--text-muted)">HIGH</text>
+                        <text x="2" y="${yLow + 14}" font-size="10" fill="var(--text-muted)">LOW</text>
+                        <path d="${pathD}" stroke="var(--primary)" stroke-width="2" fill="none"/>
+                        ${dots}
+                        ${moraLabels}
+                    </svg>
+                </div>
+                <div class="accent-explanation">
+                    <strong>${escapeHtml(className)}</strong>
+                    ${token.accent === 0
+                        ? ` — ${t('pitch.explain.heiban', 'no drop; pitch stays high after the first mora (including any following particle).')}`
+                        : ` — ${t('pitch.explain.drop_at', 'drop after mora')} ${token.accent}${token.trailing_particle && token.accent === token.mora_count ? ' ' + t('pitch.explain.odaka_particle', '— the drop only becomes audible because of the following particle.') : ''}`}
+                    ${classDesc ? `<br><span style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(classDesc)}</span>` : ''}
+                </div>
+                <button class="error-continue-btn" onclick="window._dismissError()">
+                    ${t('pitch.continue', 'Continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span>
+                </button>
+            </div>
+        `;
+
+        document.getElementById('errorModalContainer').innerHTML = html;
+    }
+
+    function dismissErrorModal() {
+        document.getElementById('errorModalContainer').innerHTML = '';
+        state.isPaused = false;
+        // In contour mode, clear the current input so the learner can retry cleanly.
+        if (state.mode === 'contour') {
+            resetContourInput();
+            renderScratchpad();
+        }
+    }
+    window._dismissError = dismissErrorModal;
+
+    // =====================================================================
+    // INPUT HANDLERS
+    // =====================================================================
+    function setupInputHandlers() {
+        document.addEventListener('keydown', (e) => {
+            if (state.isComplete) return;
+            if (state.isPaused) {
+                if (e.key === 'Enter') { e.preventDefault(); dismissErrorModal(); }
+                return;
+            }
+
+            if (state.mode === 'quick') {
+                const cls = KEY_TO_CLASS[e.key];
+                if (cls) { e.preventDefault(); handleClassInput(cls); return; }
+            } else {
+                // Contour mode keyboard
+                if (e.key === '1' || e.key === 'l' || e.key === 'L') {
+                    e.preventDefault();
+                    setContourMora(state.contourCursor, 'L');
+                    return;
+                }
+                if (e.key === '2' || e.key === 'h' || e.key === 'H') {
+                    e.preventDefault();
+                    setContourMora(state.contourCursor, 'H');
+                    return;
+                }
+                if (e.key === 'ArrowLeft')  { e.preventDefault(); moveContourCursor(-1); return; }
+                if (e.key === 'ArrowRight') { e.preventDefault(); moveContourCursor(+1); return; }
+                if (e.key === 'Enter')      { e.preventDefault(); submitContour(); return; }
+            }
+        });
+    }
+
+    function setupModeToggle() {
+        document.querySelectorAll('#modeToggle button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (state.isComplete) return;
+                const newMode = btn.dataset.mode;
+                if (newMode === state.mode) return;
+                state.mode = newMode;
+                try { localStorage.setItem('pa_mode', newMode); } catch (e) {}
+                document.querySelectorAll('#modeToggle button').forEach(b => {
+                    b.classList.toggle('active', b.dataset.mode === newMode);
+                });
+                renderControls();
+                if (state.mode === 'contour') {
+                    resetContourInput();
+                    renderScratchpad();
+                } else {
+                    clearScratchpad();
+                }
+            });
+        });
+    }
+
+    function renderControls() {
+        const grid = document.getElementById('controlsGrid');
+        if (state.mode === 'quick') {
+            grid.innerHTML = `
+                <div class="control-item">
+                    <span class="control-key">←</span>
+                    <span class="class-dot" style="background: var(--accent-heiban)"></span>
+                    <span>${t('pitch.class.heiban', 'Heiban')}</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">↑</span>
+                    <span class="class-dot" style="background: var(--accent-atamadaka)"></span>
+                    <span>${t('pitch.class.atamadaka', 'Atamadaka')}</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">→</span>
+                    <span class="class-dot" style="background: var(--accent-nakadaka)"></span>
+                    <span>${t('pitch.class.nakadaka', 'Nakadaka')}</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">↓</span>
+                    <span class="class-dot" style="background: var(--accent-odaka)"></span>
+                    <span>${t('pitch.class.odaka', 'Odaka')}</span>
+                </div>
+            `;
+        } else {
+            grid.innerHTML = `
+                <div class="control-item"><span class="control-key">1 / L</span><span>${t('pitch.contour.low', 'LOW for current mora')}</span></div>
+                <div class="control-item"><span class="control-key">2 / H</span><span>${t('pitch.contour.high', 'HIGH for current mora')}</span></div>
+                <div class="control-item"><span class="control-key">← →</span><span>${t('pitch.contour.navigate', 'Move mora')}</span></div>
+                <div class="control-item"><span class="control-key">Enter</span><span>${t('pitch.contour.submit_short', 'Submit')}</span></div>
+            `;
+        }
+    }
+
+    // =====================================================================
+    // COMPLETION & RESULTS
+    // =====================================================================
+    function completeGame() {
+        state.isComplete = true;
+        clearInterval(state.timerInterval);
+        document.getElementById('controlsHint').style.display = 'none';
+        clearScratchpad();
+
+        const total = state.playableTokens.length;
+        const accuracy = total > 0 ? (Math.max(0, total - state.errorCount) / total * 100) : 0;
+        const timeSec = Math.floor((Date.now() - state.startTime) / 1000);
+
+        submitResults(timeSec);
+        showResults(accuracy, timeSec);
+    }
+
+    async function submitResults(timeSec) {
+        try {
+            const token = localStorage.getItem('jwt_token');
+            const resp = await fetch(`/api/tests/${state.slug}/submit-pitch-accent`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    correct_units: Math.max(0, state.playableTokens.length - state.errorCount),
+                    total_units: state.playableTokens.length,
+                    time_taken: timeSec,
+                    errors: state.errors.slice(0, 50),
+                })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.result) updateResultsWithElo(data.result);
+            }
+        } catch (err) {
+            console.error('Submit error:', err);
+        }
+    }
+
+    function showResults(accuracy, timeSec) {
+        let grade = 'poor';
+        let label = t('pitch.grade.poor', 'Keep practicing');
+        if (accuracy >= 95)      { grade = 'excellent'; label = t('pitch.grade.excellent', 'Excellent!'); }
+        else if (accuracy >= 80) { grade = 'good';      label = t('pitch.grade.good', 'Good'); }
+        else if (accuracy >= 60) { grade = 'fair';      label = t('pitch.grade.fair', 'Fair'); }
+
+        const minutes = Math.floor(timeSec / 60);
+        const seconds = timeSec % 60;
+        const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        const html = `
+            <div class="results-overlay">
+                <div class="results-card">
+                    <h3>${escapeHtml(label)}</h3>
+                    <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">${t('pitch.accuracy_label', 'Accent accuracy')}</p>
+
+                    <div class="results-stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${state.correctCount}/${state.playableTokens.length}</div>
+                            <div class="stat-label">${t('pitch.stat.words', 'Words')}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${timeStr}</div>
+                            <div class="stat-label">${t('pitch.stat.time', 'Time')}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${state.errorCount}</div>
+                            <div class="stat-label">${t('pitch.stat.mistakes', 'Mistakes')}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="eloChangeDisplay">--</div>
+                            <div class="stat-label">${t('pitch.stat.elo_change', 'ELO change')}</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="/test/${state.slug}/preview" class="btn btn-outline-primary flex-fill">
+                            <i class="bi bi-arrow-repeat me-1"></i>${t('pitch.retry', 'Retry')}
+                        </a>
+                        <a href="/tests" class="btn btn-primary flex-fill">
+                            <i class="bi bi-list-ul me-1"></i>${t('pitch.all_tests', 'All tests')}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('resultsContainer').innerHTML = html;
+    }
+
+    function updateResultsWithElo(result) {
+        const eloEl = document.getElementById('eloChangeDisplay');
+        if (eloEl && result.user_elo_change) {
+            const change = result.user_elo_change.change || 0;
+            const sign = change >= 0 ? '+' : '';
+            eloEl.textContent = sign + change;
+            eloEl.className = 'stat-value ' + (change >= 0 ? 'text-success' : 'text-danger');
+        }
+    }
+
+    // =====================================================================
+    // TIMER & HELPERS
+    // =====================================================================
+    function startTimer() {
+        state.startTime = Date.now();
+        const el = document.getElementById('elapsedTime');
+        state.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+            const m = Math.floor(elapsed / 60);
+            const s = elapsed % 60;
+            el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function showLoading(show) {
+        const el = document.getElementById('loadingOverlay');
+        if (el) el.style.display = show ? 'flex' : 'none';
+    }
+    function showError(msg) {
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent = msg;
+        const ids = ['paHeader', 'passageContainer', 'controlsHint'];
+        ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    }
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        if (window.LinguaUtils && LinguaUtils.escapeHtml) return LinguaUtils.escapeHtml(String(str));
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+})();
+</script>
+{% endblock %}

@@ -358,6 +358,11 @@ def _register_web_routes(app):
         """Render pinyin tone trainer page (client-side rendered)"""
         return render_template('test_pinyin.html')
 
+    @app.route('/test/<slug>/pitch-accent')
+    def pitch_accent_test_page(slug):
+        """Render Japanese pitch accent trainer page (client-side rendered)"""
+        return render_template('test_pitch_accent.html')
+
     @app.route('/test/<slug>/dictation')
     def dictation_test_page(slug):
         """Render dictation test page (client-side rendered)"""

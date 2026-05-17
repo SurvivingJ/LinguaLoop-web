@@ -69,7 +69,7 @@ Supported languages with TTS settings and grammar tooling. **As of the 2026-05-0
 
 ### `dim_test_types`
 
-Test/skill types (reading, listening, dictation, pinyin).
+Test/skill types (reading, listening, dictation, pinyin, pitch_accent).
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
@@ -528,6 +528,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 | `is_custom` | boolean | YES | false | |
 | `generation_model` | text | YES | 'gpt-4.1-nano' | |
 | `pinyin_payload` | jsonb | YES | | Tokenised pinyin data for Chinese tests (tone trainer) |
+| `pitch_payload` | jsonb | YES | | Tokenised pitch-accent data for Japanese tests (pitch trainer) |
 | `audio_generated` | boolean | YES | false | |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |

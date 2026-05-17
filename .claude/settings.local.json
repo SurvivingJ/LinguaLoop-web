@@ -68,7 +68,12 @@
       "Read(//tmp/**)",
       "mcp__claude_ai_Supabase__get_advisors",
       "Bash(python scripts/enroll_listening_lab.py --help)",
-      "Bash(ls c:\\\\\\\\Users\\\\\\\\James\\\\\\\\Documents\\\\\\\\Coding\\\\\\\\LinguaLoop\\\\\\\\WebApp/migrations)"
+      "Bash(ls c:\\\\\\\\Users\\\\\\\\James\\\\\\\\Documents\\\\\\\\Coding\\\\\\\\LinguaLoop\\\\\\\\WebApp/migrations)",
+      "Bash(PYTHONIOENCODING=utf-8 python scripts/_add_pitch_i18n.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python scripts/batch_generate_pitch_accent.py --limit 2 --dry-run)",
+      "Bash(PYTHONIOENCODING=utf-8 python scripts/batch_generate_pitch_accent.py --limit 1 --dry-run)",
+      "Bash(PYTHONIOENCODING=utf-8 python scripts/batch_generate_pitch_accent.py)",
+      "Bash(awk '{print $5, $9}')"
     ]
   }
 }

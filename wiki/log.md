@@ -1,5 +1,53 @@
 # Activity Log
 
+## 2026-05-17 change | Pitch Accent Trainer for Japanese
+
+User request: clone the Pinyin Trainer pattern for Japanese, drilling the four classical accent classes (heiban / atamadaka / nakadaka / odaka). Plan at [`C:\Users\James\.claude\plans\i-want-to-add-goofy-pixel.md`](../../.claude/plans/i-want-to-add-goofy-pixel.md). Locked design: hybrid Quick (4-key) + Contour (connect-the-dots) renderers, pre-computed `pitch_payload` JSONB on the test row via pyopenjtalk, no audio in v1.
+
+**Backend (Python).**
+- New [services/pitch_accent_service.py](../services/pitch_accent_service.py) — `process_passage(text)` runs `pyopenjtalk.run_frontend`, skips particles/aux-verbs (attached to host word as `trailing_particle`), mora-segments the katakana pronunciation, derives `pattern_class` and `contour` from `(accent, mora_size)`. Pure-function helpers `_derive_pattern_class`, `_derive_contour`, `_derive_particle_pitch`. Graceful degradation: returns `[]` on pyopenjtalk failure; logs but doesn't raise.
+- [services/test_service.py:283-294](../services/test_service.py#L283) — `save_test` got a parallel branch for `language_id == 3` that calls `pitch_accent_service.process_passage(transcript)` and updates `tests.pitch_payload`. Same try/except pattern as the existing pinyin branch — payload failure doesn't block test save.
+- [services/test_service.py:312-318](../services/test_service.py#L312) — `_create_skill_ratings` appends the `pitch_accent` test_type_id to the seed list for JA tests.
+- [routes/tests.py](../routes/tests.py) — new `submit_pitch_accent_attempt` endpoint (clone of `submit_pinyin_attempt` with `language_id == 3` gate and `correct_units`/`total_units` parameters) and `_call_pitch_accent_submission_rpc` wrapper. `get_test_with_ratings` SELECT list extended to include `pitch_payload`; response payload includes a `pitch_payload` key for JA tests.
+- [app.py:360-363](../app.py#L360) — registered `/test/<slug>/pitch-accent` page route.
+- [requirements.txt](../requirements.txt) — added `pyopenjtalk`. On Windows the native `pyopenjtalk` source build needs cmake; `pyopenjtalk-prebuilt` (binary wheels) installs cleanly and exposes the same API.
+
+**Database / migrations.**
+- New [migrations/add_pitch_accent_mode.sql](../migrations/add_pitch_accent_mode.sql) — INSERT `dim_test_types('pitch_accent', 'Pitch Accent', requires_audio=false, display_order=5)`; ALTER TABLE `tests ADD COLUMN pitch_payload JSONB`; backfill `test_skill_ratings` at ELO 1400 for every `language_id=3` test. Applied to remote via Supabase MCP. Verified: 80/80 JA tests now have a pitch_accent skill rating row.
+- New [migrations/process_pitch_accent_submission.sql](../migrations/process_pitch_accent_submission.sql) — accuracy-based RPC, parameter rename of `process_pinyin_submission` (`p_correct_chars`/`p_total_chars` → `p_correct_units`/`p_total_units`). Same K=32 first-attempt-only ELO formula, same idempotency check, same JSONB success/error envelope, `SECURITY DEFINER`, `GRANT EXECUTE TO authenticated`. Applied to remote.
+
+**Frontend.**
+- New [templates/test_pitch_accent.html](../templates/test_pitch_accent.html) — single-file game template with both Quick and Contour renderers and a `[ ⚡ Quick | 🎯 Contour ]` segmented toggle. Mode persists in `localStorage.pa_mode`. Quick mode: 4 arrow keys map to the 4 pattern classes. Contour mode: per-mora HIGH/LOW dot grid with live SVG polyline; keyboard `1/2` or `L/H` per mora; validates the two universal rules (mora 1 ≠ mora 2; at most one H→L drop) before checking the derived accent nucleus against `token.accent`. Error modal renders the canonical contour including the trailing particle (essential for showing odaka/heiban disambiguation). Completion screen mirrors the pinyin trainer: grade, stats, ELO delta, retry/exit buttons.
+- [templates/test_preview.html:300-310, 501-504, 634-635](../templates/test_preview.html#L300) — added "Pitch Accent" test-type radio (Japanese-only visibility check) and the routing branch to `/test/<slug>/pitch-accent`.
+- [templates/profile.html:105-111, 489-497](../templates/profile.html#L105) — added `pitch_accent: '🎵'` to `SKILL_ICONS`; pitch_accent history rows render as `N/M words`.
+- [static/i18n/{en,ja,zh,es}.json](../static/i18n/) — added 45 keys under `pitch.*` and one `test_preview.pitch_accent` to every locale. All four locales now contain 350 keys.
+
+**Backfill.**
+- New [scripts/batch_generate_pitch_accent.py](../scripts/batch_generate_pitch_accent.py) (mirror of `batch_generate_pinyin.py`). Ran against all 80 active JA tests: 80 processed, 0 errors, 0 flagged for review.
+
+**Wiki updates.**
+- New [features/pitch-accent-trainer.md](features/pitch-accent-trainer.md) (prose) and [features/pitch-accent-trainer.tech.md](features/pitch-accent-trainer.tech.md) (technical) — full feature + technical specs including the pattern-class primer (mora rules, the four classes, particle-test disambiguation).
+- [index.md](index.md) — registered both new pages, bumped page count 51 → 53, updated last-updated line.
+- This log entry.
+
+**Verification (in repo):**
+- `python -m py_compile app.py routes/tests.py services/test_service.py services/pitch_accent_service.py` — all parse.
+- `python -c "import json; [json.load(open(f'static/i18n/{l}.json', encoding='utf-8')) for l in ['en','es','ja','zh']]"` — all valid; all four contain exactly 350 keys.
+- Service smoke test against 4 sentences confirmed correct classification: 東京 (heiban), 男 (odaka, particle drops), 命 (atamadaka), 日本 (nakadaka), 首都 (atamadaka), さくら (heiban).
+
+**Verification (against running app — owner action required):**
+1. Open a JA test preview → confirm the "Pitch Accent" button appears. Open a CN/EN test preview → confirm it does NOT appear.
+2. Click → lands on `/test/<slug>/pitch-accent`. Confirm the kana grid renders and the first token is highlighted.
+3. Quick mode loop: play through using arrow keys; make a deliberate mistake; confirm the error modal renders the canonical contour with trailing-particle pitch. Complete → confirm results screen shows accuracy = `(total − errors) / total`.
+4. Toggle to Contour mode; submit `L-H-L-H-L` → confirm "multiple drops" error. Submit a valid-but-wrong contour → confirm position-mismatch error. Submit the correct contour → confirm acceptance.
+5. After completion: verify in DB that `test_attempts` has the new row with `user_elo_before/after` populated, and `user_skill_ratings`/`test_skill_ratings` for the pitch_accent test_type moved by `K=32 × (actual − expected)`.
+6. Submit the same test a second time → confirm `is_first_attempt = false` and ELO is unchanged.
+7. Switch UI locale to ja/zh/es and confirm no dotted i18n keys appear on either page.
+
+Pages updated: 2 (index.md, log.md). Pages created: 2 (feature prose + tech). Migrations applied: 2. Open questions remaining: 0.
+
+**Out of scope (deferred to Phase 2):** per-word TTS audio playback (would need JP voice seeding into `dim_languages.tts_voice_ids` for `language_id=3`); admin override / LLM disambiguation for ambiguous compounds; compound-noun reassignment rule engine; word-sense disambiguation for same-spelling-different-accent homographs.
+
 ## 2026-05-17 change | Dictation mode shipped
 
 Implemented dictation as a new test type, end-to-end. The `dictation` row in `dim_test_types` (id=3) had existed as an inactive placeholder since project bootstrap; this change activates it and wires the full pipeline.

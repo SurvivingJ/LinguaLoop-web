@@ -107,6 +107,7 @@
         reading: '📖',
         dictation: '✍️',
         pinyin: '🀄',
+        pitch_accent: '🎵',
     };
     function skillIcon(skillCode) {
         return SKILL_ICONS[skillCode] || '📖';
@@ -488,9 +489,13 @@
             const scoreClass = test.percentage >= 80 ? 'success' : test.percentage >= 60 ? 'primary' : test.percentage >= 40 ? 'warning' : 'danger';
             const isPinyin = (selectedSkill && selectedSkill.code === 'pinyin')
                 || test.test_type_id === (selectedLang && selectedLang.skills && selectedLang.skills.pinyin && selectedLang.skills.pinyin.test_type_id);
+            const isPitchAccent = (selectedSkill && selectedSkill.code === 'pitch_accent')
+                || test.test_type_id === (selectedLang && selectedLang.skills && selectedLang.skills.pitch_accent && selectedLang.skills.pitch_accent.test_type_id);
             const scoreLabel = isPinyin
                 ? `${test.score}/${test.total_questions} chars`
-                : `${test.score}/${test.total_questions}`;
+                : isPitchAccent
+                    ? `${test.score}/${test.total_questions} words`
+                    : `${test.score}/${test.total_questions}`;
 
             // Reduced-volatility repeat badge: elo_reduction_factor is set
             // only when a daily-load retry-slot repeat earned reduced ELO.
