@@ -41,6 +41,7 @@ from routes.listening_lab import listening_lab_bp
 from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
+from routes.classifier_drill import classifier_drill_bp
 
 
 def create_app(config_class=Config):
@@ -267,6 +268,7 @@ def _register_blueprints(app):
     app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
+    app.register_blueprint(classifier_drill_bp, url_prefix='/api/classifier-drill')
 
     app.logger.info("Blueprints registered")
 
@@ -403,6 +405,11 @@ def _register_web_routes(app):
     def vocab_dojo():
         """Render vocabulary dojo page"""
         return render_template('vocab_dojo.html')
+
+    @app.route('/classifier-drill')
+    def classifier_drill_page():
+        """Render Chinese measure-word infinite trainer."""
+        return render_template('classifier_drill.html')
 
     @app.route('/admin/vocab-preview')
     def admin_vocab_preview():

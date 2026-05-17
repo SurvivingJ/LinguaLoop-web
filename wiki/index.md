@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-17 (Pitch Accent Trainer for Japanese — see log.md 2026-05-17) | Pages: 53
+Last updated: 2026-05-17 (Measure Word Trainer for Chinese — see log.md 2026-05-17) | Pages: 55
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -33,6 +33,8 @@ Last updated: 2026-05-17 (Pitch Accent Trainer for Japanese — see log.md 2026-
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
 - [[features/pitch-accent-trainer]] — Japanese pitch-accent game mode (heiban/atamadaka/nakadaka/odaka), Quick + Contour renderers
 - [[features/pitch-accent-trainer.tech]] — pyopenjtalk pipeline, mora segmentation, pitch_payload schema, submit-pitch-accent endpoint
+- [[features/measure-word-trainer]] — Chinese classifier (量词) infinite drill, MC + Typed modes, curated dictionary
+- [[features/measure-word-trainer.tech]] — dim_classifiers schema, session RPC, sentinel-test ELO pattern
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 

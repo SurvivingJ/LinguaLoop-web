@@ -114,6 +114,13 @@
                             Vocab Dojo
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('classifier_drill_page') }}"
+                           class="nav-link {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
+                           data-i18n="common.nav.classifier_drill">
+                            Measure Words
+                        </a>
+                    </li>
                     {% if config.LISTENING_LAB_ENABLED %}
                     <li class="nav-item">
                         <a href="{{ url_for('listening_lab_list') }}"
@@ -153,6 +160,12 @@
                             <a class="dropdown-item {% if request.endpoint == 'vocab_dojo' %}active{% endif %}"
                                href="{{ url_for('vocab_dojo') }}" data-i18n="common.nav.vocab_dojo">
                                 Vocab Dojo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
+                               href="{{ url_for('classifier_drill_page') }}" data-i18n="common.nav.classifier_drill">
+                                Measure Words
                             </a>
                         </li>
                         {% if config.LISTENING_LAB_ENABLED %}

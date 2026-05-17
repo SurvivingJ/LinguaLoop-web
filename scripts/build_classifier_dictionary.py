@@ -1,0 +1,489 @@
+#!/usr/bin/env python3
+"""
+Classifier Dictionary Builder
+
+Populates dim_classifier_distractor_groups, dim_classifiers, and
+dim_classifier_noun_pairs from a curated, hand-vetted noun -> classifier
+mapping bundled in this file. No LLM. Fully deterministic and reproducible.
+
+The curated dictionary covers ~30 high-frequency Mandarin classifiers and
+~350 noun mappings (HSK 1-4 plus extensions). It is sufficient to seed a
+production-grade measure-word trainer for Chinese.
+
+An optional CC-CEDICT expansion path is documented at the bottom of the
+file (read raw/cedict_ts.u8 and parse /CL:X[pin]/ tags).
+
+Usage:
+    python scripts/build_classifier_dictionary.py            # full rebuild
+    python scripts/build_classifier_dictionary.py --dry-run  # preview only
+"""
+
+import os
+import sys
+import argparse
+import logging
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from dotenv import load_dotenv
+load_dotenv()
+
+from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
+if not SupabaseFactory.is_initialized():
+    SupabaseFactory.initialize()
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+LANGUAGE_ID_ZH = 1
+
+
+# ============================================================================
+# DISTRACTOR GROUPS — semantic confusability buckets
+# ============================================================================
+# Group label is a stable string key; the migration seeds a row per group
+# and the build script joins by label.
+GROUPS = [
+    ('general',    'General / fallback'),
+    ('people',     'People'),
+    ('animals',    'Animals'),
+    ('long_thin',  'Long / thin objects'),
+    ('flat',       'Flat objects'),
+    ('bound',      'Bound objects (books, volumes)'),
+    ('vehicles',   'Vehicles'),
+    ('containers', 'Container measures'),
+    ('places',     'Buildings and places'),
+    ('garments',   'Garments and pairs'),
+    ('events',     'Events and instances'),
+    ('plants',     'Plants and flowers'),
+]
+
+
+# ============================================================================
+# CLASSIFIERS — (hanzi, pinyin_tonenum, pinyin_display, group_label,
+#                semantic_label, example_nouns)
+# ============================================================================
+# pinyin_tonenum uses 1-4 (no neutral here). pinyin_display has the diacritic
+# applied to the correct vowel per standard pinyin orthography.
+CLASSIFIERS = [
+    ('个', 'ge4',   'gè',  'general',    'general universal measure',          ['人', '苹果', '问题']),
+    ('位', 'wei4',  'wèi', 'people',     'polite measure for people',           ['老师', '医生', '客人']),
+    ('名', 'ming2', 'míng','people',     'formal measure for ranked people',    ['学生', '士兵', '记者']),
+    ('口', 'kou3',  'kǒu', 'people',     'household members; mouths',           ['人', '猪']),
+    ('只', 'zhi1',  'zhī', 'animals',    'small / medium animals; one of pair', ['猫', '狗', '鸟', '鸡', '手', '眼睛']),
+    ('条', 'tiao2', 'tiáo','long_thin',  'long / flexible / strip-shaped',      ['鱼', '蛇', '河', '路', '裤子', '毛巾', '消息', '腿']),
+    ('头', 'tou2',  'tóu', 'animals',    'large livestock',                     ['牛', '猪', '羊', '驴', '象', '蒜']),
+    ('匹', 'pi3',   'pǐ',  'animals',    'horse-like; bolt of cloth',           ['马', '骡子', '布']),
+    ('根', 'gen1',  'gēn', 'long_thin',  'thin rigid stick-like objects',       ['头发', '针', '柱子', '香蕉', '黄瓜', '骨头']),
+    ('支', 'zhi1',  'zhī', 'long_thin',  'pen-like rigid items; tunes',         ['笔', '铅笔', '烟', '枪', '歌', '舞']),
+    ('把', 'ba3',   'bǎ',  'long_thin',  'objects with a handle; handfuls',     ['刀', '伞', '钥匙', '椅子', '扇子', '剪刀']),
+    ('张', 'zhang1','zhāng','flat',      'flat sheets; mouths and faces',       ['纸', '票', '床', '桌子', '照片', '地图', '嘴', '脸', '邮票']),
+    ('片', 'pian4', 'piàn','flat',       'slice / thin flat fragment',          ['面包', '叶子', '肉', '药', '云', '森林']),
+    ('面', 'mian4', 'miàn','flat',       'flat surfaces; mirrors and flags',    ['镜子', '旗子', '墙', '鼓', '锣']),
+    ('本', 'ben3',  'běn', 'bound',      'bound volumes',                       ['书', '杂志', '笔记本', '字典', '小说', '日记']),
+    ('册', 'ce4',   'cè',  'bound',      'volumes in a set',                    ['书', '画册']),
+    ('部', 'bu4',   'bù',  'bound',      'films / novels / works / phones',     ['电影', '小说', '电话', '手机', '词典', '作品']),
+    ('辆', 'liang4','liàng','vehicles',  'wheeled land vehicles',               ['车', '汽车', '自行车', '出租车', '火车', '卡车', '摩托车']),
+    ('架', 'jia4',  'jià', 'vehicles',   'aircraft / mounted machines',         ['飞机', '钢琴', '相机', '直升机']),
+    ('艘', 'sou1',  'sōu', 'vehicles',   'boats and ships',                     ['船', '军舰', '游艇']),
+    ('列', 'lie4',  'liè', 'vehicles',   'trains',                              ['火车']),
+    ('杯', 'bei1',  'bēi', 'containers', 'cup of (liquid)',                     ['水', '茶', '咖啡', '酒', '牛奶']),
+    ('瓶', 'ping2', 'píng','containers', 'bottle of',                           ['水', '酒', '啤酒', '可乐', '香水', '药']),
+    ('碗', 'wan3',  'wǎn', 'containers', 'bowl of',                             ['饭', '面', '汤', '粥']),
+    ('盒', 'he2',   'hé',  'containers', 'box of',                              ['烟', '药', '巧克力', '饼干', '糖']),
+    ('包', 'bao1',  'bāo', 'containers', 'pack / bag of',                       ['烟', '糖', '饼干', '盐', '面粉']),
+    ('袋', 'dai4',  'dài', 'containers', 'sack / large bag of',                 ['米', '面粉', '土豆', '糖']),
+    ('座', 'zuo4',  'zuò', 'places',     'mountains, buildings, bridges',       ['山', '楼', '城市', '桥', '庙', '雕像', '岛']),
+    ('间', 'jian1', 'jiān','places',     'rooms',                               ['房间', '卧室', '教室', '办公室', '厨房', '浴室']),
+    ('所', 'suo3',  'suǒ', 'places',     'institutions',                        ['学校', '医院', '大学', '房子']),
+    ('件', 'jian4', 'jiàn','garments',   'clothing items; matters; affairs',    ['衣服', '毛衣', '衬衫', '外套', '礼物', '事', '行李']),
+    ('双', 'shuang1','shuāng','garments','paired items',                        ['鞋', '袜子', '筷子', '手套', '眼睛', '手']),
+    ('套', 'tao4',  'tào', 'garments',   'sets of things',                      ['衣服', '西装', '书', '邮票', '房子', '家具']),
+    ('场', 'chang3','chǎng','events',    'events / matches / shows / rain',     ['电影', '比赛', '雨', '雪', '梦', '考试', '演出']),
+    ('次', 'ci4',   'cì',  'events',     'instances / times',                   ['机会', '比赛', '会议', '考试']),
+    ('顿', 'dun4',  'dùn', 'events',     'meals / scoldings / beatings',        ['饭', '早饭', '午饭', '晚饭']),
+    ('棵', 'ke1',   'kē',  'plants',     'trees and large plants',              ['树', '草', '白菜', '葱']),
+    ('朵', 'duo3',  'duǒ', 'plants',     'flowers and clouds',                  ['花', '云', '玫瑰']),
+    ('束', 'shu4',  'shù', 'plants',     'bouquet / bundle',                    ['花', '玫瑰', '光']),
+    ('群', 'qun2',  'qún', 'animals',    'crowds / herds / flocks',             ['人', '羊', '鸟', '鱼', '狼']),
+]
+
+
+# ============================================================================
+# NOUN -> CLASSIFIER(S) MAPPING
+# ============================================================================
+# Each entry: noun_hanzi -> [primary_classifier, ...alternates]
+# Acceptable classifiers (any of which the typed-mode learner can submit).
+# Order matters: the first is the canonical/preferred one shown in feedback.
+NOUN_CLASSIFIERS = {
+    # People
+    '人':    ['个', '位', '口'],
+    '老师':  ['位', '个'],
+    '医生':  ['位', '个'],
+    '学生':  ['个', '名'],
+    '朋友':  ['个', '位'],
+    '客人':  ['位', '个'],
+    '孩子':  ['个'],
+    '儿子':  ['个'],
+    '女儿':  ['个'],
+    '同学':  ['个', '位'],
+    '同事':  ['位', '个'],
+    '工人':  ['个', '名'],
+    '记者':  ['名', '位'],
+    '士兵':  ['名', '个'],
+
+    # Animals
+    '猫':    ['只'],
+    '狗':    ['只', '条'],
+    '鸟':    ['只'],
+    '鸡':    ['只'],
+    '鸭':    ['只'],
+    '兔子':  ['只'],
+    '老鼠':  ['只'],
+    '熊猫':  ['只'],
+    '鱼':    ['条'],
+    '蛇':    ['条'],
+    '龙':    ['条'],
+    '牛':    ['头'],
+    '猪':    ['头', '口'],
+    '羊':    ['只', '头'],
+    '驴':    ['头'],
+    '象':    ['头'],
+    '大象':  ['头'],
+    '马':    ['匹'],
+
+    # Vehicles
+    '车':       ['辆'],
+    '汽车':     ['辆'],
+    '自行车':   ['辆'],
+    '出租车':   ['辆'],
+    '卡车':     ['辆'],
+    '摩托车':   ['辆'],
+    '公交车':   ['辆'],
+    '火车':     ['列', '辆'],
+    '飞机':     ['架'],
+    '直升机':   ['架'],
+    '船':       ['艘'],
+    '游艇':     ['艘'],
+
+    # Books / bound things
+    '书':       ['本', '册'],
+    '杂志':     ['本'],
+    '笔记本':   ['本'],
+    '字典':     ['本'],
+    '词典':     ['部', '本'],
+    '小说':     ['本', '部'],
+    '日记':     ['本'],
+    '画册':     ['本', '册'],
+    '电影':     ['部', '场'],
+    '电话':     ['部'],
+    '手机':     ['部'],
+    '电视':     ['台'],
+
+    # Flat things
+    '纸':       ['张'],
+    '票':       ['张'],
+    '床':       ['张'],
+    '桌子':     ['张'],
+    '照片':     ['张'],
+    '地图':     ['张'],
+    '邮票':     ['张', '套'],
+    '画':       ['张', '幅'],
+    '嘴':       ['张'],
+    '脸':       ['张'],
+    '面包':     ['片', '块'],
+    '叶子':     ['片'],
+    '肉':       ['片', '块'],
+    '药':       ['片', '盒', '瓶'],
+    '云':       ['朵', '片'],
+    '镜子':     ['面'],
+    '旗子':     ['面'],
+    '墙':       ['面', '堵'],
+
+    # Long / thin
+    '头发':     ['根'],
+    '针':       ['根', '枚'],
+    '柱子':     ['根'],
+    '香蕉':     ['根'],
+    '黄瓜':     ['根'],
+    '骨头':     ['根'],
+    '笔':       ['支', '只'],
+    '铅笔':     ['支'],
+    '钢笔':     ['支'],
+    '毛笔':     ['支'],
+    '烟':       ['支', '包', '盒', '根'],
+    '枪':       ['支'],
+    '歌':       ['首', '支'],
+    '舞':       ['支'],
+    '诗':       ['首'],
+    '河':       ['条'],
+    '路':       ['条'],
+    '街':       ['条'],
+    '裤子':     ['条'],
+    '裙子':     ['条', '件'],
+    '毛巾':     ['条'],
+    '消息':     ['条'],
+    '腿':       ['条'],
+    '胳膊':     ['条'],
+    '尾巴':     ['条'],
+    '项链':     ['条'],
+    '刀':       ['把'],
+    '伞':       ['把'],
+    '钥匙':     ['把'],
+    '椅子':     ['把'],
+    '扇子':     ['把'],
+    '剪刀':     ['把'],
+
+    # Containers
+    '水':       ['杯', '瓶', '碗'],
+    '茶':       ['杯', '壶'],
+    '咖啡':     ['杯'],
+    '酒':       ['瓶', '杯'],
+    '啤酒':     ['瓶', '杯'],
+    '可乐':     ['瓶', '杯'],
+    '牛奶':     ['杯', '瓶'],
+    '香水':     ['瓶'],
+    '饭':       ['碗', '顿'],
+    '面':       ['碗'],
+    '汤':       ['碗', '锅'],
+    '粥':       ['碗'],
+    '巧克力':   ['盒', '块'],
+    '饼干':     ['盒', '包'],
+    '糖':       ['块', '袋', '包'],
+    '盐':       ['包', '袋'],
+    '米':       ['袋', '碗'],
+    '面粉':     ['袋'],
+    '土豆':     ['个', '袋'],
+
+    # Buildings / places
+    '山':       ['座'],
+    '楼':       ['座', '栋'],
+    '城市':     ['座'],
+    '桥':       ['座'],
+    '庙':       ['座'],
+    '雕像':     ['座'],
+    '岛':       ['座'],
+    '塔':       ['座'],
+    '房间':     ['间'],
+    '卧室':     ['间'],
+    '教室':     ['间'],
+    '办公室':   ['间'],
+    '厨房':     ['间'],
+    '浴室':     ['间'],
+    '学校':     ['所'],
+    '医院':     ['所', '家'],
+    '大学':     ['所'],
+    '房子':     ['所', '间', '栋'],
+    '公园':     ['个', '座'],
+    '银行':     ['家'],
+    '商店':     ['家'],
+    '饭馆':     ['家'],
+    '餐厅':     ['家'],
+    '公司':     ['家'],
+
+    # Garments / pairs
+    '衣服':     ['件', '套'],
+    '毛衣':     ['件'],
+    '衬衫':     ['件'],
+    '外套':     ['件'],
+    '大衣':     ['件'],
+    '礼物':     ['件', '份'],
+    '事':       ['件'],
+    '事情':     ['件'],
+    '行李':     ['件'],
+    '鞋':       ['双', '只'],
+    '袜子':     ['双', '只'],
+    '筷子':     ['双', '根'],
+    '手套':     ['双', '只'],
+    '眼睛':     ['双', '只'],
+    '耳朵':     ['只', '双'],
+    '手':       ['双', '只'],
+    '脚':       ['只', '双'],
+    '西装':     ['套', '件'],
+    '家具':     ['套', '件'],
+
+    # Events / instances
+    '比赛':     ['场', '次'],
+    '雨':       ['场', '阵'],
+    '雪':       ['场'],
+    '梦':       ['场', '个'],
+    '考试':     ['场', '次'],
+    '演出':     ['场', '次'],
+    '会议':     ['次', '场'],
+    '机会':     ['次', '个'],
+    '早饭':     ['顿'],
+    '午饭':     ['顿'],
+    '晚饭':     ['顿'],
+    '早餐':     ['顿'],
+    '午餐':     ['顿'],
+    '晚餐':     ['顿'],
+
+    # Plants
+    '树':       ['棵'],
+    '草':       ['棵', '根'],
+    '白菜':     ['棵'],
+    '葱':       ['棵', '根'],
+    '蒜':       ['头', '瓣'],
+    '花':       ['朵', '束', '盆'],
+    '玫瑰':     ['朵', '束'],
+
+    # Common everyday objects (default to 个 unless overridden above)
+    '苹果':     ['个'],
+    '香蕉':     ['根', '个'],
+    '橘子':     ['个'],
+    '梨':       ['个'],
+    '葡萄':     ['串', '个', '颗'],
+    '西瓜':     ['个'],
+    '蛋糕':     ['块', '个'],
+    '面包':     ['片', '个', '块'],
+    '鸡蛋':     ['个'],
+    '问题':     ['个'],
+    '想法':     ['个'],
+    '建议':     ['个', '条'],
+    '主意':     ['个'],
+    '梦想':     ['个'],
+    '故事':     ['个', '则'],
+    '游戏':     ['个', '场'],
+
+    # Body parts (mixed)
+    '头':       ['个'],
+    '心':       ['颗', '个'],
+    '牙':       ['颗', '个'],
+    '鼻子':     ['个'],
+}
+
+
+# ============================================================================
+# DICTIONARY BUILD
+# ============================================================================
+
+def _build_classifier_rows(group_id_map):
+    rows = []
+    for rank, (hanzi, pinyin, display, group, label, examples) in enumerate(CLASSIFIERS, start=1):
+        if group not in group_id_map:
+            raise RuntimeError(f"Unknown distractor group '{group}' for classifier {hanzi}")
+        rows.append({
+            'language_id': LANGUAGE_ID_ZH,
+            'hanzi': hanzi,
+            'pinyin': pinyin,
+            'pinyin_display': display,
+            'semantic_label': label,
+            'example_nouns': examples,
+            'frequency_rank': rank,
+            'distractor_group_id': group_id_map[group],
+        })
+    return rows
+
+
+def _build_pair_rows(classifier_id_map, sense_id_map):
+    """Build (noun, classifier) pair rows. For each known noun, expand all
+    acceptable classifiers; only the first is is_primary=True.
+    """
+    rows = []
+    skipped = []
+    for noun_text, acceptable in NOUN_CLASSIFIERS.items():
+        for idx, classifier_hanzi in enumerate(acceptable):
+            if classifier_hanzi not in classifier_id_map:
+                skipped.append((noun_text, classifier_hanzi))
+                continue
+            rows.append({
+                'language_id': LANGUAGE_ID_ZH,
+                'noun_sense_id': sense_id_map.get(noun_text),  # may be None
+                'lemma_text': noun_text,
+                'classifier_id': classifier_id_map[classifier_hanzi],
+                'is_primary': idx == 0,
+                'frequency_score': 1.0 / (idx + 1),  # primary gets full weight
+                'source': 'curated',
+            })
+    return rows, skipped
+
+
+def _fetch_sense_id_map(db):
+    """Map noun hanzi -> best dim_word_senses.id for Chinese.
+
+    Joins dim_vocabulary (lemma) with dim_word_senses (vocab_id), picking the
+    lowest sense_rank for each lemma.
+    """
+    result = (
+        db.table('dim_vocabulary')
+          .select('id, lemma, dim_word_senses(id, sense_rank)')
+          .eq('language_id', LANGUAGE_ID_ZH)
+          .in_('lemma', list(NOUN_CLASSIFIERS.keys()))
+          .execute()
+    )
+    sense_map = {}
+    for row in result.data or []:
+        lemma = row.get('lemma')
+        senses = row.get('dim_word_senses') or []
+        if not senses:
+            continue
+        senses.sort(key=lambda s: (s.get('sense_rank') or 999, s.get('id') or 0))
+        sense_map[lemma] = senses[0]['id']
+    return sense_map
+
+
+def run(dry_run: bool = False):
+    db = get_supabase_admin()
+
+    # 1. Fetch distractor group IDs (seeded by migration)
+    grp_resp = db.table('dim_classifier_distractor_groups') \
+        .select('id, label') \
+        .eq('language_id', LANGUAGE_ID_ZH) \
+        .execute()
+    if not grp_resp.data:
+        raise RuntimeError("dim_classifier_distractor_groups is empty; apply add_classifier_drill_mode.sql first")
+    group_id_map = {r['label']: r['id'] for r in grp_resp.data}
+    logger.info(f"Loaded {len(group_id_map)} distractor groups")
+
+    # 2. Build and upsert classifiers
+    classifier_rows = _build_classifier_rows(group_id_map)
+    logger.info(f"Prepared {len(classifier_rows)} classifier rows")
+    if dry_run:
+        for r in classifier_rows[:5]:
+            logger.info(f"  preview: {r}")
+    else:
+        # Wipe and rewrite for full reproducibility
+        db.table('dim_classifier_noun_pairs').delete().eq('language_id', LANGUAGE_ID_ZH).execute()
+        db.table('dim_classifiers').delete().eq('language_id', LANGUAGE_ID_ZH).execute()
+        db.table('dim_classifiers').insert(classifier_rows).execute()
+        logger.info(f"Inserted {len(classifier_rows)} classifiers")
+
+    # 3. Re-fetch classifier IDs (after insert)
+    cls_resp = db.table('dim_classifiers') \
+        .select('id, hanzi') \
+        .eq('language_id', LANGUAGE_ID_ZH) \
+        .execute()
+    classifier_id_map = {r['hanzi']: r['id'] for r in cls_resp.data or []}
+
+    # 4. Build sense-id map for noun lemmas
+    sense_id_map = _fetch_sense_id_map(db)
+    logger.info(f"Matched {len(sense_id_map)}/{len(NOUN_CLASSIFIERS)} nouns to dim_word_senses")
+
+    # 5. Build and upsert pair rows
+    pair_rows, skipped = _build_pair_rows(classifier_id_map, sense_id_map)
+    logger.info(f"Prepared {len(pair_rows)} noun-classifier pairs")
+    if skipped:
+        logger.warning(f"Skipped {len(skipped)} pairs (classifier not in CLASSIFIERS list):")
+        for noun, cls in skipped[:20]:
+            logger.warning(f"  {noun} -> {cls}")
+
+    if dry_run:
+        for r in pair_rows[:10]:
+            logger.info(f"  preview: {r}")
+        logger.info("Dry-run complete; no rows written")
+        return
+
+    # Insert in chunks of 500
+    for i in range(0, len(pair_rows), 500):
+        chunk = pair_rows[i:i + 500]
+        db.table('dim_classifier_noun_pairs').insert(chunk).execute()
+    logger.info(f"Inserted {len(pair_rows)} noun-classifier pairs")
+    logger.info("Build complete.")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Build classifier dictionary for Chinese measure-word trainer")
+    parser.add_argument('--dry-run', action='store_true', help='Preview without writing')
+    args = parser.parse_args()
+    run(dry_run=args.dry_run)

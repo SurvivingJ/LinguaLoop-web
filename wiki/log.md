@@ -1,5 +1,60 @@
 # Activity Log
 
+## 2026-05-17 change | Measure Word Trainer (classifier_drill) for Chinese
+
+User request: build an *infinite* training tool for Chinese measure words (一只猫 / 一条狗 / 一辆车), promoting the L6/L7 `量词使用错误` cloze error category to its own first-class drill. Plan at [`C:\Users\James\.claude\plans\plan-out-how-to-moonlit-lynx.md`](../../.claude/plans/plan-out-how-to-moonlit-lynx.md). Locked design choices via /plan interview: curated dictionary with no LLM, MC + Typed runtime toggle, leave cloze prompts untouched (additive), Chinese-only (Japanese counters deferred).
+
+**Database (3 migrations).**
+- New [migrations/add_classifier_drill_mode.sql](../migrations/add_classifier_drill_mode.sql) — registers `dim_test_types('classifier_drill', id=14)`; creates 3 new tables (`dim_classifier_distractor_groups`, `dim_classifiers`, `dim_classifier_noun_pairs`); seeds 12 semantic distractor groups; inserts the sentinel `tests` row `slug='__classifier_drill_zh'` (is_active=false so it never surfaces in listings) plus its `test_skill_ratings` anchor at ELO 1400. Applied to remote.
+- New [migrations/get_classifier_drill_session.sql](../migrations/get_classifier_drill_session.sql) — `get_classifier_drill_session(user_id, language_id, count)` returns N drill items. CTE pipeline: pick distinct lemmas weighted by `random()*frequency_score`, expand each to all acceptable classifier IDs (CC-CEDICT-style multi-valid), draw 3 distractors from the same `distractor_group_id` excluding all of the noun's correct answers, top up from `general` group if the primary group has < 3 alternatives. `SECURITY DEFINER`, `STABLE`, GRANTed to authenticated. Applied to remote.
+- New [migrations/process_classifier_drill_submission.sql](../migrations/process_classifier_drill_submission.sql) — accuracy-based submission RPC, parameter rename of `process_pinyin_submission` (`p_correct_chars` → `p_correct_items`). Same K=32 first-attempt-only ELO formula, same idempotency block, same JSONB success/error envelope. Applied to remote; a v2 patch removed `percentage` from the INSERT after discovering it's a `GENERATED ALWAYS` column on `test_attempts`.
+
+**Backend.**
+- New [services/classifier_drill_service.py](../services/classifier_drill_service.py) — `get_session()`, `submit_session()`, sentinel-id cache.
+- New [routes/classifier_drill.py](../routes/classifier_drill.py) — `classifier_drill_bp` blueprint with `GET /api/classifier-drill/session` and `POST /api/classifier-drill/submit`. Both endpoints reject `language_id != 1` in v1.
+- [app.py](../app.py) — registered blueprint at `/api/classifier-drill`; added `/classifier-drill` page route.
+
+**Dictionary (no LLM, fully deterministic).**
+- New [scripts/build_classifier_dictionary.py](../scripts/build_classifier_dictionary.py) — curated dictionary embedded as Python data structures. 40 classifiers across 12 distractor groups (general, people, animals, long_thin, flat, bound, vehicles, containers, places, garments, events, plants), 269 noun-classifier pairs covering HSK 1–4 vocabulary. Idempotent rebuild: wipes and reinserts on every run. Build ran successfully: `Inserted 40 classifiers`, `Inserted 269 noun-classifier pairs`, 78/207 lemmas linked to `dim_word_senses`. 30 pairs were skipped because they reference classifiers not in the curated CLASSIFIERS list (台/幅/块/枚/首/壶/锅/栋/家/阵/串/颗/盆/瓣/则) — these can be added in a future iteration.
+
+**Frontend.**
+- New [templates/classifier_drill.html](../templates/classifier_drill.html) — single-file SPA, extends base.html. Header has a `[ Choose | Type ]` toggle that persists in `localStorage.cd_mode`. MC mode: 4 shuffled buttons + keys 1–4. Type mode: single `<input>` accepting any of the noun's correct hanzi. Feedback modal on wrong answer shows `一 <canonical> <noun>` plus the also-acceptable list and the semantic group label. Results screen shows accuracy, time, and an ELO badge from the submission response.
+- [templates/base.html](../templates/base.html) — added "Measure Words" entry to both desktop nav and mobile dropdown.
+- [templates/profile.html](../templates/profile.html) — added `classifier_drill: '🧮'` to SKILL_ICONS; history rows format as `N/M classifiers`.
+- [static/i18n/{en,ja,zh,es}.json](../static/i18n/) — 19 new keys × 4 locales (common.nav.classifier_drill, test_list.classifier_drill, classifier_drill.* namespace). All four locales contain 369 keys.
+
+**Verification (in repo + smoke against remote).**
+- `python -m py_compile app.py routes/classifier_drill.py services/classifier_drill_service.py scripts/build_classifier_dictionary.py` — all parse.
+- `python -c "import json; ..."` — all four i18n bundles valid and equal key count (369).
+- Spot-check 13 high-frequency nouns: 猫→只 ✓, 狗→只(+条) ✓, 车→辆 ✓, 书→本(+册) ✓, 桌子→张 ✓, 水→杯(+瓶,碗) ✓, 人→个(+位,口) ✓, 朋友→个(+位) ✓, 电影→部(+场) ✓, 花→朵(+束) ✓, 鱼→条 ✓, 马→匹 ✓, 飞机→架 ✓.
+- `SELECT * FROM get_classifier_drill_session(<uuid>, 1::smallint, 5)` — 5 items with correct distractor groups (针→根 with distractors 把/条/支 from long_thin; 树→棵 with 束/朵/个 from plants; 电影→部/场 with 册/本/个 from bound + general).
+- `SELECT process_classifier_drill_submission(...)` with `correct=16, total=20` — `success: true, user_elo_change: 1200→1218 (+18), test_elo_change: 1400→1382 (-18), percentage: 80`. Idempotency replay returns `cached: true`. Smoke-test rows cleaned up afterwards.
+
+**Verification (against running app — owner action required):**
+1. Open `/classifier-drill` while signed in → expect 20-item batch to load, header shows `[ Choose | Type ]` toggle.
+2. MC mode: keys 1–4 dispatch correctly; correct answers advance after a brief tick; wrong answers open the feedback modal showing the canonical `一<correct><noun>` plus the also-acceptable list and the semantic group label.
+3. Toggle to Type mode → state persists across reload via `localStorage.cd_mode`. Type `只` for 猫, Enter → accepted. Type `本` for 猫, Enter → wrong, modal opens.
+4. Complete the round → results screen shows accuracy/time/ELO badge; "Next round" loads a fresh batch.
+5. Open `/profile` → measure-words tab visible (🧮 icon); history row shows the just-completed batch as `16/20 classifiers`.
+6. Switch UI locale to ja/zh/es and confirm no dotted i18n keys appear on either page.
+
+**Wiki updates.**
+- New [features/measure-word-trainer.md](features/measure-word-trainer.md) (prose) and [features/measure-word-trainer.tech.md](features/measure-word-trainer.tech.md) (technical) — full feature + technical specs.
+- [index.md](index.md) — registered both new pages, bumped page count 53 → 55, updated last-updated line.
+- This log entry.
+
+Pages updated: 2 (index.md, log.md). Pages created: 2 (feature prose + tech). Migrations applied: 4 (the submission RPC has v1 + v2_fix_generated_percentage). Open questions remaining: 0.
+
+**Out of scope (deferred):**
+- Per-classifier BKT mastery tracking (v1 is single-axis ELO).
+- Pack-aware filtering (currently global Chinese).
+- Per-noun TTS audio pre-rendering (template field is wired but no audio_url is populated yet).
+- Japanese counters (助数詞) — requires morphophonological alternation pipeline; out of scope.
+- Cloze L6/L7 prompt cleanup — left untouched per the planning Q3 decision; the new trainer is additive.
+- CC-CEDICT expansion into long-tail nouns — the schema and script are designed for this (`source` column distinguishes `'curated'` from `'cedict'`); revisit if usage data shows coverage gaps.
+- Anti-repetition log so back-to-back rounds don't show the same noun (Phase 2).
+- Small-group distractor topup edge case: when an item's acceptable set includes 个 AND its primary group has < 3 alternatives, the general fallback is blocked and the item renders with 2 distractors instead of 3. Cosmetic.
+
 ## 2026-05-17 change | Pitch Accent Trainer for Japanese
 
 User request: clone the Pinyin Trainer pattern for Japanese, drilling the four classical accent classes (heiban / atamadaka / nakadaka / odaka). Plan at [`C:\Users\James\.claude\plans\i-want-to-add-goofy-pixel.md`](../../.claude/plans/i-want-to-add-goofy-pixel.md). Locked design: hybrid Quick (4-key) + Contour (connect-the-dots) renderers, pre-computed `pitch_payload` JSONB on the test row via pyopenjtalk, no audio in v1.

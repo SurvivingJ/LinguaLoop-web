@@ -1,0 +1,682 @@
+{% extends "base.html" %}
+
+{% block title %}Measure Word Drill | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cd-header {
+        background: var(--bg-surface);
+        border-bottom: 2px solid var(--border-default);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow-sm);
+    }
+    .cd-progress-bar {
+        height: 6px;
+        background: var(--border-default);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    .cd-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);
+        transition: width 0.3s ease;
+        width: 0;
+    }
+
+    .cd-stage {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 48px 20px;
+    }
+
+    .cd-prompt {
+        text-align: center;
+        font-size: 3.5rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+        line-height: 1.1;
+    }
+
+    .cd-blank {
+        display: inline-block;
+        min-width: 1.2em;
+        border-bottom: 4px solid var(--info);
+        color: transparent;
+    }
+
+    .cd-pronunciation {
+        text-align: center;
+        font-size: 1.5rem;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+
+    .cd-gloss {
+        text-align: center;
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+        margin-bottom: 36px;
+    }
+
+    .cd-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 28px;
+    }
+
+    .cd-option {
+        font-size: 2.25rem;
+        font-weight: 600;
+        padding: 18px 8px;
+        border: 2px solid var(--border-default);
+        border-radius: 12px;
+        background: var(--bg-surface);
+        cursor: pointer;
+        transition: transform 0.1s, border-color 0.1s, background 0.15s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    .cd-option:hover:not(:disabled) {
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+    .cd-option:disabled { cursor: default; opacity: 0.65; }
+    .cd-option.correct  { background: #ecfdf5; border-color: #10b981; }
+    .cd-option.wrong    { background: #fef2f2; border-color: #ef4444; }
+    .cd-option .cd-option-key {
+        position: absolute;
+        top: 6px;
+        left: 8px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+    .cd-option .cd-option-pinyin {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .cd-typed-input {
+        display: block;
+        width: 100%;
+        font-size: 2.5rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 14px 8px;
+        border: 2px solid var(--border-default);
+        border-radius: 12px;
+        background: var(--bg-surface);
+        outline: none;
+        transition: border-color 0.1s;
+    }
+    .cd-typed-input:focus { border-color: var(--primary); }
+    .cd-typed-input.wrong { border-color: #ef4444; background: #fef2f2; }
+    .cd-typed-input.correct { border-color: #10b981; background: #ecfdf5; }
+
+    .cd-feedback {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        padding: 20px;
+    }
+    .cd-feedback.show { display: flex; }
+    .cd-feedback-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        padding: 28px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: var(--shadow-lg);
+    }
+    .cd-feedback-canonical {
+        font-size: 3rem;
+        text-align: center;
+        font-weight: 700;
+        margin: 8px 0 4px;
+    }
+    .cd-feedback-canonical .hl { color: var(--info); }
+    .cd-feedback-group {
+        text-align: center;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 18px;
+    }
+    .cd-feedback-examples {
+        background: var(--bg-page);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        margin-bottom: 18px;
+    }
+    .cd-feedback-cta {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        font-weight: 600;
+        padding: 14px;
+        border-radius: 10px;
+        border: 0;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .cd-results {
+        max-width: 480px;
+        margin: 56px auto;
+        padding: 36px 28px;
+        background: var(--bg-surface);
+        border-radius: 16px;
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+    .cd-results-grade {
+        font-size: 4rem;
+        margin: 8px 0;
+    }
+    .cd-results-pct {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    .cd-results-stats {
+        display: flex;
+        justify-content: center;
+        gap: 36px;
+        margin: 20px 0 24px;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+    }
+    .cd-results-elo-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--bg-page);
+        font-weight: 600;
+        margin-bottom: 18px;
+    }
+    .cd-results-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+    }
+    .cd-mode-toggle {
+        display: inline-flex;
+        background: var(--bg-page);
+        border-radius: 999px;
+        padding: 4px;
+    }
+    .cd-mode-toggle button {
+        background: transparent;
+        border: 0;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
+    .cd-mode-toggle button.active {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    @media (max-width: 480px) {
+        .cd-prompt { font-size: 2.5rem; }
+        .cd-feedback-canonical { font-size: 2.25rem; }
+        .cd-results-grade { font-size: 3rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="cdHeader" class="cd-header py-3 px-4 flex items-center justify-between gap-3" style="display:none;">
+    <div class="flex items-center gap-3">
+        <a href="/" class="text-slate-500 hover:text-slate-700" aria-label="Home">&larr;</a>
+        <h1 class="text-base font-semibold" data-i18n="classifier_drill.title">Measure Words</h1>
+    </div>
+    <div class="cd-mode-toggle" id="cdModeToggle">
+        <button type="button" data-mode="mc"   class="active" data-i18n="classifier_drill.mode_mc">Choose</button>
+        <button type="button" data-mode="type" data-i18n="classifier_drill.mode_type">Type</button>
+    </div>
+    <div class="text-sm text-slate-500"><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></div>
+    <div class="cd-progress-bar"><div class="cd-progress-fill" id="cdProgressFill"></div></div>
+</div>
+
+<div id="cdLoading" class="text-center py-20 text-slate-500" data-i18n="classifier_drill.loading">Loading…</div>
+
+<div id="cdStage" class="cd-stage" style="display:none;">
+    <div class="cd-prompt">
+        <span>一</span>
+        <span class="cd-blank">_</span>
+        <span id="cdNoun"></span>
+    </div>
+    <div class="cd-pronunciation" id="cdPronunciation"></div>
+    <div class="cd-gloss" id="cdGloss"></div>
+
+    <div class="cd-options" id="cdOptions" style="display:none;"></div>
+
+    <form id="cdTypedForm" style="display:none;" autocomplete="off">
+        <input id="cdTypedInput" type="text" class="cd-typed-input" maxlength="2"
+               inputmode="text" autocapitalize="off"
+               data-i18n-placeholder="classifier_drill.typed_placeholder"
+               placeholder="量词" />
+    </form>
+</div>
+
+<div id="cdFeedback" class="cd-feedback" role="dialog" aria-modal="true">
+    <div class="cd-feedback-card">
+        <div class="cd-feedback-canonical" id="cdFeedbackCanonical"></div>
+        <div class="cd-feedback-group" id="cdFeedbackGroup"></div>
+        <div class="cd-feedback-examples" id="cdFeedbackExamples"></div>
+        <button class="cd-feedback-cta" id="cdFeedbackContinue" data-i18n="classifier_drill.feedback_continue">Continue</button>
+    </div>
+</div>
+
+<div id="cdResults" class="cd-results" style="display:none;">
+    <div class="cd-results-grade" id="cdResultsGrade">🎯</div>
+    <div class="cd-results-pct"><span id="cdResultsPct">0</span>%</div>
+    <div class="cd-results-stats">
+        <div><strong id="cdResultsCorrect">0</strong> / <span id="cdResultsTotal">0</span> <span data-i18n="classifier_drill.results_classifiers">classifiers</span></div>
+        <div><strong id="cdResultsTime">0</strong>s</div>
+    </div>
+    <div class="cd-results-elo-badge" id="cdResultsElo" style="display:none;"></div>
+    <div class="cd-results-actions">
+        <button class="cd-feedback-cta" id="cdResultsNext" data-i18n="classifier_drill.results_next">Next round</button>
+        <button class="cd-feedback-cta" id="cdResultsExit" style="background: var(--bg-page); color: var(--text-primary);" data-i18n="classifier_drill.results_exit">Done</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const TARGET_LANGUAGE = 1; // Chinese
+    const BATCH_SIZE = 20;
+
+    const state = {
+        mode: localStorage.getItem('cd_mode') || 'mc',
+        items: [],
+        cursor: 0,
+        correct: 0,
+        errors: [],
+        startTime: 0,
+        currentOptions: [],   // shuffled correct+distractors for MC mode
+        isLocked: false,
+        currentItem: null,
+    };
+
+    const el = {
+        header: document.getElementById('cdHeader'),
+        loading: document.getElementById('cdLoading'),
+        stage: document.getElementById('cdStage'),
+        noun: document.getElementById('cdNoun'),
+        pronunciation: document.getElementById('cdPronunciation'),
+        gloss: document.getElementById('cdGloss'),
+        options: document.getElementById('cdOptions'),
+        typedForm: document.getElementById('cdTypedForm'),
+        typedInput: document.getElementById('cdTypedInput'),
+        progressLabel: document.getElementById('cdProgressLabel'),
+        progressTotal: document.getElementById('cdProgressTotal'),
+        progressFill: document.getElementById('cdProgressFill'),
+        feedback: document.getElementById('cdFeedback'),
+        fbCanonical: document.getElementById('cdFeedbackCanonical'),
+        fbGroup: document.getElementById('cdFeedbackGroup'),
+        fbExamples: document.getElementById('cdFeedbackExamples'),
+        fbContinue: document.getElementById('cdFeedbackContinue'),
+        results: document.getElementById('cdResults'),
+        resultsGrade: document.getElementById('cdResultsGrade'),
+        resultsPct: document.getElementById('cdResultsPct'),
+        resultsCorrect: document.getElementById('cdResultsCorrect'),
+        resultsTotal: document.getElementById('cdResultsTotal'),
+        resultsTime: document.getElementById('cdResultsTime'),
+        resultsElo: document.getElementById('cdResultsElo'),
+        modeToggle: document.getElementById('cdModeToggle'),
+    };
+
+    function tr(key, params) {
+        return (window.LinguaI18n && window.LinguaI18n.t)
+            ? window.LinguaI18n.t(key, params)
+            : key;
+    }
+
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    async function init() {
+        try {
+            if (window.LinguaI18n && window.LinguaI18n.init) {
+                await window.LinguaI18n.init();
+            }
+            applyModeToToggle();
+            bindModeToggle();
+            bindFeedback();
+            bindResults();
+            bindKeyboard();
+            await loadBatch();
+        } catch (err) {
+            console.error('Classifier drill init error:', err);
+            el.loading.textContent = tr('classifier_drill.error_init') + ' ' + (err.message || '');
+        }
+    }
+
+    function applyModeToToggle() {
+        const buttons = el.modeToggle.querySelectorAll('button');
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.mode === state.mode));
+    }
+
+    function bindModeToggle() {
+        el.modeToggle.addEventListener('click', function(e) {
+            const btn = e.target.closest('button[data-mode]');
+            if (!btn) return;
+            state.mode = btn.dataset.mode;
+            localStorage.setItem('cd_mode', state.mode);
+            applyModeToToggle();
+            if (state.currentItem) renderInput();
+        });
+    }
+
+    function bindFeedback() {
+        el.fbContinue.addEventListener('click', closeFeedback);
+    }
+
+    function bindResults() {
+        document.getElementById('cdResultsNext').addEventListener('click', function() {
+            el.results.style.display = 'none';
+            loadBatch();
+        });
+        document.getElementById('cdResultsExit').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    }
+
+    function bindKeyboard() {
+        document.addEventListener('keydown', function(e) {
+            if (el.feedback.classList.contains('show')) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeFeedback();
+                }
+                return;
+            }
+            if (state.mode !== 'mc' || state.isLocked || !state.currentItem) return;
+            const idx = parseInt(e.key, 10);
+            if (idx >= 1 && idx <= state.currentOptions.length) {
+                e.preventDefault();
+                handleMcClick(idx - 1);
+            }
+        });
+    }
+
+    async function loadBatch() {
+        el.loading.style.display = 'block';
+        el.stage.style.display = 'none';
+        el.results.style.display = 'none';
+        el.header.style.display = 'none';
+
+        const token = localStorage.getItem('jwt_token');
+        const url = '/api/classifier-drill/session?language_id=' + TARGET_LANGUAGE + '&count=' + BATCH_SIZE;
+        const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!resp.ok) {
+            el.loading.textContent = tr('classifier_drill.error_load') + ' (' + resp.status + ')';
+            return;
+        }
+        const data = await resp.json();
+        const items = (data && (data.data && data.data.items || data.items)) || [];
+        if (!items.length) {
+            el.loading.textContent = tr('classifier_drill.error_empty');
+            return;
+        }
+
+        state.items = items;
+        state.cursor = 0;
+        state.correct = 0;
+        state.errors = [];
+        state.startTime = Date.now();
+        state.isLocked = false;
+
+        el.progressTotal.textContent = items.length;
+        el.loading.style.display = 'none';
+        el.header.style.display = 'flex';
+        el.stage.style.display = 'block';
+        renderCurrent();
+    }
+
+    function renderCurrent() {
+        if (state.cursor >= state.items.length) {
+            return finishBatch();
+        }
+        state.currentItem = state.items[state.cursor];
+        state.isLocked = false;
+
+        el.progressLabel.textContent = String(state.cursor + 1);
+        el.progressFill.style.width = (100 * state.cursor / state.items.length) + '%';
+
+        el.noun.textContent = state.currentItem.noun_lemma || '';
+        el.pronunciation.textContent = state.currentItem.noun_pronunciation || '';
+        el.gloss.textContent = state.currentItem.noun_gloss || '';
+
+        renderInput();
+    }
+
+    function renderInput() {
+        if (state.mode === 'mc') {
+            el.typedForm.style.display = 'none';
+            el.options.style.display = 'grid';
+            renderMcOptions();
+        } else {
+            el.options.style.display = 'none';
+            el.typedForm.style.display = 'block';
+            el.typedInput.value = '';
+            el.typedInput.classList.remove('wrong', 'correct');
+            setTimeout(() => el.typedInput.focus(), 30);
+        }
+    }
+
+    function renderMcOptions() {
+        const item = state.currentItem;
+        const correctHanzi = (item.correct_classifier_hanzi || [])[0];
+        const correctId = (item.correct_classifier_ids || [])[0];
+        const distractorIds = item.distractor_ids || [];
+        const distractorHanzi = item.distractor_hanzi || [];
+        const distractorPinyin = item.distractor_pinyin || [];
+
+        // Build pool: [correct] + distractors, then shuffle
+        const pool = [{ id: correctId, hanzi: correctHanzi, pinyin: '', is_correct: true }];
+        for (let i = 0; i < distractorIds.length; i++) {
+            pool.push({
+                id: distractorIds[i],
+                hanzi: distractorHanzi[i] || '',
+                pinyin: distractorPinyin[i] || '',
+                is_correct: false,
+            });
+        }
+        state.currentOptions = shuffle(pool);
+
+        el.options.innerHTML = '';
+        state.currentOptions.forEach(function(opt, idx) {
+            const btn = document.createElement('button');
+            btn.className = 'cd-option';
+            btn.type = 'button';
+            btn.dataset.idx = idx;
+            btn.innerHTML =
+                '<span class="cd-option-key">' + (idx + 1) + '</span>' +
+                '<span>' + escapeHtml(opt.hanzi) + '</span>' +
+                (opt.pinyin ? '<span class="cd-option-pinyin">' + escapeHtml(opt.pinyin) + '</span>' : '');
+            btn.addEventListener('click', function() { handleMcClick(idx); });
+            el.options.appendChild(btn);
+        });
+    }
+
+    function handleMcClick(idx) {
+        if (state.isLocked) return;
+        state.isLocked = true;
+        const opt = state.currentOptions[idx];
+        const correctIds = state.currentItem.correct_classifier_ids || [];
+        const isCorrect = correctIds.indexOf(opt.id) !== -1;
+        recordAnswer(isCorrect, opt.hanzi);
+
+        const buttons = el.options.querySelectorAll('.cd-option');
+        buttons.forEach(function(b) { b.disabled = true; });
+
+        const clickedBtn = buttons[idx];
+        if (isCorrect) {
+            clickedBtn.classList.add('correct');
+            setTimeout(advance, 400);
+        } else {
+            clickedBtn.classList.add('wrong');
+            // Highlight the canonical correct option
+            state.currentOptions.forEach(function(o, i) {
+                if (o.is_correct) buttons[i].classList.add('correct');
+            });
+            setTimeout(function() { openFeedback(opt.hanzi); }, 280);
+        }
+    }
+
+    el.typedForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (state.isLocked || !state.currentItem) return;
+        const raw = (el.typedInput.value || '').trim();
+        if (!raw) return;
+        const correctHanzi = state.currentItem.correct_classifier_hanzi || [];
+        const isCorrect = correctHanzi.indexOf(raw) !== -1;
+        state.isLocked = true;
+        recordAnswer(isCorrect, raw);
+        if (isCorrect) {
+            el.typedInput.classList.add('correct');
+            setTimeout(advance, 400);
+        } else {
+            el.typedInput.classList.add('wrong');
+            setTimeout(function() { openFeedback(raw); }, 250);
+        }
+    });
+
+    function recordAnswer(isCorrect, picked) {
+        if (isCorrect) {
+            state.correct += 1;
+        } else {
+            state.errors.push({
+                lemma: state.currentItem.noun_lemma,
+                picked: picked,
+                correct: state.currentItem.correct_classifier_hanzi,
+                ts: Date.now(),
+            });
+        }
+    }
+
+    function openFeedback(picked) {
+        const item = state.currentItem;
+        const canonical = (item.correct_classifier_hanzi || [])[0] || '';
+        const altList = (item.correct_classifier_hanzi || []).slice(1);
+        const altSuffix = altList.length
+            ? ' <span style="font-size:1.5rem; color: var(--text-muted);">(' + tr('classifier_drill.also') + ': ' + altList.join(' / ') + ')</span>'
+            : '';
+        el.fbCanonical.innerHTML = '一 <span class="hl">' + escapeHtml(canonical) + '</span> ' + escapeHtml(item.noun_lemma || '') + altSuffix;
+        const groupLabel = item.semantic_label || '';
+        el.fbGroup.textContent = groupLabel;
+
+        // examples come from the classifier's own example_nouns (server didn't ship them
+        // per-item; fall back to picked hint for now via the group label)
+        el.fbExamples.textContent = tr('classifier_drill.your_answer') + ': ' + picked;
+
+        el.feedback.classList.add('show');
+        el.fbContinue.focus();
+    }
+
+    function closeFeedback() {
+        el.feedback.classList.remove('show');
+        advance();
+    }
+
+    function advance() {
+        state.cursor += 1;
+        renderCurrent();
+    }
+
+    async function finishBatch() {
+        const total = state.items.length;
+        const correct = state.correct;
+        const pct = total ? Math.round((correct / total) * 100) : 0;
+        const time = Math.round((Date.now() - state.startTime) / 1000);
+
+        el.stage.style.display = 'none';
+        el.progressFill.style.width = '100%';
+        el.progressLabel.textContent = String(total);
+
+        el.resultsPct.textContent = pct;
+        el.resultsCorrect.textContent = correct;
+        el.resultsTotal.textContent = total;
+        el.resultsTime.textContent = time;
+        el.resultsGrade.textContent = pct >= 95 ? '🏆' : pct >= 80 ? '🎯' : pct >= 60 ? '👍' : '💪';
+
+        el.results.style.display = 'block';
+
+        // Submit and badge ELO
+        try {
+            const token = localStorage.getItem('jwt_token');
+            const resp = await fetch('/api/classifier-drill/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+                body: JSON.stringify({
+                    language_id: TARGET_LANGUAGE,
+                    correct_items: correct,
+                    total_items: total,
+                    time_taken: time,
+                }),
+            });
+            if (resp.ok) {
+                const payload = await resp.json();
+                const result = (payload && (payload.data || payload)) || {};
+                const elo = result.user_elo_change || {};
+                if (typeof elo.change === 'number' && elo.change !== 0) {
+                    const sign = elo.change > 0 ? '+' : '';
+                    el.resultsElo.textContent = tr('classifier_drill.results_elo', { value: sign + elo.change });
+                    el.resultsElo.style.display = 'inline-block';
+                } else if (typeof elo.change === 'number') {
+                    el.resultsElo.textContent = tr('classifier_drill.results_elo_unchanged');
+                    el.resultsElo.style.display = 'inline-block';
+                }
+            }
+        } catch (e) {
+            console.error('Submit failed:', e);
+        }
+    }
+
+    function escapeHtml(s) {
+        if (window.LinguaUtils && LinguaUtils.escapeHtml) return LinguaUtils.escapeHtml(String(s));
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+{% endblock %}
