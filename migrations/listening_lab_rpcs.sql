@@ -674,9 +674,9 @@ BEGIN
             INTO v_aggregated_responses
             FROM (
                 SELECT jsonb_array_elements(
-                    (val -> 'attempts' -> -1) -> 'responses'
+                    (each.value -> 'attempts' -> -1) -> 'responses'
                 ) AS elem
-                FROM jsonb_each(v_session.tier_results)
+                FROM jsonb_each(v_session.tier_results) AS each(key, value)
             ) sub;
 
             v_tokens_already_charged := (v_session.tokens_consumed > 0);

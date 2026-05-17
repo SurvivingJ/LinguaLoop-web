@@ -262,7 +262,8 @@ def _register_blueprints(app):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
-    app.register_blueprint(listening_lab_bp, url_prefix='/api/listening-lab')
+    if app.config.get('LISTENING_LAB_ENABLED'):
+        app.register_blueprint(listening_lab_bp, url_prefix='/api/listening-lab')
     app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
@@ -377,15 +378,16 @@ def _register_web_routes(app):
         """Render mystery playing page"""
         return render_template('mystery.html')
 
-    @app.route('/listening-lab')
-    def listening_lab_list():
-        """Render listening lab passage list page"""
-        return render_template('listening_lab_list.html')
+    if app.config.get('LISTENING_LAB_ENABLED'):
+        @app.route('/listening-lab')
+        def listening_lab_list():
+            """Render listening lab passage list page"""
+            return render_template('listening_lab_list.html')
 
-    @app.route('/listening-lab/<slug>')
-    def listening_lab_page(slug):
-        """Render listening lab player page"""
-        return render_template('listening_lab.html')
+        @app.route('/listening-lab/<slug>')
+        def listening_lab_page(slug):
+            """Render listening lab player page"""
+            return render_template('listening_lab.html')
 
     @app.route('/vocab-dojo')
     def vocab_dojo():

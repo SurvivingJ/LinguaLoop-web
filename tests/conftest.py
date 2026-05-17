@@ -27,6 +27,12 @@ class TestConfig(Config):
     STRIPE_SECRET_KEY = None
     R2_ACCESS_KEY_ID = None
 
+    # Feature flags — keep Listening Lab on by default so its route tests
+    # still see the registered blueprint and web routes. Tests that
+    # specifically exercise the disabled-flag path build their own app
+    # with this overridden to False.
+    LISTENING_LAB_ENABLED = True
+
 
 # ---------------------------------------------------------------------------
 # Mock builders
