@@ -422,7 +422,7 @@
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    localStorage.removeItem('jwt_token');
+                    _clearAllTokens();
                     window.location.href = '/login';
                     return null;
                 }
