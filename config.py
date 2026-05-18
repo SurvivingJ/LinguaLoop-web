@@ -22,13 +22,6 @@ class Config:
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
     # ==========================================================================
-    # JWT SETTINGS
-    # ==========================================================================
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
-    JWT_TOKEN_LOCATION = ["headers", "cookies"]
-
-    # ==========================================================================
     # TRUSTED DEVICE / "REMEMBER THIS DEVICE"
     # ==========================================================================
     # Long-lived rolling session credential issued when the user checks the
@@ -248,13 +241,12 @@ class Config:
     def validate(cls) -> None:
         """Refuse to start the app if any required secret is missing.
 
-        Called once from create_app() before JWTManager / Supabase clients
-        are initialized, so a missing env var fails with a clear message
-        instead of silently falling back to an insecure default.
+        Called once from create_app() before Supabase clients are initialized,
+        so a missing env var fails with a clear message instead of silently
+        falling back to an insecure default.
         """
         required = {
             'SECRET_KEY': cls.SECRET_KEY,
-            'JWT_SECRET_KEY': cls.JWT_SECRET_KEY,
             'SUPABASE_URL': cls.SUPABASE_URL,
             'SUPABASE_KEY': cls.SUPABASE_KEY,
             'SUPABASE_SERVICE_ROLE_KEY': cls.SUPABASE_SERVICE_ROLE_KEY,

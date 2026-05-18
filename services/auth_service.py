@@ -1,10 +1,7 @@
 from supabase import Client
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, Optional
 import logging
-import uuid
-import os
-import jwt as pyjwt
 
 from services.supabase_factory import get_supabase_admin
 
@@ -242,46 +239,50 @@ class AuthService:
             return {'success': False, 'error': 'Logout failed'}
     
     def mint_session_for_user(self, user_id: str, email: str) -> Dict:
-        """Mint a Supabase-shaped access token for a known user.
+        """Issue a fresh real Supabase session for a known user.
 
         Used by /api/auth/device-restore when a valid trusted-device cookie is
         presented and we need to hand the browser a fresh JWT without going
-        through the OTP email flow. The token is signed locally with the
-        project's JWT secret (the same secret PostgREST uses to validate
-        ``auth.uid()`` for RLS — Supabase dashboard → Settings → API → JWT
-        Secret), so it is indistinguishable from a token issued by Supabase's
-        auth server. Read from JWT_SECRET_KEY in the environment.
+        through the OTP email flow.
 
-        We deliberately do NOT issue a Supabase refresh token here — the
-        device cookie IS the long-lived refresh credential. When this access
-        token expires, the frontend calls /device-restore again.
+        Implementation: server-to-server, call admin.generate_link to obtain a
+        magic-link OTP hash, then immediately exchange it via verify_otp for a
+        real session. The resulting access token is signed by Supabase's
+        current signing key (HS256, ES256, or whatever Supabase rotates to in
+        the future), so supabase.auth.get_user(...) accepts it — unlike a
+        locally HS256-signed token, which Supabase rejects once a project has
+        been migrated to asymmetric ES256 keys.
+
+        Returns a refresh_token as well so the frontend can refresh normally
+        on subsequent expiries instead of hitting device-restore every hour.
         """
-        secret = os.environ.get('JWT_SECRET_KEY')
-        if not secret or secret == 'jwt-secret-change-in-production':
-            self.logger.error(
-                'JWT_SECRET_KEY not configured (or still the default placeholder) — '
-                'cannot mint session for device-restore'
-            )
-            return {'success': False, 'error': 'Server misconfigured'}
-
-        now = datetime.now(timezone.utc)
-        # Match Supabase's default access token lifetime (1h).
-        exp = now + timedelta(hours=1)
-        payload = {
-            'aud': 'authenticated',
-            'role': 'authenticated',
-            'sub': user_id,
-            'email': email,
-            'session_id': str(uuid.uuid4()),
-            'is_anonymous': False,
-            'iat': int(now.timestamp()),
-            'exp': int(exp.timestamp()),
-        }
         try:
-            token = pyjwt.encode(payload, secret, algorithm='HS256')
-            return {'success': True, 'jwt_token': token}
+            link = self.supabase_admin.auth.admin.generate_link({
+                'type': 'magiclink',
+                'email': email,
+            })
+            properties = getattr(link, 'properties', None)
+            hashed_token = getattr(properties, 'hashed_token', None) if properties else None
+            if not hashed_token:
+                self.logger.error('mint_session_for_user: generate_link returned no hashed_token')
+                return {'success': False, 'error': 'Failed to mint session'}
+
+            verified = self.supabase_admin.auth.verify_otp({
+                'token_hash': hashed_token,
+                'type': 'magiclink',
+            })
+            session = getattr(verified, 'session', None)
+            if not session or not getattr(session, 'access_token', None):
+                self.logger.error('mint_session_for_user: verify_otp returned no session')
+                return {'success': False, 'error': 'Failed to mint session'}
+
+            return {
+                'success': True,
+                'jwt_token': session.access_token,
+                'refresh_token': getattr(session, 'refresh_token', None),
+            }
         except Exception as e:
-            self.logger.error(f'mint_session_for_user failed: {e}')
+            self.logger.error(f'mint_session_for_user failed: {e}', exc_info=True)
             return {'success': False, 'error': 'Failed to mint session'}
 
     def refresh_session(self, refresh_token: str) -> Dict:

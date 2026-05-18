@@ -137,10 +137,10 @@
     };
 
     // ── API helpers ──
+    // Local wrapper that returns parsed JSON; delegates auth/refresh/device-restore
+    // to base.html's window.authFetch.
     function authFetch(url, opts = {}) {
-        const token = localStorage.getItem('jwt_token');
-        opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-        return fetch(url, opts).then(r => r.json());
+        return window.authFetch(url, opts).then(r => r.json());
     }
 
     // ── Utilities from shared module ──

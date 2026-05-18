@@ -253,6 +253,7 @@ def device_restore():
     body = {
         'success': True,
         'jwt_token': minted['jwt_token'],
+        'refresh_token': minted.get('refresh_token'),
         'user': {
             'id': user.get('id') or restored['user_id'],
             'email': user.get('email') or restored['user_email'],

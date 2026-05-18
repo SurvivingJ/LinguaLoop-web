@@ -404,28 +404,10 @@
      * Fetch test data from API
      */
     async function fetchTestData(slug) {
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-            console.error('No JWT token found');
-            window.location.href = '/login';
-            return null;
-        }
-
         try {
-            const response = await fetch(`/api/tests/${slug}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authFetch(`/api/tests/${slug}`, { method: 'GET' });
 
             if (!response.ok) {
-                if (response.status === 401) {
-                    _clearAllTokens();
-                    window.location.href = '/login';
-                    return null;
-                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
@@ -447,20 +429,8 @@
      * Fetch skill ratings from API
      */
     async function fetchSkillRatings(slug) {
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-            console.error('No JWT token found');
-            return null;
-        }
-
         try {
-            const response = await fetch(`/api/tests/test/${slug}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authFetch(`/api/tests/test/${slug}`, { method: 'GET' });
 
             if (!response.ok) {
                 console.warn('Skill ratings endpoint returned:', response.status);

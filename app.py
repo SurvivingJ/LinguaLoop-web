@@ -5,7 +5,6 @@ Clean, production-ready implementation with proper error handling
 
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, g
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
 from datetime import datetime, timezone
 import stripe
 from services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
@@ -62,9 +61,6 @@ def create_app(config_class=Config):
         level=logging.INFO if not config_class.DEBUG else logging.DEBUG,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
-    # Initialize JWT
-    JWTManager(app)
     
     # Setup CORS
     _setup_cors(app)

@@ -609,10 +609,7 @@
     // DATA LOADING
     // =====================================================================
     async function loadTestData() {
-        const token = localStorage.getItem('jwt_token');
-        const resp = await fetch(`/api/tests/test/${state.slug}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const resp = await window.authFetch(`/api/tests/test/${state.slug}`);
         if (!resp.ok) throw new Error(t('pitch.error.load_failed', 'Failed to load test'));
 
         const data = await resp.json();
@@ -1175,13 +1172,8 @@
 
     async function submitResults(timeSec) {
         try {
-            const token = localStorage.getItem('jwt_token');
-            const resp = await fetch(`/api/tests/${state.slug}/submit-pitch-accent`, {
+            const resp = await window.authFetch(`/api/tests/${state.slug}/submit-pitch-accent`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
                 body: JSON.stringify({
                     correct_units: Math.max(0, state.playableTokens.length - state.errorCount),
                     total_units: state.playableTokens.length,

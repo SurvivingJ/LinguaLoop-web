@@ -438,9 +438,8 @@
         el.results.style.display = 'none';
         el.header.style.display = 'none';
 
-        const token = localStorage.getItem('jwt_token');
         const url = '/api/classifier-drill/session?language_id=' + TARGET_LANGUAGE + '&count=' + BATCH_SIZE;
-        const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+        const resp = await window.authFetch(url);
         if (!resp.ok) {
             el.loading.textContent = tr('classifier_drill.error_load') + ' (' + resp.status + ')';
             return;
@@ -637,13 +636,8 @@
 
         // Submit and badge ELO
         try {
-            const token = localStorage.getItem('jwt_token');
-            const resp = await fetch('/api/classifier-drill/submit', {
+            const resp = await window.authFetch('/api/classifier-drill/submit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
                 body: JSON.stringify({
                     language_id: TARGET_LANGUAGE,
                     correct_items: correct,

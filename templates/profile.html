@@ -139,30 +139,14 @@
     async function loadProfile() {
         console.log('=== LOAD PROFILE START ===');
         try {
-            const token = localStorage.getItem('jwt_token');
-            console.log('JWT token exists:', !!token);
-            console.log('JWT token preview:', token ? token.substring(0, 20) + '...' : 'null');
-
-            if (!token) {
-                console.warn('No JWT token found, redirecting to login');
-                window.location.href = '/login';
-                return;
-            }
-
             console.log('Fetching /api/users/elo...');
-            const res = await fetch('/api/users/elo', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await window.authFetch('/api/users/elo');
 
             console.log('Response status:', res.status);
             console.log('Response ok:', res.ok);
             console.log('Response headers:', Object.fromEntries(res.headers.entries()));
 
             if (!res.ok) {
-                if (res.status === 401) {
-                    console.error('401 Unauthorized - redirecting to login');
-                    window.location.href = '/login';
-                }
                 throw new Error(`Failed to load profile: ${res.status} ${res.statusText}`);
             }
 
@@ -408,9 +392,7 @@
             const url = `/api/tests/history?language_id=${selectedLang.language_id}&test_type_id=${selectedSkill.test_type_id}&limit=${HISTORY_PAGE_SIZE}&offset=${offset}`;
             console.log('Fetching history from:', url);
 
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt_token')}` }
-            });
+            const res = await window.authFetch(url);
 
             console.log('History response status:', res.status);
             console.log('History response ok:', res.ok);

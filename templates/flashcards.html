@@ -613,7 +613,6 @@
 <script>
 (function() {
     const RATING_MAP = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
-    const token = localStorage.getItem('jwt_token');
     const languageId = parseInt(localStorage.getItem('selectedLanguageId')) || 1;
 
     // State
@@ -654,15 +653,8 @@
     };
 
     async function loadCards() {
-        if (!token) {
-            window.location.href = '/login';
-            return;
-        }
-
         try {
-            const resp = await fetch(`/api/flashcards/due?language_id=${languageId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const resp = await window.authFetch(`/api/flashcards/due?language_id=${languageId}`);
 
             if (!resp.ok) throw new Error('Failed to load flashcards');
 
@@ -801,12 +793,8 @@
         state.reviewed++;
 
         // Submit review to API (fire-and-forget)
-        fetch('/api/flashcards/review', {
+        window.authFetch('/api/flashcards/review', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
             body: JSON.stringify({
                 card_id: card.card_id,
                 rating: rating,

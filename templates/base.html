@@ -355,6 +355,7 @@
                 // so write to localStorage and wipe sessionStorage.
                 ['jwt_token', 'refresh_token', 'user_data'].forEach(k => sessionStorage.removeItem(k));
                 localStorage.setItem('jwt_token', data.jwt_token);
+                if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
                 if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
                 window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
                 return true;

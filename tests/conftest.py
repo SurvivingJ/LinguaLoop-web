@@ -17,7 +17,6 @@ class TestConfig(Config):
     TESTING = True
     DEBUG = False
     SECRET_KEY = 'test-secret-key'
-    JWT_SECRET_KEY = 'test-jwt-secret'
 
     # Disable external services
     SUPABASE_URL = 'https://fake.supabase.co'

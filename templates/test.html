@@ -1036,12 +1036,8 @@ async function submitTest() {
         const timeTaken = Math.floor((Date.now() - testState.startTime) / 1000);
         
         // Submit to API
-        const response = await fetch(`/api/tests/${testState.slug}/submit`, {
+        const response = await window.authFetch(`/api/tests/${testState.slug}/submit`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-            },
             body: JSON.stringify({
                 test_id: testState.testId,
                 test_mode: testState.testType,
@@ -1608,17 +1604,12 @@ function showResults(result) {
 // DAILY LOAD COMPLETION
 // ============================================================================
 function markDailyLoadComplete(testId) {
-    var token = localStorage.getItem('jwt_token');
     var languageId = localStorage.getItem('selectedLanguageId');
 
-    if (!token || !languageId || !testId) return;
+    if (!languageId || !testId) return;
 
-    fetch('/api/tests/daily-load/complete', {
+    window.authFetch('/api/tests/daily-load/complete', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
         body: JSON.stringify({
             test_id: testId,
             language_id: parseInt(languageId)
@@ -2105,13 +2096,8 @@ const wordQuiz = {
         if (this.results.length === 0) return;
 
         try {
-            const token = localStorage.getItem('jwt_token');
-            await fetch('/api/vocabulary/word-quiz', {
+            await window.authFetch('/api/vocabulary/word-quiz', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
                 body: JSON.stringify({
                     attempt_id: this.attemptId,
                     language_id: this.languageId,

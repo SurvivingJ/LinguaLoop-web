@@ -62,9 +62,10 @@
 (function() {
     'use strict';
 
+    // Local wrapper that returns parsed JSON; delegates auth/refresh/device-restore
+    // to base.html's window.authFetch.
     function authFetch(url) {
-        const token = localStorage.getItem('jwt_token');
-        return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        return window.authFetch(url).then(r => r.json());
     }
 
     function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

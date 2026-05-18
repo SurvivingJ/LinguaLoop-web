@@ -1052,15 +1052,6 @@
         showLoading();
 
         try {
-            const token = localStorage.getItem('jwt_token');
-            debugLog('🔑 JWT token present:', !!token);
-
-            if (!token) {
-                console.error('❌ No JWT token found');
-                window.location.href = '/login';
-                return;
-            }
-
             // Get selected language ID from localStorage
             const languageId = localStorage.getItem('selectedLanguageId');
             debugLog('🌐 selectedLanguageId:', languageId);
@@ -1078,24 +1069,12 @@
             const url = `/api/tests${params.toString() ? '?' + params.toString() : ''}`;
 
             debugLog('📡 Fetching tests from:', url);
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+
+            const response = await window.authFetch(url, { method: 'GET' });
 
             debugLog('📨 Response status:', response.status, response.statusText);
 
             if (!response.ok) {
-                if (response.status === 401) {
-                    console.error('❌ Unauthorized - redirecting to login');
-                    _clearAllTokens();
-                    window.location.href = '/login';
-                    return;
-                }
                 const errorText = await response.text();
                 console.error('❌ HTTP error response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -1136,13 +1115,7 @@
             
             // Get current filter values for context
             const testType = document.getElementById('test-type').value || 'listening';
-            const token = localStorage.getItem('jwt_token');
-            
-            if (!token) {
-                window.location.href = '/login';
-                return;
-            }
-            
+
             // Get user's selected language ID from localStorage
             const languageId = localStorage.getItem('selectedLanguageId');
             if (!languageId) {
@@ -1152,13 +1125,10 @@
 
             debugLog('🎲 Fetching random test...', { testType, languageId });
 
-            const response = await fetch(`/api/tests/random?language_id=${languageId}&skill_type=${testType}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authFetch(
+                `/api/tests/random?language_id=${languageId}&skill_type=${testType}`,
+                { method: 'GET' }
+            );
             
             if (!response.ok) {
                 throw new Error(`Failed to fetch random test: ${response.status}`);
@@ -1212,12 +1182,6 @@
         const suggestedGrid = document.querySelector('.suggested-grid');
 
         try {
-            const token = localStorage.getItem('jwt_token');
-            if (!token) {
-                debugLog('No token for recommended tests');
-                return;
-            }
-
             const languageId = localStorage.getItem('selectedLanguageId');
             if (!languageId) {
                 debugLog('No language selected for recommended tests');
@@ -1226,13 +1190,10 @@
 
             debugLog('Fetching recommended tests...', { languageId });
 
-            const response = await fetch(`/api/tests/recommended?language_id=${languageId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authFetch(
+                `/api/tests/recommended?language_id=${languageId}`,
+                { method: 'GET' }
+            );
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -1357,20 +1318,15 @@
 
     async function loadDailyLoad() {
         try {
-            const token = localStorage.getItem('jwt_token');
             const languageId = localStorage.getItem('selectedLanguageId');
-
-            if (!token || !languageId) return;
+            if (!languageId) return;
 
             debugLog('Fetching daily load...', { languageId });
 
-            const response = await fetch(`/api/tests/daily-load?language_id=${languageId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authFetch(
+                `/api/tests/daily-load?language_id=${languageId}`,
+                { method: 'GET' }
+            );
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -1484,19 +1440,14 @@
     window.goToTestPreviewRecommended = goToTestPreviewRecommended;
     window.loadDailyLoad = loadDailyLoad;
 
-    // Initial load — fetch metadata first for native language names
+    // Initial load — fetch metadata first for native language names.
+    // base.html's early redirect already covers the no-token case, and
+    // authFetch handles refresh/device-restore/redirect on 401.
     LinguaMetadata.load().then(function() {
         loadTests();
         loadRecommendedTests();
         loadDailyLoad();
     });
-    
-    // Check authentication
-    const token = localStorage.getItem('jwt_token');
-    if (!token) {
-        console.error('No authentication token found');
-        window.location.href = '/login';
-    }
 })();
 </script>
 {% endblock %}
