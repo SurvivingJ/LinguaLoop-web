@@ -13,6 +13,28 @@
         top: 0;
         z-index: 100;
         box-shadow: var(--shadow-sm);
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+    .cd-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    .cd-header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 0 0 auto;
+    }
+    .cd-header-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1 1 100%;
+        justify-content: center;
     }
     .cd-progress-bar {
         height: 6px;
@@ -88,10 +110,17 @@
         align-items: center;
         gap: 4px;
     }
-    .cd-option:hover:not(:disabled) {
-        border-color: var(--primary);
-        transform: translateY(-1px);
+    /* Hover styles are gated to devices that actually support hover so
+       mobile WebKit doesn't leave the previously-tapped option stuck in
+       the hover state when the next question is rendered. */
+    @media (hover: hover) and (pointer: fine) {
+        .cd-option:hover:not(:disabled) {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
     }
+    .cd-option:focus { outline: none; }
+    .cd-option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
     .cd-option:disabled { cursor: default; opacity: 0.65; }
     .cd-option.correct  { background: #ecfdf5; border-color: #10b981; }
     .cd-option.wrong    { background: #fef2f2; border-color: #ef4444; }
@@ -239,27 +268,59 @@
         box-shadow: var(--shadow-sm);
     }
 
-    @media (max-width: 480px) {
-        .cd-prompt { font-size: 2.5rem; }
-        .cd-feedback-canonical { font-size: 2.25rem; }
+    /* ===== Mobile (≤640px) ============================================ */
+    @media (max-width: 640px) {
+        .cd-stage { padding: 24px 14px; }
+        .cd-prompt { font-size: 2.5rem; letter-spacing: 0.05em; }
+        .cd-pronunciation { font-size: 1.2rem; }
+        .cd-gloss { font-size: 0.95rem; margin-bottom: 24px; }
+        .cd-options { gap: 10px; margin-top: 20px; }
+        .cd-option { font-size: 1.85rem; padding: 16px 6px; min-height: 76px; }
+        .cd-option .cd-option-key { font-size: 0.7rem; top: 4px; left: 6px; }
+        .cd-option .cd-option-pinyin { font-size: 0.85rem; }
+        .cd-typed-input { font-size: 2rem; padding: 12px 6px; }
+
+        .cd-feedback-card { padding: 22px 18px; }
+        .cd-feedback-canonical { font-size: 2.1rem; }
+        .cd-feedback-group { font-size: 0.9rem; }
+        .cd-feedback-examples { font-size: 0.9rem; padding: 10px 12px; }
+
+        .cd-results { margin: 28px 14px; padding: 28px 20px; }
         .cd-results-grade { font-size: 3rem; }
+        .cd-results-pct { font-size: 2.1rem; }
+        .cd-results-stats { gap: 20px; font-size: 0.85rem; }
+
+        .cd-mode-toggle button { padding: 5px 10px; font-size: 0.8rem; }
+
+        /* Cloze-mode sentence container shrinks too */
+        #cdReversePrompt { font-size: 1rem !important; }
+        #cdReversePrompt > div:last-child { font-size: 1.25rem !important; line-height: 1.5; }
+    }
+    @media (max-width: 380px) {
+        .cd-prompt { font-size: 2.1rem; }
+        .cd-option { font-size: 1.6rem; min-height: 68px; }
+        .cd-results-actions { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="cdHeader" class="cd-header py-3 px-4 flex items-center justify-between gap-3" style="display:none;">
-    <div class="flex items-center gap-3">
-        <a href="/" class="text-slate-500 hover:text-slate-700" aria-label="Home">&larr;</a>
-        <h1 class="text-base font-semibold" data-i18n="classifier_drill.title">Measure Words</h1>
+<div id="cdHeader" class="cd-header py-3 px-3 px-md-4 flex items-center justify-between gap-2" style="display:none;">
+    <div class="cd-header-left">
+        <a href="/" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
+        <h1 class="text-base font-semibold" data-i18n="classifier_drill.title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Measure Words</h1>
     </div>
-    <div class="cd-mode-toggle" id="cdModeToggle" title="Auto adapts each item to your per-classifier mastery">
-        <button type="button" data-mode="auto" class="active" data-i18n="classifier_drill.mode_auto">Auto</button>
-        <button type="button" data-mode="mc"   data-i18n="classifier_drill.mode_mc">Choose</button>
-        <button type="button" data-mode="type" data-i18n="classifier_drill.mode_type">Type</button>
+    <div class="cd-header-right">
+        <div class="text-xs text-slate-500" id="cdLevelBadge" style="display:none;"></div>
+        <div class="text-sm text-slate-500" style="white-space: nowrap;"><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></div>
     </div>
-    <div class="text-xs text-slate-500 ms-2" id="cdLevelBadge" style="display:none;"></div>
-    <div class="text-sm text-slate-500"><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></div>
+    <div class="cd-header-controls">
+        <div class="cd-mode-toggle" id="cdModeToggle" title="Auto adapts each item to your per-classifier mastery">
+            <button type="button" data-mode="auto" class="active" data-i18n="classifier_drill.mode_auto">Auto</button>
+            <button type="button" data-mode="mc"   data-i18n="classifier_drill.mode_mc">Choose</button>
+            <button type="button" data-mode="type" data-i18n="classifier_drill.mode_type">Type</button>
+        </div>
+    </div>
     <div class="cd-progress-bar"><div class="cd-progress-fill" id="cdProgressFill"></div></div>
 </div>
 
@@ -492,6 +553,12 @@
         if (state.cursor >= state.items.length) {
             return finishBatch();
         }
+        // Drop focus from whatever the user last interacted with so the
+        // previous question's tapped option doesn't carry a sticky :focus/
+        // :hover state into the new render (mostly a mobile issue).
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+        }
         state.currentItem = state.items[state.cursor];
         state.isLocked = false;
         state.effectiveLevel = effectiveLevelForItem(state.currentItem);
@@ -661,7 +728,6 @@
 
         let isCorrect;
         if (state.effectiveLevel === 3) {
-            // Reverse: the correct option carries is_correct=true.
             isCorrect = !!opt.is_correct;
         } else {
             const correctIds = state.currentItem.correct_classifier_ids || [];
@@ -673,6 +739,11 @@
         buttons.forEach(function(b) { b.disabled = true; });
 
         const clickedBtn = buttons[idx];
+        // Drop focus immediately so mobile WebKit doesn't paint a sticky
+        // :focus/:hover ring on the option we just tapped. The class-based
+        // .correct/.wrong styles handle the intentional feedback below.
+        if (clickedBtn && typeof clickedBtn.blur === 'function') clickedBtn.blur();
+
         if (isCorrect) {
             clickedBtn.classList.add('correct');
             setTimeout(advance, 400);
