@@ -80,6 +80,12 @@ def get_session(user_id: str, language_id: int, count: int = 20) -> list[dict]:
             'distractor_pinyin':       r.get('out_distractor_pinyin') or [],
             'semantic_label':          r.get('out_semantic_label'),
             'distractor_group_label':  r.get('out_distractor_group_label'),
+            'difficulty_tier':         r.get('out_difficulty_tier'),
+            'level':                   r.get('out_level'),
+            'classifier_id_primary':   r.get('out_classifier_id_primary'),
+            'reverse_noun_options':    r.get('out_reverse_noun_options') or [],
+            'cloze_sentence':          r.get('out_cloze_sentence'),
+            'cloze_blanked':           r.get('out_cloze_blanked'),
         })
     return items
 
@@ -91,10 +97,18 @@ def submit_session(
     correct_items: int,
     total_items: int,
     idempotency_key: Optional[str] = None,
+    item_results: Optional[list[dict]] = None,
 ) -> Optional[dict]:
-    """Persist a completed drill session and update ELO.
+    """Persist a completed drill session and update ELO + per-classifier mastery.
 
-    Returns the RPC's JSONB envelope, or None on hard failure.
+    `item_results` is a list of `{classifier_id, is_correct}` dicts (one per
+    answered item). Each entry triggers an update_classifier_mastery RPC call
+    that bumps attempts/correct counters and may promote or demote the
+    learner's per-classifier level. Mastery updates are best-effort: a
+    failure does not fail the session submission.
+
+    Returns the session RPC's JSONB envelope plus a `mastery_updates` list,
+    or None on hard failure.
     """
     test_id = _fetch_sentinel_test_id(language_id)
     if not test_id:
@@ -113,12 +127,34 @@ def submit_session(
             'p_was_free_test':  True,
             'p_idempotency_key': idempotency_key or str(uuid4()),
         }).execute()
-        return resp.data
+        result = resp.data or {}
     except Exception as e:
-        # The RPC encodes its own errors in the JSONB envelope; only network
-        # / parse failures land here.
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
         if isinstance(error_data, dict) and error_data.get('success'):
-            return error_data
-        logger.error("process_classifier_drill_submission failed: %s", error_data or e)
-        return None
+            result = error_data
+        else:
+            logger.error("process_classifier_drill_submission failed: %s", error_data or e)
+            return None
+
+    # Per-classifier mastery updates (best-effort).
+    mastery_updates: list[dict] = []
+    if item_results:
+        for item in item_results:
+            try:
+                cid = item.get('classifier_id')
+                is_correct = bool(item.get('is_correct'))
+                if cid is None:
+                    continue
+                m_resp = db.rpc('update_classifier_mastery', {
+                    'p_user_id':       user_id,
+                    'p_classifier_id': int(cid),
+                    'p_is_correct':    is_correct,
+                }).execute()
+                if m_resp.data:
+                    mastery_updates.append(m_resp.data)
+            except Exception as exc:
+                logger.warning("update_classifier_mastery failed for cid=%s: %s", cid, exc)
+
+    if isinstance(result, dict):
+        result['mastery_updates'] = mastery_updates
+    return result

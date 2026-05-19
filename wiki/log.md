@@ -1,5 +1,55 @@
 # Activity Log
 
+## 2026-05-19 change | Measure Word Trainer v2 — mastery, tiers, CC-CEDICT, Reverse + Cloze levels
+
+User request: track per-classifier accuracy/attempts and auto-promote learners from MC → Typed → Reverse → Cloze; gate beginner exposure so 只/个 surface before 枪/壶; expand vocabulary coverage; mine cloze sentences from our own test corpus. Four phases shipped together.
+
+**Phase 1 — Difficulty tiers + dictionary expansion.**
+- Migration `add_classifier_difficulty_tier.sql` — added `dim_classifiers.difficulty_tier` (smallint, 1-4) and `dim_classifier_noun_pairs.example_sentence`. Indexed `(language_id, difficulty_tier)`.
+- Updated [scripts/build_classifier_dictionary.py](../scripts/build_classifier_dictionary.py) with explicit tier assignments: T1 = 10 core HSK 1-2 classifiers (个/只/条/张/本/辆/杯/件/双/把), T2 = 17 HSK 3-4 (位/名/口/头/匹/棵/朵/座/间/套/场/次/顿/部/群/瓶/所 + new 块/台/家/首), T3 = 18 HSK 5+ (架/艘/列/支/根/束/包/袋/盒/碗/片/面/册/幅/枚/颗/串/阵/壶/锅), T4 = 4 advanced (栋/盆/瓣/则). Expanded NOUN_CLASSIFIERS from 207 to 243 lemmas (361 pairs).
+- New [scripts/import_cedict_classifiers.py](../scripts/import_cedict_classifiers.py) — downloads `cedict_ts.u8` (5MB, CC-BY-SA 3.0) from MDBG if absent, parses every `CL:X[pin],Y[pin]/` annotation. Preserves curated rows (skips on `source='curated'` collision), inserts long-tail with `source='cedict'`. Inserted **1894** new noun-classifier pairs. Caveat: the first run had reversed-column parsing (CC-CEDICT writes TRADITIONAL first); fixed and re-imported. A subsequent SQL cleanup migration (`classifier_traditional_to_simplified_cleanup`) merged 13 traditional-form classifier rows into their simplified counterparts and renamed 15 traditional-only rows to simplified forms (盞→盏, 盤→盘, 種→种, etc.). Final state: **174 classifiers, 2255 pairs (361 curated + 1894 cedict)**.
+
+**Phase 2 — Per-classifier BKT-style mastery + tiered serving.**
+- Migration `create_user_classifier_mastery.sql` — new table `user_classifier_mastery (user_id, classifier_id, attempts, correct, ewma_accuracy, current_level, last_wrong_streak, promoted_at, last_attempted_at)` with PK `(user_id, classifier_id)`.
+- New RPC `update_classifier_mastery(p_user_id, p_classifier_id, p_is_correct)` — upserts the row, updates EWMA with α=0.3, **promotes** on `attempts ≥ 5 AND ewma ≥ 0.80`, **demotes** on `last_wrong_streak ≥ 3`. Returns `{promoted, demoted, current_level, old_level, ewma, ...}`.
+- New helper `max_unlocked_tier(user_id, language_id)` — Tier 1 always unlocked; Tier N+1 unlocks once ≥80% of Tier N classifiers have `current_level ≥ 2`.
+- Rewrote `get_classifier_drill_session` (v2 → v5):
+  - Restricts the sampled pool to classifiers with `difficulty_tier ≤ max_unlocked_tier(user)` so beginners only see 只/条/张/本/辆/杯/件/双/把/个.
+  - Returns per-item `out_level` (the user's classifier-specific level), `out_difficulty_tier`, `out_classifier_id_primary`, and reverse-mode/cloze payloads.
+  - When `user_level = 4` but no mined sentence exists for `(classifier, noun)`, the RPC silently downgrades the item to level 3 so cloze never blanks-out without content.
+- Extended `services/classifier_drill_service.py` `submit_session()` to accept an `item_results: [{classifier_id, is_correct}]` array and call `update_classifier_mastery` per item (best-effort; failures don't fail the session). Returns `mastery_updates` in the envelope so the client can badge promotions/demotions.
+
+**Phase 3 — Tri-state toggle, per-item level rendering, auto-focus.**
+- Mode toggle in [templates/classifier_drill.html](../templates/classifier_drill.html) is now `[ Auto | Choose | Type ]` (default Auto, persists in `localStorage.cd_mode`). Auto picks each item's level from the RPC; manual modes globally pin Choose or Type.
+- Per-item dispatch: `effectiveLevelForItem()` returns 1=MC / 2=Typed / 3=Reverse / 4=Cloze. The renderer branches accordingly:
+  - **Reverse (level 3):** prompt shows `一 X ?`, learner picks the correct *noun* from 4 options (1 correct + 3 nouns sampled from other distractor groups via the new `out_reverse_noun_options` column).
+  - **Cloze (level 4):** prompt shows the mined sentence with `___` blanked, learner picks the missing classifier from 4 options.
+- Auto-focus: typed input now focuses on every render via `requestAnimationFrame(() => el.typedInput.focus())` so the cursor is always ready.
+- Level badge in header (visible only in Auto mode) reads `· MC` / `· Type` / `· Reverse` / `· Cloze` so promotions are transparent.
+- Submit payload now includes `item_results[]`; results screen renders promotion/demotion banners when `mastery_updates` contains any `promoted` or `demoted` entries.
+
+**Phase 4 — Cloze sentence mining.**
+- Migration `create_classifier_example_sentences.sql` — new `dim_classifier_example_sentences` table with `(classifier_id, noun_lemma, sentence, blanked_sentence, source_test_id)` and UNIQUE on `(classifier_id, sentence)`.
+- New [scripts/mine_classifier_sentences.py](../scripts/mine_classifier_sentences.py) — splits every active Chinese `tests.transcript` on `[。！？]`, walks each ≤80-char sentence, finds `[一二三四五六七八九十百千两这那几多某半另每好0-9]<classifier><1-3 hanzi noun>` patterns, validates against `dim_classifier_noun_pairs`, and emits a `blanked_sentence` with `___` replacing the classifier. Ran across **91 tests, 1431 sentences → 71 hits across 12 classifiers** (个, 杯, 本, 种, etc.).
+
+**i18n.** 24 new keys × 4 locales added to [static/i18n/{en,zh,ja,es}.json](../static/i18n/) (`classifier_drill.mode_auto`, `classifier_drill.reverse_prompt`, `classifier_drill.promoted_n`, `classifier_drill.demoted_n`, `classifier_drill.cloze_prompt`, plus the original 19). All four locales now contain exactly **374 keys**.
+
+**Verification (in repo + remote).**
+- `python -m py_compile app.py routes/classifier_drill.py services/classifier_drill_service.py scripts/build_classifier_dictionary.py scripts/import_cedict_classifiers.py scripts/mine_classifier_sentences.py` — all parse.
+- Locale parity confirmed: `{en: 374, zh: 374, ja: 374, es: 374}`.
+- Session RPC smoke: `get_classifier_drill_session(<uuid>, 1, 12)` returns mixed-level items when the user has mastery rows (Reverse and Cloze items appear for promoted classifiers); always level=1 when there are no mastery rows (beginner experience).
+- Cloze JOIN smoke: `(咖啡, 杯)` → mined sentence `"虽然价格会受到天气、运输成本等因素影响，但人们还是愿意为一___咖啡付出费用"`.
+- Smoke-test mastery rows cleaned up post-verification so user starts fresh.
+
+**Out of scope (deferred):**
+- Production level (number + gloss → full phrase) — decided against per planning interview (multi-language gloss generation overhead doesn't justify the marginal pedagogical benefit beyond the four shipped levels).
+- Per-pack noun filtering of the session pool.
+- Per-noun TTS playback (schema fields exist; audio URL surfacing deferred).
+- Anti-repetition across rounds (Phase 5 candidate).
+- Cloze pool currently 71 sentences / 12 classifiers — will grow naturally as new Chinese tests are generated; the mining script is idempotent and safe to re-run.
+
+Pages updated: 1 (log.md). Wiki feature/tech pages will be refreshed in a follow-up sweep.
+
 ## 2026-05-17 change | Measure Word Trainer (classifier_drill) for Chinese
 
 User request: build an *infinite* training tool for Chinese measure words (一只猫 / 一条狗 / 一辆车), promoting the L6/L7 `量词使用错误` cloze error category to its own first-class drill. Plan at [`C:\Users\James\.claude\plans\plan-out-how-to-moonlit-lynx.md`](../../.claude/plans/plan-out-how-to-moonlit-lynx.md). Locked design choices via /plan interview: curated dictionary with no LLM, MC + Typed runtime toggle, leave cloze prompts untouched (additive), Chinese-only (Japanese counters deferred).

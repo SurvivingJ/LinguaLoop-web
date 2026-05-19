@@ -83,6 +83,10 @@ def submit_drill() -> ApiResponse:
             logger.error("classifier_drill test type not configured")
             return server_error("Classifier drill test type missing")
 
+        item_results = data.get('item_results') or []
+        if item_results and not isinstance(item_results, list):
+            return bad_request("item_results must be a list when provided")
+
         rpc_result = submit_session(
             user_id=g.current_user_id,
             language_id=language_id,
@@ -90,6 +94,7 @@ def submit_drill() -> ApiResponse:
             correct_items=correct_items,
             total_items=total_items,
             idempotency_key=data.get('idempotency_key'),
+            item_results=item_results,
         )
 
         if not rpc_result or not rpc_result.get('success'):
@@ -118,6 +123,7 @@ def submit_drill() -> ApiResponse:
                 'after':  rpc_result.get('test_elo_after'),
                 'change': rpc_result.get('test_elo_change', 0),
             },
+            'mastery_updates': rpc_result.get('mastery_updates') or [],
         })
 
     except Exception as e:

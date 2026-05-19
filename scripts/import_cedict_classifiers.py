@@ -63,9 +63,11 @@ LINE_RE = re.compile(
 # CL: tag — possibly multiple comma-separated classifiers.
 CL_TAG_RE = re.compile(r'CL:([^/]+?)(?=/|$)')
 
-# Each CL entry: simplified[traditional][pinyin] -- e.g. 只|隻[zhi1] or 只[zhi1]
+# Each CL entry: traditional|simplified[pinyin] or traditional[pinyin].
+# Group 1: traditional. Group 2: simplified (None when both forms identical).
+# Group 3: pinyin.
 CL_ENTRY_RE = re.compile(
-    r'([一-鿿]+)(?:\|[一-鿿]+)?\[([^\]]+)\]'
+    r'([一-鿿]+)(?:\|([一-鿿]+))?\[([^\]]+)\]'
 )
 
 
@@ -85,8 +87,12 @@ def _ensure_cedict_file():
 
 
 def parse_cedict():
-    """Yield (simplified, traditional, pinyin, [(cl_hanzi, cl_pinyin), ...]) tuples
-    for every entry that has at least one CL: tag.
+    """Yield (simplified, traditional, pinyin, [(cl_hanzi, cl_pinyin), ...]).
+
+    CC-CEDICT line format is: TRADITIONAL SIMPLIFIED [pinyin] /defs/
+    Inside CL: tags, entries take the form  X|Y[pin]  where X is TRADITIONAL
+    and Y is SIMPLIFIED, or just X[pin] when both forms are identical.
+    We always prefer the simplified form for the trainer.
     """
     with open(CEDICT_PATH, 'r', encoding='utf-8') as fh:
         for raw_line in fh:
@@ -96,16 +102,17 @@ def parse_cedict():
             m = LINE_RE.match(line)
             if not m:
                 continue
-            simplified, traditional, pinyin, defs = m.groups()
+            traditional, simplified, pinyin, defs = m.groups()
             cl_tags = CL_TAG_RE.findall(defs)
             if not cl_tags:
                 continue
             classifiers = []
             for tag in cl_tags:
                 for cl_match in CL_ENTRY_RE.finditer(tag):
-                    cl_hanzi = cl_match.group(1)
-                    cl_pinyin = cl_match.group(2)
-                    classifiers.append((cl_hanzi, cl_pinyin))
+                    trad_form = cl_match.group(1)
+                    simp_form = cl_match.group(2) if cl_match.group(2) else trad_form
+                    cl_pinyin = cl_match.group(3)
+                    classifiers.append((simp_form, cl_pinyin))
             if classifiers:
                 yield (simplified, traditional, pinyin, classifiers)
 

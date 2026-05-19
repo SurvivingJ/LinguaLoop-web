@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-17 (Measure Word Trainer for Chinese — see log.md 2026-05-17) | Pages: 55
+Last updated: 2026-05-19 (Measure Word Trainer v2: mastery + tiers + CC-CEDICT + Reverse/Cloze levels — see log.md 2026-05-19) | Pages: 55
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
