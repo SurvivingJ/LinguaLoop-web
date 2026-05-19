@@ -94,8 +94,8 @@
 
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
-                        <a href="{{ url_for('index') }}"
-                           class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"
+                        <a href="{{ url_for('language_selection') }}"
+                           class="nav-link {% if request.endpoint == 'language_selection' %}active{% endif %}"
                            data-i18n="common.nav.language_selection">
                             Language Selection
                         </a>
@@ -145,8 +145,8 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md" aria-labelledby="mobileNavBtn">
                         <li>
-                            <a class="dropdown-item {% if request.endpoint == 'home' %}active{% endif %}"
-                               href="{{ url_for('index') }}" data-i18n="common.nav.language_selection">
+                            <a class="dropdown-item {% if request.endpoint == 'language_selection' %}active{% endif %}"
+                               href="{{ url_for('language_selection') }}" data-i18n="common.nav.language_selection">
                                 Language Selection
                             </a>
                         </li>

@@ -410,22 +410,45 @@
     // If a token is already in storage, verify it before skipping the login
     // form — otherwise a stale token will bounce the user into a redirect
     // loop with any page whose 401 handler sends them back here.
+    //
+    // Mirrors the recovery sequence in window.authFetch (base.html):
+    //   1. validate access token → if ok, go to /language-selection
+    //   2. on 401, exchange the refresh token for a fresh access token
+    //   3. only wipe storage and show the login form if both fail
     (async function checkExistingSession() {
-        const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
-        if (!token) return;
+        const accessToken = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+        if (!accessToken) return;
         try {
             const r = await fetch('/api/auth/profile', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             if (r.ok) {
                 window.location.href = '/language-selection';
-            } else {
-                // Stale token — wipe both tiers so we don't loop.
-                ['jwt_token', 'refresh_token', 'user_data'].forEach(function(k) {
-                    localStorage.removeItem(k);
-                    sessionStorage.removeItem(k);
-                });
+                return;
             }
+            // Access token rejected — try the refresh token before giving up.
+            const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+            if (refreshToken) {
+                const refreshed = await fetch('/api/auth/refresh-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+                if (refreshed.ok) {
+                    const data = await refreshed.json();
+                    // Write to whichever tier currently holds the (now-stale) token.
+                    const store = localStorage.getItem('jwt_token') ? localStorage : sessionStorage;
+                    store.setItem('jwt_token', data.jwt_token);
+                    if (data.refresh_token) store.setItem('refresh_token', data.refresh_token);
+                    window.location.href = '/language-selection';
+                    return;
+                }
+            }
+            // Both checks failed — wipe both tiers so we don't loop, and let the form render.
+            ['jwt_token', 'refresh_token', 'user_data'].forEach(function(k) {
+                localStorage.removeItem(k);
+                sessionStorage.removeItem(k);
+            });
         } catch (_) { /* offline / network issue — let the user log in */ }
     })();
 })();
