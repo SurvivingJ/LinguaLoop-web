@@ -467,7 +467,25 @@
             state.mode = btn.dataset.mode;
             localStorage.setItem('cd_mode', state.mode);
             applyModeToToggle();
-            if (state.currentItem) renderInput();
+            // Re-resolve effective level for the current item now that mode
+            // has changed (otherwise typing mode would still render MC because
+            // effectiveLevel was last set during the previous renderCurrent).
+            if (state.currentItem && !state.isLocked) {
+                resetPromptStyles();
+                state.effectiveLevel = effectiveLevelForItem(state.currentItem);
+                // Refresh the level badge in header (Auto-only)
+                if (state.mode === 'auto') {
+                    const tag = state.effectiveLevel === 1 ? '· MC'
+                               : state.effectiveLevel === 2 ? '· Type'
+                               : state.effectiveLevel === 3 ? '· Reverse'
+                               : '· Cloze';
+                    el.levelBadge.textContent = tag;
+                    el.levelBadge.style.display = 'inline';
+                } else {
+                    el.levelBadge.style.display = 'none';
+                }
+                renderInput();
+            }
         });
     }
 

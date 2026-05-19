@@ -112,6 +112,12 @@ def parse_cedict():
                     trad_form = cl_match.group(1)
                     simp_form = cl_match.group(2) if cl_match.group(2) else trad_form
                     cl_pinyin = cl_match.group(3)
+                    # Real classifiers are single characters. CC-CEDICT
+                    # occasionally tags multi-char phrases (e.g.
+                    # 三点钟 / 五分钟 / 香烟) — those aren't measure words
+                    # the learner picks between, so skip them.
+                    if len(simp_form) != 1:
+                        continue
                     classifiers.append((simp_form, cl_pinyin))
             if classifiers:
                 yield (simplified, traditional, pinyin, classifiers)
