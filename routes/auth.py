@@ -127,7 +127,8 @@ def verify_otp():
                     'subscriptionTier': user_data.get('subscription_tier', 'free'),
                     'tokenBalance': int(user_data.get('token_balance', 0)),
                     'totalTestsTaken': int(user_data.get('total_tests_taken', 0)),
-                    'totalTestsGenerated': int(user_data.get('total_tests_generated', 0))
+                    'totalTestsGenerated': int(user_data.get('total_tests_generated', 0)),
+                    'hasSeenWelcome': bool(user_data.get('has_seen_welcome', False)),
                 },
                 'jwt_token': result.get('jwt_token'),
                 'refresh_token': refresh_token,
@@ -264,6 +265,7 @@ def device_restore():
             'tokenBalance': int(user.get('token_balance', 0)),
             'totalTestsTaken': int(user.get('total_tests_taken', 0)),
             'totalTestsGenerated': int(user.get('total_tests_generated', 0)),
+            'hasSeenWelcome': bool(user.get('has_seen_welcome', False)),
         },
     }
 
@@ -286,6 +288,23 @@ def get_profile():
 
     except Exception as e:
         return jsonify({'error': 'Server error occurred'}), 500
+
+
+@auth_bp.route('/mark-welcome-seen', methods=['POST'])
+@jwt_required
+def mark_welcome_seen():
+    """Flag the authenticated user as having seen the welcome page.
+
+    Called by the onboarding "Get Started" button so the welcome page is
+    shown exactly once per user. Idempotent.
+    """
+    try:
+        result = auth_bp.auth_service.mark_welcome_seen(g.current_user_id)
+        return jsonify(result), 200 if result.get('success') else 500
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('mark-welcome-seen failed')
+        return jsonify({'success': False, 'error': 'Server error occurred'}), 500
 
 
 @auth_bp.route('/logout', methods=['POST'])

@@ -158,10 +158,43 @@
 
         <!-- Get Started Button -->
         <div class="text-center mt-4">
-            <a href="/language-selection" class="btn btn-primary get-started-btn">
+            <a href="/language-selection" id="get-started-btn" class="btn btn-primary get-started-btn">
                 <span data-i18n="onboarding.get_started">Get Started</span> <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // When the first-time user clicks "Get Started", flip the has_seen_welcome
+    // flag server-side so we don't show this page on their next login. Don't
+    // block navigation on the network call — worst case they see this page
+    // one extra time.
+    document.getElementById('get-started-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const go = () => { window.location.href = '/language-selection'; };
+
+        // Optimistically update cached user_data so a refresh of /welcome
+        // doesn't strand them here.
+        try {
+            const store = sessionStorage.getItem('user_data') ? sessionStorage : localStorage;
+            const raw = store.getItem('user_data');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                parsed.hasSeenWelcome = true;
+                store.setItem('user_data', JSON.stringify(parsed));
+            }
+        } catch (_) { /* non-fatal */ }
+
+        if (typeof window.authFetch !== 'function') {
+            go();
+            return;
+        }
+        window.authFetch('/api/auth/mark-welcome-seen', { method: 'POST' })
+            .catch(err => console.error('mark-welcome-seen failed:', err))
+            .finally(go);
+    });
+</script>
 {% endblock %}

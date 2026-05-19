@@ -307,8 +307,10 @@
                     store.setItem('refresh_token', data.refresh_token);
                 }
 
-                // Redirect new users to welcome page, returning users to language selection
-                if (data.user.totalTestsTaken === 0) {
+                // Redirect first-time users to the welcome page; everyone else
+                // goes straight to language selection. The flag is flipped to
+                // true when the user clicks "Get Started" on the welcome page.
+                if (!data.user.hasSeenWelcome) {
                     window.location.href = '/welcome';
                 } else {
                     window.location.href = '/language-selection';

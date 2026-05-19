@@ -179,6 +179,7 @@ class AuthService:
                     'email_verified': True,
                     'total_tests_taken': 0,
                     'total_tests_generated': 0,
+                    'has_seen_welcome': False,
                     'last_login': datetime.now(timezone.utc).isoformat()
                 }
 
@@ -203,6 +204,7 @@ class AuthService:
                 'token_balance': 0,
                 'total_tests_taken': 0,
                 'total_tests_generated': 0,
+                'has_seen_welcome': False,
                 'last_login': datetime.now(timezone.utc).isoformat()
             }
 
@@ -216,11 +218,23 @@ class AuthService:
             'token_balance': int(user_data.get('token_balance') or 0),
             'total_tests_taken': int(user_data.get('total_tests_taken') or 0),
             'total_tests_generated': int(user_data.get('total_tests_generated') or 0),
+            'has_seen_welcome': bool(user_data.get('has_seen_welcome', False)),
             'created_at': user_data.get('created_at'),
             'last_login': user_data.get('last_login')
         }
 
     
+    def mark_welcome_seen(self, user_id: str) -> Dict:
+        """Flip has_seen_welcome to true. Idempotent — re-calling is a no-op."""
+        try:
+            self.supabase.table('users').update({
+                'has_seen_welcome': True
+            }).eq('id', user_id).execute()
+            return {'success': True}
+        except Exception as e:
+            self.logger.error(f'mark_welcome_seen error for {user_id}: {e}')
+            return {'success': False, 'error': 'Failed to update welcome flag'}
+
     def logout(self, user_id: str) -> Dict:
         """Handle user logout"""
         try:

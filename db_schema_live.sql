@@ -369,6 +369,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     deleted_at              timestamptz,
     anonymized_at           timestamptz,
     organization_id         uuid REFERENCES public.organizations(id),
+    has_seen_welcome        boolean NOT NULL DEFAULT false,
     CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
 
