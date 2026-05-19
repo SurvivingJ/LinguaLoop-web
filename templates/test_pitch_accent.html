@@ -724,27 +724,68 @@
         document.getElementById('progressFill').style.width = pct + '%';
     }
 
+    // Derive the post-boundary pitch (heiban stays H; everything else is L).
+    // Used to draw a "phantom" particle slot even when the source text has no
+    // real trailing particle — without this, odaka renders L-H-H... which is
+    // visually identical to heiban and gives the learner no class signal.
+    function derivedParticlePitch(token) {
+        if (!token || typeof token.accent !== 'number') return null;
+        return token.accent === 0 ? 'H' : 'L';
+    }
+
+    function classStrokeColor(cls) {
+        switch (cls) {
+            case 'heiban':    return 'var(--accent-heiban)';
+            case 'atamadaka': return 'var(--accent-atamadaka)';
+            case 'nakadaka':  return 'var(--accent-nakadaka)';
+            case 'odaka':     return 'var(--accent-odaka)';
+            default:          return 'var(--primary)';
+        }
+    }
+
     function miniContourSvg(token) {
-        const moraCount = token.mora_count + (token.trailing_particle ? 1 : 0);
-        if (moraCount <= 0) return '';
-        const w = Math.max(40, moraCount * 14);
-        const h = 18;
-        const stepX = w / moraCount;
-        const yHigh = 4;
-        const yLow = h - 4;
+        const wordCount = token.contour ? token.contour.length : 0;
+        if (wordCount <= 0) return '';
+
+        // Always reserve a slot for the (possibly phantom) trailing particle
+        // so all four classes have a consistent post-boundary cue.
+        const particlePitch = token.trailing_particle_pitch || derivedParticlePitch(token);
+        const totalSlots = wordCount + 1;
+        const slotW = 14;
+        const w = Math.max(56, totalSlots * slotW);
+        const h = 28;
+        const stepX = w / totalSlots;
+        const yHigh = 5;
+        const yLow = h - 7;
+        const stroke = classStrokeColor(token.pattern_class);
+        const isPhantom = !token.trailing_particle;
+
         const pts = [];
-        for (let i = 0; i < token.contour.length; i++) {
-            const x = stepX * i + stepX / 2;
-            pts.push([x, token.contour[i] === 'H' ? yHigh : yLow]);
+        for (let i = 0; i < wordCount; i++) {
+            pts.push([stepX * i + stepX / 2, token.contour[i] === 'H' ? yHigh : yLow]);
         }
-        if (token.trailing_particle && token.trailing_particle_pitch) {
-            const x = stepX * token.contour.length + stepX / 2;
-            pts.push([x, token.trailing_particle_pitch === 'H' ? yHigh : yLow]);
+        if (particlePitch) {
+            pts.push([stepX * wordCount + stepX / 2, particlePitch === 'H' ? yHigh : yLow]);
         }
+
+        // Vertical divider between the last word mora and the particle slot.
+        // This is the difference between nakadaka (drop INSIDE the word) and
+        // odaka (drop ON the boundary).
+        const dividerX = stepX * wordCount;
+
         const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
-        const dots = pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.2" fill="currentColor"/>`).join('');
-        return `<svg width="${w}" height="${h}" style="display:block; color: var(--primary);">` +
-               `<path d="${path}" stroke="currentColor" stroke-width="1.5" fill="none"/>` +
+        const dots = pts.map((p, i) => {
+            const isLast = i === pts.length - 1;
+            const r = (isLast && isPhantom) ? 1.8 : 2.6;
+            const fill = (isLast && isPhantom) ? 'var(--text-muted)' : stroke;
+            return `<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${fill}"/>`;
+        }).join('');
+
+        return `<svg width="${w}" height="${h}" style="display:block;">` +
+               `<line x1="0" y1="${yHigh}" x2="${w}" y2="${yHigh}" stroke="var(--border-default)" stroke-width="0.5" stroke-dasharray="2 3"/>` +
+               `<line x1="0" y1="${yLow}"  x2="${w}" y2="${yLow}"  stroke="var(--border-default)" stroke-width="0.5" stroke-dasharray="2 3"/>` +
+               `<line x1="${dividerX}" y1="2" x2="${dividerX}" y2="${h - 2}" stroke="var(--border-strong)" stroke-width="0.5" stroke-dasharray="1 2"/>` +
+               `<path d="${path}" stroke="${stroke}" stroke-width="1.75" fill="none" stroke-linejoin="round" stroke-linecap="round"/>` +
                dots +
                `</svg>`;
     }
@@ -957,29 +998,48 @@
     function showErrorModal(token, info) {
         state.isPaused = true;
 
-        // Build full contour visualization including trailing particle.
-        const moraCount = token.mora_count + (token.trailing_particle ? 1 : 0);
+        // Build full contour visualization, always including the post-word
+        // particle slot (real or phantom) so all four classes show a
+        // distinguishable shape at the word boundary.
+        const wordCount = token.contour ? token.contour.length : 0;
+        const particlePitch = token.trailing_particle_pitch || derivedParticlePitch(token);
+        const showParticleSlot = !!particlePitch;
+        const isPhantomParticle = showParticleSlot && !token.trailing_particle;
+        const totalSlots = wordCount + (showParticleSlot ? 1 : 0);
         const cellW = 36;
-        const svgW = Math.max(160, moraCount * cellW);
-        const svgH = 90;
+        const svgW = Math.max(160, totalSlots * cellW);
+        const svgH = 100;
         const yHigh = 18;
-        const yLow = svgH - 30;
-        const stepX = svgW / moraCount;
+        const yLow = svgH - 36;
+        const stepX = svgW / totalSlots;
+        const stroke = classStrokeColor(token.pattern_class);
+
         const pts = [];
-        for (let i = 0; i < token.contour.length; i++) {
+        for (let i = 0; i < wordCount; i++) {
             pts.push([stepX * i + stepX / 2, token.contour[i] === 'H' ? yHigh : yLow]);
         }
-        if (token.trailing_particle && token.trailing_particle_pitch) {
-            pts.push([stepX * token.contour.length + stepX / 2, token.trailing_particle_pitch === 'H' ? yHigh : yLow]);
+        if (showParticleSlot) {
+            pts.push([stepX * wordCount + stepX / 2, particlePitch === 'H' ? yHigh : yLow]);
         }
+        const dividerX = stepX * wordCount;
+
         const pathD = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
-        const dots = pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(--primary)"/>`).join('');
+        const dots = pts.map((p, i) => {
+            const isLast = i === pts.length - 1;
+            const fill = (isLast && isPhantomParticle) ? 'var(--text-muted)' : stroke;
+            const r = (isLast && isPhantomParticle) ? 3.2 : 4;
+            return `<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${fill}"/>`;
+        }).join('');
+
         let moraLabels = '';
         for (let i = 0; i < token.mora.length; i++) {
             moraLabels += `<text x="${stepX * i + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-primary)">${escapeHtml(token.mora[i] || '')}</text>`;
         }
-        if (token.trailing_particle) {
-            moraLabels += `<text x="${stepX * token.contour.length + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-muted)">${escapeHtml(token.trailing_particle)}</text>`;
+        if (showParticleSlot) {
+            const particleLabel = token.trailing_particle || '+が';
+            const labelFill = isPhantomParticle ? 'var(--text-muted)' : 'var(--text-secondary)';
+            const labelStyle = isPhantomParticle ? 'font-style: italic;' : '';
+            moraLabels += `<text x="${stepX * wordCount + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="${labelFill}" style="${labelStyle}">${escapeHtml(particleLabel)}</text>`;
         }
 
         const className = t(CLASS_INFO[token.pattern_class].key, token.pattern_class);
@@ -1029,9 +1089,10 @@
                     <svg width="${svgW}" height="${svgH}" style="max-width: 100%;">
                         <line x1="0" y1="${yHigh}" x2="${svgW}" y2="${yHigh}" stroke="var(--border-default)" stroke-dasharray="3 4"/>
                         <line x1="0" y1="${yLow}"  x2="${svgW}" y2="${yLow}"  stroke="var(--border-default)" stroke-dasharray="3 4"/>
+                        <line x1="${dividerX}" y1="6" x2="${dividerX}" y2="${svgH - 22}" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="2 3"/>
                         <text x="2" y="${yHigh - 4}" font-size="10" fill="var(--text-muted)">HIGH</text>
                         <text x="2" y="${yLow + 14}" font-size="10" fill="var(--text-muted)">LOW</text>
-                        <path d="${pathD}" stroke="var(--primary)" stroke-width="2" fill="none"/>
+                        <path d="${pathD}" stroke="${stroke}" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
                         ${dots}
                         ${moraLabels}
                     </svg>
@@ -1040,7 +1101,7 @@
                     <strong>${escapeHtml(className)}</strong>
                     ${token.accent === 0
                         ? ` — ${t('pitch.explain.heiban', 'no drop; pitch stays high after the first mora (including any following particle).')}`
-                        : ` — ${t('pitch.explain.drop_at', 'drop after mora')} ${token.accent}${token.trailing_particle && token.accent === token.mora_count ? ' ' + t('pitch.explain.odaka_particle', '— the drop only becomes audible because of the following particle.') : ''}`}
+                        : ` — ${t('pitch.explain.drop_at', 'drop after mora')} ${token.accent}${token.accent === token.mora_count ? ' ' + t('pitch.explain.odaka_particle', '— the drop only becomes audible because of the following particle.') : ''}`}
                     ${classDesc ? `<br><span style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(classDesc)}</span>` : ''}
                 </div>
                 <button class="error-continue-btn" onclick="window._dismissError()">
