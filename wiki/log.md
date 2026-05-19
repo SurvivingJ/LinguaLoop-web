@@ -1,5 +1,22 @@
 # Activity Log
 
+## 2026-05-19 fix | Dictation submission: batched BKT (worker-timeout truncation)
+
+Dictation submissions of 60+ words were producing Chrome's "Content-Length header of network response exceeds response Body" error — the submit handler did one Supabase RPC call per transcript word inside the request loop ([routes/tests.py](../routes/tests.py) `submit_dictation_attempt`), accumulating ~60-120 sequential round-trips and exceeding the gunicorn worker timeout. The worker was killed mid-write, truncating the announced response body.
+
+**Fix** — new RPC [migrations/bkt_word_test_batch.sql](../migrations/bkt_word_test_batch.sql) `update_vocabulary_from_word_tests_batch(p_user_id, p_language_id, p_results jsonb)`. Single set-based UPSERT modelled on the existing batched `update_vocabulary_from_test` (comprehension flow), but for direct sense-level word-test evidence using the stronger `bkt_update_word_test` slip/guess parameters. The Python service ([services/vocabulary/knowledge_service.py](../services/vocabulary/knowledge_service.py) `update_from_word_tests_batch`) wraps the RPC and fires `_auto_create_flashcards` + `_trigger_frequency_inference` once over the batch result, not N times.
+
+The dictation submit handler was rewritten to build a `word_results` list from the diff and call the batched method once. ~60-120 round-trips → 1 (plus the existing flashcard auto-create + sparse frequency-inference downstream calls).
+
+**Behavioral change — BKT correctness fix.** The new RPC dedupes input via `bool_or` (credit as correct if any occurrence was correct). The previous per-word path incremented `word_test_correct`/`word_test_wrong` once per occurrence; a word appearing 3 times in a transcript got 3 independent BKT updates. BKT assumes independent samples — repeated tokens in one submission violate that. One-evidence-per-unique-sense is the correct shape. Documented inline in the migration header.
+
+**Smoke test** confirmed via Supabase MCP: 3 distinct senses + 1 duplicate → 3 rows returned, BKT moved sensibly (0.35→0.69 on correct, 0.05→0.07 on wrong, 0.65→0.88 on correct), `bool_or` dedup credits the repeated sense as correct.
+
+**Verification.** All 34 dictation grader unit tests still pass; import-smoke for the modified files clean. Manual browser submission still pending end-user verification.
+
+**Pages updated:** [database/rpcs.tech.md](database/rpcs.tech.md) (new RPC entry), [features/dictation.tech.md](features/dictation.tech.md) (arch diagram + RPC list + dependencies frontmatter).
+
+
 ## 2026-05-19 change | Measure Word Trainer v2 — mastery, tiers, CC-CEDICT, Reverse + Cloze levels
 
 User request: track per-classifier accuracy/attempts and auto-promote learners from MC → Typed → Reverse → Cloze; gate beginner exposure so 只/个 surface before 枪/壶; expand vocabulary coverage; mine cloze sentences from our own test corpus. Four phases shipped together.

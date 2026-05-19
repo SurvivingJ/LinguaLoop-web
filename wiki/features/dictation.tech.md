@@ -12,7 +12,7 @@ dependencies:
   - "RPC: process_dictation_submission (new)"
   - "RPC: get_recommended_tests (modified)"
   - "RPC: calculate_elo_rating, calculate_volatility_multiplier (reused)"
-  - "RPC: update_vocabulary_from_word_test (via VocabularyKnowledgeService)"
+  - "RPC: update_vocabulary_from_word_tests_batch (new 2026-05-19, replaces N per-word calls)"
   - "Service: services.dictation.grader, services.dictation.tokenizer (new)"
   - "Service: services.vocabulary.knowledge_service (reused)"
   - "Frontend: templates/test_dictation.html (new)"
@@ -56,12 +56,15 @@ POST /api/tests/<slug>/submit-dictation
                                                               INSERT test_attempts
                                                               RETURN jsonb envelope
                                   ↓
-                                 for each diff.sense_id where op ∈ {equal,replace,delete}:
+                                 Collect [{sense_id, is_correct}, ...] from
+                                   diff.ops ∈ {equal, replace, delete}; one batched call:
                                      VocabularyKnowledgeService
-                                       .update_from_word_test(sense_id, is_correct)
+                                       .update_from_word_tests_batch(results)
                                                               ↓
-                                                              RPC update_vocabulary_from_word_test
-                                                              BKT update + flashcard auto-create
+                                                              RPC update_vocabulary_from_word_tests_batch
+                                                              (single set-based UPSERT with bool_or dedup)
+                                                              flashcard auto-create + freq-inference
+                                                              fired once over the batch
                                   ↓
                             ◄──  {accuracy, word_correct/total, diff[],
                                   user_elo_change, replay_factor, ...}
@@ -137,11 +140,17 @@ Retry-slot branch composes multiplicatively with the existing daily-retry decay 
 
 Signature unchanged (`uuid, smallint`).
 
+### `update_vocabulary_from_word_tests_batch(...)` — new 2026-05-19
+
+Replaces what was previously N sequential calls to `update_vocabulary_from_word_test` (one per transcript word) with a single set-based UPSERT. See [[database/rpcs.tech]] for the full spec. The original per-word path was the root cause of the 2026-05-19 worker-timeout truncation ("Content-Length exceeds Body" Chrome error) on dictation submissions with 60+ words.
+
+Server-side `bool_or` dedup is also a BKT-correctness fix: repeated occurrences of the same word in one transcript aren't independent samples, so they should produce one evidence point per unique sense.
+
 ### Reused unchanged
 
 - `calculate_elo_rating(current_rating, opposing_rating, actual_score, k_factor, volatility) → integer`
 - `calculate_volatility_multiplier(tests_taken, last_test_date, base) → numeric`
-- `update_vocabulary_from_word_test(p_user_id, p_sense_id, p_is_correct, p_language_id, p_exercise_type?) → table`
+- `bkt_update_word_test(p_current numeric, p_correct boolean)` — called from inside the new batch RPC.
 
 ## Backend Scoring Service
 

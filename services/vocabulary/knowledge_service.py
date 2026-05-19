@@ -107,6 +107,57 @@ class VocabularyKnowledgeService:
             logger.error(f"BKT word test update failed: {e}")
             return None
 
+    def update_from_word_tests_batch(
+        self, user_id: str, language_id: int, results: list[dict]
+    ) -> list[dict]:
+        """Batched per-sense word-test BKT update.
+
+        For flows that produce N word-level evidence points in one shot
+        (dictation, future bulk drills). Single RPC round-trip replaces
+        N calls to update_from_word_test, plus runs the downstream
+        flashcard / frequency-inference helpers once over the full batch
+        instead of N times.
+
+        Server-side dedup (bool_or) collapses repeated occurrences of the
+        same sense into one evidence point per submission — BKT assumes
+        independent samples, repeated tokens in one transcript aren't.
+
+        Args:
+            user_id: UUID string
+            language_id: e.g. 1 for Chinese
+            results: [{"sense_id": int, "is_correct": bool}, ...].
+                Duplicates allowed; server dedupes.
+
+        Returns:
+            List of {sense_id, p_known_before, p_known_after, status},
+            one row per unique sense after dedup.
+        """
+        if not results:
+            return []
+        try:
+            response = self.db.rpc('update_vocabulary_from_word_tests_batch', {
+                'p_user_id': user_id,
+                'p_language_id': language_id,
+                'p_results': results,
+            }).execute()
+
+            rows = response.data or []
+            logger.info(
+                f"BKT batch word test: user={user_id}, "
+                f"{len(results)} input rows → {len(rows)} senses updated"
+            )
+
+            # Fire downstream services ONCE over the batch result, not N
+            # times. Both already operate set-based internally.
+            self._auto_create_flashcards(user_id, language_id, rows)
+            self._trigger_frequency_inference(user_id, language_id, rows)
+
+            return rows
+
+        except Exception as e:
+            logger.error(f"BKT batch word test failed: {e}")
+            return []
+
     def get_word_quiz_candidates(
         self, user_id: str, sense_ids: list[int], language_id: int, max_words: int = 5
     ) -> list[dict]:

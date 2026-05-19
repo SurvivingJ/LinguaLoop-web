@@ -1208,23 +1208,27 @@ def submit_dictation_attempt(slug):
             current_app.logger.error(f"Dictation RPC failed: {error_msg}")
             return jsonify({"error": "Failed to process dictation submission", "details": error_msg}), 500
 
-        # Per-word BKT updates (fire-and-log, never roll back the attempt)
+        # Per-word BKT updates — single batched RPC instead of N round-trips.
+        # 'insert' ops (extra user words) have no canonical sense_id and are
+        # excluded; 'equal' / 'replace' / 'delete' all carry canonical-side
+        # sense_ids when the token maps to a dim_word_senses row.
         try:
-            knowledge_svc = VocabularyKnowledgeService()
-            bkt_count = 0
-            for d in result.diff:
-                if d.sense_id and d.op in ('equal', 'replace', 'delete'):
-                    knowledge_svc.update_from_word_test(
-                        user_id=current_user_id,
-                        sense_id=d.sense_id,
-                        is_correct=bool(d.is_correct),
-                        language_id=language_id,
-                    )
-                    bkt_count += 1
-            current_app.logger.info(
-                f"Dictation BKT: user={current_user_id} test={test_id} "
-                f"{bkt_count} per-word updates"
-            )
+            word_results = [
+                {'sense_id': d.sense_id, 'is_correct': bool(d.is_correct)}
+                for d in result.diff
+                if d.sense_id and d.op in ('equal', 'replace', 'delete')
+            ]
+            if word_results:
+                knowledge_svc = VocabularyKnowledgeService()
+                bkt_rows = knowledge_svc.update_from_word_tests_batch(
+                    user_id=current_user_id,
+                    language_id=language_id,
+                    results=word_results,
+                )
+                current_app.logger.info(
+                    f"Dictation BKT: user={current_user_id} test={test_id} "
+                    f"{len(word_results)} inputs → {len(bkt_rows)} senses updated (batched)"
+                )
         except Exception as e:
             current_app.logger.error(f"Dictation BKT update failed (non-fatal): {e}")
 

@@ -919,6 +919,21 @@ The live function body is maintained in [migrations/process_test_submission_redu
 
 ---
 
+### `update_vocabulary_from_word_tests_batch(p_user_id uuid, p_language_id smallint, p_results jsonb): TABLE`
+
+- **Security:** INVOKER
+- **Language:** plpgsql
+- **Migration:** [migrations/bkt_word_test_batch.sql](../../migrations/bkt_word_test_batch.sql) (2026-05-19)
+- **Description:** Batched per-sense word-test BKT update. Mirrors the existing batched `update_vocabulary_from_test` (comprehension) but for direct sense-level word-test evidence using the stronger `bkt_update_word_test` slip/guess parameters (slip=0.05). Built for dictation (50-100 evidence points per submission) and any future bulk-evidence flows.
+- **Arguments:**
+  - `p_results` — JSONB array of `{"sense_id": int, "is_correct": bool}` entries. Duplicates allowed; the function dedupes via `bool_or` (credit as correct if any occurrence was correct).
+- **Returns:** `TABLE(out_sense_id integer, out_p_known_before numeric, out_p_known_after numeric, out_status text)` — one row per unique sense after dedup.
+- **Why dedup**: BKT assumes independent samples. Repeated occurrences of the same word in one transcript aren't independent; they should produce one evidence point. This is also a correctness fix vs the prior per-word loop, which compounded `word_test_correct`/`word_test_wrong` for repeated tokens.
+- **Performance:** single set-based `INSERT ... ON CONFLICT` over the deduped input. Replaces what was previously N sequential calls to `update_vocabulary_from_word_test` from the dictation submit handler — the root cause of the 2026-05-19 "Content-Length exceeds Body" worker-timeout truncation.
+- **Side effects:** upserts `user_vocabulary_knowledge` rows; increments `evidence_count`, `word_test_correct`, `word_test_wrong`. The Python service caller ([VocabularyKnowledgeService.update_from_word_tests_batch](../../services/vocabulary/knowledge_service.py)) additionally runs `_auto_create_flashcards` and `_trigger_frequency_inference` once over the batch result.
+
+---
+
 ### `update_test_attempts_count(): trigger`
 
 - **Security:** INVOKER
