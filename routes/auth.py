@@ -14,10 +14,8 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 
 def _client_ip():
-    """Best-effort client IP, respecting a single forwarded-for hop."""
-    xff = request.headers.get('X-Forwarded-For', '')
-    if xff:
-        return xff.split(',')[0].strip()
+    """Best-effort client IP. ProxyFix (app.py) makes request.remote_addr
+    reflect the real client when running behind a reverse proxy."""
     return request.remote_addr
 
 
@@ -27,7 +25,11 @@ def _set_device_cookie(response, raw_token: str):
         Config.DEVICE_COOKIE_NAME,
         raw_token,
         max_age=int(Config.REMEMBER_DEVICE_DURATION.total_seconds()),
-        secure=not Config.DEBUG,        # HTTPS-only in prod; relaxed in local dev
+        # Mark Secure only when the connection actually is HTTPS. Browsers
+        # silently drop Secure cookies on HTTP, which broke local dev when
+        # this was gated on Config.DEBUG. request.is_secure honors
+        # X-Forwarded-Proto when ProxyFix is installed (see app.py).
+        secure=request.is_secure,
         httponly=True,
         samesite='Lax',
         path=Config.DEVICE_COOKIE_PATH,
@@ -39,7 +41,7 @@ def _clear_device_cookie(response):
         Config.DEVICE_COOKIE_NAME,
         '',
         max_age=0,
-        secure=not Config.DEBUG,
+        secure=request.is_secure,
         httponly=True,
         samesite='Lax',
         path=Config.DEVICE_COOKIE_PATH,
