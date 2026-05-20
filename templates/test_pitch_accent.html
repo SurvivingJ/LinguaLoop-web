@@ -446,6 +446,25 @@
         .controls-grid { gap: 8px; }
         .control-item { font-size: 11px; }
     }
+
+    /* Furigana overlay */
+    .word-surface ruby rt {
+        font-size: 0.45em;
+        color: var(--text-muted, var(--slate-500));
+        user-select: none;
+        font-weight: normal;
+    }
+    .furigana-toggle {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        user-select: none;
+    }
+    .furigana-toggle.visible { display: inline-flex; }
+    .furigana-toggle input { margin: 0; }
 </style>
 {% endblock %}
 
@@ -486,6 +505,10 @@
                     </button>
                 </div>
                 <span class="badge bg-primary" id="testLanguage"></span>
+                <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
+                    <input type="checkbox" id="furiganaToggle">
+                    <span>ふりがな</span>
+                </label>
                 <span class="text-slate-500">
                     <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
                 </span>
@@ -535,7 +558,43 @@
         mode: 'quick',          // 'quick' | 'contour'
         contourInput: [],       // working array of 'H'/'L'/null for current token
         contourCursor: 0,       // current mora being edited in contour mode
+        // Furigana: payload is one-to-one with the transcript pre-tokenization
+        // (not aligned to pitch tokens), so we look up surfaces by string match.
+        furiganaPayload: null,   // { transcript: [tokens...] }
+        furiganaBySurface: {},   // surface → token (built once after load)
+        furiganaEnabled: false,
+        furiganaUsedThisAttempt: false,
     };
+
+    function escapeHtmlFuri(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function renderFuriganaToken(tok) {
+        if (!tok || tok.kind !== 'ruby') return null;
+        const segs = Array.isArray(tok.segments) && tok.segments.length
+            ? tok.segments
+            : [{base: tok.base, rt: tok.rt}];
+        let html = '<ruby>';
+        for (const seg of segs) {
+            html += escapeHtmlFuri(seg.base) + '<rt>' + escapeHtmlFuri(seg.rt || '') + '</rt>';
+        }
+        html += '</ruby>';
+        return html;
+    }
+
+    // Render a pitch-token surface: if furigana is enabled and we have a ruby
+    // token that matches the surface, return ruby HTML; otherwise escape plain.
+    function renderSurfaceHtml(surface) {
+        if (state.furiganaEnabled) {
+            const tok = state.furiganaBySurface[surface];
+            const html = tok ? renderFuriganaToken(tok) : null;
+            if (html) return html;
+        }
+        return escapeHtmlFuri(surface);
+    }
 
     const CLASS_INFO = {
         heiban:    { key: 'pitch.class.heiban',    keyShort: '←', keyName: 'ArrowLeft',  arrow: '←', desc: 'pitch.class.heiban_desc' },
@@ -580,6 +639,7 @@
             } catch (e) {}
 
             await loadTestData();
+            await setupFuriganaToggle();
             renderPassage();
             setupInputHandlers();
             setupModeToggle();
@@ -627,6 +687,17 @@
             }
         });
 
+        // Furigana payload (Japanese tests only). Build a surface→token map so
+        // we can attach ruby to the pitch-accent passage grid in O(1).
+        state.furiganaPayload = data.furigana_payload || null;
+        if (state.furiganaPayload && Array.isArray(state.furiganaPayload.transcript)) {
+            for (const tok of state.furiganaPayload.transcript) {
+                if (tok && tok.kind === 'ruby' && tok.base) {
+                    state.furiganaBySurface[tok.base] = tok;
+                }
+            }
+        }
+
         if (state.playableTokens.length === 0) {
             throw new Error(t('pitch.error.no_words', 'No drillable words found in this passage.'));
         }
@@ -649,16 +720,17 @@
             el.className = 'word-token';
             el.dataset.index = idx;
 
+            const surfaceHtml = renderSurfaceHtml(token.surface);
             if (token.is_punctuation) {
                 el.classList.add('punctuation');
-                el.innerHTML = `<span class="word-surface">${escapeHtml(token.surface)}</span>`;
+                el.innerHTML = `<span class="word-surface">${surfaceHtml}</span>`;
             } else if (token.pattern_class === 'unknown') {
                 el.classList.add('punctuation');
-                el.innerHTML = `<span class="word-surface" title="No accent data">${escapeHtml(token.surface)}</span>`;
+                el.innerHTML = `<span class="word-surface" title="No accent data">${surfaceHtml}</span>`;
             } else {
                 el.classList.add('upcoming');
                 el.innerHTML =
-                    `<span class="word-surface">${escapeHtml(token.surface)}</span>` +
+                    `<span class="word-surface">${surfaceHtml}</span>` +
                     `<span class="word-kana-mini">&nbsp;</span>` +
                     `<span class="contour-mini"></span>`;
             }
@@ -1157,6 +1229,51 @@
         });
     }
 
+    async function setupFuriganaToggle() {
+        const wrap = document.getElementById('furiganaToggleLabel');
+        const cb = document.getElementById('furiganaToggle');
+        if (!wrap || !cb) return;
+
+        if (!state.furiganaPayload) {
+            wrap.classList.remove('visible');
+            return;
+        }
+        wrap.classList.add('visible');
+
+        try {
+            const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
+            if (resp && resp.ok) {
+                const body = await resp.json();
+                const prefs = (body && (body.data || body).exercise_preferences) || {};
+                state.furiganaEnabled = !!prefs.furigana_enabled;
+            }
+        } catch (_) { /* non-fatal */ }
+
+        cb.checked = state.furiganaEnabled;
+        if (state.furiganaEnabled) state.furiganaUsedThisAttempt = true;
+
+        cb.addEventListener('change', () => {
+            state.furiganaEnabled = cb.checked;
+            if (cb.checked) state.furiganaUsedThisAttempt = true;
+            try {
+                window.authFetch('/api/users/preferences', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ furigana_enabled: cb.checked })
+                });
+            } catch (_) {}
+            // Update each surface in place — keep existing classes (current,
+            // completed, cls-*) so mid-drill progress is preserved.
+            document.querySelectorAll('.word-token').forEach((el) => {
+                const idx = parseInt(el.dataset.index, 10);
+                const token = state.allTokens[idx];
+                if (!token) return;
+                const surfaceEl = el.querySelector('.word-surface');
+                if (surfaceEl) surfaceEl.innerHTML = renderSurfaceHtml(token.surface);
+            });
+        });
+    }
+
     function setupModeToggle() {
         document.querySelectorAll('#modeToggle button').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1240,6 +1357,7 @@
                     total_units: state.playableTokens.length,
                     time_taken: timeSec,
                     errors: state.errors.slice(0, 50),
+                    furigana_used: state.furiganaUsedThisAttempt,
                 })
             });
             if (resp.ok) {

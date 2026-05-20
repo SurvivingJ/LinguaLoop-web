@@ -660,6 +660,26 @@
             }
         }
 
+        /* ===== Furigana overlay ===== */
+        ruby rt {
+            font-size: 0.55em;
+            color: var(--text-muted, var(--slate-500));
+            user-select: none;
+            font-weight: normal;
+        }
+        .furigana-toggle {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .furigana-toggle.visible { display: inline-flex; }
+        .furigana-toggle input { margin: 0; }
+
 </style>
 {% endblock %}
 
@@ -686,6 +706,10 @@
                 <span class="badge bg-primary me-2" id="testLanguage"></span>
                 <span class="badge bg-secondary me-2" id="testDifficulty"></span>
                 <span class="badge bg-info" id="testType"></span>
+                <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
+                    <input type="checkbox" id="furiganaToggle">
+                    <span>ふりがな</span>
+                </label>
             </div>
         </div>
         <div class="row mt-2">
@@ -902,8 +926,109 @@ const testState = {
     startTime: null,
     isSubmitted: false,
     audioElement: null,
-    playbackSpeed: 1.0
+    playbackSpeed: 1.0,
+    furiganaPayload: null,   // { transcript: [...], questions: [{text, choices}, ...] }
+    furiganaEnabled: false,  // learner's current toggle state
+    furiganaUsedThisAttempt: false // sticky: true if toggle was ever on this attempt
 };
+
+// ============================================================================
+// FURIGANA HELPERS
+// ============================================================================
+function escapeHtmlForFurigana(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Render an ordered list of furigana tokens (from server) as HTML.
+// Each token is either {kind:"plain", text} or
+// {kind:"ruby", base, rt, segments:[{base, rt}, ...]}.
+function renderFuriganaTokens(tokens) {
+    if (!Array.isArray(tokens)) return '';
+    const parts = [];
+    for (const tok of tokens) {
+        if (!tok) continue;
+        if (tok.kind === 'plain') {
+            parts.push(escapeHtmlForFurigana(tok.text));
+            continue;
+        }
+        if (tok.kind === 'ruby') {
+            const segs = Array.isArray(tok.segments) && tok.segments.length
+                ? tok.segments
+                : [{base: tok.base, rt: tok.rt}];
+            parts.push('<ruby>');
+            for (const seg of segs) {
+                parts.push(escapeHtmlForFurigana(seg.base));
+                parts.push('<rt>' + escapeHtmlForFurigana(seg.rt || '') + '</rt>');
+            }
+            parts.push('</ruby>');
+        }
+    }
+    return parts.join('');
+}
+
+// Render `plainText` either as plain HTML-escaped text (furigana off) or as a
+// ruby-annotated string (furigana on, tokens available).
+function renderJpText(plainText, tokens) {
+    if (testState.furiganaEnabled && Array.isArray(tokens) && tokens.length) {
+        return renderFuriganaTokens(tokens);
+    }
+    return escapeHtmlForFurigana(plainText);
+}
+
+// Show/hide the furigana toggle, restore the user's last preference, and rerun
+// renders when it's flipped. Sticky `furiganaUsedThisAttempt` ensures the ELO
+// dampener still fires even if the learner toggles off after peeking.
+async function setupFuriganaToggle() {
+    const wrap = document.getElementById('furiganaToggleLabel');
+    const cb = document.getElementById('furiganaToggle');
+    if (!wrap || !cb) return;
+
+    // Only meaningful when the test has a furigana payload (Japanese tests).
+    if (!testState.furiganaPayload) {
+        wrap.classList.remove('visible');
+        return;
+    }
+    wrap.classList.add('visible');
+
+    // Load initial value from user preferences.
+    try {
+        const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
+        if (resp && resp.ok) {
+            const body = await resp.json();
+            const prefs = (body && (body.data || body).exercise_preferences) || {};
+            testState.furiganaEnabled = !!prefs.furigana_enabled;
+        }
+    } catch (_) { /* non-fatal; default off */ }
+
+    cb.checked = testState.furiganaEnabled;
+    if (testState.furiganaEnabled) testState.furiganaUsedThisAttempt = true;
+
+    cb.addEventListener('change', () => {
+        testState.furiganaEnabled = cb.checked;
+        if (cb.checked) testState.furiganaUsedThisAttempt = true;
+        // Persist preference (fire-and-forget).
+        try {
+            window.authFetch('/api/users/preferences', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ furigana_enabled: cb.checked })
+            });
+        } catch (_) { /* non-fatal */ }
+        // Re-render transcript and questions to apply.
+        if (testState.testType === 'reading') {
+            const t = document.getElementById('transcriptText');
+            if (t) t.innerHTML = renderJpText(
+                testState.testData.transcript,
+                testState.furiganaPayload && testState.furiganaPayload.transcript
+            );
+        }
+        if (testState.testType !== 'dictation') {
+            renderQuestions();
+        }
+    });
+}
 
 // ============================================================================
 // INITIALIZATION
@@ -981,6 +1106,7 @@ async function loadTestData() {
         testState.testId = data.test_data.id;
         testState.vocabTokenMap = data.vocab_token_map || [];
         testState.definitions = data.definitions || {};
+        testState.furiganaPayload = data.furigana_payload || null;
         testState.questions = data.questions_data.map(q => ({
             id: q.id,
             text: q.question_text,
@@ -1042,7 +1168,8 @@ async function submitTest() {
                 test_id: testState.testId,
                 test_mode: testState.testType,
                 responses: responses,
-                time_taken: timeTaken
+                time_taken: timeTaken,
+                furigana_used: testState.furiganaUsedThisAttempt
             })
         });
         
@@ -1076,7 +1203,11 @@ function initializeUI() {
     document.getElementById('testLanguage').textContent = LinguaMetadata.getNativeName(testState.testData.language) || testState.testData.language.toUpperCase();
     document.getElementById('testDifficulty').textContent = LinguaI18n.t('test.level', {level: testState.testData.difficulty});
     document.getElementById('testType').textContent = testState.testType.charAt(0).toUpperCase() + testState.testType.slice(1);
-    
+
+    // Furigana toggle: only meaningful when the test has a furigana payload
+    // (i.e. it's a Japanese test that was processed at creation time).
+    setupFuriganaToggle();
+
     // Initialize based on test type
     if (testState.testType === 'reading') {
         initializeReadingTest();
@@ -1107,7 +1238,10 @@ function initializeReadingTest() {
     const transcriptText = document.getElementById('transcriptText');
     
     transcriptCard.style.display = 'block';
-    transcriptText.textContent = testState.testData.transcript;
+    transcriptText.innerHTML = renderJpText(
+        testState.testData.transcript,
+        testState.furiganaPayload && testState.furiganaPayload.transcript
+    );
 }
 
 function initializeListeningTest() {
@@ -1156,31 +1290,40 @@ function createQuestionCard(question, index) {
     card.className = 'question-card mb-4';
     card.id = `question-${index}`;
     card.style.display = 'none';
-    
+
     const isAnswered = testState.answers[question.id] !== undefined;
     const selectedAnswer = testState.answers[question.id];
-    
+
+    // Furigana tokens for this question's text and per-choice (parallel to
+    // `question.choices` by index — payload was generated at creation time).
+    const qFuri = (testState.furiganaPayload && testState.furiganaPayload.questions
+        && testState.furiganaPayload.questions[index]) || null;
+    const textHtml = renderJpText(question.text, qFuri && qFuri.text);
+
     card.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="badge bg-primary">${LinguaI18n.t('test.question_of', {current: index + 1, total: testState.questions.length})}</span>
             ${isAnswered ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>' + LinguaI18n.t('test.answered') + '</span>' : ''}
         </div>
-        <h5 class="mb-4">${question.text}</h5>
+        <h5 class="mb-4">${textHtml}</h5>
         <div class="answer-options" id="answers-${index}">
             ${question.choices.map((choice, choiceIndex) => {
                 const choiceLetter = String.fromCharCode(65 + choiceIndex); // A, B, C, D
                 const isSelected = selectedAnswer === choice;
+                const choiceFuri = (qFuri && qFuri.choices && qFuri.choices[choiceIndex]) || null;
+                const choiceHtml = renderJpText(choice, choiceFuri);
+                const choiceAttr = escapeHtmlForFurigana(choice);
                 return `
-                    <div class="answer-option ${isSelected ? 'selected' : ''}" 
-                         data-question-id="${question.id}" 
-                         data-choice="${choice}">
-                        <input type="radio" 
-                               name="question-${index}" 
-                               id="q${index}-${choiceIndex}" 
-                               value="${choice}"
+                    <div class="answer-option ${isSelected ? 'selected' : ''}"
+                         data-question-id="${question.id}"
+                         data-choice="${choiceAttr}">
+                        <input type="radio"
+                               name="question-${index}"
+                               id="q${index}-${choiceIndex}"
+                               value="${choiceAttr}"
                                ${isSelected ? 'checked' : ''}>
                         <label for="q${index}-${choiceIndex}" class="ms-2 mb-0">
-                            <strong>${choiceLetter}.</strong> ${choice}
+                            <strong>${choiceLetter}.</strong> ${choiceHtml}
                         </label>
                     </div>
                 `;
@@ -1502,7 +1645,10 @@ function showResults(result) {
         const transcriptCard = document.getElementById('transcriptCard');
         const transcriptText = document.getElementById('transcriptText');
         transcriptCard.style.display = 'block';
-        transcriptText.textContent = testState.testData.transcript;
+        transcriptText.innerHTML = renderJpText(
+        testState.testData.transcript,
+        testState.furiganaPayload && testState.furiganaPayload.transcript
+    );
     }
 
     // Wrap transcript words for click-to-define and add hint

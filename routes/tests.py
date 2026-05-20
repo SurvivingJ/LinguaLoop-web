@@ -639,7 +639,7 @@ def get_test(slug):
         current_app.logger.error(f"Error in get_test route: {e}")
         return jsonify({"error": "Failed to fetch test", "status": "error"}), 500
         
-def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses):
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
     Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
@@ -652,7 +652,8 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
             'p_test_type_id': test_type_id,
             'p_responses': db_responses,
             'p_was_free_test': True,
-            'p_idempotency_key': str(uuid4())
+            'p_idempotency_key': str(uuid4()),
+            'p_furigana_used': bool(furigana_used),
         }).execute()
         return response.data
     except Exception as e:
@@ -723,7 +724,7 @@ def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type
         return jsonify({"error": "Failed to process pinyin submission"}), 500
 
 
-def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units):
+def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units, furigana_used=False):
     """Call the process_pitch_accent_submission RPC (accuracy-based, no MC questions).
 
     Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
@@ -738,6 +739,7 @@ def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, tes
             'p_total_units': int(total_units),
             'p_was_free_test': True,
             'p_idempotency_key': str(uuid4()),
+            'p_furigana_used': bool(furigana_used),
         }).execute()
         return response.data
     except Exception as e:
@@ -864,6 +866,7 @@ def submit_test_attempt(slug):
         data = request.get_json() or {}
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
+        furigana_used = bool(data.get('furigana_used', False))
 
         if not responses:
             return jsonify({"error": "No responses provided"}), 400
@@ -897,7 +900,8 @@ def submit_test_attempt(slug):
         # Call database RPC for validation, ELO calculation and attempt recording
         rpc_result = _call_submission_rpc(
             current_app.supabase_service, current_user_id,
-            test_id, language_id, test_type_id, db_responses
+            test_id, language_id, test_type_id, db_responses,
+            furigana_used=furigana_used,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result  # Error response
@@ -1033,6 +1037,7 @@ def submit_pitch_accent_attempt(slug):
         correct_units = data.get('correct_units', 0)
         total_units = data.get('total_units', 0)
         time_taken = data.get('time_taken', 0)
+        furigana_used = bool(data.get('furigana_used', False))
 
         if total_units <= 0:
             return jsonify({"error": "Invalid total_units"}), 400
@@ -1063,6 +1068,7 @@ def submit_pitch_accent_attempt(slug):
             current_app.supabase_service, current_user_id,
             test_id, language_id, pitch_type_id,
             correct_units, total_units,
+            furigana_used=furigana_used,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result
@@ -1274,7 +1280,7 @@ def get_test_with_ratings(identifier):
         select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
             'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
-            'vocab_token_map, pinyin_payload, pitch_payload, '
+            'vocab_token_map, pinyin_payload, pitch_payload, furigana_payload, '
             'dim_languages(language_code, language_name)'
         )
 
@@ -1333,6 +1339,8 @@ def get_test_with_ratings(identifier):
         pinyin_payload = test.pop('pinyin_payload', None)
         # Pop pitch accent payload (only present for Japanese tests)
         pitch_payload = test.pop('pitch_payload', None)
+        # Pop furigana payload (only present for Japanese tests)
+        furigana_payload = test.pop('furigana_payload', None)
 
         # Load definitions for vocab token map sense IDs
         token_map = test.pop('vocab_token_map', None) or []
@@ -1365,6 +1373,8 @@ def get_test_with_ratings(identifier):
             response_data["pinyin_payload"] = pinyin_payload
         if pitch_payload is not None:
             response_data["pitch_payload"] = pitch_payload
+        if furigana_payload is not None:
+            response_data["furigana_payload"] = furigana_payload
 
         return jsonify(response_data)
 

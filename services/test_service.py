@@ -306,6 +306,17 @@ class TestService:
                     except Exception as e:
                         logger.warning(f"Pitch accent payload generation failed (non-fatal): {e}")
 
+                try:
+                    from services.furigana_service import process_test_payload as process_furigana_payload
+                    furigana_payload = process_furigana_payload(
+                        transcript, test_data.get('questions', [])
+                    )
+                    self.admin.table('tests').update({
+                        'furigana_payload': furigana_payload
+                    }).eq('id', test_id).execute()
+                except Exception as e:
+                    logger.warning(f"Furigana payload generation failed (non-fatal): {e}")
+
             return test_id
 
         except Exception as e:

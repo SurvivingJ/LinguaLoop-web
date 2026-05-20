@@ -6,8 +6,15 @@
 -- questions; it produces a per-accent-phrase accuracy. This dedicated function
 -- takes pre-counted (correct_units, total_units), grades the attempt, and
 -- updates ELO using the same K=32 formula and first-attempt-only rule as
--- pinyin.
+-- pinyin. Now also accepts p_furigana_used to dampen user-side K when the
+-- learner had the furigana overlay on.
 -- ============================================================================
+-- The previous overload (without p_furigana_used) must be dropped explicitly;
+-- CREATE OR REPLACE doesn't match across different parameter lists.
+
+DROP FUNCTION IF EXISTS process_pitch_accent_submission(
+    UUID, UUID, SMALLINT, SMALLINT, INTEGER, INTEGER, BOOLEAN, UUID
+);
 
 CREATE OR REPLACE FUNCTION process_pitch_accent_submission(
   p_user_id UUID,
@@ -17,10 +24,13 @@ CREATE OR REPLACE FUNCTION process_pitch_accent_submission(
   p_correct_units INTEGER,
   p_total_units INTEGER,
   p_was_free_test BOOLEAN DEFAULT TRUE,
-  p_idempotency_key UUID DEFAULT NULL
+  p_idempotency_key UUID DEFAULT NULL,
+  p_furigana_used BOOLEAN DEFAULT FALSE
 )
 RETURNS JSONB AS $$
 DECLARE
+  c_furigana_dampener constant numeric := 0.5;
+  v_user_k_factor numeric;
   v_user_elo integer;
   v_test_elo integer;
   v_user_tests_taken integer;
@@ -175,7 +185,10 @@ BEGIN
     BEGIN
       expected_user_score := 1.0 / (1.0 + POWER(10, (v_test_elo - v_user_elo) / 400.0));
 
-      v_new_user_elo := ROUND(v_user_elo + k_factor * (v_percentage_decimal - expected_user_score));
+      -- Dampen user K when the learner had furigana on; test K unchanged.
+      v_user_k_factor := k_factor * CASE WHEN p_furigana_used THEN c_furigana_dampener ELSE 1.0 END;
+
+      v_new_user_elo := ROUND(v_user_elo + v_user_k_factor * (v_percentage_decimal - expected_user_score));
       v_new_test_elo := ROUND(v_test_elo + k_factor * ((1.0 - v_percentage_decimal) - (1.0 - expected_user_score)));
 
       v_new_user_elo := GREATEST(400, LEAST(3000, v_new_user_elo));
@@ -223,7 +236,8 @@ BEGIN
     test_elo_after,
     tokens_consumed,
     was_free_test,
-    idempotency_key
+    idempotency_key,
+    furigana_used
   ) VALUES (
     p_user_id,
     p_test_id,
@@ -239,7 +253,8 @@ BEGIN
     v_new_test_elo,
     CASE WHEN p_was_free_test THEN 0 ELSE v_tokens_cost END,
     p_was_free_test,
-    p_idempotency_key
+    p_idempotency_key,
+    p_furigana_used
   )
   RETURNING id INTO v_attempt_id;
 

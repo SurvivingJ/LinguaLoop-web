@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-19 (Measure Word Trainer v2: mastery + tiers + CC-CEDICT + Reverse/Cloze levels — see log.md 2026-05-19) | Pages: 55
+Last updated: 2026-05-20 (Furigana overlay added — see log.md 2026-05-20) | Pages: 57
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -33,6 +33,8 @@ Last updated: 2026-05-19 (Measure Word Trainer v2: mastery + tiers + CC-CEDICT +
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
 - [[features/pitch-accent-trainer]] — Japanese pitch-accent game mode (heiban/atamadaka/nakadaka/odaka), Quick + Contour renderers
 - [[features/pitch-accent-trainer.tech]] — pyopenjtalk pipeline, mora segmentation, pitch_payload schema, submit-pitch-accent endpoint
+- [[features/furigana-overlay]] — Opt-in hiragana ruby annotations on kanji for Japanese tests (with ELO dampener)
+- [[features/furigana-overlay.tech]] — fugashi + UniDic generation, payload schema, render path, dampener wiring
 - [[features/measure-word-trainer]] — Chinese classifier (量词) infinite drill, MC + Typed modes, curated dictionary
 - [[features/measure-word-trainer.tech]] — dim_classifiers schema, session RPC, sentinel-test ELO pattern
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)

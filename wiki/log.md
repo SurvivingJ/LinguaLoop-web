@@ -1,5 +1,26 @@
 # Activity Log
 
+## 2026-05-20 feature | Furigana overlay for Japanese tests (deterministic, fugashi + UniDic)
+
+User asked whether furigana could be added to "low level" Japanese tests deterministically — no LLM. After clarification, the target surfaces were the comprehension test renderer ([templates/test.html](../templates/test.html)) and the pitch accent trainer ([templates/test_pitch_accent.html](../templates/test_pitch_accent.html)); learner-controlled toggle with an ELO dampener while it's on.
+
+**Generator** — new [services/furigana_service.py](../services/furigana_service.py). Tokenizes with fugashi (already used by [services/vocabulary/processors/japanese.py](../services/vocabulary/processors/japanese.py)); reads `feature.kana` from UniDic, converts katakana→hiragana with jaconv. Per-token alignment strips matching kana from both ends of the reading where the surface kana already match, then emits group ruby for the kanji-runs in the middle. Single kanji-run + remaining reading → one segment (handles jukujikun like 今日→きょう correctly). The same generator powers both surfaces.
+
+**Storage** — `tests.furigana_payload JSONB` mirrors the pinyin/pitch payload pattern; computed at test creation in [services/test_service.py](../services/test_service.py) alongside the existing pitch payload. Per-attempt audit on `test_attempts.furigana_used`. New migration [migrations/add_furigana_mode.sql](../migrations/add_furigana_mode.sql).
+
+**Per-user opt-in** uses the existing `users.exercise_preferences` JSONB (key `furigana_enabled`), so no new users column. [routes/users.py](../routes/users.py) gains a `GET /api/users/preferences` endpoint and accepts `furigana_enabled` in `PATCH`.
+
+**ELO dampener** — [migrations/process_test_submission_v2.sql](../migrations/process_test_submission_v2.sql) and [migrations/process_pitch_accent_submission.sql](../migrations/process_pitch_accent_submission.sql) gain a `p_furigana_used BOOLEAN` parameter. When true, the *user-side* K factor is halved (constant `c_furigana_dampener = 0.5`); test K unchanged so display preferences can't move the test's rating. The flag is persisted to the new `test_attempts.furigana_used` column for auditability.
+
+**Frontend** — Sticky-on flag (`furiganaUsedThisAttempt`): once the toggle is flipped on during an attempt it stays "used" through submit, even if the learner flips it off — closes the peek-then-hide loophole. test.html re-renders transcript/question/choices via a `renderJpText(plainText, tokens)` helper. test_pitch_accent.html mutates only `.word-surface` innerHTML in place so mid-drill state (current/completed/cls-*) survives toggling.
+
+**Deps** — added fugashi, unidic-lite, jaconv to [requirements.txt](../requirements.txt). fugashi was already imported in the Japanese vocab processor but not declared; declaring explicitly.
+
+**Pages updated:** [features/furigana-overlay.md](features/furigana-overlay.md), [features/furigana-overlay.tech.md](features/furigana-overlay.tech.md), index.md.
+
+**Verification pending.** Unit tests for the generator, migration application, and end-to-end test attempt with the toggle on/off (confirming ~½ ELO delta on the dampened run) are still to run.
+
+
 ## 2026-05-19 fix | Dictation submission: batched BKT (worker-timeout truncation)
 
 Dictation submissions of 60+ words were producing Chrome's "Content-Length header of network response exceeds response Body" error — the submit handler did one Supabase RPC call per transcript word inside the request loop ([routes/tests.py](../routes/tests.py) `submit_dictation_attempt`), accumulating ~60-120 sequential round-trips and exceeding the gunicorn worker timeout. The worker was killed mid-write, truncating the announced response body.

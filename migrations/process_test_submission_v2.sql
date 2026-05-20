@@ -6,7 +6,19 @@
 -- 2. Validate answers against database questions
 -- 3. Calculate score internally
 -- 4. Return per-question results
+-- 5. Accept a p_furigana_used flag and dampen user-side K when true
 -- ============================================================================
+-- Adding p_furigana_used created a new signature, so any prior overloads must
+-- be dropped explicitly — CREATE OR REPLACE only matches identical signatures
+-- and Postgres treats different parameter lists as distinct functions.
+
+DROP FUNCTION IF EXISTS process_test_submission(
+    UUID, UUID, SMALLINT, SMALLINT, JSONB, BOOLEAN, UUID
+);
+-- Legacy text-based signature from migrations/elo_functions.sql.
+DROP FUNCTION IF EXISTS process_test_submission(
+    UUID, UUID, TEXT, TEXT, INTEGER, INTEGER, TEXT, INTEGER, BOOLEAN
+);
 
 CREATE OR REPLACE FUNCTION process_test_submission(
   p_user_id UUID,
@@ -15,10 +27,16 @@ CREATE OR REPLACE FUNCTION process_test_submission(
   p_test_type_id SMALLINT,
   p_responses JSONB,              -- NEW: User's answers
   p_was_free_test BOOLEAN DEFAULT TRUE,
-  p_idempotency_key UUID DEFAULT NULL  -- UUID to match test_attempts.idempotency_key
+  p_idempotency_key UUID DEFAULT NULL,  -- UUID to match test_attempts.idempotency_key
+  p_furigana_used BOOLEAN DEFAULT FALSE  -- learner had furigana overlay on
 )
 RETURNS JSONB AS $$
 DECLARE
+  -- ELO K-factor multiplier applied to the *user* side only when furigana
+  -- was on. Reading kanji with furigana is materially easier than bare, so
+  -- gains/losses are dampened to keep rating meaningful. Tune here.
+  c_furigana_dampener constant numeric := 0.5;
+  v_user_k_factor numeric;
   v_user_elo integer;
   v_test_elo integer;
   v_user_tests_taken integer;
@@ -217,9 +235,13 @@ BEGIN
     BEGIN
       expected_user_score := 1.0 / (1.0 + POWER(10, (v_test_elo - v_user_elo) / 400.0));
 
+      -- Furigana dampens *user* K only; the test's intrinsic difficulty
+      -- shouldn't shift based on a learner's display preference.
+      v_user_k_factor := k_factor * CASE WHEN p_furigana_used THEN c_furigana_dampener ELSE 1.0 END;
+
       -- New user ELO = old ELO + K * (actual_score - expected_score)
       -- Use decimal form (0-1) for ELO calculations
-      v_new_user_elo := ROUND(v_user_elo + k_factor * (v_percentage_decimal - expected_user_score));
+      v_new_user_elo := ROUND(v_user_elo + v_user_k_factor * (v_percentage_decimal - expected_user_score));
 
       -- New test ELO = old ELO + K * (inverse_score - expected_test_score)
       v_new_test_elo := ROUND(v_test_elo + k_factor * ((1.0 - v_percentage_decimal) - (1.0 - expected_user_score)));
@@ -273,7 +295,8 @@ BEGIN
     test_elo_after,
     tokens_consumed,
     was_free_test,
-    idempotency_key
+    idempotency_key,
+    furigana_used
   ) VALUES (
     p_user_id,
     p_test_id,
@@ -289,7 +312,8 @@ BEGIN
     v_new_test_elo,
     CASE WHEN p_was_free_test THEN 0 ELSE v_tokens_cost END,
     p_was_free_test,
-    p_idempotency_key
+    p_idempotency_key,
+    p_furigana_used
   )
   RETURNING id INTO v_attempt_id;
 

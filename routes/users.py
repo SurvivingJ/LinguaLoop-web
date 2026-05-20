@@ -85,12 +85,30 @@ def get_user_profile() -> ApiResponse:
         return server_error("Failed to get profile")
 
 
+@users_bp.route('/preferences', methods=['GET'])
+@supabase_jwt_required
+def get_preferences() -> ApiResponse:
+    """Return the user's exercise_preferences JSONB (or empty dict if unset)."""
+    try:
+        user_id = g.current_user_id
+        resp = current_app.supabase_service.table('users') \
+            .select('exercise_preferences') \
+            .eq('id', user_id) \
+            .single() \
+            .execute()
+        prefs = (resp.data or {}).get('exercise_preferences') or {}
+        return api_success({"exercise_preferences": prefs})
+    except Exception as e:
+        logger.error(f"Preferences fetch error: {e}")
+        return server_error("Failed to fetch preferences")
+
+
 @users_bp.route('/preferences', methods=['PATCH'])
 @supabase_jwt_required
 def update_preferences() -> ApiResponse:
     """Update user exercise preferences.
 
-    Body: {"session_size": 15}
+    Body: {"session_size": 15} and/or {"furigana_enabled": true}
     """
     try:
         user_id = g.current_user_id
@@ -118,6 +136,11 @@ def update_preferences() -> ApiResponse:
                     f"{Config.MAX_EXERCISE_SESSION_SIZE}"
                 )
             prefs['session_size'] = size
+
+        if 'furigana_enabled' in data:
+            if not isinstance(data['furigana_enabled'], bool):
+                return bad_request("furigana_enabled must be boolean")
+            prefs['furigana_enabled'] = data['furigana_enabled']
 
         current_app.supabase_service.table('users') \
             .update({'exercise_preferences': prefs}) \
