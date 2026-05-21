@@ -639,6 +639,41 @@ def get_test(slug):
         current_app.logger.error(f"Error in get_test route: {e}")
         return jsonify({"error": "Failed to fetch test", "status": "error"}), 500
         
+def _apply_timing_and_progress(client, attempt_id, request_body):
+    """Post-submission hook — persist timing + bump Study Plan counter.
+
+    Phase 13. Best-effort: failures are logged but never bubble up to the
+    learner, who has already received their submission result. Both
+    timestamps are optional; missing timestamps mean the FE didn't capture
+    them (older clients) and we skip the duration UPDATE while still
+    incrementing the test counter.
+
+    Args:
+        client: Supabase service client.
+        attempt_id: UUID returned by the submission RPC.
+        request_body: the request JSON dict (we read started_at /
+            finished_at from it).
+
+    See migrations/phase13_apply_attempt_timing_and_progress.sql.
+    """
+    if not attempt_id:
+        return
+    started_at  = request_body.get('started_at')   # ISO timestamp or None
+    finished_at = request_body.get('finished_at')
+    try:
+        client.rpc('apply_attempt_timing_and_progress', {
+            'p_attempt_id':  str(attempt_id),
+            'p_started_at':  started_at,
+            'p_finished_at': finished_at,
+        }).execute()
+    except Exception as e:
+        # Non-fatal — timing capture and Study Plan counters are best-effort.
+        current_app.logger.warning(
+            f"apply_attempt_timing_and_progress failed (non-fatal) for "
+            f"attempt={attempt_id}: {e}"
+        )
+
+
 def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
@@ -919,6 +954,11 @@ def submit_test_attempt(slug):
             f"score={rpc_result.get('score', 0)}/{rpc_result.get('total_questions', 0)}"
         )
 
+        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
+        _apply_timing_and_progress(
+            current_app.supabase_service, rpc_result.get('attempt_id'), data,
+        )
+
         # BKT vocabulary tracking
         word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
 
@@ -989,6 +1029,11 @@ def submit_pinyin_attempt(slug):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Pinyin RPC failed: {error_msg}")
             return jsonify({"error": "Failed to process pinyin submission"}), 500
+
+        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
+        _apply_timing_and_progress(
+            current_app.supabase_service, rpc_result.get('attempt_id'), data,
+        )
 
         result = {
             'accuracy': round(accuracy * 100, 1),
@@ -1077,6 +1122,11 @@ def submit_pitch_accent_attempt(slug):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Pitch accent RPC failed: {error_msg}")
             return jsonify({"error": "Failed to process pitch accent submission"}), 500
+
+        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
+        _apply_timing_and_progress(
+            current_app.supabase_service, rpc_result.get('attempt_id'), data,
+        )
 
         result = {
             'accuracy': round(accuracy * 100, 1),
@@ -1213,6 +1263,11 @@ def submit_dictation_attempt(slug):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Dictation RPC failed: {error_msg}")
             return jsonify({"error": "Failed to process dictation submission", "details": error_msg}), 500
+
+        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
+        _apply_timing_and_progress(
+            current_app.supabase_service, rpc_result.get('attempt_id'), data,
+        )
 
         # Per-word BKT updates — single batched RPC instead of N round-trips.
         # 'insert' ops (extra user words) have no canonical sense_id and are

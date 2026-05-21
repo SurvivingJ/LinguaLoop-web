@@ -321,10 +321,11 @@ Called from:
 
 | Surface | Change |
 |---|---|
-| `process_test_submission` | Accept `p_started_at`, `p_finished_at`; compute `duration_ms = (finished − started)·1000`; insert into `test_attempts`. Call `record_session_progress(..., 'test', test_type_code, 1, duration_ms/60_000)` atomically. |
+| `process_test_submission` (and dictation/pinyin/pitch variants) | **Unchanged.** Body-of-RPC modification was deferred during implementation in favor of a side-car hook RPC — see next row. The submission RPCs are entangled with ELO + idempotency + retry-slot factor + furigana and a 4× duplication would have been brittle. Timing capture has no influence on ELO calculation, so isolating it in a hook is clean. |
+| `apply_attempt_timing_and_progress(p_attempt_id, p_started_at, p_finished_at) RETURNS jsonb` **(new)** | Post-submission hook called by `routes/tests.py` after each submission RPC returns its `attempt_id`. Atomically: (a) UPDATEs `test_attempts(started_at, duration_ms)` after computing `duration_ms = (finished − started)·1000` and silently capping to (0, 3_600_000); (b) calls `record_session_progress(..., 'test', <skill from dim_test_types.type_code>, 1, duration_minutes)`. NULL-timestamp-tolerant (skips the UPDATE while still recording progress). Best-effort: failures are warned, not raised. See `migrations/phase13_apply_attempt_timing_and_progress.sql`. |
 | `services/test_service.py::get_or_create_daily_load` | If `Config.STUDY_PLAN_ENABLED` AND `user_study_plans` row exists for (user, language), call `build_daily_session(user, language, today)`; else legacy `_compute_daily_load`. External signature unchanged. |
-| `services/practice_session_service.py::record_attempt_with_updates` | Accept `p_session_mode text` from caller; call `record_session_progress(..., 'practice_'||mode, NULL, 0, time_taken_ms/60_000)`. |
-| `routes/tests.py::submit_test_attempt` | Read `started_at`, `finished_at` from request body (FE-supplied ISO timestamps); pass through. |
+| `services/practice_session_service.py::record_attempt_with_updates` | Accept `session_mode` from caller; call `record_session_progress(..., 'practice_'||mode, NULL, 0, time_taken_ms/60_000)`. |
+| `routes/tests.py` — all 4 submit handlers (`submit_test_attempt`, `submit_pinyin_attempt`, `submit_pitch_accent_attempt`, `submit_dictation_attempt`) | Read `started_at` / `finished_at` from request body and call `_apply_timing_and_progress(client, attempt_id, body)` helper right after the submission RPC succeeds. Helper wraps the new hook RPC and logs (but does not raise) on failure. |
 
 ## Cron jobs
 

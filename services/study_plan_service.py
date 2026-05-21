@@ -588,46 +588,32 @@ def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
     }
 
 
-def _refresh_exercise_time_estimates() -> Dict[str, int]:
+def _refresh_exercise_time_estimates() -> Dict[str, Any]:
     """APScheduler entry point — fired daily at 04:05 UTC.
 
-    Refreshes dim_exercise_types.expected_seconds_p50 and
-    dim_test_types.expected_minutes_p50 from observed P50 durations.
-    Only updates rows where ≥30 samples exist in the last 30 days.
+    Delegates to refresh_practice_time_estimates RPC
+    (migrations/phase13_refresh_practice_time_estimates.sql) which atomically
+    updates both:
+      - dim_exercise_types.expected_seconds_p50 (from exercise_attempts.time_taken_ms)
+      - dim_test_types.expected_minutes_p50    (from test_attempts.duration_ms)
+    over the last 30 days, requiring ≥30 samples per type.
+
+    Returns the RPC's jsonb summary as a Python dict, or an error dict on
+    failure (logged).
     """
     db = get_supabase_admin()
-
-    # dim_exercise_types from exercise_attempts.time_taken_ms
     try:
-        sql = """
-        WITH src AS (
-            SELECT exercise_type,
-                   percentile_cont(0.5) WITHIN GROUP (ORDER BY time_taken_ms) / 1000.0 AS p50
-            FROM public.exercise_attempts
-            WHERE time_taken_ms IS NOT NULL
-              AND created_at > NOW() - INTERVAL '30 days'
-            GROUP BY exercise_type
-            HAVING COUNT(*) >= 30
-        )
-        UPDATE public.dim_exercise_types det
-           SET expected_seconds_p50 = src.p50
-          FROM src
-         WHERE det.type_code = src.exercise_type
-        RETURNING det.type_code;
-        """
-        # supabase-py doesn't run raw SQL; use the SQL editor or a tiny RPC.
-        # Fallback: a per-type loop using table queries.
-        # (For V1 we leave the RPC scaffold; admin can also run the SQL
-        #  manually in the Supabase SQL editor on the same cron cadence.)
+        resp = db.rpc('refresh_practice_time_estimates', {}).execute()
+        summary = resp.data if isinstance(resp.data, dict) else {}
         logger.info(
-            '_refresh_exercise_time_estimates: SQL pending — implement via '
-            'a dedicated RPC (e.g. refresh_practice_time_estimates) or run '
-            'the documented UPDATE in the SQL editor.'
+            '_refresh_exercise_time_estimates: %d exercise types, %d test types updated',
+            summary.get('exercise_types_updated', 0),
+            summary.get('test_types_updated', 0),
         )
+        return summary
     except Exception as e:
-        logger.error('time estimate refresh failed: %s', e)
-        return {'exercise_types_updated': 0, 'test_types_updated': 0}
-    return {'exercise_types_updated': -1, 'test_types_updated': -1}
+        logger.error('refresh_practice_time_estimates RPC failed: %s', e)
+        return {'error': str(e), 'exercise_types_updated': 0, 'test_types_updated': 0}
 
 
 # ============================================================================

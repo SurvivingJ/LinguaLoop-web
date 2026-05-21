@@ -23,14 +23,23 @@ breaking_change_risk: high
 > **New RPCs:**
 > - `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text='auto', p_target_minutes smallint=15, p_user_theta numeric=NULL) RETURNS jsonb` — unified Practice surface. Mode dispatch (`acquisition`|`maintenance`|`auto`), candidate-pool composition, unified-score ranking, mid-session fall-through. Errors: `language_not_active`, `invalid_mode`, `target_minutes_out_of_range`. See [[features/practice-engine.tech#rpc-get_practice_session]].
 > - `practice_unified_score(p_a, p_b, p_theta, p_p_known, p_due_date, p_stability, p_today, p_ladder_priority, p_alpha, p_beta, p_gamma, p_delta) RETURNS numeric` — `IMMUTABLE` SQL helper. See [[algorithms/practice-unified-score.tech]].
+> - `ladder_compute_priority(p_current_ring int, p_word_state text, p_family_confidence jsonb, p_review_due_at timestamptz, p_last_exercised_family text) RETURNS numeric` — `IMMUTABLE` standalone form of the get_ladder_session priority formula. Used by get_practice_session and (potential) future surfaces.
 > - `apply_study_plan_template(p_user_id uuid, p_language_id smallint, p_template_id smallint) RETURNS user_study_plans` — onboarding hook (UPSERT).
-> - `compute_weekly_plan(p_user_id uuid, p_language_id smallint, p_week_start date) RETURNS jsonb` — Tier B adapter; idempotent UPSERT on `weekly_plan_states` PK.
-> - `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date) RETURNS jsonb` — Tier C resolver; writes `daily_test_loads` + `daily_session_targets`.
+> - `compute_weekly_plan_load_signals(p_user_id, p_language_id, p_week_start) RETURNS jsonb` — Tier B Python adapter pulls every needed signal in one round-trip.
+> - `compute_weekly_plan_persist(p_user_id, p_language_id, p_week_start, p_computed jsonb) RETURNS jsonb` — atomic UPSERT of Python-computed Tier B output; preserves `completed_counts`/`practice_completed_*_min`/`session_progress_log`.
+> - `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date=CURRENT_DATE) RETURNS jsonb` — Tier C resolver in PL/pgSQL; greedy + spacing-penalty fill; writes `daily_test_loads` + `daily_session_targets`. Returns `code=E_NOPLAN` or `E_NOWEEK` jsonb on missing prerequisites.
 > - `record_session_progress(p_user_id, p_language_id, p_attempt_id uuid, p_kind text, p_skill text, p_delta_count int, p_delta_minutes int) RETURNS boolean` — idempotent counter update keyed by `attempt_id`.
+> - `apply_attempt_timing_and_progress(p_attempt_id uuid, p_started_at timestamptz, p_finished_at timestamptz) RETURNS jsonb` — post-submission hook called by `routes/tests.py` to persist `started_at`/`duration_ms` on `test_attempts` and invoke `record_session_progress(..., 'test', ...)` atomically. NULL-timestamp-tolerant.
+> - `refresh_practice_time_estimates() RETURNS jsonb` — nightly job that refreshes `dim_exercise_types.expected_seconds_p50` (from `exercise_attempts.time_taken_ms`) and `dim_test_types.expected_minutes_p50` (from `test_attempts.duration_ms`) from observed P50s over the last 30 days, requiring ≥30 samples per type.
+> - `test_time_estimate(p_skill text) RETURNS numeric` — `STABLE` helper. Prefers `dim_test_types.expected_minutes_p50` when set; else falls back to a hard-coded seed matching `Config.TEST_TYPE_MINUTES`.
+> - `week_start_for(p_date date) RETURNS date` — `IMMUTABLE` helper returning the Monday of `p_date`'s ISO week.
 >
-> **Modified RPCs:**
-> - `process_test_submission` — accepts new `p_started_at`, `p_finished_at`; computes `duration_ms`; calls `record_session_progress(..., 'test', ...)` atomically.
-> - `get_exercise_session`, `get_ladder_session` — kept as **deprecation wrappers** delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)` respectively, with a `RAISE WARNING 'DEPRECATED'` log line. Scheduled for removal one release after launch.
+> **Tier B implementation note:** The full `compute_weekly_plan` function lives in **Python** (`services/study_plan_service.py::StudyPlanService.compute_weekly_plan`) — see ADR-010 + R3.2 (deterministic Beta sampling). The two SQL helpers above (`_load_signals`, `_persist`) are the database surface; the Python orchestrator runs the bandit + value math between them.
+>
+> **Submission RPCs (`process_test_submission` + variants): unchanged.** Body-of-RPC modification was deferred in favor of the `apply_attempt_timing_and_progress` hook called by the route handler after the submission returns. Timing has no influence on ELO calculation so isolating it as a hook avoids duplicating ~250 lines × 4 RPCs.
+>
+> **Deprecation wrappers:**
+> - `get_exercise_session`, `get_ladder_session` — kept as thin wrappers delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)` respectively, with `RAISE WARNING 'DEPRECATED'`. Scheduled for removal one release after launch (TASK-220).
 >
 > **Cron:**
 > - New job `study_plan_weekly_recompute` — Sundays at 23:00 UTC; iterates `user_study_plans`, calls `compute_weekly_plan` per row under an advisory lock (same pattern as `irt_calibration_nightly`).
