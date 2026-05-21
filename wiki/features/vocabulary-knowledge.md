@@ -9,6 +9,8 @@ open_questions: []
 
 # Vocabulary Knowledge Tracking
 
+> **Update (2026-05-21):** Per-sense `p_known` feeds the unified score in the merged [[features/practice-engine|Practice Engine]] as its `bkt_uncertainty` term (`1 − 2·|p_known − 0.5|`), weighted γ=0.25 in Acquisition mode and γ=0.30 in Maintenance. BKT-decay-flagged senses (`effective_p_known < raw − 0.05`) are part of the Maintenance candidate pool. All BKT mechanics described below are unchanged. See [[algorithms/practice-unified-score.tech]].
+
 ## Purpose
 
 LinguaLoop tracks what each learner knows at the individual word-sense level using Bayesian Knowledge Tracing (BKT). This powers vocabulary-aware test recommendations, exercise targeting, and flashcard scheduling.

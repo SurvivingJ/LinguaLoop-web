@@ -9,6 +9,8 @@ open_questions: []
 
 # Flashcards (FSRS)
 
+> **Status note (2026-05-21):** With the merger documented in [[decisions/ADR-007-merge-exercises-vocab-dojo]], flashcards are now a sub-type of items inside the [[features/practice-engine|Practice Engine]]'s Maintenance mode — they are the FSRS-due slice of the Maintenance candidate pool. The `/flashcards` page below describes the original standalone-review surface, which remains functional. This page focuses on FSRS mechanics; selection/ranking lives in [[algorithms/practice-unified-score.tech]].
+
 ## Purpose
 
 Flashcards provide spaced-repetition review for vocabulary that the learner has encountered through tests and exercises. The scheduling uses the FSRS (Free Spaced Repetition Scheduler) algorithm to optimize review timing.

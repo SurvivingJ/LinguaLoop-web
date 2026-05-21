@@ -10,6 +10,8 @@ open_questions:
 
 # ELO Ranking System
 
+> **Update (2026-05-21):** Per-skill `user_skill_ratings.elo_rating` is one of four signals feeding the [[algorithms/study-plan-adaptation|Study Plan adapter]]'s weakness signal (`elo_gap(s) = clamp(0, (user_mean_elo − elo(s)) / 200, 1)`). The ELO formula and K-factors documented here are unchanged.
+
 ## Purpose
 
 LinguaLoop uses a dual-ELO system where both users and tests have ELO ratings. This creates a self-correcting difficulty matching system: as users improve, they face harder tests. As tests are taken by many users, their difficulty rating adjusts to reflect actual difficulty.

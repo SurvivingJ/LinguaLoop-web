@@ -1,9 +1,9 @@
 ---
 title: Vocab Dojo — Technical Specification
 type: feature-tech
-status: in-progress
+status: deprecated
 prose_page: ./vocab-dojo.md
-last_updated: 2026-05-11
+last_updated: 2026-05-21
 dependencies:
   - "migrations/phase8_momentum_bands.sql — get_ladder_session, ladder_record_attempt, ladder_pass_gate, ladder_graduate"
   - "services/vocabulary_ladder/ladder_service.py — Python wrapper + battery assembly"
@@ -18,6 +18,8 @@ breaking_change_risk: medium
 ---
 
 # Vocab Dojo — Technical Specification
+
+> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (`get_ladder_session` and its Python orchestration) is replaced by `get_practice_session('acquisition', ...)` as of 2026-05-21. Ladder mechanics — rings, families, gates A/B, stress test, ring demotion — are preserved verbatim and still drive Acquisition mode. `get_ladder_session` remains as a deprecation wrapper for one release. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[features/practice-engine.tech#acquisition-mode-sql--iteration]].
 
 ## Architecture Overview
 

@@ -1,9 +1,9 @@
 ---
 title: Exercises — Technical Specification
 type: feature-tech
-status: in-progress
+status: deprecated
 prose_page: ./exercises.md
-last_updated: 2026-05-15
+last_updated: 2026-05-21
 dependencies:
   - "exercises table"
   - "exercise_attempts table"
@@ -18,6 +18,8 @@ breaking_change_risk: medium
 ---
 
 # Exercises — Technical Specification
+
+> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (specifically `get_exercise_session` and `services/exercise_session_service.py`) is replaced by `get_practice_session` + `services/practice_session_service.py` as of 2026-05-21. Generation pipeline (LLM prompts, validators, exercise types) is unchanged and still lives here. `get_exercise_session` remains as a deprecation wrapper for one release. See [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 
 ## Architecture Overview
 

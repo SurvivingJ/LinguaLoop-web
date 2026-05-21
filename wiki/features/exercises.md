@@ -1,13 +1,17 @@
 ---
 title: Exercises
 type: feature
-status: in-progress
+status: deprecated
 tech_page: ./exercises.tech.md
-last_updated: 2026-04-25
+last_updated: 2026-05-21
 open_questions: []
 ---
 
 # Exercises
+
+> **DEPRECATED — see [[features/practice-engine]].** As of 2026-05-21, Exercises (Daily Mixed Session) is folded into the merged Practice Engine alongside [[features/vocab-dojo|Vocab Dojo]]. The `/api/exercises/session` route remains as a thin wrapper around `get_practice_session('auto', ...)` for one release; the canonical surface is `/api/practice/session?mode=auto&minutes=...`. Decision rationale in [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+>
+> Content below describes the legacy split-surface design and is preserved for historical context until the deprecation wrapper is removed.
 
 ## Purpose
 

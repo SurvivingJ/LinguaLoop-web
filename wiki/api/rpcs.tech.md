@@ -14,6 +14,27 @@ breaking_change_risk: medium
 
 # API — Technical Specification
 
+> **Planned additions (2026-05-21) — Study Plans + Practice Engine merger.** Full route specs in [[features/practice-engine.tech]] and [[features/study-plans.tech]].
+>
+> **New blueprints / routes:**
+> - `routes/practice.py` (new blueprint)
+>   - `GET /api/practice/session?mode=acquisition|maintenance|auto&minutes=N&language_id=L&debug=0|1` → `get_practice_session` jsonb.
+>   - `POST /api/practice/attempt` body `{ exercise_id, user_response, is_correct, time_taken_ms, session_mode, language_id, sense_id?, ladder_level? }` → attempt record + BKT/FSRS/ladder updates + `record_session_progress` call.
+> - `routes/settings.py` (extended)
+>   - `GET /api/study-plan?language_id=L` → `user_study_plans` row + current `weekly_plan_states` row.
+>   - `PUT /api/study-plan` body `{ language_id, daily_minutes?, weekday_shape?, skill_weight_overrides?, template_id? }` → updated row.
+>   - `POST /api/study-plan/recompute` body `{ language_id }` → result of `compute_weekly_plan(user, lang, this_week_monday)`.
+>   - `GET /api/study-plan/templates?language_id=L` → array of `dim_study_plan_templates` for the language.
+>
+> **Deprecated / wrapped routes (kept one release):**
+> - `GET /api/exercises/session` — now wraps `get_practice_session('auto', ...)`. Logs `[DEPRECATED]` once per session.
+> - `GET /api/vocab-dojo/session` — wraps `get_practice_session('acquisition', ...)`. Gate / stress-test endpoints unchanged.
+>
+> **Modified:**
+> - `POST /api/tests/<slug>/submit` (and dictation/pinyin/pitch variants) — accepts new `started_at`, `finished_at` ISO timestamps; server computes `duration_ms`. Existing fields unchanged.
+>
+> **New cron registrations:** `study_plan_weekly_recompute` (Sun 23:00 UTC) and `exercise_time_estimate_refresh` (04:05 UTC) join `irt_calibration_nightly` in [app.py:201](../../app.py#L201). Same APScheduler block; same advisory-lock pattern.
+
 This is the canonical endpoint reference. Every route is enumerated with its decorator (auth requirement), accepted body / query params, the success response shape, and the underlying RPC or service call. Use the table on each blueprint to navigate; use the per-handler subsections when wiring frontend or third-party code.
 
 ## Application Entry Points

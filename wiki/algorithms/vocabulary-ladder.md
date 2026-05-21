@@ -10,6 +10,8 @@ open_questions:
 
 # Vocabulary Ladder
 
+> **Update (2026-05-21):** Ladder priority (rings, families, gates A/B, stress test, ring demotion, cross-session advancement) feeds the unified score in the merged [[features/practice-engine|Practice Engine]] as its `ladder_priority` term, weighted heavily in Acquisition mode (α=0.40) and lightly in Maintenance (α=0.05). All mechanics described below are preserved verbatim. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[algorithms/practice-unified-score.tech]].
+
 ## Purpose
 
 The Vocabulary Ladder takes a learner from zero knowledge of a target word to long-term memory through a sequence of exercises that escalate from receptive recognition to productive use. It is grounded in Paul Nation's nine-component model of word knowledge — recognition is acquired before recall, and form before use. As of Phase 8 (2026-04-18), progression is driven by a per-family Bayesian confidence model called **Momentum Bands**, not by counting first-try successes on a single 9-rail chain. The two earlier ladder shapes (the 10-level chain in the original spec and the simple promote-on-2-cross-session-successes counter model that the Phase 4 schema was sized for) have both been superseded — see [[decisions/ADR-005-momentum-bands]] for the rationale.

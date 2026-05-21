@@ -1,14 +1,19 @@
 ---
 title: Vocab Dojo
 type: feature
-status: in-progress
+status: deprecated
 tech_page: ./vocab-dojo.tech.md
-last_updated: 2026-05-11
-open_questions:
-  - "Should the daily mixed-session bucket-5 surface ladder content via get_ladder_session, or should the Dojo at /api/vocab-dojo/session be the only ladder surface?"
+last_updated: 2026-05-21
+open_questions: []
 ---
 
 # Vocab Dojo
+
+> **DEPRECATED — see [[features/practice-engine]].** As of 2026-05-21, Vocab Dojo is folded into the merged Practice Engine alongside [[features/exercises|Exercises]]. The `/api/vocab-dojo/session` route remains as a thin wrapper around `get_practice_session('acquisition', ...)` for one release; the canonical surface is `/api/practice/session?mode=acquisition&minutes=...`. Gate and stress-test endpoints (`/api/vocab-dojo/gate`, `.../gate/result`, `.../stress-test`, `.../stress-test/result`) are unchanged — they still call `ladder_pass_gate` / stress logic directly. Decision rationale in [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+>
+> The open-question about whether the daily mixed session should surface ladder content is resolved by the merger: there is no longer a separate daily mixed session.
+>
+> Content below describes the legacy single-surface design and is preserved for historical context until the deprecation wrapper is removed.
 
 ## Purpose
 

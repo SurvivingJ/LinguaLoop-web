@@ -14,6 +14,24 @@ breaking_change_risk: medium
 
 # Database Schema — Technical Specification
 
+> **Planned additions (2026-05-21) — Study Plans + Practice Engine merger.** The following schema changes are spec'd but not yet applied. Full DDL in [[features/study-plans.tech#schema]] and [[features/practice-engine.tech]]; ADRs [[decisions/ADR-007-merge-exercises-vocab-dojo]] / [[decisions/ADR-008-study-plan-orchestration-layer]].
+>
+> **New tables:**
+> - `dim_exercise_types(type_code PK, family, expected_seconds, expected_seconds_p50, is_active)` — canonical exercise-type registry with per-type timing.
+> - `dim_practice_modes(mode_id PK, name UNIQUE, default_weights jsonb, is_active)` — seeds `acquisition` (α=0.40,β=0.30,γ=0.25,δ=0.05), `maintenance` (0.05,0.15,0.30,0.50), `auto` (null).
+> - `dim_study_plan_templates(template_id PK, language_id FK, daily_minutes, weekly_test_counts jsonb, practice_total_minutes, base_maintenance_share=0.30, practice_minutes_flex_pct=0.25, is_default)` — 9 seed rows (3 langs × 3 buckets).
+> - `dim_study_goals(goal_id PK, goal_type, target_value, target_date, language_id FK)` — V2 placeholder, empty in V1.
+> - `user_study_plans(user_id, language_id) PK, template_id FK, daily_minutes CHECK 10–180, weekday_shape jsonb default [1,1,1,1,1,1,1], skill_weight_overrides jsonb default {}, goal_id FK nullable, timezone TEXT default 'UTC', created_at, updated_at)`.
+> - `weekly_plan_states(user_id, language_id, week_start_date) PK, target_counts jsonb, completed_counts jsonb default {}, practice_target_minutes, practice_completed_maint_min default 0, practice_completed_acq_min default 0, maintenance_share, acquisition_share, total_weekly_minutes, session_progress_log jsonb default {}, computed_at)` + index on `week_start_date`.
+>
+> **New columns on existing tables:**
+> - `test_attempts.started_at timestamptz`; `test_attempts.duration_ms integer` CHECK > 0 AND < 3_600_000.
+> - `daily_test_loads.daily_session_targets jsonb` carrying `{practice_maintenance_min, practice_acquisition_min, resolver_solved_at, objective_value}`.
+> - `user_exercise_sessions.mode text` CHECK in (`acquisition`,`maintenance`,`auto`); `user_exercise_sessions.target_minutes smallint`.
+> - `dim_test_types.expected_minutes_p50 numeric(4,1)` — populated nightly from observed `duration_ms` P50 once ≥ 30 samples per type.
+>
+> **Backfill** (one-off, post-flag-flip): seed `user_study_plans` rows with default 30-min template for every user with a `test_attempts` row in the last 30 days × every active language. See [[features/study-plans.tech#migration-sequence]].
+
 ## Overview
 
 The schema lives in Supabase PostgreSQL with Row-Level Security (RLS) policies on user-facing tables. It uses a tiered dependency structure (Tier 0 = no FKs, through Tier 5 = deepest dependencies). All tables are in the `public` schema unless otherwise noted. Authentication delegates to Supabase `auth.users` with a mirror `users` table in public.

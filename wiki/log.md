@@ -1,5 +1,35 @@
 # Activity Log
 
+## 2026-05-21 design | Adaptive Study Plans + Practice Engine Merger — full V1 spec
+
+User requested a doc thorough enough to hand to a development team to implement without further architectural decisions. Four rounds of clarifying questions (24 design decisions resolved) produced the implementation spec at [C:\Users\James\.claude\plans\goal-continue-through-the-parsed-goblet.md](file:///C:/Users/James/.claude/plans/goal-continue-through-the-parsed-goblet.md). Then this session produced the full wiki artifact set documenting the design.
+
+**Two intertwined V1 deliverables:**
+
+- **Practice Engine merger** — `/api/exercises/session` (Daily Mixed) and `/api/vocab-dojo/session` (Vocab Dojo) collapse into one service exposing `get_practice_session(user, language, mode, target_minutes, theta)`. Two modes:
+  - **Acquisition** — word-anchored loop using ladder priority to pick a word, then top-K items per required family by unified score (K = ring's required-family count). Gate batteries and stress tests dispatch inline. Auto-subscribes from selected packs if the eligible-word pool is empty.
+  - **Maintenance** — batch-anchored over FSRS-due-≤7d OR BKT-decay-flagged senses (LIMIT 200 candidates, hard cap). Ranks by unified score. Falls through to Acquisition if the pool empties before `target_minutes`.
+  - Single **unified score** with mode-dependent weights stored in new `dim_practice_modes` table: `score = α·ladder + β·irt_info + γ·bkt_uncertainty + δ·fsrs_urgency`. Per-term normalization fully specified in [[algorithms/practice-unified-score.tech]]. Grammar/style items (`sense_id IS NULL`) excluded V1 per [[decisions/ADR-012-grammar-items-excluded-v1]].
+  - `get_exercise_session` / `get_ladder_session` kept as deprecation wrappers for one release. Full ladder mechanics from ADR-005 (rings, families, gates, stress test, demotion, cross-session advancement) preserved verbatim.
+
+- **Study Plan orchestration** — adds two-tier adaptation per `(user_id, language_id)`:
+  - **Tier B (weekly, Sun 23:00 UTC cron):** Composite weakness signal (`0.40·elo_gap + 0.25·accuracy_trend + 0.20·ladder_stagnation + 0.15·fsrs_lapse_rate`) plus value-weighted Thompson sampling (Beta(2,2) prior, deterministic seed) allocates weekly test counts across skills clamped to `[⌈target·0.5⌉, ⌈target·1.5⌉]`. Practice minutes rebalance Maintenance/Acquisition split (bounded `[0.15, 0.50] / [0.50, 0.85]`) by retention vs learning pressure. Outputs to new `weekly_plan_states` table.
+  - **Tier C (lazy daily resolver):** Greedy + local-swap optimizer solves today's mix from `today_budget = total_weekly_minutes · weekday_shape[today] / 7`. Soft cap 1.5× notional; spacing penalty `0.15 · I(s ∈ today) · count_in_last_3d(s)/3`. Writes test slots to existing `daily_test_loads` plus new column `daily_session_targets jsonb` carrying Practice maint/acq minutes.
+  - Per-language independent plans ([[decisions/ADR-011-per-language-independent-budgets]]); Goals deferred to V2 (schema hook present); shared UTC cron in V1 (`user_study_plans.timezone` column present for V2). Single global `Config.STUDY_PLAN_ENABLED` flag for rollout ([[decisions/ADR-013-global-feature-flag-rollout]]); rollback = toggle Config.
+
+**Schema** — 6 new tables (`dim_exercise_types`, `dim_practice_modes`, `dim_study_plan_templates`, `dim_study_goals`, `user_study_plans`, `weekly_plan_states`); 4 new columns on existing tables (`test_attempts.started_at`, `test_attempts.duration_ms`, `daily_test_loads.daily_session_targets`, `user_exercise_sessions.mode`, `user_exercise_sessions.target_minutes`, `dim_test_types.expected_minutes_p50`).
+
+**RPCs** — 5 new: `get_practice_session`, `practice_unified_score` (helper), `apply_study_plan_template`, `compute_weekly_plan`, `build_daily_session`, `record_session_progress`. Modified: `process_test_submission` + variants accept `started_at`/`finished_at`. Wrappers: legacy `get_exercise_session` + `get_ladder_session`.
+
+**Cron** — two new jobs join `irt_calibration_nightly` in `app.py:227-251`: `study_plan_weekly_recompute` (Sun 23:00 UTC) and `exercise_time_estimate_refresh` (04:05 UTC). Same advisory-lock pattern.
+
+**Worked example** — User U, Chinese, 45 min/day, week 4, listening ELO 1100. End-to-end trace in [[features/study-plans.tech#worked-example]]: weakness scores per skill, bandit allocation yielding `reading=4, listening=11, dictation=4, pinyin=1, measure_word=1`, Practice rebalance to `maint=51min/acq=64min/wk`, Monday resolve to a concrete 45-min session, then a Practice call producing 11 items across 4 words.
+
+**Pages produced:** 4 new prose + 4 new tech specs (`practice-engine.md/.tech`, `study-plans.md/.tech`, `practice-unified-score.md/.tech`, `study-plan-adaptation.md/.tech`); 7 new ADRs (007–013); 2 new task files (`practice-merger.tasks.md` 12 tasks, `study-plans.tasks.md` 20 tasks); `tasklist/master.md` rewritten; updates to `schema.tech.md`, `database/rpcs.tech.md`, `api/rpcs.tech.md`, `flashcards.md`, `ladder-implementation-analysis.md`, `comprehension-tests.tech.md`, `elo-ranking.md`, `vocabulary-ladder.md`, `vocabulary-knowledge.md`; `exercises.md/.tech` + `vocab-dojo.md/.tech` marked `status: deprecated` with redirect notes (content preserved); `wiki/index.md` updated.
+
+**Implementation status:** zero. This session shipped documentation only; code implementation is the downstream session (32 tasks across two task files). Rollout sequence + parity test thresholds + monitoring criteria fully specified.
+
+
 ## 2026-05-20 feature | Furigana overlay for Japanese tests (deterministic, fugashi + UniDic)
 
 User asked whether furigana could be added to "low level" Japanese tests deterministically — no LLM. After clarification, the target surfaces were the comprehension test renderer ([templates/test.html](../templates/test.html)) and the pitch accent trainer ([templates/test_pitch_accent.html](../templates/test_pitch_accent.html)); learner-controlled toggle with an ELO dampener while it's on.

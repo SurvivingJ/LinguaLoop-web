@@ -1,23 +1,27 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-20 (Furigana overlay added — see log.md 2026-05-20) | Pages: 57
+Last updated: 2026-05-21 (Practice Engine merger + Study Plans orchestrator added — see log.md 2026-05-21) | Pages: 70
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
 - [[overview/project.tech]] — Tech stack, architecture, admin pipeline dashboard
 
 ## Features
+- [[features/practice-engine]] — Unified vocabulary practice surface (Acquisition + Maintenance modes; merges Exercises + Vocab Dojo) — **NEW 2026-05-21**
+- [[features/practice-engine.tech]] — get_practice_session RPC, unified-score SQL, candidate pools, parity tests
+- [[features/study-plans]] — Per-language weekly/daily orchestrator across Tests and Practice budgets — **NEW 2026-05-21**
+- [[features/study-plans.tech]] — Tier B/C tech spec, schema, RPCs, rollout, worked example
 - [[features/comprehension-tests]] — Reading/listening MC tests with vocab-based recommendations
-- [[features/comprehension-tests.tech]] — Test engine technical spec
+- [[features/comprehension-tests.tech]] — Test engine technical spec (now plan-driven when STUDY_PLAN_ENABLED)
 - [[features/dictation]] — Listen + type the full transcript; per-word BKT signal
 - [[features/dictation.tech]] — Grader, RPC, replay K-multiplier, inline diff UI
 - [[features/language-packs]] — Corpus-first themed study bundles (current priority)
 - [[features/language-packs.tech]] — 7-stage pack generation pipeline
-- [[features/exercises]] — 21 exercise types across 4 phases, age-tier difficulty
-- [[features/exercises.tech]] — 3-prompt LLM pipeline, numeric JSON schema, validation
-- [[features/exercise-generation-prompts]] — Verbatim text of vocab pipeline Prompts 1/2/3 (current P1 v4 / P2 v2 / P3 v2 active templates + deactivated history)
-- [[features/vocabulary-knowledge]] — BKT vocabulary tracking with FSRS-informed decay, contextual + frequency inference
+- [[features/exercises]] — **DEPRECATED 2026-05-21** — merged into [[features/practice-engine]] (legacy generation pipeline still canonical here)
+- [[features/exercises.tech]] — **DEPRECATED 2026-05-21** — session-time selection moved to practice-engine.tech
+- [[features/exercise-generation-prompts]] — Verbatim text of vocab pipeline Prompts 1/2/3
+- [[features/vocabulary-knowledge]] — BKT vocabulary tracking with FSRS-informed decay
 - [[features/vocabulary-knowledge.tech]] — BKT formula, transit parameter, decay model, inference mechanisms
-- [[features/flashcards]] — FSRS spaced-repetition review
+- [[features/flashcards]] — FSRS spaced-repetition review (now a Maintenance sub-type)
 - [[features/flashcards.tech]] — FSRS technical spec
 - [[features/mysteries]] — Murder mystery stories gated by comprehension
 - [[features/mysteries.tech]] — Mystery generation and serving
@@ -27,8 +31,8 @@ Last updated: 2026-05-20 (Furigana overlay added — see log.md 2026-05-20) | Pa
 - [[features/corpus-analysis.tech]] — Corpus analysis technical spec
 - [[features/token-economy]] — Token-based access and Stripe payments
 - [[features/token-economy.tech]] — Payment flow technical spec
-- [[features/vocab-dojo]] — Per-word vocabulary ladder serving (ring/family/gate/stress-test progression)
-- [[features/vocab-dojo.tech]] — get_ladder_session RPC, priority scoring, gate/stress-test orchestration
+- [[features/vocab-dojo]] — **DEPRECATED 2026-05-21** — merged into [[features/practice-engine]]
+- [[features/vocab-dojo.tech]] — **DEPRECATED 2026-05-21** — get_ladder_session is now a wrapper
 - [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules
 - [[features/pinyin-trainer.tech]] — Pypinyin pipeline, token schema, submit-pinyin endpoint
 - [[features/pitch-accent-trainer]] — Japanese pitch-accent game mode (heiban/atamadaka/nakadaka/odaka), Quick + Contour renderers
@@ -41,15 +45,19 @@ Last updated: 2026-05-20 (Furigana overlay added — see log.md 2026-05-20) | Pa
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 
 ## Algorithms
-- [[algorithms/elo-ranking]] — Dual-ELO system for user-test matching
+- [[algorithms/practice-unified-score]] — Four-signal scoring for the merged Practice Engine — **NEW 2026-05-21**
+- [[algorithms/practice-unified-score.tech]] — Per-term normalization, SQL helper, mode weights, candidate pools
+- [[algorithms/study-plan-adaptation]] — Weakness-signal + Thompson bandit + greedy resolver — **NEW 2026-05-21**
+- [[algorithms/study-plan-adaptation.tech]] — Formulas, constants, Tier B/C pseudocode
+- [[algorithms/elo-ranking]] — Dual-ELO system for user-test matching (feeds Study Plan weakness signal)
 - [[algorithms/elo-ranking.tech]] — ELO formula, volatility, recommendation
 - [[algorithms/elo-implementation-analysis]] — ELO implementation audit: volatility bug, recommendation gaps, improvements
 - [[algorithms/elo-implementation-analysis.tech]] — ELO technical analysis with fix code
-- [[algorithms/vocabulary-ladder]] — 10-level receptive-to-productive word acquisition
+- [[algorithms/vocabulary-ladder]] — 10-level receptive-to-productive word acquisition (feeds Practice Engine ladder term)
 - [[algorithms/vocabulary-ladder.tech]] — Nation's framework, promotion/demotion, POS routing
 - [[algorithms/bkt-implementation-analysis]] — BKT implementation audit: transit, FSRS decay, inference, session RPC (Phase 5+7)
 - [[algorithms/bkt-implementation-analysis.tech]] — BKT technical analysis: 9 SQL functions, architecture map, improvement status
-- [[algorithms/ladder-implementation-analysis]] — Ladder/exercise audit: 9 vs 10 levels, no demotion, competing session builders
+- [[algorithms/ladder-implementation-analysis]] — Ladder/exercise audit (Priority-1 integration gap resolved by Practice Engine merger 2026-05-21)
 - [[algorithms/ladder-implementation-analysis.tech]] — Ladder technical analysis with consolidation proposals
 
 ## Database
@@ -75,9 +83,18 @@ Last updated: 2026-05-20 (Furigana overlay added — see log.md 2026-05-20) | Pa
 - [[decisions/ADR-004-brand-name]] — Brand name: LinguaDojo (formal reconciliation of wiki ↔ codebase; alternatives archived)
 - [[decisions/ADR-005-momentum-bands]] — Vocabulary ladder switched from first-try counters to family-BKT × rings × gates × stress test (Phase 8)
 - [[decisions/ADR-006-retry-slot-reduced-elo]] — Reduced-volatility ELO on daily-load retry-slot repeats (time-decay factor + improvement bonus)
+- [[decisions/ADR-007-merge-exercises-vocab-dojo]] — Merge into a unified Practice Engine with mode-dependent anchoring — **NEW 2026-05-21**
+- [[decisions/ADR-008-study-plan-orchestration-layer]] — Add a cross-surface orchestrator with Tier B/C
+- [[decisions/ADR-009-two-budget-tests-vs-practice]] — Tests vs Practice budgets + internal Maint/Acq split
+- [[decisions/ADR-010-value-weighted-thompson-skill-mix]] — Value-weighted Thompson sampling for weekly test allocation
+- [[decisions/ADR-011-per-language-independent-budgets]] — Per-language independent plan rows
+- [[decisions/ADR-012-grammar-items-excluded-v1]] — Grammar/style items deferred from V1 Practice pool
+- [[decisions/ADR-013-global-feature-flag-rollout]] — Single global Config flag for rollout + immediate-flip strategy
 
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status
+- [[tasklist/practice-merger.tasks]] — Practice Engine merger task breakdown — **NEW 2026-05-21**
+- [[tasklist/study-plans.tasks]] — Study Plans task breakdown
 - [[tasklist/language-packs.tasks]] — Language Packs task breakdown
 
 ## Lessons

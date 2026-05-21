@@ -12,6 +12,8 @@ open_questions:
 
 ## Purpose
 
+> **Update (2026-05-21):** The "Priority-1 integration gap" between the daily mixed session and the ladder (a ladder-active word receiving a non-family-targeted exercise) is **resolved by construction** in the [[features/practice-engine|Practice Engine]] merger. Acquisition mode is word-anchored with family targeting; Maintenance mode does not touch ladder-active words unless they're FSRS-due. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[features/practice-engine.tech]]. The audit content below is preserved for the pre-merger history and the still-open items (L10 capstone, Phase 4 legacy counters, Python/SQL phase-threshold mismatch).
+
 This page is the **current audit** of how the vocabulary ladder is implemented, what's working, and what should change. The previous audit (last_updated 2026-04-11) described a per-level chain with first-try-success counters and "no demotion." That audit is now obsolete: Phase 8 (2026-04-18, [migrations/phase8_momentum_bands.sql](../../migrations/phase8_momentum_bands.sql)) replaced the chain with a **Momentum Bands** model — per-family BKT × four rings × two threshold gates × stress test. See [[decisions/ADR-005-momentum-bands]] for why. This audit refreshes the analysis against the post-Phase-8 codebase as of 2026-05-11.
 
 ## What's Actually There

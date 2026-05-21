@@ -18,6 +18,24 @@ breaking_change_risk: high
 
 # RPC & Functions — Technical Specification
 
+> **Planned additions (2026-05-21) — Study Plans + Practice Engine merger.** Full signatures and bodies are spec'd in [[features/practice-engine.tech]] and [[features/study-plans.tech]]; this note enumerates what's coming so the catalog stays current.
+>
+> **New RPCs:**
+> - `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text='auto', p_target_minutes smallint=15, p_user_theta numeric=NULL) RETURNS jsonb` — unified Practice surface. Mode dispatch (`acquisition`|`maintenance`|`auto`), candidate-pool composition, unified-score ranking, mid-session fall-through. Errors: `language_not_active`, `invalid_mode`, `target_minutes_out_of_range`. See [[features/practice-engine.tech#rpc-get_practice_session]].
+> - `practice_unified_score(p_a, p_b, p_theta, p_p_known, p_due_date, p_stability, p_today, p_ladder_priority, p_alpha, p_beta, p_gamma, p_delta) RETURNS numeric` — `IMMUTABLE` SQL helper. See [[algorithms/practice-unified-score.tech]].
+> - `apply_study_plan_template(p_user_id uuid, p_language_id smallint, p_template_id smallint) RETURNS user_study_plans` — onboarding hook (UPSERT).
+> - `compute_weekly_plan(p_user_id uuid, p_language_id smallint, p_week_start date) RETURNS jsonb` — Tier B adapter; idempotent UPSERT on `weekly_plan_states` PK.
+> - `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date) RETURNS jsonb` — Tier C resolver; writes `daily_test_loads` + `daily_session_targets`.
+> - `record_session_progress(p_user_id, p_language_id, p_attempt_id uuid, p_kind text, p_skill text, p_delta_count int, p_delta_minutes int) RETURNS boolean` — idempotent counter update keyed by `attempt_id`.
+>
+> **Modified RPCs:**
+> - `process_test_submission` — accepts new `p_started_at`, `p_finished_at`; computes `duration_ms`; calls `record_session_progress(..., 'test', ...)` atomically.
+> - `get_exercise_session`, `get_ladder_session` — kept as **deprecation wrappers** delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)` respectively, with a `RAISE WARNING 'DEPRECATED'` log line. Scheduled for removal one release after launch.
+>
+> **Cron:**
+> - New job `study_plan_weekly_recompute` — Sundays at 23:00 UTC; iterates `user_study_plans`, calls `compute_weekly_plan` per row under an advisory lock (same pattern as `irt_calibration_nightly`).
+> - New job `exercise_time_estimate_refresh` — 04:05 UTC daily; refreshes `dim_exercise_types.expected_seconds_p50` and `dim_test_types.expected_minutes_p50` from observed P50s (≥ 30 samples required).
+
 ## Overview
 
 | Metric | Value |

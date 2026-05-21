@@ -20,6 +20,8 @@ breaking_change_risk: medium
 
 # Comprehension Tests — Technical Specification
 
+> **Update (2026-05-21):** When `Config.STUDY_PLAN_ENABLED` is true and the user has a `user_study_plans` row for the language, `get_or_create_daily_load` routes through `build_daily_session` (see [[features/study-plans.tech]]) instead of the legacy `_compute_daily_load`. The daily-load row schema is unchanged plus one new column `daily_test_loads.daily_session_targets jsonb` carrying Practice maint/acq minute targets for the day. `test_attempts` gains `started_at timestamptz` and `duration_ms integer` (FE-supplied; server-computed; for future template tuning). See [[decisions/ADR-008-study-plan-orchestration-layer]].
+
 ## Architecture Overview
 
 ```
