@@ -451,6 +451,16 @@ class TestService:
         """
         Get today's daily test load, or compute and cache it if not yet created.
 
+        Routing (Phase 13 — Study Plans):
+          1. If today's load already exists in daily_test_loads, return it.
+          2. Else if Config.STUDY_PLAN_ENABLED AND user has a user_study_plans
+             row for (user, language_id), delegate to build_daily_session
+             (Tier C resolver — see [[features/study-plans.tech]]). On
+             success, the RPC has already UPSERTed daily_test_loads +
+             daily_test_load_items; re-fetch and enrich.
+          3. Else (or if build_daily_session returns E_NOPLAN / E_NOWEEK):
+             fall back to legacy _compute_daily_load.
+
         Returns dict with load_date, tests (enriched), and progress.
         """
         today = datetime.now(timezone.utc).date().isoformat()
@@ -466,7 +476,40 @@ class TestService:
         if existing.data:
             return self._enrich_daily_load(existing.data[0])
 
-        # Compute new daily load
+        # ------------------------------------------------------------------
+        # Phase 13 routing: try Study Plan resolver first if enabled.
+        # ------------------------------------------------------------------
+        if Config.STUDY_PLAN_ENABLED and self._user_has_study_plan(user_id, language_id):
+            try:
+                from services.study_plan_service import StudyPlanService
+                resolver_result = StudyPlanService(db=self.admin).build_daily_session(
+                    user_id, language_id,
+                )
+                # Non-error result means the RPC UPSERTed; re-fetch + enrich.
+                if isinstance(resolver_result, dict) and 'error' not in resolver_result:
+                    refetched = self.admin.table('daily_test_loads')\
+                        .select('*')\
+                        .eq('user_id', user_id)\
+                        .eq('language_id', language_id)\
+                        .eq('load_date', today)\
+                        .execute()
+                    if refetched.data:
+                        return self._enrich_daily_load(refetched.data[0])
+                else:
+                    # Logged error code (E_NOPLAN / E_NOWEEK / E_RPC); fall through.
+                    logger.info(
+                        'build_daily_session declined for user=%s lang=%s: %s; '
+                        'falling back to legacy _compute_daily_load',
+                        user_id, language_id, resolver_result,
+                    )
+            except Exception as e:
+                logger.warning(
+                    'build_daily_session crashed for user=%s lang=%s: %s; '
+                    'falling back to legacy _compute_daily_load',
+                    user_id, language_id, e,
+                )
+
+        # Legacy path
         load_items = self._compute_daily_load(user_id, language_id)
 
         if not load_items:
@@ -486,6 +529,20 @@ class TestService:
         }).execute()
 
         return self._enrich_daily_load(record.data[0])
+
+    def _user_has_study_plan(self, user_id: str, language_id: int) -> bool:
+        """Cheap probe: does user_study_plans have a row for (user, language)?"""
+        try:
+            resp = self.admin.table('user_study_plans')\
+                .select('user_id', count='exact')\
+                .eq('user_id', user_id)\
+                .eq('language_id', language_id)\
+                .limit(1)\
+                .execute()
+            return bool(resp.count and resp.count > 0)
+        except Exception as e:
+            logger.warning('user_study_plans probe failed: %s', e)
+            return False
 
     def _compute_daily_load(self, user_id: str, language_id: int) -> List[Dict]:
         """

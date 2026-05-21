@@ -134,6 +134,38 @@ class Config:
     }
 
     # ==========================================================================
+    # STUDY PLANS — Phase 13 orchestrator
+    # ==========================================================================
+    # Global kill switch. When False, get_or_create_daily_load falls through
+    # to legacy _compute_daily_load and the orchestrator never fires. Rollback
+    # is "set to False and redeploy". See ADR-013.
+    STUDY_PLAN_ENABLED = os.getenv('STUDY_PLAN_ENABLED', 'False').lower() == 'true'
+
+    # Default daily-minutes assigned at onboarding / backfill.
+    STUDY_PLAN_DEFAULT_DAILY_MINUTES = 30
+
+    # Tier C objective coefficients. value(s) is in [0,1]; α applies
+    # per-minute, so 30 min of practice contributes up to 0.6 units —
+    # comparable to a high-value test slot. γ keeps the spacing penalty as
+    # a tiebreaker, not a dictator.
+    STUDY_PLAN_TIER_C_ALPHA_M = 0.02   # maintenance per-minute value
+    STUDY_PLAN_TIER_C_ALPHA_A = 0.02   # acquisition per-minute value
+    STUDY_PLAN_TIER_C_GAMMA   = 0.15   # spacing-penalty weight
+
+    # Seed minutes per test type, used by services.test_time_estimate when
+    # dim_test_types.expected_minutes_p50 has not yet accrued ≥30 samples.
+    # Mirrors the per-type seed in the SQL helper of the same name in
+    # phase13_build_daily_session.sql so the two never drift.
+    TEST_TYPE_MINUTES = {
+        'reading':       6,
+        'listening':     5,
+        'dictation':     6,
+        'pinyin':        4,
+        'measure_word':  4,
+        'pitch_accent':  4,
+    }
+
+    # ==========================================================================
     # TOKEN ECONOMY - Single source of truth
     # ==========================================================================
     TOKEN_COSTS = {
