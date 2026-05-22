@@ -1,5 +1,20 @@
 # Activity Log
 
+## 2026-05-22 revision | Study Plans rollout — backfill replaced with pre-launch wipe (R4.2)
+
+User asked whether the planned backfill ([[tasklist/study-plans.tasks]] TASK-218 — "Backfill SQL — seed user_study_plans for existing users") was necessary, or whether a clean wipe would suffice. The target DB is pre-launch with no real-user history to preserve, so a wipe is both simpler and safer than a partial-seed backfill.
+
+**Change:** Replaced the originally-planned non-destructive `INSERT … ON CONFLICT DO NOTHING` backfill with a one-shot `TRUNCATE … RESTART IDENTITY CASCADE` against all 12 user-state tables.
+
+**New migration:** [migrations/phase13_wipe_user_state_for_launch.sql](../migrations/phase13_wipe_user_state_for_launch.sql) — single TRUNCATE statement, atomic, with a `RAISE NOTICE` that logs the post-wipe row total. Run once before flipping `Config.STUDY_PLAN_ENABLED = True`. Reference data (`dim_*`, content tables, auth) untouched.
+
+**Safety net preserved:** [services/test_service.py::get_or_create_daily_load](../services/test_service.py) already falls through to legacy `_compute_daily_load` for any user without a `user_study_plans` row — so even if the wipe leaves orphan users, they keep functioning until they visit Settings / onboarding to create a plan via `apply_study_plan_template`.
+
+**Pages updated:** [features/study-plans.tech](features/study-plans.tech.md) (migration sequence + rollout sequence + testing strategy), [decisions/ADR-013-global-feature-flag-rollout](decisions/ADR-013-global-feature-flag-rollout.md) (rollout steps 4–5 amended; Consequences rewritten), [tasklist/study-plans.tasks](tasklist/study-plans.tasks.md) (TASK-218 retitled "Wipe user-state tables for launch"; XS complexity), [tasklist/master](tasklist/master.md) (TASK-218 row updated). The original backfill SQL is kept as a collapsible reference-only block in the tech spec for possible future post-launch use.
+
+**Verification (post-implementation, deferred):** Apply the wipe to staging; confirm all 12 tables `COUNT(*) = 0`; confirm reference tables unaffected; sign up a fresh test user, complete onboarding for a 30 min/day Chinese plan, take a test, then confirm `user_study_plans` row exists, `daily_test_loads.daily_session_targets` is non-NULL, and `weekly_plan_states` populates after the first Sunday cron tick.
+
+
 ## 2026-05-21 design | Adaptive Study Plans + Practice Engine Merger — full V1 spec
 
 User requested a doc thorough enough to hand to a development team to implement without further architectural decisions. Four rounds of clarifying questions (24 design decisions resolved) produced the implementation spec at [C:\Users\James\.claude\plans\goal-continue-through-the-parsed-goblet.md](file:///C:/Users/James/.claude/plans/goal-continue-through-the-parsed-goblet.md). Then this session produced the full wiki artifact set documenting the design.

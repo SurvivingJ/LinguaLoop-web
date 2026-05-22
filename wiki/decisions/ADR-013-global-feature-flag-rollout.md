@@ -2,6 +2,7 @@
 title: "ADR-013: Global Config Flag for Study Plan Rollout (Immediate Flip + Rollback)"
 status: accepted
 date: 2026-05-21
+amended: 2026-05-22 — rollout step 4–5 changed from "Backfill staging / prod" to a single pre-launch wipe; reflects plan revision R4.2 (no real-user history to preserve).
 ---
 
 # ADR-013: Global Config Flag for Study Plan Rollout (Immediate Flip + Rollback)
@@ -26,25 +27,24 @@ c. **Immediate flip + monitor.** Highest risk; fastest. Viable only if rollback 
 
 Use a **single global Config flag** (`Config.STUDY_PLAN_ENABLED`), no per-user opt-in column for V1. Rollout strategy: **staging soak first, then immediate production flip + monitor.** Rollback by toggling the Config constant.
 
-Rollout sequence:
-1. Ship all migrations with `Config.STUDY_PLAN_ENABLED = False` — schema-only, no behavior change.
-2. Ship the merged Practice service with deprecation wrappers — Practice merger ships independently of the orchestrator.
-3. Staging soak: manually create `user_study_plans` rows for 10 seeded staging users (covering new / mid-ladder / advanced / lapsed cohorts). Run `compute_weekly_plan` + `build_daily_session` daily for 2 weeks; manually inspect for sanity.
-4. Backfill staging — verify all active staging users get a default plan.
-5. Backfill production — `Config.STUDY_PLAN_ENABLED` still `False`, so `user_study_plans` rows are created but the adapter doesn't fire.
-6. **Flip:** set `Config.STUDY_PLAN_ENABLED = True` and deploy.
-7. Monitor 7 days: DAU, session-completion-rate, sessions-per-DAU, tests-per-session, practice-minutes-per-session.
-8. **Rollback** by toggling the Config flag if any metric drops > 10% from pre-flip baseline. Rollback is instant; old `_compute_daily_load` resumes; `weekly_plan_states` rows simply go unread.
+Rollout sequence (amended 2026-05-22 — pre-launch wipe path):
+1. Ship all migrations with `Config.STUDY_PLAN_ENABLED = False` — schema-only, no behaviour change. Includes the new `phase13_wipe_user_state_for_launch.sql` (idle until step 4).
+2. Ship the merged Practice service with deprecation wrappers — Practice merger ships independently of the orchestrator. Smoke-check is sufficient pre-launch; full parity testing is optional since step 4 drops all reference attempt history anyway.
+3. Ship the Settings UI + onboarding (`routes/practice.py`, `routes/study_plan.py`, plan editor) so onboarding can call `apply_study_plan_template`. Flag still off.
+4. **Wipe.** Run `phase13_wipe_user_state_for_launch.sql` once. TRUNCATE … RESTART IDENTITY CASCADE on all 12 user-state tables (`user_skill_ratings`, `user_vocabulary_knowledge`, `user_word_ladder`, `user_flashcards`, `user_exercise_sessions`, `user_exercise_history`, `daily_test_load_items`, `daily_test_loads`, `test_attempts`, `exercise_attempts`, `user_study_plans`, `weekly_plan_states`). Reference data and auth untouched.
+5. **Flip:** set `Config.STUDY_PLAN_ENABLED = True` and deploy. New signups → onboarding → `apply_study_plan_template` → `user_study_plans` row → `build_daily_session` on next daily-load request.
+6. Monitor: DAU, session-completion-rate, sessions-per-DAU, tests-per-session, practice-minutes-per-session.
+7. **Rollback** by toggling the Config flag if any metric looks pathological. Rollback is instant; legacy `_compute_daily_load` resumes; `weekly_plan_states` rows simply go unread.
 
-`get_or_create_daily_load` checks both `Config.STUDY_PLAN_ENABLED` and the presence of a `user_study_plans` row for the user+language; if either is false, falls through to legacy `_compute_daily_load`. The route is identical externally.
+`get_or_create_daily_load` checks both `Config.STUDY_PLAN_ENABLED` and the presence of a `user_study_plans` row for the user+language; if either is false, falls through to legacy `_compute_daily_load`. The route is identical externally. This fallback continues to backstop the wipe path — any leftover users without plan rows keep functioning.
 
 ## Consequences
 
 - **Easier:** No new infrastructure (no `feature_flags` table). Matches the codebase's existing patterns. Rollback is one constant toggle, no migration.
 - **Easier:** The flag is small and obvious in `Config.py`. A developer debugging "why is the new plan not firing" has one place to look.
-- **Easier:** Backfilling rows ahead of the flip means the moment we flip, everyone has a plan ready — no race condition between flip and first-user weekly recompute.
+- **Easier (amended 2026-05-22):** Pre-launch wipe simplifies the rollout further — no backfill SQL, no row-count verification step, no concern about partially-seeded users. New signups onboard into the new flow; the wipe ensures no surprise interaction with stale state. (Originally this row read "backfilling rows ahead of the flip means the moment we flip, everyone has a plan ready" — backfill was the right answer when we thought we had real-user history to preserve, but plan revision R4.2 confirmed this is a pre-launch DB.)
 - **Harder:** No per-user A/B cohorting in V1. We cannot run a "10% of users get the new plan" experiment without code changes.
-- **Harder:** "Immediate flip + monitor" carries more risk than shadow-mode. Mitigated by (a) staging soak qualifying functional correctness; (b) the rollback being a Config toggle (revert PR + deploy ≈ 15 minutes); (c) backfill being non-destructive (legacy `_compute_daily_load` still works on flag-off).
+- **Harder:** "Immediate flip + monitor" carries more risk than shadow-mode. Mitigated by (a) staging soak qualifying functional correctness; (b) the rollback being a Config toggle (revert PR + deploy ≈ 15 minutes); (c) the legacy `_compute_daily_load` fallback continuing to work for any user without a `user_study_plans` row, so a partial-onboarding state isn't broken.
 - **Constrained:** If A/B becomes a need later, V2 adds `user_study_plans.is_active boolean` (or equivalent) and the gate becomes `STUDY_PLAN_ENABLED AND user_study_plans.is_active`. No schema migration disrupts existing data.
 
 ## Alternatives Considered

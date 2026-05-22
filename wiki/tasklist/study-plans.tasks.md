@@ -378,23 +378,25 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ---
 
-## TASK-218: Backfill SQL
+## TASK-218: Wipe user-state tables for launch
 
 **Status:** [ ] Not Started
 **Type:** infra
-**Complexity:** S
-**Depends On:** TASK-206, TASK-204
+**Complexity:** XS
+**Depends On:** TASK-206, TASK-207
+**Revised:** 2026-05-22 — was "Backfill SQL"; pre-launch DB has no real-user history to preserve. See plan revision R4.2 and [[decisions/ADR-013-global-feature-flag-rollout]].
 
-**Description:** Implement the backfill INSERT per [[features/study-plans.tech#migration-sequence]] — one `user_study_plans` row per (active user × active language) using each language's default template, 30 min/day, uniform weekday. Idempotent (ON CONFLICT DO NOTHING).
+**Description:** One-shot TRUNCATE … RESTART IDENTITY CASCADE on all 12 user-state tables (`user_skill_ratings`, `user_vocabulary_knowledge`, `user_word_ladder`, `user_flashcards`, `user_exercise_sessions`, `user_exercise_history`, `daily_test_load_items`, `daily_test_loads`, `test_attempts`, `exercise_attempts`, `user_study_plans`, `weekly_plan_states`). Run ONCE against the target DB immediately before flipping `Config.STUDY_PLAN_ENABLED = True`. Reference data (`dim_*`, content tables, auth) is untouched.
 
 **Acceptance Criteria:**
-- [ ] SQL script written; safe to rerun.
-- [ ] Row count matches `COUNT(DISTINCT user_id from test_attempts) × COUNT(active_languages)`.
-- [ ] No duplicates; no rows for inactive users (no test_attempts in last 30d).
+- [ ] Script created and applied against the target DB.
+- [ ] All 12 tables return `SELECT COUNT(*) = 0` after running.
+- [ ] Reference data (`dim_languages`, `dim_study_plan_templates`, `tests`, `exercises`, `word_assets`, `auth.users`, `public.users`) is unaffected — row counts identical pre/post.
+- [ ] `RAISE NOTICE` in the script logs the post-wipe row total (should be 0).
 
-**Files:** `migrations/study_plans_v1/backfill_user_study_plans.sql`.
+**Files:** `migrations/phase13_wipe_user_state_for_launch.sql` (already written this session).
 
-**Verification:** Run twice on staging; row count unchanged after second run.
+**Verification:** After the wipe + flag flip, sign up a fresh test user, complete onboarding selecting a 30 min/day Chinese plan, then take a test → confirm a `user_study_plans` row exists, the next daily-load is built via `build_daily_session` (check `daily_test_loads.daily_session_targets` is non-NULL), and `weekly_plan_states` populates after the first Sunday cron tick.
 
 ---
 

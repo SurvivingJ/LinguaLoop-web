@@ -1,6 +1,16 @@
 """
 Practice Session Service — unified vocabulary practice surface.
 
+Module-level factory:
+  get_practice_session_service()  → returns a process-wide singleton.
+
+Legacy aliases (one-release deprecation window):
+  ExerciseSessionService             ← class alias
+  get_exercise_session_service()     ← factory alias
+  PracticeSessionService.get_or_create_daily_session(...)  ← back-compat method
+  PracticeSessionService.mark_exercise_complete(...)       ← back-compat method
+
+
 Replaces the split between Daily Mixed Session (`get_exercise_session`) and
 Vocab Dojo (`get_ladder_session`) with a single mode-dispatched RPC
 `get_practice_session`. See [[features/practice-engine.tech]] and ADR-007.
@@ -484,9 +494,111 @@ class PracticeSessionService:
             logger.error('FSRS update failed for sense %s: %s', sense_id, e)
 
 
+    # ------------------------------------------------------------------
+    # Back-compat: legacy session API
+    # ------------------------------------------------------------------
+    # Routes/exercises.py originally called these on ExerciseSessionService.
+    # They now translate into get_session() calls so the legacy /api/exercises
+    # surface keeps working unchanged through the deprecation cycle.
+
+    def get_or_create_daily_session(
+        self, user_id: str, language_id: int
+    ) -> Dict[str, Any]:
+        """Legacy entry point — wraps get_session('auto', ...).
+
+        Returns the legacy shape:
+          { load_date, exercises: [...], progress: {completed, total}, session_size }
+
+        target_minutes derived from the user's preferred session_size
+        (DEFAULT_EXERCISE_SESSION_SIZE) × 0.6 (matches the deprecation
+        wrapper convention in phase12_deprecation_wrappers.sql).
+        """
+        from datetime import date as _date
+        try:
+            prefs_resp = (
+                self.db.table('users')
+                .select('exercise_preferences')
+                .eq('id', user_id)
+                .single()
+                .execute()
+            )
+            prefs = (prefs_resp.data or {}).get('exercise_preferences') or {}
+        except Exception:
+            prefs = {}
+        size = int(prefs.get('session_size', Config.DEFAULT_EXERCISE_SESSION_SIZE))
+        size = max(
+            Config.MIN_EXERCISE_SESSION_SIZE,
+            min(Config.MAX_EXERCISE_SESSION_SIZE, size),
+        )
+        target_minutes = max(1, round(size * 0.6))
+
+        payload = self.get_session(
+            user_id=user_id,
+            language_id=int(language_id),
+            mode='auto',
+            target_minutes=target_minutes,
+            debug=False,
+        )
+
+        if isinstance(payload, dict) and 'error' in payload:
+            return {
+                'load_date':    _date.today().isoformat(),
+                'exercises':    [],
+                'progress':     {'completed': 0, 'total': 0},
+                'session_size': size,
+                'error':        payload.get('error'),
+            }
+
+        items = (payload or {}).get('items', []) or []
+        # Strip gate / stress markers from the legacy shape — old callers
+        # don't know what to do with them and would render as empty exercises.
+        exercises = [
+            it for it in items
+            if not it.get('is_gate_marker')
+            and not it.get('is_stress_test_marker')
+        ]
+        return {
+            'load_date':    _date.today().isoformat(),
+            'exercises':    exercises,
+            'progress':     {'completed': 0, 'total': len(exercises)},
+            'session_size': size,
+        }
+
+    def mark_exercise_complete(
+        self, user_id: str, language_id: int, exercise_id: str
+    ) -> Dict[str, Any]:
+        """Legacy entry point — no-op under the merged service.
+
+        The merged Practice Engine doesn't cache per-session-item completion
+        state (every session is recomputed live from current ladder/FSRS
+        state). Kept as a no-op so legacy callers don't 500.
+        """
+        return {
+            'ok': True,
+            'note': 'completion tracking is implicit in the merged Practice Engine',
+        }
+
+
 # ---------------------------------------------------------------------------
-# Legacy alias — existing callers (routes/exercises.py, routes/vocab_dojo.py)
-# imported ExerciseSessionService. Keep the name available pointing at the
-# new class so the deprecation cycle doesn't bork imports.
+# Module-level singleton factory (matches the codebase pattern used by
+# TestService, AuthService, etc.)
+# ---------------------------------------------------------------------------
+_singleton: Optional[PracticeSessionService] = None
+
+
+def get_practice_session_service() -> PracticeSessionService:
+    """Process-wide singleton."""
+    global _singleton
+    if _singleton is None:
+        _singleton = PracticeSessionService()
+    return _singleton
+
+
+# ---------------------------------------------------------------------------
+# Legacy aliases — existing callers (routes/exercises.py, routes/vocab_dojo.py)
+# imported ExerciseSessionService / get_exercise_session_service. Keep both
+# names available pointing at the new class so the deprecation cycle doesn't
+# bork imports.
 # ---------------------------------------------------------------------------
 ExerciseSessionService = PracticeSessionService
+get_exercise_session_service = get_practice_session_service

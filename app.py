@@ -42,6 +42,8 @@ from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.classifier_drill import classifier_drill_bp
+from routes.practice import practice_bp
+from routes.study_plan import study_plan_bp
 
 
 def create_app(config_class=Config):
@@ -272,6 +274,9 @@ def _register_blueprints(app):
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
     app.register_blueprint(classifier_drill_bp, url_prefix='/api/classifier-drill')
+    # Phase 12/13: unified Practice surface + Study Plan orchestration.
+    app.register_blueprint(practice_bp, url_prefix='/api/practice')
+    app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
 
     app.logger.info("Blueprints registered")
 

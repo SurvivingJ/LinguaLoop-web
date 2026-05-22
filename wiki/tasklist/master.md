@@ -56,7 +56,7 @@ See [[tasklist/study-plans.tasks]] for full spec per task. Implements [[decision
 | TASK-215 | study-plans | Cron — `study_plan_weekly_recompute` (Sun 23:00 UTC) | [ ] | S | TASK-210 |
 | TASK-216 | study-plans | `/api/study-plan` endpoints | [ ] | S | 208, 210 |
 | TASK-217 | study-plans | Settings UI — Study Plan tab | [ ] | M | TASK-216 |
-| TASK-218 | study-plans | Backfill SQL — seed `user_study_plans` for existing users | [ ] | S | 206, 204 |
+| TASK-218 | study-plans | Wipe user-state tables for launch (revised 2026-05-22 from backfill) | [ ] | XS | 206, 207 |
 | TASK-219 | study-plans | Flag flip + monitoring | [ ] | M | 214, 215, 217, 218 |
 | TASK-220 | study-plans | Deprecation cleanup (T+30 days) | [ ] | M | TASK-219 |
 

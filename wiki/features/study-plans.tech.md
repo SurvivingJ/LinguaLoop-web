@@ -191,7 +191,36 @@ CREATE INDEX idx_weekly_plan_states_week ON weekly_plan_states (week_start_date)
 | 009 | `create_user_study_plans.sql` | Create |
 | 010 | `create_weekly_plan_states.sql` | Create + index |
 
-Backfill (run after `Config.STUDY_PLAN_ENABLED` flip — see Rollout):
+**Pre-launch wipe (revised 2026-05-22 — supersedes backfill per plan R4.2 and [[decisions/ADR-013-global-feature-flag-rollout]])**
+
+Run **once** against the target DB right before flipping `Config.STUDY_PLAN_ENABLED = True`. Drops all per-user state so the new flow starts on a clean slate. Reference data (`dim_*`, `tests`, `questions`, `exercises`, `word_assets`, packs, auth) is untouched.
+
+```sql
+-- migrations/phase13_wipe_user_state_for_launch.sql
+BEGIN;
+TRUNCATE TABLE
+    public.user_skill_ratings,
+    public.user_vocabulary_knowledge,
+    public.user_word_ladder,
+    public.user_flashcards,
+    public.user_exercise_sessions,
+    public.user_exercise_history,
+    public.daily_test_load_items,
+    public.daily_test_loads,
+    public.test_attempts,
+    public.exercise_attempts,
+    public.user_study_plans,
+    public.weekly_plan_states
+RESTART IDENTITY CASCADE;
+COMMIT;
+```
+
+After the wipe:
+- New signups create `user_study_plans` rows via onboarding → `apply_study_plan_template` RPC.
+- Any leftover users without plan rows fall through to legacy `_compute_daily_load` (handled in `services/test_service.py::get_or_create_daily_load`).
+- No `INSERT … ON CONFLICT DO NOTHING` backfill is needed; the original backfill SQL is preserved as reference-only in the plan file (`C:\Users\James\.claude\plans\goal-continue-through-the-parsed-goblet.md`) for possible future scenarios where we want to seed plans for inherited users.
+
+<details><summary>Reference-only backfill SQL (do NOT run during pre-launch rollout)</summary>
 
 ```sql
 INSERT INTO user_study_plans (user_id, language_id, template_id, daily_minutes,
@@ -204,6 +233,7 @@ JOIN dim_study_plan_templates t
   ON t.language_id = l.id AND t.is_default = true
 ON CONFLICT (user_id, language_id) DO NOTHING;
 ```
+</details>
 
 ## RPC: `apply_study_plan_template`
 
@@ -385,17 +415,19 @@ class Config:
 
 ## Rollout sequence
 
-Per [[decisions/ADR-013-global-feature-flag-rollout]]:
+Per [[decisions/ADR-013-global-feature-flag-rollout]] (revised 2026-05-22 — pre-launch wipe path):
 
-1. Apply migrations 001–010 (schema-only; `STUDY_PLAN_ENABLED = False`).
-2. Ship Practice merger with deprecation wrappers; run parity tests.
-3. Staging soak: manually create 10 `user_study_plans` rows; run cron + daily resolver for 2 weeks; manual inspection.
-4. Backfill staging (verify all active users got a default plan).
-5. Backfill production (still flag-off).
-6. **Flip:** set `Config.STUDY_PLAN_ENABLED = True` and deploy.
-7. Monitor 7 days: DAU, session-completion-rate, sessions-per-DAU, tests-per-session, practice-minutes-per-session.
-8. Rollback by Config toggle if any drops > 10% from baseline.
-9. After 30 days stable: remove deprecation wrappers; remove `/api/exercises/session`, `/api/vocab-dojo/session` (redirect to `/api/practice/session`).
+1. **Ship migrations.** Apply all `phase12_*.sql` and `phase13_*.sql` migrations (schema + RPCs + helpers + `phase13_wipe_user_state_for_launch.sql`). `Config.STUDY_PLAN_ENABLED = False` still. Schema-only effect; no behaviour change.
+2. **Ship Practice merger.** Deploy `get_practice_session` + deprecation wrappers. Smoke-check against a handful of seeded dev users in both modes. Full parity testing (R4.7) is optional pre-launch since the wipe at step 4 drops all reference attempt history anyway.
+3. **Ship Settings UI + onboarding.** Deploy the `routes/practice.py` + `routes/study_plan.py` blueprints and the Settings tab so onboarding can call `apply_study_plan_template`. Still flag-off — the route exists but `get_or_create_daily_load` continues routing to legacy.
+4. **Wipe.** Run `phase13_wipe_user_state_for_launch.sql` once. TRUNCATE … RESTART IDENTITY CASCADE on all 12 user-state tables; reference data untouched.
+5. **Flip.** Set `Config.STUDY_PLAN_ENABLED = True` and deploy. From this moment:
+   - First-time signups → onboarding → `apply_study_plan_template` → `user_study_plans` row → next daily-load runs through `build_daily_session`.
+   - Any leftover users without plans keep getting legacy `_compute_daily_load` until they visit Settings.
+   - Sunday 23:00 UTC cron computes the first weekly state for every `user_study_plans` row.
+6. **Monitor.** Track DAU, session-completion-rate, sessions-per-DAU, tests-per-session, practice-minutes-per-session.
+7. **Rollback** by toggling `Config.STUDY_PLAN_ENABLED = False` if any metric looks pathological. Rollback is instant; legacy `_compute_daily_load` resumes for every user (`weekly_plan_states` rows just go unread).
+8. **Deprecation cycle.** After 30 days stable, remove the `get_exercise_session` / `get_ladder_session` deprecation wrappers; replace `/api/exercises/session` and `/api/vocab-dojo/session` handlers with 302s to `/api/practice/session`.
 
 ## Worked Example
 
@@ -553,7 +585,7 @@ Returned: 11 items across 4 words. User completes 8, submit fires `record_sessio
 - **Integration:** End-to-end worked example reproduction (Section "Worked Example") — assert numerical match within 0.001.
 - **Integration:** `record_session_progress` idempotency — call twice with same `attempt_id`; second returns `false`, counters unchanged.
 - **Integration:** Cron job — fire `_run_weekly_plan_recompute` in test mode against seeded users; verify all rows updated.
-- **Migration:** Backfill SQL on staging — verify expected user count, no duplicates, all rows reference valid templates.
+- **Migration:** Wipe script on staging — verify all 12 user-state tables `COUNT(*) = 0` post-run; verify reference tables (`dim_languages`, `dim_study_plan_templates`, `tests`, `exercises`, `auth.users`, `public.users`) unaffected.
 
 ## Related Pages
 

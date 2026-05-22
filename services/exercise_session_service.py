@@ -11,4 +11,6 @@ See [[features/practice-engine.tech]] and ADR-007 for the merger rationale.
 from services.practice_session_service import (  # noqa: F401
     PracticeSessionService,
     ExerciseSessionService,
+    get_practice_session_service,
+    get_exercise_session_service,
 )
