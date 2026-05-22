@@ -1,5 +1,36 @@
 # Activity Log
 
+## 2026-05-22 launch | Study Plans wipe + flag flip + i18n + verification (two schema-accuracy bug fixes)
+
+Executed the pre-launch rollout per plan §11b. Schema + RPCs were already applied to the live DB from a prior session; only the wipe, flag flip, and verification remained. Plus i18n keys for the new Study Plan UI.
+
+**i18n keys** — added 51 keys (`common.nav.study_plan` + 50 `study_plan.*`) across all four locale files: [static/i18n/en.json](../static/i18n/en.json), [es.json](../static/i18n/es.json), [ja.json](../static/i18n/ja.json), [zh.json](../static/i18n/zh.json). [templates/study_plan.html](../templates/study_plan.html) updated to use `data-i18n` for static labels and a `T(key, params)` JS helper for dynamic strings (template buttons, stat tile labels, status messages, week-summary).
+
+**Wipe** — [migrations/phase13_wipe_user_state_for_launch.sql](../migrations/phase13_wipe_user_state_for_launch.sql) ran cleanly via MCP `execute_sql`. Pre-wipe state: ~580 user-state rows across 12 tables (58 test_attempts, 312 user_vocabulary_knowledge, 131 user_flashcards, etc). Post-wipe: all 12 tables at 0. Reference data intact (11 auth.users, 11 public.users, 255 tests, 11225 exercises, 3 dim_languages, 9 dim_study_plan_templates, 3 dim_practice_modes, 13 dim_exercise_types).
+
+**Flag flip** — [config.py](../config.py) `STUDY_PLAN_ENABLED` default flipped `False → True`. Env override (`STUDY_PLAN_ENABLED=false`) still respected for instant rollback without a deploy.
+
+**Verification — two schema bugs found and patched live.** End-to-end smoke test against `auth.users[de6fd05b-…]` exercised `apply_study_plan_template` → `compute_weekly_plan_load_signals` → `compute_weekly_plan_persist` → `build_daily_session` → `get_practice_session`. Two functions referenced columns that don't exist on the live schema:
+
+1. **`compute_weekly_plan_load_signals`** referenced `user_word_ladder.language_id`, `last_exercised_at`, `created_at` — none of which exist. Fix: join via `dim_word_senses → dim_vocabulary.language_id` for filtering; use `updated_at` as the recency proxy; `new_intro_7d` = `updated_at >= now-7d AND total_attempts = 0`. Patched live via `apply_migration` `phase13_compute_weekly_plan_load_signals_v2`. In-repo source updated at [migrations/phase13_compute_weekly_plan_helpers.sql](../migrations/phase13_compute_weekly_plan_helpers.sql) with an `IMPORTANT SCHEMA NOTE` block.
+
+2. **`build_daily_session`** queried `public.tests.test_type_id` for the last-3-days spacing penalty — `tests` has no such column; a single test row can be served as reading/listening/dictation interchangeably, and the type is captured per-attempt on `test_attempts.test_type_id`. Fix: query `test_attempts` directly (better signal anyway — what the user *actually took*, not what was *scheduled*). Patched live via `apply_migration` `phase13_build_daily_session_v2`. In-repo source updated at [migrations/phase13_build_daily_session.sql](../migrations/phase13_build_daily_session.sql).
+
+**Smoke-test results after the two patches:**
+
+| Step | Result |
+|---|---|
+| `apply_study_plan_template(user, lang=1, template=101)` | row created with `daily_minutes=30, weekday_shape=[1,1,1,1,1,1,1]` ✅ |
+| `compute_weekly_plan_load_signals(...)` | jsonb returned with all-zero counts (post-wipe), `user_mean_elo=1200` cold-start default ✅ |
+| `compute_weekly_plan_persist(...)` | hand-crafted Tier-B-equivalent payload upserted; returned full row including `skill_values` ✅ |
+| `build_daily_session(...)` | produced load_id=1 with 3 hydrated test_ids (pinyin + measure_word + listening), 28 used_minutes within 36.6 upper_cap, `daily_session_targets` jsonb populated ✅ |
+| `get_practice_session('auto'|'acquisition'|'maintenance', 10min)` | all 3 returned `no_eligible_words` (correct — user has 0 ladder rows post-wipe; R4.9 cold-ladder auto-subscribe lives in the Python service layer, not the bare RPC). Maintenance also fell through to `mode_resolved='acquisition'` as designed ✅ |
+
+**Deferred bug — known behavior:** the greedy fill in `build_daily_session` ordered by per-minute value tends to fill tests before practice chunks (test slots have value/min ≈ 0.10 vs practice chunks ≈ 0.014). For the cold-start case above, all 28 used minutes went to tests; practice_maintenance_min and practice_acquisition_min both came back 0. Spec-faithful behavior would mix both via the full Tier C objective (`Σ x_s·value(s) + α·m + α·a − γ·spacing`). The Python `services/study_plan_service.py::build_daily_session` could post-process the result to inject practice minutes if telemetry shows this skewing too test-heavy in steady state. Not blocking for V1 launch; the orchestrator is functional and the Practice surface is still reachable via the explicit `/api/practice/session?mode=...` endpoint regardless of resolver output.
+
+**Repo files modified this session:** [config.py](../config.py), [migrations/phase13_compute_weekly_plan_helpers.sql](../migrations/phase13_compute_weekly_plan_helpers.sql), [migrations/phase13_build_daily_session.sql](../migrations/phase13_build_daily_session.sql), [templates/study_plan.html](../templates/study_plan.html), [static/i18n/en.json](../static/i18n/en.json), [es.json](../static/i18n/es.json), [ja.json](../static/i18n/ja.json), [zh.json](../static/i18n/zh.json). Two ad-hoc migrations applied live via MCP: `phase13_compute_weekly_plan_load_signals_v2`, `phase13_build_daily_session_v2`.
+
+
 ## 2026-05-22 revision | Study Plans rollout — backfill replaced with pre-launch wipe (R4.2)
 
 User asked whether the planned backfill ([[tasklist/study-plans.tasks]] TASK-218 — "Backfill SQL — seed user_study_plans for existing users") was necessary, or whether a clean wipe would suffice. The target DB is pre-launch with no real-user history to preserve, so a wipe is both simpler and safer than a partial-seed backfill.

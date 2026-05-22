@@ -79,7 +79,9 @@
       "Bash(python scripts/import_cedict_classifiers.py)",
       "Bash(python scripts/mine_classifier_sentences.py)",
       "Bash(python scripts/cleanup_classifier_data.py --dry-run)",
-      "Bash(python scripts/cleanup_classifier_data.py)"
+      "Bash(python scripts/cleanup_classifier_data.py)",
+      "Bash(awk -F'.' '{print $1}')",
+      "Bash(awk -F'\"' '{print $2}')"
     ]
   }
 }

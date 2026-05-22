@@ -139,8 +139,14 @@ BEGIN
 
     -- ---------------------------------------------------------------
     -- 3. Last 3 days' skills (for spacing penalty)
+    --
+    -- IMPORTANT SCHEMA NOTE (patched 2026-05-22 during verification):
+    -- public.tests has NO test_type_id column — a single test row can be
+    -- served as reading/listening/dictation. The skill is captured per
+    -- ATTEMPT on test_attempts.test_type_id. Query test_attempts directly
+    -- for what the user actually took, which is a better signal than what
+    -- was scheduled anyway.
     -- ---------------------------------------------------------------
-    -- Materialized into a temp array for cheap counting.
     DROP TABLE IF EXISTS pg_temp.last3_skills;
     CREATE TEMP TABLE pg_temp.last3_skills (
         skill text NOT NULL
@@ -148,13 +154,12 @@ BEGIN
 
     INSERT INTO pg_temp.last3_skills (skill)
     SELECT dtt.type_code
-    FROM public.daily_test_loads dtl,
-         jsonb_array_elements_text(dtl.test_ids) AS test_id_text
-    JOIN public.tests t ON t.id = test_id_text::uuid
-    JOIN public.dim_test_types dtt ON dtt.id = t.test_type_id
-    WHERE dtl.user_id = p_user_id
-      AND dtl.language_id = p_language_id
-      AND dtl.load_date BETWEEN p_date - 3 AND p_date - 1;
+    FROM public.test_attempts ta
+    JOIN public.dim_test_types dtt ON dtt.id = ta.test_type_id
+    WHERE ta.user_id = p_user_id
+      AND ta.language_id = p_language_id
+      AND ta.created_at >= (p_date - 3)::timestamptz
+      AND ta.created_at <  (p_date)::timestamptz;
 
     -- ---------------------------------------------------------------
     -- 4. Build candidate list: test slots + 10-min practice chunks.

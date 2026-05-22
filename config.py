@@ -139,7 +139,9 @@ class Config:
     # Global kill switch. When False, get_or_create_daily_load falls through
     # to legacy _compute_daily_load and the orchestrator never fires. Rollback
     # is "set to False and redeploy". See ADR-013.
-    STUDY_PLAN_ENABLED = os.getenv('STUDY_PLAN_ENABLED', 'False').lower() == 'true'
+    # Flipped to True (default) on 2026-05-22 after pre-launch wipe per R4.2.
+    # Set STUDY_PLAN_ENABLED=false in the env to roll back without a deploy.
+    STUDY_PLAN_ENABLED = os.getenv('STUDY_PLAN_ENABLED', 'True').lower() == 'true'
 
     # Default daily-minutes assigned at onboarding / backfill.
     STUDY_PLAN_DEFAULT_DAILY_MINUTES = 30

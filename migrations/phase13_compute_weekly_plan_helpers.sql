@@ -110,38 +110,43 @@ BEGIN
     ) skill_data;
 
     ---------------------------------------------------------------------
-    -- Ladder signals.
-    -- subscribed     — any user_word_ladder row.
-    -- stagnant_14d   — no family_confidence change in 14d AND no
-    --                  consecutive_failures reset (i.e. no recent activity).
-    --                  Approximated via last_exercised_at / updated_at.
-    -- active_count   — words in active learning states.
-    -- stuck_count    — consecutive_failures ≥ 3 OR not advanced 14d.
-    -- new_intro_7d   — rows created in last 7 days.
+    -- Ladder signals — language filter via dim_word_senses → dim_vocabulary.
+    --
+    -- IMPORTANT SCHEMA NOTE (patched 2026-05-22 during verification):
+    -- user_word_ladder has NO language_id, NO last_exercised_at, NO
+    -- created_at columns. Language must be derived via the sense → vocab
+    -- join. updated_at is the recency proxy. "new_intro_7d" uses
+    -- updated_at + total_attempts=0 (rows just seeded with no drill yet).
+    --
+    -- subscribed   : any uwl row for this user × this language.
+    -- stagnant_14d : updated_at older than 14 days OR NULL.
+    -- active_count : word in active learning states.
+    -- stuck_count  : ≥3 consecutive_failures, OR active >14 days stale.
+    -- new_intro_7d : updated within last 7 days AND total_attempts = 0.
     ---------------------------------------------------------------------
+    WITH lang_ladder AS (
+        SELECT uwl.*
+        FROM public.user_word_ladder uwl
+        JOIN public.dim_word_senses dws ON dws.id = uwl.sense_id
+        JOIN public.dim_vocabulary   dv  ON dv.id  = dws.vocab_id
+        WHERE uwl.user_id = p_user_id
+          AND dv.language_id = p_language_id
+    )
     SELECT jsonb_build_object(
-        'subscribed',
-            (SELECT COUNT(*) FROM public.user_word_ladder
-             WHERE user_id = p_user_id AND language_id = p_language_id),
-        'stagnant_14d',
-            (SELECT COUNT(*) FROM public.user_word_ladder
-             WHERE user_id = p_user_id AND language_id = p_language_id
-               AND (last_exercised_at IS NULL OR last_exercised_at < v_14d_ago)),
-        'active_count',
-            (SELECT COUNT(*) FROM public.user_word_ladder
-             WHERE user_id = p_user_id AND language_id = p_language_id
-               AND word_state IN ('active','gated','pre_mastery','relearning')),
-        'stuck_count',
-            (SELECT COUNT(*) FROM public.user_word_ladder
-             WHERE user_id = p_user_id AND language_id = p_language_id
-               AND (consecutive_failures >= 3
-                    OR (last_exercised_at IS NOT NULL
-                        AND last_exercised_at < v_14d_ago
-                        AND word_state IN ('active','gated','pre_mastery')))),
-        'new_intro_7d',
-            (SELECT COUNT(*) FROM public.user_word_ladder
-             WHERE user_id = p_user_id AND language_id = p_language_id
-               AND created_at >= v_7d_ago)
+        'subscribed',   (SELECT COUNT(*) FROM lang_ladder),
+        'stagnant_14d', (SELECT COUNT(*) FROM lang_ladder
+                         WHERE updated_at IS NULL OR updated_at < v_14d_ago),
+        'active_count', (SELECT COUNT(*) FROM lang_ladder
+                         WHERE word_state IN ('active','gated','pre_mastery','relearning')),
+        'stuck_count',  (SELECT COUNT(*) FROM lang_ladder
+                         WHERE consecutive_failures >= 3
+                            OR (updated_at IS NOT NULL
+                                AND updated_at < v_14d_ago
+                                AND word_state IN ('active','gated','pre_mastery'))),
+        'new_intro_7d', (SELECT COUNT(*) FROM lang_ladder
+                         WHERE updated_at IS NOT NULL
+                           AND updated_at >= v_7d_ago
+                           AND total_attempts = 0)
     ) INTO v_ladder;
 
     ---------------------------------------------------------------------

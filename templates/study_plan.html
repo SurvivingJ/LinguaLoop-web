@@ -61,19 +61,18 @@
 <div class="container" style="max-width: 1100px;">
 
     <div class="plan-header">
-        <h1 class="mb-2"><i class="fas fa-calendar-week me-2"></i>Study Plan</h1>
-        <p class="mb-0 opacity-90">Set your weekly time targets — the system adapts the daily mix.</p>
+        <h1 class="mb-2"><i class="fas fa-calendar-week me-2"></i><span data-i18n="study_plan.title">Study Plan</span></h1>
+        <p class="mb-0 opacity-90" data-i18n="study_plan.subtitle">Set your weekly time targets — the system adapts the daily mix.</p>
     </div>
 
-    <div id="flagDisabledBanner" class="flag-disabled-banner d-none">
-        <strong>Preview mode.</strong> The Study Plan orchestrator is currently disabled
-        (<code>Config.STUDY_PLAN_ENABLED = False</code>). You can edit the plan here, but the legacy
-        daily-load is still running. Plan-driven daily sessions activate when the flag is flipped.
+    <div id="flagDisabledBanner" class="flag-disabled-banner d-none"
+         data-i18n="study_plan.flag_disabled.banner">
+        Preview mode. The Study Plan orchestrator is currently disabled.
     </div>
 
     <div id="loadingState" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-muted">Loading your plan…</p>
+        <p class="mt-3 text-muted" data-i18n="study_plan.loading">Loading your plan…</p>
     </div>
 
     <div id="errorState" class="alert alert-danger d-none"></div>
@@ -81,16 +80,16 @@
     <div id="planContent" class="d-none">
 
         <!-- Language picker -->
-        <h5 class="mb-3"><i class="fas fa-globe me-2"></i>Language</h5>
+        <h5 class="mb-3"><i class="fas fa-globe me-2"></i><span data-i18n="study_plan.language_heading">Language</span></h5>
         <div id="languageList" class="row g-3 mb-2"></div>
         <p class="text-muted small mb-4">
-            Total across languages: <span class="total-tally" id="totalTally">— min/day</span>
+            <span class="total-tally" id="totalTally">—</span>
         </p>
 
         <!-- No-plan-yet onboarding -->
         <div id="noPlanState" class="alert alert-info d-none">
-            <p class="mb-2">You don't have a Study Plan for this language yet.</p>
-            <p class="mb-3 small text-muted">Pick a starting bucket — you can fine-tune everything below afterwards.</p>
+            <p class="mb-2" data-i18n="study_plan.no_plan.intro">You don't have a Study Plan for this language yet.</p>
+            <p class="mb-3 small text-muted" data-i18n="study_plan.no_plan.hint">Pick a starting bucket — you can fine-tune everything below afterwards.</p>
             <div id="templatePicker" class="d-flex gap-2 flex-wrap"></div>
         </div>
 
@@ -99,35 +98,32 @@
 
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Daily target</h5>
-                    <p class="text-muted small mb-2">How much time per day you want to commit to this language.</p>
+                    <h5 class="card-title" data-i18n="study_plan.daily_target.title">Daily target</h5>
+                    <p class="text-muted small mb-2" data-i18n="study_plan.daily_target.hint">How much time per day you want to commit to this language.</p>
                     <div class="d-flex align-items-center gap-3">
                         <input type="range" id="dailyMinutesRange" min="10" max="180" step="5" class="form-range flex-grow-1">
                         <input type="number" id="dailyMinutesNumber" min="10" max="180" step="1" class="form-control" style="width: 6rem;">
-                        <span class="text-muted">min/day</span>
+                        <span class="text-muted" data-i18n="study_plan.daily_target.unit">min/day</span>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Weekday shape</h5>
-                    <p class="text-muted small mb-2">
+                    <h5 class="card-title" data-i18n="study_plan.weekday_shape.title">Weekday shape</h5>
+                    <p class="text-muted small mb-2" data-i18n="study_plan.weekday_shape.hint">
                         Lighter on weekdays, heavier on weekends? Adjust the multipliers.
-                        Values normalize to sum=7 on save.
                     </p>
                     <div class="weekday-grid">
-                        <div class="weekday-cell"><label>Mon</label><input type="number" min="0" max="3" step="0.05" id="ws0" class="form-control"></div>
-                        <div class="weekday-cell"><label>Tue</label><input type="number" min="0" max="3" step="0.05" id="ws1" class="form-control"></div>
-                        <div class="weekday-cell"><label>Wed</label><input type="number" min="0" max="3" step="0.05" id="ws2" class="form-control"></div>
-                        <div class="weekday-cell"><label>Thu</label><input type="number" min="0" max="3" step="0.05" id="ws3" class="form-control"></div>
-                        <div class="weekday-cell"><label>Fri</label><input type="number" min="0" max="3" step="0.05" id="ws4" class="form-control"></div>
-                        <div class="weekday-cell"><label>Sat</label><input type="number" min="0" max="3" step="0.05" id="ws5" class="form-control"></div>
-                        <div class="weekday-cell"><label>Sun</label><input type="number" min="0" max="3" step="0.05" id="ws6" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.mon">Mon</label><input type="number" min="0" max="3" step="0.05" id="ws0" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.tue">Tue</label><input type="number" min="0" max="3" step="0.05" id="ws1" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.wed">Wed</label><input type="number" min="0" max="3" step="0.05" id="ws2" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.thu">Thu</label><input type="number" min="0" max="3" step="0.05" id="ws3" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.fri">Fri</label><input type="number" min="0" max="3" step="0.05" id="ws4" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.sat">Sat</label><input type="number" min="0" max="3" step="0.05" id="ws5" class="form-control"></div>
+                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.sun">Sun</label><input type="number" min="0" max="3" step="0.05" id="ws6" class="form-control"></div>
                     </div>
-                    <p class="text-muted small mt-2 mb-0">
-                        Currently summing to: <strong id="weekdaySum">7.0</strong> (will renormalize to 7 on save).
-                    </p>
+                    <p class="text-muted small mt-2 mb-0" id="weekdaySumLabel">—</p>
                 </div>
             </div>
 
@@ -135,29 +131,27 @@
                 <div class="card-body">
                     <button class="btn btn-link p-0 text-decoration-none" type="button"
                             data-bs-toggle="collapse" data-bs-target="#advancedSection">
-                        <i class="fas fa-chevron-right me-1"></i>Advanced
+                        <i class="fas fa-chevron-right me-1"></i><span data-i18n="study_plan.advanced">Advanced</span>
                     </button>
                     <div id="advancedSection" class="collapse advanced-section">
-                        <h6 class="mb-2">Per-skill weight overrides</h6>
-                        <p class="text-muted small mb-3">
+                        <h6 class="mb-2" data-i18n="study_plan.overrides.title">Per-skill weight overrides</h6>
+                        <p class="text-muted small mb-3" data-i18n="study_plan.overrides.hint">
                             Multiply the value of each skill in the weekly allocator. Default 1.00; range 0.5–2.0.
                         </p>
                         <div id="skillOverrides"></div>
-                        <h6 class="mb-2 mt-3">Template</h6>
-                        <select id="templateSelect" class="form-select">
-                            <option value="">— Pick a starting bucket —</option>
-                        </select>
-                        <p class="text-muted small mt-1 mb-0">Changing the template resets daily_minutes; weekday shape and overrides are preserved.</p>
+                        <h6 class="mb-2 mt-3" data-i18n="study_plan.template.title">Template</h6>
+                        <select id="templateSelect" class="form-select"></select>
+                        <p class="text-muted small mt-1 mb-0" data-i18n="study_plan.template.hint">Changing the template resets daily_minutes; weekday shape and overrides are preserved.</p>
                     </div>
                 </div>
             </div>
 
             <div class="d-flex gap-2 mb-4">
                 <button id="saveBtn" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Save changes
+                    <i class="fas fa-save me-2"></i><span data-i18n="study_plan.save_button">Save changes</span>
                 </button>
                 <button id="recomputeBtn" class="btn btn-outline-secondary">
-                    <i class="fas fa-sync me-2"></i>Recompute this week now
+                    <i class="fas fa-sync me-2"></i><span data-i18n="study_plan.recompute_button">Recompute this week now</span>
                 </button>
             </div>
 
@@ -166,10 +160,10 @@
             <!-- Current week summary -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">This week so far</h5>
+                    <h5 class="card-title" data-i18n="study_plan.week_summary_title">This week so far</h5>
                     <p class="text-muted small mb-3" id="weekStartLabel">—</p>
                     <div id="weekStats" class="week-stats"></div>
-                    <h6 class="mt-4 mb-2">Per-skill targets vs completed</h6>
+                    <h6 class="mt-4 mb-2" data-i18n="study_plan.targets.heading">Per-skill targets vs completed</h6>
                     <div id="weekTargetsTable"></div>
                 </div>
             </div>
@@ -188,6 +182,15 @@
     const FLAGS = { cn: '🇨🇳', en: '🇺🇸', jp: '🇯🇵' };
     const flagFor = (code) => FLAGS[code?.toLowerCase()] || '🌐';
 
+    // i18n helpers — fall through to the data-i18n default text if the i18n
+    // bundle isn't loaded yet (e.g., during early init or in tests).
+    const T = (key, params) => {
+        if (window.LinguaI18n && typeof window.LinguaI18n.t === 'function') {
+            return window.LinguaI18n.t(key, params);
+        }
+        return key; // dev fallback — visible enough to spot a missing key
+    };
+
     const state = {
         languages: [],          // [{id, code, name}] for languages the user has plans for OR has tested in
         plansByLang: {},        // lang_id → { plan, current_week }
@@ -202,7 +205,7 @@
         try {
             await loadActiveLanguages();
             if (state.languages.length === 0) {
-                showError('No active languages found. Make sure your account is set up.');
+                showError(T('study_plan.error.no_languages'));
                 return;
             }
             renderLanguageCards();
@@ -302,11 +305,14 @@
         document.getElementById('planEditor').classList.add('d-none');
         const picker = document.getElementById('templatePicker');
         const templates = state.templatesByLang[langId] || [];
-        picker.innerHTML = templates.map(t => `
+        const defaultSuffix = T('study_plan.template.default_suffix');
+        picker.innerHTML = templates.map(t => {
+            const label = T('study_plan.template.daily_minutes_label', { minutes: t.daily_minutes });
+            return `
             <button class="btn btn-outline-primary template-pick-btn" data-template-id="${t.template_id}">
-                ${t.daily_minutes} min/day${t.is_default ? ' (default)' : ''}
-            </button>
-        `).join('');
+                ${label}${t.is_default ? ' ' + defaultSuffix : ''}
+            </button>`;
+        }).join('');
         picker.querySelectorAll('.template-pick-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const tmplId = parseInt(btn.dataset.templateId);
@@ -322,11 +328,11 @@
         });
         if (!res.ok) {
             const t = await res.text();
-            showSaveBanner(false, `Failed to apply template: ${t}`);
+            showSaveBanner(false, T('study_plan.template.failed', { error: t }));
             return;
         }
         await selectLanguage(langId);  // reload
-        showSaveBanner(true, 'Plan created. Adjust below and save when ready.');
+        showSaveBanner(true, T('study_plan.template.created'));
     }
 
     function showPlanEditor(langId) {
@@ -391,12 +397,15 @@
     function renderTemplateSelect(langId, currentTemplateId) {
         const select = document.getElementById('templateSelect');
         const templates = state.templatesByLang[langId] || [];
-        select.innerHTML = ['<option value="">— pick to reset daily_minutes —</option>']
-            .concat(templates.map(t =>
-                `<option value="${t.template_id}" ${t.template_id === currentTemplateId ? 'selected' : ''}>
-                    ${t.daily_minutes} min/day${t.is_default ? ' (default)' : ''}
-                </option>`
-            )).join('');
+        const placeholder = T('study_plan.template.select_placeholder');
+        const defaultSuffix = T('study_plan.template.default_suffix');
+        select.innerHTML = [`<option value="">${placeholder}</option>`]
+            .concat(templates.map(t => {
+                const label = T('study_plan.template.daily_minutes_label', { minutes: t.daily_minutes });
+                return `<option value="${t.template_id}" ${t.template_id === currentTemplateId ? 'selected' : ''}>
+                    ${label}${t.is_default ? ' ' + defaultSuffix : ''}
+                </option>`;
+            })).join('');
     }
 
     function renderWeekSummary(weekState) {
@@ -405,19 +414,19 @@
         const tableEl = document.getElementById('weekTargetsTable');
 
         if (!weekState) {
-            startLabel.textContent = 'No weekly state yet — will be computed by the Sunday 23:00 UTC cron, or click "Recompute" above.';
+            startLabel.textContent = T('study_plan.no_week_yet');
             statsEl.innerHTML = '';
             tableEl.innerHTML = '';
             return;
         }
 
-        startLabel.textContent = `Week starting ${weekState.week_start_date}`;
+        startLabel.textContent = T('study_plan.week_starting', { date: weekState.week_start_date });
         statsEl.innerHTML = `
-            <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>min total this week</small></div>
-            <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>practice min target</small></div>
-            <div class="stat-tile"><h4>${weekState.practice_completed_maint_min + weekState.practice_completed_acq_min}</h4><small>practice min done</small></div>
-            <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>maint share</small></div>
-            <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>acq share</small></div>
+            <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>${T('study_plan.stat.total_min')}</small></div>
+            <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>${T('study_plan.stat.practice_target')}</small></div>
+            <div class="stat-tile"><h4>${weekState.practice_completed_maint_min + weekState.practice_completed_acq_min}</h4><small>${T('study_plan.stat.practice_done')}</small></div>
+            <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.maint_share')}</small></div>
+            <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.acq_share')}</small></div>
         `;
 
         const targets = weekState.target_counts || {};
@@ -441,8 +450,8 @@
         }).join('');
         tableEl.innerHTML = `
             <table class="table table-sm mb-0">
-                <thead><tr><th>Skill</th><th>Done / target</th><th></th><th>%</th></tr></thead>
-                <tbody>${rows || '<tr><td colspan="4" class="text-center text-muted">No targets set.</td></tr>'}</tbody>
+                <thead><tr><th>${T('study_plan.targets.skill_col')}</th><th>${T('study_plan.targets.done_col')}</th><th></th><th>%</th></tr></thead>
+                <tbody>${rows || `<tr><td colspan="4" class="text-center text-muted">${T('study_plan.targets.empty')}</td></tr>`}</tbody>
             </table>
         `;
     }
@@ -450,7 +459,8 @@
     function updateWeekdaySum() {
         let sum = 0;
         for (let i = 0; i < 7; i++) sum += Number(document.getElementById('ws' + i).value || 0);
-        document.getElementById('weekdaySum').textContent = sum.toFixed(2);
+        document.getElementById('weekdaySumLabel').textContent =
+            T('study_plan.weekday_sum', { sum: sum.toFixed(2) });
     }
 
     function updateTotalTally() {
@@ -460,7 +470,7 @@
             if (payload && payload.plan) total += Number(payload.plan.daily_minutes || 0);
         });
         const tally = document.getElementById('totalTally');
-        tally.textContent = `${total} min/day`;
+        tally.textContent = T('study_plan.total_tally', { minutes: total });
         tally.classList.toggle('warn', total > 90);
     }
 
@@ -525,13 +535,13 @@
             });
             if (!res.ok) {
                 const t = await res.text();
-                showSaveBanner(false, `Save failed (${res.status}): ${t}`);
+                showSaveBanner(false, T('study_plan.save_failed', { error: `${res.status} ${t}` }));
                 return;
             }
             await selectLanguage(langId);  // reload to get normalized weekday_shape from server
-            showSaveBanner(true, 'Saved.');
+            showSaveBanner(true, T('study_plan.save_success'));
         } catch (e) {
-            showSaveBanner(false, 'Save failed: ' + e.message);
+            showSaveBanner(false, T('study_plan.save_failed', { error: e.message }));
         }
     });
 
@@ -539,7 +549,7 @@
         const langId = state.selectedLangId;
         if (!langId) return;
         if (!state.studyPlanEnabled) {
-            showSaveBanner(false, 'Recompute is disabled while STUDY_PLAN_ENABLED is False.');
+            showSaveBanner(false, T('study_plan.recompute_disabled'));
             return;
         }
         try {
@@ -549,13 +559,13 @@
             });
             if (!res.ok) {
                 const t = await res.text();
-                showSaveBanner(false, `Recompute failed (${res.status}): ${t}`);
+                showSaveBanner(false, T('study_plan.save_failed', { error: `${res.status} ${t}` }));
                 return;
             }
             await selectLanguage(langId);
-            showSaveBanner(true, 'Recompute complete.');
+            showSaveBanner(true, T('study_plan.recompute_success'));
         } catch (e) {
-            showSaveBanner(false, 'Recompute failed: ' + e.message);
+            showSaveBanner(false, T('study_plan.save_failed', { error: e.message }));
         }
     });
 
