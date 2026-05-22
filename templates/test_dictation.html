@@ -532,6 +532,9 @@
         input.disabled = true;
 
         const timeTaken = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
+        // Phase 13 — wall-clock timestamps for server-side duration_ms.
+        const startedAtIso  = state.startTime ? new Date(state.startTime).toISOString() : null;
+        const finishedAtIso = new Date().toISOString();
 
         try {
             const resp = await window.authFetch(`/api/tests/${state.slug}/submit-dictation`, {
@@ -541,6 +544,8 @@
                     replay_count: Math.max(1, state.replayCount),
                     time_taken: timeTaken,
                     idempotency_key: state.idempotencyKey,
+                    started_at: startedAtIso,
+                    finished_at: finishedAtIso,
                 }),
             });
 

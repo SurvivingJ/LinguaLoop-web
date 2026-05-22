@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+
+{% block title %}Study Plan - LinguaDojo{% endblock %}
+
+{# Phase 13 — Study Plan editor. Backed by /api/study-plan and /api/study-plan/templates.
+   See [[features/study-plans.tech]] and ADR-008. #}
+
+{% block extra_css %}
+<style>
+    .plan-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    .language-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid var(--border-default);
+    }
+    .language-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+    .language-card.active { border-color: var(--primary); background: var(--selected-bg); }
+
+    .weekday-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .5rem; }
+    .weekday-cell { text-align: center; }
+    .weekday-cell label { font-size: .8rem; color: var(--text-secondary); display:block; margin-bottom:.25rem; }
+    .weekday-cell input[type=number] { width: 100%; }
+
+    .total-tally { font-size: 1.1rem; font-weight: 600; }
+    .total-tally.warn { color: var(--warning, #d97706); }
+
+    .week-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; }
+    .week-stats .stat-tile {
+        border: 1px solid var(--border-default);
+        border-radius: 8px;
+        padding: .75rem;
+        text-align: center;
+    }
+    .week-stats .stat-tile h4 { margin: 0; font-size: 1.25rem; }
+    .week-stats .stat-tile small { color: var(--text-secondary); }
+
+    .advanced-section { border-top: 1px solid var(--border-default); padding-top: 1rem; margin-top: 1rem; }
+    .skill-override-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
+    .skill-override-row label { width: 8rem; }
+    .skill-override-row input[type=range] { flex: 1; }
+    .skill-override-row .value { width: 3rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .flag-disabled-banner {
+        background: var(--warning-bg, #fff7ed);
+        border: 1px solid var(--warning, #d97706);
+        color: var(--warning-text, #92400e);
+        border-radius: 8px;
+        padding: .75rem 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1100px;">
+
+    <div class="plan-header">
+        <h1 class="mb-2"><i class="fas fa-calendar-week me-2"></i>Study Plan</h1>
+        <p class="mb-0 opacity-90">Set your weekly time targets — the system adapts the daily mix.</p>
+    </div>
+
+    <div id="flagDisabledBanner" class="flag-disabled-banner d-none">
+        <strong>Preview mode.</strong> The Study Plan orchestrator is currently disabled
+        (<code>Config.STUDY_PLAN_ENABLED = False</code>). You can edit the plan here, but the legacy
+        daily-load is still running. Plan-driven daily sessions activate when the flag is flipped.
+    </div>
+
+    <div id="loadingState" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3 text-muted">Loading your plan…</p>
+    </div>
+
+    <div id="errorState" class="alert alert-danger d-none"></div>
+
+    <div id="planContent" class="d-none">
+
+        <!-- Language picker -->
+        <h5 class="mb-3"><i class="fas fa-globe me-2"></i>Language</h5>
+        <div id="languageList" class="row g-3 mb-2"></div>
+        <p class="text-muted small mb-4">
+            Total across languages: <span class="total-tally" id="totalTally">— min/day</span>
+        </p>
+
+        <!-- No-plan-yet onboarding -->
+        <div id="noPlanState" class="alert alert-info d-none">
+            <p class="mb-2">You don't have a Study Plan for this language yet.</p>
+            <p class="mb-3 small text-muted">Pick a starting bucket — you can fine-tune everything below afterwards.</p>
+            <div id="templatePicker" class="d-flex gap-2 flex-wrap"></div>
+        </div>
+
+        <!-- Plan editor (shown when a plan exists) -->
+        <div id="planEditor" class="d-none">
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Daily target</h5>
+                    <p class="text-muted small mb-2">How much time per day you want to commit to this language.</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" id="dailyMinutesRange" min="10" max="180" step="5" class="form-range flex-grow-1">
+                        <input type="number" id="dailyMinutesNumber" min="10" max="180" step="1" class="form-control" style="width: 6rem;">
+                        <span class="text-muted">min/day</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Weekday shape</h5>
+                    <p class="text-muted small mb-2">
+                        Lighter on weekdays, heavier on weekends? Adjust the multipliers.
+                        Values normalize to sum=7 on save.
+                    </p>
+                    <div class="weekday-grid">
+                        <div class="weekday-cell"><label>Mon</label><input type="number" min="0" max="3" step="0.05" id="ws0" class="form-control"></div>
+                        <div class="weekday-cell"><label>Tue</label><input type="number" min="0" max="3" step="0.05" id="ws1" class="form-control"></div>
+                        <div class="weekday-cell"><label>Wed</label><input type="number" min="0" max="3" step="0.05" id="ws2" class="form-control"></div>
+                        <div class="weekday-cell"><label>Thu</label><input type="number" min="0" max="3" step="0.05" id="ws3" class="form-control"></div>
+                        <div class="weekday-cell"><label>Fri</label><input type="number" min="0" max="3" step="0.05" id="ws4" class="form-control"></div>
+                        <div class="weekday-cell"><label>Sat</label><input type="number" min="0" max="3" step="0.05" id="ws5" class="form-control"></div>
+                        <div class="weekday-cell"><label>Sun</label><input type="number" min="0" max="3" step="0.05" id="ws6" class="form-control"></div>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">
+                        Currently summing to: <strong id="weekdaySum">7.0</strong> (will renormalize to 7 on save).
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <button class="btn btn-link p-0 text-decoration-none" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#advancedSection">
+                        <i class="fas fa-chevron-right me-1"></i>Advanced
+                    </button>
+                    <div id="advancedSection" class="collapse advanced-section">
+                        <h6 class="mb-2">Per-skill weight overrides</h6>
+                        <p class="text-muted small mb-3">
+                            Multiply the value of each skill in the weekly allocator. Default 1.00; range 0.5–2.0.
+                        </p>
+                        <div id="skillOverrides"></div>
+                        <h6 class="mb-2 mt-3">Template</h6>
+                        <select id="templateSelect" class="form-select">
+                            <option value="">— Pick a starting bucket —</option>
+                        </select>
+                        <p class="text-muted small mt-1 mb-0">Changing the template resets daily_minutes; weekday shape and overrides are preserved.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mb-4">
+                <button id="saveBtn" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save changes
+                </button>
+                <button id="recomputeBtn" class="btn btn-outline-secondary">
+                    <i class="fas fa-sync me-2"></i>Recompute this week now
+                </button>
+            </div>
+
+            <div id="saveBanner" class="alert d-none"></div>
+
+            <!-- Current week summary -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">This week so far</h5>
+                    <p class="text-muted small mb-3" id="weekStartLabel">—</p>
+                    <div id="weekStats" class="week-stats"></div>
+                    <h6 class="mt-4 mb-2">Per-skill targets vs completed</h6>
+                    <div id="weekTargetsTable"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    const FLAGS = { cn: '🇨🇳', en: '🇺🇸', jp: '🇯🇵' };
+    const flagFor = (code) => FLAGS[code?.toLowerCase()] || '🌐';
+
+    const state = {
+        languages: [],          // [{id, code, name}] for languages the user has plans for OR has tested in
+        plansByLang: {},        // lang_id → { plan, current_week }
+        templatesByLang: {},    // lang_id → [templates]
+        selectedLangId: null,
+        studyPlanEnabled: false,
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+        try {
+            await loadActiveLanguages();
+            if (state.languages.length === 0) {
+                showError('No active languages found. Make sure your account is set up.');
+                return;
+            }
+            renderLanguageCards();
+            // Auto-select the first language
+            await selectLanguage(state.languages[0].id);
+        } catch (err) {
+            console.error(err);
+            showError(err.message || 'Failed to load.');
+        }
+    }
+
+    async function loadActiveLanguages() {
+        // Pull active languages from the cached profile-style endpoint
+        const res = await window.authFetch('/api/users/elo');
+        if (!res.ok) throw new Error('Failed to fetch languages');
+        const data = await res.json();
+        const ratings = data.ratings || {};
+        state.languages = Object.entries(ratings).map(([code, info]) => ({
+            id: info.language_id,
+            code,
+            name: info.native_name || info.language_name || code,
+        }));
+        // Fallback: if the user has no test history at all, surface the three canonical languages.
+        if (state.languages.length === 0) {
+            state.languages = [
+                { id: 1, code: 'cn', name: 'Chinese' },
+                { id: 2, code: 'en', name: 'English' },
+                { id: 3, code: 'jp', name: 'Japanese' },
+            ];
+        }
+    }
+
+    function renderLanguageCards() {
+        const container = document.getElementById('languageList');
+        container.innerHTML = state.languages.map(lang => `
+            <div class="col-md-4">
+                <div class="card language-card h-100 p-3" data-lang-id="${lang.id}">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-1 me-3">${flagFor(lang.code)}</span>
+                        <div>
+                            <h6 class="mb-1">${lang.name}</h6>
+                            <small class="text-muted lang-summary" data-lang-id="${lang.id}">—</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        container.querySelectorAll('.language-card').forEach(card => {
+            card.addEventListener('click', () => selectLanguage(parseInt(card.dataset.langId)));
+        });
+    }
+
+    async function selectLanguage(langId) {
+        state.selectedLangId = langId;
+        document.querySelectorAll('.language-card').forEach(c => {
+            c.classList.toggle('active', parseInt(c.dataset.langId) === langId);
+        });
+
+        document.getElementById('loadingState').classList.add('d-none');
+        document.getElementById('planContent').classList.remove('d-none');
+        document.getElementById('saveBanner').classList.add('d-none');
+
+        // Load plan + templates in parallel
+        const [planRes, tmplRes] = await Promise.all([
+            window.authFetch(`/api/study-plan?language_id=${langId}`),
+            window.authFetch(`/api/study-plan/templates?language_id=${langId}`),
+        ]);
+
+        if (tmplRes.ok) {
+            const td = await tmplRes.json();
+            state.templatesByLang[langId] = (td.templates || td.data?.templates) || [];
+        } else {
+            state.templatesByLang[langId] = [];
+        }
+
+        if (planRes.status === 404) {
+            // No plan yet — show template picker
+            state.plansByLang[langId] = null;
+            showNoPlanState(langId);
+        } else if (planRes.ok) {
+            const pd = await planRes.json();
+            const planPayload = pd.data || pd;   // unwrap if api_success() shape
+            state.plansByLang[langId] = planPayload;
+            state.studyPlanEnabled = !!planPayload.study_plan_enabled;
+            showPlanEditor(langId);
+        } else {
+            const t = await planRes.text();
+            throw new Error(`Plan load failed (${planRes.status}): ${t}`);
+        }
+
+        updateTotalTally();
+        toggleFlagBanner();
+    }
+
+    function showNoPlanState(langId) {
+        document.getElementById('noPlanState').classList.remove('d-none');
+        document.getElementById('planEditor').classList.add('d-none');
+        const picker = document.getElementById('templatePicker');
+        const templates = state.templatesByLang[langId] || [];
+        picker.innerHTML = templates.map(t => `
+            <button class="btn btn-outline-primary template-pick-btn" data-template-id="${t.template_id}">
+                ${t.daily_minutes} min/day${t.is_default ? ' (default)' : ''}
+            </button>
+        `).join('');
+        picker.querySelectorAll('.template-pick-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const tmplId = parseInt(btn.dataset.templateId);
+                await applyTemplate(langId, tmplId);
+            });
+        });
+    }
+
+    async function applyTemplate(langId, templateId) {
+        const res = await window.authFetch('/api/study-plan', {
+            method: 'PUT',
+            body: JSON.stringify({ language_id: langId, template_id: templateId }),
+        });
+        if (!res.ok) {
+            const t = await res.text();
+            showSaveBanner(false, `Failed to apply template: ${t}`);
+            return;
+        }
+        await selectLanguage(langId);  // reload
+        showSaveBanner(true, 'Plan created. Adjust below and save when ready.');
+    }
+
+    function showPlanEditor(langId) {
+        document.getElementById('noPlanState').classList.add('d-none');
+        document.getElementById('planEditor').classList.remove('d-none');
+
+        const { plan, current_week } = state.plansByLang[langId];
+
+        // Daily minutes
+        const dm = plan.daily_minutes;
+        document.getElementById('dailyMinutesRange').value = dm;
+        document.getElementById('dailyMinutesNumber').value = dm;
+
+        // Weekday shape — render values; renormalization happens on save
+        const ws = Array.isArray(plan.weekday_shape) ? plan.weekday_shape : [1, 1, 1, 1, 1, 1, 1];
+        for (let i = 0; i < 7; i++) {
+            document.getElementById('ws' + i).value = Number(ws[i] ?? 1).toFixed(2);
+        }
+        updateWeekdaySum();
+
+        // Skill overrides — derive skill list from current_week.target_counts, fall back to template
+        const overrides = plan.skill_weight_overrides || {};
+        const skillCodes = current_week
+            ? Object.keys(current_week.target_counts || {})
+            : skillsForLanguage(langId);
+        renderSkillOverrides(skillCodes, overrides);
+
+        // Template select
+        renderTemplateSelect(langId, plan.template_id);
+
+        // Week summary
+        renderWeekSummary(current_week);
+    }
+
+    function skillsForLanguage(langId) {
+        const tpls = state.templatesByLang[langId] || [];
+        if (tpls.length === 0) return ['reading', 'listening', 'dictation'];
+        return Object.keys(tpls[0].weekly_test_counts || {});
+    }
+
+    function renderSkillOverrides(skillCodes, overrides) {
+        const container = document.getElementById('skillOverrides');
+        container.innerHTML = skillCodes.map(code => {
+            const v = overrides[code] != null ? overrides[code] : 1.0;
+            return `
+                <div class="skill-override-row">
+                    <label>${code.replace(/_/g, ' ')}</label>
+                    <input type="range" class="form-range skill-override-input"
+                        data-skill="${code}" min="0.5" max="2.0" step="0.05" value="${v}">
+                    <span class="value" data-skill-value="${code}">${Number(v).toFixed(2)}</span>
+                </div>
+            `;
+        }).join('');
+        container.querySelectorAll('.skill-override-input').forEach(input => {
+            input.addEventListener('input', () => {
+                document.querySelector(`[data-skill-value="${input.dataset.skill}"]`).textContent =
+                    Number(input.value).toFixed(2);
+            });
+        });
+    }
+
+    function renderTemplateSelect(langId, currentTemplateId) {
+        const select = document.getElementById('templateSelect');
+        const templates = state.templatesByLang[langId] || [];
+        select.innerHTML = ['<option value="">— pick to reset daily_minutes —</option>']
+            .concat(templates.map(t =>
+                `<option value="${t.template_id}" ${t.template_id === currentTemplateId ? 'selected' : ''}>
+                    ${t.daily_minutes} min/day${t.is_default ? ' (default)' : ''}
+                </option>`
+            )).join('');
+    }
+
+    function renderWeekSummary(weekState) {
+        const startLabel = document.getElementById('weekStartLabel');
+        const statsEl = document.getElementById('weekStats');
+        const tableEl = document.getElementById('weekTargetsTable');
+
+        if (!weekState) {
+            startLabel.textContent = 'No weekly state yet — will be computed by the Sunday 23:00 UTC cron, or click "Recompute" above.';
+            statsEl.innerHTML = '';
+            tableEl.innerHTML = '';
+            return;
+        }
+
+        startLabel.textContent = `Week starting ${weekState.week_start_date}`;
+        statsEl.innerHTML = `
+            <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>min total this week</small></div>
+            <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>practice min target</small></div>
+            <div class="stat-tile"><h4>${weekState.practice_completed_maint_min + weekState.practice_completed_acq_min}</h4><small>practice min done</small></div>
+            <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>maint share</small></div>
+            <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>acq share</small></div>
+        `;
+
+        const targets = weekState.target_counts || {};
+        const completed = weekState.completed_counts || {};
+        const rows = Object.keys(targets).map(skill => {
+            const done = completed[skill] || 0;
+            const total = targets[skill] || 0;
+            const pct = total > 0 ? Math.round(100 * done / total) : 0;
+            return `
+                <tr>
+                    <td>${skill.replace(/_/g, ' ')}</td>
+                    <td>${done} / ${total}</td>
+                    <td style="width: 40%;">
+                        <div class="progress" style="height: .6rem;">
+                            <div class="progress-bar" role="progressbar" style="width: ${pct}%"></div>
+                        </div>
+                    </td>
+                    <td>${pct}%</td>
+                </tr>
+            `;
+        }).join('');
+        tableEl.innerHTML = `
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Skill</th><th>Done / target</th><th></th><th>%</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="4" class="text-center text-muted">No targets set.</td></tr>'}</tbody>
+            </table>
+        `;
+    }
+
+    function updateWeekdaySum() {
+        let sum = 0;
+        for (let i = 0; i < 7; i++) sum += Number(document.getElementById('ws' + i).value || 0);
+        document.getElementById('weekdaySum').textContent = sum.toFixed(2);
+    }
+
+    function updateTotalTally() {
+        // Sum daily_minutes across all loaded plans
+        let total = 0;
+        Object.values(state.plansByLang).forEach(payload => {
+            if (payload && payload.plan) total += Number(payload.plan.daily_minutes || 0);
+        });
+        const tally = document.getElementById('totalTally');
+        tally.textContent = `${total} min/day`;
+        tally.classList.toggle('warn', total > 90);
+    }
+
+    function toggleFlagBanner() {
+        document.getElementById('flagDisabledBanner')
+            .classList.toggle('d-none', state.studyPlanEnabled);
+    }
+
+    function showSaveBanner(ok, msg) {
+        const el = document.getElementById('saveBanner');
+        el.className = 'alert ' + (ok ? 'alert-success' : 'alert-danger');
+        el.textContent = msg;
+        el.classList.remove('d-none');
+    }
+
+    function showError(msg) {
+        document.getElementById('loadingState').classList.add('d-none');
+        const e = document.getElementById('errorState');
+        e.textContent = msg;
+        e.classList.remove('d-none');
+    }
+
+    // --- Wire up live UI elements that don't depend on a specific plan -----
+
+    document.getElementById('dailyMinutesRange').addEventListener('input', (e) => {
+        document.getElementById('dailyMinutesNumber').value = e.target.value;
+    });
+    document.getElementById('dailyMinutesNumber').addEventListener('input', (e) => {
+        const v = Math.max(10, Math.min(180, parseInt(e.target.value || '30')));
+        document.getElementById('dailyMinutesRange').value = v;
+    });
+    for (let i = 0; i < 7; i++) {
+        document.getElementById('ws' + i).addEventListener('input', updateWeekdaySum);
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        const langId = state.selectedLangId;
+        if (!langId) return;
+
+        const dailyMinutes = parseInt(document.getElementById('dailyMinutesNumber').value);
+        const weekdayShape = [];
+        for (let i = 0; i < 7; i++) weekdayShape.push(Number(document.getElementById('ws' + i).value || 0));
+        const overrides = {};
+        document.querySelectorAll('.skill-override-input').forEach(inp => {
+            const v = Number(inp.value);
+            if (Math.abs(v - 1.0) > 0.005) overrides[inp.dataset.skill] = v;
+        });
+        const templateId = parseInt(document.getElementById('templateSelect').value) || null;
+
+        const body = {
+            language_id: langId,
+            daily_minutes: dailyMinutes,
+            weekday_shape: weekdayShape,
+            skill_weight_overrides: overrides,
+        };
+        if (templateId) body.template_id = templateId;
+
+        try {
+            const res = await window.authFetch('/api/study-plan', {
+                method: 'PUT',
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) {
+                const t = await res.text();
+                showSaveBanner(false, `Save failed (${res.status}): ${t}`);
+                return;
+            }
+            await selectLanguage(langId);  // reload to get normalized weekday_shape from server
+            showSaveBanner(true, 'Saved.');
+        } catch (e) {
+            showSaveBanner(false, 'Save failed: ' + e.message);
+        }
+    });
+
+    document.getElementById('recomputeBtn').addEventListener('click', async () => {
+        const langId = state.selectedLangId;
+        if (!langId) return;
+        if (!state.studyPlanEnabled) {
+            showSaveBanner(false, 'Recompute is disabled while STUDY_PLAN_ENABLED is False.');
+            return;
+        }
+        try {
+            const res = await window.authFetch('/api/study-plan/recompute', {
+                method: 'POST',
+                body: JSON.stringify({ language_id: langId }),
+            });
+            if (!res.ok) {
+                const t = await res.text();
+                showSaveBanner(false, `Recompute failed (${res.status}): ${t}`);
+                return;
+            }
+            await selectLanguage(langId);
+            showSaveBanner(true, 'Recompute complete.');
+        } catch (e) {
+            showSaveBanner(false, 'Recompute failed: ' + e.message);
+        }
+    });
+
+})();
+</script>
+{% endblock %}

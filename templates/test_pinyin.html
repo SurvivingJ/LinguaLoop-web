@@ -911,6 +911,9 @@
 
     async function submitResults(accuracy, timeSec) {
         try {
+            // Phase 13 — wall-clock timestamps for server-side duration_ms.
+            const startedAtIso  = state.startTime ? new Date(state.startTime).toISOString() : null;
+            const finishedAtIso = new Date().toISOString();
             const resp = await window.authFetch(`/api/tests/${state.slug}/submit-pinyin`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -918,6 +921,8 @@
                     total_chars: state.playableTokens.length,
                     time_taken: timeSec,
                     errors: state.errors.slice(0, 50), // cap error log
+                    started_at: startedAtIso,
+                    finished_at: finishedAtIso,
                 })
             });
 

@@ -248,9 +248,53 @@ def _initialize_scheduler(app):
         replace_existing=True,
     )
 
+    # Phase 13 — Study Plans cron jobs. See [[features/study-plans.tech]]
+    # section "Cron jobs". Both jobs are guarded with try/except so a single
+    # crash doesn't kill the scheduler, and both rely on Postgres advisory
+    # locks (or idempotent UPSERTs) for cross-worker safety.
+
+    def _run_study_plan_weekly_recompute():
+        try:
+            from services.study_plan_service import _run_weekly_plan_recompute
+            summary = _run_weekly_plan_recompute()
+            app.logger.info("Weekly Study Plan recompute: %s", summary)
+        except Exception as exc:
+            app.logger.exception("Weekly Study Plan recompute crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_study_plan_weekly_recompute,
+        trigger=CronTrigger(day_of_week='sun', hour=23, minute=0),
+        id='study_plan_weekly_recompute',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    def _run_exercise_time_estimate_refresh():
+        try:
+            from services.study_plan_service import _refresh_exercise_time_estimates
+            summary = _refresh_exercise_time_estimates()
+            app.logger.info("Time-estimate refresh: %s", summary)
+        except Exception as exc:
+            app.logger.exception("Time-estimate refresh crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_exercise_time_estimate_refresh,
+        trigger=CronTrigger(hour=4, minute=5),
+        id='exercise_time_estimate_refresh',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
     scheduler.start()
     app.scheduler = scheduler
-    app.logger.info("APScheduler started (irt_calibration_nightly @ 04:00 UTC)")
+    app.logger.info(
+        "APScheduler started — jobs: "
+        "irt_calibration_nightly @ 04:00 UTC, "
+        "exercise_time_estimate_refresh @ 04:05 UTC, "
+        "study_plan_weekly_recompute @ Sun 23:00 UTC"
+    )
 
 
 def _register_blueprints(app):
@@ -352,6 +396,11 @@ def _register_web_routes(app):
     def profile():
         """Render user profile page"""
         return render_template('profile.html')
+
+    @app.route('/study-plan')
+    def study_plan_page():
+        """Render the Study Plan editor (Phase 13)."""
+        return render_template('study_plan.html')
 
     @app.route('/test/<slug>/preview')
     def test_preview(slug):

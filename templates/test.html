@@ -1160,7 +1160,13 @@ async function submitTest() {
         
         // Calculate time taken
         const timeTaken = Math.floor((Date.now() - testState.startTime) / 1000);
-        
+
+        // Phase 13 — capture wall-clock start/finish for server-side duration_ms
+        // (used by dim_test_types.expected_minutes_p50 refresh + Study Plan
+        // weekly counter). Server clamps to (0, 1h) and tolerates NULLs.
+        const startedAtIso  = testState.startTime ? new Date(testState.startTime).toISOString() : null;
+        const finishedAtIso = new Date().toISOString();
+
         // Submit to API
         const response = await window.authFetch(`/api/tests/${testState.slug}/submit`, {
             method: 'POST',
@@ -1169,7 +1175,9 @@ async function submitTest() {
                 test_mode: testState.testType,
                 responses: responses,
                 time_taken: timeTaken,
-                furigana_used: testState.furiganaUsedThisAttempt
+                furigana_used: testState.furiganaUsedThisAttempt,
+                started_at: startedAtIso,
+                finished_at: finishedAtIso
             })
         });
         
