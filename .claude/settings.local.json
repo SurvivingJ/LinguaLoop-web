@@ -81,7 +81,12 @@
       "Bash(python scripts/cleanup_classifier_data.py --dry-run)",
       "Bash(python scripts/cleanup_classifier_data.py)",
       "Bash(awk -F'.' '{print $1}')",
-      "Bash(awk -F'\"' '{print $2}')"
+      "Bash(awk -F'\"' '{print $2}')",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\" -Force)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\services\" -Directory -Recurse)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(git -C /c/Users/James/Documents/Coding/LinguaLoop/WebApp log --oneline -10)"
     ]
   }
 }
