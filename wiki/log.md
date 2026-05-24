@@ -1,5 +1,56 @@
 # Activity Log
 
+## 2026-05-24 fix | CR-03 + CR-04 from code-review-2026-05-24 (TDD: RED 1bbf7e9a → GREEN 8989b0bf)
+
+Hardened the two critical findings flagged in [[reviews/code-review-2026-05-24]] that were tagged as release blockers. Followed the `/ecc:tdd-workflow` skill end-to-end: failing reproducers first, then fix, then verify.
+
+**CR-03 — `AIService.moderate_content` fail-closed contract.**
+- [services/ai_service.py](../services/ai_service.py): added `ModerationServiceError(RuntimeError)`. The `except Exception` branch in `moderate_content` now `raise ModerationServiceError(...) from e` instead of returning `{'is_safe': True}`. `logger.error(..., exc_info=True)` preserves the traceback in backend logs.
+- [routes/tests.py](../routes/tests.py) `POST /api/tests/moderate`: catches `ModerationServiceError` and returns **HTTP 503** `{"error":"moderation_unavailable","status":"error"}`. The flagged-input audit insert is intentionally skipped on this path so outages don't generate false-positive abuse rows against innocent users.
+
+**CR-04 — generic error envelope across all four submission RPCs.**
+- Python (defense-in-depth, [routes/tests.py](../routes/tests.py)): new `_submission_failure_response()` + `_unwrap_rpc_response()` helpers; all four wrappers (`_call_submission_rpc`, `_call_dictation_submission_rpc`, `_call_pinyin_submission_rpc`, `_call_pitch_accent_submission_rpc`) now return `{"error":"submission_failed","error_code":"submission_failed"}` (500) on any `{success:false}` payload, never forwarding upstream `error` (SQLERRM) or `error_detail` (SQLSTATE). Full payload still logged at `ERROR` level for operator visibility. The `submit_test` and `submit_dictation_attempt` fallback branches also stripped their `details=error_msg` echo.
+- SQL (root cause): the `EXCEPTION WHEN OTHERS` blocks in [migrations/phase14_test_kfactor_decay.sql](../migrations/phase14_test_kfactor_decay.sql) (`process_test_submission`), [process_dictation_submission.sql](../migrations/process_dictation_submission.sql), [process_pinyin_submission.sql](../migrations/process_pinyin_submission.sql), [process_pitch_accent_submission.sql](../migrations/process_pitch_accent_submission.sql) now `RAISE WARNING 'process_X failed: % (SQLSTATE=%)', SQLERRM, SQLSTATE` for backend logs and return `{'success': false, 'error_code': 'submission_failed', 'sqlstate': SQLSTATE}`. `sqlstate` is the standardized 5-char Postgres class code (e.g. `23505` for unique violation, `40001` for serialization failure), safe to expose — does not reveal table / column / RLS policy names.
+
+**SQL out of scope this pass (follow-up).** The same `error: SQLERRM` pattern still appears in `migrations/listening_lab_rpcs.sql` (×2), `migrations/process_mystery_submission.sql`, `migrations/process_classifier_drill_submission.sql`, `migrations/process_test_submission_v2.sql`, `migrations/process_test_submission_reduced_repeats.sql`, `migrations/phase3_rpc_fixes.sql`, `migrations/wire_volatility_and_exclude_attempted.sql`, and `migrations/elo_functions.sql`. Some are superseded by later versions; others are live and should be swept in a follow-up PR before any new external surface starts calling them.
+
+**Tests added** (all GREEN; 0 regressions in the 317 pre-existing tests):
+- [tests/test_ai_service_moderation.py](../tests/test_ai_service_moderation.py) — 7 unit tests against `AIService.moderate_content` with mocked OpenAI client; covers happy path, empty-content guard, and 4 error classes (`APIConnectionError`, `APITimeoutError`, `RateLimitError`, generic `Exception`).
+- [tests/test_moderation_route.py](../tests/test_moderation_route.py) — 4 route-level tests via Flask test client; covers 200 safe, 200 flagged + audit, 503 + no audit when service raises, 400 empty.
+- [tests/test_submission_rpc_error_envelope.py](../tests/test_submission_rpc_error_envelope.py) — 11 tests across the four wrappers + a route-boundary test on `/api/tests/<slug>/submit` that asserts no SQLERRM substring leaks into the response body.
+
+**Manual verification still required.** The SQL change to the 4 RPCs is covered by unit + route Python tests only. Before / alongside applying the migrations to Supabase, validate the new EXCEPTION envelope by:
+1. In a scratch DB / branch, apply the four migration files via the Supabase MCP `apply_migration`.
+2. Call `process_test_submission` with a known-bad input — e.g. a non-existent `p_test_id` UUID or a duplicate `p_idempotency_key` — and assert the JSONB returned is `{success:false, error_code:'submission_failed', sqlstate:'...'}` with NO `error`/`error_detail` keys.
+3. Check Postgres logs (`get_logs` MCP) for the matching `WARNING:  process_test_submission failed: ... (SQLSTATE=...)` line.
+4. Repeat for `process_dictation_submission`, `process_pinyin_submission`, `process_pitch_accent_submission`.
+
+**Out of scope but flagged.** CR-01 (Stripe webhook) and CR-02 (broken `PaymentService.create_payment_intent`) remain unfixed — both blockers for the next paid-tier release. See [[reviews/code-review-2026-05-24]] for full remediation guidance.
+
+**Commits:** `1bbf7e9a` (RED — test reproducers), `8989b0bf` (GREEN — fix). **Pages updated:** [[reviews/code-review-2026-05-24]] (status banner), this log.
+
+## 2026-05-24 review | Python code review of main LinguaLoop backend (post-2026-05-15-audit successor)
+
+Read-only Python code review focused on what shipped since the 2026-05-15 production-code audit: the new `call_llm()` infrastructure (commits df85ebb4 / 7d530fac), batch test-generation pipeline rewrite, Study Plans rollout + destructive wipe (f0afbf2d), test-side K-factor decay (e1f35223 / [migrations/phase14_test_kfactor_decay.sql](../migrations/phase14_test_kfactor_decay.sql)), and APScheduler cron jobs (82764d6b). Files deep-read: ~20. Scope: main app only ([app.py](../app.py), [config.py](../config.py), [routes/](../routes/), [services/](../services/), [middleware/](../middleware/), [utils/](../utils/), [models/](../models/)). Out of scope: `Portal/*`, `Corpuses/*`, frontend, SQL schema depth.
+
+**Headline findings:** 4 CRITICAL / 9 HIGH / 12 MEDIUM / 6 LOW / 5 redundancies. Full report at [[reviews/code-review-2026-05-24]].
+
+**Critical (must address before next paid-tier release):**
+
+1. **CR-01 — Stripe webhook missing.** Verified again this session; [routes/payments.py](../routes/payments.py) only registers `/token-packages` and `/create-intent` — there is no `payment_intent.succeeded` handler anywhere, so paid token purchases never credit the user. The team had already flagged this in [[api/rpcs.tech]] line 286 (*"Stripe webhook is currently NOT registered in `app.py`"*); the gap remains.
+2. **CR-02 — `services/payment_service.py::create_payment_intent` is broken.** `package.price_cents` attribute access on the dict-of-dicts that [config.py:179-192](../config.py#L179-L192) provides — would raise `AttributeError` if called. Latent because nothing currently calls it; the live route bypasses the service entirely and does its own `stripe.PaymentIntent.create`. The whole `PaymentService` class is effectively dead code.
+3. **CR-03 — `AIService.moderate_content` fails OPEN.** [services/ai_service.py:292-300](../services/ai_service.py#L292-L300) returns `is_safe: True` on any moderation error. OpenAI moderation timeout or rate-limit → all submitted content silently passes.
+4. **CR-04 — `process_test_submission` leaks `SQLERRM` to clients.** [migrations/phase14_test_kfactor_decay.sql:349-355](../migrations/phase14_test_kfactor_decay.sql#L349-L355) `EXCEPTION WHEN OTHERS THEN RETURN jsonb_build_object('error', SQLERRM)` — exposes schema internals on error. Pattern likely mirrored in the other three submission RPCs.
+
+**Notable HIGH items:** auth-decorator boilerplate (~70 lines triplicated across `jwt_required` / `admin_required` / `tier_required`); service-role bypass only present on `jwt_required`; `r2_service.upload_from_url` has no `timeout=` and no URL scheme validation (SSRF surface); `_initialize_services` silently leaves `app.supabase=None` on init failure but reports startup success; `_log_llm_call` falls back to anon client when admin is None and silently drops observability at DEBUG level.
+
+**Redundancies worth consolidating:** four near-identical RPC wrappers in [routes/tests.py:677-786](../routes/tests.py#L677-L786) (~80 lines → ~30 via a `_call_rpc` helper); legacy `AIService.generate_audio` parallels the newer `test_generation/agents/audio_synthesizer.py`; duplicated tenacity retry decorators across `llm_service.py` and `ai_service.py`.
+
+**Recon corrections:** the initial Explore-agent pass misreported several file sizes by 10-80× (`middleware/auth.py` 8,344 → actually 166; `utils/question_validator.py` 3,645 → 99; `utils/responses.py` 2,535 → 55; `models/requests.py` 2,261 → 57). The real god modules are [routes/admin_local.py](../routes/admin_local.py) (1,282), [routes/tests.py](../routes/tests.py) (1,281), [services/test_generation/orchestrator.py](../services/test_generation/orchestrator.py) (1,072).
+
+**Pages created:** 1 (this review). **Pages updated:** 2 ([wiki/index.md](index.md), this log). **Code changes:** zero — review is documentation-only.
+
+
 ## 2026-05-22 launch | Study Plans wipe + flag flip + i18n + verification (two schema-accuracy bug fixes)
 
 Executed the pre-launch rollout per plan §11b. Schema + RPCs were already applied to the live DB from a prior session; only the wipe, flag flip, and verification remained. Plus i18n keys for the new Study Plan UI.

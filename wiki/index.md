@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-21 (Practice Engine merger + Study Plans orchestrator added — see log.md 2026-05-21) | Pages: 70
+Last updated: 2026-05-24 (Code review of main backend — see log.md 2026-05-24) | Pages: 71
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -99,3 +99,6 @@ Last updated: 2026-05-21 (Practice Engine merger + Study Plans orchestrator adde
 
 ## Lessons
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
+
+## Reviews
+- [[reviews/code-review-2026-05-24]] — Python code review of main backend (4 CRITICAL incl. missing Stripe webhook; 9 HIGH; 12 MEDIUM; 5 redundancies). **CR-03 and CR-04 patched 2026-05-24** (commit `8989b0bf`); CR-01 and CR-02 still open.
