@@ -1,7 +1,11 @@
 # middleware/auth.py
 """
 Consolidated authentication middleware.
-Provides both class-based and standalone decorator functions.
+
+Three decorators (`jwt_required`, `admin_required`, `tier_required`) share a
+single `_authenticate` helper. This keeps the service-role JWT bypass
+symmetric across all three (HI-02) — previously only `jwt_required` had it,
+so batch jobs hitting an admin/tier endpoint silently 401'd.
 """
 
 from functools import wraps
@@ -15,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def _extract_token(req):
-    """Extract JWT token from Authorization header"""
+    """Extract JWT token from Authorization header."""
     auth_header = req.headers.get('Authorization')
     if auth_header and auth_header.startswith('Bearer '):
         return auth_header.split(' ')[1]
@@ -23,184 +27,146 @@ def _extract_token(req):
 
 
 def _get_supabase_client():
-    """Get Supabase client from factory (lazy import to avoid circular deps)"""
+    """Get Supabase client from factory (lazy import to avoid circular deps)."""
     from services.supabase_factory import get_supabase
     return get_supabase()
 
 
 def _get_supabase_admin():
-    """Get admin Supabase client from factory (lazy import to avoid circular deps)"""
+    """Get admin Supabase client from factory (lazy import to avoid circular deps)."""
     from services.supabase_factory import get_supabase_admin
     return get_supabase_admin()
 
 
 # ============================================================================
-# STANDALONE DECORATORS - Use these for most routes
+# Shared authentication helper — single source of truth for HI-01 / HI-02
+# ============================================================================
+
+def _authenticate(token):
+    """Resolve a bearer token to Supabase claims.
+
+    Returns ``(claims, error_response)``:
+      - on success: ``(claims_dict, None)``
+      - on failure: ``(None, (flask_response, status_code))``
+    """
+    if not token:
+        return None, (jsonify({'error': 'Token missing'}), 401)
+
+    # Service-role bypass — shared across jwt/admin/tier decorators (HI-02).
+    # TODO: replace with a dedicated batch-service credential. With the bypass
+    # now symmetric, a leak of SUPABASE_SERVICE_ROLE_KEY exposes admin/tier
+    # endpoints too, not just jwt_required.
+    service_role_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    if service_role_key and hmac.compare_digest(token, service_role_key):
+        logger.info('Service-role bypass used on %s', request.path)
+        return {
+            'sub': 'service-account',
+            'email': 'batch-service@internal',
+            'role': 'service_role',
+            'user': None,
+        }, None
+
+    try:
+        user_response = _get_supabase_client().auth.get_user(token)
+        if not user_response or not user_response.user:
+            return None, (jsonify({'error': 'Invalid or expired token'}), 401)
+        user = user_response.user
+        return {
+            'sub': user.id,
+            'email': user.email,
+            'role': 'authenticated',
+            'aud': 'authenticated',
+            'user': user,
+        }, None
+    except AuthApiError as e:
+        logger.warning('Auth API error: %s', e.message)
+        return None, (jsonify({'error': 'Invalid or expired token'}), 401)
+    except AuthRetryableError as e:
+        logger.error('Auth service temporarily unavailable: %s', e)
+        return None, (jsonify({'error': 'Authentication service unavailable'}), 503)
+    except Exception as e:
+        logger.error('JWT validation failed: %s', e, exc_info=True)
+        return None, (jsonify({'error': 'Invalid token'}), 401)
+
+
+def _set_user_context(claims):
+    """Populate Flask ``g`` with the same fields the legacy decorators set."""
+    g.supabase_claims = claims
+    g.current_user_id = claims['sub']
+    g.user_id = claims['sub']
+    if claims.get('user') is not None:
+        g.current_user = claims['user']
+
+
+def _user_has_tier(user_id, allowed):
+    """True iff the user's subscription_tier is in ``allowed``."""
+    result = _get_supabase_admin().table('users')\
+        .select('subscription_tier').eq('id', user_id).execute()
+    if not result.data:
+        return False
+    return result.data[0]['subscription_tier'] in allowed
+
+
+# ============================================================================
+# Decorators
 # ============================================================================
 
 def jwt_required(f):
-    """
-    Decorator for endpoints requiring JWT authentication.
-    Uses the centralized SupabaseFactory.
-
-    Sets:
-        g.current_user_id: The authenticated user's ID
-        g.current_user: The full user object from Supabase
-        g.supabase_claims: Dict with user claims (sub, email, role)
-    """
+    """Endpoint requires a valid JWT (or the service-role key)."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = _extract_token(request)
-        if not token:
-            return jsonify({'error': 'Token missing'}), 401
-
-        try:
-            # Check for service role key (batch operations).
-            # TODO: replace with a dedicated batch-service credential — the
-            # service-role key is also used by the backend's admin Supabase
-            # client, so a leak here means full DB compromise.
-            service_role_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-            if service_role_key and hmac.compare_digest(token, service_role_key):
-                g.supabase_claims = {
-                    'sub': 'service-account',
-                    'role': 'service_role',
-                    'email': 'batch-service@internal'
-                }
-                g.current_user_id = 'service-account'
-                g.user_id = 'service-account'
-                logger.info('Service-role bypass used on %s', request.path)
-                return f(*args, **kwargs)
-
-            # Verify with Supabase Auth
-            supabase = _get_supabase_client()
-            user_response = supabase.auth.get_user(token)
-
-            if not user_response or not user_response.user:
-                return jsonify({'error': 'Invalid or expired token'}), 401
-
-            # Set all the context variables for compatibility
-            g.current_user_id = user_response.user.id
-            g.current_user = user_response.user
-            g.user_id = user_response.user.id
-            g.supabase_claims = {
-                'sub': user_response.user.id,
-                'email': user_response.user.email,
-                'role': 'authenticated',
-                'aud': 'authenticated'
-            }
-
-            logger.debug(f"User authenticated: {user_response.user.id}")
-
-        except AuthApiError as e:
-            logger.warning(f'Auth API error: {e.message}')
-            return jsonify({'error': 'Invalid or expired token'}), 401
-        except AuthRetryableError as e:
-            logger.error(f'Auth service temporarily unavailable: {e}')
-            return jsonify({'error': 'Authentication service unavailable'}), 503
-        except Exception as e:
-            logger.error(f'JWT validation failed: {e}')
-            return jsonify({'error': 'Invalid token'}), 401
-
+        claims, err = _authenticate(_extract_token(request))
+        if err:
+            return err
+        _set_user_context(claims)
         return f(*args, **kwargs)
     return decorated
 
 
 def admin_required(f):
-    """
-    Decorator for admin-only endpoints.
-    Checks subscription_tier for 'admin' or 'moderator'.
-    """
+    """Endpoint requires admin/moderator tier — service-role bypass honoured."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = _extract_token(request)
-        if not token:
-            return jsonify({'error': 'Token missing'}), 401
+        claims, err = _authenticate(_extract_token(request))
+        if err:
+            return err
+        _set_user_context(claims)
 
-        try:
-            supabase = _get_supabase_client()
-            user_response = supabase.auth.get_user(token)
+        if claims['role'] == 'service_role':
+            return f(*args, **kwargs)
 
-            if not user_response or not user_response.user:
-                return jsonify({'error': 'Invalid token'}), 401
+        if not _user_has_tier(claims['sub'], ('admin', 'moderator')):
+            logger.warning('[AUTH] Admin access denied for user_id=%s', claims['sub'])
+            return jsonify({'error': 'Admin access required'}), 403
 
-            g.current_user_id = user_response.user.id
-            g.current_user = user_response.user
-
-            # Check admin status using admin client to bypass RLS
-            logger.debug(f"[AUTH] Checking admin status for user_id={user_response.user.id}")
-            supabase_admin = _get_supabase_admin()
-            result = supabase_admin.table('users')\
-                .select('subscription_tier')\
-                .eq('id', user_response.user.id)\
-                .execute()
-
-            if not result.data or result.data[0]['subscription_tier'] not in ['admin', 'moderator']:
-                logger.warning(f"[AUTH] Admin access denied for user_id={user_response.user.id}")
-                return jsonify({'error': 'Admin access required'}), 403
-
-            logger.info(f"[AUTH] Admin access granted for user_id={user_response.user.id}")
-
-        except AuthApiError as e:
-            logger.warning(f'Admin auth API error: {e.message}')
-            return jsonify({'error': 'Invalid or expired token'}), 401
-        except AuthRetryableError as e:
-            logger.error(f'Auth service temporarily unavailable: {e}')
-            return jsonify({'error': 'Authentication service unavailable'}), 503
-        except Exception as e:
-            logger.error(f'Admin auth failed: {e}')
-            return jsonify({'error': 'Access denied'}), 403
-
+        logger.info('[AUTH] Admin access granted for user_id=%s', claims['sub'])
         return f(*args, **kwargs)
     return decorated
 
 
-def tier_required(required_tiers: list):
-    """
-    Decorator for subscription tier-based access.
-
-    Args:
-        required_tiers: List of allowed tiers (e.g., ['premium', 'admin'])
-    """
+def tier_required(required_tiers):
+    """Endpoint requires subscription_tier ∈ ``required_tiers`` — service-role bypass honoured."""
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            token = _extract_token(request)
-            if not token:
-                return jsonify({'error': 'Token missing'}), 401
+            claims, err = _authenticate(_extract_token(request))
+            if err:
+                return err
+            _set_user_context(claims)
 
-            try:
-                supabase = _get_supabase_client()
-                user_response = supabase.auth.get_user(token)
+            if claims['role'] == 'service_role':
+                return f(*args, **kwargs)
 
-                if not user_response or not user_response.user:
-                    return jsonify({'error': 'Invalid token'}), 401
+            if not _user_has_tier(claims['sub'], tuple(required_tiers)):
+                logger.warning(
+                    '[AUTH] Tier access denied for user_id=%s required=%s',
+                    claims['sub'], required_tiers,
+                )
+                return jsonify({
+                    'error': f'Requires {" or ".join(required_tiers)} access'
+                }), 403
 
-                g.current_user_id = user_response.user.id
-
-                # Check tier using admin client to bypass RLS
-                logger.debug(f"[AUTH] Checking tier for user_id={user_response.user.id}, required_tiers={required_tiers}")
-                supabase_admin = _get_supabase_admin()
-                result = supabase_admin.table('users')\
-                    .select('subscription_tier')\
-                    .eq('id', user_response.user.id)\
-                    .execute()
-
-                if not result.data or result.data[0]['subscription_tier'] not in required_tiers:
-                    logger.warning(f"[AUTH] Tier access denied for user_id={user_response.user.id}, has tier={result.data[0]['subscription_tier'] if result.data else 'unknown'}")
-                    return jsonify({'error': f'Requires {" or ".join(required_tiers)} access'}), 403
-
-                logger.info(f"[AUTH] Tier access granted for user_id={user_response.user.id}")
-
-            except AuthApiError as e:
-                logger.warning(f'Tier auth API error: {e.message}')
-                return jsonify({'error': 'Invalid or expired token'}), 401
-            except AuthRetryableError as e:
-                logger.error(f'Auth service temporarily unavailable: {e}')
-                return jsonify({'error': 'Authentication service unavailable'}), 503
-            except Exception as e:
-                logger.error(f'Tier auth failed: {e}')
-                return jsonify({'error': 'Access denied'}), 403
-
+            logger.info('[AUTH] Tier access granted for user_id=%s', claims['sub'])
             return f(*args, **kwargs)
         return decorated
     return decorator
