@@ -94,6 +94,7 @@ class GeneratedTest:
     initial_elo: int
     audio_url: str
     title: Optional[str] = None
+    seeded_elo: Optional[int] = None  # lexical-complexity-derived seed, see difficulty_scorer
 
 
 @dataclass
@@ -684,6 +685,9 @@ class TestDatabaseClient:
         # Add title if provided (NULL if not generated)
         if test.title:
             data['title'] = test.title
+
+        if test.seeded_elo is not None:
+            data['seeded_elo'] = test.seeded_elo
 
         self.client.table('tests') \
             .insert(data) \

@@ -260,8 +260,13 @@ class TestGenerationOrchestrator:
         # Get tier config
         cefr_config = self.db.get_cefr_config(difficulty)
         word_min, word_max = self.db.get_word_count_range(difficulty)
-        initial_elo = self.db.get_initial_elo(difficulty)
+        tier_initial_elo = self.db.get_initial_elo(difficulty)
         complexity_tier = cefr_config.tier_code if cefr_config else 'T3'
+
+        # Tier midpoint is the prior; difficulty_scorer refines this with
+        # passage-derived lexical complexity once prose is generated below.
+        initial_elo = tier_initial_elo
+        seeded_elo: Optional[int] = None
 
         # Get question distribution
         question_types = self.db.get_question_distribution(difficulty)
@@ -312,6 +317,29 @@ class TestGenerationOrchestrator:
         # Validation gate: prose length
         if not prose or len(prose.strip()) < 50:
             raise ValueError(f"Prose too short: {len(prose.strip()) if prose else 0} chars (min 50)")
+
+        # Difficulty scorer: refine tier midpoint with passage-derived lexical
+        # complexity. Failure here must not block the test — fall back to the
+        # tier midpoint and warn.
+        try:
+            from services.test_generation.difficulty_scorer import seed_test_elo
+            seeded_elo, _sig = seed_test_elo(
+                prose=prose,
+                language_code=lang_config.language_code,
+                target_difficulty=difficulty,
+                tier_initial_elo=tier_initial_elo,
+            )
+            initial_elo = seeded_elo
+            logger.info(
+                f"Seeded ELO {seeded_elo} (tier midpoint {tier_initial_elo}, "
+                f"delta {seeded_elo - tier_initial_elo:+d})"
+            )
+        except Exception as exc:
+            logger.warning(
+                f"difficulty_scorer failed ({exc}); falling back to tier midpoint {tier_initial_elo}"
+            )
+            seeded_elo = None
+            initial_elo = tier_initial_elo
 
         # Step 1.5: Generate title
         title_template = self.db.get_prompt_template(
@@ -408,7 +436,8 @@ class TestGenerationOrchestrator:
                 gen_user=test_gen_config.system_user_id,
                 initial_elo=initial_elo,
                 audio_url=audio_url,
-                title=title
+                title=title,
+                seeded_elo=seeded_elo,
             )
             self.db.insert_test(test)
 
