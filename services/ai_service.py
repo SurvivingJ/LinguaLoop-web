@@ -10,9 +10,11 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
 
+from pydantic import ValidationError
+
 from services.prompt_service import PromptService
 from services.llm_service import call_llm as llm_call
-from utils.question_validator import QuestionValidator
+from services.test_generation.schemas import MCQuestion, TranscriptResponse
 
 _RETRYABLE_ERRORS = (APIConnectionError, RateLimitError, APITimeoutError, ConnectionError, TimeoutError)
 _retry_api = retry(
@@ -51,7 +53,7 @@ class AIService:
         )
 
     def generate_transcript(self, language, topic, difficulty, style):
-        """Generate listening comprehension transcript using language-specific models"""
+        """Generate listening comprehension transcript using language-specific models."""
         try:
             safe_language = language or "english"
             safe_topic = topic or "any suitable topic"
@@ -66,25 +68,21 @@ class AIService:
                 style=safe_style
             )
 
-            transcript = llm_call(
+            # The legacy `transcript_generation` prompt asks for
+            # `{"transcript": ..., "difficulty_level": ...}`. TranscriptResponse
+            # validates that shape; call_llm strips markdown fences for us.
+            response = llm_call(
                 prompt,
                 language=safe_language,
-                temperature=1.0,
-                response_format='text',
+                temperature=0.7,
+                response_format='json_object',
+                schema=TranscriptResponse,
+                timeout=60,
+                pipeline='test_gen',
+                task_name='transcript_generation',
             )
 
-            transcript = transcript.strip()
-
-            # Handle JSON-wrapped responses (some models return {"transcript": "..."})
-            if transcript.startswith('{') and transcript.endswith('}'):
-                try:
-                    transcript_data = json.loads(transcript)
-                    if isinstance(transcript_data, dict) and 'transcript' in transcript_data:
-                        transcript = transcript_data['transcript']
-                except json.JSONDecodeError:
-                    pass  # Use raw content if JSON parsing fails
-
-            return transcript
+            return response.transcript.strip()
 
         except Exception as e:
             logger.error(f"Transcript generation failed: {e}")
@@ -133,8 +131,13 @@ class AIService:
 
     def _generate_single_question(self, transcript: str, language: str,
                                 question_type: int, previous_questions: List[str]) -> Dict:
-        """Generate a single question of specified type using language-specific model"""
+        """Generate a single question of specified type using language-specific model.
 
+        Returns a dict matching the historical shape consumed by routes/tests.py:
+        {id, question, choices, answer, correct_answer_index}. Schema validation
+        (4 distinct choices, answer ∈ choices) is enforced by MCQuestion via
+        call_llm with a one-shot repair retry on failure.
+        """
         previous_text = "; ".join(previous_questions) if previous_questions else "None"
 
         prompt = self.prompt_service.format_prompt(
@@ -145,33 +148,32 @@ class AIService:
         )
 
         try:
-            question_data = llm_call(
+            question = llm_call(
                 prompt,
                 language=language,
-                temperature=1.0,
-                response_format='json',
+                temperature=0.3,
+                response_format='json_object',
+                schema=MCQuestion,
                 timeout=30,
+                pipeline='test_gen',
+                task_name=f'question_type{question_type}',
             )
+        except ValidationError as e:
+            first_err = e.errors()[0]['msg'] if e.errors() else str(e)
+            logger.error(f"Question schema validation failed (after repair) for type {question_type}: {first_err}")
+            raise Exception(f"Question validation failed: {first_err}")
+        except Exception as e:
+            logger.error(f"Question generation failed for type {question_type}: {e}")
+            raise
 
-            logger.debug(f"Question Type {question_type}, Language: {language}")
-
-            validated_question = QuestionValidator.validate_question_format(question_data)
-            QuestionValidator.check_semantic_overlap(validated_question["Question"], previous_questions)
-
-            logger.debug(f"Question generated successfully for type {question_type}")
-            return {
-                'id': str(uuid4()),
-                'question': validated_question["Question"],
-                'choices': validated_question["Options"],
-                'answer': validated_question["Answer"]
-            }
-
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON Parse Error: {e}")
-            raise Exception(f"Invalid JSON response: {e}")
-        except ValueError as e:
-            logger.error(f"Validation Error: {e}")
-            raise Exception(f"Question validation failed: {e}")
+        logger.debug(f"Question generated successfully for type {question_type} (answer_index={question.correct_answer_index})")
+        return {
+            'id': str(uuid4()),
+            'question': question.question_text,
+            'choices': question.choices,
+            'answer': question.answer,
+            'correct_answer_index': question.correct_answer_index,
+        }
 
 
 

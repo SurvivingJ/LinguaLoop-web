@@ -2,14 +2,14 @@
 Title Generator Agent
 
 Generates concise, difficulty-appropriate titles for listening comprehension tests.
-Uses OpenRouter for LLM calls.
+Routes through the unified llm_service so calls are logged to llm_calls.
 """
 
 import json
 import logging
 from typing import Optional
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from services.llm_service import get_client
+
+from services.llm_service import call_llm
 from services.llm_output_cleaner import clean_text
 
 from ..config import test_gen_config
@@ -20,35 +20,17 @@ logger = logging.getLogger(__name__)
 class TitleGenerator:
     """Generates titles for tests using LLM."""
 
-    # OpenRouter base URL
-    OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
-
     def __init__(self, api_key: str = None, model: str = None):
-        """
-        Initialize the Title Generator.
+        """Initialize the Title Generator.
 
-        Args:
-            api_key: OpenRouter API key (defaults to config)
-            model: LLM model to use (defaults to config)
+        api_key is retained for backwards-compatible callers; the unified
+        llm_service uses OPENROUTER_API_KEY from the environment.
         """
         self.api_key = api_key or test_gen_config.openrouter_api_key
-        self.model = model or test_gen_config.default_question_model  # Use lighter model
+        self.model = model or test_gen_config.default_question_model  # use the lighter model
         self.api_call_count = 0
-
-        # Use shared client pool
-        self.client = get_client(
-            base_url=self.OPENROUTER_BASE_URL,
-            api_key=self.api_key,
-        )
-
         logger.info(f"TitleGenerator initialized with model: {self.model}")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type((Exception,)),
-        reraise=True
-    )
     def generate_title(
         self,
         prose: str,
@@ -58,37 +40,28 @@ class TitleGenerator:
         language_name: str,
         language_code: str,
         prompt_template: Optional[str] = None,
-        model_override: Optional[str] = None
+        model_override: Optional[str] = None,
+        seed: Optional[int] = None,
+        template_version: Optional[int] = None,
     ) -> str:
-        """
-        Generate a title for a test based on its prose content.
+        """Generate a title for a test based on its prose content.
 
-        Args:
-            prose: The prose/transcript text
-            topic_concept: Topic concept (translated to target language)
-            difficulty: Difficulty level 1-9
-            complexity_tier: Tier code (e.g., "T1", "T3")
-            language_name: Target language name (e.g., "Spanish")
-            language_code: ISO language code (e.g., "es")
-            prompt_template: Custom prompt template (optional)
-            model_override: Override model for this call
-
-        Returns:
-            str: Generated title text
+        Returns the cleaned title string. Raises on empty / errored response;
+        the unified llm_service handles its own retry on transient API errors.
         """
         model = model_override or self.model
 
-        # Build prompt
         if prompt_template:
-            # Use placeholder names that match database templates:
-            # {prose}, {topic_concept}, {difficulty}, {complexity_tier}, {language}, {language_code}
+            # Placeholder names match active DB templates:
+            # {prose}, {topic_concept}, {difficulty}, {complexity_tier},
+            # {language}, {language_code}
             prompt = prompt_template.format(
                 prose=prose,
                 topic_concept=topic_concept,
                 difficulty=difficulty,
                 complexity_tier=complexity_tier,
                 language=language_name,
-                language_code=language_code
+                language_code=language_code,
             )
         else:
             prompt = self._build_default_prompt(
@@ -96,34 +69,29 @@ class TitleGenerator:
                 topic_concept,
                 difficulty,
                 complexity_tier,
-                language_name
+                language_name,
             )
 
         try:
-            response = self.client.chat.completions.create(
+            content = call_llm(
+                prompt,
                 model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,  # Moderate creativity for titles
-                timeout=30
+                temperature=0.5,
+                response_format='text',
+                seed=seed,
+                timeout=30,
+                pipeline='test_gen',
+                task_name='title_generation',
+                template_version=template_version,
             )
-
-            self.api_call_count += 1
-
-            if not response.choices:
-                raise Exception("No response from LLM")
-
-            content = response.choices[0].message.content
-            if not content:
-                raise Exception("Empty response from LLM")
-
-            title = clean_text(content.strip()).cleaned
-
-            logger.info(f"Generated title: {title[:50]}...")
-            return title
-
         except Exception as e:
             logger.error(f"Title generation failed: {e}")
             raise
+
+        self.api_call_count += 1
+        title = clean_text(content.strip()).cleaned
+        logger.info(f"Generated title: {title[:50]}...")
+        return title
 
     def _build_default_prompt(
         self,
@@ -131,22 +99,24 @@ class TitleGenerator:
         topic_concept: str,
         difficulty: int,
         complexity_tier: str,
-        language_name: str
+        language_name: str,
     ) -> str:
-        """Build default title generation prompt."""
+        """Build default title generation prompt (legacy fallback).
 
-        # Define style guidance based on difficulty
-        if difficulty <= 2:  # A1
+        Only used when no DB template is supplied. The active code path passes
+        a template from prompt_templates via the orchestrator.
+        """
+        if difficulty <= 2:
             style_guidance = "very simple and short (3-6 words)"
-        elif difficulty <= 4:  # A2
+        elif difficulty <= 4:
             style_guidance = "simple and concise (4-8 words)"
-        elif difficulty <= 5:  # B1
+        elif difficulty <= 5:
             style_guidance = "clear and straightforward (5-10 words)"
-        elif difficulty <= 6:  # B2
+        elif difficulty <= 6:
             style_guidance = "moderately descriptive (6-12 words)"
-        elif difficulty <= 7:  # C1
+        elif difficulty <= 7:
             style_guidance = "sophisticated and nuanced (8-15 words)"
-        else:  # C2
+        else:
             style_guidance = "complex and detailed (10-18 words)"
 
         return f"""Generate a title for this listening comprehension passage in {language_name}.
@@ -172,32 +142,28 @@ Return ONLY the title text, nothing else.
 """
 
     def _clean_response(self, content: str) -> str:
-        """Clean the LLM response to extract title."""
-        # Remove any markdown code blocks
+        """Legacy helper retained for backwards compatibility.
+
+        Title cleanup now relies on services.llm_output_cleaner.clean_text;
+        external callers (if any) that still invoke this helper get the
+        same behaviour as before.
+        """
         if content.startswith('```'):
             content = content.replace('```', '', 2)
 
-        # Remove any JSON wrapping
         if content.startswith('{') and content.endswith('}'):
             try:
                 data = json.loads(content)
                 if isinstance(data, dict):
-                    # Try common keys
                     for key in ['title', 'Title', 'text', 'content']:
                         if key in data:
                             return data[key]
             except json.JSONDecodeError:
                 pass
 
-        # Remove leading/trailing quotes
         content = content.strip().strip('"\'')
 
-        # Remove common prefixes that LLMs sometimes add
-        prefixes_to_remove = [
-            'Title: ',
-            'title: ',
-            'TITLE: ',
-        ]
+        prefixes_to_remove = ['Title: ', 'title: ', 'TITLE: ']
         for prefix in prefixes_to_remove:
             if content.startswith(prefix):
                 content = content[len(prefix):]

@@ -36,10 +36,10 @@ class TestGenConfig:
         default_factory=lambda: os.getenv('TEST_GEN_QUESTION_MODEL', 'google/gemini-2.0-flash-exp')
     )
     prose_temperature: float = field(
-        default_factory=lambda: float(os.getenv('TEST_GEN_PROSE_TEMP', '0.9'))
+        default_factory=lambda: float(os.getenv('TEST_GEN_PROSE_TEMP', '0.7'))
     )
     question_temperature: float = field(
-        default_factory=lambda: float(os.getenv('TEST_GEN_QUESTION_TEMP', '0.7'))
+        default_factory=lambda: float(os.getenv('TEST_GEN_QUESTION_TEMP', '0.3'))
     )
 
     # TTS Configuration

@@ -86,7 +86,10 @@
       "Bash(Select-Object Name)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\services\" -Directory -Recurse)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(git -C /c/Users/James/Documents/Coding/LinguaLoop/WebApp log --oneline -10)"
+      "Bash(git -C /c/Users/James/Documents/Coding/LinguaLoop/WebApp log --oneline -10)",
+      "Bash(python -m scripts.run_test_generation_cli --help)",
+      "Bash(python -m scripts.run_test_generation_cli --language en --count 3 --type reading --dry-run)",
+      "Bash(python -m scripts.run_test_generation_cli --language jp --count 2 --type reading --dry-run)"
     ]
   }
 }

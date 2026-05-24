@@ -2,14 +2,14 @@
 Prose Writer Agent
 
 Generates prose/transcript content for listening comprehension tests.
-Uses OpenRouter for LLM calls.
+Routes through the unified llm_service so calls are logged to llm_calls.
 """
 
 import json
 import logging
 from typing import Optional
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from services.llm_service import get_client
+
+from services.llm_service import call_llm, get_client
 from services.llm_output_cleaner import clean_text
 from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
 
@@ -21,22 +21,24 @@ logger = logging.getLogger(__name__)
 class ProseWriter:
     """Generates prose content for tests using LLM."""
 
-    # OpenRouter base URL
+    # OpenRouter base URL — used by the back-compat self.client shim consumed
+    # by VocabularyExtractionPipeline (see orchestrator). Prose generation
+    # itself routes through services.llm_service.call_llm.
     OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
     def __init__(self, api_key: str = None, model: str = None):
-        """
-        Initialize the Prose Writer.
+        """Initialize the Prose Writer.
 
-        Args:
-            api_key: OpenRouter API key (defaults to config)
-            model: LLM model to use (defaults to config)
+        api_key is retained for backwards-compatible callers; the unified
+        llm_service uses OPENROUTER_API_KEY from the environment.
         """
         self.api_key = api_key or test_gen_config.openrouter_api_key
         self.model = model or test_gen_config.default_prose_model
         self.api_call_count = 0
 
-        # Use shared client pool
+        # Back-compat: VocabularyExtractionPipeline reads
+        # `prose_writer.client` as its OpenAI client. Construct it via the
+        # shared pool to avoid duplicating connection state.
         self.client = get_client(
             base_url=self.OPENROUTER_BASE_URL,
             api_key=self.api_key,
@@ -44,12 +46,6 @@ class ProseWriter:
 
         logger.info(f"ProseWriter initialized with model: {self.model}")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type((Exception,)),
-        reraise=True
-    )
     def generate_prose(
         self,
         topic_concept: str,
@@ -61,25 +57,14 @@ class ProseWriter:
         keywords: Optional[list] = None,
         complexity_tier: Optional[str] = None,
         prompt_template: Optional[str] = None,
-        model_override: Optional[str] = None
+        model_override: Optional[str] = None,
+        seed: Optional[int] = None,
+        template_version: Optional[int] = None,
     ) -> str:
-        """
-        Generate prose content for a test.
+        """Generate prose content for a test.
 
-        Args:
-            topic_concept: Topic/subject of the prose (in target language)
-            language_name: Target language name (e.g., "Spanish")
-            language_code: ISO language code (e.g., "es")
-            difficulty: Difficulty level 1-9
-            word_count_min: Minimum word count
-            word_count_max: Maximum word count
-            keywords: List of keywords related to topic (in target language)
-            complexity_tier: Tier code (e.g., "T1", "T3")
-            prompt_template: Custom prompt template (optional)
-            model_override: Override model for this call
-
-        Returns:
-            str: Generated prose text
+        Returns the cleaned prose string. Raises on empty / errored response;
+        the unified llm_service handles its own retry on transient API errors.
         """
         model = model_override or self.model
 
@@ -90,9 +75,8 @@ class ProseWriter:
         if not complexity_tier:
             complexity_tier = DIFFICULTY_TO_TIER.get(difficulty, 'T3')
 
-        # Build prompt
         if prompt_template:
-            # Use placeholder names that match actual database templates:
+            # Placeholder names match the active DB templates:
             # {topic_concept}, {keywords}, {complexity_tier}, {min_words}, {max_words}
             prompt = prompt_template.format(
                 topic_concept=topic_concept,
@@ -102,7 +86,7 @@ class ProseWriter:
                 max_words=word_count_max,
                 language=language_name,
                 language_code=language_code,
-                difficulty=difficulty
+                difficulty=difficulty,
             )
         else:
             prompt = self._build_default_prompt(
@@ -110,42 +94,35 @@ class ProseWriter:
                 language_name,
                 difficulty,
                 word_count_min,
-                word_count_max
+                word_count_max,
             )
 
         try:
-            response = self.client.chat.completions.create(
+            content = call_llm(
+                prompt,
                 model=model,
-                messages=[{"role": "user", "content": prompt}],
                 temperature=test_gen_config.prose_temperature,
-                timeout=60
+                response_format='text',
+                seed=seed,
+                timeout=60,
+                pipeline='test_gen',
+                task_name='prose_generation',
+                template_version=template_version,
             )
-
-            self.api_call_count += 1
-
-            if not response.choices:
-                raise Exception("No response from LLM")
-
-            content = response.choices[0].message.content
-            if not content:
-                raise Exception("Empty response from LLM")
-
-            prose = clean_text(content.strip()).cleaned
-
-            # Log prose length (character count works better for CJK languages)
-            # Don't validate word count since Chinese/Japanese don't use spaces
-            char_count = len(prose)
-            word_count_estimate = len(prose.split())
-            logger.info(
-                f"Generated prose: {char_count} chars, ~{word_count_estimate} words "
-                f"(target: {word_count_min}-{word_count_max} words)"
-            )
-
-            return prose
-
         except Exception as e:
             logger.error(f"Prose generation failed: {e}")
             raise
+
+        self.api_call_count += 1
+
+        prose = clean_text(content.strip()).cleaned
+        char_count = len(prose)
+        word_count_estimate = len(prose.split())
+        logger.info(
+            f"Generated prose: {char_count} chars, ~{word_count_estimate} words "
+            f"(target: {word_count_min}-{word_count_max} words)"
+        )
+        return prose
 
     def _build_default_prompt(
         self,
@@ -153,9 +130,13 @@ class ProseWriter:
         language: str,
         difficulty: int,
         word_count_min: int,
-        word_count_max: int
+        word_count_max: int,
     ) -> str:
-        """Build default prose generation prompt."""
+        """Build default prose generation prompt (legacy fallback).
+
+        Only used when no DB template is supplied. The active code path passes
+        a template from prompt_templates via the orchestrator.
+        """
         tier = DIFFICULTY_TO_TIER.get(difficulty, 'T3')
 
         return f"""Generate a natural, engaging prose passage in {language} for language learners.
@@ -183,26 +164,25 @@ Return ONLY the prose text, with no additional commentary or formatting.
 """
 
     def _clean_response(self, content: str) -> str:
-        """Clean the LLM response to extract prose."""
-        # Remove any markdown code blocks
+        """Clean the LLM response to extract prose (legacy helper, unused).
+
+        Retained for backwards compatibility with any external caller; new code
+        relies on services.llm_output_cleaner.clean_text instead.
+        """
         if content.startswith('```'):
             content = content.replace('```', '', 2)
 
-        # Remove any JSON wrapping
         if content.startswith('{') and content.endswith('}'):
             try:
                 data = json.loads(content)
                 if isinstance(data, dict):
-                    # Try common keys
                     for key in ['prose', 'transcript', 'text', 'content']:
                         if key in data:
                             return data[key]
             except json.JSONDecodeError:
                 pass
 
-        # Remove leading/trailing quotes
         content = content.strip().strip('"\'')
-
         return content
 
     def reset_call_count(self) -> None:
