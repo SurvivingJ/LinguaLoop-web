@@ -9,6 +9,7 @@ import logging
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.ai_service import ModerationServiceError
 from services.test_service import (
     TestService, DimensionService, get_test_service,
     parse_language_id, VALID_LANGUAGE_IDS
@@ -59,10 +60,17 @@ def moderate_content():
                 "status": "error"
             }), 400
         
-        moderation_result = current_app.openai_service.moderate_content(content)
-
-        if moderation_result.get('error'):
-            logger.warning(f"Moderation service error: {moderation_result['error']}")
+        try:
+            moderation_result = current_app.openai_service.moderate_content(content)
+        except ModerationServiceError as e:
+            # CR-03: moderation service unavailable. Fail closed by returning
+            # 503 — DO NOT record a flagged_input audit row (would be a false
+            # positive against the user).
+            logger.error("Moderation service unavailable: %s", e)
+            return jsonify({
+                "error": "moderation_unavailable",
+                "status": "error",
+            }), 503
 
         is_safe = moderation_result['is_safe']
 
@@ -674,11 +682,49 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         )
 
 
+# CR-04: the four submission RPCs return {success:false, error:SQLERRM,
+# error_detail:SQLSTATE} when the underlying Postgres EXCEPTION block fires.
+# These helpers must (a) log the raw payload server-side and (b) return a
+# generic envelope to the client — never forwarding SQLERRM text or
+# table/column hints that aid schema probing.
+
+def _submission_failure_response(rpc_name, payload):
+    """Log the upstream failure payload and return a client-safe envelope."""
+    current_app.logger.error(
+        "%s failed: %s", rpc_name, payload
+    )
+    return jsonify({
+        "error": "submission_failed",
+        "error_code": "submission_failed",
+    }), 500
+
+
+def _unwrap_rpc_response(rpc_name, response_data, on_success):
+    """Inspect an RPC response and dispatch success/failure.
+
+    ``on_success`` is invoked with the parsed dict when the payload is
+    ``{success: True, ...}`` so the caller can record info-level logs with
+    RPC-specific identifiers. Failures route through the generic envelope.
+    """
+    if isinstance(response_data, dict) and response_data.get('success'):
+        on_success(response_data)
+        return response_data
+    return _submission_failure_response(rpc_name, response_data)
+
+
 def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
-    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
+    Returns the parsed RPC result dict on success, or a
+    ``(jsonify_response, status_code)`` tuple on failure. Failure envelopes
+    never include SQLERRM text — see CR-04.
     """
+    def _on_success(data):
+        current_app.logger.info(
+            "process_test_submission succeeded: attempt_id=%s",
+            data.get('attempt_id'),
+        )
+
     try:
         response = client.rpc('process_test_submission', {
             'p_user_id': user_id,
@@ -690,26 +736,27 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
             'p_idempotency_key': str(uuid4()),
             'p_furigana_used': bool(furigana_used),
         }).execute()
-        return response.data
     except Exception as e:
-        # Supabase Python client may throw for JSONB responses — check if actually successful
+        # supabase-py raises on JSONB responses; rescue the payload here so
+        # we can dispatch both success and failure paths uniformly.
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        if isinstance(error_data, dict) and error_data.get('success'):
-            current_app.logger.info(f"RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
-            return error_data
-        current_app.logger.error(f"RPC call failed: {error_data}")
-        return jsonify({"error": "Failed to process test submission"}), 500
+        return _unwrap_rpc_response('process_test_submission', error_data, _on_success)
+
+    return _unwrap_rpc_response('process_test_submission', response.data, _on_success)
 
 
 def _call_dictation_submission_rpc(
     client, user_id, test_id, language_id, test_type_id,
     word_correct, word_total, replay_count, diff_payload, idempotency_key,
 ):
-    """Call the process_dictation_submission RPC.
+    """Call the process_dictation_submission RPC. See _call_submission_rpc
+    for the CR-04 envelope contract."""
+    def _on_success(data):
+        current_app.logger.info(
+            "process_dictation_submission succeeded: attempt_id=%s",
+            data.get('attempt_id'),
+        )
 
-    Returns the parsed RPC result dict, or a (jsonify_response, status_code)
-    tuple on error.
-    """
     try:
         response = client.rpc('process_dictation_submission', {
             'p_user_id': user_id,
@@ -723,21 +770,22 @@ def _call_dictation_submission_rpc(
             'p_was_free_test': True,
             'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
         }).execute()
-        return response.data
     except Exception as e:
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        if isinstance(error_data, dict) and error_data.get('success'):
-            current_app.logger.info(f"Dictation RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
-            return error_data
-        current_app.logger.error(f"Dictation RPC call failed: {error_data}")
-        return jsonify({"error": "Failed to process dictation submission"}), 500
+        return _unwrap_rpc_response('process_dictation_submission', error_data, _on_success)
+
+    return _unwrap_rpc_response('process_dictation_submission', response.data, _on_success)
 
 
 def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars):
-    """Call the process_pinyin_submission RPC (accuracy-based, no MC questions).
+    """Call the process_pinyin_submission RPC. See _call_submission_rpc
+    for the CR-04 envelope contract."""
+    def _on_success(data):
+        current_app.logger.info(
+            "process_pinyin_submission succeeded: attempt_id=%s",
+            data.get('attempt_id'),
+        )
 
-    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
-    """
     try:
         response = client.rpc('process_pinyin_submission', {
             'p_user_id': user_id,
@@ -749,21 +797,22 @@ def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type
             'p_was_free_test': True,
             'p_idempotency_key': str(uuid4()),
         }).execute()
-        return response.data
     except Exception as e:
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        if isinstance(error_data, dict) and error_data.get('success'):
-            current_app.logger.info(f"Pinyin RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
-            return error_data
-        current_app.logger.error(f"Pinyin RPC call failed: {error_data}")
-        return jsonify({"error": "Failed to process pinyin submission"}), 500
+        return _unwrap_rpc_response('process_pinyin_submission', error_data, _on_success)
+
+    return _unwrap_rpc_response('process_pinyin_submission', response.data, _on_success)
 
 
 def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units, furigana_used=False):
-    """Call the process_pitch_accent_submission RPC (accuracy-based, no MC questions).
+    """Call the process_pitch_accent_submission RPC. See _call_submission_rpc
+    for the CR-04 envelope contract."""
+    def _on_success(data):
+        current_app.logger.info(
+            "process_pitch_accent_submission succeeded: attempt_id=%s",
+            data.get('attempt_id'),
+        )
 
-    Returns the parsed RPC result dict, or a (jsonify_response, status_code) tuple on error.
-    """
     try:
         response = client.rpc('process_pitch_accent_submission', {
             'p_user_id': user_id,
@@ -776,14 +825,11 @@ def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, tes
             'p_idempotency_key': str(uuid4()),
             'p_furigana_used': bool(furigana_used),
         }).execute()
-        return response.data
     except Exception as e:
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        if isinstance(error_data, dict) and error_data.get('success'):
-            current_app.logger.info(f"Pitch accent RPC succeeded (JSONB response): attempt_id={error_data.get('attempt_id')}")
-            return error_data
-        current_app.logger.error(f"Pitch accent RPC call failed: {error_data}")
-        return jsonify({"error": "Failed to process pitch accent submission"}), 500
+        return _unwrap_rpc_response('process_pitch_accent_submission', error_data, _on_success)
+
+    return _unwrap_rpc_response('process_pitch_accent_submission', response.data, _on_success)
 
 
 def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
@@ -941,12 +987,15 @@ def submit_test_attempt(slug):
         if isinstance(rpc_result, tuple):
             return rpc_result  # Error response
 
-        # Validate the result
+        # Validate the result. The wrapper above already converts any
+        # {success:false} payload into the generic envelope tuple, so this
+        # branch is a belt-and-suspenders guard. Do NOT forward error_msg
+        # to the client — it may contain SQLERRM text (CR-04).
         if not rpc_result or not rpc_result.get('success'):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
             current_app.logger.error(f"ELO RPC failed: {error_msg} (detail: {error_detail})")
-            return jsonify({"error": "Failed to process test submission", "details": error_msg}), 500
+            return jsonify({"error": "submission_failed"}), 500
 
         current_app.logger.info(
             f"Test submitted: user={current_user_id}, test={test_id}, "
@@ -1260,9 +1309,10 @@ def submit_dictation_attempt(slug):
             return rpc_result
 
         if not rpc_result or not rpc_result.get('success'):
+            # See CR-04 — don't echo SQLERRM text into the client response.
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Dictation RPC failed: {error_msg}")
-            return jsonify({"error": "Failed to process dictation submission", "details": error_msg}), 500
+            return jsonify({"error": "submission_failed"}), 500
 
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(

@@ -347,10 +347,16 @@ BEGIN
   );
 
 EXCEPTION WHEN OTHERS THEN
+  -- CR-04: log full SQLERRM/SQLSTATE server-side for debugging, but return a
+  -- generic envelope to the client. Never expose SQLERRM (may reveal table /
+  -- column / RLS policy names — useful to an attacker probing the schema).
+  -- sqlstate is the standardized 5-char Postgres class code (e.g. '23505'),
+  -- safe to surface so clients can distinguish broad error classes.
+  RAISE WARNING 'process_test_submission failed: % (SQLSTATE=%)', SQLERRM, SQLSTATE;
   RETURN jsonb_build_object(
     'success', false,
-    'error', SQLERRM,
-    'error_detail', SQLSTATE
+    'error_code', 'submission_failed',
+    'sqlstate', SQLSTATE
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

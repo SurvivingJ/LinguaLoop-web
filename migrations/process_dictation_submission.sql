@@ -370,10 +370,12 @@ BEGIN
   );
 
 EXCEPTION WHEN OTHERS THEN
+  -- CR-04: see migrations/phase14_test_kfactor_decay.sql for rationale.
+  RAISE WARNING 'process_dictation_submission failed: % (SQLSTATE=%)', SQLERRM, SQLSTATE;
   RETURN jsonb_build_object(
     'success', false,
-    'error', SQLERRM,
-    'error_detail', SQLSTATE
+    'error_code', 'submission_failed',
+    'sqlstate', SQLSTATE
   );
 END;
 $function$;

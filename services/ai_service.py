@@ -27,6 +27,16 @@ _retry_api = retry(
 
 logger = logging.getLogger(__name__)
 
+
+class ModerationServiceError(RuntimeError):
+    """Raised when content moderation cannot reach a verdict.
+
+    The route layer surfaces this as HTTP 503 so callers can retry rather
+    than silently treat unsafe content as safe. See CR-03 in
+    wiki/reviews/code-review-2026-05-24.md.
+    """
+
+
 class AIService:
     """AI generation service supporting OpenAI and OpenRouter"""
 
@@ -290,14 +300,12 @@ class AIService:
             }
 
         except Exception as e:
-            error_msg = f"Content moderation error: {e}"
-            logger.error(error_msg)
-            return {
-                'is_safe': True,
-                'flagged_categories': [],
-                'category_scores': {},
-                'error': str(e)
-            }
+            # CR-03: fail CLOSED. Raise so the caller surfaces 503 instead
+            # of silently treating unsafe content as safe.
+            logger.error("Content moderation error: %s", e, exc_info=True)
+            raise ModerationServiceError(
+                "Content moderation service unavailable"
+            ) from e
 
     def reload_prompts(self):
         """Reload prompt templates from files"""
