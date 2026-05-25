@@ -51,7 +51,7 @@ DIFFICULTY_LABELS = {
 @dataclass
 class BatchConfig:
     """Configuration for a batch test generation run."""
-    language_code: str                                # 'cn', 'en', 'jp'
+    language_code: str                                # ISO 639-1: 'zh', 'en', 'ja'
     count: int = 20                                   # tests to generate
     test_type: str = 'listening'                      # 'listening' | 'reading'
     difficulty: Optional[int] = None                  # 1-9 or None (balanced)

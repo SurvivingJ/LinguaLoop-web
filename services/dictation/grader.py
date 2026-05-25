@@ -125,7 +125,7 @@ def grade_dictation(
     Args:
         correct_transcript: The original passage text.
         user_transcript:    What the user typed.
-        language_code:      'cn', 'en', 'es', 'jp', etc. Controls tokenization.
+        language_code:      ISO 639-1: 'zh', 'en', 'es', 'ja', etc. Controls tokenization.
 
     Returns:
         GradingResult with per-token diff, counts, and overall accuracy.

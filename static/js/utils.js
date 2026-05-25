@@ -21,8 +21,8 @@ const ELO_RANGES = {
 // Language flag mapping
 const LANGUAGE_FLAGS = {
     'en': '🇺🇸', 'english': '🇺🇸', 'English': '🇺🇸',
-    'zh': '🇨🇳', 'cn': '🇨🇳', 'chinese': '🇨🇳', 'Chinese': '🇨🇳',
-    'ja': '🇯🇵', 'jp': '🇯🇵', 'japanese': '🇯🇵', 'Japanese': '🇯🇵',
+    'zh': '🇨🇳', 'chinese': '🇨🇳', 'Chinese': '🇨🇳',
+    'ja': '🇯🇵', 'japanese': '🇯🇵', 'Japanese': '🇯🇵',
     'ko': '🇰🇷', 'korean': '🇰🇷', 'Korean': '🇰🇷',
     'fr': '🇫🇷', 'french': '🇫🇷', 'French': '🇫🇷'
 };
@@ -299,7 +299,7 @@ const LinguaMetadata = {
 
     /**
      * Get native name for a language (by English name or code).
-     * @param {string} langNameOrCode - e.g. "chinese", "cn", "Chinese"
+     * @param {string} langNameOrCode - e.g. "chinese", "zh", "Chinese"
      * @returns {string} Native name or original input as fallback
      */
     getNativeName(langNameOrCode) {

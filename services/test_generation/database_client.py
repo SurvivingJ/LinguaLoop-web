@@ -375,7 +375,7 @@ class TestDatabaseClient:
 
     def get_language_config_by_code(self, language_code: str) -> Optional[LanguageConfig]:
         """
-        Fetch language configuration by language code (e.g., 'en', 'cn', 'jp').
+        Fetch language configuration by language code (ISO 639-1: 'en', 'zh', 'ja').
 
         Checks the existing cache first, then queries by code.
 

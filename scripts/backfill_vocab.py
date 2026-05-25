@@ -432,7 +432,7 @@ class VocabBackfillRunner:
 
 def main():
     parser = argparse.ArgumentParser(description='Backfill vocabulary for existing tests')
-    parser.add_argument('--language', required=True, choices=['cn', 'en', 'jp'],
+    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
     parser.add_argument('--dry-run', action='store_true',
                         help='Preview changes without writing to DB')

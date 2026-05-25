@@ -476,12 +476,12 @@
         document.getElementById('testDifficulty').textContent = `Level ${test.difficulty || 1}`;
 
         // Show pinyin option for Chinese tests only
-        if (test.language === 'cn' || test.language_id === 1) {
+        if (test.language === 'zh' || test.language_id === 1) {
             document.getElementById('pinyinOptionWrapper').style.display = 'block';
         }
 
         // Show pitch accent option for Japanese tests only
-        if (test.language === 'jp' || test.language === 'ja' || test.language_id === 3) {
+        if (test.language === 'ja' || test.language_id === 3) {
             document.getElementById('pitchAccentOptionWrapper').style.display = 'block';
         }
 

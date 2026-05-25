@@ -55,8 +55,8 @@ def main():
         description='Batch test generation with balanced difficulty distribution',
     )
     parser.add_argument(
-        '--language', required=True, choices=['cn', 'en', 'jp'],
-        help='Language code: cn=Chinese, en=English, jp=Japanese',
+        '--language', required=True, choices=['zh', 'en', 'ja'],
+        help='Language code: zh=Chinese, en=English, ja=Japanese',
     )
     parser.add_argument(
         '--count', type=int, default=20,
@@ -88,7 +88,7 @@ def main():
     setup_logging()
     logger = logging.getLogger(__name__)
 
-    language_names = {'cn': 'Chinese', 'en': 'English', 'jp': 'Japanese'}
+    language_names = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
 
     logger.info('=' * 60)
     logger.info('Batch Test Generation')

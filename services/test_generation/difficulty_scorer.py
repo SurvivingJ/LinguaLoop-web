@@ -43,11 +43,14 @@ logger = logging.getLogger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-# App language code → wordfreq language code (mirrors frequency_service)
+# App language code → wordfreq language code (mirrors frequency_service).
+# App codes are ISO 639-1; wordfreq uses the same codes here so the ISO
+# entries are direct passthroughs. Full names kept for callers that pass
+# language *names* (e.g. via Config.get_model_for_language).
 _LANG_MAP: dict[str, str] = {
     'en': 'en',
-    'cn': 'zh',
-    'jp': 'ja',
+    'zh': 'zh',
+    'ja': 'ja',
     'english': 'en',
     'chinese': 'zh',
     'japanese': 'ja',

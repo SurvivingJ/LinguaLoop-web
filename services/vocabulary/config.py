@@ -55,14 +55,14 @@ _NLP_METADATA: dict[str, NLPMetadata] = {
         phrase_detection_enabled=True,
         content_pos_tags=("NOUN", "VERB", "ADJ", "ADV"),
     ),
-    "cn": NLPMetadata(
+    "zh": NLPMetadata(
         nlp_tool=NLPTool.JIEBA,
         needs_lemmatization=False,
         needs_segmentation=True,
         phrase_detection_enabled=False,
         content_pos_tags=("n", "v", "a", "d", "i", "l", "vn", "an"),
     ),
-    "jp": NLPMetadata(
+    "ja": NLPMetadata(
         nlp_tool=NLPTool.FUGASHI,
         needs_lemmatization=True,
         needs_segmentation=True,
@@ -77,7 +77,7 @@ def get_nlp_metadata(language_code: str) -> NLPMetadata:
     Get NLP metadata for a language.
 
     Args:
-        language_code: ISO code ('en', 'cn', 'jp')
+        language_code: ISO 639-1 code ('en', 'zh', 'ja')
 
     Returns:
         NLPMetadata for the language

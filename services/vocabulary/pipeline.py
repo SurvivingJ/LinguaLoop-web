@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 # ============================================================
 _PROCESSOR_CLASSES: dict[str, type[BaseLanguageProcessor]] = {
     "en": EnglishProcessor,
-    "cn": ChineseProcessor,
-    "jp": JapaneseProcessor,
+    "zh": ChineseProcessor,
+    "ja": JapaneseProcessor,
 }
 
 
@@ -75,7 +75,7 @@ class VocabularyExtractionPipeline:
 
         Args:
             text: Raw input text
-            language_code: e.g., 'en', 'cn', 'jp'
+            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
 
         Returns:
             Deduplicated list of lemmas and phrases
@@ -194,7 +194,7 @@ class VocabularyExtractionPipeline:
 
         Args:
             text: Raw input text
-            language_code: e.g., 'en', 'cn', 'jp'
+            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
 
         Returns:
             List of dicts:
@@ -293,7 +293,7 @@ class VocabularyExtractionPipeline:
 
         Args:
             text: Raw input text
-            language_code: e.g., 'en', 'cn', 'jp'
+            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
 
         Returns:
             List of (display_text, lemma, is_content) tuples

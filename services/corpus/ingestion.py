@@ -15,7 +15,7 @@ from services.vocabulary.language_detection import check_text_language
 logger = logging.getLogger(__name__)
 
 # Language ID → language code used by check_text_language
-_LANG_ID_TO_CODE = {1: 'cn', 2: 'en', 3: 'jp'}
+_LANG_ID_TO_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 
 
 class CorpusIngestionService:

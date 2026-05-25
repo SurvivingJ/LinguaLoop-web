@@ -80,10 +80,11 @@ class Config:
     # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth
     # ==========================================================================
+    # Language codes are ISO 639-1 (zh, en, ja). Single source of truth.
     LANGUAGES = {
-        1: {'code': 'cn', 'name': 'chinese', 'display': 'Chinese'},
+        1: {'code': 'zh', 'name': 'chinese', 'display': 'Chinese'},
         2: {'code': 'en', 'name': 'english', 'display': 'English'},
-        3: {'code': 'jp', 'name': 'japanese', 'display': 'Japanese'},
+        3: {'code': 'ja', 'name': 'japanese', 'display': 'Japanese'},
     }
     VALID_LANGUAGE_IDS = set(LANGUAGES.keys())
     LANGUAGE_ID_TO_NAME = {k: v['name'] for k, v in LANGUAGES.items()}
@@ -252,7 +253,7 @@ class Config:
         """Map a numeric language ID to its canonical name.
 
         Args:
-            language_id: Integer key from the LANGUAGES dict (1=CN, 2=EN, 3=JP).
+            language_id: Integer key from the LANGUAGES dict (1=ZH, 2=EN, 3=JA).
 
         Returns:
             Lowercase language name, or 'unknown' if the ID is not recognised.
@@ -264,7 +265,7 @@ class Config:
         """Map a two-letter language code to its numeric ID.
 
         Args:
-            code: Two-letter code (e.g. 'cn', 'en', 'jp'). Case-insensitive.
+            code: ISO 639-1 two-letter code (e.g. 'zh', 'en', 'ja'). Case-insensitive.
 
         Returns:
             Integer language ID, defaulting to 1 (Chinese) if code is not found.

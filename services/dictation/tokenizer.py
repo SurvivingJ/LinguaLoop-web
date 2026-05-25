@@ -8,8 +8,8 @@ Normalization rules (configurable per-language later if needed):
 - Collapse whitespace
 
 Tokenization:
-- Chinese ('cn'): jieba.lcut for word-segmented matching
-- Japanese ('jp'): char-level fallback (no MeCab dependency)
+- Chinese ('zh'): jieba.lcut for word-segmented matching
+- Japanese ('ja'): char-level fallback (no MeCab dependency)
 - Everything else: whitespace split
 """
 
@@ -57,11 +57,11 @@ def normalize(text: str) -> str:
 
 
 def _is_chinese(language_code: str) -> bool:
-    return language_code in {"cn", "zh", "zh-cn", "zh-hans", "zh-hant"}
+    return language_code in {"zh", "zh-cn", "zh-hans", "zh-hant"}
 
 
 def _is_japanese(language_code: str) -> bool:
-    return language_code in {"jp", "ja"}
+    return language_code in {"ja"}
 
 
 def _tokenize_chinese(text: str) -> List[str]:
@@ -89,7 +89,7 @@ def tokenize(text: str, language_code: str) -> List[str]:
 
     Args:
         text: Already-normalized text (output of normalize()).
-        language_code: e.g. 'cn', 'en', 'es', 'jp'.
+        language_code: ISO 639-1, e.g. 'zh', 'en', 'es', 'ja'.
 
     Returns:
         List of tokens. Each token has its edge apostrophes/hyphens trimmed.

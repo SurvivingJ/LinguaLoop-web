@@ -84,7 +84,7 @@ class ConversationQualityChecker:
                                  details={'reason': 'Empty turns'})
 
         # Always prefer our own langdetect code map (keyed by language_id)
-        # over the DB language_code which may use non-langdetect codes (e.g. 'cn')
+        # over the DB language_code which is ISO 639-1 (e.g. 'zh')
         expected_lang = LANGDETECT_CODE_MAP.get(language_id) or language_code or 'en'
         is_cjk = language_id in CJK_LANGUAGE_IDS
 

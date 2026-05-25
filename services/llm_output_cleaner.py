@@ -35,12 +35,12 @@ try:
 except ImportError:
     _LANGDETECT_AVAILABLE = False
 
-# Map langdetect ISO codes → app language codes (cn / en / jp)
+# Map langdetect ISO codes → app language codes (zh / en / ja)
 _LANGDETECT_TO_APP: dict[str, str] = {
-    'zh-cn': 'cn',
-    'zh-tw': 'cn',
-    'zh':    'cn',
-    'ja':    'jp',
+    'zh-cn': 'zh',
+    'zh-tw': 'zh',
+    'zh':    'zh',
+    'ja':    'ja',
     'en':    'en',
 }
 
@@ -155,7 +155,7 @@ def validate_language(
 ) -> tuple[bool, str]:
     """
     Detect the language of *text* and compare to *expected_lang* (app code:
-    'cn', 'en', or 'jp').
+    'zh', 'en', or 'ja').
 
     Returns (is_correct, reason_string).
 
@@ -221,7 +221,7 @@ def clean_text(
         normalize_whitespace: Collapse 3+ newlines to 2, strip leading/trailing.
         min_length:         If > 0, add validation error when cleaned text is shorter.
         max_length:         If set, add validation error when cleaned text is longer.
-        expected_lang:      App language code ('cn', 'en', 'jp'). If given,
+        expected_lang:      App language code ISO 639-1 ('zh', 'en', 'ja'). If given,
                             validate language and add error on mismatch.
         check_placeholders: If True, flag unfilled placeholder tokens like [WORD].
 

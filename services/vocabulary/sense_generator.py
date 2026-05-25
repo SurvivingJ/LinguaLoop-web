@@ -23,14 +23,14 @@ logger = logging.getLogger(__name__)
 # Language-specific notes for LLM prompts
 LINGUISTIC_NOTES = {
     "en": "English words inflect for tense, number, and comparison. Lemmas are base forms.",
-    "cn": "Chinese characters do not inflect. Words may be single characters or compounds (成语, 词语).",
-    "jp": "Japanese verbs and adjectives conjugate. Lemmas are dictionary forms (辞書形).",
+    "zh": "Chinese characters do not inflect. Words may be single characters or compounds (成语, 词语).",
+    "ja": "Japanese verbs and adjectives conjugate. Lemmas are dictionary forms (辞書形).",
 }
 
 LANGUAGE_NAMES = {
     "en": "English",
-    "cn": "Chinese",
-    "jp": "Japanese",
+    "zh": "Chinese",
+    "ja": "Japanese",
 }
 
 
@@ -77,7 +77,7 @@ class SenseGenerator:
             openai_client: OpenAI client instance (direct or via OpenRouter)
             db: Supabase admin client (for dim_word_senses queries)
             db_client: TestDatabaseClient (for prompt template loading)
-            language_code: e.g., 'en', 'cn', 'jp'
+            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
             language_id: Integer language ID
             model: LLM model name (from LanguageConfig.prose_model)
             dry_run: If True, log but don't write to DB

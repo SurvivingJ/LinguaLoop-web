@@ -212,7 +212,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Backfill per-question sense_ids (Phase 7 compatible)'
     )
-    parser.add_argument('--language', required=True, choices=['cn', 'en', 'jp'],
+    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max number of tests to process (0=all)')

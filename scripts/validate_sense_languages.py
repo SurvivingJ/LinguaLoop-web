@@ -38,9 +38,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 TARGET_LANGUAGES = {
-    'cn': 'Chinese',
+    'zh': 'Chinese',
     'en': 'English',
-    'jp': 'Japanese',
+    'ja': 'Japanese',
 }
 
 
@@ -319,7 +319,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Validate and fix word sense definitions/examples language'
     )
-    parser.add_argument('--language', required=True, choices=['cn', 'en', 'jp'],
+    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to validate')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max number of senses to process (0=all)')

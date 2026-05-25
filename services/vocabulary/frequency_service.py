@@ -15,10 +15,13 @@ from wordfreq import zipf_frequency
 
 logger = logging.getLogger(__name__)
 
-# App language codes → wordfreq language codes
+# App language codes → wordfreq language codes.
+# App codes are ISO 639-1 and wordfreq uses the same codes, so this is a
+# passthrough. Kept as an explicit allow-list so unknown codes raise loudly
+# in _to_wordfreq_lang() rather than silently feeding garbage to wordfreq.
 _LANG_MAP: dict[str, str] = {
-    "cn": "zh",
-    "jp": "ja",
+    "zh": "zh",
+    "ja": "ja",
     "en": "en",
 }
 
@@ -46,7 +49,7 @@ def get_zipf_score(lemma: str, language_code: str) -> Optional[float]:
 
     Args:
         lemma: The word/lemma to look up.
-        language_code: App language code ('en', 'cn', 'jp').
+        language_code: App language code ISO 639-1 ('en', 'zh', 'ja').
 
     Returns:
         Float Zipf score (typically 1.0–7.0), or None if unknown.

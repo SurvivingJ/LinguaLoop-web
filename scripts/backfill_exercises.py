@@ -372,7 +372,7 @@ class ExerciseBackfillRunner:
 
 def main():
     parser = argparse.ArgumentParser(description='Backfill exercises for existing vocabulary and grammar')
-    parser.add_argument('--language', required=True, choices=['cn', 'en', 'jp'],
+    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
     parser.add_argument('--source', choices=['vocabulary', 'grammar', 'style', 'all'], default='all',
                         help='Source type to process (default: all)')

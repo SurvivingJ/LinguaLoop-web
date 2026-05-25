@@ -158,7 +158,7 @@ class ZipfBackfillRunner:
 def main():
     parser = argparse.ArgumentParser(description='Backfill Zipf frequency scores for dim_vocabulary')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--language', choices=['cn', 'en', 'jp'],
+    group.add_argument('--language', choices=['zh', 'en', 'ja'],
                        help='Language code to process')
     group.add_argument('--all', action='store_true',
                        help='Process all languages')
@@ -177,7 +177,7 @@ def main():
     # Initialize Supabase
     SupabaseFactory.initialize()
 
-    languages = ['cn', 'en', 'jp'] if args.all else [args.language]
+    languages = ['zh', 'en', 'ja'] if args.all else [args.language]
     all_success = True
 
     for lang in languages:

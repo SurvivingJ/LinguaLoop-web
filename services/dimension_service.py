@@ -142,7 +142,7 @@ class DimensionService:
 
     @classmethod
     def get_language_code(cls, language_id: int) -> Optional[str]:
-        """Reverse lookup: language_id → language_code (e.g. 1 → 'cn')."""
+        """Reverse lookup: language_id → language_code (e.g. 1 → 'zh')."""
         if language_id is None:
             return None
         for row in cls._languages_metadata:

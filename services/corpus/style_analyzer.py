@@ -21,7 +21,7 @@ from services.vocabulary.frequency_service import get_zipf_score
 logger = logging.getLogger(__name__)
 
 # Language ID → wordfreq language code
-_LANG_ID_TO_WF = {1: 'cn', 2: 'en', 3: 'jp'}
+_LANG_ID_TO_WF = {1: 'zh', 2: 'en', 3: 'ja'}
 
 # MATTR (Moving-Average Type-Token Ratio) window size
 _MATTR_WINDOW = 500

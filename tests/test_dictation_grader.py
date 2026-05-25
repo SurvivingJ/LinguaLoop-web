@@ -217,7 +217,7 @@ def test_chinese_round_trip_via_jieba_or_char_fallback():
     # Identical input should produce identical tokenization, regardless of
     # whether jieba is installed (char-fallback also produces identical
     # token streams). All tokens must be marked correct.
-    r = grade_dictation("我喜欢学习", "我喜欢学习", "cn")
+    r = grade_dictation("我喜欢学习", "我喜欢学习", "zh")
     assert r.word_total > 0
     assert r.word_correct == r.word_total
     assert r.accuracy == pytest.approx(1.0)

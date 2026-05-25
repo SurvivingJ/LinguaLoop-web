@@ -13,7 +13,7 @@ def check_text_language(text: str, expected_lang_code: str) -> tuple[bool, str]:
 
     Args:
         text: The text to check (definition or example sentence)
-        expected_lang_code: 'cn', 'jp', or 'en'
+        expected_lang_code: ISO 639-1: 'zh', 'ja', or 'en'
 
     Returns:
         (is_correct_language, reason)
@@ -28,7 +28,7 @@ def check_text_language(text: str, expected_lang_code: str) -> tuple[bool, str]:
 
     total = len(chars)
 
-    if expected_lang_code == 'cn':
+    if expected_lang_code == 'zh':
         # Chinese definitions should contain Chinese characters
         cn_chars = sum(1 for c in chars if '\u4e00' <= c <= '\u9fff')
         latin_chars = sum(1 for c in chars if c.isascii() and c.isalpha())
@@ -40,7 +40,7 @@ def check_text_language(text: str, expected_lang_code: str) -> tuple[bool, str]:
             return False, f'low Chinese char ratio ({cn_chars}/{total}={ratio:.0%})'
         return True, 'ok'
 
-    elif expected_lang_code == 'jp':
+    elif expected_lang_code == 'ja':
         # Japanese definitions should contain Japanese characters
         jp_chars = sum(
             1 for c in chars
