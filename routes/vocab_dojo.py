@@ -84,7 +84,7 @@ def submit_dojo_attempt() -> ApiResponse:
         language_id: optional (int)
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -114,7 +114,7 @@ def submit_dojo_attempt() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error("Error submitting dojo attempt: %s", e)
+        logger.error("Error submitting dojo attempt: %s", e, exc_info=True)
         return server_error("Failed to submit attempt")
 
 
@@ -217,7 +217,7 @@ def start_gate() -> ApiResponse:
         gate_name: required ('gate_a' or 'gate_b')
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -245,7 +245,7 @@ def start_gate() -> ApiResponse:
         })
 
     except Exception as e:
-        logger.error("Error assembling gate: %s", e)
+        logger.error("Error assembling gate: %s", e, exc_info=True)
         return server_error("Failed to assemble gate")
 
 
@@ -260,7 +260,7 @@ def submit_gate_result() -> ApiResponse:
         passed: required (bool) — caller computes pass/fail from battery results
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -282,7 +282,7 @@ def submit_gate_result() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error("Error submitting gate result: %s", e)
+        logger.error("Error submitting gate result: %s", e, exc_info=True)
         return server_error("Failed to submit gate result")
 
 
@@ -296,7 +296,7 @@ def start_stress_test() -> ApiResponse:
         language_id: required (int)
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -319,7 +319,7 @@ def start_stress_test() -> ApiResponse:
         })
 
     except Exception as e:
-        logger.error("Error assembling stress test: %s", e)
+        logger.error("Error assembling stress test: %s", e, exc_info=True)
         return server_error("Failed to assemble stress test")
 
 
@@ -335,7 +335,7 @@ def submit_stress_test_result() -> ApiResponse:
         passed: required (bool) — caller computes pass/fail
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -365,7 +365,7 @@ def submit_stress_test_result() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error("Error submitting stress test result: %s", e)
+        logger.error("Error submitting stress test result: %s", e, exc_info=True)
         return server_error("Failed to submit stress test result")
 
 

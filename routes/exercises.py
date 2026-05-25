@@ -141,7 +141,7 @@ def complete_session_exercise() -> ApiResponse:
     Body: exercise_id (required), language_id (required)
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data or 'exercise_id' not in data or 'language_id' not in data:
             return bad_request("exercise_id and language_id required")
 
@@ -155,7 +155,7 @@ def complete_session_exercise() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error(f"Error completing session exercise: {e}")
+        logger.error(f"Error completing session exercise: {e}", exc_info=True)
         return server_error("Failed to mark exercise complete")
 
 
@@ -169,7 +169,7 @@ def submit_attempt() -> ApiResponse:
     try:
         current_user_id = g.current_user_id
 
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data or 'exercise_id' not in data:
             return bad_request("exercise_id required")
 
@@ -196,7 +196,7 @@ def submit_attempt() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error(f"Error submitting exercise attempt: {e}")
+        logger.error(f"Error submitting exercise attempt: {e}", exc_info=True)
         return server_error("Failed to submit attempt")
 
 

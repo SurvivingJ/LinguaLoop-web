@@ -91,10 +91,25 @@
       "Bash(python -m scripts.run_test_generation_cli --language en --count 3 --type reading --dry-run)",
       "Bash(python -m scripts.run_test_generation_cli --language jp --count 2 --type reading --dry-run)",
       "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
-      "Bash(python -m scripts.run_test_generation_cli --language en --count 2 --type reading --dry-run)"
+      "Bash(python -m scripts.run_test_generation_cli --language en --count 2 --type reading --dry-run)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\" -Directory)",
+      "Bash(Format-Table -HideTableHeaders)",
+      "PowerShell($files = @\\('c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\utils\\\\validation.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\utils\\\\question_validator.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\utils\\\\responses.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\models\\\\requests.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\routes\\\\admin_local.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\routes\\\\tests.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\middleware\\\\auth.py','c:\\\\Users\\\\James\\\\Documents\\\\Coding\\\\LinguaLoop\\\\WebApp\\\\services\\\\test_service.py'\\); foreach \\($f in $files\\) { '{0}: {1}' -f \\(Split-Path $f -Leaf\\), \\(Get-Content $f | Measure-Object -Line\\).Lines })",
+      "PowerShell(python -m pytest tests/test_ai_service_moderation.py tests/test_moderation_route.py tests/test_submission_rpc_error_envelope.py -x --tb=short --no-header 2>&1)",
+      "PowerShell(python -m pytest tests/test_submission_rpc_error_envelope.py --tb=short --no-header 2>&1)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "PowerShell(python -m pytest tests/test_ai_service_moderation.py tests/test_moderation_route.py tests/test_submission_rpc_error_envelope.py --tb=short --no-header 2>&1)",
+      "PowerShell(python -m pytest --tb=line --no-header -q 2>&1)",
+      "PowerShell(python -m pytest tests/ --tb=line --no-header -q --ignore=tests/test_listening_lab_service.py --ignore=tests/test_listening_lab_routes.py 2>&1)",
+      "PowerShell(python -m pytest tests/test_ai_service_moderation.py tests/test_moderation_route.py tests/test_submission_rpc_error_envelope.py --tb=short --no-header -q 2>&1)",
+      "Bash(export ECC_GATEGUARD=off)",
+      "Bash(PYTHONPATH=. python -m pytest -q)",
+      "Bash(PYTHONPATH=. python -m pytest -q --ignore=services --ignore=tests/test_ai_service_moderation.py --ignore=tests/test_audio_synthesizer_ssml.py --ignore=tests/test_conversation_generation --ignore=tests/test_dictation_grader.py --ignore=tests/test_exercise_generation --ignore=tests/test_generation --ignore=tests/test_listening_lab_service.py --ignore=tests/test_moderation_route.py --ignore=tests/test_submission_rpc_error_envelope.py)",
+      "Bash(PYTHONPATH=. python -m pytest -q tests/test_auth_route_robustness.py tests/test_middleware_auth_consolidation.py)"
     ]
   },
   "enabledPlugins": {
-    "ecc@ecc": false
+    "ecc@ecc": true
   }
 }

@@ -112,7 +112,7 @@ def update_preferences() -> ApiResponse:
     """
     try:
         user_id = g.current_user_id
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -150,5 +150,5 @@ def update_preferences() -> ApiResponse:
         return api_success({"exercise_preferences": prefs})
 
     except Exception as e:
-        logger.error(f"Preferences update error: {e}")
+        logger.error(f"Preferences update error: {e}", exc_info=True)
         return server_error("Failed to update preferences")

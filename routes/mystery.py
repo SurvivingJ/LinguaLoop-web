@@ -162,7 +162,7 @@ def get_scene(slug: str, scene_number: int) -> ApiResponse:
 def submit_scene(slug: str, scene_number: int) -> ApiResponse:
     """Submit answers for a scene. Must retry until all correct to get clue."""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -199,7 +199,7 @@ def submit_scene(slug: str, scene_number: int) -> ApiResponse:
 def submit_finale(slug: str) -> ApiResponse:
     """Submit the complete mystery (all 5 scenes). Triggers ELO + BKT."""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 

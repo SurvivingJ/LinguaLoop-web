@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, g
 from middleware.auth import jwt_required, admin_required
 from services.supabase_factory import get_supabase_admin
 from services.corpus.ingestion import CorpusIngestionService
 from services.corpus.pack_service import CollocationPackService
 from services.corpus.style_pack_service import StylePackService
+from utils.responses import api_success, api_error, bad_request, not_found
 
 corpus_bp = Blueprint('corpus', __name__)
 
@@ -38,7 +39,7 @@ def ingest_corpus():
     analyze_style = body.get('analyze_style', False)
 
     if not source_type or not language_id:
-        return jsonify({'error': 'source_type and language_id are required'}), 400
+        return bad_request('source_type and language_id are required')
 
     service = CorpusIngestionService(db=_get_db())
 
@@ -46,23 +47,23 @@ def ingest_corpus():
         if source_type == 'url':
             url = body.get('url')
             if not url:
-                return jsonify({'error': 'url is required for source_type=url'}), 400
+                return bad_request('url is required for source_type=url')
             corpus_source_id = service.ingest_url(url, language_id, tags, analyze_style=analyze_style)
 
         elif source_type == 'text':
             text  = body.get('text')
             title = body.get('title', 'Untitled')
             if not text:
-                return jsonify({'error': 'text is required for source_type=text'}), 400
+                return bad_request('text is required for source_type=text')
             corpus_source_id = service.ingest_text(text, title, language_id, tags, analyze_style=analyze_style)
 
         else:
-            return jsonify({'error': f'Unsupported source_type: {source_type}'}), 400
+            return bad_request(f'Unsupported source_type: {source_type}')
 
     except Exception as exc:
-        return jsonify({'error': str(exc)}), 502
+        return api_error(str(exc), 502)
 
-    return jsonify({'status': 'success', 'corpus_source_id': corpus_source_id})
+    return api_success(data={'corpus_source_id': corpus_source_id})
 
 
 @corpus_bp.route('/packs', methods=['GET'])
@@ -79,17 +80,17 @@ def list_packs():
     """
     language_id_str = request.args.get('language_id')
     if not language_id_str:
-        return jsonify({'error': 'language_id is required'}), 400
+        return bad_request('language_id is required')
 
     try:
         language_id = int(language_id_str)
     except ValueError:
-        return jsonify({'error': 'language_id must be an integer'}), 400
+        return bad_request('language_id must be an integer')
 
     user_id = g.current_user_id
     service = CollocationPackService(db=_get_db())
     packs   = service.get_packs_for_user(language_id, user_id)
-    return jsonify({'packs': packs})
+    return api_success(data={'packs': packs})
 
 
 @corpus_bp.route('/packs/<int:pack_id>/select', methods=['POST'])
@@ -105,7 +106,7 @@ def select_pack(pack_id: int):
     user_id = g.current_user_id
     service = CollocationPackService(db=_get_db())
     service.select_pack(user_id, pack_id)
-    return jsonify({'status': 'success'})
+    return api_success()
 
 
 # ── Style analysis routes ──────────────────────────────────────────────
@@ -130,7 +131,7 @@ def analyze_style():
     language_id = body.get('language_id')
 
     if not corpus_source_id or not language_id:
-        return jsonify({'error': 'corpus_source_id and language_id are required'}), 400
+        return bad_request('corpus_source_id and language_id are required')
 
     # Load the raw text from the source
     db = _get_db()
@@ -142,7 +143,7 @@ def analyze_style():
         .execute()
     )
     if not source.data or not source.data.get('raw_text'):
-        return jsonify({'error': 'Corpus source not found or has no stored text'}), 404
+        return not_found('Corpus source not found or has no stored text')
 
     try:
         service = CorpusIngestionService(db=db)
@@ -152,9 +153,9 @@ def analyze_style():
             language_id=language_id,
         )
     except Exception as exc:
-        return jsonify({'error': str(exc)}), 502
+        return api_error(str(exc), 502)
 
-    return jsonify({'status': 'success', 'style_profile_id': profile_id})
+    return api_success(data={'style_profile_id': profile_id})
 
 
 @corpus_bp.route('/style-profile/<int:source_id>', methods=['GET'])
@@ -174,9 +175,9 @@ def get_style_profile(source_id: int):
         .execute()
     )
     if not result.data:
-        return jsonify({'error': 'No style profile found for this source'}), 404
+        return not_found('No style profile found for this source')
 
-    return jsonify({'profile': result.data[0]})
+    return api_success(data={'profile': result.data[0]})
 
 
 @corpus_bp.route('/style-packs', methods=['POST'])
@@ -202,7 +203,7 @@ def create_style_pack():
     description = body.get('description', '')
 
     if not corpus_source_id or not pack_name or not language_id:
-        return jsonify({'error': 'corpus_source_id, pack_name, and language_id are required'}), 400
+        return bad_request('corpus_source_id, pack_name, and language_id are required')
 
     try:
         service = StylePackService(db=_get_db())
@@ -213,11 +214,11 @@ def create_style_pack():
             language_id=language_id,
         )
     except ValueError as exc:
-        return jsonify({'error': str(exc)}), 400
+        return bad_request(str(exc))
     except Exception as exc:
-        return jsonify({'error': str(exc)}), 502
+        return api_error(str(exc), 502)
 
-    return jsonify({'status': 'success', 'pack_id': pack_id})
+    return api_success(data={'pack_id': pack_id})
 
 
 @corpus_bp.route('/style-packs', methods=['GET'])
@@ -234,16 +235,16 @@ def list_style_packs():
     """
     language_id_str = request.args.get('language_id')
     if not language_id_str:
-        return jsonify({'error': 'language_id is required'}), 400
+        return bad_request('language_id is required')
 
     try:
         language_id = int(language_id_str)
     except ValueError:
-        return jsonify({'error': 'language_id must be an integer'}), 400
+        return bad_request('language_id must be an integer')
 
     service = StylePackService(db=_get_db())
     packs = service.get_style_packs(language_id)
-    return jsonify({'packs': packs})
+    return api_success(data={'packs': packs})
 
 
 @corpus_bp.route('/style-packs/<int:pack_id>/items', methods=['GET'])
@@ -257,4 +258,4 @@ def get_style_pack_items(pack_id: int):
     """
     service = StylePackService(db=_get_db())
     items = service.get_pack_items(pack_id)
-    return jsonify({'items': items})
+    return api_success(data={'items': items})

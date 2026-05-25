@@ -1,5 +1,17 @@
 # Activity Log
 
+## 2026-05-25 adr | ADR-014 — Dedicated batch-service credential
+
+Followed up on the HI-02 fix (`7e074fd3`) that made the `SUPABASE_SERVICE_ROLE_KEY` HTTP bearer-token bypass symmetric across all three auth decorators. Symmetric exposure enlarged the blast radius of the credential (it now governs Postgres-direct RLS bypass + in-process admin client + HTTP identity bypass — three independent planes from one secret), so the existing open question in [[business-rules/auth-and-access]] became more urgent rather than less.
+
+Audited HTTP callers: **none in repo** currently send `SUPABASE_SERVICE_ROLE_KEY` as an `Authorization: Bearer …` header. Every consumer in `scripts/`, `Corpuses/`, `services/corpus/`, `services/device_service.py`, `services/auth_service.py` uses it for direct `supabase.create_client(...)` calls. The HTTP bypass is a latent capability.
+
+Confirmed direction with the user: HTTP batch jobs are planned (so don't remove the bypass entirely), credential should be a separate shared-secret env var (`BATCH_SERVICE_TOKEN`, `hmac.compare_digest`), and the new credential should be scoped to `jwt_required` only — `admin_required` and `tier_required` no longer honour the bypass, which intentionally re-narrows part of the HI-02 symmetric design.
+
+**Pages updated:** [[decisions/ADR-014-batch-service-credential]] (new), [[business-rules/auth-and-access]] (frontmatter open_question marked ANSWERED, prose paragraph rewritten), [[index]] (Decisions section + date stamp).
+
+**Implementation status:** design only. Code changes (env var validation, `_authenticate` swap, decorator short-circuit removal, test updates) are the follow-up PR; ADR-014 contains the full migration sequence and test plan.
+
 ## 2026-05-24 fix | CR-03 + CR-04 from code-review-2026-05-24 (TDD: RED 1bbf7e9a → GREEN 8989b0bf)
 
 Hardened the two critical findings flagged in [[reviews/code-review-2026-05-24]] that were tagged as release blockers. Followed the `/ecc:tdd-workflow` skill end-to-end: failing reproducers first, then fix, then verify.

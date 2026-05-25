@@ -1084,7 +1084,7 @@
             debugLog('✅ Response data:', data);
             debugLog('📊 Tests count:', data.tests ? data.tests.length : 0);
 
-            if (data.success && data.tests) {
+            if (data.status !== 'error' && data.tests) {
                 debugLog('✅ Calling displayTests with', data.tests.length, 'tests');
                 if (data.tests.length > 0) {
                     debugLog('📋 First test sample:', data.tests[0]);
@@ -1202,7 +1202,7 @@
             const data = await response.json();
             debugLog('Recommended tests received:', data);
 
-            if (data.success && data.recommended_tests && data.recommended_tests.length > 0) {
+            if (data.status !== 'error' && data.recommended_tests && data.recommended_tests.length > 0) {
                 displayRecommendedTests(data.recommended_tests);
             } else {
                 showRecommendedEmpty();
@@ -1335,7 +1335,7 @@
             const data = await response.json();
             debugLog('Daily load received:', data);
 
-            if (data.success && data.daily_load && data.daily_load.tests && data.daily_load.tests.length > 0) {
+            if (data.status !== 'error' && data.daily_load && data.daily_load.tests && data.daily_load.tests.length > 0) {
                 displayDailyLoad(data.daily_load);
             }
         } catch (error) {

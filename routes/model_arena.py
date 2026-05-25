@@ -12,6 +12,7 @@ from services.task_runner import run_in_thread, is_task_stopped
 from services.model_arena.pricing import fetch_model_list, get_pricing_map
 from services.model_arena.arena_service import ArenaService
 from services.model_arena.models import ArenaConfig
+from utils.responses import api_success, api_error, bad_request, not_found, server_error
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def list_openrouter_models():
         models = fetch_model_list(os.getenv('OPENROUTER_API_KEY'), force_refresh=force)
     except Exception as exc:
         logger.exception("Failed to fetch OpenRouter models: %s", exc)
-        return jsonify({'error': str(exc), 'models': []}), 500
+        return api_error(str(exc), 500, details={'models': []})
 
     simplified = []
     for m in models:
@@ -44,7 +45,7 @@ def list_openrouter_models():
             'completion_cost': pricing.get('completion', '0'),
         })
     simplified.sort(key=lambda x: (x.get('id') or '').lower())
-    return jsonify({'models': simplified})
+    return api_success(data={'models': simplified})
 
 
 @model_arena_bp.route('/api/run/arena', methods=['POST'])
@@ -53,24 +54,24 @@ def run_arena():
 
     contestants = body.get('contestant_models') or []
     if not (2 <= len(contestants) <= 5):
-        return jsonify({'error': 'Pick 2 to 5 contestant models'}), 400
+        return bad_request('Pick 2 to 5 contestant models')
     judge_model = body.get('judge_model')
     if not judge_model:
-        return jsonify({'error': 'judge_model is required'}), 400
+        return bad_request('judge_model is required')
     if not body.get('language_id'):
-        return jsonify({'error': 'language_id is required'}), 400
+        return bad_request('language_id is required')
     gen_types = body.get('generation_types') or ['prose']
     valid_types = {'prose', 'questions'}
     gen_types = [g for g in gen_types if g in valid_types]
     if not gen_types:
-        return jsonify({'error': 'generation_types must include prose or questions'}), 400
+        return bad_request('generation_types must include prose or questions')
 
     num_trials = int(body.get('num_trials', 10))
     num_trials = max(1, min(50, num_trials))
 
     task_id = str(uuid.uuid4())
     run_in_thread(task_id, _do_arena_run, task_id, body, contestants, judge_model, gen_types, num_trials)
-    return jsonify({'task_id': task_id}), 202
+    return api_success(data={'task_id': task_id}, status_code=202)
 
 
 @model_arena_bp.route('/api/arena-results/<task_id>')
@@ -84,8 +85,8 @@ def get_arena_results(task_id: str):
                 with open(path, 'r', encoding='utf-8') as f:
                     return jsonify(json.load(f))
             except Exception as exc:
-                return jsonify({'error': f'Failed to read saved run: {exc}'}), 500
-        return jsonify({'error': 'Unknown task_id'}), 404
+                return server_error(f'Failed to read saved run: {exc}')
+        return not_found('Unknown task_id')
     return jsonify(result)
 
 

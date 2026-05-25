@@ -15,6 +15,10 @@ from services.test_service import (
     parse_language_id, VALID_LANGUAGE_IDS
 )
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
+from utils.responses import (
+    api_success, api_error, bad_request, not_found, server_error,
+    service_unavailable, unauthorized,
+)
 
 logger = logging.getLogger(__name__)
 tests_bp = Blueprint("tests", __name__)
@@ -46,20 +50,14 @@ def moderate_content():
     """Check content using OpenAI moderation API via OpenAI service"""
     try:
         if not current_app.openai_service:
-            return jsonify({
-                "error": "OpenAI service not available",
-                "status": "error"
-            }), 500
-        
-        data = request.get_json()
+            return server_error("OpenAI service not available")
+
+        data = request.get_json(silent=True) or {}
         content = data.get('content', '').strip()
-        
+
         if not content:
-            return jsonify({
-                "error": "No content provided",
-                "status": "error"
-            }), 400
-        
+            return bad_request("No content provided")
+
         try:
             moderation_result = current_app.openai_service.moderate_content(content)
         except ModerationServiceError as e:
@@ -67,10 +65,7 @@ def moderate_content():
             # 503 — DO NOT record a flagged_input audit row (would be a false
             # positive against the user).
             logger.error("Moderation service unavailable: %s", e)
-            return jsonify({
-                "error": "moderation_unavailable",
-                "status": "error",
-            }), 503
+            return service_unavailable("moderation_unavailable")
 
         is_safe = moderation_result['is_safe']
 
@@ -83,18 +78,14 @@ def moderate_content():
                 moderation_result.get('flagged_categories', [])
             )
 
-        return jsonify({
+        return api_success(data={
             "is_safe": is_safe,
             "flagged_categories": moderation_result.get('flagged_categories', []),
-            "status": "success"
-        }), 200
+        })
 
     except Exception as e:
         logger.error(f"Moderation endpoint error: {e}")
-        return jsonify({
-            "error": f"Moderation failed: {str(e)}",
-            "status": "error"
-        }), 500
+        return server_error(f"Moderation failed: {str(e)}")
 
 @tests_bp.route('/random', methods=['GET'])
 @supabase_jwt_required
@@ -105,7 +96,7 @@ def get_random_test():
     # Parse and validate language_id
     language_id = parse_language_id(language_id_param)
     if not language_id:
-        return jsonify({"error": "Invalid or missing language_id parameter"}), 400
+        return bad_request("Invalid or missing language_id parameter")
 
     # Call the get_recommended_test RPC which handles ELO matching
     result = current_app.supabase_service.rpc('get_recommended_test', {
@@ -115,9 +106,9 @@ def get_random_test():
 
     test = result.data[0] if result.data else None
     if not test:
-        return jsonify({"error": "No tests available at your level"}), 404
+        return not_found("No tests available at your level")
 
-    return jsonify({"test": test, "status": "success"})
+    return api_success(data={"test": test})
 
 
 @tests_bp.route('/recommended', methods=['GET'])
@@ -129,7 +120,7 @@ def get_recommended_tests():
 
     language_id = parse_language_id(language_id_param)
     if not language_id:
-        return jsonify({"error": "Invalid or missing language_id"}), 400
+        return bad_request("Invalid or missing language_id")
 
     try:
         result = current_app.supabase_service.rpc('get_recommended_tests', {
@@ -137,13 +128,10 @@ def get_recommended_tests():
             'p_language_id': language_id
         }).execute()
 
-        return jsonify({
-            "success": True,
-            "recommended_tests": result.data or []
-        })
+        return api_success(data={"recommended_tests": result.data or []})
     except Exception as e:
         logger.error(f"Error fetching recommended tests: {e}")
-        return jsonify({"error": "Failed to fetch recommended tests", "success": False}), 500
+        return server_error("Failed to fetch recommended tests")
 
 
 @tests_bp.route('/daily-load', methods=['GET'])
@@ -155,20 +143,17 @@ def get_daily_load():
 
     language_id = parse_language_id(language_id_param)
     if not language_id:
-        return jsonify({"error": "Invalid or missing language_id"}), 400
+        return bad_request("Invalid or missing language_id")
 
     try:
         test_service = get_test_service()
         daily_load = test_service.get_or_create_daily_load(user_id, language_id)
 
-        return jsonify({
-            "success": True,
-            "daily_load": daily_load
-        })
+        return api_success(data={"daily_load": daily_load})
     except Exception as e:
         logger.error(f"Error fetching daily load: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": "Failed to fetch daily load", "success": False}), 500
+        return server_error("Failed to fetch daily load")
 
 
 @tests_bp.route('/daily-load/complete', methods=['POST'])
@@ -176,25 +161,25 @@ def get_daily_load():
 def complete_daily_load_test():
     """Mark a test as completed in today's daily load."""
     user_id = g.current_user_id
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     if not data:
-        return jsonify({"error": "Request body required"}), 400
+        return bad_request("Request body required")
 
     test_id = data.get('test_id')
     language_id = parse_language_id(data.get('language_id'))
 
     if not test_id or not language_id:
-        return jsonify({"error": "test_id and language_id required"}), 400
+        return bad_request("test_id and language_id required")
 
     try:
         test_service = get_test_service()
         result = test_service.mark_daily_test_complete(user_id, language_id, test_id)
-        return jsonify({"success": True, **result})
+        return api_success(data=result)
     except Exception as e:
         logger.error(f"Error marking daily test complete: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": "Failed to mark daily test complete", "success": False}), 500
+        return server_error("Failed to mark daily test complete")
 
 
 @tests_bp.route('/generate_test', methods=['POST'])
@@ -212,16 +197,10 @@ def generate_test():
             current_user_id = '00000000-0000-0000-0000-000000000001'
 
         if not current_app.openai_service:
-            return jsonify({
-                "error": "AI service not available",
-                "status": "error"
-            }), 503
+            return service_unavailable("AI service not available")
 
         if not current_app.supabase_service:
-            return jsonify({
-                "error": "Database service not connected",
-                "status": "error"
-            }), 503
+            return service_unavailable("Database service not connected")
 
         if request.method == 'OPTIONS':
             response = make_response()
@@ -230,13 +209,10 @@ def generate_test():
             response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
             return response
 
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
 
         if not data:
-            return jsonify({
-                "error": "No JSON data provided",
-                "status": "error"
-            }), 400
+            return bad_request("No JSON data provided")
 
         language = data.get('language')
         difficulty = data.get('difficulty')
@@ -245,31 +221,28 @@ def generate_test():
         tier = data.get('tier', 'free-tier')
 
         if not all([language, difficulty, topic]):
-            return jsonify({
-                "error": "Missing required fields: language, difficulty, topic",
-                "status": "error"
-            }), 400
+            return bad_request("Missing required fields: language, difficulty, topic")
         try:
             transcript = current_app.openai_service.generate_transcript(language, topic, difficulty, style)
         except Exception as e:
             current_app.logger.error(f"Transcript generation error: {e}")
             current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-            return jsonify({
-                "error": f"Failed to generate transcript: {str(e)}",
-                "status": "error",
-                "step": "transcript_generation"
-            }), 500
+            return api_error(
+                f"Failed to generate transcript: {str(e)}",
+                500,
+                details={"step": "transcript_generation"},
+            )
 
         try:
             questions = current_app.openai_service.generate_questions(transcript, language, difficulty)
         except Exception as e:
             current_app.logger.error(f"Question generation error: {e}")
             current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-            return jsonify({
-                "error": f"Failed to generate questions: {str(e)}",
-                "status": "error",
-                "step": "question_generation"
-            }), 500
+            return api_error(
+                f"Failed to generate questions: {str(e)}",
+                500,
+                details={"step": "question_generation"},
+            )
 
         slug = str(uuid4())
         title = data.get('title') or f"{topic}"
@@ -302,11 +275,11 @@ def generate_test():
         except Exception as e:
             current_app.logger.error(f"Database save error: {e}")
             current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-            return jsonify({
-                "error": f"Failed to save test: {str(e)}",
-                "status": "error",
-                "step": "database_save"
-            }), 500
+            return api_error(
+                f"Failed to save test: {str(e)}",
+                500,
+                details={"step": "database_save"},
+            )
         audio_success = False
         audio_url = ""
 
@@ -357,49 +330,48 @@ def generate_test():
                     **flat_ratings,
                 }
 
-                return jsonify({
-                    "slug": slug,
-                    "test_id": test_id,
-                    "status": "success",
-                    "message": "Test generated and saved successfully",
-                    "audio_generated": audio_success,
-                    "audio_url": audio_url if audio_success else None,
-                    "test_summary": test_summary,
-                })
+                return api_success(
+                    data={
+                        "slug": slug,
+                        "test_id": test_id,
+                        "audio_generated": audio_success,
+                        "audio_url": audio_url if audio_success else None,
+                        "test_summary": test_summary,
+                    },
+                    message="Test generated and saved successfully",
+                )
 
         except Exception as e:
             current_app.logger.warning(f"Could not fetch complete test summary: {e}")
-        response_data = {
-            "slug": slug,
-            "test_id": test_id,
-            "status": "success",
-            "message": "Test generated and saved to database successfully",
-            "audio_generated": audio_success,
-            "audio_url": audio_url if audio_success else None,
-            "test_data": {
-                "language": language,
-                "difficulty": difficulty,
-                "topic": topic,
-                "style": style,
-                "tier": tier,
-                "title": title,
-                "questions_count": len(questions),
-                "is_custom": False
-            }
-        }
-
-        return jsonify(response_data)
+        return api_success(
+            data={
+                "slug": slug,
+                "test_id": test_id,
+                "audio_generated": audio_success,
+                "audio_url": audio_url if audio_success else None,
+                "test_data": {
+                    "language": language,
+                    "difficulty": difficulty,
+                    "topic": topic,
+                    "style": style,
+                    "tier": tier,
+                    "title": title,
+                    "questions_count": len(questions),
+                    "is_custom": False,
+                },
+            },
+            message="Test generated and saved to database successfully",
+        )
 
     except Exception as e:
         current_app.logger.error(f"UNEXPECTED ERROR in generate_test: {e}")
         current_app.logger.error(f"UNEXPECTED ERROR TYPE: {type(e).__name__}")
         current_app.logger.error(f"UNEXPECTED ERROR TRACEBACK: {traceback.format_exc()}")
-        return jsonify({
-            "error": f"Test generation failed: {str(e)}",
-            "status": "error",
-            "step": "unexpected_error",
-            "error_type": type(e).__name__
-        }), 500
+        return api_error(
+            f"Test generation failed: {str(e)}",
+            500,
+            details={"step": "unexpected_error", "error_type": type(e).__name__},
+        )
 
 @tests_bp.route('/custom_test', methods=['POST'])
 @supabase_jwt_required
@@ -415,25 +387,22 @@ def custom_test():
             # Use a well-known UUID for batch operations (00000000-0000-0000-0000-000000000001)
             current_user_id = '00000000-0000-0000-0000-000000000001'
 
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
-            return jsonify({"error": "No JSON data provided", "status": "error"}), 400
+            return bad_request("No JSON data provided")
 
         if not current_app.openai_service:
-            return jsonify({"error": "OpenAI service not available", "status": "error"}), 500
+            return server_error("OpenAI service not available")
 
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not connected", "status": "error"}), 500
+            return server_error("Database service not connected")
 
         language = data.get('language')
         difficulty = data.get('difficulty')
         transcript = data.get('transcript', '').strip()
 
         if not (language and difficulty and transcript):
-            return jsonify({
-                "error": "Missing required fields: language, difficulty, and transcript", 
-                "status": "error"
-            }), 400
+            return bad_request("Missing required fields: language, difficulty, and transcript")
 
         topic = data.get('topic', 'Custom Topic').strip()
         style = data.get('style', 'custom')
@@ -522,43 +491,45 @@ def custom_test():
                     **flat_ratings,  # Add flat ratings for compatibility
                 }
 
-                return jsonify({
-                    "slug": slug,
-                    "test_id": test_id,
-                    "status": "success",
-                    "message": "Custom test created and saved successfully",
-                    "audio_generated": audio_success,
-                    "audio_url": audio_url if audio_success else None,
-                    "test_summary": test_summary,
-                })
+                return api_success(
+                    data={
+                        "slug": slug,
+                        "test_id": test_id,
+                        "audio_generated": audio_success,
+                        "audio_url": audio_url if audio_success else None,
+                        "test_summary": test_summary,
+                    },
+                    message="Custom test created and saved successfully",
+                )
         except Exception as e:
             current_app.logger.warning(f"⚠️ Could not fetch complete test summary: {e}")
 
         # Fallback response
-        return jsonify({
-            "slug": slug,
-            "test_id": test_id,
-            "status": "success",
-            "message": "Custom test created and saved to database successfully",
-            "audio_generated": audio_success,
-            "audio_url": audio_url if audio_success else None,
-            "test_data": {
-                "language": language,
-                "difficulty": difficulty,
-                "topic": topic,
-                "style": style,
-                "tier": tier,
-                "title": title,
-                "custom": True,
-                "is_custom": True,
-                "questions_count": len(questions)
-            }
-        })
+        return api_success(
+            data={
+                "slug": slug,
+                "test_id": test_id,
+                "audio_generated": audio_success,
+                "audio_url": audio_url if audio_success else None,
+                "test_data": {
+                    "language": language,
+                    "difficulty": difficulty,
+                    "topic": topic,
+                    "style": style,
+                    "tier": tier,
+                    "title": title,
+                    "custom": True,
+                    "is_custom": True,
+                    "questions_count": len(questions),
+                },
+            },
+            message="Custom test created and saved to database successfully",
+        )
 
     except Exception as e:
         current_app.logger.error(f"Custom test error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({"error": "Failed to create custom test", "status": "error"}), 500
+        return server_error("Failed to create custom test")
 
 
 
@@ -573,7 +544,7 @@ def get_tests_with_ratings():
         limit = request.args.get('limit', 50, type=int) or 50
 
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not configured"}), 500
+            return server_error("Database service not configured")
 
         query = current_app.supabase_service.table('tests').select(
             'id, slug, title, language_id, topic_id, difficulty, style, tier, '
@@ -619,14 +590,11 @@ def get_tests_with_ratings():
             }
             tests_with_ratings.append(test_with_ratings)
 
-        return jsonify({
-            "success": True,
-            "tests": tests_with_ratings
-        })
+        return api_success(data={"tests": tests_with_ratings})
 
     except Exception as e:
         current_app.logger.error(f"Error fetching tests: {e}", exc_info=True)
-        return jsonify({"error": "Failed to fetch tests"}), 500
+        return server_error("Failed to fetch tests")
 
 @tests_bp.route('/<slug>', methods=['GET'])
 #@supabase_jwt_required
@@ -636,16 +604,16 @@ def get_test(slug):
         test_service = get_test_service()
         test_data = test_service.get_test_by_slug(slug)
         if not test_data:
-            return jsonify({"error": "Test not found", "status": "not_found"}), 404
+            return not_found("Test not found")
 
         normalize_audio_url(test_data)
 
         logger.debug(f"Returning test data for slug: {slug}")
-        return jsonify({"test": test_data, "status": "success"})
+        return api_success(data={"test": test_data})
 
     except Exception as e:
         current_app.logger.error(f"Error in get_test route: {e}")
-        return jsonify({"error": "Failed to fetch test", "status": "error"}), 500
+        return server_error("Failed to fetch test")
         
 def _apply_timing_and_progress(client, attempt_id, request_body):
     """Post-submission hook — persist timing + bump Study Plan counter.
@@ -693,10 +661,7 @@ def _submission_failure_response(rpc_name, payload):
     current_app.logger.error(
         "%s failed: %s", rpc_name, payload
     )
-    return jsonify({
-        "error": "submission_failed",
-        "error_code": "submission_failed",
-    }), 500
+    return api_error("submission_failed", 500, error_code="submission_failed")
 
 
 def _unwrap_rpc_response(rpc_name, response_data, on_success):
@@ -940,7 +905,7 @@ def submit_test_attempt(slug):
     """Submit test answers and calculate ELO changes with idempotency support"""
     try:
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not configured"}), 500
+            return server_error("Database service not configured")
 
         current_user_id = g.current_user_id
 
@@ -950,7 +915,7 @@ def submit_test_attempt(slug):
         furigana_used = bool(data.get('furigana_used', False))
 
         if not responses:
-            return jsonify({"error": "No responses provided"}), 400
+            return bad_request("No responses provided")
 
         # Lightweight test lookup (just id and language_id, no questions)
         test_lookup = current_app.supabase_service.table('tests')\
@@ -961,7 +926,7 @@ def submit_test_attempt(slug):
             .execute()
 
         if not test_lookup.data:
-            return jsonify({"error": f"Test not found: {slug}"}), 404
+            return not_found(f"Test not found: {slug}")
 
         test_id = test_lookup.data['id']
         language_id = test_lookup.data['language_id']
@@ -995,7 +960,7 @@ def submit_test_attempt(slug):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
             current_app.logger.error(f"ELO RPC failed: {error_msg} (detail: {error_detail})")
-            return jsonify({"error": "submission_failed"}), 500
+            return server_error("submission_failed")
 
         current_app.logger.info(
             f"Test submitted: user={current_user_id}, test={test_id}, "
@@ -1012,12 +977,12 @@ def submit_test_attempt(slug):
         word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
 
         result = _build_submission_response(rpc_result, test_mode, word_quiz)
-        return jsonify({'status': 'success', 'result': result}), 200
+        return api_success(data={'result': result})
 
     except Exception as e:
         current_app.logger.error(f"Test submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit test'}), 500
+        return server_error('Failed to submit test')
 
 
 @tests_bp.route('/<slug>/submit-pinyin', methods=['POST'])
@@ -1031,7 +996,7 @@ def submit_pinyin_attempt(slug):
     """
     try:
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not configured"}), 500
+            return server_error("Database service not configured")
 
         current_user_id = g.current_user_id
         data = request.get_json() or {}
@@ -1041,7 +1006,7 @@ def submit_pinyin_attempt(slug):
         time_taken = data.get('time_taken', 0)
 
         if total_chars <= 0:
-            return jsonify({"error": "Invalid total_chars"}), 400
+            return bad_request("Invalid total_chars")
 
         accuracy = correct_chars / total_chars
 
@@ -1054,17 +1019,17 @@ def submit_pinyin_attempt(slug):
             .execute()
 
         if not test_lookup.data:
-            return jsonify({"error": f"Test not found: {slug}"}), 404
+            return not_found(f"Test not found: {slug}")
 
         test_id = test_lookup.data['id']
         language_id = test_lookup.data['language_id']
 
         if language_id != 1:
-            return jsonify({"error": "Pinyin mode is only available for Chinese tests"}), 400
+            return bad_request("Pinyin mode is only available for Chinese tests")
 
         pinyin_type_id = DimensionService.get_test_type_id('pinyin')
         if not pinyin_type_id:
-            return jsonify({"error": "Pinyin test type not configured"}), 500
+            return server_error("Pinyin test type not configured")
 
         rpc_result = _call_pinyin_submission_rpc(
             current_app.supabase_service, current_user_id,
@@ -1077,7 +1042,7 @@ def submit_pinyin_attempt(slug):
         if not rpc_result or not rpc_result.get('success'):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Pinyin RPC failed: {error_msg}")
-            return jsonify({"error": "Failed to process pinyin submission"}), 500
+            return server_error("Failed to process pinyin submission")
 
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
@@ -1103,12 +1068,12 @@ def submit_pinyin_attempt(slug):
             'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
         }
 
-        return jsonify({'status': 'success', 'result': result}), 200
+        return api_success(data={'result': result})
 
     except Exception as e:
         current_app.logger.error(f"Pinyin submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit pinyin test'}), 500
+        return server_error('Failed to submit pinyin test')
 
 
 @tests_bp.route('/<slug>/submit-pitch-accent', methods=['POST'])
@@ -1123,7 +1088,7 @@ def submit_pitch_accent_attempt(slug):
     """
     try:
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not configured"}), 500
+            return server_error("Database service not configured")
 
         current_user_id = g.current_user_id
         data = request.get_json() or {}
@@ -1134,7 +1099,7 @@ def submit_pitch_accent_attempt(slug):
         furigana_used = bool(data.get('furigana_used', False))
 
         if total_units <= 0:
-            return jsonify({"error": "Invalid total_units"}), 400
+            return bad_request("Invalid total_units")
 
         accuracy = correct_units / total_units
 
@@ -1146,17 +1111,17 @@ def submit_pitch_accent_attempt(slug):
             .execute()
 
         if not test_lookup.data:
-            return jsonify({"error": f"Test not found: {slug}"}), 404
+            return not_found(f"Test not found: {slug}")
 
         test_id = test_lookup.data['id']
         language_id = test_lookup.data['language_id']
 
         if language_id != 3:
-            return jsonify({"error": "Pitch accent mode is only available for Japanese tests"}), 400
+            return bad_request("Pitch accent mode is only available for Japanese tests")
 
         pitch_type_id = DimensionService.get_test_type_id('pitch_accent')
         if not pitch_type_id:
-            return jsonify({"error": "Pitch accent test type not configured"}), 500
+            return server_error("Pitch accent test type not configured")
 
         rpc_result = _call_pitch_accent_submission_rpc(
             current_app.supabase_service, current_user_id,
@@ -1170,7 +1135,7 @@ def submit_pitch_accent_attempt(slug):
         if not rpc_result or not rpc_result.get('success'):
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Pitch accent RPC failed: {error_msg}")
-            return jsonify({"error": "Failed to process pitch accent submission"}), 500
+            return server_error("Failed to process pitch accent submission")
 
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
@@ -1196,12 +1161,12 @@ def submit_pitch_accent_attempt(slug):
             'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
         }
 
-        return jsonify({'status': 'success', 'result': result}), 200
+        return api_success(data={'result': result})
 
     except Exception as e:
         current_app.logger.error(f"Pitch accent submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit pitch accent test'}), 500
+        return server_error('Failed to submit pitch accent test')
 
 
 @tests_bp.route('/<slug>/submit-dictation', methods=['POST'])
@@ -1217,7 +1182,7 @@ def submit_dictation_attempt(slug):
     """
     try:
         if not current_app.supabase_service:
-            return jsonify({"error": "Database service not configured"}), 500
+            return server_error("Database service not configured")
 
         current_user_id = g.current_user_id
         data = request.get_json() or {}
@@ -1228,7 +1193,7 @@ def submit_dictation_attempt(slug):
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if not user_transcript:
-            return jsonify({"error": "Empty user_transcript"}), 400
+            return bad_request("Empty user_transcript")
 
         try:
             replay_count = max(1, int(replay_count))
@@ -1244,7 +1209,7 @@ def submit_dictation_attempt(slug):
             .execute()
 
         if not test_lookup.data:
-            return jsonify({"error": f"Test not found: {slug}"}), 404
+            return not_found(f"Test not found: {slug}")
 
         test = test_lookup.data
         test_id = test['id']
@@ -1252,15 +1217,15 @@ def submit_dictation_attempt(slug):
         correct_transcript = (test.get('transcript') or '').strip()
 
         if not correct_transcript:
-            return jsonify({"error": "Test has no transcript"}), 400
+            return bad_request("Test has no transcript")
 
         # Server-side pathological-length guard (see plan §10)
         if len(user_transcript) > 10 * max(1, len(correct_transcript)):
-            return jsonify({"error": "user_transcript exceeds 10x canonical length"}), 400
+            return bad_request("user_transcript exceeds 10x canonical length")
 
         dictation_type_id = DimensionService.get_test_type_id('dictation')
         if not dictation_type_id:
-            return jsonify({"error": "Dictation test type not configured"}), 500
+            return server_error("Dictation test type not configured")
 
         language_code = DimensionService.get_language_code(language_id) or ''
 
@@ -1269,7 +1234,7 @@ def submit_dictation_attempt(slug):
         result = grade_dictation(correct_transcript, user_transcript, language_code)
 
         if result.word_total <= 0:
-            return jsonify({"error": "Canonical transcript produced no tokens"}), 500
+            return server_error("Canonical transcript produced no tokens")
 
         # Map canonical tokens → sense_ids via vocab_token_map.
         # Token map is a list of (surface_form, sense_id) pairs aligned to
@@ -1312,7 +1277,7 @@ def submit_dictation_attempt(slug):
             # See CR-04 — don't echo SQLERRM text into the client response.
             error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
             current_app.logger.error(f"Dictation RPC failed: {error_msg}")
-            return jsonify({"error": "submission_failed"}), 500
+            return server_error("submission_failed")
 
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
@@ -1366,12 +1331,12 @@ def submit_dictation_attempt(slug):
             'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
         }
 
-        return jsonify({'status': 'success', 'result': response}), 200
+        return api_success(data={'result': response})
 
     except Exception as e:
         current_app.logger.error(f"Dictation submission error: {e}")
         current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'error': 'Failed to submit dictation'}), 500
+        return server_error('Failed to submit dictation')
 
 
 @tests_bp.route('/test/<identifier>', methods=['GET'])
@@ -1380,7 +1345,7 @@ def get_test_with_ratings(identifier):
     """Get test with ELO ratings for preview/taking. Accepts slug or UUID."""
     try:
         if not current_app.supabase_service:
-            return jsonify({"error": "Service not available"}), 503
+            return service_unavailable("Service not available")
 
         select_columns = (
             'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
@@ -1401,7 +1366,7 @@ def get_test_with_ratings(identifier):
             ).eq('id', identifier).eq('is_active', True).execute()
 
         if not test_result.data:
-            return jsonify({"error": "Test not found"}), 404
+            return not_found("Test not found")
 
         test = test_result.data[0]
         test_id = test['id']
@@ -1481,11 +1446,11 @@ def get_test_with_ratings(identifier):
         if furigana_payload is not None:
             response_data["furigana_payload"] = furigana_payload
 
-        return jsonify(response_data)
+        return api_success(data=response_data)
 
     except Exception as e:
         current_app.logger.error(f"Error fetching test {identifier}: {e}")
-        return jsonify({"error": "Failed to fetch test"}), 500
+        return server_error("Failed to fetch test")
 
 
 @tests_bp.route('/history', methods=['GET'])
@@ -1495,7 +1460,7 @@ def get_test_history():
     try:
         user_id = g.current_user_id
         if not user_id:
-            return jsonify({"error": "User ID not found"}), 401
+            return unauthorized("User ID not found")
 
         language_id = request.args.get('language_id', type=int)
         test_type_id = request.args.get('test_type_id', type=int)
@@ -1519,7 +1484,7 @@ def get_test_history():
         attempts = attempts_result.data or []
 
         if not attempts:
-            return jsonify({'status': 'success', 'tests': []}), 200
+            return api_success(data={'tests': []})
 
         test_ids = list(set(a['test_id'] for a in attempts))
 
@@ -1561,9 +1526,9 @@ def get_test_history():
                 'created_at': attempt['created_at']
             })
 
-        return jsonify({'status': 'success', 'tests': history}), 200
+        return api_success(data={'tests': history})
 
     except Exception as e:
         logger.error(f"Error getting test history: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to get test history'}), 500
+        return server_error('Failed to get test history')

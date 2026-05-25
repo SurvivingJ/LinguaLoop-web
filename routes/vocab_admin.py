@@ -28,7 +28,7 @@ def upload_words() -> ApiResponse:
     4. Returns a batch summary
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -84,7 +84,7 @@ def upload_words() -> ApiResponse:
         return api_success(pipeline_result)
 
     except Exception as e:
-        logger.error("Word upload failed: %s", e)
+        logger.error("Word upload failed: %s", e, exc_info=True)
         return server_error("Failed to upload words")
 
 
@@ -99,7 +99,7 @@ def generate_assets() -> ApiResponse:
         force: optional (bool, default false — regenerate even if exists)
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -120,7 +120,7 @@ def generate_assets() -> ApiResponse:
         return api_success(result)
 
     except Exception as e:
-        logger.error("Asset generation failed: %s", e)
+        logger.error("Asset generation failed: %s", e, exc_info=True)
         return server_error("Failed to generate assets")
 
 
@@ -134,7 +134,7 @@ def render_exercises() -> ApiResponse:
         sense_ids: required (list of ints)
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         if not data:
             return bad_request("Request body required")
 
@@ -159,7 +159,7 @@ def render_exercises() -> ApiResponse:
         })
 
     except Exception as e:
-        logger.error("Exercise rendering failed: %s", e)
+        logger.error("Exercise rendering failed: %s", e, exc_info=True)
         return server_error("Failed to render exercises")
 
 

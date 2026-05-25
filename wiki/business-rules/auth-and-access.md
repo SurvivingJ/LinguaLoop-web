@@ -2,10 +2,10 @@
 title: Authentication & Access Control
 type: business-rule
 status: in-progress
-last_updated: 2026-05-15
+last_updated: 2026-05-25
 open_questions:
   - "Global admin role — currently determined by subscription tier is_admin flag. Should there be a separate admin table?"
-  - "Service-role bypass in middleware/auth.py uses the same SUPABASE_SERVICE_ROLE_KEY the backend itself uses. A leak grants full DB access. Replace with a dedicated batch-service credential."
+  - "ANSWERED (2026-05-25) — Service-role bypass replacement decided in [[decisions/ADR-014-batch-service-credential]]: introduce BATCH_SERVICE_TOKEN, scope to jwt_required only. Implementation pending."
 ---
 
 # Authentication & Access Control
@@ -19,7 +19,7 @@ open_questions:
 
 - Authentication via Supabase Auth (email/password).
 - JWTs issued by Supabase, validated by Flask middleware ([`middleware/auth.py`](../../middleware/auth.py)). Only standalone decorators (`jwt_required`, `admin_required`, `tier_required`) — the class-based `AuthMiddleware` was removed 2026-05-15 (had no callers).
-- The `jwt_required` decorator also accepts the raw `SUPABASE_SERVICE_ROLE_KEY` as a bearer token, used for internal batch jobs. The comparison uses `hmac.compare_digest` (constant-time, 2026-05-15) and every bypass call logs `'Service-role bypass used on %s'`. **Open question above** flags the deeper risk.
+- All three decorators (`jwt_required`, `admin_required`, `tier_required`) currently accept the raw `SUPABASE_SERVICE_ROLE_KEY` as a bearer token, used for internal batch jobs. The comparison uses `hmac.compare_digest` (constant-time, 2026-05-15) and every bypass call logs `'Service-role bypass used on %s'`. Symmetric exposure across all three was introduced 2026-05-25 (HI-02, commit `7e074fd3`). **Design replacement accepted in [[decisions/ADR-014-batch-service-credential]]** — new `BATCH_SERVICE_TOKEN` env var, honoured only on `jwt_required`; implementation PR is the follow-up.
 - New users automatically get a `users` row + `user_tokens` row via `handle_new_user()` trigger.
 - Soft-delete via `deleted_at` / `anonymized_at` timestamps (GDPR compliance via `anonymize_user_data()`).
 

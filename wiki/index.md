@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-24 (Code review of main backend — see log.md 2026-05-24) | Pages: 71
+Last updated: 2026-05-25 (ADR-014 batch-service credential — see log.md 2026-05-25) | Pages: 72
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
