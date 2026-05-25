@@ -22,17 +22,66 @@
                 document.documentElement.setAttribute('data-theme', theme);
             }
         })();
-        // Redirect to login if no auth token on protected pages. The auth
-        // storage shim that lets localStorage.getItem fall back to
-        // sessionStorage is installed later in this file, so we check both
-        // explicitly here.
+        // When the user lands on a protected page with no JWT in storage,
+        // try the trusted-device cookie via /api/auth/device-restore BEFORE
+        // bouncing to /login. Otherwise the HttpOnly cookie (invisible to
+        // JS) is never exchanged and "Remember this device" silently fails.
+        //
+        // Body paint is hidden via a one-shot stylesheet while the async
+        // probe is in flight; cleared on success or on the redirect fall-
+        // through. The probe is gated by a 1.5s timeout so a slow backend
+        // doesn't trap the user on a blank page.
         (function() {
             var publicPaths = ['/', '/login', '/signup', '/logout'];
             var path = window.location.pathname;
-            var hasToken = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
-            if (!hasToken && publicPaths.indexOf(path) === -1) {
+            if (publicPaths.indexOf(path) !== -1) return;
+
+            var hasToken = localStorage.getItem('jwt_token')
+                        || sessionStorage.getItem('jwt_token');
+            if (hasToken) return;
+
+            var paintBlock = document.createElement('style');
+            paintBlock.id = '__lingua_block_paint';
+            paintBlock.textContent = 'body{visibility:hidden}';
+            document.documentElement.appendChild(paintBlock);
+
+            function bounceToLogin() {
                 window.location.href = '/login';
             }
+
+            var settled = false;
+            var timeoutId = setTimeout(function() {
+                if (!settled) { settled = true; bounceToLogin(); }
+            }, 1500);
+
+            fetch('/api/auth/device-restore', {
+                method: 'POST',
+                credentials: 'same-origin',
+            }).then(function(r) {
+                if (!r.ok) throw new Error('device-restore status ' + r.status);
+                return r.json();
+            }).then(function(data) {
+                if (!data || !data.success || !data.jwt_token) {
+                    throw new Error('device-restore returned no jwt');
+                }
+                localStorage.setItem('jwt_token', data.jwt_token);
+                if (data.refresh_token) {
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                }
+                if (data.user) {
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                }
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeoutId);
+                var el = document.getElementById('__lingua_block_paint');
+                if (el) el.remove();
+            }).catch(function() {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeoutId);
+                bounceToLogin();
+            });
         })();
     </script>
     <style>

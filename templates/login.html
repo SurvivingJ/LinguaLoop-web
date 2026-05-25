@@ -218,6 +218,26 @@
         setTimeout(() => otpInput.focus(), 100);
     }
 
+    // Silent device-restore on /login load. Users with a valid trusted-
+    // device cookie (HttpOnly, invisible to JS) should skip OTP entirely.
+    (async function autoRestoreOnLogin() {
+        try {
+            const r = await fetch('/api/auth/device-restore', {
+                method: 'POST',
+                credentials: 'same-origin',
+            });
+            if (!r.ok) return;
+            const data = await r.json();
+            if (!data.success || !data.jwt_token) return;
+            localStorage.setItem('jwt_token', data.jwt_token);
+            if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+            if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
+            window.location.href = (data.user && data.user.hasSeenWelcome === false)
+                ? '/welcome'
+                : '/language-selection';
+        } catch (_) { /* stay on login form */ }
+    })();
+
     // Send OTP
     emailForm.addEventListener('submit', async function(e) {
         e.preventDefault();
