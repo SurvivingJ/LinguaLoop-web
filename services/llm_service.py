@@ -167,7 +167,12 @@ def _log_llm_call(
     """Insert one row into llm_calls. Best-effort; never raises."""
     try:
         from services.supabase_factory import get_supabase_admin, get_supabase
-        client = get_supabase_admin() or get_supabase()
+        admin_client = get_supabase_admin()
+        if admin_client:
+            client = admin_client
+        else:
+            logger.warning("Supabase service role key not available; observability fallback to anon client (RLS-restricted)")
+            client = get_supabase()
         if client is None:
             return
         row = {
@@ -189,7 +194,7 @@ def _log_llm_call(
         client.table('llm_calls').insert(row).execute()
     except Exception as exc:
         # Observability must never break the calling pipeline.
-        logger.debug("llm_calls logging failed: %s", exc)
+        logger.warning("llm_calls logging failed: %s", exc)
 
 
 # ---------------------------------------------------------------------------
