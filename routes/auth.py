@@ -1,10 +1,14 @@
 # routes/auth.py
 """Authentication routes for OTP-based login."""
 
+import logging
+
 from flask import Blueprint, request, jsonify, g, make_response
 from utils.validation import validate_email
 from middleware.auth import jwt_required
 from config import Config
+
+logger = logging.getLogger(__name__)
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -62,7 +66,7 @@ def _origin_is_allowed() -> bool:
 def send_otp():
     """Send OTP to user's email for authentication."""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         email = data.get('email', '').strip().lower()
         is_registration = data.get('is_registration', False)
 
@@ -77,6 +81,7 @@ def send_otp():
             return jsonify(result), 400
 
     except Exception as e:
+        logger.error('Exception in send_otp: %s', e, exc_info=True)
         return jsonify({'error': 'Server error occurred'}), 500
 
 
@@ -164,9 +169,7 @@ def verify_otp():
             }), 400
 
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Exception in verify_otp: {e}", exc_info=True)
+        logger.error('Exception in verify_otp: %s', e, exc_info=True)
 
         return jsonify({
             'success': False,
@@ -195,9 +198,7 @@ def refresh_token():
             return jsonify(result), 401
 
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Exception in refresh_token: {e}", exc_info=True)
+        logger.error('Exception in refresh_token: %s', e, exc_info=True)
         return jsonify({'error': 'Server error occurred'}), 500
 
 
@@ -228,10 +229,7 @@ def device_restore():
             ip=_client_ip(),
         )
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).error(
-            f'device-restore: restore_from_token crashed: {e}', exc_info=True
-        )
+        logger.error('device-restore: restore_from_token crashed: %s', e, exc_info=True)
         return jsonify({'error': 'Server error'}), 500
 
     if not restored:
@@ -287,6 +285,7 @@ def get_profile():
             return jsonify(result), 404
 
     except Exception as e:
+        logger.error('Exception in get_profile: %s', e, exc_info=True)
         return jsonify({'error': 'Server error occurred'}), 500
 
 
@@ -321,8 +320,7 @@ def logout():
             try:
                 device_service.revoke_by_raw_token(raw_device_token, reason='logout')
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception('Failed to revoke device on logout')
+                logger.exception('Failed to revoke device on logout')
 
         result = auth_bp.auth_service.logout(g.current_user_id)
         status = 200 if result['success'] else 400
@@ -331,4 +329,5 @@ def logout():
         return response
 
     except Exception as e:
+        logger.error('Exception in logout: %s', e, exc_info=True)
         return jsonify({'error': 'Server error occurred'}), 500
