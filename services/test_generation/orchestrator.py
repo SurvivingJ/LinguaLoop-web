@@ -950,6 +950,9 @@ class TestGenerationOrchestrator:
             for d in set(difficulty_schedule):
                 diff_stats[d] = {'generated': 0, 'skipped': 0, 'errors': 0}
 
+            # Track tests generated per queue item (items are cycled when count > len(queue_items))
+            per_item_counts: dict[str, int] = {qi['id']: 0 for qi in queue_items}
+
             # Main generation loop
             for i, diff in enumerate(difficulty_schedule):
                 if i < config.start_index:
@@ -984,6 +987,7 @@ class TestGenerationOrchestrator:
                     if success:
                         self.metrics.tests_generated += 1
                         diff_stats[diff]['generated'] += 1
+                        per_item_counts[qi_row['id']] += 1
                         logger.info(
                             "[%d/%d] %s | %s | diff=%d (%s) | pass",
                             i + 1, config.count, config.language_code,
@@ -1011,16 +1015,21 @@ class TestGenerationOrchestrator:
                 if config.delay_ms > 0:
                     time.sleep(config.delay_ms / 1000.0)
 
-            # Mark processed queue items complete (first batch only)
+            # Mark processed queue items complete, using per-item counts so that
+            # cycled batches (count > len(queue_items)) record accurate per-item totals.
             if not config.dry_run and self.metrics.tests_generated > 0:
                 for qi_row in queue_items:
+                    item_count = per_item_counts.get(qi_row['id'], 0)
                     try:
                         self.db.mark_queue_completed(
                             UUID(qi_row['id']),
-                            self.metrics.tests_generated,
+                            item_count,
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(
+                            "Failed to mark queue item %s as completed: %s",
+                            qi_row['id'], e,
+                        )
 
             # Log summary table
             self._log_batch_summary(
