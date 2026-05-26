@@ -507,7 +507,7 @@ class TestGenerationOrchestrator:
             )
 
             # Generate pinyin payload for Chinese tests
-            if lang_config.id == 1 and prose:
+            if lang_config.language_code == 'zh' and prose:
                 try:
                     from services.pinyin_service import process_passage
                     pinyin_payload = process_passage(prose)
