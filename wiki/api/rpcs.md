@@ -66,7 +66,7 @@ Plus a dozen web routes (`/login`, `/welcome`, `/tests`, `/test/<slug>`, `/profi
 
 ## Authentication
 
-`Authorization: Bearer <supabase_jwt>` is required on all `/api/*` routes except the public ones noted above. The middleware sets `g.current_user_id` server-side; the client cannot inject this. If the token matches `SUPABASE_SERVICE_ROLE_KEY`, the request runs as a `'service-account'` identity — used by batch scripts.
+`Authorization: Bearer <supabase_jwt>` is required on all `/api/*` routes except the public ones noted above. The middleware sets `g.current_user_id` server-side; the client cannot inject this. If the token matches the `BATCH_SERVICE_TOKEN` env var (ADR-014, 2026-05-26), the request runs as a `'service-account'` identity — used by HTTP batch jobs. This identity is honoured only by `@jwt_required` routes; `@admin_required` and `@tier_required` reject it (no matching `users` row → 403). The previous bypass against `SUPABASE_SERVICE_ROLE_KEY` was removed by ADR-014.
 
 See [[api/rpcs.tech]] for the complete endpoint reference: every route, its body/query schema, the underlying RPC, and the success/error shapes.
 

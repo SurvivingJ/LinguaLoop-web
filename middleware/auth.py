@@ -3,9 +3,13 @@
 Consolidated authentication middleware.
 
 Three decorators (`jwt_required`, `admin_required`, `tier_required`) share a
-single `_authenticate` helper. This keeps the service-role JWT bypass
-symmetric across all three (HI-02) — previously only `jwt_required` had it,
-so batch jobs hitting an admin/tier endpoint silently 401'd.
+single `_authenticate` helper.
+
+The HTTP bearer-token bypass uses a dedicated `BATCH_SERVICE_TOKEN` (ADR-014,
+2026-05-26), not the Supabase service-role key. It is honoured only by
+`jwt_required` — `admin_required` and `tier_required` no longer short-circuit
+on `service_role` claims, so a leak of the batch token does not unlock admin
+endpoints. If `BATCH_SERVICE_TOKEN` is unset the bypass branch is inert.
 """
 
 from functools import wraps
@@ -52,13 +56,14 @@ def _authenticate(token):
     if not token:
         return None, (jsonify({'error': 'Token missing'}), 401)
 
-    # Service-role bypass — shared across jwt/admin/tier decorators (HI-02).
-    # TODO: replace with a dedicated batch-service credential. With the bypass
-    # now symmetric, a leak of SUPABASE_SERVICE_ROLE_KEY exposes admin/tier
-    # endpoints too, not just jwt_required.
-    service_role_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-    if service_role_key and hmac.compare_digest(token, service_role_key):
-        logger.info('Service-role bypass used on %s', request.path)
+    # Batch-service bypass (ADR-014). Decoupled from SUPABASE_SERVICE_ROLE_KEY
+    # so a leak of either credential no longer compromises both planes.
+    # Honoured only by jwt_required — admin_required / tier_required treat
+    # the synthetic service-account identity like any other user (no tier row
+    # → 403). Unset = feature off.
+    batch_token = os.getenv('BATCH_SERVICE_TOKEN')
+    if batch_token and hmac.compare_digest(token, batch_token):
+        logger.info('Batch-service bypass used on %s', request.path)
         return {
             'sub': 'service-account',
             'email': 'batch-service@internal',
@@ -124,16 +129,18 @@ def jwt_required(f):
 
 
 def admin_required(f):
-    """Endpoint requires admin/moderator tier — service-role bypass honoured."""
+    """Endpoint requires admin/moderator tier.
+
+    ADR-014: batch-service identity is **not** honoured here. A service-account
+    request falls through to the tier check, finds no users row for
+    ``sub='service-account'``, and 403s — the desired outcome.
+    """
     @wraps(f)
     def decorated(*args, **kwargs):
         claims, err = _authenticate(_extract_token(request))
         if err:
             return err
         _set_user_context(claims)
-
-        if claims['role'] == 'service_role':
-            return f(*args, **kwargs)
 
         if not _user_has_tier(claims['sub'], ('admin', 'moderator')):
             logger.warning('[AUTH] Admin access denied for user_id=%s', claims['sub'])
@@ -145,7 +152,10 @@ def admin_required(f):
 
 
 def tier_required(required_tiers):
-    """Endpoint requires subscription_tier ∈ ``required_tiers`` — service-role bypass honoured."""
+    """Endpoint requires subscription_tier ∈ ``required_tiers``.
+
+    ADR-014: batch-service identity is **not** honoured here (see admin_required).
+    """
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -153,9 +163,6 @@ def tier_required(required_tiers):
             if err:
                 return err
             _set_user_context(claims)
-
-            if claims['role'] == 'service_role':
-                return f(*args, **kwargs)
 
             if not _user_has_tier(claims['sub'], tuple(required_tiers)):
                 logger.warning(
