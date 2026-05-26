@@ -189,7 +189,9 @@ class TopicDatabaseClient:
                 for row in response.data
             }
 
-        return self._status_cache.get(status_code, 1)  # Default to 'pending'
+        if status_code not in self._status_cache:
+            raise KeyError(f"Unknown status code: {status_code!r}")
+        return self._status_cache[status_code]
 
     def get_language_by_code(self, language_code: str) -> Optional[Language]:
         """
