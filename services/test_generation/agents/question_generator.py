@@ -15,6 +15,9 @@ from services.llm_service import call_llm
 from ..config import test_gen_config
 from ..schemas import MCQuestion
 
+# Verdict ordering used to find worst distractor outcome.
+_VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,6 +82,7 @@ class QuestionGenerator:
         seed: Optional[int] = None,
         language_id: Optional[int] = None,
         template_version: Optional[int] = None,
+        db=None,
     ) -> List[Dict]:
         """Generate multiple questions for prose content.
 
@@ -113,8 +117,22 @@ class QuestionGenerator:
                 }
                 if question.distractor_types:
                     q_entry['distractor_types'] = question.distractor_types
-                questions.append(q_entry)
 
+                # LLM judge gate — runs only when caller passes db + language_id.
+                # Failure mode: safe_accept() — judges never block the pipeline on error.
+                if db is not None and language_id is not None:
+                    q_entry = self._apply_judges(
+                        q_entry=q_entry,
+                        prose=prose,
+                        db=db,
+                        language_id=language_id,
+                        type_code=type_code,
+                    )
+                    if q_entry is None:
+                        # Judge hard-rejected this question — skip it.
+                        continue
+
+                questions.append(q_entry)
                 previous_questions.append(question.question_text)
 
             except Exception as e:
@@ -241,6 +259,94 @@ Return ONLY valid JSON in this exact shape:
 The `answer` field must reproduce one of the four `choices` strings verbatim.
 The `distractor_types` array uses null for the correct choice's slot.
 """
+
+    def _apply_judges(
+        self,
+        q_entry: Dict,
+        prose: str,
+        db,
+        language_id: int,
+        type_code: str,
+    ) -> Optional[Dict]:
+        """Run answer-entailment and distractor-plausibility judges on a question.
+
+        Returns the (possibly annotated) q_entry dict, or None if a judge
+        hard-rejects the question.  Attaches ``_judge_flags`` to the dict when
+        one or more judges flag (but do not reject) the question.
+
+        Judges use safe_accept() on any internal error, so this method never
+        raises and never blocks the pipeline.
+        """
+        # Lazy imports avoid a circular dependency:
+        #   question_generator → answer_entailment → test_generation.schemas
+        #   → test_generation.__init__ → orchestrator → question_generator
+        from services.exercise_generation.judges.answer_entailment import (
+            judge_answer_entailment,
+        )
+        from services.exercise_generation.judges.distractor_plausibility import (
+            judge_distractor_plausibility,
+        )
+
+        question_text = q_entry['question']
+        answer        = q_entry['answer']
+        distractors   = [c for c in q_entry['choices'] if c != answer]
+
+        # --- Answer entailment ---
+        ae = judge_answer_entailment(
+            db=db,
+            passage=prose,
+            question_text=question_text,
+            answer=answer,
+            language_id=language_id,
+        )
+        if ae.verdict == 'reject':
+            logger.info(
+                "Judge rejected %s answer (conf=%.2f): %s",
+                type_code, ae.confidence, ae.reason,
+            )
+            return None
+
+        # --- Distractor plausibility ---
+        dp_outcomes = judge_distractor_plausibility(
+            db=db,
+            passage=prose,
+            question_text=question_text,
+            answer=answer,
+            distractors=distractors,
+            language_id=language_id,
+        )
+        worst_dp = min(
+            dp_outcomes,
+            key=lambda o: _VERDICT_ORDER.get(o.verdict, 2),
+            default=None,
+        )
+        if worst_dp and worst_dp.verdict == 'reject':
+            logger.info(
+                "Judge rejected %s distractors (conf=%.2f): %s",
+                type_code, worst_dp.confidence, worst_dp.reason,
+            )
+            return None
+
+        # --- Collect flags ---
+        judge_flags: Dict = {}
+        if ae.verdict == 'flag':
+            judge_flags['answer_entailment'] = {
+                'confidence': ae.confidence,
+                'reason': ae.reason,
+            }
+        flagged_dp = [
+            (d, o) for d, o in zip(distractors, dp_outcomes)
+            if o.verdict == 'flag'
+        ]
+        if flagged_dp:
+            judge_flags['distractor_plausibility'] = [
+                {'distractor': d, 'confidence': o.confidence, 'reason': o.reason}
+                for d, o in flagged_dp
+            ]
+        if judge_flags:
+            q_entry['_judge_flags'] = judge_flags
+
+        return q_entry
 
     def reset_call_count(self) -> None:
         """Reset the API call counter."""

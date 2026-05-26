@@ -48,6 +48,37 @@ DIFFICULTY_LABELS = {
 }
 
 
+def _write_review_queue_rows(
+    db,
+    valid_questions: list,
+    db_questions: list,
+) -> None:
+    """Best-effort: insert generation_review_queue rows for flagged questions.
+
+    Called after insert_questions so every db_questions[i].id is already
+    persisted to the questions table.  Never raises — review-queue failure
+    must not abort a test.
+    """
+    try:
+        rows = []
+        for q_entry, gq in zip(valid_questions, db_questions):
+            flags = q_entry.get('_judge_flags')
+            if not flags:
+                continue
+            rows.append({
+                'artifact_kind': 'test_question',
+                'artifact_id':   str(gq.id),
+                'flag_reasons':  list(flags.keys()),
+                'judge_scores':  flags,
+                'status':        'pending',
+            })
+        if rows:
+            db.table('generation_review_queue').insert(rows).execute()
+            logger.info("Queued %d flagged question(s) for review", len(rows))
+    except Exception as exc:
+        logger.warning("Failed to write review_queue rows (non-fatal): %s", exc)
+
+
 @dataclass
 class BatchConfig:
     """Configuration for a batch test generation run."""
@@ -380,7 +411,9 @@ class TestGenerationOrchestrator:
             question_type_codes=question_types,
             difficulty=difficulty,  # Pass difficulty for templates
             prompt_templates=question_templates,
-            model_override=lang_config.question_model
+            model_override=lang_config.question_model,
+            language_id=lang_config.id,
+            db=get_supabase_admin(),
         )
 
         # Step 3: Validate questions
@@ -441,11 +474,13 @@ class TestGenerationOrchestrator:
             )
             self.db.insert_test(test)
 
-            # Insert questions
+            # Insert questions — pre-generate UUIDs so flagged questions can be
+            # referenced in generation_review_queue before the rows exist there.
             db_questions = []
             for i, q in enumerate(valid_questions):
                 type_id = self.db.get_question_type_id(q.get('type_code', ''))
                 db_questions.append(GeneratedQuestion(
+                    id=uuid4(),
                     test_id=test_id,
                     question_id=f"{slug}-q{i+1}",
                     question_text=q['question'],
@@ -455,6 +490,13 @@ class TestGenerationOrchestrator:
                     distractor_types=q.get('distractor_types')
                 ))
             self.db.insert_questions(db_questions)
+
+            # Enqueue judge-flagged questions for human review.
+            _write_review_queue_rows(
+                db=get_supabase_admin(),
+                valid_questions=valid_questions,
+                db_questions=db_questions,
+            )
 
             # Insert skill ratings
             self.db.insert_test_skill_ratings(

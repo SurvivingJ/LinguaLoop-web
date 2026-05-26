@@ -5,31 +5,45 @@ We mock the LLM transport and the judge result to assert that:
 - distractors flagged 'reject' are dropped before the result is returned
 - judge metadata lands in tags via _build_tags
 - when the judge leaves < 3 distractors and retry also fails, generate_one returns None
+
+cloze_judge.py is now a backward-compat shim; the implementation lives in
+services.exercise_generation.judges.cloze.  Tests target that module
+directly so patch.object / cache manipulation hit the live module.
 """
 
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from services.exercise_generation import cloze_judge
+from services.exercise_generation.judges import cloze as cloze_judge
 from services.exercise_generation.generators.cloze import ClozeGenerator
+
+# ---------------------------------------------------------------------------
+# Shared fixtures
+# ---------------------------------------------------------------------------
+
+_FAKE_JUDGE_CFG = {
+    'template': 'JUDGE {sentence_with_blank} {correct_answer} {distractors_numbered}',
+    'model': 'google/gemini-2.5-flash-lite',
+    'provider': 'openrouter',
+    'version': 1,
+}
+_CACHE_KEY = (cloze_judge._TASK_NAME, 2)   # task_name + language_id=2
 
 
 @pytest.fixture(autouse=True)
 def clear_judge_cache():
-    cloze_judge._TEMPLATE_CACHE.clear()
+    """Pre-populate _cfg_cache so tests don't hit the DB via get_template_config."""
+    cloze_judge._cfg_cache.clear()
+    cloze_judge._cfg_cache[_CACHE_KEY] = _FAKE_JUDGE_CFG
     yield
-    cloze_judge._TEMPLATE_CACHE.clear()
+    cloze_judge._cfg_cache.clear()
 
 
 def _make_generator():
     db = MagicMock()
-    # Judge template lookup returns a template row.
-    judge_chain = db.table.return_value.select.return_value.eq.return_value \
-        .order.return_value.limit.return_value
-    judge_chain.execute.return_value = MagicMock(
-        data=[{'template_text': 'JUDGE {sentence_with_blank} {correct_answer} {distractors_numbered}'}],
-    )
+    # Judge template is pre-populated in _cfg_cache by the fixture;
+    # no DB chain setup needed for the judge lookup.
     gen = ClozeGenerator(db, language_id=2, model='test-model', source_type='grammar')
     # Bypass the target-selection LLM call.
     gen._identify_target_word = MagicMock(return_value='ran')
@@ -43,6 +57,10 @@ def _distractor_payload(distractors, tags=None):
         'explanation': 'because',
     }
 
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
 
 def test_judge_keeps_all_returns_full_result():
     gen = _make_generator()

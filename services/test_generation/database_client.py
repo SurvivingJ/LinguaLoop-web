@@ -107,6 +107,10 @@ class GeneratedQuestion:
     answer: str
     question_type_id: Optional[int] = None
     distractor_types: Optional[List[str]] = None
+    # Pre-set by callers that need to reference the row UUID before insert
+    # (e.g. orchestrator writing generation_review_queue rows).
+    # If None, insert_questions generates a fresh uuid4().
+    id: Optional[UUID] = None
 
 
 @dataclass
@@ -712,7 +716,7 @@ class TestDatabaseClient:
         rows = []
         for q in questions:
             row = {
-                'id': str(uuid4()),
+                'id': str(q.id) if q.id else str(uuid4()),
                 'test_id': str(q.test_id),
                 'question_id': q.question_id,
                 'question_text': q.question_text,

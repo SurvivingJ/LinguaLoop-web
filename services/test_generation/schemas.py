@@ -126,3 +126,98 @@ class MCQuestion(BaseModel):
         normalized['answer'] = answer_stripped
         normalized['correct_answer_index'] = cleaned.index(answer_stripped)
         return normalized
+
+
+# ---------------------------------------------------------------------------
+# Judge verdict schemas (Wave 2)
+# ---------------------------------------------------------------------------
+
+class AnswerEntailmentVerdict(BaseModel):
+    """Judge output: does the passage support the correct answer?
+
+    The judge prompt uses numeric keys so the prompt body can be authored
+    entirely in the target language (no English field names leak into ZH/JA
+    prompts).  The ``_normalize`` validator maps both the numeric-key shape
+    returned by non-English prompts and the named-key shape the English
+    prompt may return:
+
+        {"1": 0.85, "2": "reasoning text"} → confidence=0.85, reason="..."
+        {"confidence": 0.85, "reason": "..."}  → passthrough
+
+    Confidence is clamped to [0.0, 1.0] by ``_validate``.
+    """
+
+    confidence: float
+    reason: str
+
+    @model_validator(mode='before')
+    @classmethod
+    def _normalize(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        out: dict[str, Any] = {}
+        for k, v in data.items():
+            if k in ('1', 1):
+                out['confidence'] = v
+            elif k in ('2', 2):
+                out['reason'] = v
+            else:
+                out[k] = v
+        return out
+
+    @model_validator(mode='after')
+    def _validate(self) -> 'AnswerEntailmentVerdict':
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(
+                f'confidence {self.confidence!r} must be in [0.0, 1.0]'
+            )
+        return self
+
+
+class DistractorPlausibilityVerdict(BaseModel):
+    """Judge output: are the distractors plausible-but-clearly-wrong?
+
+    The judge prompt uses numeric keys so the prompt body can be authored
+    entirely in the target language (no English field names in ZH/JA rows).
+
+    The LLM returns one confidence per distractor and one reason per
+    distractor — both as lists of the same length as the distractor list:
+
+        {"1": [0.9, 0.4, 0.85], "2": ["reason0", "reason1", "reason2"]}
+        → per_distractor=[0.9, 0.4, 0.85], reasons=["reason0", ...]
+
+    ``_validate`` enforces that the two lists have matching lengths and that
+    all confidence values are in [0.0, 1.0].
+    """
+
+    per_distractor: list[float]
+    reasons: list[str]
+
+    @model_validator(mode='before')
+    @classmethod
+    def _normalize(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        out: dict[str, Any] = {}
+        for k, v in data.items():
+            if k in ('1', 1):
+                out['per_distractor'] = v
+            elif k in ('2', 2):
+                out['reasons'] = v
+            else:
+                out[k] = v
+        return out
+
+    @model_validator(mode='after')
+    def _validate(self) -> 'DistractorPlausibilityVerdict':
+        if len(self.per_distractor) != len(self.reasons):
+            raise ValueError(
+                f'per_distractor length ({len(self.per_distractor)}) must '
+                f'match reasons length ({len(self.reasons)})'
+            )
+        for i, c in enumerate(self.per_distractor):
+            if not 0.0 <= c <= 1.0:
+                raise ValueError(
+                    f'per_distractor[{i}]={c!r} must be in [0.0, 1.0]'
+                )
+        return self
