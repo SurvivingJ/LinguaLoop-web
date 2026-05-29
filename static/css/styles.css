@@ -8,118 +8,125 @@
 
 :root {
   /* ----- Brand-native tokens (the source of truth) ----- */
-  --ink:            #0E1116;  /* warmed near-black, printed-type */
-  --ink-soft:       #2A2D33;
-  --graphite:       #4A4843;  /* sepia-leaning muted text */
-  --parchment:      #F5F1E8;  /* warm paper, default surface */
-  --parchment-soft: #ECE6D6;
-  --paper:          #FFFFFF;  /* elevated surface (cards, modals) */
-  --rule:           #D9D2C2;  /* hairline borders */
-  --rule-strong:    #B8B0A0;
+  --ink: #0e1116; /* warmed near-black, printed-type */
+  --ink-soft: #2a2d33;
+  --graphite: #4a4843; /* sepia-leaning muted text */
+  --parchment: #f5f1e8; /* warm paper, default surface */
+  --parchment-soft: #ece6d6;
+  --paper: #fff; /* elevated surface (cards, modals) */
+  --rule: #d9d2c2; /* hairline borders */
+  --rule-strong: #b8b0a0;
 
-  --vermilion:      #B5331E;  /* primary accent — Pompeiian red, manuscript rubrication */
-  --vermilion-deep: #8C2516;
-  --vermilion-wash: #F4DCD4;  /* selected-row tint */
+  --vermilion: #b5331e; /* primary accent — Pompeiian red, manuscript rubrication */
+  --vermilion-deep: #8c2516;
+  --vermilion-wash: #f4dcd4; /* selected-row tint */
 
-  --moss:           #4A6B3A;  /* success — deep olive, never lime */
-  --brass:          #B8862C;  /* warning — aged brass / mustard */
-  --oxblood:        #7A2222;  /* error — dried-blood */
-  --lapis:          #2D4A6B;  /* info — deep manuscript blue */
+  --moss: #4a6b3a; /* success — deep olive, never lime */
+  --brass: #b8862c; /* warning — aged brass / mustard */
+  --oxblood: #7a2222; /* error — dried-blood */
+  --lapis: #2d4a6b; /* info — deep manuscript blue */
 
   /* ----- Legacy tokens kept for backwards compatibility -----
      The downstream CSS still references these names; they now
      resolve to the brand-native palette above so existing
      selectors automatically inherit the new look. */
-  --primary:        var(--vermilion);
-  --primary-hover:  var(--vermilion-deep);
-  --success:        var(--moss);
-  --success-hover:  #3A5530;
-  --danger:         var(--oxblood);
-  --danger-hover:   #5E1A1A;
-  --warning:        var(--brass);
-  --info:           var(--lapis);
-  --accent:         var(--brass);
+  --primary: var(--vermilion);
+  --primary-hover: var(--vermilion-deep);
+  --success: var(--moss);
+  --success-hover: #3a5530;
+  --danger: var(--oxblood);
+  --danger-hover: #5e1a1a;
+  --warning: var(--brass);
+  --info: var(--lapis);
+  --accent: var(--brass);
 
   /* Warm neutral scale (replaces the old cool slate scale).
      Variable names retained because utility classes consume them. */
   --slate-900: var(--ink);
-  --slate-800: #1A1D23;
+  --slate-800: #1a1d23;
   --slate-700: var(--ink-soft);
   --slate-600: var(--graphite);
-  --slate-500: #6B695F;
-  --slate-400: #8E8B7F;
+  --slate-500: #6b695f;
+  --slate-400: #8e8b7f;
   --slate-300: var(--rule-strong);
   --slate-200: var(--rule);
   --slate-100: var(--parchment-soft);
-  --slate-50:  var(--parchment);
+  --slate-50: var(--parchment);
 
   /* Semantic surface & text (theme-overridable) */
-  --bg-body:          var(--parchment);
-  --bg-surface:       var(--paper);
+  --bg-body: var(--parchment);
+  --bg-surface: var(--paper);
   --bg-surface-hover: var(--parchment-soft);
-  --bg-muted:         var(--parchment-soft);
-  --text-primary:     var(--ink);
-  --text-secondary:   var(--graphite);
-  --text-muted:       #6B695F;
-  --border-default:   var(--rule);
-  --border-strong:    var(--rule-strong);
-  --focus-ring:       rgba(181, 51, 30, 0.18);
+  --bg-muted: var(--parchment-soft);
+  --text-primary: var(--ink);
+  --text-secondary: var(--graphite);
+  --text-muted: #6b695f;
+  --border-default: var(--rule);
+  --border-strong: var(--rule-strong);
+  --focus-ring: rgb(181 51 30 / 18%);
 
   /* Semantic backgrounds — earthy, never shrill */
-  --success-bg:  #E2EAD9;
-  --danger-bg:   #EAD4D4;
-  --warning-bg:  #F2E5CC;
-  --info-bg:     #DAE0E9;
+  --success-bg: #e2ead9;
+  --danger-bg: #ead4d4;
+  --warning-bg: #f2e5cc;
+  --info-bg: #dae0e9;
   --selected-bg: var(--vermilion-wash);
 
   /* Shadows — ink-tinted, restrained */
-  --shadow-sm: 0 1px 2px rgba(14, 17, 22, 0.06);
-  --shadow-md: 0 2px 8px rgba(14, 17, 22, 0.08);
-  --shadow-lg: 0 16px 48px rgba(14, 17, 22, 0.18);
+  --shadow-sm: 0 1px 2px rgb(14 17 22 / 6%);
+  --shadow-md: 0 2px 8px rgb(14 17 22 / 8%);
+  --shadow-lg: 0 16px 48px rgb(14 17 22 / 18%);
 
   /* Bootstrap overrides so framework chrome inherits the brand */
-  --bs-body-bg:        var(--bg-body);
-  --bs-body-color:     var(--text-primary);
-  --bs-border-color:   var(--border-default);
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-primary);
+  --bs-border-color: var(--border-default);
   --bs-secondary-color: var(--text-muted);
   --bs-emphasis-color: var(--text-primary);
-  --bs-link-color:     var(--vermilion);
+  --bs-link-color: var(--vermilion);
   --bs-link-hover-color: var(--vermilion-deep);
 
   /* ----- Typography ----- */
-  --font-sans:  "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "IBM Plex Serif", "Source Serif Pro", Charter, "Iowan Old Style", Georgia, serif;
-  --font-mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', roboto, sans-serif;
+  --font-serif: 'IBM Plex Serif', 'Source Serif Pro', charter, 'Iowan Old Style', georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', menlo, consolas, monospace;
 
-  --text-xs:      0.8rem;     /* 12.8px */
-  --text-sm:      0.875rem;   /* 14px */
-  --text-base:    1rem;       /* 16px */
-  --text-lg:      1.25rem;    /* 20px */
-  --text-xl:      1.5625rem;  /* 25px */
-  --text-2xl:     1.953rem;   /* 31.25px */
-  --text-3xl:     2.441rem;   /* 39px */
-  --text-display: 4rem;       /* 64px */
+  --text-xs: 0.8rem; /* 12.8px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5625rem; /* 25px */
+  --text-2xl: 1.953rem; /* 31.25px */
+  --text-3xl: 2.441rem; /* 39px */
+  --text-display: 4rem; /* 64px */
 
-  --leading-tight:    1.2;
-  --leading-snug:     1.35;
-  --leading-normal:   1.6;
-  --leading-relaxed:  1.75;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
 
   /* Spacing — 4px base */
-  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
-  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
-  --space-8: 32px;  --space-10: 40px; --space-12: 48px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
   --space-16: 64px;
 
   /* Motion */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --duration-fast:  120ms;
-  --duration-base:  200ms;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
 
   --transition-fast: all 0.12s var(--ease-standard);
-  --transition-base: all 0.2s  var(--ease-standard);
-  --transition-slow: all 0.3s  var(--ease-standard);
-  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  --transition-base: all 0.2s var(--ease-standard);
+  --transition-slow: all 0.3s var(--ease-standard);
+  --theme-transition:
+    background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* ============================================
@@ -133,10 +140,15 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "ss01", "cv02", "cv11";
+  font-feature-settings: 'ss01', 'cv02', 'cv11';
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
   font-family: var(--font-serif);
   font-weight: 500;
@@ -144,12 +156,34 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.005em;
 }
 
-h1 { font-size: var(--text-3xl); font-weight: 600; }
-h2 { font-size: var(--text-2xl); }
-h3 { font-size: var(--text-xl); }
-h4 { font-size: var(--text-lg); }
-h5 { font-size: var(--text-base); font-weight: 600; }
-h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+h1 {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+h4 {
+  font-size: var(--text-lg);
+}
+
+h5 {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+h6 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 
 a {
   color: var(--vermilion);
@@ -176,7 +210,9 @@ a:hover {
 }
 
 .editorial p + p,
-.prose p + p { margin-top: var(--space-4); }
+.prose p + p {
+  margin-top: var(--space-4);
+}
 
 /* Tabular / data displays — pinyin tone digits, ELO numbers, scores. */
 .font-mono,
@@ -193,7 +229,9 @@ a:hover {
 
 /* Honour user's reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -248,7 +286,7 @@ a:hover {
   background: var(--success-hover);
   border-color: var(--success-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 107, 58, 0.22);
+  box-shadow: 0 4px 12px rgb(74 107 58 / 22%);
 }
 
 /* Secondary Button */
@@ -273,7 +311,7 @@ a:hover {
 .btn-danger:focus {
   background: var(--danger-hover);
   border-color: var(--danger-hover);
-  box-shadow: 0 4px 12px rgba(122, 34, 34, 0.22);
+  box-shadow: 0 4px 12px rgb(122 34 34 / 22%);
 }
 
 /* Icon Button */
@@ -399,7 +437,7 @@ a:hover {
 }
 
 .form-control.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(122, 34, 34, 0.15);
+  box-shadow: 0 0 0 3px rgb(122 34 34 / 15%);
 }
 
 /* Seamless Input Groups */
@@ -516,7 +554,7 @@ a:hover {
 .milestone.completed {
   background: var(--brass);
   border-color: var(--brass);
-  box-shadow: 0 0 6px rgba(184, 134, 44, 0.35);
+  box-shadow: 0 0 6px rgb(184 134 44 / 35%);
   animation: pulse 0.4s var(--ease-standard);
 }
 
@@ -666,6 +704,7 @@ a:hover {
   border: none;
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
+  background: var(--bg-surface);
 }
 
 .modal-header {
@@ -677,12 +716,8 @@ a:hover {
   border-top: 1px solid var(--border-default);
 }
 
-.modal-content {
-  background: var(--bg-surface);
-}
-
 .modal-backdrop {
-  background: rgba(14, 17, 22, 0.45);
+  background: rgb(14 17 22 / 45%);
   backdrop-filter: blur(2px);
 }
 
@@ -764,50 +799,116 @@ a:hover {
    Animations
    ============================================ */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
 }
 
+/* stylelint-disable-next-line keyframes-name-pattern -- camelCase name referenced across 5 templates; renaming would break animations */
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes burst {
-  0% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.15) rotate(5deg); }
-  50% { transform: scale(1.1) rotate(-5deg); }
-  75% { transform: scale(1.15) rotate(5deg); }
-  100% { transform: scale(1) rotate(0deg); }
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  25% {
+    transform: scale(1.15) rotate(5deg);
+  }
+
+  50% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  75% {
+    transform: scale(1.15) rotate(5deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
+/* stylelint-disable-next-line keyframes-name-pattern -- camelCase name referenced across templates; renaming would break animations */
 @keyframes scaleIn {
-  from { transform: scale(0.98); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0.98);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 /* ============================================
    Utility Classes
    ============================================ */
-.text-slate-900 { color: var(--slate-900); }
-.text-slate-600 { color: var(--slate-600); }
-.text-slate-500 { color: var(--slate-500); }
+.text-slate-900 {
+  color: var(--slate-900);
+}
 
-.bg-slate-50 { background: var(--slate-50); }
-.bg-slate-100 { background: var(--slate-100); }
+.text-slate-600 {
+  color: var(--slate-600);
+}
 
-.border-slate-200 { border-color: var(--slate-200); }
+.text-slate-500 {
+  color: var(--slate-500);
+}
 
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
+.bg-slate-50 {
+  background: var(--slate-50);
+}
 
-.transition-fast { transition: var(--transition-fast); }
-.transition-base { transition: var(--transition-base); }
+.bg-slate-100 {
+  background: var(--slate-100);
+}
+
+.border-slate-200 {
+  border-color: var(--slate-200);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.transition-fast {
+  transition: var(--transition-fast);
+}
+
+.transition-base {
+  transition: var(--transition-base);
+}
 
 .animate-slide-up {
   animation: slideUp 0.3s ease;
@@ -820,10 +921,10 @@ a:hover {
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.015em;
-  font-feature-settings: "lnum";
+  font-feature-settings: 'lnum';
 }
 
-[data-theme="midnight"] .logo {
+[data-theme='midnight'] .logo {
   color: var(--text-primary);
 }
 
@@ -873,67 +974,67 @@ footer,
    The dojo at night: ink as ground, parchment as text,
    vermilion brightened to hold contrast on dark.
    ============================================ */
-[data-theme="midnight"] {
-  --vermilion:      #D44833;  /* brightened for dark-mode contrast */
-  --vermilion-deep: #E85B43;
-  --vermilion-wash: rgba(212, 72, 51, 0.18);
+[data-theme='midnight'] {
+  --vermilion: #d44833; /* brightened for dark-mode contrast */
+  --vermilion-deep: #e85b43;
+  --vermilion-wash: rgb(212 72 51 / 18%);
 
-  --moss:    #6B8B5E;
-  --brass:   #D4A140;
-  --oxblood: #B5494A;
-  --lapis:   #5479A2;
+  --moss: #6b8b5e;
+  --brass: #d4a140;
+  --oxblood: #b5494a;
+  --lapis: #5479a2;
 
-  --primary:        var(--vermilion);
-  --primary-hover:  var(--vermilion-deep);
-  --success:        var(--moss);
-  --success-hover:  #7A9D6C;
-  --danger:         var(--oxblood);
-  --danger-hover:   #C76060;
-  --warning:        var(--brass);
-  --info:           var(--lapis);
-  --accent:         var(--brass);
+  --primary: var(--vermilion);
+  --primary-hover: var(--vermilion-deep);
+  --success: var(--moss);
+  --success-hover: #7a9d6c;
+  --danger: var(--oxblood);
+  --danger-hover: #c76060;
+  --warning: var(--brass);
+  --info: var(--lapis);
+  --accent: var(--brass);
 
   /* Inverted warm-neutral scale */
-  --slate-900: #F5F1E8;
-  --slate-800: #ECE6D6;
-  --slate-700: #D9D2C2;
-  --slate-600: #B8B0A0;
-  --slate-500: #8E8B7F;
-  --slate-400: #6B695F;
-  --slate-300: #4A4843;
-  --slate-200: #2A2D33;
-  --slate-100: #1A1D23;
-  --slate-50:  #0E1116;
+  --slate-900: #f5f1e8;
+  --slate-800: #ece6d6;
+  --slate-700: #d9d2c2;
+  --slate-600: #b8b0a0;
+  --slate-500: #8e8b7f;
+  --slate-400: #6b695f;
+  --slate-300: #4a4843;
+  --slate-200: #2a2d33;
+  --slate-100: #1a1d23;
+  --slate-50: #0e1116;
 
-  --bg-body:          #0E1116;
-  --bg-surface:       #1A1D23;
+  --bg-body: #0e1116;
+  --bg-surface: #1a1d23;
   --bg-surface-hover: #232730;
-  --bg-muted:         #1F2228;
-  --text-primary:     #F5F1E8;
-  --text-secondary:   #D9D2C2;
-  --text-muted:       #8E8B7F;
-  --border-default:   #2A2D33;
-  --border-strong:    #4A4843;
-  --focus-ring:       rgba(212, 72, 51, 0.28);
+  --bg-muted: #1f2228;
+  --text-primary: #f5f1e8;
+  --text-secondary: #d9d2c2;
+  --text-muted: #8e8b7f;
+  --border-default: #2a2d33;
+  --border-strong: #4a4843;
+  --focus-ring: rgb(212 72 51 / 28%);
 
-  --success-bg:  rgba(107, 139, 94, 0.18);
-  --danger-bg:   rgba(181, 73, 74, 0.20);
-  --warning-bg:  rgba(212, 161, 64, 0.18);
-  --info-bg:     rgba(84, 121, 162, 0.18);
+  --success-bg: rgb(107 139 94 / 18%);
+  --danger-bg: rgb(181 73 74 / 20%);
+  --warning-bg: rgb(212 161 64 / 18%);
+  --info-bg: rgb(84 121 162 / 18%);
   --selected-bg: var(--vermilion-wash);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.40);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 45%);
+  --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
 
   /* Bootstrap overrides */
-  --bs-body-bg:        var(--bg-body);
-  --bs-body-color:     var(--text-primary);
-  --bs-border-color:   var(--border-default);
-  --bs-card-color:     var(--text-primary);
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-primary);
+  --bs-border-color: var(--border-default);
+  --bs-card-color: var(--text-primary);
   --bs-secondary-color: var(--text-muted);
   --bs-emphasis-color: var(--text-primary);
-  --bs-link-color:     var(--vermilion);
+  --bs-link-color: var(--vermilion);
   --bs-link-hover-color: var(--vermilion-deep);
   color-scheme: dark;
 }
@@ -941,7 +1042,7 @@ footer,
 /* ============================================
    Theme: Sakura (Warm Rose)
    ============================================ */
-[data-theme="sakura"] {
+[data-theme='sakura'] {
   --primary: #be185d;
   --primary-hover: #9d174d;
   --success: #059669;
@@ -964,7 +1065,7 @@ footer,
   --slate-50: #fafaf9;
 
   --bg-body: #fdf2f8;
-  --bg-surface: #ffffff;
+  --bg-surface: #fff;
   --bg-surface-hover: #fce7f3;
   --bg-muted: #fce7f3;
   --text-primary: #1c1917;
@@ -972,7 +1073,7 @@ footer,
   --text-muted: #78716c;
   --border-default: #f9a8d4;
   --border-strong: #f472b6;
-  --focus-ring: rgba(190, 24, 93, 0.12);
+  --focus-ring: rgb(190 24 93 / 12%);
 
   --success-bg: #d1fae5;
   --danger-bg: #fee2e2;
@@ -980,9 +1081,9 @@ footer,
   --info-bg: #fce7f3;
   --selected-bg: #fce7f3;
 
-  --shadow-sm: 0 1px 2px rgba(190, 24, 93, 0.05);
-  --shadow-md: 0 4px 12px rgba(190, 24, 93, 0.08);
-  --shadow-lg: 0 20px 60px rgba(190, 24, 93, 0.12);
+  --shadow-sm: 0 1px 2px rgb(190 24 93 / 5%);
+  --shadow-md: 0 4px 12px rgb(190 24 93 / 8%);
+  --shadow-lg: 0 20px 60px rgb(190 24 93 / 12%);
 
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-primary);
@@ -992,7 +1093,7 @@ footer,
 /* ============================================
    Theme: Forest (Earthy Green)
    ============================================ */
-[data-theme="forest"] {
+[data-theme='forest'] {
   --primary: #15803d;
   --primary-hover: #166534;
   --success: #15803d;
@@ -1023,7 +1124,7 @@ footer,
   --text-muted: #7a8a7a;
   --border-default: #c8d1c8;
   --border-strong: #a3b0a3;
-  --focus-ring: rgba(21, 128, 61, 0.12);
+  --focus-ring: rgb(21 128 61 / 12%);
 
   --success-bg: #dcfce7;
   --danger-bg: #fee2e2;
@@ -1031,9 +1132,9 @@ footer,
   --info-bg: #e0f2fe;
   --selected-bg: #dcfce7;
 
-  --shadow-sm: 0 1px 2px rgba(26, 46, 26, 0.06);
-  --shadow-md: 0 4px 12px rgba(26, 46, 26, 0.10);
-  --shadow-lg: 0 20px 60px rgba(26, 46, 26, 0.15);
+  --shadow-sm: 0 1px 2px rgb(26 46 26 / 6%);
+  --shadow-md: 0 4px 12px rgb(26 46 26 / 10%);
+  --shadow-lg: 0 20px 60px rgb(26 46 26 / 15%);
 
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-primary);

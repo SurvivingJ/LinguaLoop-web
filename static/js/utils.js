@@ -7,24 +7,35 @@
 // CONSTANTS
 // =============================================================================
 
+// eslint-disable-next-line no-redeclare -- this file defines the window.LINGUADOJO global that consumers read
 const LINGUADOJO = window.LINGUADOJO || {};
 
 // ELO difficulty ranges
 const ELO_RANGES = {
-    BEGINNER: { min: 0, max: 1199, label: 'Beginner', class: 'badge-beginner' },
-    ELEMENTARY: { min: 1200, max: 1399, label: 'Elementary', class: 'badge-elementary' },
-    INTERMEDIATE: { min: 1400, max: 1599, label: 'Intermediate', class: 'badge-intermediate' },
-    ADVANCED: { min: 1600, max: 1799, label: 'Advanced', class: 'badge-advanced' },
-    EXPERT: { min: 1800, max: 9999, label: 'Expert', class: 'badge-expert' }
+  BEGINNER: { min: 0, max: 1199, label: 'Beginner', class: 'badge-beginner' },
+  ELEMENTARY: { min: 1200, max: 1399, label: 'Elementary', class: 'badge-elementary' },
+  INTERMEDIATE: { min: 1400, max: 1599, label: 'Intermediate', class: 'badge-intermediate' },
+  ADVANCED: { min: 1600, max: 1799, label: 'Advanced', class: 'badge-advanced' },
+  EXPERT: { min: 1800, max: 9999, label: 'Expert', class: 'badge-expert' },
 };
 
 // Language flag mapping
 const LANGUAGE_FLAGS = {
-    'en': '🇺🇸', 'english': '🇺🇸', 'English': '🇺🇸',
-    'zh': '🇨🇳', 'chinese': '🇨🇳', 'Chinese': '🇨🇳',
-    'ja': '🇯🇵', 'japanese': '🇯🇵', 'Japanese': '🇯🇵',
-    'ko': '🇰🇷', 'korean': '🇰🇷', 'Korean': '🇰🇷',
-    'fr': '🇫🇷', 'french': '🇫🇷', 'French': '🇫🇷'
+  en: '🇺🇸',
+  english: '🇺🇸',
+  English: '🇺🇸',
+  zh: '🇨🇳',
+  chinese: '🇨🇳',
+  Chinese: '🇨🇳',
+  ja: '🇯🇵',
+  japanese: '🇯🇵',
+  Japanese: '🇯🇵',
+  ko: '🇰🇷',
+  korean: '🇰🇷',
+  Korean: '🇰🇷',
+  fr: '🇫🇷',
+  french: '🇫🇷',
+  French: '🇫🇷',
 };
 
 // Debug mode - set to false in production
@@ -40,10 +51,10 @@ const DEBUG = false;
  * @returns {string} HTML-safe text
  */
 function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // =============================================================================
@@ -56,11 +67,11 @@ function escapeHtml(text) {
  * @returns {string} Difficulty label
  */
 function getDifficultyLabel(elo) {
-    if (elo < 1200) return 'Beginner';
-    if (elo < 1400) return 'Elementary';
-    if (elo < 1600) return 'Intermediate';
-    if (elo < 1800) return 'Advanced';
-    return 'Expert';
+  if (elo < 1200) return 'Beginner';
+  if (elo < 1400) return 'Elementary';
+  if (elo < 1600) return 'Intermediate';
+  if (elo < 1800) return 'Advanced';
+  return 'Expert';
 }
 
 /**
@@ -69,12 +80,12 @@ function getDifficultyLabel(elo) {
  * @returns {Object} {label, class, color}
  */
 function getDifficultyInfo(elo) {
-    const level = getDifficultyLabel(elo);
-    return {
-        label: level,
-        class: `badge-${level.toLowerCase()}`,
-        color: getDifficultyColor(level)
-    };
+  const level = getDifficultyLabel(elo);
+  return {
+    label: level,
+    class: `badge-${level.toLowerCase()}`,
+    color: getDifficultyColor(level),
+  };
 }
 
 /**
@@ -83,14 +94,14 @@ function getDifficultyInfo(elo) {
  * @returns {string} CSS color
  */
 function getDifficultyColor(level) {
-    const colors = {
-        'Beginner': '#22c55e',
-        'Elementary': '#84cc16',
-        'Intermediate': '#eab308',
-        'Advanced': '#f97316',
-        'Expert': '#ef4444'
-    };
-    return colors[level] || '#6b7280';
+  const colors = {
+    Beginner: '#22c55e',
+    Elementary: '#84cc16',
+    Intermediate: '#eab308',
+    Advanced: '#f97316',
+    Expert: '#ef4444',
+  };
+  return colors[level] || '#6b7280';
 }
 
 // =============================================================================
@@ -103,7 +114,7 @@ function getDifficultyColor(level) {
  * @returns {string} Flag emoji or default globe
  */
 function getLanguageFlag(langCode) {
-    return LANGUAGE_FLAGS[langCode] || '🌐';
+  return LANGUAGE_FLAGS[langCode] || '🌐';
 }
 
 // =============================================================================
@@ -115,8 +126,8 @@ function getLanguageFlag(langCode) {
  * @param {HTMLElement|string} el - Element or selector
  */
 function show(el) {
-    const element = typeof el === 'string' ? document.querySelector(el) : el;
-    element?.classList.remove('d-none');
+  const element = typeof el === 'string' ? document.querySelector(el) : el;
+  element?.classList.remove('d-none');
 }
 
 /**
@@ -124,8 +135,8 @@ function show(el) {
  * @param {HTMLElement|string} el - Element or selector
  */
 function hide(el) {
-    const element = typeof el === 'string' ? document.querySelector(el) : el;
-    element?.classList.add('d-none');
+  const element = typeof el === 'string' ? document.querySelector(el) : el;
+  element?.classList.add('d-none');
 }
 
 /**
@@ -134,7 +145,7 @@ function hide(el) {
  * @param {boolean} visible - Whether to show (true) or hide (false)
  */
 function toggle(el, visible) {
-    visible ? show(el) : hide(el);
+  visible ? show(el) : hide(el);
 }
 
 // =============================================================================
@@ -146,11 +157,11 @@ function toggle(el, visible) {
  * @returns {Object} Headers object with Authorization
  */
 function getAuthHeaders() {
-    const token = localStorage.getItem('jwt_token') || LINGUADOJO.jwt_token;
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : ''
-    };
+  const token = localStorage.getItem('jwt_token') || LINGUADOJO.jwt_token;
+  return {
+    'Content-Type': 'application/json',
+    Authorization: token ? `Bearer ${token}` : '',
+  };
 }
 
 /**
@@ -160,18 +171,18 @@ function getAuthHeaders() {
  * @returns {Promise<Object>} Response data
  */
 async function apiRequest(url, options = {}) {
-    if (options.body && typeof options.body === 'object') {
-        options.body = JSON.stringify(options.body);
-    }
+  if (options.body && typeof options.body === 'object') {
+    options.body = JSON.stringify(options.body);
+  }
 
-    const response = await window.authFetch(url, options);
-    const data = await response.json();
+  const response = await window.authFetch(url, options);
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error(data.error || data.message || 'Request failed');
-    }
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'Request failed');
+  }
 
-    return data;
+  return data;
 }
 
 /**
@@ -180,7 +191,7 @@ async function apiRequest(url, options = {}) {
  * @returns {Promise<Object>} Response data
  */
 function apiGet(url) {
-    return apiRequest(url, { method: 'GET' });
+  return apiRequest(url, { method: 'GET' });
 }
 
 /**
@@ -190,7 +201,7 @@ function apiGet(url) {
  * @returns {Promise<Object>} Response data
  */
 function apiPost(url, body) {
-    return apiRequest(url, { method: 'POST', body });
+  return apiRequest(url, { method: 'POST', body });
 }
 
 // =============================================================================
@@ -204,12 +215,12 @@ function apiPost(url, body) {
  * @returns {*} Parsed value or default
  */
 function getStorageItem(key, defaultValue = null) {
-    try {
-        const item = localStorage.getItem(key);
-        return item ? JSON.parse(item) : defaultValue;
-    } catch (e) {
-        return defaultValue;
-    }
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
 }
 
 /**
@@ -218,7 +229,7 @@ function getStorageItem(key, defaultValue = null) {
  * @param {*} value - Value to store
  */
 function setStorageItem(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
 // =============================================================================
@@ -230,9 +241,9 @@ function setStorageItem(key, value) {
  * @param  {...any} args - Arguments to log
  */
 function debugLog(...args) {
-    if (DEBUG) {
-        console.log(...args);
-    }
+  if (DEBUG) {
+    console.log(...args);
+  }
 }
 
 // =============================================================================
@@ -245,9 +256,9 @@ function debugLog(...args) {
  * @returns {string} Formatted time string
  */
 function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 /**
@@ -256,12 +267,12 @@ function formatTime(seconds) {
  * @returns {string} Formatted date
  */
 function formatDate(date) {
-    const d = new Date(date);
-    return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 // =============================================================================
@@ -272,58 +283,63 @@ function formatDate(date) {
  * Cached language metadata from /api/metadata.
  * Provides native_name lookup for language display.
  */
+// eslint-disable-next-line no-redeclare -- this file defines the window.LinguaMetadata global that consumers read
 const LinguaMetadata = {
-    _cache: null,
-    _promise: null,
+  _cache: null,
+  _promise: null,
 
-    /**
-     * Load metadata from API (cached, single fetch).
-     * @returns {Promise<Object>} Metadata response
-     */
-    load() {
-        if (this._cache) return Promise.resolve(this._cache);
-        if (this._promise) return this._promise;
-        this._promise = fetch('/api/metadata')
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                LinguaMetadata._cache = data;
-                return data;
-            })
-            .catch(function(err) {
-                console.error('[LinguaMetadata] Failed to load:', err);
-                LinguaMetadata._cache = { languages: [], test_types: [] };
-                return LinguaMetadata._cache;
-            });
-        return this._promise;
-    },
+  /**
+   * Load metadata from API (cached, single fetch).
+   * @returns {Promise<Object>} Metadata response
+   */
+  load() {
+    if (this._cache) return Promise.resolve(this._cache);
+    if (this._promise) return this._promise;
+    this._promise = fetch('/api/metadata')
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        LinguaMetadata._cache = data;
+        return data;
+      })
+      .catch(function (err) {
+        console.error('[LinguaMetadata] Failed to load:', err);
+        LinguaMetadata._cache = { languages: [], test_types: [] };
+        return LinguaMetadata._cache;
+      });
+    return this._promise;
+  },
 
-    /**
-     * Get native name for a language (by English name or code).
-     * @param {string} langNameOrCode - e.g. "chinese", "zh", "Chinese"
-     * @returns {string} Native name or original input as fallback
-     */
-    getNativeName(langNameOrCode) {
-        if (!this._cache || !langNameOrCode) return langNameOrCode || '';
-        var lower = langNameOrCode.toLowerCase();
-        var lang = this._cache.languages.find(function(l) {
-            return (l.language_name || '').toLowerCase() === lower ||
-                   (l.language_code || '').toLowerCase() === lower;
-        });
-        return (lang && lang.native_name) ? lang.native_name : langNameOrCode;
-    },
+  /**
+   * Get native name for a language (by English name or code).
+   * @param {string} langNameOrCode - e.g. "chinese", "zh", "Chinese"
+   * @returns {string} Native name or original input as fallback
+   */
+  getNativeName(langNameOrCode) {
+    if (!this._cache || !langNameOrCode) return langNameOrCode || '';
+    const lower = langNameOrCode.toLowerCase();
+    const lang = this._cache.languages.find(function (l) {
+      return (
+        (l.language_name || '').toLowerCase() === lower ||
+        (l.language_code || '').toLowerCase() === lower
+      );
+    });
+    return lang && lang.native_name ? lang.native_name : langNameOrCode;
+  },
 
-    /**
-     * Get native name by language ID.
-     * @param {number} langId - Language ID
-     * @returns {string} Native name or fallback
-     */
-    getNativeNameById(langId) {
-        if (!this._cache) return '';
-        var lang = this._cache.languages.find(function(l) {
-            return l.id === langId;
-        });
-        return (lang && lang.native_name) ? lang.native_name : '';
-    }
+  /**
+   * Get native name by language ID.
+   * @param {number} langId - Language ID
+   * @returns {string} Native name or fallback
+   */
+  getNativeNameById(langId) {
+    if (!this._cache) return '';
+    const lang = this._cache.languages.find(function (l) {
+      return l.id === langId;
+    });
+    return lang && lang.native_name ? lang.native_name : '';
+  },
 };
 
 window.LinguaMetadata = LinguaMetadata;
@@ -334,44 +350,44 @@ window.LinguaMetadata = LinguaMetadata;
 
 // Make utilities globally available
 window.LinguaUtils = {
-    // Constants
-    ELO_RANGES,
-    LANGUAGE_FLAGS,
-    DEBUG,
+  // Constants
+  ELO_RANGES,
+  LANGUAGE_FLAGS,
+  DEBUG,
 
-    // Security
-    escapeHtml,
+  // Security
+  escapeHtml,
 
-    // Difficulty
-    getDifficultyLabel,
-    getDifficultyInfo,
-    getDifficultyColor,
+  // Difficulty
+  getDifficultyLabel,
+  getDifficultyInfo,
+  getDifficultyColor,
 
-    // Language
-    getLanguageFlag,
+  // Language
+  getLanguageFlag,
 
-    // DOM
-    show,
-    hide,
-    toggle,
+  // DOM
+  show,
+  hide,
+  toggle,
 
-    // API
-    getAuthHeaders,
-    apiRequest,
-    apiGet,
-    apiPost,
+  // API
+  getAuthHeaders,
+  apiRequest,
+  apiGet,
+  apiPost,
 
-    // Storage
-    getStorageItem,
-    setStorageItem,
+  // Storage
+  getStorageItem,
+  setStorageItem,
 
-    // Logging
-    debugLog,
+  // Logging
+  debugLog,
 
-    // Date/Time
-    formatTime,
-    formatDate,
+  // Date/Time
+  formatTime,
+  formatDate,
 
-    // Language Metadata
-    LinguaMetadata
+  // Language Metadata
+  LinguaMetadata,
 };
