@@ -154,6 +154,7 @@ class TestGenerationOrchestrator:
             3. Log metrics
         """
         start_time = time.time()
+        dry_run = test_gen_config.dry_run
 
         # Initialize metrics
         self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
@@ -164,7 +165,7 @@ class TestGenerationOrchestrator:
             logger.info("=" * 60)
             logger.info(f"Batch size: {test_gen_config.batch_size}")
             logger.info(f"Target difficulties: {test_gen_config.target_difficulties}")
-            logger.info(f"Dry run: {test_gen_config.dry_run}")
+            logger.info(f"Dry run: {dry_run}")
 
             # Step 1: Fetch pending queue items
             queue_items = self.db.get_pending_queue_items(
@@ -173,14 +174,14 @@ class TestGenerationOrchestrator:
 
             if not queue_items:
                 logger.info("No pending queue items found")
-                return self._finalize(start_time)
+                return self._finalize(start_time, dry_run)
 
             logger.info(f"Found {len(queue_items)} pending queue items")
 
             # Step 2: Process each queue item
             for item in queue_items:
                 try:
-                    tests_generated = self._process_queue_item(item)
+                    tests_generated = self._process_queue_item(item, dry_run)
                     self.metrics.queue_items_processed += 1
                     self.metrics.tests_generated += tests_generated
 
@@ -188,23 +189,24 @@ class TestGenerationOrchestrator:
                     logger.error(f"Failed to process queue item {item.id}: {e}")
                     self.metrics.tests_failed += 1
 
-                    if not test_gen_config.dry_run:
+                    if not dry_run:
                         self.db.mark_queue_failed(item.id, str(e))
 
-            return self._finalize(start_time)
+            return self._finalize(start_time, dry_run)
 
         except Exception as e:
             logger.exception(f"Test generation run failed: {e}")
             if self.metrics:
                 self.metrics.error_message = str(e)
-            return self._finalize(start_time)
+            return self._finalize(start_time, dry_run)
 
-    def _process_queue_item(self, item: QueueItem) -> int:
+    def _process_queue_item(self, item: QueueItem, dry_run: bool) -> int:
         """
         Process a single queue item.
 
         Args:
             item: QueueItem from production_queue
+            dry_run: If True, skip all database writes
 
         Returns:
             int: Number of tests generated
@@ -212,7 +214,7 @@ class TestGenerationOrchestrator:
         logger.info(f"Processing queue item: {item.id}")
 
         # Mark as processing
-        if not test_gen_config.dry_run:
+        if not dry_run:
             self.db.mark_queue_processing(item.id)
 
         # Get topic details
@@ -242,7 +244,8 @@ class TestGenerationOrchestrator:
                     topic=topic,
                     lang_config=lang_config,
                     category_name=category_name,
-                    difficulty=difficulty
+                    difficulty=difficulty,
+                    dry_run=dry_run,
                 )
 
                 if success:
@@ -255,7 +258,7 @@ class TestGenerationOrchestrator:
                 # Continue with other difficulties
 
         # Mark queue item complete
-        if not test_gen_config.dry_run:
+        if not dry_run:
             self.db.mark_queue_completed(item.id, tests_generated)
 
         logger.info(
@@ -272,6 +275,7 @@ class TestGenerationOrchestrator:
         category_name: str,
         difficulty: int,
         test_type: str = 'listening',
+        dry_run: bool = False,
     ) -> bool:
         """
         Generate a single test at specified difficulty.
@@ -442,7 +446,7 @@ class TestGenerationOrchestrator:
                 language_code=lang_config.language_code
             )
 
-            if not test_gen_config.dry_run:
+            if not dry_run:
                 audio_url = self.audio_synthesizer.generate_and_upload(
                     text=prose,
                     file_id=str(test_id),
@@ -455,7 +459,7 @@ class TestGenerationOrchestrator:
             logger.info(f"Skipping audio generation for {test_type} test")
 
         # Step 5: Save to database
-        if not test_gen_config.dry_run:
+        if not dry_run:
             # Insert test
             test = GeneratedTest(
                 id=test_id,
@@ -803,12 +807,13 @@ class TestGenerationOrchestrator:
         self._vocab_cache[cache_key] = vocab_id
         return vocab_id
 
-    def _finalize(self, start_time: float) -> TestGenMetrics:
+    def _finalize(self, start_time: float, dry_run: bool) -> TestGenMetrics:
         """
         Calculate final metrics and persist to database.
 
         Args:
             start_time: Workflow start timestamp
+            dry_run: If True, skip persisting metrics
 
         Returns:
             TestGenMetrics: Complete execution statistics
@@ -819,7 +824,7 @@ class TestGenerationOrchestrator:
         self.metrics.execution_time_seconds = int(time.time() - start_time)
 
         # Persist metrics (unless dry run)
-        if not test_gen_config.dry_run:
+        if not dry_run:
             try:
                 self.db.insert_generation_run(self.metrics)
             except Exception as e:
@@ -874,7 +879,8 @@ class TestGenerationOrchestrator:
             error_log=row.get('error_log')
         )
 
-        return self._process_queue_item(item)
+        dry_run = test_gen_config.dry_run
+        return self._process_queue_item(item, dry_run)
 
     # ============================================================
     # BATCH GENERATION (count-based, balanced difficulty)
@@ -895,11 +901,6 @@ class TestGenerationOrchestrator:
             TestGenMetrics with per-run statistics.
         """
         start_time = time.time()
-
-        # Apply dry_run override
-        original_dry_run = test_gen_config.dry_run
-        if config.dry_run:
-            test_gen_config.dry_run = True
 
         self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
 
@@ -983,6 +984,7 @@ class TestGenerationOrchestrator:
                         category_name=category_name,
                         difficulty=diff,
                         test_type=config.test_type,
+                        dry_run=config.dry_run,
                     )
                     if success:
                         self.metrics.tests_generated += 1
@@ -1036,16 +1038,13 @@ class TestGenerationOrchestrator:
                 lang_config.language_name, config.test_type, diff_stats
             )
 
-            return self._finalize(start_time)
+            return self._finalize(start_time, config.dry_run)
 
         except Exception as e:
             logger.exception(f"Batch generation failed: {e}")
             if self.metrics:
                 self.metrics.error_message = str(e)
-            return self._finalize(start_time)
-
-        finally:
-            test_gen_config.dry_run = original_dry_run
+            return self._finalize(start_time, config.dry_run)
 
     @staticmethod
     def _build_difficulty_schedule(
