@@ -149,7 +149,7 @@ class SenseGenerator:
             sense_id if existing match found, or new sense_id if created, or None on skip/failure.
         """
         template = self._db_client.get_prompt_template(
-            'vocab_sense_selection', self._language_id
+            'vocab_sense_selection', self._language_id, required=False
         )
         if not template:
             logger.warning(f"No vocab_sense_selection prompt for language_id={self._language_id}")
@@ -216,7 +216,7 @@ class SenseGenerator:
             sense_id if created, or None on skip/failure.
         """
         template = self._db_client.get_prompt_template(
-            'vocab_definition_generation', self._language_id
+            'vocab_definition_generation', self._language_id, required=False
         )
         if not template:
             logger.warning(f"No vocab_definition_generation prompt for language_id={self._language_id}")
@@ -344,7 +344,7 @@ class SenseGenerator:
             (is_valid, validation_notes) — is_valid True if score >= 7
         """
         template = self._db_client.get_prompt_template(
-            'vocab_validation', self._language_id
+            'vocab_validation', self._language_id, required=False
         )
         if not template:
             # No validation prompt — accept by default

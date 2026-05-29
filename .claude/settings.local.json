@@ -106,7 +106,8 @@
       "Bash(export ECC_GATEGUARD=off)",
       "Bash(PYTHONPATH=. python -m pytest -q)",
       "Bash(PYTHONPATH=. python -m pytest -q --ignore=services --ignore=tests/test_ai_service_moderation.py --ignore=tests/test_audio_synthesizer_ssml.py --ignore=tests/test_conversation_generation --ignore=tests/test_dictation_grader.py --ignore=tests/test_exercise_generation --ignore=tests/test_generation --ignore=tests/test_listening_lab_service.py --ignore=tests/test_moderation_route.py --ignore=tests/test_submission_rpc_error_envelope.py)",
-      "Bash(PYTHONPATH=. python -m pytest -q tests/test_auth_route_robustness.py tests/test_middleware_auth_consolidation.py)"
+      "Bash(PYTHONPATH=. python -m pytest -q tests/test_auth_route_robustness.py tests/test_middleware_auth_consolidation.py)",
+      "Bash(python -W error::UserWarning -c \"import logging; logging.disable\\(logging.CRITICAL\\); import services.test_generation.config as c; print\\('CONFIG_IMPORT_OK'\\); print\\('has_alias=', hasattr\\(c, 'test_gen_config'\\)\\); print\\('has_getter=', hasattr\\(c, 'get_test_gen_config'\\)\\)\")"
     ]
   },
   "enabledPlugins": {

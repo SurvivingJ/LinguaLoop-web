@@ -56,6 +56,7 @@ class PhraseDetector:
         template = self._db.get_prompt_template(
             'vocab_phrase_detection',
             language_id,
+            required=False,
         )
 
         if not template:

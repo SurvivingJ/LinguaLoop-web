@@ -289,7 +289,7 @@ def main():
         TestGenerationOrchestrator,
         NoQueueItemsError
     )
-    from services.test_generation.config import test_gen_config
+    from services.test_generation.config import get_test_gen_config
 
     try:
         # Initialize Supabase
@@ -297,12 +297,13 @@ def main():
         SupabaseFactory.initialize()
 
         # Log configuration
+        cfg = get_test_gen_config()
         logger.info("Configuration:")
-        logger.info(f"  Batch Size: {test_gen_config.batch_size}")
-        logger.info(f"  Target Difficulties: {test_gen_config.target_difficulties}")
-        logger.info(f"  Dry Run: {test_gen_config.dry_run}")
-        logger.info(f"  Prose Model: {test_gen_config.default_prose_model}")
-        logger.info(f"  Question Model: {test_gen_config.default_question_model}")
+        logger.info(f"  Batch Size: {cfg.batch_size}")
+        logger.info(f"  Target Difficulties: {cfg.target_difficulties}")
+        logger.info(f"  Dry Run: {cfg.dry_run}")
+        logger.info(f"  Prose Model: {cfg.default_prose_model}")
+        logger.info(f"  Question Model: {cfg.default_question_model}")
 
         # Create and run orchestrator
         logger.info("Creating orchestrator...")

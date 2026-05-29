@@ -5,7 +5,9 @@ Handles all database interactions for the test generation system.
 Uses the existing SupabaseFactory for client management.
 """
 
+import json
 import logging
+import re
 from datetime import datetime, timezone
 from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
@@ -322,6 +324,35 @@ class TestDatabaseClient:
         )
         return prose_cfg['model'], question_cfg['model']
 
+    def _build_language_config(self, row: dict) -> LanguageConfig:
+        """Construct a LanguageConfig from a dim_languages row.
+
+        Shared by get_language_config and get_language_config_by_code: parses
+        the (possibly JSONB-stringified) tts_voice_ids, resolves the prose /
+        question models from prompt_templates, and assembles the dataclass.
+        """
+        # Parse TTS voice IDs from JSONB
+        tts_voice_ids = row.get('tts_voice_ids', ['alloy'])
+        if isinstance(tts_voice_ids, str):
+            try:
+                tts_voice_ids = json.loads(tts_voice_ids)
+            except Exception:
+                tts_voice_ids = ['alloy']
+
+        prose_model, question_model = self._resolve_models(row['id'])
+
+        return LanguageConfig(
+            id=row['id'],
+            language_code=row['language_code'],
+            language_name=row['language_name'],
+            native_name=row.get('native_name') or row['language_name'],
+            prose_model=prose_model,
+            question_model=question_model,
+            tts_voice_ids=tts_voice_ids,
+            tts_speed=float(row.get('tts_speed', 1.0)),
+            grammar_check_enabled=row.get('grammar_check_enabled', False)
+        )
+
     def get_language_config(self, language_id: int) -> Optional[LanguageConfig]:
         """
         Fetch language configuration with model settings.
@@ -345,30 +376,7 @@ class TestDatabaseClient:
             logger.warning(f"Language not found: {language_id}")
             return None
 
-        row = response.data
-
-        # Parse TTS voice IDs from JSONB
-        tts_voice_ids = row.get('tts_voice_ids', ['alloy'])
-        if isinstance(tts_voice_ids, str):
-            import json
-            try:
-                tts_voice_ids = json.loads(tts_voice_ids)
-            except Exception:
-                tts_voice_ids = ['alloy']
-
-        prose_model, question_model = self._resolve_models(row['id'])
-
-        config = LanguageConfig(
-            id=row['id'],
-            language_code=row['language_code'],
-            language_name=row['language_name'],
-            native_name=row.get('native_name') or row['language_name'],
-            prose_model=prose_model,
-            question_model=question_model,
-            tts_voice_ids=tts_voice_ids,
-            tts_speed=float(row.get('tts_speed', 1.0)),
-            grammar_check_enabled=row.get('grammar_check_enabled', False)
-        )
+        config = self._build_language_config(response.data)
 
         # Cache the result
         if self._language_cache is None:
@@ -406,30 +414,7 @@ class TestDatabaseClient:
             logger.warning(f"Language not found for code: {language_code}")
             return None
 
-        row = response.data
-
-        # Parse TTS voice IDs from JSONB
-        tts_voice_ids = row.get('tts_voice_ids', ['alloy'])
-        if isinstance(tts_voice_ids, str):
-            import json
-            try:
-                tts_voice_ids = json.loads(tts_voice_ids)
-            except Exception:
-                tts_voice_ids = ['alloy']
-
-        prose_model, question_model = self._resolve_models(row['id'])
-
-        config = LanguageConfig(
-            id=row['id'],
-            language_code=row['language_code'],
-            language_name=row['language_name'],
-            native_name=row.get('native_name') or row['language_name'],
-            prose_model=prose_model,
-            question_model=question_model,
-            tts_voice_ids=tts_voice_ids,
-            tts_speed=float(row.get('tts_speed', 1.0)),
-            grammar_check_enabled=row.get('grammar_check_enabled', False)
-        )
+        config = self._build_language_config(response.data)
 
         # Cache by ID (consistent with get_language_config)
         if self._language_cache is None:
@@ -614,7 +599,8 @@ class TestDatabaseClient:
     def get_prompt_template(
         self,
         task_name: str,
-        language_id: int
+        language_id: int,
+        required: bool = True
     ) -> Optional[str]:
         """
         Fetch prompt template by task name and language ID.
@@ -625,9 +611,19 @@ class TestDatabaseClient:
         Args:
             task_name: Template name (e.g., 'prose_generation', 'question_literal_detail')
             language_id: Language ID from dim_languages (1=Chinese, 2=English, 3=Japanese)
+            required: When True (default), a missing template raises RuntimeError —
+                matching prompt_service.get_template_config, so a misconfigured
+                table fails loudly instead of silently falling back to hardcoded
+                legacy prompts. Pass required=False for genuinely optional
+                templates (e.g. opt-in vocab validation / phrase detection) where
+                absence is an expected "skip this step" signal.
 
         Returns:
-            Template text or None
+            Template text, or None only when required=False and no template exists.
+
+        Raises:
+            RuntimeError: required=True and no active template for the task in the
+                requested language or the English fallback.
         """
         # Try language-specific template first
         response = self.client.table('prompt_templates') \
@@ -657,6 +653,13 @@ class TestDatabaseClient:
             if response.data:
                 logger.debug(f"Loaded fallback English prompt template: {task_name}")
                 return response.data[0]['template_text']
+
+        if required:
+            raise RuntimeError(
+                f"No active prompt_templates row for task_name={task_name!r} "
+                f"language_id={language_id} (and no English fallback). "
+                f"Populate the table; there is no hardcoded prompt fallback."
+            )
 
         logger.warning(f"Prompt template not found: {task_name} for language_id={language_id}")
         return None
@@ -889,9 +892,6 @@ class TestDatabaseClient:
         Returns:
             str: Generated slug
         """
-        import re
-        from datetime import datetime
-
         # Clean topic concept for slug
         snippet = topic_concept[:30].lower()
         snippet = re.sub(r'[^a-z0-9]+', '-', snippet)

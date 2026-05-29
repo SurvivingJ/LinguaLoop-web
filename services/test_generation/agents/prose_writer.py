@@ -5,7 +5,6 @@ Generates prose/transcript content for listening comprehension tests.
 Routes through the unified llm_service so calls are logged to llm_calls.
 """
 
-import json
 import logging
 from typing import Optional
 
@@ -13,7 +12,7 @@ from services.llm_service import call_llm, get_client
 from services.llm_output_cleaner import clean_text
 from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
 
-from ..config import test_gen_config
+from ..config import get_test_gen_config
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +31,9 @@ class ProseWriter:
         api_key is retained for backwards-compatible callers; the unified
         llm_service uses OPENROUTER_API_KEY from the environment.
         """
-        self.api_key = api_key or test_gen_config.openrouter_api_key
-        self.model = model or test_gen_config.default_prose_model
+        cfg = get_test_gen_config()
+        self.api_key = api_key or cfg.openrouter_api_key
+        self.model = model or cfg.default_prose_model
         self.api_call_count = 0
 
         # Back-compat: VocabularyExtractionPipeline reads
@@ -101,7 +101,7 @@ class ProseWriter:
             content = call_llm(
                 prompt,
                 model=model,
-                temperature=test_gen_config.prose_temperature,
+                temperature=get_test_gen_config().prose_temperature,
                 response_format='text',
                 seed=seed,
                 timeout=60,
@@ -117,7 +117,11 @@ class ProseWriter:
 
         prose = clean_text(content.strip()).cleaned
         char_count = len(prose)
-        word_count_estimate = len(prose.split())
+        # Whitespace-split under-counts CJK (no word boundaries); approximate
+        # Chinese word count from character count instead.
+        word_count_estimate = (
+            char_count // 2 if language_code == 'zh' else len(prose.split())
+        )
         logger.info(
             f"Generated prose: {char_count} chars, ~{word_count_estimate} words "
             f"(target: {word_count_min}-{word_count_max} words)"
@@ -162,28 +166,6 @@ Style:
 
 Return ONLY the prose text, with no additional commentary or formatting.
 """
-
-    def _clean_response(self, content: str) -> str:
-        """Clean the LLM response to extract prose (legacy helper, unused).
-
-        Retained for backwards compatibility with any external caller; new code
-        relies on services.llm_output_cleaner.clean_text instead.
-        """
-        if content.startswith('```'):
-            content = content.replace('```', '', 2)
-
-        if content.startswith('{') and content.endswith('}'):
-            try:
-                data = json.loads(content)
-                if isinstance(data, dict):
-                    for key in ['prose', 'transcript', 'text', 'content']:
-                        if key in data:
-                            return data[key]
-            except json.JSONDecodeError:
-                pass
-
-        content = content.strip().strip('"\'')
-        return content
 
     def reset_call_count(self) -> None:
         """Reset the API call counter."""

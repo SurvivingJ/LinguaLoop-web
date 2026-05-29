@@ -132,12 +132,13 @@ _config_instance: Optional[TestGenConfig] = None
 
 
 def get_test_gen_config() -> TestGenConfig:
-    """Get the test generation configuration singleton."""
+    """Get the test generation configuration singleton.
+
+    Lazily instantiated on first call so importing this module never triggers
+    config construction (and its missing-API-key warnings) at import time —
+    e.g. in test environments that never run generation.
+    """
     global _config_instance
     if _config_instance is None:
         _config_instance = TestGenConfig()
     return _config_instance
-
-
-# Convenience alias
-test_gen_config = TestGenConfig()

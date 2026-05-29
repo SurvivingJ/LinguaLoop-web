@@ -12,7 +12,7 @@ from typing import Optional
 from services.llm_service import call_llm
 from services.llm_output_cleaner import clean_text
 
-from ..config import test_gen_config
+from ..config import get_test_gen_config
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +26,9 @@ class TitleGenerator:
         api_key is retained for backwards-compatible callers; the unified
         llm_service uses OPENROUTER_API_KEY from the environment.
         """
-        self.api_key = api_key or test_gen_config.openrouter_api_key
-        self.model = model or test_gen_config.default_question_model  # use the lighter model
+        cfg = get_test_gen_config()
+        self.api_key = api_key or cfg.openrouter_api_key
+        self.model = model or cfg.default_question_model  # use the lighter model
         self.api_call_count = 0
         logger.info(f"TitleGenerator initialized with model: {self.model}")
 

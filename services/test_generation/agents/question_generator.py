@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 from services.llm_service import call_llm
 
-from ..config import test_gen_config
+from ..config import get_test_gen_config
 from ..schemas import MCQuestion
 
 # Verdict ordering used to find worst distractor outcome.
@@ -66,8 +66,9 @@ class QuestionGenerator:
         api_key is retained for backwards-compatible callers; the unified
         llm_service uses OPENROUTER_API_KEY from the environment.
         """
-        self.api_key = api_key or test_gen_config.openrouter_api_key
-        self.model = model or test_gen_config.default_question_model
+        cfg = get_test_gen_config()
+        self.api_key = api_key or cfg.openrouter_api_key
+        self.model = model or cfg.default_question_model
         self.api_call_count = 0
         logger.info(f"QuestionGenerator initialized with model: {self.model}")
 
@@ -136,7 +137,14 @@ class QuestionGenerator:
                 previous_questions.append(question.question_text)
 
             except Exception as e:
-                logger.error(f"Failed to generate {type_code}: {e}")
+                # call_llm already retries transient API errors (RateLimitError,
+                # APITimeoutError, ...) with backoff via tenacity, so anything
+                # reaching here is either exhausted-transient or a hard failure.
+                # Skip-and-continue keeps one bad type from losing the whole test;
+                # the error class is logged so the two cases stay distinguishable.
+                logger.error(
+                    f"Failed to generate {type_code}: {type(e).__name__}: {e}"
+                )
                 continue
 
         logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
@@ -183,7 +191,7 @@ class QuestionGenerator:
             question = call_llm(
                 prompt,
                 model=model,
-                temperature=test_gen_config.question_temperature,
+                temperature=get_test_gen_config().question_temperature,
                 response_format='json_object',
                 schema=MCQuestion,
                 seed=seed,

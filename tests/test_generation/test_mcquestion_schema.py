@@ -112,6 +112,47 @@ def test_empty_choice_after_strip_rejected():
         })
 
 
+def test_distractor_types_with_wrong_length_rejected():
+    with pytest.raises(ValidationError, match='distractor_types must have 4'):
+        MCQuestion.model_validate({
+            'question_text': '?',
+            'choices': ['Alpha', 'Bravo', 'Charlie', 'Delta'],
+            'answer': 'Alpha',
+            'distractor_types': [None, 'semantic', 'contextual'],
+        })
+
+
+def test_distractor_types_correct_slot_must_be_null():
+    # 'Bravo' is the answer (index 1); its slot must be null, not a tag.
+    with pytest.raises(ValidationError, match='must be null'):
+        MCQuestion.model_validate({
+            'question_text': '?',
+            'choices': ['Alpha', 'Bravo', 'Charlie', 'Delta'],
+            'answer': 'Bravo',
+            'distractor_types': ['semantic', 'grammatical', 'contextual', 'semantic'],
+        })
+
+
+def test_distractor_types_valid_with_null_at_answer_index():
+    q = MCQuestion.model_validate({
+        'question_text': '?',
+        'choices': ['Alpha', 'Bravo', 'Charlie', 'Delta'],
+        'answer': 'Bravo',
+        'distractor_types': ['semantic', None, 'contextual', 'grammatical'],
+    })
+    assert q.correct_answer_index == 1
+    assert q.distractor_types == ['semantic', None, 'contextual', 'grammatical']
+
+
+def test_distractor_types_absent_is_allowed():
+    q = MCQuestion.model_validate({
+        'question_text': '?',
+        'choices': ['Alpha', 'Bravo', 'Charlie', 'Delta'],
+        'answer': 'Alpha',
+    })
+    assert q.distractor_types is None
+
+
 # ---------------------------------------------------------------------------
 # Integration: schema + call_llm repair path
 # ---------------------------------------------------------------------------

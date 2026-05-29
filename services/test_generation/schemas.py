@@ -124,7 +124,28 @@ class MCQuestion(BaseModel):
             )
 
         normalized['answer'] = answer_stripped
-        normalized['correct_answer_index'] = cleaned.index(answer_stripped)
+        correct_index = cleaned.index(answer_stripped)
+        normalized['correct_answer_index'] = correct_index
+
+        # --- distractor_types -------------------------------------------------
+        # When present it must align 1:1 with choices: exactly 4 entries, with
+        # the correct choice's slot null (it is not a distractor). A short/long
+        # list silently corrupts the per-choice tagging, so reject it (which
+        # triggers call_llm's one-shot repair retry).
+        dt = normalized.get('distractor_types')
+        if dt is not None:
+            if not isinstance(dt, list):
+                raise ValueError("distractor_types must be a list")
+            if len(dt) != 4:
+                raise ValueError(
+                    f"distractor_types must have 4 entries, got {len(dt)}"
+                )
+            if dt[correct_index] is not None:
+                raise ValueError(
+                    f"distractor_types[{correct_index}] (the correct choice) "
+                    f"must be null, got {dt[correct_index]!r}"
+                )
+
         return normalized
 
 

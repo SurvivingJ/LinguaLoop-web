@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from typing import Callable, List, Optional
 from uuid import UUID, uuid4
 
-from .config import test_gen_config
+from .config import get_test_gen_config
 from .database_client import (
     TestDatabaseClient,
     QueueItem,
@@ -37,7 +37,6 @@ from .agents import (
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
 from services.vocabulary.sense_generator import SenseGenerator, find_sentence
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
-from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +103,7 @@ class TestGenerationOrchestrator:
     def __init__(self):
         """Initialize the orchestrator and all agents."""
         # Validate configuration
-        if not test_gen_config.validate():
+        if not get_test_gen_config().validate():
             raise ValueError("Invalid test generation configuration")
 
         # Initialize database client
@@ -154,7 +153,8 @@ class TestGenerationOrchestrator:
             3. Log metrics
         """
         start_time = time.time()
-        dry_run = test_gen_config.dry_run
+        cfg = get_test_gen_config()
+        dry_run = cfg.dry_run
 
         # Initialize metrics
         self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
@@ -163,13 +163,13 @@ class TestGenerationOrchestrator:
             logger.info("=" * 60)
             logger.info("Starting Test Generation Run")
             logger.info("=" * 60)
-            logger.info(f"Batch size: {test_gen_config.batch_size}")
-            logger.info(f"Target difficulties: {test_gen_config.target_difficulties}")
+            logger.info(f"Batch size: {cfg.batch_size}")
+            logger.info(f"Target difficulties: {cfg.target_difficulties}")
             logger.info(f"Dry run: {dry_run}")
 
             # Step 1: Fetch pending queue items
             queue_items = self.db.get_pending_queue_items(
-                limit=test_gen_config.batch_size
+                limit=cfg.batch_size
             )
 
             if not queue_items:
@@ -237,8 +237,10 @@ class TestGenerationOrchestrator:
 
         tests_generated = 0
 
+        target_difficulties = get_test_gen_config().target_difficulties
+
         # Generate tests for each target difficulty
-        for difficulty in test_gen_config.target_difficulties:
+        for difficulty in target_difficulties:
             try:
                 success = self._generate_test(
                     topic=topic,
@@ -263,7 +265,7 @@ class TestGenerationOrchestrator:
 
         logger.info(
             f"Queue item {item.id} complete: "
-            f"{tests_generated}/{len(test_gen_config.target_difficulties)} tests"
+            f"{tests_generated}/{len(target_difficulties)} tests"
         )
 
         return tests_generated
@@ -399,15 +401,14 @@ class TestGenerationOrchestrator:
             logger.warning(f"Title generation failed, continuing with NULL title: {e}")
             title = None
 
-        # Step 2: Generate questions
+        # Step 2: Generate questions. get_prompt_template raises if a question
+        # template is missing — no silent fallback to legacy inline prompts.
         question_templates = {}
         for type_code in set(question_types):
-            template = self.db.get_prompt_template(
+            question_templates[type_code] = self.db.get_prompt_template(
                 f'question_{type_code}',
                 lang_config.id  # Use language_id, not language_code
             )
-            if template:
-                question_templates[type_code] = template
 
         questions = self.question_generator.generate_questions(
             prose=prose,
@@ -417,7 +418,7 @@ class TestGenerationOrchestrator:
             prompt_templates=question_templates,
             model_override=lang_config.question_model,
             language_id=lang_config.id,
-            db=get_supabase_admin(),
+            db=self.db.client,
         )
 
         # Step 3: Validate questions
@@ -429,10 +430,11 @@ class TestGenerationOrchestrator:
             for error in errors:
                 logger.warning(f"Question validation: {error}")
 
-        min_questions = max(3, test_gen_config.questions_per_test - 1)
+        cfg = get_test_gen_config()
+        min_questions = max(3, cfg.questions_per_test - 1)
         if len(valid_questions) < min_questions:
             raise ValueError(
-                f"Too few valid questions: {len(valid_questions)}/{test_gen_config.questions_per_test}"
+                f"Too few valid questions: {len(valid_questions)}/{cfg.questions_per_test}"
             )
 
         # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
@@ -470,7 +472,7 @@ class TestGenerationOrchestrator:
                 topic_name=topic.concept_english,
                 difficulty=difficulty,
                 transcript=prose,
-                gen_user=test_gen_config.system_user_id,
+                gen_user=cfg.system_user_id,
                 initial_elo=initial_elo,
                 audio_url=audio_url,
                 title=title,
@@ -497,7 +499,7 @@ class TestGenerationOrchestrator:
 
             # Enqueue judge-flagged questions for human review.
             _write_review_queue_rows(
-                db=get_supabase_admin(),
+                db=self.db.client,
                 valid_questions=valid_questions,
                 db_questions=db_questions,
             )
@@ -556,7 +558,7 @@ class TestGenerationOrchestrator:
                 logger.warning(f"No vocabulary extracted for test {test_id}")
                 return
 
-            db = get_supabase_admin()
+            db = self.db.client
             sense_gen = SenseGenerator(
                 openai_client=self.prose_writer.client,
                 db=db,
@@ -879,7 +881,7 @@ class TestGenerationOrchestrator:
             error_log=row.get('error_log')
         )
 
-        dry_run = test_gen_config.dry_run
+        dry_run = get_test_gen_config().dry_run
         return self._process_queue_item(item, dry_run)
 
     # ============================================================
@@ -1059,7 +1061,7 @@ class TestGenerationOrchestrator:
         if fixed_difficulty is not None:
             return [fixed_difficulty] * count
 
-        difficulties = list(test_gen_config.target_difficulties)
+        difficulties = list(get_test_gen_config().target_difficulties)
         if not difficulties:
             difficulties = [1, 3, 6, 9]
 
@@ -1069,14 +1071,8 @@ class TestGenerationOrchestrator:
         # Distribute remainder to middle difficulties first
         mid = len(difficulties) // 2
         schedule: list[int] = []
-        for idx, d in enumerate(difficulties):
-            n = per_level
-            # Give remainder to indices nearest the middle
-            dist_from_mid = abs(idx - mid)
-            if remainder > 0 and dist_from_mid <= remainder:
-                # Simpler: just hand out remainder round-robin from the middle out
-                pass
-            schedule.extend([d] * n)
+        for d in difficulties:
+            schedule.extend([d] * per_level)
 
         # Distribute remainder round-robin starting from middle
         remainder_indices = sorted(
