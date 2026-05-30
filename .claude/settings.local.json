@@ -165,7 +165,25 @@
       "Bash(node scripts/_migrate_css.cjs templates/flashcards.html flashcards-page)",
       "Bash(node scripts/_ns_hoist_keyframes.cjs flashcards-page fc)",
       "Bash(echo \"exit=$?\")",
-      "Bash(echo \"check_exit=$?\")"
+      "Bash(echo \"check_exit=$?\")",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "Bash(awk 'END{print NR}' c:/Users/James/Documents/Coding/LinguaLoop/WebApp/static/css/styles.css)",
+      "Bash(sed -n '1,5p;90,100p' templates/vocab_dojo.html)",
+      "Bash(sed -n '1,5p;40,46p' templates/admin_vocab_preview.html)",
+      "Bash(echo \"STYLELINT_EXIT:$?\")",
+      "Bash(node node_modules/prettier/bin/prettier.cjs --check static/css/styles.css)",
+      "Bash(node node_modules/prettier/bin/prettier.cjs --check static/js/utils.js)",
+      "Bash(node c:\\\\tmp\\\\checkfmt.js)",
+      "Bash(node c:/tmp/checkfmt.js)",
+      "Bash(sed -n '372p' templates/exercises.html)",
+      "Bash(sed -n '426p' templates/exercises.html)",
+      "Bash(sed -n '438p' templates/exercises.html)",
+      "Bash(sed -n '15,17p' templates/language_selection.html)",
+      "Bash(sed -n '295p' templates/test_dictation.html)",
+      "Bash(sed -n '308,310p' templates/test_dictation.html)",
+      "Bash(sed -n '341p' templates/test_dictation.html)",
+      "Bash(sed -n '447p' templates/test_pinyin.html)",
+      "Bash(sed -n '460,462p' templates/test_pinyin.html)"
     ],
     "additionalDirectories": [
       "\\tmp"

@@ -734,7 +734,7 @@
                 '<span class="cd-option-key">' + (idx + 1) + '</span>' +
                 '<span>' + escapeHtml(opt.hanzi) + '</span>' +
                 (opt.pinyin ? '<span class="cd-option-pinyin">' + escapeHtml(opt.pinyin) + '</span>' : '');
-            btn.addEventListener('click', function() { handleMcClick(idx); });
+            btn.addEventListener('click', function() { handleChoiceClick(idx); });
             el.options.appendChild(btn);
         });
     }
