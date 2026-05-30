@@ -1,26 +1,9 @@
 name: Frontend Tests
 
 on:
-  push:
-    branches: [main, 'feat/frontend-*']
-    paths:
-      - 'static/**'
-      - 'templates/**'
-      - 'tests/**'
-      - 'vitest.config.js'
-      - 'playwright.config.js'
-      - 'package.json'
-      - 'package-lock.json'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'static/**'
-      - 'templates/**'
-      - 'tests/**'
-      - 'vitest.config.js'
-      - 'playwright.config.js'
-      - 'package.json'
-      - 'package-lock.json'
+  # Manual-only: run from the Actions tab via "Run workflow".
+  # No automatic push/pull_request triggers.
+  workflow_dispatch:
 
 jobs:
   unit-tests:

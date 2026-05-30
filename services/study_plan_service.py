@@ -327,13 +327,15 @@ class StudyPlanService:
                 'practice_minutes_flex_pct'
             )
             .eq('template_id', plan['template_id'])
-            .single()
+            .limit(1)
             .execute()
         )
+        # .limit(1) (not .single(), which RAISES on 0/duplicate rows) so a
+        # missing/dangling template_id is handled gracefully, not thrown.
         if not template_resp.data:
             logger.error('template_id=%s not found for user=%s', plan['template_id'], user_id)
             return None
-        template = template_resp.data
+        template = template_resp.data[0]
 
         # 3. Load signals
         try:

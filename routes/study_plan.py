@@ -324,8 +324,11 @@ def recompute_weekly_plan() -> ApiResponse:
             )
         return api_success({'week_state': result})
 
-    except Exception as e:
-        logger.error("recompute_weekly_plan failed: %s", e)
+    except Exception:
+        # Full traceback: every handled failure inside compute_weekly_plan
+        # returns None (→ the "no result" branch above), so reaching here means
+        # an unexpected exception whose stack we need.
+        logger.exception("recompute_weekly_plan failed")
         return server_error("Failed to recompute weekly plan")
 
 
