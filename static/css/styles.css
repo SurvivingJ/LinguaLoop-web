@@ -557,6 +557,30 @@ a:hover {
   transform: translate(-50%, -50%);
 }
 
+/* Visible keyboard-focus ring. Scoped to :focus-visible so pointer clicks stay
+   clean and only keyboard navigation shows the ring. A solid --primary outline
+   plus a --focus-ring glow gives a clear indicator on links, buttons, nav
+   items, form controls, quiz/answer options and clickable words. The
+   .visually-hidden-focusable skip-link is an <a>, so it picks up this ring when
+   it reveals on focus. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible,
+.quiz-option:focus-visible,
+.answer-option:focus-visible,
+.word-clickable:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
 /* Breadcrumb */
 .breadcrumb {
   background: transparent;
