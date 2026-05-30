@@ -67,9 +67,8 @@
                     throw new Error('device-restore returned no jwt');
                 }
                 localStorage.setItem('jwt_token', data.jwt_token);
-                if (data.refresh_token) {
-                    localStorage.setItem('refresh_token', data.refresh_token);
-                }
+                // Refresh token lives in an HttpOnly cookie set by the server,
+                // not in JS-readable storage.
                 if (data.user) {
                     localStorage.setItem('user_data', JSON.stringify(data.user));
                 }
@@ -413,7 +412,7 @@
                 // so write to localStorage and wipe sessionStorage.
                 ['jwt_token', 'refresh_token', 'user_data'].forEach(k => sessionStorage.removeItem(k));
                 localStorage.setItem('jwt_token', data.jwt_token);
-                if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+                // Refresh token is an HttpOnly cookie, not JS-readable storage.
                 if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
                 window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
                 return true;
@@ -440,27 +439,25 @@
             let response = await fetch(url, options);
             if (response.status !== 401) return response;
 
-            // ---- Step 1: try Supabase refresh token if present ------------
-            const refreshToken = _getStored('refresh_token');
-            if (refreshToken) {
-                try {
-                    const refreshResponse = await fetch('/api/auth/refresh-token', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ refresh_token: refreshToken })
-                    });
-                    if (refreshResponse.ok) {
-                        const data = await refreshResponse.json();
-                        const store = _tokenStore();
-                        store.setItem('jwt_token', data.jwt_token);
-                        if (data.refresh_token) store.setItem('refresh_token', data.refresh_token);
-                        window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
-                        options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
-                        return await fetch(url, options);
-                    }
-                } catch (e) {
-                    console.error('refresh-token error:', e);
+            // ---- Step 1: try the HttpOnly refresh cookie ------------------
+            // The refresh token is never in JS storage; it rides as an HttpOnly
+            // cookie. credentials:'include' sends it; the server rotates it and
+            // returns only the new access token in the body.
+            try {
+                const refreshResponse = await fetch('/api/auth/refresh-token', {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+                if (refreshResponse.ok) {
+                    const data = await refreshResponse.json();
+                    const store = _tokenStore();
+                    store.setItem('jwt_token', data.jwt_token);
+                    window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+                    options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
+                    return await fetch(url, options);
                 }
+            } catch (e) {
+                console.error('refresh-token error:', e);
             }
 
             // ---- Step 2: try the trusted-device cookie --------------------

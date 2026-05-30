@@ -52,6 +52,43 @@ def _clear_device_cookie(response):
     )
 
 
+def _set_refresh_cookie(response, raw_token: str, persistent: bool = False):
+    """Attach the Supabase refresh token as an HttpOnly cookie.
+
+    Models _set_device_cookie: HttpOnly so JS (and any XSS payload) can't read
+    it, Secure when the connection is HTTPS, SameSite=Lax for CSRF resistance,
+    and scoped to /api/auth so it's only sent to the rotating auth endpoints.
+
+    persistent=True writes a long-lived cookie (mirrors a "remember this
+    device" login); persistent=False writes a session cookie that the browser
+    drops on close (mirrors the old sessionStorage behavior). Remembered
+    devices that outlive a session are recovered via the trusted-device cookie,
+    which re-issues a refresh cookie on device-restore.
+    """
+    response.set_cookie(
+        Config.REFRESH_COOKIE_NAME,
+        raw_token,
+        max_age=(int(Config.REFRESH_COOKIE_DURATION.total_seconds())
+                 if persistent else None),
+        secure=request.is_secure,
+        httponly=True,
+        samesite='Lax',
+        path=Config.REFRESH_COOKIE_PATH,
+    )
+
+
+def _clear_refresh_cookie(response):
+    response.set_cookie(
+        Config.REFRESH_COOKIE_NAME,
+        '',
+        max_age=0,
+        secure=request.is_secure,
+        httponly=True,
+        samesite='Lax',
+        path=Config.REFRESH_COOKIE_PATH,
+    )
+
+
 def _origin_is_allowed() -> bool:
     """Defense-in-depth against CSRF on cookie-bearing endpoints."""
     origin = request.headers.get('Origin')
@@ -136,7 +173,6 @@ def verify_otp():
                     'hasSeenWelcome': bool(user_data.get('has_seen_welcome', False)),
                 },
                 'jwt_token': result.get('jwt_token'),
-                'refresh_token': refresh_token,
                 'remembered': False,
             }
 
@@ -159,6 +195,12 @@ def verify_otp():
             response = make_response(jsonify(response_data), 200)
             if raw_device_token:
                 _set_device_cookie(response, raw_device_token)
+            # Refresh token never travels in the JSON body — it goes into an
+            # HttpOnly cookie. Persist it only when the user asked to be
+            # remembered; otherwise it's a session cookie that dies on close.
+            if refresh_token:
+                _set_refresh_cookie(response, refresh_token,
+                                    persistent=remember_device)
             return response
         else:
             return jsonify({
@@ -182,10 +224,18 @@ def verify_otp():
 
 @auth_bp.route('/refresh-token', methods=['POST'])
 def refresh_token():
-    """Refresh JWT token using a refresh token."""
+    """Refresh JWT token using the HttpOnly refresh cookie.
+
+    The refresh token is read from the cookie (not the JSON body) so it's
+    never exposed to JavaScript. The rotated token is written back as a cookie
+    and the new access token (jwt_token) is returned in the JSON body.
+    """
     try:
-        data = request.get_json() or {}
-        refresh_token = data.get('refresh_token')
+        # Cookie-bearing endpoint — defend against CSRF.
+        if not _origin_is_allowed():
+            return jsonify({'error': 'Origin not allowed'}), 403
+
+        refresh_token = request.cookies.get(Config.REFRESH_COOKIE_NAME)
 
         if not refresh_token:
             return jsonify({'error': 'Refresh token required'}), 400
@@ -193,7 +243,14 @@ def refresh_token():
         result = auth_bp.auth_service.refresh_session(refresh_token)
 
         if result['success']:
-            return jsonify(result), 200
+            # Keep the rotated refresh token out of the JSON body; rotate the
+            # cookie instead. Session cookie: a refresh on its own doesn't imply
+            # a remembered device (that path re-issues via device-restore).
+            new_refresh = result.pop('refresh_token', None)
+            response = make_response(jsonify(result), 200)
+            if new_refresh:
+                _set_refresh_cookie(response, new_refresh, persistent=False)
+            return response
         else:
             return jsonify(result), 401
 
@@ -254,7 +311,6 @@ def device_restore():
     body = {
         'success': True,
         'jwt_token': minted['jwt_token'],
-        'refresh_token': minted.get('refresh_token'),
         'user': {
             'id': user.get('id') or restored['user_id'],
             'email': user.get('email') or restored['user_email'],
@@ -269,6 +325,10 @@ def device_restore():
 
     response = make_response(jsonify(body), 200)
     _set_device_cookie(response, restored['new_raw_token'])
+    # Re-issue the refresh cookie for this remembered device so authFetch can
+    # silently refresh the access token without another device-restore.
+    if minted.get('refresh_token'):
+        _set_refresh_cookie(response, minted['refresh_token'], persistent=True)
     return response
 
 
@@ -326,6 +386,7 @@ def logout():
         status = 200 if result['success'] else 400
         response = make_response(jsonify(result), status)
         _clear_device_cookie(response)
+        _clear_refresh_cookie(response)
         return response
 
     except Exception as e:

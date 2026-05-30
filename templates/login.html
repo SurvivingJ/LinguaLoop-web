@@ -230,7 +230,7 @@
             const data = await r.json();
             if (!data.success || !data.jwt_token) return;
             localStorage.setItem('jwt_token', data.jwt_token);
-            if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+            // Refresh token is an HttpOnly cookie set by the server.
             if (data.user) localStorage.setItem('user_data', JSON.stringify(data.user));
             window.location.href = (data.user && data.user.hasSeenWelcome === false)
                 ? '/welcome'
@@ -323,9 +323,8 @@
 
                 store.setItem('jwt_token', data.jwt_token);
                 store.setItem('user_data', JSON.stringify(data.user));
-                if (data.refresh_token) {
-                    store.setItem('refresh_token', data.refresh_token);
-                }
+                // Refresh token is an HttpOnly cookie set by verify-otp;
+                // never stored in JS-readable storage.
 
                 // Redirect first-time users to the welcome page; everyone else
                 // goes straight to language selection. The flag is flipped to
@@ -448,23 +447,20 @@
                 window.location.href = '/language-selection';
                 return;
             }
-            // Access token rejected — try the refresh token before giving up.
-            const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
-            if (refreshToken) {
-                const refreshed = await fetch('/api/auth/refresh-token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ refresh_token: refreshToken })
-                });
-                if (refreshed.ok) {
-                    const data = await refreshed.json();
-                    // Write to whichever tier currently holds the (now-stale) token.
-                    const store = localStorage.getItem('jwt_token') ? localStorage : sessionStorage;
-                    store.setItem('jwt_token', data.jwt_token);
-                    if (data.refresh_token) store.setItem('refresh_token', data.refresh_token);
-                    window.location.href = '/language-selection';
-                    return;
-                }
+            // Access token rejected — try the HttpOnly refresh cookie before
+            // giving up. credentials:'include' sends the cookie; the server
+            // rotates it and returns only the new access token.
+            const refreshed = await fetch('/api/auth/refresh-token', {
+                method: 'POST',
+                credentials: 'include',
+            });
+            if (refreshed.ok) {
+                const data = await refreshed.json();
+                // Write to whichever tier currently holds the (now-stale) token.
+                const store = localStorage.getItem('jwt_token') ? localStorage : sessionStorage;
+                store.setItem('jwt_token', data.jwt_token);
+                window.location.href = '/language-selection';
+                return;
             }
             // Both checks failed — wipe both tiers so we don't loop, and let the form render.
             ['jwt_token', 'refresh_token', 'user_data'].forEach(function(k) {

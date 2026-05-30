@@ -30,6 +30,18 @@ class Config:
     REMEMBER_DEVICE_DURATION = timedelta(days=180)
     DEVICE_COOKIE_NAME = "lingualoop_device"
     DEVICE_COOKIE_PATH = "/api/auth"
+
+    # ==========================================================================
+    # REFRESH TOKEN COOKIE
+    # ==========================================================================
+    # The Supabase refresh token is stored in an HttpOnly/Secure/SameSite=Lax
+    # cookie (invisible to JS) instead of localStorage, so an XSS payload can't
+    # read it and mint long-lived sessions. Only the short-lived access token
+    # (jwt_token) stays in JS-readable storage. Scoped to /api/auth so it's only
+    # sent to the auth endpoints that rotate it.
+    REFRESH_COOKIE_NAME = "lingualoop_refresh"
+    REFRESH_COOKIE_PATH = "/api/auth"
+    REFRESH_COOKIE_DURATION = timedelta(days=30)
     # Salt for sha256(ip + salt) audit hashing — *not* a security boundary,
     # just keeps raw IPs out of the DB. Falls back to SECRET_KEY if unset.
     DEVICE_IP_HASH_SALT = os.environ.get('DEVICE_IP_HASH_SALT', '')
