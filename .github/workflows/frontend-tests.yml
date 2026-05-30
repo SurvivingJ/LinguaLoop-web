@@ -1,0 +1,90 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches: [main, 'feat/frontend-*']
+    paths:
+      - 'static/**'
+      - 'templates/**'
+      - 'tests/**'
+      - 'vitest.config.js'
+      - 'playwright.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'static/**'
+      - 'templates/**'
+      - 'tests/**'
+      - 'vitest.config.js'
+      - 'playwright.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  unit-tests:
+    name: Vitest unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run test:unit
+
+      - run: npm run test:unit:coverage
+        if: github.event_name == 'push'
+
+  e2e-tests:
+    name: Playwright E2E tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    env:
+      TEST_JWT_TOKEN: ${{ secrets.TEST_JWT_TOKEN }}
+      BASE_URL: http://localhost:5000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - run: npm ci
+
+      - name: Start Flask server
+        run: |
+          python app.py &
+          timeout 30 bash -c 'until curl -sf http://localhost:5000/ 2>/dev/null; do sleep 1; done'
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
