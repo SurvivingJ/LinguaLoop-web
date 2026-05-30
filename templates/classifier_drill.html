@@ -307,7 +307,7 @@
 {% block content %}
 <div id="cdHeader" class="cd-header py-3 px-3 px-md-4 flex items-center justify-between gap-2" style="display:none;">
     <div class="cd-header-left">
-        <a href="/" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
+        <a href="/tests" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
         <h1 class="text-base font-semibold" data-i18n="classifier_drill.title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Measure Words</h1>
     </div>
     <div class="cd-header-right">
@@ -499,7 +499,9 @@
             loadBatch();
         });
         document.getElementById('cdResultsExit').addEventListener('click', function() {
-            window.location.href = '/';
+            // '/' server-side redirects to /login, which would bounce a
+            // logged-in user out. Send them to the test hub instead.
+            window.location.href = '/tests';
         });
     }
 
