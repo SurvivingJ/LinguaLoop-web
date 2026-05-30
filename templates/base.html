@@ -171,7 +171,8 @@
     <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
     {% if not hide_navbar %}
-    <nav class="navbar sticky-top">
+    <header class="sticky-top">
+    <nav class="navbar">
         <div class="container-fluid px-3 px-md-4">
             <div class="d-flex align-items-center justify-content-between w-100">
 
@@ -335,6 +336,7 @@
             </div>
         </div>
     </nav>
+    </header>
     {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
