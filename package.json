@@ -11,14 +11,23 @@
     "lint:css:fix": "stylelint \"static/css/**/*.css\" --fix",
     "format": "prettier --write static/js static/css",
     "format:check": "prettier --check static/js static/css",
-    "check": "npm run lint && npm run lint:css && npm run format:check"
+    "check": "npm run lint && npm run lint:css && npm run format:check",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
+    "happy-dom": "^20.9.0",
     "prettier": "^3.4.2",
     "stylelint": "^16.12.0",
-    "stylelint-config-standard": "^36.0.1"
+    "stylelint-config-standard": "^36.0.1",
+    "vitest": "^2.1.9"
   }
 }

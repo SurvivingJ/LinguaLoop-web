@@ -781,3 +781,5 @@ const ExRenderers = (function () {
     mcq,
   };
 })();
+
+window.ExRenderers = ExRenderers;
