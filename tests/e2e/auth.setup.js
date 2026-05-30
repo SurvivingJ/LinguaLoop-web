@@ -55,7 +55,9 @@ setup('authenticate', async ({ page }) => {
 
   // Step 2 — pause so the user can type the OTP into the browser window.
   // The Playwright Inspector opens; click Resume once you are logged in.
-  console.log(`\n[auth-setup] OTP sent to ${EMAIL}. Type it into the browser, then click Resume in the Playwright Inspector.\n`);
+  console.log(
+    `\n[auth-setup] OTP sent to ${EMAIL}. Type it into the browser, then click Resume in the Playwright Inspector.\n`
+  );
   await page.pause();
 
   // Wait for successful login — base.html stores jwt_token and navigates away
