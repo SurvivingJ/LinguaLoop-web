@@ -292,7 +292,7 @@
 <!-- Error State -->
 <div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
-        <h5><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="dictation.error.title">Error</span></h5>
+        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="dictation.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
         <a href="/tests" class="btn btn-danger">
             <i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>
@@ -305,10 +305,10 @@
     <div class="container py-3">
         <div class="row align-items-center">
             <div class="col">
-                <h5 class="mb-0">
+                <h1 class="mb-0 h5">
                     <i class="bi bi-keyboard text-primary me-2"></i>
                     <span id="testTitle">Dictation</span>
-                </h5>
+                </h1>
             </div>
             <div class="col-auto">
                 <span class="badge bg-primary me-2" id="testLanguage"></span>
@@ -338,10 +338,10 @@
 
     <!-- Input -->
     <div class="dict-input-card">
-        <h6 class="mb-2">
+        <h2 class="mb-2 h6">
             <i class="bi bi-pencil-square text-primary me-2"></i>
             <span data-i18n="test.type_what_you_hear">Type what you hear</span>
-        </h6>
+        </h2>
         <textarea
             id="dictationInput"
             class="dict-input"
@@ -593,7 +593,7 @@
             <div class="dict-results-card">
                 <div class="dict-results-headline">
                     <div class="dict-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <h4>${label}</h4>
+                    <h2 class="h4">${label}</h2>
                     <p class="text-muted mb-0" data-i18n="dictation.result.accuracy">Word Accuracy</p>
                 </div>
 
