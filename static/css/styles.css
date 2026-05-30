@@ -130,6 +130,27 @@
 }
 
 /* ============================================
+   Responsive breakpoints — canonical scale
+   --------------------------------------------
+   Single source of truth for media-query widths. Aligned to the
+   Bootstrap grid already loaded app-wide so page-scoped blocks below
+   (.test-page, .test-list-page, .pitch-accent-page, .mystery-page,
+   .flashcards-page) share one breakpoint vocabulary instead of the
+   ad-hoc per-template values they each used before Phase 3.
+
+     576px  — small / large phone   (Bootstrap `sm`)
+     768px  — tablet                (Bootstrap `md`)
+     992px  — small laptop          (Bootstrap `lg`)
+
+   CSS custom properties cannot be used inside @media conditions, so
+   these widths are written literally in each query. When adding a
+   responsive rule prefer one of the three widths above and author
+   mobile-first (base styles target small screens; layer enhancements
+   up with `min-width`). The lone 480px query in .pitch-accent-page is
+   a deliberate sub-`sm` micro-layout exception, kept as-is.
+   ============================================ */
+
+/* ============================================
    Base & Global
    ============================================ */
 body {
