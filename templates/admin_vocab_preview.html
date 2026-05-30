@@ -147,7 +147,7 @@
         });
 
         // Raw assets toggle
-        h += '<h3 style="margin-top:24px;font-size:16px;font-weight:600">Raw Assets</h3>';
+        h += '<h2 style="margin-top:24px;font-size:16px;font-weight:600">Raw Assets</h2>';
         Object.entries(assets).forEach(([type, asset]) => {
             h += `<div class="level-section">
                 <div class="json-toggle" style="margin-bottom:8px" onclick="this.nextElementSibling.classList.toggle('show')">${esc(type)} (${asset.model_used}) — click to expand</div>

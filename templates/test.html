@@ -21,10 +21,10 @@
     <div class="container py-3">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h5 class="mb-0" id="testTitle">
+                <h1 class="mb-0 h5" id="testTitle">
                     <i class="fas fa-book-open text-primary me-2"></i>
                     <span id="testTitleText" data-i18n="common.loading">Loading...</span>
-                </h5>
+                </h1>
             </div>
             <div class="col-md-6 text-md-end mt-2 mt-md-0">
                 <span class="badge bg-primary me-2" id="testLanguage"></span>
@@ -60,7 +60,7 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-check-circle me-3" style="font-size: 24px;"></i>
                 <div class="flex-grow-1">
-                    <h5 class="mb-2" data-i18n="test.success_title">Test submitted successfully!</h5>
+                    <h2 class="mb-2 h5" data-i18n="test.success_title">Test submitted successfully!</h2>
                     <p class="mb-1" id="successScoreText"></p>
                     <p class="mb-0" data-i18n="test.success_hint">Great job! Use the "Back to Test List" button below to continue practicing.</p>
                 </div>
@@ -73,7 +73,7 @@
     
     <!-- Error State -->
     <div id="errorState" class="alert alert-danger" style="display: none;">
-        <h5><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="test.error_title">Error Loading Test</span></h5>
+        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="test.error_title">Error Loading Test</span></h2>
         <p id="errorMessage" class="mb-2"></p>
         <button class="btn btn-danger" onclick="location.reload()">
             <i class="fas fa-redo me-2"></i><span data-i18n="test.retry">Retry</span>
@@ -86,9 +86,9 @@
     <!-- Transcript Card (Reading Test) -->
     <div id="transcriptCard" class="transcript-card" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">
+            <h2 class="mb-0 h4">
                 <i class="fas fa-file-alt text-primary me-2"></i><span data-i18n="test.reading_passage">Reading Passage</span>
-            </h4>
+            </h2>
             <button class="btn btn-sm btn-secondary" id="toggleTranscript">
                 <i class="fas fa-eye me-1"></i><span data-i18n="test.hide">Hide</span>
             </button>
@@ -98,9 +98,9 @@
     
     <!-- Audio Player Card (Listening & Dictation Tests) -->
     <div id="audioPlayerCard" class="audio-player-card" style="display: none;">
-        <h4 class="mb-3">
+        <h2 class="mb-3 h4">
             <i class="fas fa-headphones text-primary me-2"></i><span data-i18n="test.audio">Audio</span>
-        </h4>
+        </h2>
         <div class="audio-controls">
             <button class="audio-play-button" id="audioPlayBtn">
                 <i class="fas fa-play"></i>
@@ -122,16 +122,16 @@
     <!-- Question Navigation -->
     <div class="card mb-4">
         <div class="card-body">
-            <h6 class="text-slate-500 mb-3" data-i18n="test.questions">Questions</h6>
+            <h2 class="text-slate-500 mb-3 h6" data-i18n="test.questions">Questions</h2>
             <div class="question-navigation" id="questionNavigation"></div>
         </div>
     </div>
     
     <!-- Dictation Audio Player (Dictation Test Only) -->
     <div id="dictationPlayerCard" class="audio-player-card" style="display: none;">
-        <h4 class="mb-3">
+        <h2 class="mb-3 h4">
             <i class="fas fa-headphones text-primary me-2"></i><span data-i18n="test.audio">Audio</span>
-        </h4>
+        </h2>
         <div class="dictation-player">
             <button class="dictation-play-btn" id="dictationPlayBtn">
                 <i class="fas fa-play"></i>
@@ -144,9 +144,9 @@
     <!-- Dictation Input (Dictation Test Only) -->
     <div id="dictationCard" class="card mb-4" style="display: none;">
         <div class="card-body">
-            <h5 class="mb-3">
+            <h2 class="mb-3 h5">
                 <i class="fas fa-keyboard text-primary me-2"></i><span data-i18n="test.type_what_you_hear">Type what you hear</span>
-            </h5>
+            </h2>
             <textarea
                 class="dictation-input-area"
                 id="dictationInput"
@@ -193,7 +193,7 @@
 <div id="wordQuizBackdrop" class="word-quiz-backdrop" style="display: none;"></div>
 <div id="wordQuizModal" class="word-quiz-modal" style="display: none;">
     <div class="word-quiz-header">
-        <h4><i class="fas fa-spell-check me-2"></i>Quick Vocab Check</h4>
+        <h2><i class="fas fa-spell-check me-2"></i>Quick Vocab Check</h2>
         <div class="quiz-subtitle">Help us track your vocabulary!</div>
     </div>
     <div class="word-quiz-word">
@@ -637,7 +637,7 @@ function createQuestionCard(question, index) {
             <span class="badge bg-primary">${LinguaI18n.t('test.question_of', {current: index + 1, total: testState.questions.length})}</span>
             ${isAnswered ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>' + LinguaI18n.t('test.answered') + '</span>' : ''}
         </div>
-        <h5 class="mb-4">${textHtml}</h5>
+        <h3 class="mb-4 h5">${textHtml}</h3>
         <div class="answer-options" id="answers-${index}">
             ${question.choices.map((choice, choiceIndex) => {
                 const choiceLetter = String.fromCharCode(65 + choiceIndex); // A, B, C, D

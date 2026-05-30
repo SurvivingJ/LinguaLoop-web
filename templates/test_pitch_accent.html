@@ -17,7 +17,7 @@
 
 <div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
-        <h5><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h5>
+        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
         <a href="/tests" class="btn btn-danger">
             <i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>
@@ -29,10 +29,10 @@
     <div class="container py-3">
         <div class="row align-items-center g-2">
             <div class="col-12 col-md-auto">
-                <h5 class="mb-0">
+                <h1 class="mb-0 h5">
                     <i class="bi bi-music-note-beamed text-primary me-2"></i>
                     <span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span>
-                </h5>
+                </h1>
             </div>
             <div class="col-12 col-md-auto ms-md-auto d-flex align-items-center gap-2 flex-wrap">
                 <div class="mode-toggle" id="modeToggle">
@@ -927,7 +927,7 @@
         const html = `
             <div class="results-overlay">
                 <div class="results-card">
-                    <h3>${escapeHtml(label)}</h3>
+                    <h2 class="h3">${escapeHtml(label)}</h2>
                     <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
                     <p style="color: var(--text-secondary); margin-bottom: 20px;">${t('pitch.accuracy_label', 'Accent accuracy')}</p>
 
