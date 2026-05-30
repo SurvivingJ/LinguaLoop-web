@@ -3158,3 +3158,721 @@ footer,
     transform: rotate(360deg);
   }
 }
+
+/* ============================================================
+   .mystery-page - migrated from templates/mystery.html (Phase 3)
+   ============================================================ */
+.mystery-page {
+  --mystery-dark-bg: #0f172a;
+  --mystery-dark-surface: #1e293b;
+  --mystery-dark-surface-light: #334155;
+  --mystery-gold: #d4af37;
+  --mystery-gold-light: #e8c547;
+  --mystery-gold-muted: #a89632;
+  --mystery-text-primary: #f1f5f9;
+  --mystery-text-secondary: #cbd5e1;
+
+  /* ===== Dark Theme with Gold Trim ===== */
+
+  .mystery-container,
+  .mystery-header,
+  .scene-content,
+  .notebook,
+  .option-item,
+  .clue-item {
+    background: var(--mystery-dark-surface);
+    color: var(--mystery-text-primary);
+    border-color: var(--mystery-gold-muted) !important;
+  }
+
+  .scene-title-bar,
+  .notebook-header {
+    background: var(--mystery-dark-bg);
+    border-color: var(--mystery-gold-muted) !important;
+  }
+
+  .mystery-title,
+  .scene-title,
+  .question-text,
+  .notebook-section-title,
+  .solution-title {
+    color: var(--mystery-gold-light);
+  }
+
+  .mystery-transcript,
+  .option-item:hover,
+  .option-item.selected {
+    background: var(--mystery-dark-surface-light);
+  }
+
+  .clue-item {
+    border-left-color: var(--mystery-gold) !important;
+    background: linear-gradient(
+      135deg,
+      var(--mystery-dark-surface-light) 0%,
+      var(--mystery-dark-surface) 100%
+    );
+  }
+
+  .clue-item strong {
+    color: var(--mystery-gold);
+  }
+
+  .mystery-transcript.locked {
+    color: var(--mystery-text-secondary);
+  }
+
+  .scene-pill {
+    background: var(--mystery-dark-surface);
+    color: var(--mystery-text-secondary);
+    border-color: var(--mystery-gold-muted);
+  }
+
+  .scene-pill.active,
+  .scene-pill.completed {
+    border-color: var(--mystery-gold) !important;
+    background: var(--mystery-gold);
+    color: var(--mystery-dark-bg);
+  }
+
+  .btn-submit-scene.primary {
+    background: var(--mystery-gold);
+    color: var(--mystery-dark-bg);
+  }
+
+  .btn-submit-scene.primary:hover {
+    background: var(--mystery-gold-light);
+  }
+
+  .results-card {
+    background: var(--mystery-dark-surface);
+    color: var(--mystery-text-primary);
+  }
+
+  .solution-section {
+    background: var(--mystery-dark-surface-light);
+  }
+
+  /* ===== Layout ===== */
+  .mystery-container {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ===== Header ===== */
+  .mystery-header {
+    background: var(--bg-surface);
+    border-bottom: 2px solid var(--border-default);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mystery-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .scene-pills {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .scene-pill {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid var(--border-strong);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+  }
+
+  .scene-pill.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  .scene-pill.completed {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .scene-pill.locked {
+    opacity: 0.4;
+  }
+
+  .scene-connector {
+    width: 24px;
+    height: 2px;
+    background: var(--border-strong);
+  }
+
+  .scene-connector.completed {
+    background: var(--success);
+  }
+
+  /* ===== Scene Content ===== */
+  .scene-content {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .scene-title-bar {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-muted);
+  }
+
+  .scene-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--slate-800);
+  }
+
+  .scene-body {
+    padding: 1.5rem;
+  }
+
+  /* Audio player */
+  .mystery-audio-player {
+    background: linear-gradient(
+      135deg,
+      var(--mystery-dark-surface-light) 0%,
+      var(--mystery-dark-bg) 100%
+    );
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--mystery-gold-muted);
+  }
+
+  .audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .audio-play-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--mystery-gold);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mystery-dark-bg);
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .audio-play-btn:hover {
+    background: var(--mystery-gold-light);
+    transform: scale(1.05);
+  }
+
+  .audio-play-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .audio-progress {
+    flex-grow: 1;
+  }
+
+  .audio-bar {
+    height: 8px;
+    background: var(--mystery-gold-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .audio-bar-fill {
+    height: 100%;
+    background: var(--mystery-gold);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+  }
+
+  /* Transcript */
+  .mystery-transcript {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--slate-700);
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-body);
+    border-radius: 8px;
+    transition: filter 0.4s ease;
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .mystery-transcript.locked {
+    filter: blur(8px);
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+  }
+
+  .transcript-lock-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    color: var(--slate-600);
+    font-weight: 600;
+  }
+
+  .transcript-lock-icon {
+    font-size: 32px;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Questions */
+  .mystery-questions {
+    border-top: 1px solid var(--border-default);
+    padding-top: 1.5rem;
+  }
+
+  .question-block {
+    margin-bottom: 1.5rem;
+  }
+
+  .question-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin-bottom: 1rem;
+  }
+
+  .option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-default);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    background: var(--bg-surface);
+  }
+
+  .option-item:hover {
+    border-color: var(--primary);
+    background: var(--selected-bg);
+  }
+
+  .option-item.selected {
+    border-color: var(--primary);
+    background: var(--selected-bg);
+  }
+
+  .option-item.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+  }
+
+  .option-item.incorrect {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  .option-item.disabled {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .option-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .option-item.selected .option-radio {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+
+  .option-item.selected .option-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+  }
+
+  .option-text {
+    font-size: 14px;
+    color: var(--slate-800);
+  }
+
+  /* Scene actions */
+  .scene-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn-submit-scene {
+    padding: 0.75rem 2rem;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .btn-submit-scene.primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .btn-submit-scene.primary:hover {
+    background: var(--primary-hover);
+  }
+
+  .btn-submit-scene.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-submit-scene.success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-submit-scene.success:hover {
+    opacity: 0.9;
+  }
+
+  /* Feedback */
+  .feedback-banner {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-weight: 500;
+    display: none;
+  }
+
+  .feedback-banner.success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success);
+    display: block;
+  }
+
+  .feedback-banner.error {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    display: block;
+  }
+
+  /* ===== Detective's Notebook ===== */
+  .notebook {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  .notebook-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-muted);
+    border-radius: 12px 12px 0 0;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--slate-900);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .notebook-section {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .notebook-section:last-child {
+    border-bottom: none;
+  }
+
+  .notebook-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--slate-500);
+    margin-bottom: 0.75rem;
+  }
+
+  .suspect-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    font-size: 14px;
+    color: var(--slate-700);
+    border-bottom: 1px dashed var(--border-default);
+  }
+
+  .suspect-item:last-child {
+    border-bottom: none;
+  }
+
+  .suspect-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .suspect-name {
+    font-weight: 600;
+    color: var(--slate-900);
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .clue-item {
+    padding: 0.75rem;
+    background: var(--bg-body);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 13px;
+    color: var(--slate-700);
+    border-left: 3px solid var(--primary);
+  }
+
+  .clue-item.reveal-animation {
+    animation: mys-clue-reveal 0.5s ease-out;
+  }
+
+  /* ===== Typing Animation ===== */
+  .clue-text-typing {
+    display: inline-block;
+    border-right: 2px solid var(--mystery-gold);
+    animation: mys-typing-blink 0.7s infinite;
+  }
+
+  .clue-locked {
+    padding: 0.5rem 0.75rem;
+    font-size: 13px;
+    color: var(--mystery-text-secondary);
+    font-style: italic;
+  }
+
+  /* ===== Results Overlay ===== */
+  .results-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 60%);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+
+  .results-overlay.show {
+    display: flex;
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .results-card {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .results-title {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .results-score {
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    color: var(--primary);
+  }
+
+  .results-elo {
+    text-align: center;
+    font-size: 16px;
+    color: var(--slate-600);
+    margin-bottom: 1.5rem;
+  }
+
+  .elo-change {
+    font-weight: 700;
+  }
+
+  .elo-change.positive {
+    color: var(--success);
+  }
+
+  .elo-change.negative {
+    color: var(--danger);
+  }
+
+  /* stylelint-disable-next-line no-duplicate-selectors -- duplicate selector kept from original inline CSS; source-order override is load-bearing */
+  .solution-section {
+    background: var(--bg-muted);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .solution-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .solution-text {
+    font-size: 14px;
+    color: var(--slate-700);
+    line-height: 1.6;
+  }
+
+  /* ===== Loading & Error ===== */
+  .loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  .error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--danger);
+  }
+
+  /* ===== Mobile Notebook Toggle ===== */
+  .notebook-mobile-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 900;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--mystery-gold);
+    color: var(--mystery-dark-bg);
+    border: none;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgb(212 175 55 / 30%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+
+  .notebook-mobile-btn:hover {
+    background: var(--mystery-gold-light);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgb(212 175 55 / 50%);
+  }
+
+  @media (width <= 992px) {
+    .mystery-container {
+      grid-template-columns: 1fr;
+    }
+
+    .notebook {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 950;
+      max-height: 100vh;
+      border-radius: 0;
+    }
+
+    .notebook.mobile-open {
+      display: block;
+    }
+
+    .notebook-mobile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+@keyframes mys-clue-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mys-typing-blink {
+  0%,
+  49% {
+    border-right-color: var(--mystery-gold);
+  }
+
+  50%,
+  100% {
+    border-right-color: transparent;
+  }
+}
