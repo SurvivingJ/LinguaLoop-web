@@ -73,7 +73,10 @@ def create_app(config_class=Config):
     
     # Setup CORS
     _setup_cors(app)
-    
+
+    # Attach report-only Content-Security-Policy (observes violations; no block)
+    _setup_security_headers(app)
+
     # Initialize all services
     _initialize_services(app)
 
@@ -123,6 +126,46 @@ def _setup_cors(app):
             response.headers['Access-Control-Allow-Credentials'] = 'true'
             response.headers['Access-Control-Max-Age'] = '86400'
             return response
+
+
+# Content-Security-Policy in REPORT-ONLY mode. This does not block anything —
+# the browser only reports violations — so it's safe to ship while inline
+# <script>/<style> are still pervasive (removed in Phase 3). 'unsafe-inline'
+# is intentional for now; tighten to nonces/hashes once inline code is gone.
+# Sources mirror the CDNs actually loaded by base.html (jsdelivr, cdnjs,
+# Google Fonts).
+_CSP_REPORT_ONLY = "; ".join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
+    "https://cdnjs.cloudflare.com https://fonts.googleapis.com",
+    "font-src 'self' data: https://cdn.jsdelivr.net "
+    "https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self'",
+    "base-uri 'self'",
+    "frame-ancestors 'self'",
+])
+
+
+def _setup_security_headers(app):
+    """Attach a report-only Content-Security-Policy to HTML responses.
+
+    Report-only means no breakage: the browser still loads everything but
+    posts violations to its console / report endpoint, letting us observe what
+    a future enforced policy would block before flipping it on.
+    """
+
+    @app.after_request
+    def _apply_csp(response):
+        # Only bother with documents the browser parses as HTML; skip JSON API
+        # responses and static assets where a CSP has no effect.
+        content_type = response.headers.get('Content-Type', '')
+        if content_type.startswith('text/html'):
+            response.headers.setdefault(
+                'Content-Security-Policy-Report-Only', _CSP_REPORT_ONLY
+            )
+        return response
 
 
 def _initialize_services(app):
