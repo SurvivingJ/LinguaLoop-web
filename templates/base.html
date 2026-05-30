@@ -29,10 +29,18 @@
         // bouncing to /login. Otherwise the HttpOnly cookie (invisible to
         // JS) is never exchanged and "Remember this device" silently fails.
         //
-        // Body paint is hidden via a one-shot stylesheet while the async
-        // probe is in flight; cleared on success or on the redirect fall-
-        // through. The probe is gated by a 1.5s timeout so a slow backend
-        // doesn't trap the user on a blank page.
+        // Accessibility / graceful degradation (Phase 4):
+        //   - Only #main-content is hidden, never the whole <body>, so the
+        //     masthead, nav and skip-link stay visible and reachable — the
+        //     page is never blank.
+        //   - A polite live-region overlay ("Checking your session…") gives
+        //     screen-reader and slow-network users a spoken/visible status
+        //     instead of silence on an invisible page.
+        //   - The hide is injected by JS, so no-JS users never trigger it and
+        //     get the normal server-rendered page.
+        //   - A 1.5s failsafe always settles the flow (redirect with an
+        //     explicit "Redirecting to login…" message), so the user can
+        //     never be trapped behind the hidden content.
         (function() {
             var publicPaths = ['/', '/login', '/signup', '/logout'];
             var path = window.location.pathname;
@@ -42,12 +50,46 @@
                         || sessionStorage.getItem('jwt_token');
             if (hasToken) return;
 
+            // Anti-flash: hide only the protected content region, not <body>.
             var paintBlock = document.createElement('style');
             paintBlock.id = '__lingua_block_paint';
-            paintBlock.textContent = 'body{visibility:hidden}';
+            paintBlock.textContent = '#main-content{visibility:hidden}';
             document.documentElement.appendChild(paintBlock);
 
+            // Visible, announced status. Created once <body> exists (the
+            // probe usually outlives DOMContentLoaded); before that the
+            // visible nav already proves the page is not blank.
+            function setStatus(message) {
+                function build() {
+                    if (!document.body) return;
+                    var el = document.getElementById('__lingua_auth_status');
+                    if (!el) {
+                        el = document.createElement('div');
+                        el.id = '__lingua_auth_status';
+                        el.className = 'auth-restore-status';
+                        el.setAttribute('role', 'status');
+                        el.setAttribute('aria-live', 'polite');
+                        document.body.appendChild(el);
+                    }
+                    el.textContent = message;
+                }
+                if (document.body) build();
+                else document.addEventListener('DOMContentLoaded', build);
+            }
+
+            function revealContent() {
+                var paint = document.getElementById('__lingua_block_paint');
+                if (paint) paint.remove();
+                var status = document.getElementById('__lingua_auth_status');
+                if (status) status.remove();
+            }
+
+            setStatus('Checking your session…');
+
             function bounceToLogin() {
+                // Do not reveal protected content; the visible status message
+                // is the non-blank fallback while the redirect happens.
+                setStatus('Redirecting to login…');
                 window.location.href = '/login';
             }
 
@@ -75,8 +117,7 @@
                 if (settled) return;
                 settled = true;
                 clearTimeout(timeoutId);
-                var el = document.getElementById('__lingua_block_paint');
-                if (el) el.remove();
+                revealContent();
             }).catch(function() {
                 if (settled) return;
                 settled = true;

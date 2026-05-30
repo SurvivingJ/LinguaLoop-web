@@ -530,6 +530,33 @@ a:hover {
   border-bottom: 3px solid var(--primary);
 }
 
+/* ============================================
+   Accessibility — auth-restore status
+   ============================================ */
+
+/* Floating status shown by the device-restore probe in base.html while the
+   protected #main-content region is hidden. A centred card (not a full-screen
+   overlay) so the nav/header/skip-link stay visible — the page is never blank.
+   role="status" + aria-live="polite" makes the message audible to screen
+   readers. */
+.auth-restore-status {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1080;
+  max-width: 90vw;
+  padding: 16px 24px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
 /* Breadcrumb */
 .breadcrumb {
   background: transparent;
