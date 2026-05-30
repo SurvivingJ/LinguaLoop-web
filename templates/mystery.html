@@ -899,15 +899,16 @@ function renderQuestions(questions) {
     const container = document.getElementById('questionsContainer');
     container.innerHTML = questions.map((q, qi) => `
         <div class="question-block" data-question-id="${q.id}">
-            <div class="question-text">${qi + 1}. ${q.question_text}</div>
+            <div class="question-text">${qi + 1}. ${escapeHtml(q.question_text)}</div>
             <div class="option-list">
                 ${(q.choices || []).map((c, ci) => {
                     const choiceText = typeof c === 'string' ? c : (c.text || c.label || '');
+                    const choiceSafe = escapeHtml(choiceText);
                     return `
-                        <div class="option-item" data-question="${q.id}" data-choice="${choiceText}"
-                             onclick="selectOption(this, '${q.id}', '${choiceText.replace(/'/g, "\\'")}')">
+                        <div class="option-item" data-question="${q.id}" data-choice="${choiceSafe}"
+                             onclick="selectOption(this, '${q.id}')">
                             <div class="option-radio"></div>
-                            <span class="option-text">${choiceText}</span>
+                            <span class="option-text">${choiceSafe}</span>
                         </div>
                     `;
                 }).join('')}
@@ -916,8 +917,12 @@ function renderQuestions(questions) {
     `).join('');
 }
 
-function selectOption(el, questionId, choiceText) {
+function selectOption(el, questionId) {
     if (mysteryState.status === 'feedback') return;
+
+    // choiceText comes from the data-choice attribute (the browser decodes it
+    // back to the original text), so it's never inlined into the onclick.
+    const choiceText = el.dataset.choice;
 
     // Clear previous selection for this question
     const siblings = el.parentElement.querySelectorAll('.option-item');
@@ -994,7 +999,7 @@ function handleCorrectScene(data, sceneNum, responses) {
     // Show clue in banner
     const banner = document.getElementById('feedbackBanner');
     banner.className = 'feedback-banner success';
-    banner.innerHTML = `<strong>Clue Found:</strong> ${data.clue_text}`;
+    banner.innerHTML = `<strong>Clue Found:</strong> ${escapeHtml(data.clue_text)}`;
 
     // Update notebook
     if (data.notebook_state) {
@@ -1101,8 +1106,8 @@ function showResults(result) {
     eloEl.innerHTML = `ELO: <span class="elo-change ${cls}">${sign}${eloChange}</span>`;
 
     const solution = [];
-    if (result.solution_suspect) solution.push(`<strong>The culprit:</strong> ${result.solution_suspect}`);
-    if (result.solution_reasoning) solution.push(result.solution_reasoning);
+    if (result.solution_suspect) solution.push(`<strong>The culprit:</strong> ${escapeHtml(result.solution_suspect)}`);
+    if (result.solution_reasoning) solution.push(escapeHtml(result.solution_reasoning));
     document.getElementById('solutionText').innerHTML = solution.join('<br><br>');
 
     document.getElementById('resultsOverlay').classList.add('show');
@@ -1119,8 +1124,8 @@ function renderNotebook(animateLastClue) {
         <div class="suspect-item">
             <span class="suspect-icon"><i class="fa-solid fa-user-secret"></i></span>
             <div>
-                <div class="suspect-name">${s.name}</div>
-                <div style="font-size:12px; color: var(--mystery-text-secondary);">${s.description || ''}</div>
+                <div class="suspect-name">${escapeHtml(s.name)}</div>
+                <div style="font-size:12px; color: var(--mystery-text-secondary);">${escapeHtml(s.description || '')}</div>
             </div>
         </div>
     `).join('') : '<div style="font-size:13px; color: var(--mystery-text-secondary);">No suspects yet</div>';
@@ -1194,7 +1199,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return String(text == null ? '' : text).replace(/[&<>"']/g, m => map[m]);
 }
 
 // ============================================================================

@@ -527,6 +527,16 @@
 (function() {
     'use strict';
 
+    // Escape API-derived text before it lands in an innerHTML sink. Mirrors
+    // static/js/utils.js escapeHtml; kept local because this page doesn't load
+    // the shared bundle.
+    function escapeHtml(text) {
+        if (text == null) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
     // ========================================================================
     // STATE
     // ========================================================================
@@ -659,10 +669,10 @@
 
             if (token.is_punctuation) {
                 el.classList.add('punctuation');
-                el.innerHTML = `<span class="char-display">${token.char}</span>`;
+                el.innerHTML = `<span class="char-display">${escapeHtml(token.char)}</span>`;
             } else {
                 el.classList.add('upcoming');
-                el.innerHTML = `<span class="char-display">${token.char}</span>` +
+                el.innerHTML = `<span class="char-display">${escapeHtml(token.char)}</span>` +
                                `<span class="char-pinyin">&nbsp;</span>`;
             }
 
@@ -842,7 +852,7 @@
             sandhiHtml = `
                 <div class="sandhi-explanation">
                     <strong><i class="bi bi-info-circle me-1"></i>${LinguaI18n.t('pinyin.sandhi_rule')}</strong><br>
-                    ${token.sandhi_rule}
+                    ${escapeHtml(token.sandhi_rule)}
                 </div>
             `;
         }
@@ -851,11 +861,11 @@
             <div class="error-backdrop" id="errorBackdrop" onclick="window._dismissError()"></div>
             <div class="error-modal">
                 <div class="error-char" style="color: ${toneColor(token.context_tone)}">
-                    ${token.char}
+                    ${escapeHtml(token.char)}
                 </div>
                 <div class="error-pinyin">
-                    ${applyToneMark(token.pinyin_text, token.context_tone)}
-                    <span style="color: var(--text-muted); margin-left: 4px;">(${token.word})</span>
+                    ${escapeHtml(applyToneMark(token.pinyin_text, token.context_tone))}
+                    <span style="color: var(--text-muted); margin-left: 4px;">(${escapeHtml(token.word)})</span>
                 </div>
                 <div class="error-tones">
                     <div class="tone-label">

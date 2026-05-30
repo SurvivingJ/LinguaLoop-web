@@ -285,6 +285,16 @@
 <script>
     const CEFR_MAP = {1:'A1',2:'A1',3:'A2',4:'B1',5:'B1',6:'B2',7:'C1',8:'C2',9:'C2'};
 
+    // Escape API-derived text before it lands in an innerHTML sink. Mirrors
+    // static/js/utils.js escapeHtml; kept local because this page doesn't load
+    // the shared bundle.
+    function escapeHtml(text) {
+        if (text == null) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
     function getDifficultyBadge(difficulty) {
         const d = parseInt(difficulty) || 1;
         const cefr = CEFR_MAP[d] || '?';
@@ -297,7 +307,7 @@
     function renderMysteryCard(m) {
         const suspects = (m.suspects || []).slice(0, 4);
         const suspectTags = suspects.map(s =>
-            `<span class="suspect-tag">${s.name || '???'}</span>`
+            `<span class="suspect-tag">${escapeHtml(s.name || '???')}</span>`
         ).join('');
 
         const elo = m.elo_rating || m.mystery_elo || 1400;
@@ -306,10 +316,10 @@
             <div class="mystery-card" onclick="window.location.href='/mystery/${m.slug}'">
                 <div class="mystery-card-header">
                     <div class="mystery-card-title">
-                        <span>${m.title || 'Untitled Mystery'}</span>
+                        <span>${escapeHtml(m.title || 'Untitled Mystery')}</span>
                         ${getDifficultyBadge(m.difficulty)}
                     </div>
-                    <p class="mystery-card-premise">${m.premise || ''}</p>
+                    <p class="mystery-card-premise">${escapeHtml(m.premise || '')}</p>
                 </div>
                 <div class="mystery-card-body">
                     <div class="mystery-suspects">${suspectTags}</div>
