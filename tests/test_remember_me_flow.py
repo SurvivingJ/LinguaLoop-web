@@ -197,3 +197,123 @@ class TestRememberMe_BackendHappyPath:
 
         resp = client.post('/api/auth/device-restore')
         assert resp.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# RC-2 — refresh-token must keep the refresh cookie persistent for remembered
+# devices, so it survives a browser restart instead of dying on the next close.
+# ---------------------------------------------------------------------------
+
+class TestRefreshTokenCookiePersistence:
+
+    def _mock_auth_service(self):
+        svc = MagicMock()
+        svc.refresh_session.return_value = {
+            'success': True,
+            'jwt_token': 'new.access.token',
+            'refresh_token': 'new-refresh-token',
+        }
+        return svc
+
+    def _refresh_set_cookie(self, resp):
+        headers = resp.headers.getlist('Set-Cookie')
+        return next(
+            (h for h in headers if h.startswith(Config.REFRESH_COOKIE_NAME + '=')),
+            '',
+        )
+
+    def test_persistent_cookie_when_device_cookie_present(self, client):
+        from routes.auth import auth_bp
+        auth_bp.auth_service = self._mock_auth_service()
+
+        client.set_cookie(domain='localhost', key=Config.REFRESH_COOKIE_NAME,
+                          value='old-refresh', path=Config.REFRESH_COOKIE_PATH)
+        client.set_cookie(domain='localhost', key=Config.DEVICE_COOKIE_NAME,
+                          value='device-raw', path=Config.DEVICE_COOKIE_PATH)
+
+        resp = client.post('/api/auth/refresh-token')
+        assert resp.status_code == 200, resp.get_data(as_text=True)
+
+        refresh_hdr = self._refresh_set_cookie(resp)
+        assert refresh_hdr, 'refresh cookie must be rotated'
+        assert 'Max-Age=' in refresh_hdr or 'Expires=' in refresh_hdr, (
+            'A remembered device (device cookie present) must receive a '
+            'persistent refresh cookie that survives a browser restart.'
+        )
+
+    def test_session_cookie_when_no_device_cookie(self, client):
+        from routes.auth import auth_bp
+        auth_bp.auth_service = self._mock_auth_service()
+
+        client.set_cookie(domain='localhost', key=Config.REFRESH_COOKIE_NAME,
+                          value='old-refresh', path=Config.REFRESH_COOKIE_PATH)
+
+        resp = client.post('/api/auth/refresh-token')
+        assert resp.status_code == 200
+
+        refresh_hdr = self._refresh_set_cookie(resp)
+        assert refresh_hdr, 'refresh cookie must be rotated'
+        assert 'Max-Age=' not in refresh_hdr and 'Expires=' not in refresh_hdr, (
+            'Without a device cookie the refresh cookie must stay a session '
+            'cookie (dies on tab close).'
+        )
+
+
+# ---------------------------------------------------------------------------
+# CSRF origin gate — same-origin POSTs must be allowed even when the live
+# domain is not in CORS_ORIGINS (else prod refresh/device-restore 403s).
+# ---------------------------------------------------------------------------
+
+class TestOriginGateSameOrigin:
+
+    def test_same_origin_allowed_even_when_not_in_cors_list(self, app):
+        from routes.auth import _origin_is_allowed
+        prod = 'https://lingualoop.com'
+        assert prod not in Config.CORS_ORIGINS, 'precondition: prod not in allowlist'
+        with app.test_request_context('/api/auth/refresh-token', method='POST',
+                                      base_url=prod, headers={'Origin': prod}):
+            assert _origin_is_allowed() is True
+
+    def test_cross_origin_not_in_list_rejected(self, app):
+        from routes.auth import _origin_is_allowed
+        with app.test_request_context('/api/auth/refresh-token', method='POST',
+                                      base_url='https://lingualoop.com',
+                                      headers={'Origin': 'https://evil.example'}):
+            assert _origin_is_allowed() is False
+
+    def test_missing_origin_allowed(self, app):
+        from routes.auth import _origin_is_allowed
+        with app.test_request_context('/api/auth/refresh-token', method='POST',
+                                      base_url='https://lingualoop.com'):
+            assert _origin_is_allowed() is True
+
+
+# ---------------------------------------------------------------------------
+# Bootstrap (RC-3/RC-4) — head-script must try the refresh cookie before the
+# device cookie; login.html must persist on the user's checkbox intent (RC-1).
+# ---------------------------------------------------------------------------
+
+class TestBootstrapRenewOrdering:
+
+    def test_bootstrap_adds_refresh_token_call(self, client):
+        """The no-token head-script must try the HttpOnly refresh cookie, not
+        only the trusted-device cookie.
+
+        Baseline before the RC-3 fix: `/login` referenced /api/auth/refresh-token
+        twice (inside authFetch's on-401 path + login.html's checkExistingSession).
+        Adding the bootstrap attempt makes a third reference.
+        """
+        html = client.get('/login').get_data(as_text=True)
+        refresh_refs = re.findall(r'/api/auth/refresh-token', html)
+        assert len(refresh_refs) >= 3, (
+            'base.html bootstrap must call /api/auth/refresh-token on load (in '
+            f'addition to authFetch + login.html); found {len(refresh_refs)} '
+            'reference(s), need >= 3.'
+        )
+
+    def test_login_persists_on_checkbox_intent(self, client):
+        html = client.get('/login').get_data(as_text=True)
+        assert 'data.remembered || rememberDevice' in html, (
+            'login.html must choose localStorage based on the remember checkbox '
+            'intent, not only the server `remembered` flag.'
+        )

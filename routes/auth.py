@@ -90,13 +90,27 @@ def _clear_refresh_cookie(response):
 
 
 def _origin_is_allowed() -> bool:
-    """Defense-in-depth against CSRF on cookie-bearing endpoints."""
+    """Defense-in-depth against CSRF on cookie-bearing endpoints.
+
+    Same-origin POSTs are always allowed. Browsers attach an Origin header to
+    same-origin POST/fetch requests, and that origin will NOT generally appear
+    in CORS_ORIGINS — that allowlist exists for explicitly-permitted *cross*-
+    origin callers. Gating on CORS_ORIGINS alone therefore 403s the app's own
+    refresh-token / device-restore calls in production (where the live domain
+    isn't in the localhost-default allowlist), silently breaking "remember me".
+
+    We accept the request when Origin is absent, matches the request's own host
+    (same-origin — request.host honors X-Forwarded-Host via ProxyFix), or is in
+    the configured cross-origin allowlist.
+    """
     origin = request.headers.get('Origin')
     if not origin:
-        # Same-origin browser POSTs without a CORS-relevant cross-site context
-        # typically omit Origin; Referer can be checked but isn't required.
+        # Same-origin browser POSTs may omit Origin entirely.
         return True
-    return origin in Config.CORS_ORIGINS
+    if origin in Config.CORS_ORIGINS:
+        return True
+    from urllib.parse import urlsplit
+    return urlsplit(origin).netloc == request.host
 
 
 @auth_bp.route('/send-otp', methods=['POST'])
@@ -249,7 +263,14 @@ def refresh_token():
             new_refresh = result.pop('refresh_token', None)
             response = make_response(jsonify(result), 200)
             if new_refresh:
-                _set_refresh_cookie(response, new_refresh, persistent=False)
+                # Keep the refresh cookie persistent for remembered devices so it
+                # survives a browser restart. The device cookie is set only when
+                # the user ticked "remember this device" and rides on every
+                # /api/auth/* request (path match), so its presence is a reliable
+                # "remembered" signal. Without it, fall back to a session cookie
+                # that dies on tab close (the unremembered intent).
+                persistent = bool(request.cookies.get(Config.DEVICE_COOKIE_NAME))
+                _set_refresh_cookie(response, new_refresh, persistent=persistent)
             return response
         else:
             return jsonify(result), 401

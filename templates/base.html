@@ -46,9 +46,31 @@
             var path = window.location.pathname;
             if (publicPaths.indexOf(path) !== -1) return;
 
-            var hasToken = localStorage.getItem('jwt_token')
-                        || sessionStorage.getItem('jwt_token');
-            if (hasToken) return;
+            // Decode a JWT's exp claim. Returns true when the token is missing,
+            // unparseable, or within 30s of expiry — i.e. it needs a silent renew.
+            function needsRenew(jwt) {
+                if (!jwt) return true;
+                try {
+                    var b64 = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+                    // Restore base64 padding atob() requires (JWT payloads are
+                    // unpadded base64url); without this atob throws and we'd
+                    // needlessly renew a perfectly valid token on every load.
+                    b64 += '==='.slice((b64.length + 3) % 4);
+                    var claims = JSON.parse(atob(b64));
+                    if (!claims.exp) return false;
+                    return (claims.exp * 1000) <= (Date.now() + 30000);
+                } catch (e) {
+                    return true;
+                }
+            }
+
+            var token = localStorage.getItem('jwt_token')
+                     || sessionStorage.getItem('jwt_token');
+            // A present, unexpired token means the page is already authenticated.
+            // An expired-but-present token is the restart case: localStorage kept a
+            // stale token across a browser close, so we must renew it now — before
+            // any raw (non-authFetch) request 401s and bounces the user to /login.
+            if (token && !needsRenew(token)) return;
 
             // Anti-flash: hide only the protected content region, not <body>.
             var paintBlock = document.createElement('style');
@@ -98,31 +120,72 @@
                 if (!settled) { settled = true; bounceToLogin(); }
             }, 1500);
 
-            fetch('/api/auth/device-restore', {
-                method: 'POST',
-                credentials: 'same-origin',
-            }).then(function(r) {
-                if (!r.ok) throw new Error('device-restore status ' + r.status);
-                return r.json();
-            }).then(function(data) {
-                if (!data || !data.success || !data.jwt_token) {
-                    throw new Error('device-restore returned no jwt');
+            // Renew silently via the HttpOnly cookies (invisible to JS, so we must
+            // try them rather than infer their presence). Refresh cookie first
+            // (cheap — no trusted-device DB rotation); device cookie second; only
+            // then bounce to /login.
+            function storeToken(jwt, user, remembered) {
+                if (remembered) {
+                    // device-restore always lands a remembered device → localStorage.
+                    ['jwt_token', 'refresh_token', 'user_data'].forEach(function(k) {
+                        sessionStorage.removeItem(k);
+                    });
+                    localStorage.setItem('jwt_token', jwt);
+                    if (user) localStorage.setItem('user_data', JSON.stringify(user));
+                } else {
+                    // Plain refresh preserves the existing storage tier.
+                    var store = sessionStorage.getItem('jwt_token') ? sessionStorage : localStorage;
+                    store.setItem('jwt_token', jwt);
+                    if (user) store.setItem('user_data', JSON.stringify(user));
                 }
-                localStorage.setItem('jwt_token', data.jwt_token);
-                // Refresh token lives in an HttpOnly cookie set by the server,
-                // not in JS-readable storage.
-                if (data.user) {
-                    localStorage.setItem('user_data', JSON.stringify(data.user));
-                }
+            }
+            function succeed() {
                 if (settled) return;
                 settled = true;
                 clearTimeout(timeoutId);
                 revealContent();
-            }).catch(function() {
+            }
+            function fail() {
                 if (settled) return;
                 settled = true;
                 clearTimeout(timeoutId);
                 bounceToLogin();
+            }
+
+            fetch('/api/auth/refresh-token', {
+                method: 'POST',
+                credentials: 'include',
+            }).then(function(r) {
+                return r.ok ? r.json() : null;
+            }).then(function(data) {
+                if (data && data.success && data.jwt_token) {
+                    // refresh-token returns no user; existing user_data stays put.
+                    storeToken(data.jwt_token, null, false);
+                    succeed();
+                    return true;
+                }
+                return false;
+            }).catch(function() {
+                return false;
+            }).then(function(done) {
+                if (done || settled) return;
+                // Refresh cookie missing/expired — fall back to the trusted-device
+                // cookie, which mints a fresh session and re-issues a refresh cookie.
+                return fetch('/api/auth/device-restore', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                }).then(function(r) {
+                    if (!r.ok) throw new Error('device-restore status ' + r.status);
+                    return r.json();
+                }).then(function(data) {
+                    if (!data || !data.success || !data.jwt_token) {
+                        throw new Error('device-restore returned no jwt');
+                    }
+                    storeToken(data.jwt_token, data.user, true);
+                    succeed();
+                }).catch(function() {
+                    fail();
+                });
             });
         })();
     </script>

@@ -310,12 +310,17 @@
             const data = await response.json();
 
             if (data.success) {
-                // If the server set a device cookie, persist Supabase tokens to
-                // localStorage so they survive browser restarts. Otherwise use
-                // sessionStorage so they vanish when the tab closes — matching
-                // the "don't remember this device" intent.
-                const store = data.remembered ? localStorage : sessionStorage;
-                const otherStore = data.remembered ? sessionStorage : localStorage;
+                // Persist to localStorage (survives browser restarts) whenever the
+                // user asked to be remembered. We key off the checkbox intent — not
+                // only the server's `remembered` flag — because the server sets a
+                // persistent refresh cookie whenever remember was ticked, even if
+                // issuing the trusted-device row degraded. Keeping the access token
+                // in localStorage lets that persistent cookie silently renew it
+                // after a restart. Unremembered logins use sessionStorage so they
+                // vanish on tab close.
+                const persist = data.remembered || rememberDevice;
+                const store = persist ? localStorage : sessionStorage;
+                const otherStore = persist ? sessionStorage : localStorage;
                 // Clear the other tier so we never read a stale token from there.
                 otherStore.removeItem('jwt_token');
                 otherStore.removeItem('refresh_token');
