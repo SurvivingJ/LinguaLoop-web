@@ -176,7 +176,7 @@ class Config:
         'listening':     5,
         'dictation':     6,
         'pinyin':        4,
-        'measure_word':  4,
+        'classifier_drill': 4,
         'pitch_accent':  4,
     }
 

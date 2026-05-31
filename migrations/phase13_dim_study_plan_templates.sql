@@ -60,7 +60,7 @@ INSERT INTO public.dim_study_plan_templates
      practice_total_minutes, base_maintenance_share, practice_minutes_flex_pct,
      is_default)
 SELECT 101, l.id, 30,
-       '{"reading":6,"listening":5,"dictation":2,"pinyin":1,"measure_word":1}'::jsonb,
+       '{"reading":6,"listening":5,"dictation":2,"pinyin":1,"classifier_drill":1}'::jsonb,
        90, 0.30, 0.25, true
 FROM public.dim_languages l WHERE l.language_code = 'cn'
 ON CONFLICT (template_id) DO NOTHING;
@@ -70,7 +70,7 @@ INSERT INTO public.dim_study_plan_templates
      practice_total_minutes, base_maintenance_share, practice_minutes_flex_pct,
      is_default)
 SELECT 102, l.id, 45,
-       '{"reading":8,"listening":7,"dictation":3,"pinyin":2,"measure_word":1}'::jsonb,
+       '{"reading":8,"listening":7,"dictation":3,"pinyin":2,"classifier_drill":1}'::jsonb,
        135, 0.30, 0.25, false
 FROM public.dim_languages l WHERE l.language_code = 'cn'
 ON CONFLICT (template_id) DO NOTHING;
@@ -80,7 +80,7 @@ INSERT INTO public.dim_study_plan_templates
      practice_total_minutes, base_maintenance_share, practice_minutes_flex_pct,
      is_default)
 SELECT 103, l.id, 60,
-       '{"reading":10,"listening":9,"dictation":4,"pinyin":2,"measure_word":2}'::jsonb,
+       '{"reading":10,"listening":9,"dictation":4,"pinyin":2,"classifier_drill":2}'::jsonb,
        180, 0.30, 0.25, false
 FROM public.dim_languages l WHERE l.language_code = 'cn'
 ON CONFLICT (template_id) DO NOTHING;

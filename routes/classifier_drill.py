@@ -9,7 +9,7 @@ Two endpoints:
 """
 
 import logging
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, current_app
 
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.classifier_drill_service import get_session, submit_session
@@ -101,6 +101,14 @@ def submit_drill() -> ApiResponse:
             err = (rpc_result or {}).get('error', 'Unknown RPC failure')
             logger.error("classifier_drill submission RPC failed: %s", err)
             return server_error("Failed to record measure-word session")
+
+        # Phase 13 — Study Plan progress hook. Mirror the standard submission
+        # handlers in routes/tests.py so measure-word drills count toward
+        # weekly_plan_states.completed_counts.
+        from routes.tests import _apply_timing_and_progress  # lazy import: avoid circular import
+        _apply_timing_and_progress(
+            current_app.supabase_service, rpc_result.get('attempt_id'), data,
+        )
 
         accuracy = (correct_items / total_items) * 100.0 if total_items else 0.0
         time_taken = data.get('time_taken', 0)

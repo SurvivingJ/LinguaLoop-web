@@ -39,7 +39,7 @@ RETURNS numeric LANGUAGE sql STABLE AS $$
             WHEN 'listening'     THEN 5.0
             WHEN 'dictation'     THEN 6.0
             WHEN 'pinyin'        THEN 4.0
-            WHEN 'measure_word'  THEN 4.0
+            WHEN 'classifier_drill' THEN 4.0
             WHEN 'pitch_accent'  THEN 4.0
             ELSE 5.0
         END
