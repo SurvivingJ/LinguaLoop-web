@@ -13,6 +13,29 @@ from typing import Any, Optional
 from pydantic import BaseModel, model_validator
 
 
+# Fallback used when a judge dumps a bare score (e.g. "0.1") or an empty string
+# into a reason field. A real sentence keeps the regen `avoid_context` feedback
+# usable instead of poisoning it with "rejected: 0.1".
+_REASON_FALLBACK = '(no reason provided by judge)'
+
+
+def _clean_reason(r: Any) -> str:
+    """Coerce a judge reason to a non-empty sentence.
+
+    The judge model intermittently emits a bare number (a duplicated score)
+    or an empty string where a reason belongs. Both are useless as regen
+    feedback, so they are replaced with a deterministic fallback sentence.
+    """
+    s = str(r).strip()
+    if not s:
+        return _REASON_FALLBACK
+    try:
+        float(s)  # a bare number is a leaked score, not a reason
+    except ValueError:
+        return s
+    return _REASON_FALLBACK
+
+
 class TopicTranslation(BaseModel):
     """Translated topic + keyword list returned by the topic_translator agent.
 
@@ -184,6 +207,11 @@ class AnswerEntailmentVerdict(BaseModel):
                 out['reason'] = v
             else:
                 out[k] = v
+        # An empty or bare-numeric reason is useless as regen feedback; replace
+        # it with a deterministic sentence. Leave a missing key alone so the
+        # required-field validation still fires.
+        if 'reason' in out:
+            out['reason'] = _clean_reason(out['reason'])
         return out
 
     @model_validator(mode='after')
@@ -301,14 +329,16 @@ class DistractorPlausibilityVerdict(BaseModel):
             reasons = out.get('reasons')
             if not isinstance(reasons, list):
                 reasons = []
-            # The model occasionally emits a non-string (e.g. a float score
-            # duplicated) in the reasons list — coerce so it never fails open.
-            reasons = [str(r) for r in reasons]
+            # Align length to per_distractor first (pad short / truncate long),
+            # then coerce each entry to a real sentence: the model occasionally
+            # emits a non-string (a duplicated float score) or an empty slot,
+            # both of which would otherwise poison the regen avoid_context as
+            # "rejected: 0.1". _clean_reason replaces those with a fallback.
             if len(reasons) < n:
                 reasons = reasons + [''] * (n - len(reasons))
             elif len(reasons) > n:
                 reasons = reasons[:n]
-            out['reasons'] = reasons
+            out['reasons'] = [_clean_reason(r) for r in reasons]
 
         return out
 

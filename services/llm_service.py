@@ -308,16 +308,42 @@ def call_llm(
         response_format, log_pipeline, log_task,
     )
 
-    parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
-        client=client,
-        model=resolved_model,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        response_format=response_format,
-        seed=seed,
-        timeout=timeout,
-    )
+    try:
+        parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
+            client=client,
+            model=resolved_model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            seed=seed,
+            timeout=timeout,
+        )
+    except (json.JSONDecodeError, RuntimeError) as exc:
+        # Malformed JSON or empty/missing content. The schema repair below only
+        # fires on ValidationError (JSON already parsed), and tenacity only
+        # retries transient API errors — so without this a single bad-JSON roll
+        # silently loses the call. Route JSON callers through ONE deterministic
+        # repair turn (text callers have no JSON to repair → re-raise).
+        if response_format == 'text':
+            raise
+        return _repair_malformed_json(
+            client=client,
+            model=resolved_model,
+            original_messages=messages,
+            bad_content=getattr(exc, 'raw_content', None),
+            error=exc,
+            schema=schema,
+            response_format=response_format,
+            max_tokens=max_tokens,
+            timeout=timeout,
+            seed=seed,
+            log_pipeline=log_pipeline,
+            log_task=log_task,
+            template_version=template_version,
+            artifact_id=artifact_id,
+            prompt_hash=prompt_hash,
+        )
 
     # Text path — short-circuit before any schema work.
     if response_format == 'text':
@@ -433,7 +459,12 @@ def _make_one_call(
     if response_format == 'text':
         return content, content, True, latency_ms
 
-    parsed = json.loads(clean_json_response(content))
+    try:
+        parsed = json.loads(clean_json_response(content))
+    except json.JSONDecodeError as exc:
+        # Carry the raw content so the caller can echo it into a repair turn.
+        exc.raw_content = content  # type: ignore[attr-defined]
+        raise
     return parsed, content, True, latency_ms
 
 
@@ -505,4 +536,90 @@ def _repair_and_retry(
 
     if err is not None:
         raise err
+    return result
+
+
+def _repair_malformed_json(
+    *,
+    client: OpenAI,
+    model: str,
+    original_messages: list[dict[str, str]],
+    bad_content: str | None,
+    error: Exception,
+    schema: type[BaseModel] | None,
+    response_format: str,
+    max_tokens: int | None,
+    timeout: int,
+    seed: int | None,
+    log_pipeline: str,
+    log_task: str,
+    template_version: int | None,
+    artifact_id: str | None,
+    prompt_hash: bytes,
+) -> dict | list | BaseModel:
+    """Single deterministic repair turn for a malformed-JSON / empty response.
+
+    Sibling of ``_repair_and_retry`` for a different trigger: there the JSON
+    parsed but failed *schema* validation; here ``json.loads`` itself failed (or
+    the model returned empty content), which the schema path never sees. One
+    temp-0 turn re-asks for valid JSON; the (optional) schema is then validated.
+    Re-raises if the repair output still cannot be parsed or validated.
+    """
+    repair_prompt = (
+        "Your previous reply was not valid JSON: "
+        f"{error}.\n"
+        "Return the SAME content as a single valid JSON object — no markdown "
+        "fences, no commentary, just the JSON."
+    )
+    repair_messages = list(original_messages)
+    if bad_content:
+        repair_messages.append({'role': 'assistant', 'content': bad_content})
+    repair_messages.append({'role': 'user', 'content': repair_prompt})
+
+    try:
+        parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
+            client=client,
+            model=model,
+            messages=repair_messages,
+            temperature=0.0,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            seed=seed,
+            timeout=timeout,
+        )
+    except (json.JSONDecodeError, RuntimeError):
+        # Repair turn ALSO failed to produce parseable JSON. Surface the
+        # ORIGINAL error so the caller sees the root cause, not the retry's.
+        _log_llm_call(
+            pipeline=log_pipeline, task_name=f"{log_task}__json_repair",
+            template_version=template_version, model=model,
+            temperature=0.0, seed=seed, prompt_hash=prompt_hash,
+            raw_response=None, parsed_ok=False, schema_ok=None,
+            judge_verdict=None, judge_confidence=None,
+            latency_ms=None, artifact_id=artifact_id,
+        )
+        raise error
+
+    schema_ok: bool | None = None
+    result: dict | list | BaseModel = parsed
+    schema_err: ValidationError | None = None
+    if schema is not None:
+        try:
+            result = schema.model_validate(parsed)
+            schema_ok = True
+        except ValidationError as e:
+            schema_ok = False
+            schema_err = e
+
+    _log_llm_call(
+        pipeline=log_pipeline, task_name=f"{log_task}__json_repair",
+        template_version=template_version, model=model,
+        temperature=0.0, seed=seed, prompt_hash=prompt_hash,
+        raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
+        judge_verdict=None, judge_confidence=None,
+        latency_ms=latency_ms, artifact_id=artifact_id,
+    )
+
+    if schema_err is not None:
+        raise schema_err
     return result

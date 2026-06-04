@@ -5,9 +5,66 @@ Validates question format, content quality, and semantic overlap.
 """
 
 import logging
+import re
 from typing import List, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+
+# Quoted-span extraction for the vocabulary_context hallucination check.
+# Each pattern captures the text BETWEEN a matched pair of quote marks.
+# Straight single quotes are word-boundary guarded so apostrophes inside
+# contractions ("the author's point") are not mistaken for an opening quote.
+_QUOTE_PATTERNS = [
+    re.compile(r'"([^"]+?)"'),                              # straight double "
+    re.compile(r'(?:^|[\s(\[{:])\'([^\']+?)\'(?=[\s).\]}?!,;:]|$)'),  # straight single '
+    re.compile('“([^”]+?)”'),                # curly double “ ”
+    re.compile('‘([^’]+?)’'),                # curly single ‘ ’
+    re.compile('「([^」]+?)」'),                # CJK corner 「 」
+    re.compile('『([^』]+?)』'),                # CJK white corner 『 』
+]
+
+
+def _normalize_text(s: str) -> str:
+    """Lowercase + collapse whitespace for a forgiving substring match."""
+    return re.sub(r'\s+', ' ', s).strip().lower()
+
+
+def check_quoted_phrase_in_passage(question_text: str, prose: str) -> Optional[str]:
+    """Catch hallucinated quoted phrases in a vocabulary-in-context question.
+
+    Vocabulary questions often quote the target word/phrase (e.g. "What does
+    'turn a blind eye' mean?"). When the LLM invents an idiom the passage never
+    contains, the question is unanswerable. This is cheaply checkable without
+    an LLM call.
+
+    Extracts quoted spans (straight/curly/CJK quote marks) and, for any span of
+    six or fewer words that is NOT present in the passage (case-insensitive,
+    whitespace-normalized), returns an error string. Longer spans are skipped to
+    avoid false positives on paraphrased multi-sentence quotes.
+
+    Returns None when every short quoted span is found in the passage.
+    """
+    if not question_text or not prose:
+        return None
+
+    norm_prose = _normalize_text(prose)
+
+    for pattern in _QUOTE_PATTERNS:
+        for raw_span in pattern.findall(question_text):
+            span = raw_span.strip()
+            if not span:
+                continue
+            # Only short spans (likely a word/idiom) — long quotes may be
+            # legitimately paraphrased excerpts.
+            if len(span.split()) > 6:
+                continue
+            if _normalize_text(span) not in norm_prose:
+                return (
+                    f"Quoted phrase {span!r} is not present in the passage "
+                    f"(possible hallucinated vocabulary item)"
+                )
+    return None
 
 
 class QuestionValidator:
@@ -40,6 +97,15 @@ class QuestionValidator:
 
             # Validate content
             self._validate_content(question)
+
+            # Vocabulary-in-context questions sometimes quote an idiom/phrase
+            # the passage never contains (hallucinated). Catch it for free.
+            if question.get('type_code') == 'vocabulary_context':
+                phrase_error = check_quoted_phrase_in_passage(
+                    question.get('question', ''), prose
+                )
+                if phrase_error:
+                    raise ValueError(phrase_error)
 
             # Check for semantic overlap
             if previous_questions:
