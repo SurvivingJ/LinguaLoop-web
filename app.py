@@ -44,6 +44,7 @@ from routes.vocab_admin import vocab_admin_bp
 from routes.classifier_drill import classifier_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
+from routes.study_session import study_session_bp
 
 
 def create_app(config_class=Config):
@@ -364,6 +365,7 @@ def _register_blueprints(app):
     # Phase 12/13: unified Practice surface + Study Plan orchestration.
     app.register_blueprint(practice_bp, url_prefix='/api/practice')
     app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
+    app.register_blueprint(study_session_bp, url_prefix='/api/study-session')
 
     app.logger.info("Blueprints registered")
 
@@ -444,6 +446,11 @@ def _register_web_routes(app):
     def study_plan_page():
         """Render the Study Plan editor (Phase 13)."""
         return render_template('study_plan.html')
+
+    @app.route('/session')
+    def study_session_page():
+        """Render the single-page daily study-session runner (Phase 13)."""
+        return render_template('study_session.html')
 
     @app.route('/test/<slug>/preview')
     def test_preview(slug):

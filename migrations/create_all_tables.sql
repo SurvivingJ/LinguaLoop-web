@@ -563,7 +563,6 @@ CREATE TABLE IF NOT EXISTS public.test_skill_ratings (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     test_id         uuid NOT NULL REFERENCES public.tests(id),
     elo_rating      integer DEFAULT 1400 CHECK (elo_rating >= 400 AND elo_rating <= 3000),
-    volatility      real DEFAULT 1.0 CHECK (volatility > 0),
     total_attempts  integer DEFAULT 0 CHECK (total_attempts >= 0),
     created_at      timestamptz DEFAULT now(),
     updated_at      timestamptz DEFAULT now(),

@@ -114,97 +114,122 @@ class TopicGenerationOrchestrator:
 
             logger.info(f"Selected category: {category.name}")
 
-            # Step 3: Fetch prompts
-            explorer_prompt = self.db.get_prompt_template('explorer_ideation')
-            gatekeeper_prompt = self.db.get_prompt_template('gatekeeper_check')
+            # Step 3: Fetch prompts (one Explorer prompt per age tier + gatekeeper)
+            tiers = topic_gen_config.tiers_to_generate
+            tier_prompts: Dict[int, str] = {}
+            for tier in tiers:
+                tp = self.db.get_prompt_template(f'explorer_ideation_t{tier}')
+                if not tp:
+                    raise ValueError(
+                        f"Explorer prompt template not found: explorer_ideation_t{tier}"
+                    )
+                tier_prompts[tier] = tp
 
-            if not explorer_prompt:
-                raise ValueError("Explorer prompt template not found")
+            gatekeeper_prompt = self.db.get_prompt_template('gatekeeper_check')
             if not gatekeeper_prompt:
                 raise ValueError("Gatekeeper prompt template not found")
 
-            # Step 4: Generate candidates
-            candidates = self.explorer.generate_candidates(
-                category_name=category.name,
-                active_lenses=lenses,
-                prompt_template=explorer_prompt,
-                num_candidates=topic_gen_config.max_candidates_per_run
-            )
-
-            self.metrics.candidates_proposed = len(candidates)
-            self.metrics.api_calls_llm = self.explorer.api_call_count
-
-            if not candidates:
-                logger.warning("Explorer returned no candidates")
-                return self._finalize(start_time, category)
-
-            logger.info(f"Explorer generated {len(candidates)} candidates")
-
-            # Step 5: Process candidates
+            # Steps 4+5: Generate and process candidates tier by tier so a run
+            # produces a spread across age tiers (each tier has its own prompt).
             approved_count = 0
             queue_items: List[Tuple[UUID, int]] = []
 
-            for candidate in candidates:
+            for tier in tiers:
                 if approved_count >= topic_gen_config.daily_topic_quota:
-                    logger.info(f"Reached daily quota of {topic_gen_config.daily_topic_quota}")
+                    logger.info(
+                        f"Reached daily quota of {topic_gen_config.daily_topic_quota}"
+                    )
                     break
 
-                # Validate lens exists
-                lens = lens_map.get(candidate.lens_code.lower())
-                if not lens:
-                    logger.warning(f"Unknown lens code: {candidate.lens_code}")
-                    continue
-
-                # Check novelty
-                signature = self.archivist.construct_semantic_signature(
-                    category.name,
-                    candidate.concept,
-                    lens,
-                    candidate.keywords
+                tier_candidates = self.explorer.generate_candidates(
+                    category_name=category.name,
+                    active_lenses=lenses,
+                    prompt_template=tier_prompts[tier],
+                    num_candidates=topic_gen_config.candidates_per_tier,
+                    tier=tier,
+                    default_lens_code=topic_gen_config.default_lens_code,
+                )
+                self.metrics.candidates_proposed += len(tier_candidates)
+                logger.info(
+                    "T%s: Explorer generated %d candidates", tier, len(tier_candidates)
                 )
 
-                is_novel, rejection_reason, embedding = self.archivist.check_novelty(
-                    category.id,
-                    signature,
-                    topic_gen_config.similarity_threshold
-                )
+                approved_this_tier = 0
+                for candidate in tier_candidates:
+                    if approved_count >= topic_gen_config.daily_topic_quota:
+                        break
+                    if approved_this_tier >= topic_gen_config.topics_per_tier:
+                        break
 
-                if not is_novel:
-                    self.metrics.topics_rejected_similarity += 1
-                    logger.debug(f"Rejected (similarity): {candidate.concept[:40]}...")
-                    continue
+                    # Validate lens exists (explorer defaults a neutral lens
+                    # when the model returns null, so lens_code is set)
+                    lens = lens_map.get((candidate.lens_code or '').lower())
+                    if not lens:
+                        logger.warning(f"Unknown lens code: {candidate.lens_code}")
+                        continue
 
-                # Topic is novel - save it (even if dry run, for testing)
-                if topic_gen_config.dry_run:
-                    logger.info(f"[DRY RUN] Would save topic: {candidate.concept[:50]}...")
-                    topic_id = UUID('00000000-0000-0000-0000-000000000000')
-                else:
-                    topic_id = self.db.insert_topic(
-                        category_id=category.id,
-                        concept=candidate.concept,
-                        lens_id=lens.id,
-                        keywords=candidate.keywords,
-                        embedding=embedding,
-                        semantic_signature=signature
+                    # Check novelty
+                    signature = self.archivist.construct_semantic_signature(
+                        category.name,
+                        candidate.concept,
+                        lens,
+                        candidate.keywords
                     )
 
-                # Gatekeeper validation for each language
-                approved_languages = self._run_gatekeeper(
-                    candidate,
-                    languages,
-                    gatekeeper_prompt
-                )
-
-                if approved_languages:
-                    for lang in approved_languages:
-                        queue_items.append((topic_id, lang.id))
-                    approved_count += 1
-                    logger.info(
-                        f"Topic approved for {len(approved_languages)} languages: "
-                        f"{candidate.concept[:40]}..."
+                    is_novel, rejection_reason, embedding = self.archivist.check_novelty(
+                        category.id,
+                        signature,
+                        topic_gen_config.similarity_threshold
                     )
-                else:
-                    logger.info(f"Topic rejected by all gatekeepers: {candidate.concept[:40]}...")
+
+                    if not is_novel:
+                        self.metrics.topics_rejected_similarity += 1
+                        logger.debug(f"Rejected (similarity): {candidate.concept[:40]}...")
+                        continue
+
+                    # Topic is novel - save it (even if dry run, for testing)
+                    if topic_gen_config.dry_run:
+                        logger.info(
+                            "[DRY RUN] T%s topic: %s | DV=%s",
+                            tier,
+                            candidate.concept[:60],
+                            candidate.distinctive_vocabulary,
+                        )
+                        topic_id = UUID('00000000-0000-0000-0000-000000000000')
+                    else:
+                        topic_id = self.db.insert_topic(
+                            category_id=category.id,
+                            concept=candidate.concept,
+                            lens_id=lens.id,
+                            keywords=candidate.keywords,
+                            embedding=embedding,
+                            semantic_signature=signature,
+                            target_age_tier=candidate.target_age_tier,
+                            distinctive_vocabulary=candidate.distinctive_vocabulary,
+                        )
+
+                    # Gatekeeper validation for each language
+                    approved_languages = self._run_gatekeeper(
+                        candidate,
+                        languages,
+                        gatekeeper_prompt
+                    )
+
+                    if approved_languages:
+                        for lang in approved_languages:
+                            queue_items.append((topic_id, lang.id))
+                        approved_count += 1
+                        approved_this_tier += 1
+                        logger.info(
+                            "Topic approved (T%s) for %d languages: %s...",
+                            tier,
+                            len(approved_languages),
+                            candidate.concept[:40],
+                        )
+                    else:
+                        logger.info(
+                            f"Topic rejected by all gatekeepers: {candidate.concept[:40]}..."
+                        )
 
             # Step 6: Batch queue insertion
             if queue_items and not topic_gen_config.dry_run:

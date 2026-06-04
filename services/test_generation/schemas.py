@@ -217,8 +217,55 @@ class DistractorPlausibilityVerdict(BaseModel):
     @model_validator(mode='before')
     @classmethod
     def _normalize(cls, data: Any) -> Any:
+        # The judge model intermittently returns off-schema shapes that survive
+        # call_llm's repair retry: a bare list of per-distractor dicts
+        # (``[{"distractor_1": 0.2}, ...]``), a ``per_distractor`` list with no
+        # ``reasons``, or alias keys. Coerce the common variants into
+        # ``{per_distractor, reasons}`` so the judge yields a real verdict
+        # instead of failing open (safe_accept) — which made cross-language
+        # behaviour a non-reproducible lottery.
+
+        def _as_score(x):
+            if isinstance(x, bool):
+                return None
+            if isinstance(x, (int, float)):
+                return float(x)
+            if isinstance(x, str):
+                try:
+                    return float(x.strip())
+                except ValueError:
+                    return None
+            return None
+
+        def _pair(item):
+            """Extract (score, reason) from one per-distractor element."""
+            if isinstance(item, (int, float, str)):
+                return _as_score(item), ''
+            if isinstance(item, dict):
+                score, reason = None, ''
+                for k, v in item.items():
+                    kl = str(k).lower()
+                    if 'reason' in kl or 'explanation' in kl:
+                        reason = str(v)
+                    elif score is None:
+                        s = _as_score(v)
+                        if s is not None:
+                            score = s
+                return score, reason
+            return None, ''
+
+        # Bare list → unzip into the two parallel lists.
+        if isinstance(data, list):
+            scores, reasons = [], []
+            for item in data:
+                s, r = _pair(item)
+                scores.append(s if s is not None else 0.0)
+                reasons.append(r)
+            return {'per_distractor': scores, 'reasons': reasons}
+
         if not isinstance(data, dict):
             return data
+
         out: dict[str, Any] = {}
         for k, v in data.items():
             if k in ('1', 1):
@@ -227,6 +274,42 @@ class DistractorPlausibilityVerdict(BaseModel):
                 out['reasons'] = v
             else:
                 out[k] = v
+
+        # Alias keys for the scores list.
+        if 'per_distractor' not in out:
+            for alias in ('scores', 'confidences', 'plausibility',
+                          'plausibilities'):
+                if isinstance(out.get(alias), list):
+                    out['per_distractor'] = out[alias]
+                    break
+
+        # A list of {score, reason} dicts under per_distractor → unzip.
+        pd = out.get('per_distractor')
+        if isinstance(pd, list) and pd and all(isinstance(x, dict) for x in pd):
+            scores, reasons = [], []
+            for item in pd:
+                s, r = _pair(item)
+                scores.append(s if s is not None else 0.0)
+                reasons.append(r)
+            out['per_distractor'] = scores
+            if not out.get('reasons'):
+                out['reasons'] = reasons
+
+        # Reasons missing or wrong length → pad/truncate to per_distractor.
+        if isinstance(out.get('per_distractor'), list):
+            n = len(out['per_distractor'])
+            reasons = out.get('reasons')
+            if not isinstance(reasons, list):
+                reasons = []
+            # The model occasionally emits a non-string (e.g. a float score
+            # duplicated) in the reasons list — coerce so it never fails open.
+            reasons = [str(r) for r in reasons]
+            if len(reasons) < n:
+                reasons = reasons + [''] * (n - len(reasons))
+            elif len(reasons) > n:
+                reasons = reasons[:n]
+            out['reasons'] = reasons
+
         return out
 
     @model_validator(mode='after')

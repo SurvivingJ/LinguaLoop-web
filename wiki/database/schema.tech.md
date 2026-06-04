@@ -261,34 +261,51 @@ Master vocabulary lemma registry. Each lemma is unique per language.
 
 ### `dim_word_senses`
 
-Individual word senses (definitions) linked to vocabulary lemmas.
+Individual word senses (definitions) linked to vocabulary lemmas. Each sense is
+stored at **two definition levels** (`simple` + `standard`) sharing one
+`sense_rank` — see [Two-level sense generation](#two-level-sense-generation) below.
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
 | `id` | integer | NO | GENERATED ALWAYS AS IDENTITY | PK |
 | `vocab_id` | integer | NO | | FK -> dim_vocabulary |
 | `definition_language_id` | smallint | NO | | FK -> dim_languages |
-| `definition` | text | NO | | |
-| `pronunciation` | text | YES | | |
+| `definition` | text | NO | | Target-language definition for this level |
+| `definition_level` | text | NO | 'standard' | CHECK: simple/standard. `simple` = child (T1/T2) register; `standard` = normal |
+| `pronunciation` | text | YES | | Filled deterministically (pypinyin/fugashi), not by the LLM |
 | `ipa_pronunciation` | text | YES | | |
-| `example_sentence` | text | YES | | |
+| `example_sentence` | text | YES | | LLM-generated example (differs from the source sentence) |
 | `usage_notes` | text | YES | | |
-| `sense_rank` | integer | NO | 1 | Ordering within vocab_id |
+| `sense_rank` | integer | NO | 1 | Ordering within vocab_id; shared by both levels of a sense |
 | `usage_frequency` | text | YES | 'common' | CHECK: common/uncommon/rare/archaic |
 | `semantic_category` | text | YES | | |
 | `morphological_forms` | jsonb | YES | | |
-| `is_validated` | boolean | YES | false | |
+| `is_validated` | boolean | YES | false | True when `gen_confidence` >= 0.7 and language check passes |
+| `gen_confidence` | real | YES | | Self-rated 0..1 from single-call generation (replaces the old validation call) |
+| `source` | text | NO | 'llm' | CHECK: llm/manual. `manual` (admin-curated) is never overwritten by backfill |
+| `source_ref` | text | YES | | Provenance, e.g. `"deepseek/deepseek-v4-flash v2"` |
 | `validated_by` | uuid | YES | | FK -> users |
 | `validation_notes` | text | YES | | |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
 - **Primary Key:** `dim_word_senses_pkey (id)`
-- **Unique:** `uq_sense_definition (vocab_id, definition_language_id, definition)`
-- **Indexes:** `idx_senses_lang (definition_language_id)`, `idx_senses_rank (vocab_id, sense_rank)`, `idx_senses_vocab (vocab_id)`
+- **Unique:** `uq_sense_def_level (vocab_id, definition_language_id, definition_level, sense_rank)` — replaced `uq_sense_definition` (migrations/add_sense_levels_and_source.sql, 2026-05-31)
+- **Indexes:** `idx_senses_lang (definition_language_id)`, `idx_senses_rank (vocab_id, sense_rank)`, `idx_senses_vocab (vocab_id)`, `idx_senses_source (source)`
 - **Foreign Keys:** `vocab_id` -> `dim_vocabulary.id`, `definition_language_id` -> `dim_languages.id`, `validated_by` -> `users.id`
 - **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled
+
+#### Two-level sense generation
+
+Senses are produced by a **single LLM call per word** ([services/vocabulary/sense_generator.py](../../services/vocabulary/sense_generator.py), `SenseGenerator`) on a cheap hosted model (`SENSE_MODEL_DEFAULT` = `deepseek/deepseek-v4-flash`, fallback `qwen/qwen3.6-flash` only on invalid JSON). The call emits numeric-key JSON `{"1":simple, "2":standard, "3":example, "4":pos_int, "5":confidence, "6":should_skip}` and writes **two rows** per sense:
+
+- `definition_level='simple'` — the same meaning rewritten at the lower child age tiers (T1 "The Toddler" / T2 "The Primary Schooler", [ADR-003](../decisions/ADR-003-age-tiers.md)); the T1/T2 `dim_complexity_tiers.description` is injected as the register guide.
+- `definition_level='standard'` — the normal learner definition.
+
+`gen_confidence` (key 5) replaces the retired `vocab_validation` LLM call: it sets `is_validated` and flags low-confidence rows for review. POS (key 4) is a language-neutral integer mapped to a canonical string and written to `dim_vocabulary.part_of_speech` when blank. Prompts (`vocab_definition_generation`, `vocab_sense_selection`) are numeric-key, output-language-locked, and exist for zh/en/**ja** (`prompt_templates`, v2; migrations/rewrite_sense_prompts_two_level.sql).
+
+**Read paths must filter `definition_level='standard'`** so the two rows don't fan out duplicates — applied in `get_distractors` and the admin sense lookup. Bulk seeding: [scripts/backfill_senses.py](../../scripts/backfill_senses.py) (resumable via a `simple`-row gate, concurrent, `--language/--model/--limit/--concurrency/--dry-run`). Inline test-gen passes `prefer_existing=True` to skip already-seeded words.
 - **Referenced by:** exercises, word_assets, user_word_ladder, word_quiz_results, user_flashcards, user_vocabulary_knowledge, vocabulary_review_queue
 
 ---

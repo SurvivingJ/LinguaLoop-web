@@ -107,7 +107,10 @@ class VocabBackfillRunner:
             db_client=db_client,
             language_code=self.language_code,
             language_id=self.language_id,
-            model=lang_config.prose_model,
+            # None -> SENSE_MODEL_DEFAULT (cheap hosted sense model); prefer_existing
+            # skips words already seeded by backfill_senses.py.
+            model=None,
+            prefer_existing=True,
             dry_run=self.dry_run,
         )
 

@@ -237,7 +237,19 @@ class TestGenerationOrchestrator:
 
         tests_generated = 0
 
+        # Constrain the difficulty range to the topic's age tier (ADR-003) when
+        # set: a T2 topic only yields tests within its difficulty_min..max, not
+        # the full 1-9 span. Legacy/untiered topics (target_age_tier is None)
+        # fall back to the configured schedule -> no regression.
         target_difficulties = get_test_gen_config().target_difficulties
+        if topic.target_age_tier is not None:
+            tier_difficulties = self.db.get_tier_difficulties(topic.target_age_tier)
+            if tier_difficulties:
+                target_difficulties = tier_difficulties
+                logger.info(
+                    "Topic tier T%s -> difficulties %s",
+                    topic.target_age_tier, tier_difficulties,
+                )
 
         # Generate tests for each target difficulty
         for difficulty in target_difficulties:
@@ -410,6 +422,14 @@ class TestGenerationOrchestrator:
                 lang_config.id  # Use language_id, not language_code
             )
 
+        # Skip the LLM judges (answer-entailment + distractor-plausibility) at
+        # low difficulty. T1/T2 toddler passages are deliberately simple and
+        # explicit ("The car is red"), so their answers are legitimately obvious
+        # and the distractor-plausibility judge rejects nearly every question —
+        # a category error that was zeroing out d1/d2 tests. Judges still run at
+        # d>=3, where distractor richness is a meaningful quality signal. The
+        # judges run only when both db and language_id are passed.
+        run_judges = difficulty > 2
         questions = self.question_generator.generate_questions(
             prose=prose,
             language_name=lang_config.language_name,
@@ -417,11 +437,14 @@ class TestGenerationOrchestrator:
             difficulty=difficulty,  # Pass difficulty for templates
             prompt_templates=question_templates,
             model_override=lang_config.question_model,
-            language_id=lang_config.id,
-            db=self.db.client,
+            language_id=lang_config.id if run_judges else None,
+            db=self.db.client if run_judges else None,
         )
 
-        # Step 3: Validate questions
+        # Step 3: Validate questions. generate_questions now runs the validator
+        # in-loop per type (regenerating on rejection), so every returned
+        # question should already pass here — this call is a cheap idempotent
+        # safety net and still feeds the funnel diagnostic below.
         valid_questions, errors = self.question_validator.validate_all_questions(
             questions, prose
         )
@@ -431,10 +454,37 @@ class TestGenerationOrchestrator:
                 logger.warning(f"Question validation: {error}")
 
         cfg = get_test_gen_config()
-        min_questions = max(3, cfg.questions_per_test - 1)
+        # Survival floor. At low difficulty (T1/T2 toddler passages, ~74 words)
+        # a 5-question set cannot reliably survive validation: vocabulary_context
+        # rejects ~30% of the time at this level and 3 literal_detail questions
+        # collide on the Jaccard-overlap check, so the old 4-of-5 floor produced
+        # intermittent "Too few valid questions: 0/5" aborts. Accept 3-of-5 at
+        # d1/d2 (margin of 2); keep the standard "tolerate losing one" elsewhere.
+        requested = len(question_types)
+        min_questions = 3 if difficulty <= 2 else max(3, requested - 1)
         if len(valid_questions) < min_questions:
+            # Funnel diagnostics: decompose where questions were lost so the
+            # survival floor / judge strictness can be tuned per difficulty.
+            # requested -> generated (post-judge) -> valid (post-validator).
+            generated = len(questions)
+            judge_rejections = getattr(
+                self.question_generator, 'last_rejections', []
+            )
+            logger.warning(
+                "Question funnel starved (diff=%s, lang=%s): "
+                "requested=%d generated=%d valid=%d (floor=%d) | "
+                "lost_to_generation_or_judges=%d lost_to_validation=%d | "
+                "judge_rejections=%s | validation_errors=%s",
+                difficulty, lang_config.language_code,
+                requested, generated, len(valid_questions), min_questions,
+                requested - generated, generated - len(valid_questions),
+                judge_rejections, errors,
+            )
             raise ValueError(
-                f"Too few valid questions: {len(valid_questions)}/{cfg.questions_per_test}"
+                f"Too few valid questions: {len(valid_questions)}/{requested} "
+                f"(floor {min_questions}; generated {generated}, "
+                f"{len(judge_rejections)} judge-rejected, "
+                f"{generated - len(valid_questions)} validator-rejected)"
             )
 
         # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
@@ -565,7 +615,12 @@ class TestGenerationOrchestrator:
                 db_client=self.db,
                 language_code=lang_config.language_code,
                 language_id=lang_config.id,
-                model=lang_config.prose_model,
+                # Sense model now defaults to the cheap hosted sense model
+                # (SENSE_MODEL_DEFAULT); pass None to use it rather than the
+                # prose model. prefer_existing skips words already seeded by the
+                # backfill so inline test-gen stays fast.
+                model=None,
+                prefer_existing=True,
             )
 
             sense_ids = []

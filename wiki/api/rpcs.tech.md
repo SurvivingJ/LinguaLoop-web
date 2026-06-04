@@ -413,7 +413,7 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | `bkt_infer_from_frequency` | `VocabularyKnowledgeService._trigger_frequency_inference` | VOLATILE. |
 | `bkt_phase` / `bkt_phase_thresholds` | Read by `VocabularyKnowledgeService.get_phase_thresholds` | IMMUTABLE. |
 | `get_word_quiz_candidates` | `VocabularyKnowledgeService.build_quiz_with_distractors` | DEFINER. |
-| `get_distractors` | Same | DEFINER. |
+| `get_distractors` | Same | DEFINER. Filters `definition_level='standard'` so two-level senses don't fan out duplicate options (migrations/get_distractors_filter_standard_level.sql, 2026-05-31). |
 | `update_vocabulary_from_test` | (RPC, also exposed as trigger name) | VOLATILE. |
 | `update_vocabulary_from_word_test` | `VocabularyKnowledgeService` (2 overloads, 4-arg legacy and 5-arg with exercise_type) | VOLATILE. |
 | `match_topics` | `services/topic_generation/database_client.py` | DEFINER. Embedding-similarity dedup. |

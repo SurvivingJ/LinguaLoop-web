@@ -6,6 +6,7 @@ This ensures prompts are in the target language for non-English content.
 Routes through the unified llm_service so calls are logged to llm_calls.
 """
 
+import json
 import logging
 from typing import List, Tuple, Optional
 
@@ -81,11 +82,22 @@ Return ONLY valid JSON in this exact format:
                 pipeline='test_gen',
                 task_name='topic_translation',
             )
-        except ValidationError as e:
-            first = e.errors()[0]['msg'] if e.errors() else str(e)
+        except (ValidationError, json.JSONDecodeError, RuntimeError) as e:
+            # call_llm documents three LLM-output failure modes that survive its
+            # own retries: ValidationError (schema), json.JSONDecodeError
+            # (malformed JSON — common for zh/ja at high difficulty), and
+            # RuntimeError (empty/missing response). Translation is best-effort
+            # and has a valid English fallback (prose templates still carry full
+            # target-language instructions), so none of these should abort the
+            # whole test — degrade to English instead of raising.
+            reason = (
+                e.errors()[0]['msg']
+                if isinstance(e, ValidationError) and e.errors()
+                else str(e)
+            )
             logger.warning(
-                f"Topic translation schema validation failed (after repair) "
-                f"for {target_language}: {first}. Falling back to English."
+                f"Topic translation failed for {target_language} "
+                f"({type(e).__name__}: {reason}). Falling back to English."
             )
             return (topic_concept, keywords)
         except Exception as e:

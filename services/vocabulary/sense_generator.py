@@ -1,26 +1,52 @@
 """
 Word Sense Generator Service
 
-Generates and validates word sense definitions using LLM prompts.
-Used by both the test generation orchestrator (inline) and the
-backfill script (batch).
+Generates target-language word-sense definitions at TWO graded levels in a
+single LLM call, and writes them to dim_word_senses. Used by both the test
+generation orchestrator (inline, per new test) and the backfill scripts (batch).
 
-Prompt templates used (from prompt_templates table):
-- vocab_sense_selection (id=31): Pick existing definition or flag need for new one
-- vocab_definition_generation (id=32): Generate new definition for a word in context
-- vocab_validation (id=33): Quality-check a proposed definition
+Single-call design (numeric-key JSON, JSON mode):
+    "1" = simple   — same meaning rewritten at LinguaLoop's lower child age
+                     tiers (T1 "The Toddler" / T2 "The Primary Schooler")
+    "2" = standard — the normal learner definition
+    "3" = example_sentence — a NEW example, different from the input sentence
+    "4" = part_of_speech — integer code (language-neutral legend, mapped to a
+                     canonical POS string in code; never an English word)
+    "5" = confidence — self-rated 0..1; replaces the old separate validation
+                     call (sets is_validated / gen_confidence)
+    "6" = should_skip — true only for proper nouns / numbers / symbols /
+                     punctuation; function words (把, 的, が, を, the) are normal
+
+One sense becomes TWO dim_word_senses rows (definition_level simple+standard)
+at the same sense_rank, source='llm', source_ref='<model> v<prompt_version>'.
+pronunciation is filled deterministically later (pypinyin / fugashi), not here.
+
+Prompt templates (prompt_templates table, numeric-key, per language incl. ja):
+- vocab_sense_selection     : pick an existing standard sense for this occurrence
+- vocab_definition_generation : single-call two-level generation (above)
+(vocab_validation is retired — confidence subsumes it.)
 """
 
 import re
 import json
 import logging
 
-from services.llm_service import call_llm as llm_call
+from services.llm_service import (
+    call_llm as llm_call,
+    SENSE_MODEL_DEFAULT,
+    SENSE_MODEL_FALLBACK,
+)
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
 
-# Language-specific notes for LLM prompts
+# Prompt template version these call-sites are written against (source_ref tag).
+SENSE_PROMPT_VERSION = 2
+
+# Confidence at/above which a generated sense is treated as validated.
+VALIDATION_CONFIDENCE_THRESHOLD = 0.7
+
+# Language-specific notes (kept for callers/logging; prompts are now self-contained).
 LINGUISTIC_NOTES = {
     "en": "English words inflect for tense, number, and comparison. Lemmas are base forms.",
     "zh": "Chinese characters do not inflect. Words may be single characters or compounds (成语, 词语).",
@@ -32,6 +58,28 @@ LANGUAGE_NAMES = {
     "zh": "Chinese",
     "ja": "Japanese",
 }
+
+# Integer POS legend per language -> canonical, language-neutral POS string.
+# The legends MUST match the numeric "4" codes in the prompt templates
+# (migrations/rewrite_sense_prompts_two_level.sql).
+POS_LEGENDS = {
+    "zh": {1: "noun", 2: "verb", 3: "adjective", 4: "adverb", 5: "pronoun",
+           6: "preposition", 7: "conjunction", 8: "particle", 9: "measure_word",
+           10: "idiom", 11: "numeral", 0: "other"},
+    "ja": {1: "noun", 2: "verb", 3: "adjective", 4: "adverb", 5: "pronoun",
+           6: "particle", 7: "conjunction", 8: "auxiliary", 9: "adnominal",
+           10: "idiom", 11: "numeral", 0: "other"},
+    "en": {1: "noun", 2: "verb", 3: "adjective", 4: "adverb", 5: "pronoun",
+           6: "preposition", 7: "conjunction", 8: "determiner", 9: "interjection",
+           10: "phrase", 11: "numeral", 0: "other"},
+}
+
+# Fallback child-register text if dim_complexity_tiers can't be read. Mirrors the
+# T1/T2 description columns (ADR-003-age-tiers).
+_SIMPLE_REGISTER_FALLBACK = (
+    "The Toddler (Age 4-5): 500 words, basic verbs/nouns, one idea per sentence; "
+    "The Primary Schooler (Age 8-9): 2000 words, compound sentences, literal/concrete"
+)
 
 
 def find_sentence(transcript: str, lemma: str) -> str:
@@ -62,60 +110,127 @@ def find_sentence(transcript: str, lemma: str) -> str:
 
 class SenseGenerator:
     """
-    Generates and validates word sense definitions using LLM.
+    Generates target-language word senses at two levels via a single LLM call.
 
-    Uses three prompt templates from the database:
-    - vocab_sense_selection: Pick existing def or flag new one needed
-    - vocab_definition_generation: Generate new definition
-    - vocab_validation: Quality-check a proposed definition
+    Entry points:
+    - generate_sense(...) : inline test-gen path. Reuses an existing sense when
+      one exists (selection call, or short-circuit when prefer_existing=True);
+      otherwise generates a brand-new two-level sense.
+    - seed_word(...)      : batch backfill path. Idempotently upserts both levels
+      for the word's primary sense (adds the missing `simple` level to words that
+      already have a `standard` sense). Skips source='manual' rows.
     """
 
     def __init__(self, openai_client, db, db_client, language_code: str,
-                 language_id: int, model: str, dry_run: bool = False):
+                 language_id: int, model: str | None = None,
+                 fallback_model: str | None = None,
+                 prefer_existing: bool = False, dry_run: bool = False):
         """
         Args:
-            openai_client: OpenAI client instance (direct or via OpenRouter)
-            db: Supabase admin client (for dim_word_senses queries)
-            db_client: TestDatabaseClient (for prompt template loading)
-            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
-            language_id: Integer language ID
-            model: LLM model name (from LanguageConfig.prose_model)
-            dry_run: If True, log but don't write to DB
+            openai_client: OpenAI client instance (unused by call_llm but kept for
+                signature compatibility with existing call sites).
+            db: Supabase admin client (for dim_word_senses / dim_vocabulary).
+            db_client: TestDatabaseClient (for prompt template loading).
+            language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'.
+            language_id: Integer language ID.
+            model: Sense LLM model. Defaults to SENSE_MODEL_DEFAULT (DeepSeek V4 Flash).
+            fallback_model: Used only when the primary returns invalid/empty JSON.
+                Defaults to SENSE_MODEL_FALLBACK (Qwen3.6 Flash).
+            prefer_existing: When True, words that already have a sense are reused
+                without any LLM call (resumable backfill / throughput).
+            dry_run: If True, log but don't write to DB.
         """
         self._client = openai_client
         self._db = db
         self._db_client = db_client
         self._language_code = language_code
         self._language_id = language_id
-        self._model = model
+        self._model = model or SENSE_MODEL_DEFAULT
+        self._fallback_model = fallback_model or SENSE_MODEL_FALLBACK
+        self._prefer_existing = prefer_existing
         self._dry_run = dry_run
         self._language_name = LANGUAGE_NAMES.get(language_code, language_code)
         self._linguistic_notes = LINGUISTIC_NOTES.get(language_code, "")
+        self._pos_legend = POS_LEGENDS.get(language_code, POS_LEGENDS["en"])
+        self._simple_register = self._load_simple_register()
 
-        # Cache: vocab_id → list of existing sense dicts
+        # Cache: vocab_id -> list of existing STANDARD sense dicts
         self._sense_cache: dict[int, list[dict]] = {}
 
         # Stats
         self.stats = {
-            'senses_created': 0,
+            'senses_created': 0,    # words that got freshly generated senses
             'senses_reused': 0,
             'senses_skipped': 0,
             'senses_failed': 0,
+            'rows_written': 0,      # individual dim_word_senses rows (2 per sense)
+            'fallback_used': 0,
         }
 
+    # ------------------------------------------------------------------ setup
+
+    def _load_simple_register(self) -> str:
+        """Build the child-register guide for `simple` from dim_complexity_tiers
+        T1/T2 (single source of truth, ADR-003). Falls back to a constant."""
+        try:
+            resp = self._db.table('dim_complexity_tiers') \
+                .select('tier_code, description') \
+                .in_('tier_code', ['T1', 'T2']) \
+                .execute()
+            by_code = {r['tier_code']: r['description'] for r in (resp.data or [])}
+            parts = [by_code[c] for c in ('T1', 'T2') if by_code.get(c)]
+            if parts:
+                return "; ".join(parts)
+        except Exception as e:
+            logger.warning(f"Could not load T1/T2 register, using fallback: {e}")
+        return _SIMPLE_REGISTER_FALLBACK
+
+    # ------------------------------------------------------------- LLM helper
+
+    def _call_llm(self, prompt: str, task_name: str,
+                  max_tokens: int = 600) -> dict | None:
+        """Call the sense model expecting numeric-key JSON. Falls back to the
+        secondary model ONLY when the primary returns invalid/empty JSON."""
+        try:
+            return llm_call(
+                prompt, model=self._model, temperature=0.0,
+                max_tokens=max_tokens, response_format='json_object',
+                pipeline='vocab_senses', task_name=task_name,
+            )
+        except (json.JSONDecodeError, RuntimeError, ValueError) as e:
+            logger.warning(f"Primary model invalid JSON ({e}); retrying with fallback {self._fallback_model}")
+        except Exception as e:
+            logger.error(f"Sense LLM call failed: {e}")
+            return None
+
+        try:
+            result = llm_call(
+                prompt, model=self._fallback_model, temperature=0.0,
+                max_tokens=max_tokens, response_format='json_object',
+                pipeline='vocab_senses', task_name=f"{task_name}__fallback",
+            )
+            self.stats['fallback_used'] += 1
+            return result
+        except Exception as e:
+            logger.error(f"Fallback model also failed: {e}")
+            return None
+
+    # ------------------------------------------------------------ DB helpers
+
     def _get_existing_senses(self, vocab_id: int) -> list[dict]:
-        """Fetch existing word senses for a vocab_id."""
+        """Fetch existing STANDARD-level senses for a vocab_id (ordered by rank)."""
         if vocab_id in self._sense_cache:
             return self._sense_cache[vocab_id]
 
-        if vocab_id < 0:
-            # Dry-run fake ID
+        if vocab_id < 0:  # dry-run fake id
             self._sense_cache[vocab_id] = []
             return []
 
         response = self._db.table('dim_word_senses') \
-            .select('id, definition, sense_rank, example_sentence') \
+            .select('id, definition, sense_rank, example_sentence, source') \
             .eq('vocab_id', vocab_id) \
+            .eq('definition_language_id', self._language_id) \
+            .eq('definition_level', 'standard') \
             .order('sense_rank') \
             .execute()
 
@@ -123,270 +238,279 @@ class SenseGenerator:
         self._sense_cache[vocab_id] = senses
         return senses
 
-    def _call_llm(self, prompt: str, max_tokens: int = 800) -> dict | None:
-        """Make an LLM call expecting a JSON response. Returns parsed dict or None."""
+    def _has_simple_level(self, vocab_id: int) -> bool:
+        """True if the word already has at least one `simple` row (already seeded
+        with the two-level treatment) — the backfill resumability gate."""
+        if vocab_id < 0:
+            return False
+        resp = self._db.table('dim_word_senses') \
+            .select('id') \
+            .eq('vocab_id', vocab_id) \
+            .eq('definition_language_id', self._language_id) \
+            .eq('definition_level', 'simple') \
+            .limit(1) \
+            .execute()
+        return bool(resp.data)
+
+    def _maybe_set_pos(self, vocab_id: int, pos_code) -> None:
+        """Write the canonical POS to dim_vocabulary.part_of_speech when it's
+        currently blank. Best-effort; never raises into the pipeline."""
+        if vocab_id < 0 or not isinstance(pos_code, int):
+            return
+        pos = self._pos_legend.get(pos_code)
+        if not pos or pos == 'other':
+            return
         try:
-            return llm_call(
-                prompt,
-                model=self._model,
-                temperature=0.0,
-                max_tokens=max_tokens,
-                response_format='json_object',
-            )
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON parse error: {e}")
-            return None
+            self._db.table('dim_vocabulary') \
+                .update({'part_of_speech': pos}) \
+                .eq('id', vocab_id) \
+                .or_('part_of_speech.is.null,part_of_speech.eq.') \
+                .execute()
         except Exception as e:
-            logger.error(f"LLM call failed: {e}")
-            return None
+            logger.debug(f"POS update skipped for vocab {vocab_id}: {e}")
 
-    def _select_sense(self, vocab_id: int, lemma: str, sentence: str,
-                      transcript: str, existing: list[dict]) -> int | None:
+    # --------------------------------------------------------- generation core
+
+    def _parse_generation(self, data: dict) -> dict | None:
+        """Validate a numeric-key generation payload into typed fields.
+
+        Returns {simple, standard, example, pos_code, confidence, skip} or None
+        when required text fields are missing.
         """
-        Call vocab_sense_selection prompt to check if an existing definition matches.
-
-        Returns:
-            sense_id if existing match found, or new sense_id if created, or None on skip/failure.
-        """
-        template = self._db_client.get_prompt_template(
-            'vocab_sense_selection', self._language_id, required=False
-        )
-        if not template:
-            logger.warning(f"No vocab_sense_selection prompt for language_id={self._language_id}")
-            return None
-
-        # Format definitions list
-        definitions_list = "\n".join(
-            f"{i+1}. {s.get('definition', '(no definition)')}"
-            for i, s in enumerate(existing)
-        )
+        simple = str(data.get('1', '') or '').strip()
+        standard = str(data.get('2', '') or '').strip()
+        example = str(data.get('3', '') or '').strip()
+        pos_code = data.get('4')
+        confidence = data.get('5')
+        skip = bool(data.get('6', False))
 
         try:
-            prompt = template.format(
-                language=self._language_name,
-                linguistic_notes=self._linguistic_notes,
-                lemma=lemma,
-                sentence=sentence,
-                context=transcript[:1000],
-                definitions_list=definitions_list,
-            )
-        except KeyError as e:
-            logger.error(f"Sense selection template missing variable: {e}")
+            confidence = float(confidence)
+        except (TypeError, ValueError):
+            confidence = None
+        try:
+            pos_code = int(pos_code)
+        except (TypeError, ValueError):
+            pos_code = None
+
+        if not standard or not simple:
             return None
+        return {
+            'simple': simple, 'standard': standard, 'example': example,
+            'pos_code': pos_code, 'confidence': confidence, 'skip': skip,
+        }
 
-        data = self._call_llm(prompt)
-        if not data:
-            self.stats['senses_failed'] += 1
-            return None
-
-        selected_index = data.get('selected_index', 0)
-
-        if isinstance(selected_index, int) and selected_index > 0:
-            # Existing sense matches
-            idx = selected_index - 1  # Convert 1-based to 0-based
-            if 0 <= idx < len(existing):
-                self.stats['senses_reused'] += 1
-                logger.debug(f"  {lemma}: reused existing sense #{selected_index}")
-                return existing[idx]['id']
-
-        # Need a new sense — use the new_definition from response
-        new_def = data.get('new_definition', '')
-        if not new_def:
-            self.stats['senses_skipped'] += 1
-            return None
-
-        # Check language before proceeding — new_definition should be in target language
-        is_correct, reason = check_text_language(new_def, self._language_code)
-        if not is_correct:
-            logger.warning(f"  {lemma}: new_definition from sense selection in wrong language ({reason})")
-            corrected = self._fix_definition_language(lemma, new_def)
-            if corrected:
-                is_correct_now, _ = check_text_language(corrected, self._language_code)
-                if is_correct_now:
-                    new_def = corrected
-
-        return self._validate_and_insert(vocab_id, lemma, new_def, sentence, existing)
-
-    def _generate_new(self, vocab_id: int, lemma: str, phrase_type: str | None,
-                      sentence: str, transcript: str) -> int | None:
-        """
-        Call vocab_definition_generation prompt for a brand-new word.
-
-        Returns:
-            sense_id if created, or None on skip/failure.
-        """
+    def _generate_payload(self, lemma: str, sentence: str) -> dict | None:
+        """Run the single two-level generation call and return parsed fields."""
         template = self._db_client.get_prompt_template(
             'vocab_definition_generation', self._language_id, required=False
         )
         if not template:
             logger.warning(f"No vocab_definition_generation prompt for language_id={self._language_id}")
             return None
-
         try:
             prompt = template.format(
-                language=self._language_name,
-                linguistic_notes=self._linguistic_notes,
                 lemma=lemma,
-                phrase_type=phrase_type or 'word',
-                sentence=sentence,
-                context=transcript[:1000],
+                sentence=sentence or '',
+                simple_register=self._simple_register,
             )
         except KeyError as e:
             logger.error(f"Definition generation template missing variable: {e}")
             return None
 
-        data = self._call_llm(prompt)
+        data = self._call_llm(prompt, task_name='vocab_definition_generation')
         if not data:
-            self.stats['senses_failed'] += 1
             return None
+        return self._parse_generation(data)
 
-        # Check if the LLM says to skip this word
-        if data.get('should_skip', False):
-            self.stats['senses_skipped'] += 1
-            logger.debug(f"  {lemma}: skipped (proper noun, number, etc.)")
-            return None
-
-        definition = data.get('definition', '')
-        if not definition:
-            self.stats['senses_failed'] += 1
-            return None
-
-        return self._validate_and_insert(vocab_id, lemma, definition, sentence, [])
-
-    def _fix_definition_language(self, lemma: str, definition: str) -> str | None:
-        """Attempt to rewrite a definition in the correct language via LLM."""
-        prompt = (
-            f"The following definition for \"{lemma}\" is in the wrong language. "
-            f"Rewrite it in {self._language_name}. Keep the same meaning.\n\n"
-            f"Definition: \"{definition}\"\n\n"
-            f"Reply with ONLY a JSON object: {{\"definition\": \"...\"}}"
+    def _write_two_levels(self, vocab_id: int, lemma: str, fields: dict,
+                          sense_rank: int) -> int | None:
+        """Upsert the simple + standard rows for one sense. Returns the standard
+        row's id (the canonical id used for flashcard/token-map linkage)."""
+        is_validated = bool(
+            fields['confidence'] is not None
+            and fields['confidence'] >= VALIDATION_CONFIDENCE_THRESHOLD
         )
-        data = self._call_llm(prompt, max_tokens=200)
-        if data:
-            return data.get('definition', '').strip() or None
-        return None
+        # Language guard — soft. Wrong language only lowers is_validated; the
+        # prompt now hard-locks output language, so no extra repair round-trip.
+        ok_lang, lang_reason = check_text_language(fields['standard'], self._language_code)
+        if not ok_lang:
+            is_validated = False
+            logger.warning(f"  {lemma}: standard def flagged wrong language ({lang_reason})")
 
-    def _validate_and_insert(self, vocab_id: int, lemma: str, definition: str,
-                             sentence: str, existing: list[dict]) -> int | None:
-        """
-        Validate a definition via LLM, then insert into dim_word_senses.
-
-        Returns:
-            sense_id if inserted, or None on failure.
-        """
-        # Language check — definition should be in the target language
-        is_correct_lang, lang_reason = check_text_language(definition, self._language_code)
-        if not is_correct_lang:
-            logger.warning(
-                f"  {lemma}: definition in wrong language ({lang_reason}), "
-                f"attempting correction..."
-            )
-            corrected = self._fix_definition_language(lemma, definition)
-            if corrected:
-                is_correct_now, _ = check_text_language(corrected, self._language_code)
-                if is_correct_now:
-                    definition = corrected
-                    logger.info(f"  {lemma}: definition language corrected")
-                else:
-                    logger.warning(f"  {lemma}: correction still wrong language, proceeding anyway")
-
-        # Validation step
-        is_valid, validation_notes = self._validate(lemma, definition, sentence)
-
-        next_rank = len(existing) + 1
+        source_ref = f"{self._model} v{SENSE_PROMPT_VERSION}"
+        example = (fields['example'] or '')[:500]
 
         if self._dry_run:
-            status = "VALID" if is_valid else "LOW QUALITY"
             logger.info(
-                f"  [DRY RUN] {lemma}: \"{definition[:60]}...\" "
-                f"({status}, rank={next_rank})"
+                f"  [DRY RUN] {lemma} (rank={sense_rank}, conf={fields['confidence']}, "
+                f"pos={self._pos_legend.get(fields['pos_code'])}):\n"
+                f"      simple:   {fields['simple'][:80]}\n"
+                f"      standard: {fields['standard'][:80]}\n"
+                f"      example:  {example[:80]}"
             )
             self.stats['senses_created'] += 1
-            return -1  # Fake ID
+            self.stats['rows_written'] += 2
+            return -1
 
-        # Insert into dim_word_senses
-        row = {
-            'vocab_id': vocab_id,
-            'definition_language_id': self._language_id,
-            'definition': definition,
-            'example_sentence': sentence[:500],
-            'sense_rank': next_rank,
-            'is_validated': is_valid,
-            'validation_notes': validation_notes,
-        }
-
+        rows = [
+            {
+                'vocab_id': vocab_id,
+                'definition_language_id': self._language_id,
+                'definition_level': level,
+                'definition': fields[level],
+                'example_sentence': example,
+                'sense_rank': sense_rank,
+                'is_validated': is_validated,
+                'gen_confidence': fields['confidence'],
+                'source': 'llm',
+                'source_ref': source_ref,
+            }
+            for level in ('simple', 'standard')
+        ]
         try:
             response = self._db.table('dim_word_senses') \
-                .insert(row) \
+                .upsert(rows, on_conflict='vocab_id,definition_language_id,definition_level,sense_rank') \
                 .execute()
-
-            if response.data and len(response.data) > 0:
-                sense_id = response.data[0]['id']
-                self.stats['senses_created'] += 1
-                # Update cache
-                if vocab_id in self._sense_cache:
-                    self._sense_cache[vocab_id].append(response.data[0])
-                logger.debug(f"  {lemma}: created sense #{next_rank} (id={sense_id})")
-                return sense_id
-            else:
-                self.stats['senses_failed'] += 1
-                return None
         except Exception as e:
-            logger.error(f"Failed to insert sense for {lemma}: {e}")
+            logger.error(f"Failed to upsert senses for {lemma}: {e}")
             self.stats['senses_failed'] += 1
             return None
 
-    def _validate(self, lemma: str, definition: str, sentence: str) -> tuple[bool, str]:
-        """
-        Call vocab_validation prompt to quality-check a definition.
+        written = response.data or []
+        self.stats['senses_created'] += 1
+        self.stats['rows_written'] += len(written)
+        self._maybe_set_pos(vocab_id, fields['pos_code'])
+        self._sense_cache.pop(vocab_id, None)  # invalidate
 
-        Returns:
-            (is_valid, validation_notes) — is_valid True if score >= 7
-        """
+        standard_id = next(
+            (r['id'] for r in written if r.get('definition_level') == 'standard'),
+            None,
+        )
+        if standard_id is None:  # upsert returned partial/none — read it back
+            standard_id = self._lookup_standard_id(vocab_id, sense_rank)
+        logger.debug(f"  {lemma}: wrote simple+standard at rank {sense_rank} (std id={standard_id})")
+        return standard_id
+
+    def _lookup_standard_id(self, vocab_id: int, sense_rank: int) -> int | None:
+        resp = self._db.table('dim_word_senses') \
+            .select('id') \
+            .eq('vocab_id', vocab_id) \
+            .eq('definition_language_id', self._language_id) \
+            .eq('definition_level', 'standard') \
+            .eq('sense_rank', sense_rank) \
+            .limit(1) \
+            .execute()
+        return resp.data[0]['id'] if resp.data else None
+
+    def _generate_new(self, vocab_id: int, lemma: str, sentence: str,
+                      existing: list[dict]) -> int | None:
+        """Generate a brand-new two-level sense at the next free rank."""
+        fields = self._generate_payload(lemma, sentence)
+        if not fields:
+            self.stats['senses_failed'] += 1
+            return None
+        if fields['skip']:
+            self.stats['senses_skipped'] += 1
+            logger.debug(f"  {lemma}: skipped (proper noun, number, symbol, etc.)")
+            return None
+        next_rank = (max((s.get('sense_rank') or 0 for s in existing), default=0) + 1)
+        return self._write_two_levels(vocab_id, lemma, fields, next_rank)
+
+    def _select_sense(self, vocab_id: int, lemma: str, sentence: str,
+                      existing: list[dict]) -> int | None:
+        """Numeric-key selection: reuse a matching standard sense or generate a
+        new one for this occurrence."""
         template = self._db_client.get_prompt_template(
-            'vocab_validation', self._language_id, required=False
+            'vocab_sense_selection', self._language_id, required=False
         )
         if not template:
-            # No validation prompt — accept by default
-            return True, "No validation prompt available"
+            # No selection prompt — fall back to reusing the primary sense.
+            self.stats['senses_reused'] += 1
+            return existing[0]['id']
 
+        definitions_list = "\n".join(
+            f"{i+1}. {s.get('definition', '(no definition)')}"
+            for i, s in enumerate(existing)
+        )
         try:
             prompt = template.format(
-                language=self._language_name,
-                lemma=lemma,
-                definition=definition,
-                sentence=sentence,
+                lemma=lemma, sentence=sentence or '',
+                definitions_list=definitions_list,
             )
         except KeyError as e:
-            logger.error(f"Validation template missing variable: {e}")
-            return True, f"Template error: {e}"
+            logger.error(f"Sense selection template missing variable: {e}")
+            self.stats['senses_reused'] += 1
+            return existing[0]['id']
 
-        data = self._call_llm(prompt, max_tokens=400)
-        if not data:
-            return True, "Validation call failed — accepted by default"
+        data = self._call_llm(prompt, task_name='vocab_sense_selection', max_tokens=60)
+        selected = 0
+        if data:
+            try:
+                selected = int(data.get('1', 0))
+            except (TypeError, ValueError):
+                selected = 0
 
-        score = data.get('score', 0)
-        notes = data.get('notes', data.get('feedback', ''))
+        if selected > 0 and selected <= len(existing):
+            self.stats['senses_reused'] += 1
+            logger.debug(f"  {lemma}: reused existing sense #{selected}")
+            return existing[selected - 1]['id']
 
-        if isinstance(score, (int, float)):
-            is_valid = score >= 7
-        else:
-            is_valid = True
+        # No match -> a new sense for this occurrence.
+        return self._generate_new(vocab_id, lemma, sentence, existing)
 
-        return is_valid, f"Score: {score}. {notes}"
+    # --------------------------------------------------------------- entry pts
 
     def generate_sense(self, vocab_id: int, lemma: str,
                        phrase_type: str | None, sentence: str,
                        transcript: str) -> int | None:
         """
-        Generate or select a word sense definition.
+        Inline path (test generation). Returns the STANDARD sense_id to link, or
+        None if skipped/failed.
 
-        Returns:
-            sense_id or None if skipped/failed.
+        phrase_type is accepted for call-site compatibility; the single-call
+        prompt infers POS itself.
         """
         existing = self._get_existing_senses(vocab_id)
 
         if existing:
-            return self._select_sense(vocab_id, lemma, sentence, transcript, existing)
-        else:
-            return self._generate_new(vocab_id, lemma, phrase_type, sentence, transcript)
+            if self._prefer_existing:
+                self.stats['senses_reused'] += 1
+                return existing[0]['id']
+            return self._select_sense(vocab_id, lemma, sentence, existing)
+        return self._generate_new(vocab_id, lemma, sentence, existing)
+
+    def seed_word(self, vocab_id: int, lemma: str, sentence: str = "") -> int | None:
+        """
+        Batch backfill path. Idempotently writes the two-level treatment for the
+        word's PRIMARY sense: adds the missing `simple` row and refreshes
+        `standard` at the same rank. Returns the standard sense_id, or None.
+
+        Resumable: when prefer_existing is set, words that already have a
+        `simple` row are skipped without any LLM call. source='manual' senses
+        are never overwritten.
+        """
+        existing = self._get_existing_senses(vocab_id)
+
+        if self._prefer_existing and self._has_simple_level(vocab_id):
+            self.stats['senses_reused'] += 1
+            return existing[0]['id'] if existing else None
+
+        if any(s.get('source') == 'manual' for s in existing):
+            logger.debug(f"  {lemma}: has manual sense, skipping backfill")
+            self.stats['senses_skipped'] += 1
+            return existing[0]['id'] if existing else None
+
+        fields = self._generate_payload(lemma, sentence)
+        if not fields:
+            self.stats['senses_failed'] += 1
+            return None
+        if fields['skip']:
+            self.stats['senses_skipped'] += 1
+            logger.debug(f"  {lemma}: skipped (proper noun, number, symbol, etc.)")
+            return None
+
+        # Upsert at the existing primary rank (so we overwrite the old standard
+        # and add simple alongside it); rank 1 for a brand-new word.
+        rank = existing[0]['sense_rank'] if existing else 1
+        return self._write_two_levels(vocab_id, lemma, fields, rank)

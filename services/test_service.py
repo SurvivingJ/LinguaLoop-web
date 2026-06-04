@@ -689,11 +689,29 @@ class TestService:
 
         return load_items
 
+    @staticmethod
+    def _normalize_load_item(item):
+        """Coerce one test_ids element to the canonical dict shape.
+
+        Elements are dicts {test_id, test_type, slot_type, ...} from both the
+        legacy _compute_daily_load and the current build_daily_session
+        (phase13_build_daily_session_test_objs.sql). Defensively tolerate the
+        pre-fix build_daily_session output (bare UUID strings) so an old cached
+        row never 500s enrichment; bare strings lose the per-slot mode, so we
+        default test_type='listening' / slot_type='new'.
+        """
+        if isinstance(item, str):
+            return {'test_id': item, 'test_type': 'listening', 'slot_type': 'new'}
+        return item
+
     def _enrich_daily_load(self, cached_record: Dict) -> Dict:
         """
         Take a raw daily_test_loads row and enrich with full test details.
         """
-        test_ids_list = cached_record.get('test_ids', [])
+        test_ids_list = [
+            self._normalize_load_item(i)
+            for i in (cached_record.get('test_ids', []) or [])
+        ]
         completed = cached_record.get('completed_test_ids', []) or []
 
         if not test_ids_list:

@@ -148,12 +148,16 @@
 
   /**
    * Scan the DOM for data-i18n attributes and apply translations.
+   * @param {Element|Document} [root] - Optional subtree to scan; defaults to
+   *   the whole document. Pass a freshly-injected container (e.g. a
+   *   single-page session player's markup) to translate just that subtree.
    */
-  function applyToDOM() {
+  function applyToDOM(root) {
     if (!isLoaded) return;
+    const scope = root || document;
 
     // data-i18n → textContent
-    const els = document.querySelectorAll('[data-i18n]');
+    const els = scope.querySelectorAll('[data-i18n]');
     for (let i = 0; i < els.length; i++) {
       const el = els[i];
       const key = el.getAttribute('data-i18n');
@@ -163,7 +167,7 @@
     }
 
     // data-i18n-html → innerHTML (for strings with markup)
-    const htmlEls = document.querySelectorAll('[data-i18n-html]');
+    const htmlEls = scope.querySelectorAll('[data-i18n-html]');
     for (let j = 0; j < htmlEls.length; j++) {
       const hel = htmlEls[j];
       const hkey = hel.getAttribute('data-i18n-html');
@@ -172,13 +176,13 @@
     }
 
     // data-i18n-placeholder → placeholder attribute
-    const phEls = document.querySelectorAll('[data-i18n-placeholder]');
+    const phEls = scope.querySelectorAll('[data-i18n-placeholder]');
     for (let k = 0; k < phEls.length; k++) {
       phEls[k].placeholder = t(phEls[k].getAttribute('data-i18n-placeholder'));
     }
 
     // data-i18n-aria → aria-label attribute
-    const ariaEls = document.querySelectorAll('[data-i18n-aria]');
+    const ariaEls = scope.querySelectorAll('[data-i18n-aria]');
     for (let l = 0; l < ariaEls.length; l++) {
       ariaEls[l].setAttribute('aria-label', t(ariaEls[l].getAttribute('data-i18n-aria')));
     }

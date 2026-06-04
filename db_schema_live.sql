@@ -1132,6 +1132,7 @@ BEGIN
       AND dws.id != p_sense_id
       AND dws.vocab_id != (SELECT vocab_id FROM dim_word_senses WHERE id = p_sense_id)
       AND dws.sense_rank = 1
+      AND dws.definition_level = 'standard'  -- two-level senses: avoid duplicate distractors
     ORDER BY random()
     LIMIT p_count;
 END;

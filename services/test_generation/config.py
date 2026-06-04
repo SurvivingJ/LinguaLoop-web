@@ -27,6 +27,14 @@ class TestGenConfig:
     questions_per_test: int = field(
         default_factory=lambda: int(os.getenv('TEST_GEN_QUESTIONS', '5'))
     )
+    # Per-question-type regeneration budget. Each question type is generated →
+    # judged → validated as a unit; on any judge/validator rejection the type is
+    # regenerated with feedback (the rejected attempt + reason) up to this many
+    # attempts total (1 original + N-1 retries). Default 2 = one regen. Keeps a
+    # single recoverable bad question from sinking the whole test under the floor.
+    question_regen_attempts: int = field(
+        default_factory=lambda: int(os.getenv('TEST_GEN_QUESTION_REGEN_ATTEMPTS', '2'))
+    )
 
     # LLM Configuration (via OpenRouter)
     default_prose_model: str = field(

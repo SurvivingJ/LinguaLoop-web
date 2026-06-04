@@ -430,12 +430,15 @@ def _upsert_word(
             }).execute()
             vocab_id = insert_resp.data[0]['id']
 
-        # Check if sense exists
+        # Check if the standard sense exists. Two-level senses store both a
+        # 'simple' and a 'standard' row per sense; this admin path curates the
+        # standard definition, so scope the lookup to it.
         sense_existing = (
             db.table('dim_word_senses')
             .select('id')
             .eq('vocab_id', vocab_id)
             .eq('definition_language_id', language_id)
+            .eq('definition_level', 'standard')
             .execute()
         )
 
@@ -443,7 +446,7 @@ def _upsert_word(
             sense_id = sense_existing.data[0]['id']
             if definition:
                 db.table('dim_word_senses').update(
-                    {'definition': definition}
+                    {'definition': definition, 'source': 'manual'}
                 ).eq('id', sense_id).execute()
         else:
             sense_resp = db.table('dim_word_senses').insert({
@@ -451,6 +454,8 @@ def _upsert_word(
                 'definition_language_id': language_id,
                 'definition': definition or f'Definition for {lemma}',
                 'sense_rank': 1,
+                'definition_level': 'standard',
+                'source': 'manual',
             }).execute()
             sense_id = sense_resp.data[0]['id']
 

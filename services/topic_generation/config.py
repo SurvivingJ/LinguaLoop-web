@@ -28,6 +28,27 @@ class TopicGenConfig:
         default_factory=lambda: int(os.getenv('TOPIC_MAX_CANDIDATES', '10'))
     )
 
+    # Per-tier ideation (ADR-003 age tiers). The Explorer runs once per tier so
+    # a run yields a spread across levels and each tier gets its own prompt
+    # (concrete for low tiers -> abstract/jargon for high tiers).
+    tiers_to_generate: list = field(
+        default_factory=lambda: [
+            int(t) for t in os.getenv('TOPIC_TIERS', '1,2,3,4,5,6').split(',') if t.strip()
+        ]
+    )
+    candidates_per_tier: int = field(
+        default_factory=lambda: int(os.getenv('TOPIC_CANDIDATES_PER_TIER', '6'))
+    )
+    topics_per_tier: int = field(
+        default_factory=lambda: int(os.getenv('TOPIC_TOPICS_PER_TIER', '1'))
+    )
+    # Fallback angle when the Explorer leaves lens null; keeps the semantic
+    # signature meaningful and satisfies topics.lens_id (NOT NULL) until the
+    # column is made nullable.
+    default_lens_code: str = field(
+        default_factory=lambda: os.getenv('TOPIC_DEFAULT_LENS', 'practical')
+    )
+
     # LLM Configuration (via OpenRouter)
     llm_model: str = field(
         default_factory=lambda: os.getenv('TOPIC_LLM_MODEL', 'google/gemini-2.0-flash-exp')

@@ -43,6 +43,9 @@ class Topic:
     lens_id: int
     keywords: List[str]
     semantic_signature: Optional[str] = None
+    # ADR-003 age tier 1-6 (None = legacy/untiered -> full difficulty schedule)
+    target_age_tier: Optional[int] = None
+    distinctive_vocabulary: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -275,7 +278,8 @@ class TestDatabaseClient:
             Topic object or None
         """
         response = self.client.table('topics') \
-            .select('id, category_id, concept_english, lens_id, keywords, semantic_signature') \
+            .select('id, category_id, concept_english, lens_id, keywords, '
+                    'semantic_signature, target_age_tier, distinctive_vocabulary') \
             .eq('id', str(topic_id)) \
             .single() \
             .execute()
@@ -291,7 +295,9 @@ class TestDatabaseClient:
             concept_english=row['concept_english'],
             lens_id=row['lens_id'],
             keywords=row.get('keywords', []) or [],
-            semantic_signature=row.get('semantic_signature')
+            semantic_signature=row.get('semantic_signature'),
+            target_age_tier=row.get('target_age_tier'),
+            distinctive_vocabulary=row.get('distinctive_vocabulary', []) or [],
         )
 
     def get_category_name(self, category_id: int) -> str:
@@ -469,6 +475,25 @@ class TestDatabaseClient:
                 self._cefr_cache[tier.id] = tier
 
         logger.info(f"Loaded {len(self._cefr_cache)} complexity tiers")
+
+    def get_tier_difficulties(self, tier_id: int) -> Optional[List[int]]:
+        """Difficulty levels covered by an ADR-003 age tier.
+
+        Args:
+            tier_id: dim_complexity_tiers.id (1-6)
+
+        Returns:
+            Inclusive difficulty_min..difficulty_max list for the tier, or None
+            when the tier id is unknown (caller falls back to the full schedule).
+        """
+        if self._cefr_cache is None:
+            self._load_cefr_cache()
+
+        tier = self._cefr_cache.get(tier_id)
+        if not tier:
+            logger.warning(f"Unknown age tier id: {tier_id}")
+            return None
+        return list(range(tier.difficulty_min, tier.difficulty_max + 1))
 
     def get_initial_elo(self, difficulty: int) -> int:
         """Get initial ELO rating for a difficulty level."""
@@ -773,12 +798,15 @@ class TestDatabaseClient:
             logger.warning(f"No skill ratings to create for test {test_id}")
             return
 
+        # No 'volatility' column: the dual-ELO design (V3, wire_volatility_and_
+        # _exclude_attempted, 2026-05-08) deliberately gives tests no volatility
+        # ("tests don't go rusty"), and the column was dropped from the live
+        # schema. process_test_submission reads only elo_rating/total_attempts.
         rows = [
             {
                 'test_id': str(test_id),
                 'test_type_id': t['id'],
                 'elo_rating': initial_elo,
-                'volatility': 1.0,
                 'total_attempts': 0
             }
             for t in types_to_create

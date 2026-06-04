@@ -62,6 +62,14 @@ OLLAMA_DEFAULT_MODEL = os.getenv('OLLAMA_DEFAULT_MODEL', os.getenv('CONV_GEN_OLL
 LLM_DEFAULT_PROVIDER = os.getenv('LLM_DEFAULT_PROVIDER', 'openrouter')
 LLM_DEFAULT_MODEL = os.getenv('LLM_DEFAULT_MODEL', 'google/gemini-2.0-flash-001')
 
+# Sense-dictionary generation runs on a cheap hosted model, separate from the
+# test/prose model. DeepSeek V4 Flash was validated head-to-head (10/10 valid
+# JSON, zero language bleed); Qwen3.6 Flash is the fallback used only when the
+# primary returns invalid JSON. Both are OpenRouter slugs and stay swappable
+# (e.g. a local Ollama model) via env without code changes.
+SENSE_MODEL_DEFAULT = os.getenv('SENSE_MODEL', 'deepseek/deepseek-v4-flash')
+SENSE_MODEL_FALLBACK = os.getenv('SENSE_MODEL_FALLBACK', 'qwen/qwen3.6-flash')
+
 # Language → model mapping for Ollama (local models may differ per language)
 OLLAMA_MODELS: dict[str, str] = {
     'default': OLLAMA_DEFAULT_MODEL,

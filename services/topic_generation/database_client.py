@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Optional, Tuple
 from uuid import UUID
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..supabase_factory import get_supabase_admin
 
@@ -52,10 +52,25 @@ class Lens:
 
 @dataclass
 class TopicCandidate:
-    """Explorer agent output structure."""
+    """Explorer agent output structure.
+
+    Phase 1 (per-tier ideation) added the lexical-yield and leveling fields:
+    - ``target_age_tier``: 1-6 (ADR-003), stamped from the tier whose prompt
+      produced the candidate; ``None`` for legacy/import candidates that have
+      not been tier-calibrated (downstream falls back to the full schedule).
+    - ``distinctive_vocabulary``: 8-15 English headwords (multi-word phrases
+      allowed) declaring the topic's lexical field; feeds the yield signal.
+    - ``lens_id`` is the numeric angle id (nullable); ``lens_code`` is the
+      resolved code retained for the semantic signature and the Gatekeeper.
+    New fields default so the JSON import path keeps constructing candidates
+    with the original ``concept``/``lens_code``/``keywords`` arguments.
+    """
     concept: str
-    lens_code: str
-    keywords: List[str]
+    lens_code: Optional[str] = None
+    keywords: List[str] = field(default_factory=list)
+    distinctive_vocabulary: List[str] = field(default_factory=list)
+    target_age_tier: Optional[int] = None
+    lens_id: Optional[int] = None
 
 
 @dataclass
@@ -436,7 +451,9 @@ class TopicDatabaseClient:
         lens_id: int,
         keywords: List[str],
         embedding: List[float],
-        semantic_signature: str
+        semantic_signature: str,
+        target_age_tier: Optional[int] = None,
+        distinctive_vocabulary: Optional[List[str]] = None,
     ) -> UUID:
         """
         Insert new topic into topics table.
@@ -448,6 +465,8 @@ class TopicDatabaseClient:
             keywords: List of strings
             embedding: 1536-dim vector
             semantic_signature: Human-readable signature
+            target_age_tier: ADR-003 tier 1-6 (None = untiered/legacy)
+            distinctive_vocabulary: Declared lexical field (8-15 headwords)
 
         Returns:
             UUID: Generated topic ID
@@ -458,8 +477,11 @@ class TopicDatabaseClient:
             'lens_id': lens_id,
             'keywords': keywords,
             'embedding': embedding,
-            'semantic_signature': semantic_signature
+            'semantic_signature': semantic_signature,
+            'distinctive_vocabulary': distinctive_vocabulary or [],
         }
+        if target_age_tier is not None:
+            data['target_age_tier'] = target_age_tier
 
         response = self.client.table('topics') \
             .insert(data) \

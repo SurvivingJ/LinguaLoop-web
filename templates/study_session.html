@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Session | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 study-session-page{% endblock %}
+
+{# Phase 13 — single-page daily study-session runner. Backed by
+   /api/study-session (queue) + the existing per-test submit endpoints.
+   See plan we-now-have-the-swirling-haven.md. #}
+
+{% block extra_css %}
+<style>
+    .session-progress {
+        position: sticky; top: 0; z-index: 30;
+        background: var(--surface, #fff);
+        border-bottom: 1px solid var(--border-default, #e2e8f0);
+        padding: .6rem 1rem;
+    }
+    .session-progress .bar { height: 6px; background: var(--border-default, #e2e8f0); border-radius: 999px; overflow: hidden; }
+    .session-progress .bar > span { display: block; height: 100%; width: 0; background: var(--primary, #4f46e5); transition: width .3s; }
+    .session-dots { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .session-dot { width: .7rem; height: .7rem; border-radius: 50%; background: var(--border-default, #cbd5e1); }
+    .session-dot.done { background: var(--success, #16a34a); }
+    .session-dot.current { background: var(--primary, #4f46e5); box-shadow: 0 0 0 3px rgba(79, 70, 229, .2); }
+    .session-stage { min-height: 50vh; }
+    .session-card { max-width: 680px; margin: 2rem auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="sessionLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3 text-muted" data-i18n="session.loading">Loading your session…</p>
+</div>
+
+<div id="sessionError" class="alert alert-danger m-4 d-none">
+    <i class="fas fa-exclamation-triangle me-2"></i><span id="sessionErrorMsg"></span>
+</div>
+
+<!-- Start / Resume screen -->
+<div id="sessionStart" class="session-card d-none">
+    <div class="card">
+        <div class="card-body p-4 text-center">
+            <div class="display-6 mb-2">📚</div>
+            <h1 class="h4 mb-2" data-i18n="session.start_title">Today's Study Session</h1>
+            <p class="text-muted" id="sessionStartSummary"></p>
+            <button class="btn btn-primary btn-lg mt-2" id="sessionStartBtn">
+                <i class="fas fa-play me-2"></i><span id="sessionStartBtnLabel" data-i18n="session.start_button">Start session</span>
+            </button>
+            <div class="mt-3"><a href="/tests" class="small text-muted" data-i18n="session.browse_instead">Browse tests instead</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress header (during the session) -->
+<div id="sessionProgress" class="session-progress d-none">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="fw-semibold"><i class="fas fa-calendar-day me-2"></i><span data-i18n="session.header">Daily Session</span></span>
+        <span class="text-muted small" id="sessionProgressCount">0/0</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="session-dots" id="sessionDots"></div>
+        <div class="bar flex-grow-1"><span id="sessionProgressFill"></span></div>
+    </div>
+</div>
+
+<!-- Player mount point -->
+<div id="sessionStage" class="session-stage"></div>
+
+<!-- Summary screen -->
+<div id="sessionSummary" class="session-card d-none">
+    <div class="card">
+        <div class="card-body p-4 text-center">
+            <div class="display-6 mb-2">🎉</div>
+            <h1 class="h4 mb-3" data-i18n="session.done_title">Session complete!</h1>
+            <div id="sessionSummaryBody"></div>
+            <a href="/tests" class="btn btn-primary mt-3" data-i18n="session.done_browse">Back to tests</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Shared exercise renderers (global window.ExRenderers) used by the practice player -->
+<script src="{{ url_for('static', filename='js/exercise-renderers.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/session/controller.js') }}"></script>
+{% endblock %}

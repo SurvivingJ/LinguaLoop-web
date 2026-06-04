@@ -1,5 +1,13 @@
 # Activity Log
 
+## 2026-05-31 feature | Two-level sense dictionary (simple + standard)
+
+Implemented the planned two-level sense pipeline. `dim_word_senses` gained `definition_level` (simple/standard), `source`, `source_ref`, `gen_confidence`; unique key swapped to `uq_sense_def_level (vocab_id, definition_language_id, definition_level, sense_rank)` + `idx_senses_source` (migrations/add_sense_levels_and_source.sql — applied). The 3-call sense pipeline (selection → generation → validation) collapsed to **one call per word** emitting both levels via numeric-key JSON `{"1"..."6"}` on `deepseek/deepseek-v4-flash` (fallback `qwen/qwen3.6-flash` on invalid JSON only); self-`confidence` retires the `vocab_validation` call. Prompts rewritten to numeric-key, integer-POS, output-language-locked, T1/T2 child register for `simple`, **+ new ja** rows (migrations/rewrite_sense_prompts_two_level.sql, v2 — applied). `get_distractors` + admin sense lookup now filter `definition_level='standard'` (read-path fan-out fix). New `scripts/backfill_senses.py` (resumable/concurrent); inline test-gen passes `prefer_existing=True`.
+
+Dry-run verified on zh + en (monolingual, integer POS, `simple` at child register vs normal `standard`, fresh examples, confidence captured). **Open:** backfill scope (all test vocab vs N high-frequency lemmas/lang) + live idempotency demo pending user confirmation before bulk run. ja has no `dim_vocabulary` rows yet to seed.
+
+**Pages updated:** [[database/schema.tech]] (dim_word_senses columns/constraints + Two-level sense generation section), [[api/rpcs.tech]] (get_distractors note).
+
 ## 2026-05-25 adr | ADR-014 — Dedicated batch-service credential
 
 Followed up on the HI-02 fix (`7e074fd3`) that made the `SUPABASE_SERVICE_ROLE_KEY` HTTP bearer-token bypass symmetric across all three auth decorators. Symmetric exposure enlarged the blast radius of the credential (it now governs Postgres-direct RLS bypass + in-process admin client + HTTP identity bypass — three independent planes from one secret), so the existing open question in [[business-rules/auth-and-access]] became more urgent rather than less.

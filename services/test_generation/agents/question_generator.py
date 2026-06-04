@@ -6,7 +6,7 @@ Supports 6 semantic question types.
 """
 
 import logging
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 from pydantic import ValidationError
 
@@ -14,9 +14,20 @@ from services.llm_service import call_llm
 
 from ..config import get_test_gen_config
 from ..schemas import MCQuestion
+from .question_validator import QuestionValidator
 
 # Verdict ordering used to find worst distractor outcome.
 _VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}
+
+# Distractor-plausibility hard-reject floor. The judge's `confidence` is the
+# distractor's *plausibility* (low = implausible/too-obvious); classify() marks
+# anything < 0.6 as 'reject'. Killing a question for a merely "somewhat obvious"
+# distractor (0.35–0.6) starved mid-tier zh/ja tests (all 5 questions dropped,
+# 0/5). Only a *clearly* implausible distractor (< this floor) — e.g. an absurd
+# or actually-correct/oversharp option — now hard-rejects the question; the
+# 0.35–0.6 band is tolerated. Answer-entailment rejects (a correctness gate)
+# are unaffected.
+_DP_HARD_REJECT_BELOW = 0.35
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +81,11 @@ class QuestionGenerator:
         self.api_key = api_key or cfg.openrouter_api_key
         self.model = model or cfg.default_question_model
         self.api_call_count = 0
+        # Owned validator so each question type is generated → judged →
+        # validated as a unit inside generate_questions, and regenerated with
+        # feedback on any rejection. The orchestrator's post-hoc
+        # validate_all_questions then acts as a cheap idempotent safety net.
+        self._validator = QuestionValidator()
         logger.info(f"QuestionGenerator initialized with model: {self.model}")
 
     def generate_questions(
@@ -92,63 +108,183 @@ class QuestionGenerator:
         """
         logger.info(f"Generating {len(question_type_codes)} questions for {language_name} (diff={difficulty})")
 
+        max_attempts = max(1, get_test_gen_config().question_regen_attempts)
+
         questions: List[Dict] = []
-        previous_questions: List[str] = []
+        # Texts of the questions we have KEPT so far — the "what we already have"
+        # signal fed to the next type so it avoids overlap.
+        kept_texts: List[str] = []
+        # Per-question rejection reasons for THIS run (judge hard-rejects AND
+        # validator failures across all regen attempts), surfaced to the
+        # orchestrator for funnel diagnostics. Reset on every call.
+        self.last_rejections: List[Dict] = []
 
         for type_code in question_type_codes:
+            q_entry, attempt_rejections = self._generate_validated_question(
+                prose=prose,
+                language_name=language_name,
+                question_type_code=type_code,
+                difficulty=difficulty,
+                kept_questions=kept_texts,
+                prompt_template=prompt_templates.get(type_code) if prompt_templates else None,
+                model_override=model_override,
+                seed=seed,
+                template_version=template_version,
+                language_id=language_id,
+                db=db,
+                max_attempts=max_attempts,
+            )
+
+            # Record every rejected attempt for the funnel diagnostic (these are
+            # the original/per-attempt rejects, kept even when a later attempt of
+            # the same type ultimately succeeds).
+            if attempt_rejections:
+                self.last_rejections.extend(attempt_rejections)
+
+            if q_entry is None:
+                continue
+
+            questions.append(q_entry)
+            kept_texts.append(q_entry['question'])
+
+        logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
+        return questions
+
+    def _generate_validated_question(
+        self,
+        prose: str,
+        language_name: str,
+        question_type_code: str,
+        difficulty: int,
+        kept_questions: List[str],
+        prompt_template: Optional[str] = None,
+        model_override: Optional[str] = None,
+        seed: Optional[int] = None,
+        template_version: Optional[int] = None,
+        language_id: Optional[int] = None,
+        db=None,
+        max_attempts: int = 2,
+    ) -> Tuple[Optional[Dict], List[Dict]]:
+        """Generate one question of a type, retrying with feedback on rejection.
+
+        Closes the generate → judge → validate funnel for a SINGLE question type
+        so a recoverable defect no longer aborts the whole test. Loops up to
+        ``max_attempts``:
+
+        1. ``_generate_single_question`` — passes ``kept_questions`` (overlap
+           context) and an accumulating ``avoid_context`` of prior rejected
+           attempts for this type (see ``_append_avoid``).
+        2. Judge gate (only when ``db`` + ``language_id`` are supplied): on hard
+           reject, fold the reason into ``avoid_context`` and retry.
+        3. Validator gate (always): on fail, fold the error into
+           ``avoid_context`` and retry.
+        4. On pass, return the question.
+
+        Returns ``(q_entry | None, attempt_rejections)`` where
+        ``attempt_rejections`` is the list of per-attempt rejection diagnostic
+        records ``{type_code, stage, confidence, reason}`` for this type, which
+        the caller folds into ``last_rejections``.
+        """
+        avoid_context = ""
+        attempt_rejections: List[Dict] = []
+
+        for attempt in range(1, max_attempts + 1):
             try:
                 question = self._generate_single_question(
                     prose=prose,
                     language_name=language_name,
-                    question_type_code=type_code,
+                    question_type_code=question_type_code,
                     difficulty=difficulty,
-                    previous_questions=previous_questions,
-                    prompt_template=prompt_templates.get(type_code) if prompt_templates else None,
+                    previous_questions=kept_questions,
+                    prompt_template=prompt_template,
                     model_override=model_override,
                     seed=seed,
                     template_version=template_version,
+                    avoid_context=avoid_context,
                 )
-
-                q_entry = {
-                    'question': question.question_text,
-                    'choices': question.choices,
-                    'answer': question.answer,
-                    'correct_answer_index': question.correct_answer_index,
-                    'type_code': type_code,
-                }
-                if question.distractor_types:
-                    q_entry['distractor_types'] = question.distractor_types
-
-                # LLM judge gate — runs only when caller passes db + language_id.
-                # Failure mode: safe_accept() — judges never block the pipeline on error.
-                if db is not None and language_id is not None:
-                    q_entry = self._apply_judges(
-                        q_entry=q_entry,
-                        prose=prose,
-                        db=db,
-                        language_id=language_id,
-                        type_code=type_code,
-                    )
-                    if q_entry is None:
-                        # Judge hard-rejected this question — skip it.
-                        continue
-
-                questions.append(q_entry)
-                previous_questions.append(question.question_text)
-
             except Exception as e:
-                # call_llm already retries transient API errors (RateLimitError,
-                # APITimeoutError, ...) with backoff via tenacity, so anything
-                # reaching here is either exhausted-transient or a hard failure.
-                # Skip-and-continue keeps one bad type from losing the whole test;
-                # the error class is logged so the two cases stay distinguishable.
+                # call_llm already retries transient API errors via tenacity, so
+                # anything here is exhausted-transient or a hard schema failure.
+                # No usable text to fold into feedback — just retry within budget.
                 logger.error(
-                    f"Failed to generate {type_code}: {type(e).__name__}: {e}"
+                    "Attempt %d/%d: failed to generate %s: %s: %s",
+                    attempt, max_attempts, question_type_code,
+                    type(e).__name__, e,
                 )
                 continue
 
-        logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
-        return questions
+            q_entry = {
+                'question': question.question_text,
+                'choices': question.choices,
+                'answer': question.answer,
+                'correct_answer_index': question.correct_answer_index,
+                'type_code': question_type_code,
+            }
+            if question.distractor_types:
+                q_entry['distractor_types'] = question.distractor_types
+
+            # --- Judge gate (only when caller passes db + language_id) ---
+            # Failure mode: safe_accept() — judges never block on internal error.
+            if db is not None and language_id is not None:
+                judged_entry, rejection = self._apply_judges(
+                    q_entry=q_entry,
+                    prose=prose,
+                    db=db,
+                    language_id=language_id,
+                    type_code=question_type_code,
+                )
+                if judged_entry is None:
+                    if rejection:
+                        attempt_rejections.append(rejection)
+                        avoid_context = self._append_avoid(
+                            avoid_context, question.question_text,
+                            rejection.get('reason') or 'judge rejected',
+                        )
+                    logger.info(
+                        "Attempt %d/%d: %s judge-rejected, "
+                        "regenerating with feedback",
+                        attempt, max_attempts, question_type_code,
+                    )
+                    continue
+                q_entry = judged_entry
+
+            # --- Validator gate (structure, content, overlap vs kept) ---
+            is_valid, error = self._validator.validate_question(
+                q_entry, prose, kept_questions
+            )
+            if not is_valid:
+                attempt_rejections.append({
+                    'type_code': question_type_code,
+                    'stage': 'validator',
+                    'confidence': None,
+                    'reason': error,
+                })
+                avoid_context = self._append_avoid(
+                    avoid_context, question.question_text,
+                    error or 'failed validation',
+                )
+                logger.info(
+                    "Attempt %d/%d: %s validator-rejected (%s), "
+                    "regenerating with feedback",
+                    attempt, max_attempts, question_type_code, error,
+                )
+                continue
+
+            # Passed both gates.
+            return q_entry, attempt_rejections
+
+        # Budget exhausted without a surviving question for this type.
+        logger.warning(
+            "Exhausted %d attempt(s) for %s — no surviving question",
+            max_attempts, question_type_code,
+        )
+        return None, attempt_rejections
+
+    @staticmethod
+    def _append_avoid(avoid_context: str, question_text: str, reason: str) -> str:
+        """Append one rejected-attempt line to the accumulating avoid context."""
+        line = f'- "{question_text}" -> rejected: {reason}'
+        return f"{avoid_context}\n{line}" if avoid_context else line
 
     def _generate_single_question(
         self,
@@ -161,12 +297,19 @@ class QuestionGenerator:
         model_override: Optional[str] = None,
         seed: Optional[int] = None,
         template_version: Optional[int] = None,
+        avoid_context: str = "",
     ) -> MCQuestion:
         """Generate a single question of specified type.
 
         Returns the validated MCQuestion. Raises ValidationError if both
         the initial LLM call and the schema-aware repair retry produce
         malformed output (e.g. answer not in choices, fewer than 4 choices).
+
+        ``avoid_context`` (optional) is a pre-formatted block of this type's
+        previously rejected attempts + reasons; when non-empty it is appended to
+        the prompt so the regen avoids repeating the same mistake. Appending in
+        code (rather than a template placeholder) keeps this migration-free for
+        both the DB-template and legacy inline paths.
         """
         model = model_override or self.model
 
@@ -183,6 +326,16 @@ class QuestionGenerator:
                 language_name,
                 question_type_code,
                 previous_questions,
+            )
+
+        if avoid_context:
+            prompt = (
+                f"{prompt}\n\n"
+                "PREVIOUS REJECTED ATTEMPTS FOR THIS QUESTION TYPE — "
+                "do NOT repeat these mistakes:\n"
+                f"{avoid_context}\n"
+                "Write a different question of the same type that avoids the "
+                "issue(s) above."
             )
 
         logger.debug(f"Prompt for {question_type_code}: {len(prompt)} chars")
@@ -275,12 +428,15 @@ The `distractor_types` array uses null for the correct choice's slot.
         db,
         language_id: int,
         type_code: str,
-    ) -> Optional[Dict]:
+    ) -> Tuple[Optional[Dict], Optional[Dict]]:
         """Run answer-entailment and distractor-plausibility judges on a question.
 
-        Returns the (possibly annotated) q_entry dict, or None if a judge
-        hard-rejects the question.  Attaches ``_judge_flags`` to the dict when
-        one or more judges flag (but do not reject) the question.
+        Returns ``(q_entry, None)`` on accept/flag — the (possibly annotated)
+        q_entry dict — or ``(None, rejection)`` when a judge hard-rejects the
+        question, where ``rejection`` is a diagnostic record
+        ``{type_code, stage, confidence, reason}`` collected by the caller into
+        ``last_rejections``. Attaches ``_judge_flags`` to the dict when one or
+        more judges flag (but do not reject) the question.
 
         Judges use safe_accept() on any internal error, so this method never
         raises and never blocks the pipeline.
@@ -312,7 +468,12 @@ The `distractor_types` array uses null for the correct choice's slot.
                 "Judge rejected %s answer (conf=%.2f): %s",
                 type_code, ae.confidence, ae.reason,
             )
-            return None
+            return None, {
+                'type_code': type_code,
+                'stage': 'answer_entailment',
+                'confidence': ae.confidence,
+                'reason': ae.reason,
+            }
 
         # --- Distractor plausibility ---
         dp_outcomes = judge_distractor_plausibility(
@@ -328,12 +489,29 @@ The `distractor_types` array uses null for the correct choice's slot.
             key=lambda o: _VERDICT_ORDER.get(o.verdict, 2),
             default=None,
         )
-        if worst_dp and worst_dp.verdict == 'reject':
+        if (
+            worst_dp
+            and worst_dp.verdict == 'reject'
+            and worst_dp.confidence < _DP_HARD_REJECT_BELOW
+        ):
             logger.info(
                 "Judge rejected %s distractors (conf=%.2f): %s",
                 type_code, worst_dp.confidence, worst_dp.reason,
             )
-            return None
+            return None, {
+                'type_code': type_code,
+                'stage': 'distractor_plausibility',
+                'confidence': worst_dp.confidence,
+                'reason': worst_dp.reason,
+            }
+        # A 'reject' in the tolerated 0.35–0.6 band: keep the question but record
+        # the weak distractor as a flag so it's still surfaced for later review.
+        if worst_dp and worst_dp.verdict == 'reject':
+            logger.info(
+                "Distractor reject tolerated for %s (conf=%.2f >= %.2f floor): %s",
+                type_code, worst_dp.confidence, _DP_HARD_REJECT_BELOW,
+                worst_dp.reason,
+            )
 
         # --- Collect flags ---
         judge_flags: Dict = {}
@@ -354,7 +532,7 @@ The `distractor_types` array uses null for the correct choice's slot.
         if judge_flags:
             q_entry['_judge_flags'] = judge_flags
 
-        return q_entry
+        return q_entry, None
 
     def reset_call_count(self) -> None:
         """Reset the API call counter."""
