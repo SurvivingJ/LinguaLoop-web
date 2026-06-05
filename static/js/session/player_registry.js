@@ -7,17 +7,19 @@ import { mount as mountReadingListening } from './players/reading_listening.js';
 import { mount as mountDictation } from './players/dictation.js';
 import { mount as mountPinyin } from './players/pinyin.js';
 import { mount as mountPitchAccent } from './players/pitch_accent.js';
+import { mount as mountClassifierDrill } from './players/classifier_drill.js';
 import { mount as mountPractice } from './players/practice.js';
 
 // test_type -> mount fn. Phase 2/3 add dictation / pinyin / pitch_accent /
-// practice. Until then those fall through to a placeholder that links to the
-// existing standalone page.
+// classifier_drill / practice. Anything still unmapped falls through to a
+// placeholder that links to the existing standalone page.
 const TEST_PLAYERS = {
   reading: mountReadingListening,
   listening: mountReadingListening,
   dictation: mountDictation,
   pinyin: mountPinyin,
   pitch_accent: mountPitchAccent,
+  classifier_drill: mountClassifierDrill,
 };
 
 const STANDALONE_URL = {
