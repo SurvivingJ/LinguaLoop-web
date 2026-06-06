@@ -19,15 +19,16 @@ from .question_validator import QuestionValidator
 # Verdict ordering used to find worst distractor outcome.
 _VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}
 
-# Distractor-plausibility hard-reject floor. The judge's `confidence` is the
-# distractor's *plausibility* (low = implausible/too-obvious); classify() marks
-# anything < 0.6 as 'reject'. Killing a question for a merely "somewhat obvious"
-# distractor (0.35–0.6) starved mid-tier zh/ja tests (all 5 questions dropped,
-# 0/5). Only a *clearly* implausible distractor (< this floor) — e.g. an absurd
-# or actually-correct/oversharp option — now hard-rejects the question; the
-# 0.35–0.6 band is tolerated. Answer-entailment rejects (a correctness gate)
-# are unaffected.
-_DP_HARD_REJECT_BELOW = 0.35
+# Distractor-plausibility hard-reject (v3 Likert judge). The judge now emits a
+# 5-point rating per distractor; schemas.likert_to_verdict maps 5/4→accept,
+# 3→flag, 2/1→reject. A question is hard-rejected only when its worst distractor
+# rates 'reject' — i.e. rating ≤ 2 (2 = off-topic/different subject, 1 =
+# also-correct or absurd). Rating 3 ("weak / near-paraphrase") is now a flag,
+# kept and surfaced for review — this replaces the old raw-float
+# _DP_HARD_REJECT_BELOW = 0.35 floor and its 0.35–0.6 tolerance band. The v2
+# float collapsed "absent from the passage" into "off-topic" and rejected ~55%
+# of good same-domain distractors (measured offline against judge_labels.json).
+# Answer-entailment rejects (a correctness gate) are unaffected.
 
 logger = logging.getLogger(__name__)
 
@@ -483,19 +484,20 @@ The `distractor_types` array uses null for the correct choice's slot.
             answer=answer,
             distractors=distractors,
             language_id=language_id,
+            type_code=type_code,
         )
         worst_dp = min(
             dp_outcomes,
             key=lambda o: _VERDICT_ORDER.get(o.verdict, 2),
             default=None,
         )
-        if (
-            worst_dp
-            and worst_dp.verdict == 'reject'
-            and worst_dp.confidence < _DP_HARD_REJECT_BELOW
-        ):
+        # v3 Likert: 'reject' == the worst distractor rated ≤ 2 (off-topic or
+        # also-correct/absurd). Rating 3 maps to 'flag' (kept + surfaced), so
+        # there is no longer a tolerated reject band — a 'reject' verdict is a
+        # genuine hard reject. `confidence` here carries the 1-5 rating.
+        if worst_dp and worst_dp.verdict == 'reject':
             logger.info(
-                "Judge rejected %s distractors (conf=%.2f): %s",
+                "Judge rejected %s distractors (rating=%.0f): %s",
                 type_code, worst_dp.confidence, worst_dp.reason,
             )
             return None, {
@@ -504,14 +506,6 @@ The `distractor_types` array uses null for the correct choice's slot.
                 'confidence': worst_dp.confidence,
                 'reason': worst_dp.reason,
             }
-        # A 'reject' in the tolerated 0.35–0.6 band: keep the question but record
-        # the weak distractor as a flag so it's still surfaced for later review.
-        if worst_dp and worst_dp.verdict == 'reject':
-            logger.info(
-                "Distractor reject tolerated for %s (conf=%.2f >= %.2f floor): %s",
-                type_code, worst_dp.confidence, _DP_HARD_REJECT_BELOW,
-                worst_dp.reason,
-            )
 
         # --- Collect flags ---
         judge_flags: Dict = {}

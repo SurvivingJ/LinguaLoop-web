@@ -24,13 +24,19 @@ Usage::
     # outcomes[i].reason     — explanation in the target language
 
 The judge prompt asks the LLM to rate ALL distractors in a single call and
-return one confidence per distractor.  The overall verdict for the question
-(used by question_generator.py) is the worst verdict across all distractors.
+return one 5-point Likert RATING (1-5) per distractor.  The overall verdict for
+the question (used by question_generator.py) is the worst verdict across all
+distractors.
 
-Verdict thresholds (from base.py):
-    confidence >= 0.8  → accept
-    0.6 <= conf < 0.8  → flag   (persist + enqueue review)
-    confidence <  0.6  → reject (drop question)
+Verdict mapping (v3 Likert — see schemas.likert_to_verdict):
+    rating 5 / 4  → accept
+    rating 3      → flag   (weak, keep + surface for review)
+    rating 2 / 1  → reject (drop question; 2 = off-topic, 1 = also-correct/absurd)
+
+The Likert scale replaces the v2 raw 0.0-1.0 float, which a small judge model
+could not emit consistently (the same option scored 0.80 in one question and
+0.20 in another) — it collapsed "absent from the passage" into "off-topic" and
+hard-rejected good same-domain distractors.
 """
 
 from __future__ import annotations
@@ -40,8 +46,11 @@ import logging
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 
-from services.test_generation.schemas import DistractorPlausibilityVerdict
-from .base import JudgeOutcome, classify, safe_accept, log_judge_verdict
+from services.test_generation.schemas import (
+    DistractorPlausibilityVerdict,
+    likert_to_verdict,
+)
+from .base import JudgeOutcome, safe_accept, log_judge_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -61,11 +70,23 @@ def judge_distractor_plausibility(
     answer: str,
     distractors: list[str],
     language_id: int,
+    type_code: str = '',
+    keywords: str = '',
 ) -> list[JudgeOutcome]:
     """Run the distractor-plausibility judge, one JudgeOutcome per distractor.
 
     Returns a list of ``len(distractors)`` JudgeOutcome objects in the same
-    order as ``distractors``.
+    order as ``distractors``. Each outcome's ``confidence`` carries the raw
+    Likert rating (1.0-5.0); ``verdict`` is derived via ``likert_to_verdict``.
+
+    ``type_code`` (the question type, e.g. ``vocabulary_context``) and
+    ``keywords`` (subject/domain keywords) feed the v3 prompt placeholders
+    ``{4}`` and ``{5}``: the type lets the judge treat a vocabulary distractor
+    (an alternate word sense) differently from a literal-detail distractor (a
+    same-domain fact). Both are optional — when absent the prompt falls back to
+    inferring the subject from the passage. Extra positional ``format`` args are
+    ignored by templates that don't reference them, so this stays compatible
+    with older (v2) prompt rows.
 
     On any error (missing template, LLM failure, schema error, length
     mismatch) returns ``[safe_accept() for _ in distractors]`` and logs a
@@ -89,7 +110,12 @@ def judge_distractor_plausibility(
         f'{i + 1}. {d}' for i, d in enumerate(distractors)
     )
     prompt = cfg['template'].format(
-        passage, question_text, answer, distractors_numbered,
+        passage,
+        question_text,
+        answer,
+        distractors_numbered,
+        type_code or '(unspecified)',
+        keywords or '(infer the subject from the passage above)',
     )
 
     try:
@@ -111,23 +137,46 @@ def judge_distractor_plausibility(
         )
         return [safe_accept(f'llm call error: {exc}') for _ in distractors]
 
-    # Guard against length mismatch (schema validator should catch this,
-    # but be defensive in case of a repair-retry edge case).
-    if len(verdict_obj.per_distractor) != n:
+    ratings = verdict_obj.per_distractor
+    reasons = verdict_obj.reasons
+
+    # Length-mismatch handling. The schema validator keeps per_distractor and
+    # reasons the same length, but that length need not equal n:
+    #
+    # • TOO MANY (len > n): the judge model intermittently HALLUCINATES extra
+    #   distractors — it emits the per-distractor numbered shape with more rows
+    #   than asked (e.g. deepseek-v4-flash returning 5 ratings for 3 distractors;
+    #   rows 4-5 are duplicates of earlier rows or are explicitly flagged
+    #   "this number does not exist"). The real distractors are always rated
+    #   FIRST and in order, so truncate the surplus. Falling open here would
+    #   accept EVERY distractor (including genuinely bad ones); truncation keeps
+    #   the model's real judgment of the n we actually asked about. Measured
+    #   ~14% of ja calls (2026-06-06) — too common to silently bypass the judge.
+    #
+    # • TOO FEW (len < n): we cannot fabricate the missing judgments — safe-accept.
+    if len(ratings) > n:
+        logger.warning(
+            "distractor_plausibility: model returned %d ratings for %d "
+            "distractors (lang=%d); truncating %d hallucinated extra(s)",
+            len(ratings), n, language_id, len(ratings) - n,
+        )
+        ratings = ratings[:n]
+        reasons = reasons[:n]
+    elif len(ratings) < n:
         logger.warning(
             "distractor_plausibility: length mismatch — got %d confidences for "
             "%d distractors, safe-accept all",
-            len(verdict_obj.per_distractor), n,
+            len(ratings), n,
         )
         return [safe_accept('length mismatch in judge response') for _ in distractors]
 
     outcomes = [
         JudgeOutcome(
-            verdict=classify(conf),
-            confidence=conf,
-            reason=verdict_obj.reasons[i] if i < len(verdict_obj.reasons) else '',
+            verdict=likert_to_verdict(rating),
+            confidence=float(rating),  # carries the 1-5 Likert rating
+            reason=reasons[i] if i < len(reasons) else '',
         )
-        for i, conf in enumerate(verdict_obj.per_distractor)
+        for i, rating in enumerate(ratings)
     ]
 
     # Log the worst-case verdict for the batch (binding constraint for the

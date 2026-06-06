@@ -147,16 +147,18 @@ class TestAnswerEntailment:
 
 class TestDistractorPlausibility:
 
-    def _verdict(self, confidences, reasons=None) -> DistractorPlausibilityVerdict:
+    def _verdict(self, ratings, reasons=None) -> DistractorPlausibilityVerdict:
+        # v3: per_distractor carries 5-point Likert ratings (5/4=accept,
+        # 3=flag, 2/1=reject), not raw 0.0-1.0 floats.
         return DistractorPlausibilityVerdict(
-            per_distractor=confidences,
-            reasons=reasons or ['ok'] * len(confidences),
+            per_distractor=ratings,
+            reasons=reasons or ['ok'] * len(ratings),
         )
 
     def test_all_accept(self):
         db = MagicMock()
         with patch.object(dp_mod, 'call_llm',
-                          return_value=self._verdict([0.9, 0.85, 0.95])):
+                          return_value=self._verdict([5, 4, 5])):
             outcomes = judge_distractor_plausibility(
                 db, 'p', 'q?', 'a', ['d1', 'd2', 'd3'], 2
             )
@@ -166,7 +168,7 @@ class TestDistractorPlausibility:
     def test_one_flag(self):
         db = MagicMock()
         with patch.object(dp_mod, 'call_llm',
-                          return_value=self._verdict([0.9, 0.7, 0.9])):
+                          return_value=self._verdict([5, 3, 5])):
             outcomes = judge_distractor_plausibility(
                 db, 'p', 'q?', 'a', ['d1', 'd2', 'd3'], 2
             )
@@ -176,7 +178,7 @@ class TestDistractorPlausibility:
     def test_one_reject(self):
         db = MagicMock()
         with patch.object(dp_mod, 'call_llm',
-                          return_value=self._verdict([0.9, 0.4, 0.9])):
+                          return_value=self._verdict([5, 2, 5])):
             outcomes = judge_distractor_plausibility(
                 db, 'p', 'q?', 'a', ['d1', 'd2', 'd3'], 2
             )
@@ -196,16 +198,40 @@ class TestDistractorPlausibility:
         assert all(o.verdict == 'accept' for o in outcomes)
         assert len(outcomes) == 3
 
-    def test_length_mismatch_safe_accepts_all(self):
+    def test_too_few_ratings_safe_accepts_all(self):
         db = MagicMock()
-        # LLM returns 2 confidences for 3 distractors
+        # LLM returns 2 ratings for 3 distractors — cannot fabricate the third,
+        # so safe-accept all.
         with patch.object(dp_mod, 'call_llm',
-                          return_value=self._verdict([0.9, 0.4])):
+                          return_value=self._verdict([5, 2])):
             outcomes = judge_distractor_plausibility(
                 db, 'p', 'q?', 'a', ['d1', 'd2', 'd3'], 2
             )
         assert all(o.verdict == 'accept' for o in outcomes)
         assert len(outcomes) == 3
+
+    def test_too_many_ratings_truncates_to_n(self):
+        db = MagicMock()
+        # deepseek-v4-flash intermittently hallucinates extra distractors: it
+        # returns 5 ratings for 3 distractors (rows 4-5 are padding/duplicates).
+        # The real distractors are rated first and in order, so the judge must
+        # TRUNCATE to the first 3 — NOT fall open to accept-all (which would let
+        # the rejected distractor through). Captured shape 2026-06-06:
+        # per_distractor=[2, 2, 5, 2, 2] for a 3-distractor question.
+        ratings = [2, 2, 5, 2, 2]
+        reasons = [f'r{i}' for i in range(5)]
+        with patch.object(dp_mod, 'call_llm',
+                          return_value=self._verdict(ratings, reasons)):
+            outcomes = judge_distractor_plausibility(
+                db, 'p', 'q?', 'a', ['d1', 'd2', 'd3'], 2
+            )
+        assert len(outcomes) == 3
+        # First three real distractors keep their judgments, in order.
+        assert [o.verdict for o in outcomes] == ['reject', 'reject', 'accept']
+        assert [o.confidence for o in outcomes] == [2.0, 2.0, 5.0]
+        assert [o.reason for o in outcomes] == ['r0', 'r1', 'r2']
+        # Must NOT have fallen open (all-accept).
+        assert not all(o.verdict == 'accept' for o in outcomes)
 
     def test_template_load_error_safe_accepts_all(self):
         dp_mod._cfg_cache.clear()
