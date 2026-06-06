@@ -664,7 +664,32 @@ Records each user test completion with ELO snapshots.
 - **Foreign Keys:** `user_id` -> `users.id`, `test_id` -> `tests.id`, `language_id` -> `dim_languages.id`, `test_type_id` -> `dim_test_types.id`
 - **Triggers:** AFTER INSERT -> `update_test_attempts_count()`, AFTER INSERT -> `update_skill_attempts_count()` (x2 triggers)
 - **RLS:** Enabled
-- **Referenced by:** token_transactions, word_quiz_results
+- **Referenced by:** token_transactions, word_quiz_results, question_attempt_results
+
+---
+
+### `question_attempt_results`
+
+2026-06-06 (Part F #1). One row per gradable comprehension question per attempt — the per-question grain that `process_test_submission` already computed (`v_question_results`) but previously discarded. Mirrors `word_quiz_results`. Powers distractor pick-rate calibration (feeds the distractor-plausibility judge), mis-key detection (strong scorers consistently "wrong" ⇒ LLM keyed the wrong answer), and per-item p-values. Keeps item-grain IRT possible later without a backfill. (A per-question `response_time_ms` column was added by Part F #4 and dropped by Part G — comprehension is order-free, so only total test time is meaningful.)
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | GENERATED ALWAYS AS IDENTITY | PK |
+| `user_id` | uuid | NO | | FK -> users |
+| `test_id` | uuid | NO | | FK -> tests |
+| `question_id` | uuid | NO | | FK -> questions |
+| `attempt_id` | uuid | YES | | FK -> test_attempts |
+| `is_correct` | boolean | NO | | |
+| `selected_answer` | text | YES | | NULL = question left unanswered (stored via `NULLIF(...,'')`) |
+| `correct_answer` | text | YES | | The keyed answer at submission time |
+| `is_first_attempt` | boolean | NO | true | Filter to `true` for honest per-item p-values |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `question_attempt_results_pkey (id)`
+- **Indexes:** `idx_qar_question (question_id)`, `idx_qar_question_selected (question_id, selected_answer)`, `idx_qar_question_first (question_id, is_first_attempt)`, `idx_qar_test (test_id)`, `idx_qar_user (user_id)`, `idx_qar_attempt (attempt_id)`
+- **Foreign Keys:** `user_id` -> `users.id`, `test_id` -> `tests.id`, `question_id` -> `questions.id`, `attempt_id` -> `test_attempts.id`
+- **RLS:** Enabled — own-data (`auth.uid() = user_id`) + service-role + admin-view triple, mirroring `word_quiz_results`. Written by `process_test_submission` (SECURITY DEFINER, bypasses RLS) inside a nested `BEGIN/EXCEPTION` so a logging failure can never fail a learner's submission.
+- **Source:** [migration](../../migrations/partF_question_attempt_results.sql)
 
 ---
 

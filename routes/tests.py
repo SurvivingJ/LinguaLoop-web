@@ -945,11 +945,8 @@ def submit_test_attempt(slug):
             logger.warning(f"Unknown test_mode '{test_mode}', defaulting to reading")
             test_type_id = DimensionService.get_test_type_id('reading') or 1
 
-        # Transform responses: strip 'is_correct' field (DB will calculate)
-        db_responses = [
-            {"question_id": str(r['question_id']), "selected_answer": r['selected_answer']}
-            for r in responses
-        ]
+        # Transform responses: strip 'is_correct' field (DB will calculate).
+        db_responses = [{"question_id": str(r['question_id']), "selected_answer": r['selected_answer']} for r in responses]
 
         # Call database RPC for validation, ELO calculation and attempt recording
         rpc_result = _call_submission_rpc(

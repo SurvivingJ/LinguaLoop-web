@@ -138,12 +138,12 @@ The comprehension-test surface: list, fetch, submit, generate. Most non-trivial 
 
 ### POST `/<slug>/submit` — submission contract
 
-**Body:** `{responses: [{question_id, selected_answer}, ...], test_mode: 'reading'|'listening'|'dictation'}`
+**Body:** `{responses: [{question_id, selected_answer}, ...], test_mode: 'reading'|'listening'|'dictation'}`. Comprehension tests are order-free, so no per-question timing is captured — total test time lives at attempt grain via `started_at`/`finished_at`.
 
 **Server flow:**
 1. Resolve test by slug → test_id, language_id. 404 if not active.
 2. Map `test_mode` → `test_type_id` via `DimensionService.get_test_type_id()`.
-3. Call `process_test_submission(p_user_id, p_test_id, p_language_id, p_test_type_id, p_responses, p_was_free_test, p_idempotency_key)` — atomic. Validates answers server-side, records `test_attempts`, updates `user_skill_ratings` + `test_skill_ratings` (volatility-multiplied ELO via `calculate_elo_rating`).
+3. Call `process_test_submission(p_user_id, p_test_id, p_language_id, p_test_type_id, p_responses, p_was_free_test, p_idempotency_key, p_furigana_used)` — atomic. Validates answers server-side, records `test_attempts`, updates `user_skill_ratings` + `test_skill_ratings` (volatility-multiplied ELO via `calculate_elo_rating`). **Part F #1:** also persists one `question_attempt_results` row per question (outcome, chosen answer, `is_first_attempt`), wrapped in a nested `BEGIN/EXCEPTION` so the logging insert can never fail the submission.
 4. Pass `question_results` to `VocabularyKnowledgeService.update_from_comprehension()` → calls `bkt_update_comprehension` per sense.
 5. Run `apply_contextual_inference()` — dampened BKT bump for transcript senses not directly tested.
 6. Build a 5-word word-quiz from question senses via `build_quiz_with_distractors()` (calls `get_word_quiz_candidates` + `get_distractors` RPCs).

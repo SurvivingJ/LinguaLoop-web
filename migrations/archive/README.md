@@ -16,14 +16,33 @@ because they remain the sole repo record of other still-live objects.
 
 | Archived file | Defined object | Now lives in (canonical) | Live marker checked |
 |---|---|---|---|
-| `process_test_submission_v2.sql` | `process_test_submission(...)` | `phase14_test_kfactor_decay.sql` | `v_test_k_factor` present |
-| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `phase14_test_kfactor_decay.sql` | `v_test_k_factor` present (phase14 descends from v2, not this branch) |
+| `process_test_submission_v2.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
+| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
+| `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present (see CR-04 caveat below) |
 | `fix_get_recommended_tests_signature.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent + pinyin + dictation filter present |
 | `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent present |
 | `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent present |
 | `get_distractors_drop_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
 | `restore_get_distractors_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
 | `phase13_build_daily_session_test_objs.sql` | `build_daily_session(uuid,smallint,date)` | `phase13_build_daily_session_classifier_drill.sql` | `classifier_drill` present |
+
+## Note: CR-04 drift parked in `phase14_test_kfactor_decay.sql`
+
+The 2026-06-06 audit row above keyed canonicality on `v_test_k_factor`, but that
+marker does **not** distinguish two divergent bodies. The live
+`process_test_submission` (probed 2026-06-06 via `pg_get_functiondef`) uses a
+`CREATE TEMP TABLE` for response staging, `RAISE EXCEPTION` on unauthorized, and
+returns raw `SQLERRM`/`SQLSTATE` in its error envelope. `phase14_test_kfactor_decay.sql`
+instead carries the **CR-04 hardening** — `jsonb_to_recordset` staging, a typed
+`error_code` envelope, and masked `SQLERRM` — which **was never applied to live**.
+
+The new canonical `partF_question_attempt_results.sql` is therefore based on the
+*live* (non-CR-04) body plus the additive per-question `question_attempt_results`
+capture — a deliberate, strictly-additive choice (Part F decision, 2026-06-06).
+The CR-04 version is preserved **only** in this archived `phase14_*.sql` file: if
+the team wants to land CR-04 on live (the route at `routes/tests.py` and
+`tests/test_submission_rpc_error_envelope.py` already expect the typed envelope),
+re-derive it from there into a new migration on top of the Part F body.
 
 ## Note: orphan column
 
