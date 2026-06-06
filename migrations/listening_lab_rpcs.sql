@@ -31,6 +31,9 @@ DROP FUNCTION IF EXISTS get_listening_lab_recommendations(uuid, integer);
 -- Everything else is identical to the prior live definition. The single
 -- functional change is the new pool filter in the question loop.
 
+-- SUPERSEDED: this process_test_submission body is no longer canonical. The
+-- live definition is migrations/phase14_test_kfactor_decay.sql. This file is
+-- retained for its start/submit/get_listening_lab_* RPCs (still live).
 CREATE OR REPLACE FUNCTION public.process_test_submission(
     p_user_id uuid,
     p_test_id uuid,

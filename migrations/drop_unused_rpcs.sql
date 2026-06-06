@@ -26,5 +26,9 @@ DROP FUNCTION IF EXISTS public.get_vocab_recommendations(
 );
 
 -- NOTE: calculate_volatility_multiplier and calculate_elo_rating are kept.
--- The audit flagged them as superseded, but process_test_submission_reduced_repeats.sql
--- (the latest active version) still references them internally.
+-- They are superseded *inside* process_test_submission (phase14 inlines the ELO
+-- math), but the live process_dictation_submission RPC still calls both
+-- (see migrations/process_dictation_submission.sql — volatility multiplier +
+-- per-side elo recompute). Do not drop while dictation depends on them.
+-- (Earlier note cited process_test_submission_reduced_repeats.sql as the caller;
+-- that file is now in migrations/archive/ and is no longer the reason to keep.)

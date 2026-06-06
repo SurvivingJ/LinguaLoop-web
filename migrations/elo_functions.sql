@@ -49,6 +49,10 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- 3. Main stored procedure for processing test submissions
+-- SUPERSEDED: this process_test_submission body is no longer canonical. The
+-- live definition is migrations/phase14_test_kfactor_decay.sql. This file is
+-- retained for calculate_elo_rating + calculate_volatility_multiplier, which
+-- the live process_dictation_submission RPC still calls.
 CREATE OR REPLACE FUNCTION process_test_submission(
     p_user_id UUID,
     p_test_id UUID,

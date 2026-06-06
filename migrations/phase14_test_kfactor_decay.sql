@@ -43,8 +43,6 @@ DECLARE
   v_test_k_factor integer;
   v_user_elo integer;
   v_test_elo integer;
-  v_user_tests_taken integer;
-  v_user_last_date date;
   v_test_attempts integer;
   v_percentage numeric;
   v_percentage_decimal numeric;
@@ -67,8 +65,15 @@ BEGIN
   -- SECURITY VALIDATION
   -- ========================================================================
 
+  -- Return a typed envelope (not RAISE): a raised exception here would be
+  -- caught by the WHEN OTHERS handler below and flattened into the generic
+  -- 'submission_failed' code, masking the 403. Returning early lets the route
+  -- map 'unauthorized' to an HTTP 403.
   IF p_user_id != auth.uid() THEN
-    RAISE EXCEPTION 'Unauthorized: Cannot submit test for another user';
+    RETURN jsonb_build_object(
+      'success', false,
+      'error_code', 'unauthorized'
+    );
   END IF;
 
   -- ========================================================================
@@ -82,24 +87,22 @@ BEGIN
   -- ========================================================================
   -- ANSWER VALIDATION
   -- ========================================================================
-
-  CREATE TEMP TABLE temp_user_responses AS
-  SELECT
-      (elem->>'question_id')::UUID as question_id,
-      elem->>'selected_answer' as selected_answer
-  FROM jsonb_array_elements(p_responses) as elem;
+  -- The submitted responses are joined inline via jsonb_to_recordset rather
+  -- than staged in a TEMP TABLE: a per-call CREATE TEMP TABLE churns the
+  -- system catalogs on every submission. The LEFT JOIN preserves the previous
+  -- semantics — a question with no matching response yields NULL, coalesced to
+  -- '' (an unanswered question scores as incorrect).
 
   FOR v_question_record IN (
-      SELECT q.id, q.answer
+      SELECT q.id, q.answer, r.selected_answer
       FROM questions q
+      LEFT JOIN jsonb_to_recordset(p_responses)
+        AS r(question_id UUID, selected_answer TEXT)
+        ON r.question_id = q.id
       WHERE q.test_id = p_test_id
       ORDER BY q.created_at
   ) LOOP
-      SELECT selected_answer INTO v_user_answer
-      FROM temp_user_responses
-      WHERE question_id = v_question_record.id;
-
-      v_user_answer := COALESCE(v_user_answer, '');
+      v_user_answer := COALESCE(v_question_record.selected_answer, '');
       v_correct_answer := v_question_record.answer #>> '{}';
       v_is_correct := (v_user_answer = v_correct_answer);
 
@@ -116,8 +119,6 @@ BEGIN
 
       v_total_questions := v_total_questions + 1;
   END LOOP;
-
-  DROP TABLE IF EXISTS temp_user_responses;
 
   -- ========================================================================
   -- IDEMPOTENCY CHECK
@@ -172,8 +173,8 @@ BEGIN
   -- GET OR CREATE USER ELO RATING
   -- ========================================================================
 
-  SELECT elo_rating, tests_taken, last_test_date
-  INTO v_user_elo, v_user_tests_taken, v_user_last_date
+  SELECT elo_rating
+  INTO v_user_elo
   FROM user_skill_ratings
   WHERE user_id = p_user_id
     AND language_id = p_language_id
@@ -181,8 +182,6 @@ BEGIN
 
   IF NOT FOUND THEN
     v_user_elo := 1200;
-    v_user_tests_taken := 0;
-    v_user_last_date := NULL;
 
     INSERT INTO user_skill_ratings (
       user_id, language_id, test_type_id, elo_rating, tests_taken

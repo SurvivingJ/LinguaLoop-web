@@ -23,6 +23,9 @@
 -- 1. process_test_submission — re-enable volatility, asymmetric K-factors
 -- ============================================================================
 
+-- SUPERSEDED: this process_test_submission body is no longer canonical. The
+-- live definition is migrations/phase14_test_kfactor_decay.sql. This file is
+-- retained only for its get_recommended_test definition (still live).
 CREATE OR REPLACE FUNCTION public.process_test_submission(
     p_user_id uuid,
     p_test_id uuid,

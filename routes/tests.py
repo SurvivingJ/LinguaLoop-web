@@ -674,10 +674,17 @@ def _unwrap_rpc_response(rpc_name, response_data, on_success):
     if isinstance(response_data, dict) and response_data.get('success'):
         on_success(response_data)
         return response_data
+    # An RPC may signal an authz failure with a typed error_code rather than a
+    # raised exception (which the RPC's WHEN OTHERS handler would otherwise mask
+    # as a generic submission_failed). Surface it as a 403 so the client can
+    # distinguish "not your test" from "server blew up".
+    if isinstance(response_data, dict) and response_data.get('error_code') == 'unauthorized':
+        current_app.logger.warning("%s rejected: unauthorized", rpc_name)
+        return api_error("unauthorized", 403, error_code="unauthorized")
     return _submission_failure_response(rpc_name, response_data)
 
 
-def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False):
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
     Returns the parsed RPC result dict on success, or a
@@ -698,7 +705,7 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
             'p_test_type_id': test_type_id,
             'p_responses': db_responses,
             'p_was_free_test': True,
-            'p_idempotency_key': str(uuid4()),
+            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
             'p_furigana_used': bool(furigana_used),
         }).execute()
     except Exception as e:
@@ -742,7 +749,7 @@ def _call_dictation_submission_rpc(
     return _unwrap_rpc_response('process_dictation_submission', response.data, _on_success)
 
 
-def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars):
+def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars, idempotency_key=None):
     """Call the process_pinyin_submission RPC. See _call_submission_rpc
     for the CR-04 envelope contract."""
     def _on_success(data):
@@ -760,7 +767,7 @@ def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type
             'p_correct_chars': int(correct_chars),
             'p_total_chars': int(total_chars),
             'p_was_free_test': True,
-            'p_idempotency_key': str(uuid4()),
+            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
         }).execute()
     except Exception as e:
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
@@ -769,7 +776,7 @@ def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type
     return _unwrap_rpc_response('process_pinyin_submission', response.data, _on_success)
 
 
-def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units, furigana_used=False):
+def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units, furigana_used=False, idempotency_key=None):
     """Call the process_pitch_accent_submission RPC. See _call_submission_rpc
     for the CR-04 envelope contract."""
     def _on_success(data):
@@ -787,7 +794,7 @@ def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, tes
             'p_correct_units': int(correct_units),
             'p_total_units': int(total_units),
             'p_was_free_test': True,
-            'p_idempotency_key': str(uuid4()),
+            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
             'p_furigana_used': bool(furigana_used),
         }).execute()
     except Exception as e:
@@ -913,6 +920,7 @@ def submit_test_attempt(slug):
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
         furigana_used = bool(data.get('furigana_used', False))
+        idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if not responses:
             return bad_request("No responses provided")
@@ -947,7 +955,7 @@ def submit_test_attempt(slug):
         rpc_result = _call_submission_rpc(
             current_app.supabase_service, current_user_id,
             test_id, language_id, test_type_id, db_responses,
-            furigana_used=furigana_used,
+            furigana_used=furigana_used, idempotency_key=idempotency_key,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result  # Error response
@@ -1004,6 +1012,7 @@ def submit_pinyin_attempt(slug):
         correct_chars = data.get('correct_chars', 0)
         total_chars = data.get('total_chars', 0)
         time_taken = data.get('time_taken', 0)
+        idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if total_chars <= 0:
             return bad_request("Invalid total_chars")
@@ -1035,6 +1044,7 @@ def submit_pinyin_attempt(slug):
             current_app.supabase_service, current_user_id,
             test_id, language_id, pinyin_type_id,
             correct_chars, total_chars,
+            idempotency_key=idempotency_key,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result
@@ -1097,6 +1107,7 @@ def submit_pitch_accent_attempt(slug):
         total_units = data.get('total_units', 0)
         time_taken = data.get('time_taken', 0)
         furigana_used = bool(data.get('furigana_used', False))
+        idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if total_units <= 0:
             return bad_request("Invalid total_units")
@@ -1127,7 +1138,7 @@ def submit_pitch_accent_attempt(slug):
             current_app.supabase_service, current_user_id,
             test_id, language_id, pitch_type_id,
             correct_units, total_units,
-            furigana_used=furigana_used,
+            furigana_used=furigana_used, idempotency_key=idempotency_key,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result
