@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-05-25 (ADR-014 batch-service credential — see log.md 2026-05-25) | Pages: 72
+Last updated: 2026-06-07 (measure word drill 个-exclusion + classifier coverage — see log.md 2026-06-07) | Pages: 72
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists

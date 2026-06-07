@@ -1,5 +1,17 @@
 # Activity Log
 
+## 2026-06-07 change | Measure word drill — exclude 个 + build out classifier coverage
+
+个 (the catch-all classifier) is now **never an option** in the measure word drill, and classifier coverage was greatly expanded.
+
+**RPC** ([get_classifier_drill_session.sql](../migrations/get_classifier_drill_session.sql), rewritten in place + applied). Excludes 个 as both answer and distractor (keyed **by hanzi**, since the build regenerates ids); drops 个-only nouns; re-bases distractor grouping on the specific (non-个) answer classifier; `general`-group answers now draw distractors from a common-classifier core pool instead of the polluted general bucket; added `out_difficulty_tier`. Verified: 0 个 in 300 sampled items, always 3 distractors.
+
+**Groups** ([add_classifier_groups.sql](../migrations/add_classifier_groups.sql), applied). +4 distractor groups: `abstract`, `small_round`, `strands`, `sections` (12 → 16).
+
+**Coverage.** Promoted ~20 real measure words out of the tier-4 `general` dumping ground into proper groups (份/种/项/门→abstract, 段/节→sections, 股→strands, 粒→small_round, 副→garments, …) and hand/LLM-curated nouns for the starved ones — previously-thin classifiers (束/锅/群/串/列…) went from 1–9 nouns to 12–43. Curated roster 55 → 75 classifiers; ~361 → ~875 curated pairs (+~1.8k CC-CEDICT). CC-CEDICT was found **exhausted** as a coverage source (its `CL:` ceiling already matched the DB), so a new **offline LLM authoring pipeline** ([services/classifier_curation/](../services/classifier_curation/), qwen via OpenRouter) generates+judges noun/example content into review JSON, merged into the build via [merge_classifier_curation.py](../scripts/merge_classifier_curation.py). The serving path stays LLM-free/deterministic.
+
+**Files:** [get_classifier_drill_session.sql](../migrations/get_classifier_drill_session.sql), [add_classifier_groups.sql](../migrations/add_classifier_groups.sql), [build_classifier_dictionary.py](../scripts/build_classifier_dictionary.py) (loads `approved_curation.json`), new `services/classifier_curation/` + `scripts/generate_classifier_curation.py` + `scripts/merge_classifier_curation.py`, `data/classifier_curation/*.json`. **Pages updated:** [[features/measure-word-trainer]], [[features/measure-word-trainer.tech]]. **Note:** schema.tech / rpcs.tech do not document the classifier tables/RPC (they live in the feature tech page). Minor: `墙→堵` pair skipped (堵 referenced in the curated dict but never defined as a classifier — pre-existing).
+
 ## 2026-06-06 change | Part G — drop per-question response_time_ms (comprehension is order-free)
 
 Reverted Part F #4. Comprehension reading/listening tests let the learner answer questions in any order, so a per-question response time has no clean 1→2→3 sequence to attribute time to and is meaningless. Total test time is already captured at attempt grain via `started_at`/`finished_at` → `apply_attempt_timing_and_progress` (Phase 13). The per-question **outcome** capture (`is_correct`, `selected_answer`, `correct_answer`, `is_first_attempt`) is **kept** — it still powers distractor pick-rates and mis-key detection.

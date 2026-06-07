@@ -474,8 +474,68 @@ def _fetch_sense_id_map(db):
     return sense_map
 
 
+def _merge_approved_curation():
+    """Fold data/classifier_curation/approved_curation.json into the curated
+    dictionary, if present (produced by merge_classifier_curation.py).
+
+    New/promoted classifiers are appended to CLASSIFIERS; accepted nouns are
+    merged into NOUN_CLASSIFIERS — existing curated entries keep their primary,
+    new classifiers are appended after. No-op when the file is absent, so the
+    plain in-file curated build still works unchanged.
+    """
+    import json
+    path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'data', 'classifier_curation', 'approved_curation.json',
+    )
+    if not os.path.exists(path):
+        logger.info("No approved_curation.json; building from in-file curated data only")
+        return
+    with open(path, 'r', encoding='utf-8') as fh:
+        approved = json.load(fh)
+
+    existing_hanzi = {row[0] for row in CLASSIFIERS}
+    added_cls = 0
+    for c in approved.get('classifiers', []):
+        if c.get('hanzi') in existing_hanzi:
+            continue
+        CLASSIFIERS.append((
+            c['hanzi'],
+            c.get('pinyin', ''),
+            c.get('pinyin_display') or c.get('pinyin', ''),
+            c['group'],
+            c.get('semantic_label', ''),
+            c.get('example_nouns', []),
+            int(c.get('difficulty_tier', 4)),
+        ))
+        existing_hanzi.add(c['hanzi'])
+        added_cls += 1
+
+    valid_hanzi = {row[0] for row in CLASSIFIERS}
+    added_pairs = 0
+    for noun, classifiers in approved.get('noun_classifiers', {}).items():
+        usable = [h for h in classifiers if h in valid_hanzi]
+        if not usable:
+            continue
+        if noun in NOUN_CLASSIFIERS:
+            for h in usable:
+                if h not in NOUN_CLASSIFIERS[noun]:
+                    NOUN_CLASSIFIERS[noun].append(h)
+                    added_pairs += 1
+        else:
+            NOUN_CLASSIFIERS[noun] = list(usable)
+            added_pairs += len(usable)
+
+    logger.info("Merged approved curation: +%d classifiers, +%d noun-pairs",
+                added_cls, added_pairs)
+
+
 def run(dry_run: bool = False):
     db = get_supabase_admin()
+
+    # Fold in LLM-curated content (data/classifier_curation/approved_curation.json)
+    # before building, if present. No-op when the file is absent.
+    _merge_approved_curation()
 
     # Distractor groups already seeded by migration
     grp_resp = db.table('dim_classifier_distractor_groups') \
