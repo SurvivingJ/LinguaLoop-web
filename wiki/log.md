@@ -1,5 +1,116 @@
 # Activity Log
 
+## 2026-06-09 change | Ladder Judge Layer — seed applied + 4.3 observability shipped (TASK-414→416); Phase 4 complete
+
+Final slice of [[tasklist/ladder-judge-layer.tasks]]. **Migrations applied to the live DB** (project `kpfqrjtfxmujzolwsvdq`) via Supabase MCP, then verified by query: `seed_ladder_judge_prompts.sql` — 8 active rows (p1/l1/collocation/sentence_validity × en `google/gemini-2.5-flash-lite` + zh `qwen/qwen-max`, all `openrouter`, v1, Likert schema), and `phase15_word_assets_validation_warnings.sql` (the `word_assets.validation_warnings text[]` column TASK-404 writes to — was not yet live; now added). All four judges now act for real instead of failing open.
+
+- **TASK-414** — new `migrations/phase16_ladder_judge_reject_rates.sql`: read-only view `v_ladder_judge_reject_rates`, one row per `(language_id, ladder_level, prompt_version, judge_key)` with `exercises_n / rejected_n / kept_n / items_n / reject_rate`. Reads the four `exercises.tags.<judge>_judge.{rejected,kept}` keys joined to `word_assets.prompt_version` via `exercises.word_asset_id`, plus the P1 `validation_warnings` sidecar (judged-asset detection via the `P1 sentence[` marker; clean all-accept assets leave no marker so P1 rate is an upper bound). Applied live; aggregation math validated against synthetic rows (L5/L8 correctly separated by level despite sharing `collocation_judge`); brand-new view (no archive needed per migrations/CLAUDE.md).
+- **TASK-415** — `routes/admin_local.py`: read-only page `/admin/judge-reject-rates` + JSON `/admin/api/vocab/judge-reject-rates`, both via new `_fetch_judge_reject_rates()` (queries the view, worst-rate first). New `templates/judge_reject_rates.html` — sortable table (language × level × prompt_version × judge) with reject-rate pills flagged amber ≥15% / red ≥30%, language + judge filters. No mutations.
+- **TASK-416** — `tests/test_vocab_ladder_judges.py`: end-to-end `test_integration_all_judges_drop_planted_defects` drives the real `build_rows` + the real P1 pipeline path (only each judge's `call_llm`/`get_template_config` mocked) over one fixture sense with five planted defects — synonym L1 distractor, also-valid L5 collocate, genuinely-correct L8 error word, mislabeled L6 sentence, off-sense P1 sentence — and asserts each is dropped (L7/L8 variants skipped; L1/L5/L6 keep + write `tags.<judge>_judge`) and the P1 warning sidecar names the bad index. Smoke query documented in [[features/exercise-generation-prompts]] (new "Ladder judge layer (Phase 4)" section), filtering `llm_calls.task_name LIKE 'judge_ladder_%'` — note the prefix swap: `prompt_templates.task_name` is `ladder_*_judge` but the logged label is `judge_ladder_*`.
+
+**Verified** — full judge suite **32/32 green** via `rtk proxy python -m pytest`; `routes/admin_local.py` compiles. **Phase 4 is complete**: all 16 tasks done (TASK-401→416).
+
+## 2026-06-08 change | Ladder Judge Layer — sentence-validity chain shipped (TASK-411→413)
+
+Fourth slice of [[tasklist/ladder-judge-layer.tasks]] (Phase 4.1, sentence-validity — verdict per crafted-wrong sentence; serves L6 + L7). Built Likert-first per the new decision 7. **Verified** — full judge suite 31/31 green (10 P1 + 5 L1 + 8 collocation + 8 sentence-validity); modified renderer + module AST-clean.
+
+- **TASK-411** — new `services/exercise_generation/judges/sentence_validity.py`. `judge_wrong_sentences(db, target, sentences_with_reasons, language_id) -> list[JudgeOutcome]`, one per (sentence, labeled-reason) pair, order-aligned (mirrors the P1 verdict shape). Rules "wrong ONLY for the labeled reason": rating 5 = cleanly wrong as labeled (accept/keep), 2 = wrong for a *different* reason (mislabeled → reject), 1 = actually acceptable (reject). 5-pt Likert via `likert_to_verdict`; fail-open to safe-accept-all; logs worst verdict.
+- **TASK-412** — appended en (gemini-2.5-flash-lite) + zh (qwen-max) `ladder_sentence_validity_judge` rows to `migrations/seed_ladder_judge_prompts.sql`. Output schema `{"<idx>": {"rating":1-5,"reason":...}}`. zh prompt covers the L6 error taxonomy (量词/体标/语序/方向补语).
+- **TASK-413** — wired L6 (`_render_semantic_discrimination`: judge the 3 `wrong_sentences` paired with their explanations, drop rejects, skip variant if `<3` survive) and L7 (`_render_spot_incorrect`: judge the single `incorrect_sentence` against `error_description`, return `None` on reject). Both attach `__judge_metas['sentence_validity']` → `tags.sentence_validity_judge`.
+
+**Still not applied:** `seed_ladder_judge_prompts.sql` now holds 8 rows (p1 + l1 + collocation + sentence_validity, en+zh) — all using the 5-pt Likert schema. Per this session's decision, the full seed is applied via Supabase MCP in one pass after all judges are built; until then every judge fails open.
+
+**All four judge chains (4.1 + 4.2) are now built.** Remaining: TASK-414 (reject-rate view), TASK-415 (admin dashboard), TASK-416 (integration test + smoke query) — the 4.3 observability layer.
+
+## 2026-06-08 change | Ladder Judge Layer — collocation chain shipped (TASK-408→410)
+
+Third slice of [[tasklist/ladder-judge-layer.tasks]] (Phase 4.1, collocation — one prompt, two call sites per decision 3). **Verified** — full judge suite 23/23 green (10 P1 + 5 L1 + 8 collocation); modified modules AST-clean; no other test references the changed renderers/hack.
+
+- **TASK-408** — new `services/exercise_generation/judges/collocation.py`. Shared `_judge_candidates` over one prompt; two public entry points: `filter_collocation_distractors(...) -> (kept, judge_meta)` (L5 filter — drop distractors that are themselves valid collocates) and `judge_collocation_repair(...) -> JudgeOutcome` (L8 verdict — accept only when `error_collocate` is a genuine non-collocate). Confidence is a **5-point Likert `rating`** (decision 7 / memory [[distractor-judge-v3-likert]]) mapped via `schemas.likert_to_verdict`: rating 5 = clearly a non-collocate (ideal wrong-answer) → accept; 1 = idiomatic also-correct collocate → reject. L8 carries the raw rating as `JudgeOutcome.confidence`; L5 keeps a distractor unless its verdict is `reject`. Fail-open both paths (`ok=False` → keep-all / safe_accept).
+- **TASK-409** — appended en (gemini-2.5-flash-lite) + zh (qwen-max) `ladder_collocation_judge` rows to `migrations/seed_ladder_judge_prompts.sql`. One question — "is CANDIDATE a genuine non-collocate of TARGET here, or could it pass as a valid collocate?" — serving both call sites. Output schema `{"<idx>": {"verdict":"non_collocate|valid_collocate","confidence":0-1,"reason":...}}`. zh prompt covers 量词/体标/固定搭配凝固性.
+- **TASK-410** — wired L5 (`_render_collocation_gap`: filter distractors, skip variant if `<3` survive, attach `__judge_metas['collocation']`) and L8 (`_render_collocation_repair`: `judge_collocation_repair`, return `None` on reject, attach verdict meta). **Removed** the `_l8_correctness_ok` string-match retry/drop block AND the now-dead method in `asset_generators/prompt3_transforms.py`; kept the structural `_can_generate_l8` pre-gate.
+
+**Still not applied:** `seed_ladder_judge_prompts.sql` now holds 6 rows (p1 + l1 + collocation, en+zh). Per this session's decision, the full seed is applied via Supabase MCP in one pass after all judges are built; until then every judge fails open.
+
+**Next:** TASK-411→413 (sentence-validity, L6/L7), then 414→416 (reject-rate view + admin dashboard + integration test).
+
+## 2026-06-08 change | Ladder Judge Layer — L1 distractor chain shipped (TASK-405→407)
+
+Second slice of [[tasklist/ladder-judge-layer.tasks]] (Phase 4.1, L1). **Verified** — full judge suite 15/15 green (10 P1 + 5 L1); renderer + module import clean.
+
+- **TASK-405** — new `services/exercise_generation/judges/l1_distractor.py`. `filter_l1_distractors(db, target, distractors, language_id) -> (kept, judge_meta)`, filter shape mirroring `judges/cloze.py`. Polarity per memory [[l1-is-listening]]: rejects non-words, synonyms, and spelling-only look-alikes; keeps only real, audio-confusable distractors. Fail-open (keep-all on any error).
+- **TASK-406** — appended en (gemini-2.5-flash-lite) + zh (qwen-max) `ladder_l1_distractor_judge` rows to `migrations/seed_ladder_judge_prompts.sql`. zh prompt encodes 声调混淆 acceptance and rejects 同义词 / 纯形近字 / 完全同音同调字. Output schema `{"<idx>": {"verdict":"keep|reject","reason":...}}`.
+- **TASK-407** — wired into `exercise_renderer._render_phonetic`: filters the 3 option distractors, skips the variant if `<3` survive (same contract as L3), shuffles surviving options, attaches `__judge_metas={'l1_distractor': meta}` → `tags.l1_distractor_judge`. Audio TTS now deferred until after the survive check.
+
+**Still not applied:** `seed_ladder_judge_prompts.sql` (now holds 4 rows: p1 + l1, en+zh) must be run against the DB before either judge does anything — until then both fail open.
+
+**Next:** TASK-408→410 (collocation, L5+L8; retires the `_l8_correctness_ok` hack at [prompt3_transforms.py:124-139](../services/vocabulary_ladder/asset_generators/prompt3_transforms.py#L124-L139)), 411→413 (sentence-validity L6/L7), 414→416 (reject-rate view + admin + integration test).
+
+## 2026-06-07 change | Ladder Judge Layer — P1 chain shipped (TASK-401→404)
+
+Built the first slice of [[tasklist/ladder-judge-layer.tasks]]: the foundation + the full P1 sentence-judge chain (4.2, the highest-leverage judge). **Verified** — 10 new unit tests + the existing validators suite green; all modified modules import clean.
+
+- **TASK-401** — generalized the renderer judge-meta sidecar. `build_rows` now lifts `__judge_metas={judge_key: meta}` into `tags['<key>_judge']` for any number of judges; the legacy single `__judge_meta` (L3 cloze) still maps to `tags.cloze_judge` unchanged. ([exercise_renderer.py](../services/vocabulary_ladder/exercise_renderer.py))
+- **TASK-402** — new `services/exercise_generation/judges/p1_sentences.py`. `judge_p1_sentences(...)` returns one `JudgeOutcome` per sentence (5-pt Likert via `likert_to_verdict`); fail-open on every error path (template/LLM/non-dict/missing-entry/unparseable → safe-accept that sentence).
+- **TASK-403** — `migrations/seed_ladder_judge_prompts.sql` seeds en (gemini-2.5-flash-lite) + zh (qwen-max) `ladder_p1_sentence_judge` rows. Output schema `{"<idx>": {"rating":1-5, "reason":...}}` documented in the header; matches the parser.
+- **TASK-404** — wired into `VocabAssetPipeline.generate_for_sense` after P1 validation, before the P2/P3 fan-out. **Index-preserving** (decision 4): never deletes/reorders — rejected sentences get one targeted `CoreAssetGenerator.repair_sentences` pass (rewrite-in-place by index), final verdicts persist to `word_assets.validation_warnings`, asset blocked only if acceptable (accept+flag) sentences < `P1_MIN_ACCEPTABLE_SENTENCES` (=6). Tests assert count/order stability, repair-in-place, block threshold, and length-mismatch fail-open.
+
+**Not yet applied:** `seed_ladder_judge_prompts.sql` must be run against the DB before the judge does anything (until then it fails open — no rows → safe-accept all).
+
+**Next:** TASK-405→407 (L1 distractor judge), 408→410 (collocation, retires the L8 hack), 411→413 (sentence-validity), then 414→416 (reject-rate view + admin + integration test).
+
+**Note:** GateGuard's fact-force hook fired on every wiki + code edit this session — heavy friction for routine doc/bookkeeping writes. Consider scoping it off `wiki/**`.
+
+## 2026-06-07 tasklist | Ladder Judge Layer (Phase 4) — plan only
+
+Converted Phase 4 ("Extend the judge layer") into a task breakdown at [[tasklist/ladder-judge-layer.tasks]] — **no code written**, per the user's "just plan it first" instruction. Implements B3.1 + B3.6 of [[reviews/exercise-generation-audit-2026-06-07]].
+
+**16 tasks (TASK-401 — TASK-416)**, en + zh coverage. Four new judges in the existing `judges/` package, all fail-open + DB-driven + logged to `llm_calls`:
+- `ladder_p1_sentence_judge` (4.2, highest leverage) — sense/register/whole-sense per P1 sentence; **must preserve sentence indices** (positional refs in `SENTENCE_ASSIGNMENTS_A/B`, `L7_CORRECT_INDICES_A/B`) → flag + one targeted repair + warning sidecar, never delete-in-place.
+- `ladder_l1_distractor_judge` (4.1) — filter shape; audio-confusable-only polarity per memory [[l1-is-listening]].
+- `ladder_collocation_judge` (4.1) — one prompt, two call sites (L5 filter + L8 verdict); **subsumes/retires** the `_l8_correctness_ok` string-match retry hack ([prompt3_transforms.py:124-139](../services/vocabulary_ladder/asset_generators/prompt3_transforms.py#L124-L139)).
+- `ladder_sentence_validity_judge` (4.1) — verdict per wrong-sentence; serves L6 (3) + L7 (1).
+Plus 4.3: generalized `tags.<judge>_judge` sidecar (TASK-401, foundation), a `v_ladder_judge_reject_rates` view, and a read-only admin dashboard.
+
+**Key design decisions** captured in the tasklist header: reuse `judges/` contract; two judge shapes (filter vs `JudgeOutcome`); single collocation prompt for L5/L8; P1 index-stability constraint; per-judge tag schema; L1 audio-confusability polarity.
+
+**Sequencing:** 4.2 → 4.1 (3 independent judge chains) → 4.3, all gated behind TASK-401.
+
+**Pages updated:** [[tasklist/master]] (new section + summary 32→48), [[index]] (Task Lists pointer), this log.
+
+**Next:** awaiting go-ahead to build (suggested first slice: TASK-401 then the 402→403→404 P1 chain).
+
+## 2026-06-07 change | Language-aware P1 validation (audit fix 1.1)
+
+Implements step 2 of the sequencing in [[reviews/exercise-generation-audit-2026-06-07]] — the language-aware validator that fixes the 小熊 0-exercise failure (Chinese concrete noun rejected for `< 2 morphological_forms`).
+
+**What changed:** `validate_prompt1` is now keyed on `language_id` via a per-language profile rather than one global gate.
+
+**Files updated: 3**
+- `services/vocabulary_ladder/config.py` — Added `LanguageValidationProfile` (frozen dataclass: `min_morphological_forms` default 0, `ipa_required`, `pos_set`, `semantic_class_set`), `LANGUAGE_VALIDATION_PROFILES` (1=zh: min 0 / no IPA / zh enums; 2=en: min 2 / IPA / en enums; 3=ja: permissive), and `get_validation_profile(language_id)` (falls back to merged EN∪zh enums for unconfigured languages). Split the old merged enums into `_POS_EN`/`_POS_ZH`, `_SEMANTIC_CLASSES_EN`/`_SEMANTIC_CLASSES_ZH`, retaining `DEFAULT_POS_SET`/`DEFAULT_SEMANTIC_CLASS_SET` as the union default.
+- `services/vocabulary_ladder/validators.py` — Removed class-level `VALID_POS`/`VALID_SEMANTIC_CLASSES`. `validate_prompt1(content, language_id)` now returns `(is_valid, errors, warnings)`; POS/semantic_class validated against the profile's enum set; `morphological_forms` shortfall and missing IPA demoted from blocking errors to **non-blocking warnings** gated by the profile threshold.
+- `services/vocabulary_ladder/asset_pipeline.py` — Passes `language_id` into the validator, unpacks the 3-tuple, logs warnings. (Persisting warnings onto the `word_assets` row is deferred to audit fix 1.2.)
+
+**Verified:** English invariant word (`sheep`, no forms/IPA) now valid with 2 warnings; Chinese empty-forms asset valid with 0 warnings; invalid POS still a blocking error.
+
+**Still open from the audit:** non-destructive regen (B1), CJK corpus-extraction `self.db_language_id` typo (B4), L4 config-gate for Chinese concrete nouns (B5), P1 retry/salvage (B6), judge coverage for L5/L6/L7/L8 + P1, warning persistence (1.2).
+
+**Pages updated:** [[features/exercise-generation-prompts]] (validators.py + config.py dependency lines, date), this log.
+
+## 2026-06-07 review | Exercise generation pipeline audit (triggered by 小熊 0-exercise failure)
+
+Admin "generate exercises" for **小熊** (sense 34987, Chinese concrete noun) rendered **0 exercises** with one error: `Expected at least 2 morphological_forms`. Full audit filed at [[reviews/exercise-generation-audit-2026-06-07]].
+
+**Root cause (confirmed against live DB):** language-blind validator contradicting its own prompt. The Chinese P1 prompt (rule 18, [seed_chinese_vocab_prompts.sql](../migrations/seed_chinese_vocab_prompts.sql)) tells the model it may return an empty `morphological_forms` array; the model correctly returned one form (`个`, the measure word). [validators.py:105-107](../services/vocabulary_ladder/validators.py#L105) hard-requires `>= 2` → P1 stored `is_valid=False` → P2/P3 skipped → renderer aborts ("No valid prompt1_core"). The Chinese seed migration ported the POS / semantic-class / non-ASCII-substring validator changes but left the `morphological_forms >= 2` and mandatory-IPA gates English-centric.
+
+**Latent bugs flagged:** (B1) destructive regen — [admin_local.py:1339](../routes/admin_local.py#L1339) deletes exercises *before* the pipeline runs, so any P1 invalidation wipes a previously-good word; (B2) `>= 2` morph-forms also breaks invariant English words (`sheep`, `the`); (B3) mandatory IPA; (B4) `self.db_language_id` typo hardcodes the English LanguageProcessor + `\b` regex for CJK corpus extraction (no Chinese corpus reuse); (B5) L4 not config-gated for concrete Chinese nouns; (B6) P1 has no retry/salvage (P2/P3 do); (B7) opaque admin error.
+
+**Prompting-infra audit (Part B):** judge coverage is asymmetric — comprehension tests run two judges (answer_entailment + distractor_plausibility, [question_generator.py:446](../services/test_generation/agents/question_generator.py#L446)), but the ladder judges only L3 cloze ([exercise_renderer.py:271](../services/vocabulary_ladder/exercise_renderer.py#L271)); L1/L5/L6/L7/L8 distractors ship with structural validation only. Improvement options: extend judges to every LLM-authored level + a P1 sentence judge; split monolith P2/P3 into per-exercise-type prompts (at least L4/L8); a per-language exercise capability matrix; bind output shape to `prompt_version` via JSON schema; add P1 retry/repair.
+
+**Recommended sequencing:** soften morph/IPA gates → language-aware validator (+ fixture matrix: `sheep`/小熊/function-word) → non-destructive regen → judges for L5/L6/L7/L8 + P1 → capability matrix → prompt split → schema gate.
+
+**Code changes:** none (documentation-only audit). **Pages created:** 1 ([[reviews/exercise-generation-audit-2026-06-07]]). **Pages updated:** [index](index.md) (Reviews section + date + page count 72→73), this log.
+
 ## 2026-06-07 change | Measure word drill — exclude 个 + build out classifier coverage
 
 个 (the catch-all classifier) is now **never an option** in the measure word drill, and classifier coverage was greatly expanded.

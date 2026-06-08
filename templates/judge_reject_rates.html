@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Judge Reject Rates | Admin{% endblock %}
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .jr-header { padding: 20px 0; border-bottom: 1px solid var(--border-default); background: var(--bg-surface); }
+    .jr-card { background: var(--bg-surface); border-radius: 12px; box-shadow: var(--shadow-md); padding: 20px; margin-top: 20px; }
+    .jr-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .jr-controls select { padding: 8px 12px; border: 1px solid var(--border-default); border-radius: 8px; font-size: 14px; }
+    table.jr-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.jr-table th, table.jr-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-default); }
+    table.jr-table th { cursor: pointer; user-select: none; font-weight: 600; background: var(--bg-muted); white-space: nowrap; }
+    table.jr-table th.num, table.jr-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.jr-table th .arrow { color: var(--text-muted); font-size: 11px; }
+    .rate-pill { display: inline-block; min-width: 60px; text-align: right; padding: 2px 8px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+    .rate-low  { background: rgba(5,150,105,0.10); color: var(--success); }
+    .rate-mid  { background: rgba(217,119,6,0.12); color: #b45309; }
+    .rate-high { background: rgba(220,38,38,0.12); color: var(--danger); font-weight: 600; }
+    .judge-badge { background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+    .jr-empty { padding: 40px; text-align: center; color: var(--text-muted); }
+    .jr-note { color: var(--text-secondary); font-size: 13px; margin-top: 14px; line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="jr-header">
+    <div class="container">
+        <h1 style="font-size:22px;font-weight:700;margin:0">Ladder Judge Reject Rates</h1>
+        <p style="color:var(--text-secondary);margin:4px 0 0;font-size:14px">
+            Per-prompt-version reject rates for every vocabulary-ladder judge. A rising rate
+            for a new <code>prompt_version</code> means a prompt regression — catch it before learners do.
+        </p>
+    </div>
+</header>
+
+<div class="container" style="padding-top:20px;padding-bottom:40px;">
+    <div class="jr-card">
+        <div class="jr-controls">
+            <label>Language:
+                <select id="langFilter" onchange="jrApplyFilters()">
+                    <option value="">All</option>
+                    <option value="2">English (2)</option>
+                    <option value="1">Chinese (1)</option>
+                    <option value="3">Japanese (3)</option>
+                </select>
+            </label>
+            <label>Judge:
+                <select id="judgeFilter" onchange="jrApplyFilters()">
+                    <option value="">All</option>
+                </select>
+            </label>
+            <span id="jrCount" style="margin-left:auto;color:var(--text-muted);font-size:13px"></span>
+        </div>
+
+        <table class="jr-table" id="jrTable">
+            <thead>
+                <tr>
+                    <th data-key="language" data-type="str">Language <span class="arrow"></span></th>
+                    <th data-key="ladder_level" data-type="num" class="num">Level <span class="arrow"></span></th>
+                    <th data-key="prompt_version" data-type="str">Prompt Version <span class="arrow"></span></th>
+                    <th data-key="judge_key" data-type="str">Judge <span class="arrow"></span></th>
+                    <th data-key="exercises_n" data-type="num" class="num">Exercises <span class="arrow"></span></th>
+                    <th data-key="items_n" data-type="num" class="num">Items <span class="arrow"></span></th>
+                    <th data-key="rejected_n" data-type="num" class="num">Rejected <span class="arrow"></span></th>
+                    <th data-key="reject_rate" data-type="num" class="num">Reject Rate <span class="arrow">▼</span></th>
+                </tr>
+            </thead>
+            <tbody id="jrBody"></tbody>
+        </table>
+        <div id="jrEmpty" class="jr-empty" style="display:none">
+            No judged exercises yet. Reject rates appear after a render batch runs with the
+            judge prompts seeded.
+        </div>
+
+        <p class="jr-note">
+            <strong>Reading the rate.</strong> <code>reject_rate = rejected_n / items_n</code>,
+            where an "item" is a candidate distractor (filter judges) or a crafted sentence
+            (verdict judges). The <code>p1_sentence_judge</code> row aggregates the
+            <code>word_assets.validation_warnings</code> sidecar over the base sentence corpus
+            (level shown as <em>—</em>); all-accept assets leave no marker, so its rate is an
+            upper bound over assets that had ≥1 flag/reject.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    var LANG_NAMES = { 1: 'Chinese', 2: 'English', 3: 'Japanese' };
+    // Rows rendered server-side; reject_rate may arrive as a string from PostgREST.
+    var ROWS = {{ rows | tojson }};
+    ROWS.forEach(function (r) {
+        r.reject_rate = (r.reject_rate === null || r.reject_rate === undefined)
+            ? null : Number(r.reject_rate);
+    });
+
+    var sortKey = 'reject_rate';
+    var sortDir = -1; // -1 desc, 1 asc
+    var sortType = 'num';
+
+    function langName(id) { return LANG_NAMES[id] || ('Lang ' + id); }
+
+    function rateClass(rate) {
+        if (rate === null) return '';
+        if (rate >= 0.30) return 'rate-high';
+        if (rate >= 0.15) return 'rate-mid';
+        return 'rate-low';
+    }
+
+    function fmtRate(rate) {
+        if (rate === null) return '—';
+        return (rate * 100).toFixed(1) + '%';
+    }
+
+    function populateJudgeFilter() {
+        var keys = {};
+        ROWS.forEach(function (r) { keys[r.judge_key] = true; });
+        var sel = document.getElementById('judgeFilter');
+        Object.keys(keys).sort().forEach(function (k) {
+            var o = document.createElement('option');
+            o.value = k; o.textContent = k;
+            sel.appendChild(o);
+        });
+    }
+
+    function filtered() {
+        var lang = document.getElementById('langFilter').value;
+        var judge = document.getElementById('judgeFilter').value;
+        return ROWS.filter(function (r) {
+            if (lang && String(r.language_id) !== lang) return false;
+            if (judge && r.judge_key !== judge) return false;
+            return true;
+        });
+    }
+
+    function sortRows(rows) {
+        return rows.slice().sort(function (a, b) {
+            var av = a[sortKey], bv = b[sortKey];
+            if (sortKey === 'language') { av = langName(a.language_id); bv = langName(b.language_id); }
+            if (sortType === 'num') {
+                av = (av === null || av === undefined) ? -Infinity : Number(av);
+                bv = (bv === null || bv === undefined) ? -Infinity : Number(bv);
+                return (av - bv) * sortDir;
+            }
+            av = (av === null || av === undefined) ? '' : String(av);
+            bv = (bv === null || bv === undefined) ? '' : String(bv);
+            return av.localeCompare(bv) * sortDir;
+        });
+    }
+
+    function render() {
+        var rows = sortRows(filtered());
+        var body = document.getElementById('jrBody');
+        body.innerHTML = '';
+        rows.forEach(function (r) {
+            var tr = document.createElement('tr');
+            var level = (r.ladder_level === null || r.ladder_level === undefined)
+                ? '—' : ('L' + r.ladder_level);
+            tr.innerHTML =
+                '<td>' + langName(r.language_id) + '</td>' +
+                '<td class="num">' + level + '</td>' +
+                '<td>' + (r.prompt_version || '—') + '</td>' +
+                '<td><span class="judge-badge">' + r.judge_key + '</span></td>' +
+                '<td class="num">' + r.exercises_n + '</td>' +
+                '<td class="num">' + r.items_n + '</td>' +
+                '<td class="num">' + r.rejected_n + '</td>' +
+                '<td class="num"><span class="rate-pill ' + rateClass(r.reject_rate) + '">' +
+                    fmtRate(r.reject_rate) + '</span></td>';
+            body.appendChild(tr);
+        });
+        document.getElementById('jrCount').textContent = rows.length + ' row' + (rows.length === 1 ? '' : 's');
+        document.getElementById('jrEmpty').style.display = rows.length ? 'none' : 'block';
+        document.getElementById('jrTable').style.display = rows.length ? '' : 'none';
+        updateArrows();
+    }
+
+    function updateArrows() {
+        document.querySelectorAll('#jrTable th').forEach(function (th) {
+            var arrow = th.querySelector('.arrow');
+            if (!arrow) return;
+            arrow.textContent = (th.dataset.key === sortKey) ? (sortDir === -1 ? '▼' : '▲') : '';
+        });
+    }
+
+    function bindSort() {
+        document.querySelectorAll('#jrTable th').forEach(function (th) {
+            th.addEventListener('click', function () {
+                var key = th.dataset.key;
+                if (key === sortKey) { sortDir = -sortDir; }
+                else { sortKey = key; sortType = th.dataset.type || 'str'; sortDir = (sortType === 'num') ? -1 : 1; }
+                render();
+            });
+        });
+    }
+
+    window.jrApplyFilters = render;
+
+    populateJudgeFilter();
+    bindSort();
+    render();
+})();
+</script>
+{% endblock %}

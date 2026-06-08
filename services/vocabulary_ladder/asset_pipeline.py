@@ -60,7 +60,7 @@ class VocabAssetPipeline:
         Returns:
             {'sense_id': int, 'status': 'success'|'partial'|'failed', 'errors': [...]}
         """
-        result = {'sense_id': sense_id, 'status': 'failed', 'errors': []}
+        result = {'sense_id': sense_id, 'status': 'failed', 'errors': [], 'warnings': []}
         batch_id = batch_id or str(uuid4())
 
         # Check existing assets
@@ -79,7 +79,18 @@ class VocabAssetPipeline:
             result['errors'].append('Prompt 1 generation failed')
             return result
 
-        p1_valid, p1_errors = self.validator.validate_prompt1(core_asset)
+        p1_valid, p1_errors, p1_warnings = self.validator.validate_prompt1(
+            core_asset, language_id,
+        )
+        if not p1_valid:
+            repaired = p1_gen.repair(core_asset, p1_errors, sense_id)
+            if repaired:
+                p1_valid, p1_errors, p1_warnings = self.validator.validate_prompt1(
+                    repaired, language_id,
+                )
+                if p1_valid:
+                    core_asset = repaired
+                    logger.info("Prompt 1 repair succeeded for sense %s", sense_id)
         if not p1_valid:
             result['errors'].extend(p1_errors)
             self._store_asset(sense_id, language_id, 'prompt1_core', core_asset,
@@ -87,12 +98,42 @@ class VocabAssetPipeline:
                               validation_errors=p1_errors)
             return result
 
+        if p1_warnings:
+            result['warnings'].extend(p1_warnings)
+            logger.info(
+                "Prompt 1 warnings for sense %s: %s", sense_id, p1_warnings,
+            )
+
+        # P1 sentence-corpus judge (Phase 4 / TASK-404). Runs after structural
+        # validation and before the P2/P3 fan-out, so off-sense / off-register /
+        # not-whole-word sentences are caught before every downstream level
+        # inherits them. Fail-open and index-preserving (decision 4): sentences
+        # are never deleted or reordered — rejected ones get one targeted repair
+        # attempt, the final per-sentence verdicts are recorded as warnings, and
+        # the asset is blocked only if too few acceptable sentences remain.
+        judge_warnings, p1_blocked = self._judge_p1_sentences(
+            core_asset, language_id, p1_gen, sense_id,
+        )
+        if judge_warnings:
+            p1_warnings = (p1_warnings or []) + judge_warnings
+            result['warnings'].extend(judge_warnings)
+        if p1_blocked:
+            result['errors'].append(
+                'P1 sentence judge: too few acceptable sentences after repair'
+            )
+            self._store_asset(sense_id, language_id, 'prompt1_core', core_asset,
+                              p1_gen.model, batch_id, is_valid=False,
+                              validation_errors=result['errors'],
+                              validation_warnings=p1_warnings or None)
+            return result
+
         self._store_asset(sense_id, language_id, 'prompt1_core', core_asset,
-                          p1_gen.model, batch_id)
+                          p1_gen.model, batch_id,
+                          validation_warnings=p1_warnings or None)
         self._update_vocabulary_metadata(sense_id, core_asset)
 
         semantic_class = core_asset.get('semantic_class', '')
-        active_levels = compute_active_levels(semantic_class)
+        active_levels = compute_active_levels(semantic_class, language_id)
 
         # Aggressively gate L5 (Collocation Gap) on corpus evidence of a fixed
         # collocation. P1 happily returns 'advertising' as a primary_collocate
@@ -232,6 +273,89 @@ class VocabAssetPipeline:
         }
 
     # ------------------------------------------------------------------
+    # P1 sentence-corpus judge (Phase 4)
+    # ------------------------------------------------------------------
+
+    def _judge_p1_sentences(
+        self, core_asset: dict, language_id: int, p1_gen, sense_id: int,
+    ) -> tuple[list[str], bool]:
+        """Judge P1's base sentences, attempt one targeted repair, record warnings.
+
+        Returns ``(warnings, blocked)``. ``warnings`` is a human-readable summary
+        (also persisted onto the asset's ``validation_warnings``); ``blocked`` is
+        True only when acceptable sentences fall below
+        ``P1_MIN_ACCEPTABLE_SENTENCES`` after the repair pass. Fail-open: any
+        judge error or length mismatch returns ``([], False)`` and leaves the
+        asset untouched.
+
+        Mutates ``core_asset['sentences'][i]['text']`` in place when a repair
+        succeeds, but never changes their count or order — downstream levels
+        reference sentence indices positionally.
+        """
+        from services.exercise_generation.judges.p1_sentences import judge_p1_sentences
+        from services.vocabulary_ladder.config import (
+            get_sentence_target, P1_MIN_ACCEPTABLE_SENTENCES,
+        )
+
+        sentences = core_asset.get('sentences') or []
+        if not sentences:
+            return [], False
+
+        lemma = get_sentence_target(sentences[0])
+        definition = core_asset.get('definition', '')
+        fingerprint = core_asset.get('sense_fingerprint') or ''
+        register = core_asset.get('register') or 'neutral'
+
+        def _run(texts):
+            return judge_p1_sentences(
+                self.db, lemma=lemma, definition=definition,
+                sense_fingerprint=fingerprint, register=register,
+                sentences=texts, language_id=language_id,
+            )
+
+        outcomes = _run([s.get('text', '') for s in sentences])
+        if len(outcomes) != len(sentences):
+            # Length mismatch — can't safely map verdicts to indices. Fail open.
+            return [], False
+
+        rejected = [i for i, o in enumerate(outcomes) if o.verdict == 'reject']
+        if rejected:
+            reasons = {i: outcomes[i].reason for i in rejected}
+            repaired = p1_gen.repair_sentences(core_asset, rejected, reasons, sense_id)
+            if repaired:
+                for idx, new_text in repaired.items():
+                    if 0 <= idx < len(sentences) and isinstance(sentences[idx], dict):
+                        sentences[idx]['text'] = new_text
+                repaired_idxs = sorted(repaired.keys())
+                re_outcomes = _run([sentences[i].get('text', '') for i in repaired_idxs])
+                if len(re_outcomes) == len(repaired_idxs):
+                    for j, idx in enumerate(repaired_idxs):
+                        outcomes[idx] = re_outcomes[j]
+
+        warnings: list[str] = []
+        acceptable = 0
+        for i, o in enumerate(outcomes):
+            if o.verdict == 'accept':
+                acceptable += 1
+            elif o.verdict == 'flag':
+                acceptable += 1  # flagged sentences are kept, surfaced for review
+                warnings.append(
+                    f'P1 sentence[{i}] flagged (rating {o.confidence:g}): {o.reason}'
+                )
+            else:  # reject survived the repair pass
+                warnings.append(
+                    f'P1 sentence[{i}] rejected (rating {o.confidence:g}): {o.reason}'
+                )
+
+        blocked = acceptable < P1_MIN_ACCEPTABLE_SENTENCES
+        if blocked:
+            warnings.append(
+                f'P1 sentence judge: only {acceptable} acceptable sentences '
+                f'(< {P1_MIN_ACCEPTABLE_SENTENCES}) after repair — asset blocked.'
+            )
+        return warnings, blocked
+
+    # ------------------------------------------------------------------
     # Corpus sentence sourcing
     # ------------------------------------------------------------------
 
@@ -278,7 +402,7 @@ class VocabAssetPipeline:
                 if not transcript:
                     continue
                 found = self._extract_sentences_with_word(
-                    transcript, lemma, 'corpus', 'T3'
+                    transcript, lemma, 'corpus', 'T3', language_id
                 )
                 sentences.extend(found)
                 if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
@@ -313,7 +437,7 @@ class VocabAssetPipeline:
                     else:
                         continue
                     found = self._extract_sentences_with_word(
-                        text, lemma, 'corpus', 'T3'
+                        text, lemma, 'corpus', 'T3', language_id
                     )
                     sentences.extend(found)
                     if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
@@ -333,34 +457,36 @@ class VocabAssetPipeline:
         return unique[:Config.VOCAB_SENTENCES_PER_WORD]
 
     def _extract_sentences_with_word(
-        self, text: str, lemma: str, source: str, tier: str
+        self, text: str, lemma: str, source: str, tier: str, language_id: int = 2
     ) -> list[dict]:
         """Split text into sentences and return those containing the lemma."""
+        import re
         from services.exercise_generation.language_processor import LanguageProcessor
-        processor = LanguageProcessor.for_language(self.db_language_id if hasattr(self, 'db_language_id') else 2)
+        from services.vocabulary_ladder.validators import contains_target_whole_word
+
+        processor = LanguageProcessor.for_language(language_id)
 
         results = []
         try:
             sents = processor.split_sentences(text)
         except Exception:
-            # Fallback: simple period splitting
             sents = [s.strip() for s in text.split('.') if s.strip()]
 
-        # Whole-word match only — `lemma_lower in sent.lower()` would otherwise
-        # accept "new" inside "knew" or "renewal".
-        import re
         lemma_lower = lemma.lower()
-        pattern = re.compile(rf'\b{re.escape(lemma_lower)}\b', re.IGNORECASE)
         for sent in sents:
             sent = sent.strip()
             if len(sent) < 10:
                 continue
-            m = pattern.search(sent)
-            if not m:
+            if not contains_target_whole_word(sent, lemma_lower):
                 continue
 
-            # Preserve original case from the sentence.
-            target_word = sent[m.start():m.end()]
+            # Preserve original case for ASCII; use lemma directly for non-ASCII
+            # (CJK characters have no case variation).
+            if lemma_lower.isascii():
+                m = re.search(rf'\b{re.escape(lemma_lower)}\b', sent, re.IGNORECASE)
+                target_word = sent[m.start():m.end()] if m else lemma
+            else:
+                target_word = lemma
 
             results.append({
                 'text': sent,
@@ -465,8 +591,39 @@ class VocabAssetPipeline:
         batch_id: str,
         is_valid: bool = True,
         validation_errors: list[str] | None = None,
+        validation_warnings: list[str] | None = None,
     ):
-        """Upsert a word asset row."""
+        """Upsert a word asset row.
+
+        Guard: never overwrite a previously-valid asset with an invalid one.
+        A failed/stricter regeneration (e.g. P1 fails validation) should not
+        clobber a good asset that is still serving exercises — keep the old
+        valid row and let the caller surface the errors instead.
+        """
+        if not is_valid:
+            try:
+                existing = (
+                    self.db.table('word_assets')
+                    .select('is_valid')
+                    .eq('sense_id', sense_id)
+                    .eq('asset_type', asset_type)
+                    .eq('is_valid', True)
+                    .limit(1)
+                    .execute()
+                )
+                if existing.data:
+                    logger.warning(
+                        "Skipping invalid %s asset for sense %s — a valid row "
+                        "already exists and will be retained",
+                        asset_type, sense_id,
+                    )
+                    return
+            except Exception as e:
+                logger.error(
+                    "Failed to check existing %s asset for sense %s: %s",
+                    asset_type, sense_id, e,
+                )
+
         try:
             row = {
                 'sense_id': sense_id,
@@ -477,6 +634,7 @@ class VocabAssetPipeline:
                 'prompt_version': 'v1',
                 'is_valid': is_valid,
                 'validation_errors': validation_errors,
+                'validation_warnings': validation_warnings,
                 'generation_batch_id': batch_id,
                 'created_at': datetime.now(timezone.utc).isoformat(),
             }

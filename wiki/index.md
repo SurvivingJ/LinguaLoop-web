@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-06-07 (measure word drill 个-exclusion + classifier coverage — see log.md 2026-06-07) | Pages: 72
+Last updated: 2026-06-07 (exercise-generation pipeline audit — see log.md 2026-06-07) | Pages: 73
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -95,6 +95,7 @@ Last updated: 2026-06-07 (measure word drill 个-exclusion + classifier coverage
 - [[tasklist/master]] — All tasks, current status
 - [[tasklist/practice-merger.tasks]] — Practice Engine merger task breakdown — **NEW 2026-05-21**
 - [[tasklist/study-plans.tasks]] — Study Plans task breakdown
+- [[tasklist/ladder-judge-layer.tasks]] — Ladder Judge Layer (Phase 4): per-level + P1 judges, reject-rate dashboard — **NEW 2026-06-07**
 - [[tasklist/language-packs.tasks]] — Language Packs task breakdown
 
 ## Lessons
@@ -102,3 +103,4 @@ Last updated: 2026-06-07 (measure word drill 个-exclusion + classifier coverage
 
 ## Reviews
 - [[reviews/code-review-2026-05-24]] — Python code review of main backend (4 CRITICAL incl. missing Stripe webhook; 9 HIGH; 12 MEDIUM; 5 redundancies). **CR-03 and CR-04 patched 2026-05-24** (commit `8989b0bf`); CR-01 and CR-02 still open.
+- [[reviews/exercise-generation-audit-2026-06-07]] — Vocab-ladder generation audit: root cause of 小熊's 0-exercise failure (language-blind `morphological_forms >= 2` gate), 7 latent bugs (destructive regen, English-centric validation, broken non-English corpus extraction), and a prompting-infra audit (judge coverage 1/6 levels; monolith prompts; per-language capability matrix; prompt-per-exercise split).

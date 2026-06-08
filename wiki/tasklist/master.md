@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-05-21
+last_updated: 2026-06-09
 ---
 
 # Master Task List
@@ -11,7 +11,7 @@ last_updated: 2026-05-21
 |--------|-------|
 | Not Started | 32 |
 | In Progress | 0 |
-| Done | 0 |
+| Done | 16 |
 | Blocked | 1 |
 
 ## All Tasks
@@ -59,6 +59,28 @@ See [[tasklist/study-plans.tasks]] for full spec per task. Implements [[decision
 | TASK-218 | study-plans | Wipe user-state tables for launch (revised 2026-05-22 from backfill) | [ ] | XS | 206, 207 |
 | TASK-219 | study-plans | Flag flip + monitoring | [ ] | M | 214, 215, 217, 218 |
 | TASK-220 | study-plans | Deprecation cleanup (T+30 days) | [ ] | M | TASK-219 |
+
+### Ladder Judge Layer (Phase 4)
+See [[tasklist/ladder-judge-layer.tasks]] for full spec per task. Implements B3.1 + B3.6 of [[reviews/exercise-generation-audit-2026-06-07]]. Extends the judge layer from L3-only to every LLM-authored ladder level (L1/L5/L6/L7/L8) plus the P1 sentence corpus, en + zh. **Complete** — all four judge chains (P1/L1/collocation/sentence-validity) plus the 4.3 observability layer (reject-rate view + admin dashboard + integration test) shipped; seed migration applied.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-401 | ladder-judge-layer | Generalize renderer judge-meta tag sidecar | [x] | S | — |
+| TASK-402 | ladder-judge-layer | P1 sentence judge module | [x] | M | — |
+| TASK-403 | ladder-judge-layer | Seed `ladder_p1_sentence_judge` prompts (en+zh) | [x] | M | TASK-402 |
+| TASK-404 | ladder-judge-layer | Wire P1 sentence judge into asset_pipeline | [x] | M | 402, 403 |
+| TASK-405 | ladder-judge-layer | L1 distractor judge module | [x] | S | TASK-401 |
+| TASK-406 | ladder-judge-layer | Seed `ladder_l1_distractor_judge` prompts (en+zh) | [x] | S | TASK-405 |
+| TASK-407 | ladder-judge-layer | Wire L1 judge into `_render_phonetic` | [x] | S | 405, 406 |
+| TASK-408 | ladder-judge-layer | Collocation judge module (L5+L8) | [x] | M | TASK-401 |
+| TASK-409 | ladder-judge-layer | Seed `ladder_collocation_judge` prompts (en+zh) | [x] | S | TASK-408 |
+| TASK-410 | ladder-judge-layer | Wire collocation judge into L5/L8; retire L8 hack | [x] | M | 408, 409 |
+| TASK-411 | ladder-judge-layer | Sentence-validity judge module (L6+L7) | [x] | M | TASK-401 |
+| TASK-412 | ladder-judge-layer | Seed `ladder_sentence_validity_judge` prompts (en+zh) | [x] | S | TASK-411 |
+| TASK-413 | ladder-judge-layer | Wire sentence-validity judge into L6/L7 | [x] | M | 411, 412 |
+| TASK-414 | ladder-judge-layer | Reject-rate SQL view (judge-as-data) | [x] | M | 404, 407, 410, 413 |
+| TASK-415 | ladder-judge-layer | Admin reject-rate dashboard | [x] | S | TASK-414 |
+| TASK-416 | ladder-judge-layer | Judge-layer integration test + smoke query | [x] | S | 404, 407, 410, 413 |
 
 ### Language Packs (existing — unchanged)
 

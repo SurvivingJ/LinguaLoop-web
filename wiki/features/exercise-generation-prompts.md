@@ -3,7 +3,7 @@ title: Exercise Generation Prompts — Verbatim Reference
 type: feature-tech
 status: complete
 prose_page: ./exercises.md
-last_updated: 2026-05-14
+last_updated: 2026-06-07
 dependencies:
   - "prompt_templates table (Supabase) — model + provider are now first-class tracked columns"
   - "corpus_collocations table (Supabase) — used by L5 PMI gate"
@@ -13,7 +13,8 @@ dependencies:
   - "services/vocabulary_ladder/asset_generators/prompt2_exercises.py"
   - "services/vocabulary_ladder/asset_generators/prompt3_transforms.py"
   - "services/vocabulary_ladder/asset_generators/_renderer.py"
-  - "services/vocabulary_ladder/validators.py — VALID_POS / VALID_SEMANTIC_CLASSES include both English and Chinese enums; contains_target_whole_word falls back to substring match for non-ASCII targets"
+  - "services/vocabulary_ladder/validators.py — validate_prompt1(content, language_id) is language-aware: accepted POS / semantic_class enums and morphology/IPA strictness come from per-language LanguageValidationProfile in config.py (get_validation_profile); morphological_forms and IPA shortfalls are non-blocking warnings, not errors. contains_target_whole_word falls back to substring match for non-ASCII targets"
+  - "services/vocabulary_ladder/config.py — LanguageValidationProfile / LANGUAGE_VALIDATION_PROFILES / get_validation_profile: per-language P1 validation (1=zh, 2=en, 3=ja; merged EN/zh enums as default)"
 breaking_change_risk: low
 open_questions:
   - "Japanese (language_id=3) seeds remain absent for all three tasks."
@@ -484,6 +485,66 @@ No prose outside the JSON. No markdown fences.
 ```
 
 Failure mode on judge errors (template missing, LLM down, malformed JSON): the judge falls back to keeping every distractor and logs a warning. This is intentional — we'd rather degrade to the generator's own quality than drop content.
+
+---
+
+## Ladder judge layer (Phase 4) — `ladder_*_judge` prompts + smoke query
+
+Phase 4 extends the L3-only judge to every LLM-authored ladder level plus the P1
+sentence corpus. Four `prompt_templates` task names, each seeded per-language
+(English `language_id=2` = `google/gemini-2.5-flash-lite`; Chinese `language_id=1`
+= `qwen/qwen-max`) by [`migrations/seed_ladder_judge_prompts.sql`](../../migrations/seed_ladder_judge_prompts.sql).
+All are temperature-0, fail-open, and — per [[distractor-judge-v3-likert]] and the
+[[tasklist/ladder-judge-layer.tasks]] decision 7 — report a **5-point Likert
+`rating`** (mapped by `schemas.likert_to_verdict`: 5/4 accept, 3 flag, 2/1 reject),
+never a raw float. The binary L1 judge is the one exception (keep/reject).
+
+| `prompt_templates.task_name` | `llm_calls.task_name` (logged) | Levels | Shape | tag key |
+|---|---|---|---|---|
+| `ladder_p1_sentence_judge` | `judge_ladder_p1_sentence` | P1 corpus | verdict / sentence | `word_assets.validation_warnings` (not a tag) |
+| `ladder_l1_distractor_judge` | `judge_ladder_l1_distractor` | L1 | filter | `exercises.tags.l1_distractor_judge` |
+| `ladder_collocation_judge` | `judge_ladder_collocation` | L5, L8 | filter (L5) / verdict (L8) | `exercises.tags.collocation_judge` |
+| `ladder_sentence_validity_judge` | `judge_ladder_sentence_validity` | L6, L7 | filter (L6) / verdict (L7) | `exercises.tags.sentence_validity_judge` |
+
+**Note the prefix swap:** the row in `prompt_templates` is `ladder_*_judge`, but the
+label written to `llm_calls` by each judge module is `judge_ladder_*` (see the
+`_TASK_NAME` constants in `services/exercise_generation/judges/*.py`). The smoke
+query therefore filters on **`judge_ladder_%`**, not `ladder_%`.
+
+### `llm_calls` smoke query (accept/flag/reject distribution)
+
+After a render batch, this verifies the judges are actually running and shows how
+aggressively each one rejects — the same accept/flag/reject distribution the
+[[reviews/exercise-generation-audit-2026-06-07]] B3.6 loop calls for. `verdict`
+and `confidence` are logged once per call (the worst verdict in the batch for the
+multi-item judges):
+
+```sql
+SELECT task_name,
+       verdict,
+       count(*)            AS calls,
+       round(avg(confidence), 2) AS avg_rating
+FROM   public.llm_calls
+WHERE  task_name LIKE 'judge_ladder_%'
+  AND  pipeline = 'vocab_ladder'
+GROUP BY task_name, verdict
+ORDER BY task_name, verdict;
+```
+
+Per-prompt-version reject *rates* (for catching prompt regressions) live in the
+read-only view `v_ladder_judge_reject_rates`
+([`migrations/phase16_ladder_judge_reject_rates.sql`](../../migrations/phase16_ladder_judge_reject_rates.sql)),
+surfaced by the local admin dashboard at `/admin/judge-reject-rates`:
+
+```sql
+SELECT * FROM public.v_ladder_judge_reject_rates ORDER BY reject_rate DESC;
+```
+
+Failure mode (all four): on any error — missing template row, LLM failure,
+malformed/length-mismatched JSON — the judge safe-accepts (keeps every item /
+ships the exercise), exactly like the cloze judge above. Until
+`seed_ladder_judge_prompts.sql` is applied there are no rows, so every judge
+fails open and the smoke query returns nothing.
 
 ---
 

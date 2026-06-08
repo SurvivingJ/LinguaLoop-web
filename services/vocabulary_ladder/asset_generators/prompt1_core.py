@@ -80,17 +80,8 @@ class CoreAssetGenerator:
         )
 
         cfg = self._cfg  # populated by _build_prompt → _load_template
-        try:
-            raw = call_llm(
-                prompt_text,
-                model=cfg['model'],
-                provider=cfg['provider'],
-                temperature=0.3,
-                max_tokens=8192,
-                response_format='json',
-            )
-        except Exception as e:
-            logger.error("Prompt 1 LLM call failed for '%s': %s", lemma, e)
+        raw = self._call_with_retry(prompt_text, cfg, lemma, sense_id)
+        if raw is None:
             return None
 
         # Remap numeric keys to descriptive
@@ -163,6 +154,174 @@ class CoreAssetGenerator:
         if self._cfg is None:
             self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
         return self._cfg['template']
+
+    def _call_with_retry(
+        self, prompt_text: str, cfg: dict, lemma: str, sense_id: int,
+    ) -> dict | None:
+        """Single LLM call with one automatic retry on exception or blank response."""
+        for attempt in (1, 2):
+            try:
+                raw = call_llm(
+                    prompt_text,
+                    model=cfg['model'],
+                    provider=cfg['provider'],
+                    temperature=0.3,
+                    max_tokens=8192,
+                    response_format='json',
+                )
+            except Exception as e:
+                logger.warning(
+                    "Prompt 1 LLM call attempt %d failed for '%s' (sense %s): %s",
+                    attempt, lemma, sense_id, e,
+                )
+                if attempt == 2:
+                    logger.error(
+                        "Prompt 1 gave up for '%s' (sense %s) after 2 attempts",
+                        lemma, sense_id,
+                    )
+                    return None
+                continue
+
+            if raw:
+                return raw
+            if attempt == 1:
+                logger.warning(
+                    "Prompt 1 returned blank for '%s' (sense %s) — retrying once",
+                    lemma, sense_id,
+                )
+        return None
+
+    def repair(
+        self,
+        current_content: dict,
+        validation_errors: list[str],
+        sense_id: int,
+    ) -> dict | None:
+        """Targeted repair call: fix specific validation errors in an existing P1 asset.
+
+        Sends the current (descriptive-keyed) JSON plus the error list to the
+        model, asking it to fix only the flagged fields. Used by the pipeline
+        as a last resort before giving up on P1 entirely.
+
+        Returns a descriptive-keyed content dict, or None if the repair fails.
+        """
+        cfg = self._cfg
+        if not cfg:
+            return None
+
+        errors_text = '\n'.join(f'- {e}' for e in validation_errors)
+        current_json = json.dumps(current_content, ensure_ascii=False, indent=2)
+
+        repair_prompt = (
+            "The following vocabulary asset JSON has validation errors. "
+            "Fix ONLY the fields needed to resolve the listed errors and return "
+            "the complete corrected JSON object unchanged except for those fixes.\n\n"
+            f"VALIDATION ERRORS:\n{errors_text}\n\n"
+            f"CURRENT JSON:\n{current_json}\n\n"
+            "Return ONLY the corrected JSON object, using the same field names."
+        )
+
+        try:
+            raw = call_llm(
+                repair_prompt,
+                model=cfg['model'],
+                provider=cfg['provider'],
+                temperature=0.2,
+                max_tokens=8192,
+                response_format='json',
+            )
+        except Exception as e:
+            logger.warning("Prompt 1 repair call failed for sense %s: %s", sense_id, e)
+            return None
+
+        if not raw:
+            return None
+
+        # Repair returns descriptive keys (same as input). Guard against the
+        # model reverting to numeric keys by checking for the canonical P1 key.
+        if '1' in raw and 'pos' not in raw:
+            return self._remap_output(raw)
+        return raw
+
+    def repair_sentences(
+        self,
+        core_asset: dict,
+        bad_indices: list[int],
+        reasons: dict[int, str],
+        sense_id: int,
+    ) -> dict[int, str] | None:
+        """Rewrite only the flagged base sentences in place, preserving indices.
+
+        Used by the P1 sentence judge (Phase 4): given the sentence indices the
+        judge rejected, ask the model for a replacement sentence per index that
+        uses the target in the intended sense and register. Returns a map of
+        ``{index: new_sentence_text}`` for the indices it could repair, or None
+        on failure. The caller splices these into ``core_asset['sentences']`` at
+        the SAME positions — sentence count and order are never changed, because
+        downstream levels reference sentence indices positionally.
+        """
+        cfg = self._cfg
+        if not cfg or not bad_indices:
+            return None
+
+        sentences = core_asset.get('sentences', []) or []
+        lemma = get_sentence_target(sentences[0]) if sentences else ''
+        definition = core_asset.get('definition', '')
+        register = core_asset.get('register') or 'neutral'
+        fingerprint = core_asset.get('sense_fingerprint') or ''
+
+        flagged = []
+        for idx in bad_indices:
+            if 0 <= idx < len(sentences):
+                text = sentences[idx].get('text', '')
+                problem = reasons.get(idx, 'off-sense or off-register')
+                flagged.append(f'{idx}. (problem: {problem}) {text}')
+        if not flagged:
+            return None
+
+        flagged_text = '\n'.join(flagged)
+        # NB: literal JSON braces are doubled because this is an f-string.
+        repair_prompt = (
+            f'Target word: {lemma}\n'
+            f'Intended sense (definition): {definition}\n'
+            f'Sense fingerprint: {fingerprint}\n'
+            f'Register: {register}\n\n'
+            'Each sentence below was rejected by a corpus judge for not using '
+            'the target word in the intended sense/register, or for not using '
+            'it as a whole word. Rewrite EACH one as a NEW natural sentence that '
+            'uses the target word as a whole word in exactly the intended sense '
+            'and register. Keep roughly the same length and difficulty.\n\n'
+            f'{flagged_text}\n\n'
+            'Return JSON ONLY: an object keyed by the original index (as a '
+            'string) mapping to the rewritten sentence text. Example: '
+            '{{"3": "rewritten sentence ...", "7": "rewritten sentence ..."}}'
+        )
+
+        try:
+            raw = call_llm(
+                repair_prompt,
+                model=cfg['model'],
+                provider=cfg['provider'],
+                temperature=0.4,
+                max_tokens=4096,
+                response_format='json',
+            )
+        except Exception as e:
+            logger.warning("P1 sentence repair failed for sense %s: %s", sense_id, e)
+            return None
+
+        if not isinstance(raw, dict):
+            return None
+
+        out: dict[int, str] = {}
+        for k, v in raw.items():
+            try:
+                idx = int(k)
+            except (TypeError, ValueError):
+                continue
+            if 0 <= idx < len(sentences) and isinstance(v, str) and v.strip():
+                out[idx] = v.strip()
+        return out or None
 
     def _remap_output(self, raw: dict) -> dict | None:
         """Transform numeric-keyed LLM output to descriptive keys."""

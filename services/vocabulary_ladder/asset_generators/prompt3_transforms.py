@@ -117,26 +117,10 @@ class TransformAssetGenerator:
             return None
 
         result = self._remap_output(raw, p3_active, effective_assignments)
-
-        # Post-parse correctness check on L8: the LLM has been observed to
-        # flip which option it labels correct. Verify the labeled-correct
-        # option matches primary_collocate; if not, retry once and on failure
-        # drop L8 cleanly rather than ship a wrong exercise.
-        if 8 in p3_active and not self._l8_correctness_ok(result, core_asset):
-            logger.warning(
-                "L8 correctness check failed for sense %s — retrying once",
-                sense_id,
-            )
-            raw_retry = self._call_with_retry(prompt_text, cfg, p3_active, sense_id)
-            if raw_retry is not None:
-                result = self._remap_output(raw_retry, p3_active, effective_assignments)
-            if not self._l8_correctness_ok(result, core_asset):
-                logger.error(
-                    "L8 correctness still wrong for sense %s after retry — dropping L8",
-                    sense_id,
-                )
-                result.pop('level_8', None)
-
+        # L8 correctness is now governed by the collocation judge at render time
+        # (judges/collocation.py judge_collocation_repair), which semantically
+        # supersedes the old string-match retry/drop hack. The structural
+        # _can_generate_l8 pre-gate above still guards inputs before the LLM call.
         return result
 
     def _can_generate_l8(
@@ -173,26 +157,6 @@ class TransformAssetGenerator:
                 if _whole_word_match(sent_text, collocate):
                     return idx
         return None
-
-    def _l8_correctness_ok(self, result: dict, core_asset: dict) -> bool:
-        """Verify the L8 'correct' option actually equals primary_collocate."""
-        l8 = result.get('level_8') or {}
-        options = l8.get('options') or []
-        correct = [o for o in options if o.get('is_correct')]
-        if len(correct) != 1:
-            return False
-        target_collocate = (core_asset.get('primary_collocate') or '').strip()
-        labeled = (correct[0].get('text') or '').strip()
-        if labeled.lower() != target_collocate.lower():
-            return False
-        # Distractors must not duplicate the correct option.
-        wrong_texts = [
-            (o.get('text') or '').strip().lower()
-            for o in options if not o.get('is_correct')
-        ]
-        if labeled.lower() in wrong_texts:
-            return False
-        return True
 
     def _call_with_retry(
         self, prompt_text: str, cfg: dict, p3_active: list[int], sense_id: int,

@@ -14,7 +14,10 @@ import re
 from typing import Optional
 
 from config import Config
-from services.vocabulary_ladder.config import get_sentence_target
+from services.vocabulary_ladder.config import (
+    get_sentence_target,
+    get_validation_profile,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,32 +38,36 @@ def contains_target_whole_word(sentence: str, word: str) -> bool:
 
 
 class VocabAssetValidator:
-    """Validates word asset content from each prompt."""
+    """Validates word asset content from each prompt.
 
-    # Valid POS values (English + Chinese; Chinese adds compound-result and
-    # directional-complement categories that English doesn't have).
-    VALID_POS = {
-        'noun', 'verb', 'adjective', 'adverb', 'preposition',
-        'conjunction', 'pronoun', 'determiner', 'interjection',
-        '名词', '动词', '形容词', '副词', '介词', '连词', '代词',
-        '量词', '助词', '叹词', '方向补语', '结果补语', '情态动词',
-    }
+    Prompt 1 validation is language-aware: accepted POS / semantic-class
+    enums and the strictness of the morphology and IPA checks come from a
+    per-language profile (see `get_validation_profile`). This keeps a single
+    validator usable across languages whose P1 output is structurally
+    different (e.g. analytic Chinese vs. inflecting English).
+    """
 
-    # Valid semantic classes (English + Chinese mirror).
-    VALID_SEMANTIC_CLASSES = {
-        'concrete_noun', 'abstract_noun', 'action_verb', 'state_verb',
-        'adjective', 'adverb', 'function_word', 'other',
-        '具体名词', '抽象名词', '动作动词', '状态动词',
-        '形容词', '副词', '功能词', '其他',
-    }
-
-    def validate_prompt1(self, content: dict) -> tuple[bool, list[str]]:
+    def validate_prompt1(
+        self, content: dict, language_id: int
+    ) -> tuple[bool, list[str], list[str]]:
         """Validate Prompt 1 output (core asset).
 
+        Args:
+            content: Remapped Prompt 1 output dict.
+            language_id: Language the asset was generated for; selects the
+                validation profile (enums + morphology/IPA expectations).
+
         Returns:
-            (is_valid, list_of_errors)
+            (is_valid, list_of_errors, list_of_warnings)
+
+            Errors are blocking (the asset is stored as invalid). Warnings
+            are non-blocking quality flags (e.g. fewer morphological forms or
+            a missing IPA than the language profile expects) — the asset is
+            still valid. Warnings are surfaced for persistence by the caller.
         """
-        errors = []
+        errors: list[str] = []
+        warnings: list[str] = []
+        profile = get_validation_profile(language_id)
 
         # Required string fields
         for field in ('pos', 'semantic_class', 'definition'):
@@ -69,13 +76,16 @@ class VocabAssetValidator:
 
         # POS validation
         pos = content.get('pos', '')
-        if pos and pos not in self.VALID_POS:
-            errors.append(f"Invalid POS: '{pos}'. Expected one of {self.VALID_POS}")
+        if pos and pos not in profile.pos_set:
+            errors.append(f"Invalid POS: '{pos}'. Expected one of {sorted(profile.pos_set)}")
 
         # Semantic class validation
         sc = content.get('semantic_class', '')
-        if sc and sc not in self.VALID_SEMANTIC_CLASSES:
-            errors.append(f"Invalid semantic_class: '{sc}'. Expected one of {self.VALID_SEMANTIC_CLASSES}")
+        if sc and sc not in profile.semantic_class_set:
+            errors.append(
+                f"Invalid semantic_class: '{sc}'. "
+                f"Expected one of {sorted(profile.semantic_class_set)}"
+            )
 
         # Sentences validation
         sentences = content.get('sentences', [])
@@ -101,20 +111,28 @@ class VocabAssetValidator:
                         f"match in text (substring inside another word does not count)"
                     )
 
-        # Morphological forms
+        # Morphological forms — non-blocking. Analytic languages (Chinese)
+        # legitimately have none; invariant English words ("sheep", "must")
+        # fall short of the English profile threshold without being defective.
         forms = content.get('morphological_forms', [])
-        if not isinstance(forms, list) or len(forms) < 2:
-            errors.append("Expected at least 2 morphological_forms")
+        form_count = len(forms) if isinstance(forms, list) else 0
+        if form_count < profile.min_morphological_forms:
+            warnings.append(
+                f"Expected at least {profile.min_morphological_forms} "
+                f"morphological_forms, got {form_count}"
+            )
 
-        # IPA
-        if not content.get('ipa'):
-            errors.append("Missing IPA pronunciation")
+        # IPA — non-blocking, only flagged when the language profile expects it.
+        if profile.ipa_required and not content.get('ipa'):
+            warnings.append("Missing IPA pronunciation")
 
         is_valid = len(errors) == 0
         if not is_valid:
             logger.warning("Prompt 1 validation failed: %s", errors)
+        if warnings:
+            logger.info("Prompt 1 validation warnings: %s", warnings)
 
-        return is_valid, errors
+        return is_valid, errors, warnings
 
     def validate_prompt2(
         self, content: dict, active_levels: list[int]

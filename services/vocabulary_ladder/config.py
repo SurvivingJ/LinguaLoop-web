@@ -17,6 +17,8 @@ Concrete nouns skip collocation levels (5, 8).
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 # ---------------------------------------------------------------------------
 # Ladder level definitions — each level has a cognitive family and ring
 # ---------------------------------------------------------------------------
@@ -164,6 +166,15 @@ FAMILY_BKT_RATES: dict[str, dict[str, float]] = {
 # Session limits
 MAX_WORD_APPEARANCES_PER_SESSION = 2  # unless new or gate-failed
 
+# P1 sentence judge (Phase 4): minimum number of base sentences that must
+# survive as acceptable (verdict accept OR flag) after the judge plus one
+# targeted repair pass. Below this, too many of P1's sentences are
+# off-sense / off-register / not-whole-word to build a reliable ladder from,
+# so the whole prompt1_core asset is blocked. Flags count as acceptable (kept
+# and surfaced for review); only hard rejects that survive repair reduce the
+# count. See wiki/tasklist/ladder-judge-layer.tasks.md (TASK-404, decision 4).
+P1_MIN_ACCEPTABLE_SENTENCES: int = 6
+
 # ---------------------------------------------------------------------------
 # Maintenance review template distribution (post-mastery, FSRS-driven)
 # ---------------------------------------------------------------------------
@@ -204,16 +215,132 @@ WORD_STATES: list[str] = [
 COLLOCATION_LEVELS: set[int] = {5, 8}
 COLLOCATION_SKIP_CLASSES: set[str] = {'concrete_noun', '具体名词'}
 
+# L4 (Morphology Slot) is meaningless for analytic languages that have no
+# inflectional morphology. Rather than relying on the model returning null,
+# drop it at the config level so P3 never generates the exercise.
+MORPHOLOGY_LEVELS: set[int] = {4}
+NO_MORPHOLOGY_LANGUAGES: frozenset[int] = frozenset({1})  # 1 = Chinese (Mandarin)
 
-def compute_active_levels(semantic_class: str | None) -> list[int]:
-    """Return the active ladder levels for a word's semantic class.
+
+def compute_active_levels(
+    semantic_class: str | None,
+    language_id: int = 2,
+) -> list[int]:
+    """Return the active ladder levels for a word's semantic class and language.
 
     Concrete nouns skip levels 5 and 8 (collocation-focused).
-    All other word types get all 9 levels.
+    Non-inflecting languages (e.g. Chinese) skip level 4 (morphology slot).
+    All other word types and languages get all 9 levels.
     """
+    skip: set[int] = set()
     if semantic_class in COLLOCATION_SKIP_CLASSES:
-        return [lv for lv in ALL_LEVELS if lv not in COLLOCATION_LEVELS]
-    return list(ALL_LEVELS)
+        skip |= COLLOCATION_LEVELS
+    if language_id in NO_MORPHOLOGY_LANGUAGES:
+        skip |= MORPHOLOGY_LEVELS
+    if not skip:
+        return list(ALL_LEVELS)
+    return [lv for lv in ALL_LEVELS if lv not in skip]
+
+
+# ---------------------------------------------------------------------------
+# Per-language Prompt 1 validation profiles
+# ---------------------------------------------------------------------------
+# Different languages have structurally different P1 output. English inflects
+# (so >=2 morphological_forms and an IPA string are normal) but Chinese does
+# not — its P1 prompt rule 18 permits an empty morphological_forms list and it
+# carries pinyin rather than IPA. A single global gate over-rejects both
+# Chinese assets and invariant English words ("sheep", "the", "must"). Each
+# language declares its own enum sets and how strict the morphology/IPA checks
+# are; shortfalls against these are demoted to non-blocking warnings by the
+# validator (see VocabAssetValidator.validate_prompt1).
+#
+# language_id convention (shared with services/corpus/classifier.py):
+#   1 = Chinese (Mandarin), 2 = English, 3 = Japanese
+
+_POS_EN: frozenset[str] = frozenset({
+    'noun', 'verb', 'adjective', 'adverb', 'preposition',
+    'conjunction', 'pronoun', 'determiner', 'interjection',
+})
+
+# Chinese adds compound-result and directional-complement categories that
+# English doesn't have.
+_POS_ZH: frozenset[str] = frozenset({
+    '名词', '动词', '形容词', '副词', '介词', '连词', '代词',
+    '量词', '助词', '叹词', '方向补语', '结果补语', '情态动词',
+})
+
+_SEMANTIC_CLASSES_EN: frozenset[str] = frozenset({
+    'concrete_noun', 'abstract_noun', 'action_verb', 'state_verb',
+    'adjective', 'adverb', 'function_word', 'other',
+})
+
+# Chinese mirror of the English semantic-class enum.
+_SEMANTIC_CLASSES_ZH: frozenset[str] = frozenset({
+    '具体名词', '抽象名词', '动作动词', '状态动词',
+    '形容词', '副词', '功能词', '其他',
+})
+
+# Merged enums — the permissive default for unconfigured languages, and the
+# historical (English + Chinese) accepted set.
+DEFAULT_POS_SET: frozenset[str] = _POS_EN | _POS_ZH
+DEFAULT_SEMANTIC_CLASS_SET: frozenset[str] = _SEMANTIC_CLASSES_EN | _SEMANTIC_CLASSES_ZH
+
+
+@dataclass(frozen=True)
+class LanguageValidationProfile:
+    """Per-language thresholds and enums for Prompt 1 asset validation.
+
+    Attributes:
+        language_id: The language this profile applies to.
+        min_morphological_forms: Minimum expected morphological_forms entries.
+            A shortfall is a non-blocking warning, not an error. Default 0
+            (no expectation — correct for analytic languages like Chinese).
+        ipa_required: Whether a missing `ipa` field should raise a warning.
+        pos_set: Accepted part-of-speech enum values.
+        semantic_class_set: Accepted semantic_class enum values.
+    """
+    language_id: int
+    min_morphological_forms: int = 0
+    ipa_required: bool = False
+    pos_set: frozenset[str] = DEFAULT_POS_SET
+    semantic_class_set: frozenset[str] = DEFAULT_SEMANTIC_CLASS_SET
+
+
+LANGUAGE_VALIDATION_PROFILES: dict[int, LanguageValidationProfile] = {
+    1: LanguageValidationProfile(  # Chinese (Mandarin)
+        language_id=1,
+        min_morphological_forms=0,   # P1 rule 18 permits empty forms
+        ipa_required=False,          # carries pinyin, not IPA
+        pos_set=_POS_ZH,
+        semantic_class_set=_SEMANTIC_CLASSES_ZH,
+    ),
+    2: LanguageValidationProfile(  # English
+        language_id=2,
+        min_morphological_forms=2,   # warn (not block) invariant words
+        ipa_required=True,
+        pos_set=_POS_EN,
+        semantic_class_set=_SEMANTIC_CLASSES_EN,
+    ),
+    3: LanguageValidationProfile(  # Japanese
+        language_id=3,
+        min_morphological_forms=0,
+        ipa_required=False,
+        pos_set=DEFAULT_POS_SET,
+        semantic_class_set=DEFAULT_SEMANTIC_CLASS_SET,
+    ),
+}
+
+
+def get_validation_profile(language_id: int) -> LanguageValidationProfile:
+    """Return the P1 validation profile for a language.
+
+    Unconfigured languages fall back to a permissive default: merged EN/zh
+    enum sets and no hard morphology/IPA expectations, so a new language can
+    onboard without spurious validation failures.
+    """
+    return LANGUAGE_VALIDATION_PROFILES.get(
+        language_id, LanguageValidationProfile(language_id=language_id)
+    )
 
 
 # ---------------------------------------------------------------------------
