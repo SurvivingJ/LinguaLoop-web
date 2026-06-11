@@ -115,25 +115,39 @@ class ExerciseGenerator(ABC):
         }
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    def call_llm(self, prompt: str, response_format: str = 'json') -> dict | list:
-        """Call the LLM via OpenRouter with retry on failure."""
+    def call_llm(
+        self, prompt: str, response_format: str = 'json', task_name: str | None = None,
+    ) -> dict | list:
+        """Call the LLM via OpenRouter with retry on failure.
+
+        ``task_name`` tags the row in llm_calls; defaults to the generator's
+        ``{exercise_type}_generation`` so generation calls are queryable rather
+        than logged as task_name='unknown'.
+        """
         from services.exercise_generation.llm_client import call_llm as _call_llm
-        return _call_llm(prompt, model=self.model, response_format=response_format)
+        return _call_llm(
+            prompt,
+            model=self.model,
+            response_format=response_format,
+            task_name=task_name or f'{self.exercise_type}_generation',
+            pipeline='exercise_gen',
+        )
 
     def load_prompt_template(self, task_name: str) -> str:
-        """Fetch the latest version of a named prompt template. Caches per instance."""
+        """Fetch the active, language-matched prompt template. Caches per instance.
+
+        Routes through ``prompt_service.get_template_text`` so the lookup is
+        filtered by ``language_id`` + ``is_active`` and ordered by version —
+        not the old language-blind ``task_name``+``version`` query that could
+        serve a Chinese prompt for an English generation.
+        """
+        from services.prompt_service import get_template_text
         if not hasattr(self, '_template_cache'):
             self._template_cache: dict[str, str] = {}
         if task_name not in self._template_cache:
-            result = self.db.table('prompt_templates') \
-                .select('template_text') \
-                .eq('task_name', task_name) \
-                .order('version', desc=True) \
-                .limit(1) \
-                .execute()
-            if not result.data:
-                raise RuntimeError(f"No prompt template for task_name='{task_name}'")
-            self._template_cache[task_name] = result.data[0]['template_text']
+            self._template_cache[task_name] = get_template_text(
+                self.db, task_name, self.language_id,
+            )
         return self._template_cache[task_name]
 
     def batch_insert(self, rows: list[dict]) -> int:

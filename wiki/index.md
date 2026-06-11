@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-06-07 (exercise-generation pipeline audit — see log.md 2026-06-07) | Pages: 73
+Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026-06-11) | Pages: 75
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -19,6 +19,7 @@ Last updated: 2026-06-07 (exercise-generation pipeline audit — see log.md 2026
 - [[features/exercises]] — **DEPRECATED 2026-05-21** — merged into [[features/practice-engine]] (legacy generation pipeline still canonical here)
 - [[features/exercises.tech]] — **DEPRECATED 2026-05-21** — session-time selection moved to practice-engine.tech
 - [[features/exercise-generation-prompts]] — Verbatim text of vocab pipeline Prompts 1/2/3
+- [[features/exercise-generation-v2]] — **Design plan (2026-06-11)**: unified vocab exercise factory — ladder pipeline as sole vocab generator, capability matrix, 20-type taxonomy, JA bootstrap, 4-phase roadmap
 - [[features/vocabulary-knowledge]] — BKT vocabulary tracking with FSRS-informed decay
 - [[features/vocabulary-knowledge.tech]] — BKT formula, transit parameter, decay model, inference mechanisms
 - [[features/flashcards]] — FSRS spaced-repetition review (now a Maintenance sub-type)
@@ -100,6 +101,9 @@ Last updated: 2026-06-07 (exercise-generation pipeline audit — see log.md 2026
 
 ## Lessons
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
+
+## Evaluations
+- [[evaluations/exercise-pipeline-eval-2026-06-09]] — `services/exercise_generation` EN vocab pipeline eval: configured model `google/gemini-flash-1.5` is 404-delisted + missing/inactive templates (dead on arrival); once unblocked, 59% accept / 27% reject over 160 EN exercises (tl_nl_translation degenerate, semantic_discrimination mislabels valid English); cloze judge ships rejected distractors anyway. ZH unmeasured (qwen 429).
 
 ## Reviews
 - [[reviews/code-review-2026-05-24]] — Python code review of main backend (4 CRITICAL incl. missing Stripe webhook; 9 HIGH; 12 MEDIUM; 5 redundancies). **CR-03 and CR-04 patched 2026-05-24** (commit `8989b0bf`); CR-01 and CR-02 still open.

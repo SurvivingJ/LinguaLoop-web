@@ -133,9 +133,18 @@ class TranscriptMiner:
         ]
 
     @staticmethod
-    def _make_sentence_dict(sentence: str, test_id: str, tier: str) -> dict:
+    def _strip_markup(sentence: str) -> str:
+        """Remove stray markdown bold (** / __) that leaks in from mined corpora.
+
+        The eval found leftover bold on NON-target tokens in flashcard fronts
+        (e.g. "**import** and **export**"). Strip the markers; keep the words.
+        """
+        return sentence.replace('**', '').replace('__', '')
+
+    @classmethod
+    def _make_sentence_dict(cls, sentence: str, test_id: str, tier: str) -> dict:
         return {
-            'sentence':        sentence,
+            'sentence':        cls._strip_markup(sentence),
             'translation':     None,
             'topic':           'existing_content',
             'source':          'transcript',
@@ -212,7 +221,7 @@ class LLMSentenceGenerator:
     ) -> list[dict]:
         source_data   = self._load_source_data(source_type, source_id)
         template_name = self._TEMPLATE_BY_SOURCE.get(source_type, 'exercise_sentence_generation')
-        template      = self._load_prompt_template(template_name)
+        template      = self._load_prompt_template(template_name, language_id)
         all_sentences: list[dict] = []
 
         for offset in range(0, count, LLM_BATCH_SIZE):
@@ -252,16 +261,15 @@ class LLMSentenceGenerator:
             return row or {}
         return {}
 
-    def _load_prompt_template(self, task_name: str) -> str:
-        result = self.db.table('prompt_templates') \
-            .select('template_text') \
-            .eq('task_name', task_name) \
-            .order('version', desc=True) \
-            .limit(1) \
-            .execute()
-        if not result.data:
-            raise RuntimeError(f"No prompt template found for task_name='{task_name}'")
-        return result.data[0]['template_text']
+    def _load_prompt_template(self, task_name: str, language_id: int) -> str:
+        """Language-aware prompt lookup (filters language_id + is_active).
+
+        Was language-blind (task_name + version only), which served e.g. the
+        Chinese sentence prompt for English generation. Routes through
+        ``prompt_service.get_template_text``.
+        """
+        from services.prompt_service import get_template_text
+        return get_template_text(self.db, task_name, language_id)
 
 
 def get_sentence_pool(

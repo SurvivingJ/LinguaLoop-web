@@ -4,6 +4,7 @@ import logging
 
 from services.exercise_generation.base_generator import ExerciseGenerator
 from services.exercise_generation.cloze_judge import filter_distractors
+from services.exercise_generation.judges.base import log_judge_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +13,14 @@ class ClozeGenerator(ExerciseGenerator):
     """
     Generates cloze_completion exercises.
     Per sentence: identifies the target word/phrase, blanks it, calls LLM for
-    3 tagged distractors (semantic, form_error, learner_error), then routes
-    them through cloze_judge to drop distractors that could themselves pass
-    as the correct answer.
+    tagged distractors (semantic, form_error, learner_error), then routes them
+    through cloze_judge.
+
+    Over-generate / replace (eval HIGH #5): candidates from up to two generation
+    batches are POOLED and judged; only judge-accepted distractors are kept, and
+    the item ships the first 3 surviving distractors. If fewer than 3 survive the
+    judge across both batches the item is BLOCKED (returns None) — rejected
+    distractors are never shipped, and the verdict is persisted to llm_calls.
     """
 
     exercise_type = 'cloze_completion'
@@ -36,66 +42,67 @@ class ClozeGenerator(ExerciseGenerator):
         blanked = sentence.replace(target_word, '___', 1)
         tier = sentence_dict.get('complexity_tier', 'T3')
 
-        payload = self._generate_distractors(sentence, blanked, target_word, tier)
-        if not payload:
-            return None
+        # Pool judge-accepted distractors across up to two generation batches.
+        kept: list[str] = []
+        tags: dict[str, str] = {}
+        rejected_items: list[str] = []
+        explanation = ''
+        judge_model = 'unknown'
+        judge_version = 0
+        total_candidates = 0
 
-        distractors = payload['distractors']
-        kept, judge_meta = filter_distractors(
-            self.db,
-            sentence_with_blank=blanked,
-            correct_answer=target_word,
-            distractors=distractors,
-            language_id=self.language_id,
-        )
-
-        # If the judge rejected any, ask the generator for a fresh batch and
-        # judge again. One naive retry — if still short, skip this sentence.
-        if len(kept) < 3:
-            logger.info(
-                "cloze_judge rejected %d/%d distractors; retrying",
-                judge_meta['rejected'], len(distractors),
+        for attempt in range(2):
+            payload = self._generate_distractors(sentence, blanked, target_word, tier)
+            if not payload:
+                continue
+            if not explanation:
+                explanation = payload.get('explanation', '')
+            candidates = [d for d in payload['distractors'] if d not in kept]
+            total_candidates += len(candidates)
+            accepted, judge_meta = filter_distractors(
+                self.db,
+                sentence_with_blank=blanked,
+                correct_answer=target_word,
+                distractors=candidates,
+                language_id=self.language_id,
             )
-            retry = self._generate_distractors(sentence, blanked, target_word, tier)
-            if retry:
-                retry_kept, retry_meta = filter_distractors(
-                    self.db,
-                    sentence_with_blank=blanked,
-                    correct_answer=target_word,
-                    distractors=retry['distractors'],
-                    language_id=self.language_id,
-                )
-                if len(retry_kept) >= 3:
-                    payload = retry
-                    kept = retry_kept
-                    judge_meta = {
-                        'rejected': judge_meta['rejected'] + retry_meta['rejected'],
-                        'rejected_items': judge_meta['rejected_items']
-                                          + retry_meta['rejected_items'],
-                        'model': retry_meta['model'],
-                        'version': retry_meta['version'],
-                    }
+            judge_model   = judge_meta['model']
+            judge_version = judge_meta['version']
+            rejected_items.extend(judge_meta['rejected_items'])
+            for d in accepted:
+                if d not in kept:
+                    kept.append(d)
+                    tags[d] = payload['distractor_tags'].get(d, '')
+            if len(kept) >= 3:
+                break
 
         if len(kept) < 3:
+            # Block the item — never ship judge-rejected distractors to pad it out.
+            self._persist_verdict('reject', kept, total_candidates, judge_model, judge_version)
             logger.warning(
-                "cloze_judge still short after retry (%d kept) for: %s",
-                len(kept), sentence[:60],
+                "cloze_judge: only %d/%d distractors survived for '%s'; blocking item",
+                len(kept), total_candidates, sentence[:60],
             )
             return None
 
         kept = kept[:3]
-        self._last_judge_meta = judge_meta
+        self._last_judge_meta = {
+            'rejected':       len(rejected_items),
+            'rejected_items': rejected_items,
+            'model':          judge_model,
+            'version':        judge_version,
+        }
+        # accept if nothing was rejected; flag if the judge replaced ≥1 distractor
+        verdict = 'accept' if not rejected_items else 'flag'
+        self._persist_verdict(verdict, kept, total_candidates, judge_model, judge_version)
 
         result = {
             'sentence_with_blank': blanked,
             'original_sentence':   sentence,
             'correct_answer':      target_word,
             'options':             [target_word] + kept,
-            'distractor_tags':     {
-                d: payload['distractor_tags'].get(d, '')
-                for d in kept
-            },
-            'explanation':         payload.get('explanation', ''),
+            'distractor_tags':     {d: tags.get(d, '') for d in kept},
+            'explanation':         explanation,
             'source_test_id':      sentence_dict.get('test_id'),
         }
 
@@ -112,6 +119,24 @@ class ClozeGenerator(ExerciseGenerator):
         if self._last_judge_meta is not None:
             tags['cloze_judge'] = self._last_judge_meta
         return tags
+
+    def _persist_verdict(
+        self, verdict: str, kept: list[str], total: int, model: str, version: int,
+    ) -> None:
+        """Write the item-level cloze judge verdict to llm_calls (queryable).
+
+        confidence = fraction of judged candidates kept. task_name matches the
+        judge label 'cloze_distractor_judge' (NOT 'judge_%') so verdict queries
+        must target it explicitly.
+        """
+        confidence = (len(kept) / total) if total else 0.0
+        log_judge_verdict(
+            task_name='cloze_distractor_judge',
+            model=model,
+            verdict=verdict,
+            confidence=confidence,
+            pipeline='exercise_gen',
+        )
 
     def _identify_target_word(self, sentence: str, source_id) -> str | None:
         if self.source_type == 'vocabulary':
@@ -170,10 +195,10 @@ class ClozeGenerator(ExerciseGenerator):
                 d for d in distractors
                 if d.lower().strip() != correct_answer.lower().strip()
             ]
-            if len(distractors) < 3:
+            if not distractors:
                 return None
             return {
-                'distractors':     distractors[:3],
+                'distractors':     distractors,
                 'distractor_tags': result.get('distractor_tags', {}),
                 'explanation':     result.get('explanation', ''),
             }

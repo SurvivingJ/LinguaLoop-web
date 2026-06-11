@@ -59,6 +59,43 @@ def get_template_config(db, task_name: str, language_id: int) -> dict:
     }
 
 
+def get_template_text(db, task_name: str, language_id: int) -> str:
+    """Fetch the active template_text for a task/language — prompt text only.
+
+    Use this for prompt-text-only lookups where the model is resolved
+    elsewhere (e.g. generators that share one exercise model resolved from
+    ``cloze_distractor_generation``). Unlike ``get_template_config`` it does
+    NOT require model/provider to be populated, so prompt-only rows
+    (cloze_target_selection, semantic_discrimination_from_context,
+    context_spectrum_generation, …) resolve without inventing a model.
+
+    Critically, it filters by ``language_id`` and ``is_active`` and orders by
+    ``version`` desc — fixing the language-blind selection bug where a
+    Chinese prompt could be served for an English generation (and vice versa)
+    because the old loader keyed on ``task_name`` + ``version`` alone.
+
+    Raises:
+        RuntimeError: if no active row exists for the task/language. No silent
+            cross-language fallback — a missing per-language prompt fails loud.
+    """
+    resp = (
+        db.table('prompt_templates')
+        .select('template_text, version')
+        .eq('task_name', task_name)
+        .eq('language_id', language_id)
+        .eq('is_active', True)
+        .order('version', desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not resp.data:
+        raise RuntimeError(
+            f"No active prompt_templates row for task_name={task_name!r} "
+            f"language_id={language_id}."
+        )
+    return resp.data[0]['template_text']
+
+
 class PromptService:
     """Service for loading and formatting prompt templates"""
     

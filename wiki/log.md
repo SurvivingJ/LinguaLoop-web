@@ -1,5 +1,93 @@
 # Activity Log
 
+## 2026-06-11 update | Exercise-generation v2 plan — revision 2 with operator decisions
+
+[[features/exercise-generation-v2]] rewritten after the operator answered all 13 open questions: **single ladder
+factory** (legacy `exercise_generation` frozen for grammar/conversation/style; transcript mining folds into P1 as a
+judged sentence source), **JA now**, **top-1,000 senses/language** first batch, **nl=EN with multi-nl coming**
+(`content.nl` keyed maps from day one), **Traditional Chinese in scope** (serve-time OpenCC + `lemma_traditional` +
+override table + user toggle — mechanism/scope still pending confirmation), **`cloze_typed` graded by exact/normalised
+match** (no LLM), **semantic_class 6-value enum ratified** (concrete/abstract/action/property/function/proper) before
+backfill, sense-less conversation exercises deferred, **no L10 capstone** (p_known cap ≈0.92 accepted), **JA counter
+drill as classifier-drill clone**, no handwriting, no EN stress/homophone audio, **JA keigo `register` column** on
+dim_word_senses. Roadmap deliverables now numbered (P0.1–P4.3) for task-list conversion.
+
+**Revision 3 (same session):** final 4 decisions — trad-ZH **dual-store** (`content.hant` mirror at generation, zero
+serve-time conversion), scope = practice/vocab first, JA seeded **transcripts only**, **nl-keyed content maps** from
+batch 1. **All open questions resolved; brief ready for task-list decomposition.** Pages updated: 1 + this log.
+
+## 2026-06-11 plan | Vocabulary exercise generation pipeline — v2 design plan
+
+Full discovery (wiki + live Supabase) → engineering brief filed at [[features/exercise-generation-v2]]. Pages created: 1.
+Pages updated: [[index]], this log. No code or DB changes.
+
+**Key live-DB findings driving the plan:** platform is pre-launch (11 users, 0 ladder/BKT/FSRS/attempt rows — schema
+changes are cheap *now*); ladder asset coverage ≈ 0.1% (9 EN + 3 ZH senses in `word_assets` vs ~17.5k senses); **JA has
+zero vocab rows** despite 82 JA tests + pitch-accent trainer (extraction never ran; no JA ladder prompts/judges; JA cloze
+row inactive); enrichment fields ~empty (`pronunciation`/`morphological_forms` ≈0%, `semantic_class` ≈0% → `active_levels`
+POS routing is effectively off); live `dim_exercise_types.family` mis-maps legacy types (cloze→collocation,
+jumbled→collocation, listening_flashcard→meaning_recall) so Acquisition family-targeting mis-drills; 7,235 EN
+conversation-source exercises are sense-less (dark under ADR-012); `corpus_collocations` = 40 ZH rows, 0 validated.
+Also confirmed: practice-merger objects (`get_practice_session`, `dim_practice_modes`, `dim_exercise_types`) ARE live —
+[[features/practice-engine]] status `planned` is stale; and the 2026-06-09 slug-fix migration was applied
+(EN→gemini-3.5-flash, ZH/JA→qwen3.7-plus; JA tl_nl/nl_tl seeded).
+
+**Plan spine:** consolidate to ONE vocab factory (`vocabulary_ladder` pipeline; legacy `exercise_generation` keeps
+grammar/conversation/style only); new `dim_exercise_capabilities` (language × type × POS routing matrix) +
+`generation_queue`; 20-type taxonomy (incl. new JA `particle_selection`, kanji↔reading, ZH per-word tone/reading,
+`classifier_match` as ladder L4 reusing the drill dictionary, `cloze_typed`, `synonym_antonym_match`, `word_family`);
+judges mandatory + fail-closed in batch; nightly model-slug health probe; IRT difficulty priors from frequency_rank.
+Roadmap: P0 data foundation (family-map fix, JA vocab bootstrap, pronunciation/semantic_class backfills, JA prompt
+seeds) → P1 consolidation + top-1,000-senses/language batch → P2 quality (prompt split, sense embeddings, collocation
+grounding) → P3 CJK depth → P4 adaptive. 4 blocking questions for the operator (consolidation scope, JA now-vs-later,
+batch budget, nl=EN assumption) in the page frontmatter.
+
+**Note:** the 2026-06-10 session's pipeline repairs (judge integration, language-aware templates, tl/nl skip) are still
+uncommitted in the working tree — committing them is the first Phase-0 item.
+
+## 2026-06-09 eval | exercise pipeline (planned 20 EN + 20 ZH; ran 10 EN, ZH aborted)
+
+End-to-end evaluation of the **`services/exercise_generation`** vocabulary pipeline (the legacy VOCABULARY_DISTRIBUTION
+pipeline via `run_vocabulary_batch` → `ExerciseGenerationOrchestrator`; **not** `vocabulary_ladder`). Full report:
+[[evaluations/exercise-pipeline-eval-2026-06-09]]. Pages created: 1. Pages updated: [[index]], this log.
+
+**Headline:** the pipeline is **dead on arrival as configured** — `_load_models` raised on all 20/20 senses (EN missing
+`exercise_sentence_generation` row; ZH `cloze_distractor_generation` inactive), and its configured model
+`google/gemini-flash-1.5` is **404-delisted on OpenRouter** (same rot class as the qwen-max outage, different pipeline;
+0 logged calls in 21+ days). Per operator decision, templates were **temporarily** re-pointed at live slugs
+(EN `google/gemini-2.5-flash-lite`, ZH `qwen/qwen3.7-plus`), run, then **fully reverted & verified** (ids 147/40/39
+restored to `google/gemini-flash-1.5` + original active flags; inserted EN row id=179 deleted).
+
+**Run:** 10 EN senses (27838,13895,14072,28016,14347,28652,14556,29140,27846,28106) → **160 exercises** (full 16/16
+distribution, 0 shortfall, audio on). ZH **aborted** — `qwen/qwen3.7-plus` upstream 429 rate-limit; killed to cap cost;
+0 ZH exercises (Chinese hanzi/pinyin/audio-confusable checks unmeasured). 10 batch_ids captured. Run window
+2026-06-09T06:44:16Z.
+
+**Independent grade (160 EN):** 59% accept / 14% flag / 27% reject. text_flashcard 90%, listening_flashcard 90%,
+cloze 80% (abstract lemmas 100%, concrete "bean" 0–20%), **tl_nl_translation 0%** (degenerate: tl==nl==en, tense-only
+options), **semantic_discrimination 0%** (mislabels valid English as "wrong" for polysemous words; gibberish distractors
+for concrete words). Judge layer: only `cloze_distractor_judge` fired (live, healthy) but its rejections **don't remove
+shipped distractors** (32 rejected across 18 items, all 50 cloze still ship 4 options); no judge at all on
+tl_nl/semantic/flashcards; `judge_verdict`/`judge_confidence`/`cost_usd` never populated; gen calls log as
+`task_name='unknown'`. Pipeline ships ~100% → ~41pp leniency gap vs independent.
+
+**Cleanup:** all 160 generated rows DELETED (verified count(*)=0 for the 10 batch_ids); no rows touched outside captured
+batch_ids; `llm_calls` left intact (audit trail). **Residual:** 30 listening_flashcard TTS mp3s on
+`audio.linguadojo.com` are not removed by batch-delete (storage artifacts left in place, as noted).
+
+## 2026-06-09 debug | Chinese exercise-gen outage — dead `qwen/qwen-max` slug repointed to `qwen/qwen3.7-plus`
+
+**Symptom:** asset pipeline for sense 34995 returned `status: partial` with 4 blocking errors (Prompt 2 + Prompt 3, variants A/B). Logs showed repeated OpenRouter `404 — No endpoints found for qwen/qwen-max`.
+
+**Root cause (not a code bug):** OpenRouter delisted `qwen/qwen-max`. All zh (`language_id=1`) `prompt_templates` rows pointing at it 404'd. `vocab_prompt1_core` survived only because it was already on `qwen/qwen-2.5-72b-instruct`. Prompt 2 (exercises) + Prompt 3 (transforms) are blocking → partial render (the 2 exercises that rendered came from the surviving P1 asset + distractors). The 4 ladder judges also ran on `qwen/qwen-max`, so they were **silently failing open (accept-all)** — zh exercises were getting zero judge filtering even when generation worked. lang 2 was unaffected (already on `anthropic/claude-opus-4-7` + `google/gemini-2.5-flash-lite`).
+
+**Fix (applied live to `kpfqrjtfxmujzolwsvdq` via Supabase MCP):** `UPDATE prompt_templates SET model='qwen/qwen3.7-plus' WHERE language_id=1 AND is_active AND model='qwen/qwen-max'` — 6 rows: `vocab_prompt2_exercises`, `vocab_prompt3_transforms`, `ladder_p1_sentence_judge`, `ladder_l1_distractor_judge`, `ladder_collocation_judge`, `ladder_sentence_validity_judge`. Slug choice per user; `qwen/qwen3.7-plus` confirmed present in OpenRouter's live `/models` list (1M ctx, added 2026-06-03).
+
+**Outstanding (not yet actioned):**
+- **Re-seed risk** — the historical seed migrations still hardcode `qwen/qwen-max` and would reintroduce the bug on a fresh-DB rebuild: `migrations/seed_chinese_vocab_prompts.sql` (L239, L328), `migrations/seed_ladder_judge_prompts.sql` (L118, L205, L306, L403), `migrations/cloze_distractor_quality.sql` (L196 — a cloze distractor prompt, *not* among the 6 fixed; needs review for whether it's still 404ing). Fix should be a forward migration, not an edit to applied seeds.
+- **Backfill** — sense 34995 (and any other zh senses generated during the outage) are missing P2/P3 assets and were never judge-filtered; re-run generation.
+- **Stale docs** — `wiki/features/exercise-generation-prompts.md` (L65–66, L496) + several `Project Knowledge/*` pages still list `qwen-max`.
+
 ## 2026-06-09 change | Ladder Judge Layer — seed applied + 4.3 observability shipped (TASK-414→416); Phase 4 complete
 
 Final slice of [[tasklist/ladder-judge-layer.tasks]]. **Migrations applied to the live DB** (project `kpfqrjtfxmujzolwsvdq`) via Supabase MCP, then verified by query: `seed_ladder_judge_prompts.sql` — 8 active rows (p1/l1/collocation/sentence_validity × en `google/gemini-2.5-flash-lite` + zh `qwen/qwen-max`, all `openrouter`, v1, Likert schema), and `phase15_word_assets_validation_warnings.sql` (the `word_assets.validation_warnings text[]` column TASK-404 writes to — was not yet live; now added). All four judges now act for real instead of failing open.

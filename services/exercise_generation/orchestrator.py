@@ -85,13 +85,37 @@ class ExerciseGenerationOrchestrator:
 
         generators = self._build_generators(source_type, language_id, model)
 
+        # Same-language guard: when the target language IS the learner's native
+        # language (e.g. English-target learners with an English UI), tl_nl /
+        # nl_tl are not translation tasks — they degenerate into tense-variant
+        # MCQs with no unique answer (eval HIGH #3, 0% acceptable). Skip them.
+        # Cross-language pairs (ZH/JA target, EN native) keep translations.
+        target_code = self._get_language_code(language_id)
+        skip_translation = target_code == self.nl_language_code
+
+        # Prefer level-appropriate sentences (simpler tiers first) so an A1 word
+        # is not blanked from a C2 corpus sentence, and hand each exercise type a
+        # distinct window of the pool so the same 3 sentences aren't reused across
+        # text/listening/cloze/tl_nl (eval MEDIUM #7).
+        ordered_pool = sorted(sentence_pool, key=lambda s: s.get('complexity_tier') or 'T3')
+        cursor = 0
+
         for ex_type, gen in generators.items():
             if ex_type not in distribution:
+                continue
+            if skip_translation and ex_type in ('tl_nl_translation', 'nl_tl_translation'):
+                logger.info(
+                    "Skipping %s: target language '%s' == native '%s' (not a translation)",
+                    ex_type, target_code, self.nl_language_code,
+                )
                 continue
             if not self._in_requested_phases(ex_type, phases):
                 continue
             target = distribution[ex_type]
-            rows   = gen.generate_batch(sentence_pool, source_id, target, batch_id)
+            # Distinct slice per type; fall back to the full pool if exhausted.
+            type_pool = ordered_pool[cursor:] or ordered_pool
+            rows   = gen.generate_batch(type_pool, source_id, target, batch_id)
+            cursor += target
             all_rows.extend(rows)
             counts[ex_type] = len(rows)
             logger.info("Generated %d x %s", len(rows), ex_type)
@@ -120,6 +144,12 @@ class ExerciseGenerationOrchestrator:
             self.db, 'exercise_sentence_generation', language_id,
         )
         return exercise_cfg['model'], sentence_cfg['model']
+
+    def _get_language_code(self, language_id: int) -> str:
+        """Resolve the ISO language_code for a language_id (e.g. 2 -> 'en')."""
+        row = self.db.table('dim_languages').select('language_code') \
+            .eq('id', language_id).single().execute().data
+        return (row or {}).get('language_code', 'unknown')
 
     def _get_distribution(self, source_type: str) -> dict[str, int]:
         return {
