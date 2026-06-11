@@ -95,11 +95,11 @@ class TestAttachDifficultyWithFrequency:
     def test_tier_still_dominates(self, calibrator):
         """Complexity tier should still be the strongest factor (40% weight)."""
         row_content = {'original_sentence': 'The cat sat on the mat'}
-        a1_row = {'language_id': 2, 'content': row_content}
-        c2_row = {'language_id': 2, 'content': row_content}
+        t1_row = {'language_id': 2, 'content': row_content}
+        t6_row = {'language_id': 2, 'content': row_content}
 
-        a1_result = calibrator.attach_difficulty(a1_row.copy(), 'A1')
-        c2_result = calibrator.attach_difficulty(c2_row.copy(), 'C2')
+        t1_result = calibrator.attach_difficulty(t1_row.copy(), 'T1')
+        t6_result = calibrator.attach_difficulty(t6_row.copy(), 'T6')
 
-        # Same sentence, different CEFR -> C2 should be harder
-        assert a1_result['difficulty_static'] < c2_result['difficulty_static']
+        # Same sentence, different tier -> T6 should be harder
+        assert t1_result['difficulty_static'] < t6_result['difficulty_static']

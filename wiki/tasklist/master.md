@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-06-09
+last_updated: 2026-06-11
 ---
 
 # Master Task List
@@ -9,10 +9,10 @@ last_updated: 2026-06-09
 
 | Status | Count |
 |--------|-------|
-| Not Started | 32 |
+| Not Started | 64 |
 | In Progress | 0 |
-| Done | 16 |
-| Blocked | 1 |
+| Done | 17 |
+| Blocked | 4 |
 
 ## All Tasks
 
@@ -81,6 +81,48 @@ See [[tasklist/ladder-judge-layer.tasks]] for full spec per task. Implements B3.
 | TASK-414 | ladder-judge-layer | Reject-rate SQL view (judge-as-data) | [x] | M | 404, 407, 410, 413 |
 | TASK-415 | ladder-judge-layer | Admin reject-rate dashboard | [x] | S | TASK-414 |
 | TASK-416 | ladder-judge-layer | Judge-layer integration test + smoke query | [x] | S | 404, 407, 410, 413 |
+
+### Exercise Generation v2
+See [[tasklist/exercise-generation-v2.tasks]] for full spec per task. Implements [[features/exercise-generation-v2]] (design plan, all operator decisions final 2026-06-11). Task IDs map 1:1 to the plan's deliverables (TASK-501 = P0.1 … TASK-536 = P4.3). TASK-515 (the top-1,000 × 3-language batch run) is the integration gate.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-501 | exercise-generation-v2 | Commit 2026-06-10 working tree + verify live state | [x] | XS | — |
+| TASK-502 | exercise-generation-v2 | Ratify + migrate `semantic_class` 6-value enum | [ ] | S | — |
+| TASK-503 | exercise-generation-v2 | Fix `dim_exercise_types.family` + new type rows | [ ] | S | — |
+| TASK-504 | exercise-generation-v2 | `dim_exercise_capabilities` table + seeds + wiring | [ ] | M | 502, 503 |
+| TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [ ] | M | — |
+| TASK-506 | exercise-generation-v2 | Pronunciation backfill (ZH/JA) + JA `register` column | [ ] | M | TASK-505 |
+| TASK-507 | exercise-generation-v2 | `semantic_class` LLM backfill + spot-check | [ ] | M | 502, 505 |
+| TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [ ] | M | TASK-501 |
+| TASK-509 | exercise-generation-v2 | Traditional Chinese groundwork (dual-store + `hant` mirrors) | [ ] | M | TASK-501 |
+| TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [ ] | S | TASK-501 |
+| TASK-511 | exercise-generation-v2 | `generation_queue` migration | [ ] | XS | — |
+| TASK-512 | exercise-generation-v2 | Consolidation — ladder is the sole vocab generator | [ ] | M | TASK-501 |
+| TASK-513 | exercise-generation-v2 | Transcript mining as a P1 sentence source | [ ] | M | TASK-512 |
+| TASK-514 | exercise-generation-v2 | Robustness: non-destructive regen, P1 retry, matrix-gated L4 | [ ] | M | TASK-504 |
+| TASK-515 | exercise-generation-v2 | Batch run — top 1,000 senses × EN/ZH/JA | [ ] | L | 504–511, 513, 514, 519 |
+| TASK-516 | exercise-generation-v2 | Deterministic generators (def-match, jumbled, readings, tone) | [ ] | L | 503, 506 |
+| TASK-517 | exercise-generation-v2 | Coverage check + batch report + queue drain | [ ] | M | 504, 511 |
+| TASK-518 | exercise-generation-v2 | Per-sense legacy exercise dedupe | [ ] | S | TASK-515 |
+| TASK-519 | exercise-generation-v2 | Multi-nl content rules (`content.nl` keyed maps) | [ ] | S | TASK-501 |
+| TASK-520 | exercise-generation-v2 | Prompt split — L4 + L8 out of P3 monolith | [ ] | M | TASK-515 |
+| TASK-521 | exercise-generation-v2 | Sense embeddings (pgvector) | [ ] | M | TASK-501 |
+| TASK-522 | exercise-generation-v2 | `synonym_antonym_match` + `word_family` generators | [ ] | L | 504, 521 |
+| TASK-523 | exercise-generation-v2 | Collocation grounding for L5/L8 | [ ] | M | TASK-515 |
+| TASK-524 | exercise-generation-v2 | Sentence-tier hard gate | [ ] | S | TASK-513 |
+| TASK-525 | exercise-generation-v2 | tl_nl uniqueness judge | [ ] | S | TASK-501 |
+| TASK-526 | exercise-generation-v2 | Traditional-script serve toggle (practice surfaces) | [ ] | M | 509, 515 |
+| TASK-527 | exercise-generation-v2 | JA `particle_selection` generator + judge | [ ] | M | 508, 515 |
+| TASK-528 | exercise-generation-v2 | ZH `classifier_match` as ladder L4 | [ ] | M | TASK-504 |
+| TASK-529 | exercise-generation-v2 | `reading_to_kanji` / `pinyin_to_hanzi` + component table | [ ] | M | TASK-516 |
+| TASK-530 | exercise-generation-v2 | JA counter drill (助数詞) + `counter_match` | [ ] | L | TASK-504 |
+| TASK-531 | exercise-generation-v2 | Audio at scale (L1 + listening) | [ ] | M | TASK-515 |
+| TASK-532 | exercise-generation-v2 | `cloze_typed` free input (normalised match) | [ ] | M | TASK-515 |
+| TASK-533 | exercise-generation-v2 | `timed_speed_round` serve-time composer | [ ] | M | TASK-515 |
+| TASK-534 | exercise-generation-v2 | Exercise-type effectiveness view | [?] | M | 515 + launch data |
+| TASK-535 | exercise-generation-v2 | Thompson-sampling type tie-breaker | [?] | L | TASK-534 |
+| TASK-536 | exercise-generation-v2 | Per-user format prefs + item retirement | [?] | M | TASK-534 |
 
 ### Language Packs (existing — unchanged)
 

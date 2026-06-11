@@ -1,5 +1,31 @@
 # Activity Log
 
+## 2026-06-12 change | TASK-501 done — working tree verified + test suite green
+
+First task of the [[tasklist/exercise-generation-v2]] execution. The 2026-06-10 judge/slug tree was **already
+committed** before this session (`fcd1fd22` judge integration, `9c1e5fc9` cloze + judge prompting), so TASK-501
+reduced to verification + cleanup. Verified live DB: 0 active `google/gemini-flash-1.5` rows, EN
+`exercise_sentence_generation` row present; both migrations (`fix_exercise_generation_slugs_and_templates.sql`,
+`improve_semantic_discrimination_prompts.sql`) tracked. Fixed **two stale committed tests** that were red:
+`test_difficulty_frequency.py::test_tier_still_dominates` (obsolete CEFR keys `A1`/`C2` → `T1`/`T6`; `TIER_NUMERIC`
+is T-tier-only post the CEFR→tier migration) and `test_cloze_generator.py::test_judge_rejects_one_retry_succeeds`
+(asserted old wholesale-replace; `cloze.py` now POOLs judge survivors across batches). Git history confirms both
+fixes follow shipped code, not the reverse. Cleaned the tree: untracked 103 already-committed `.pyc` files (covered by
+the existing `__pycache__/` gitignore) and removed the stray 0-byte tracked `and` file. Suite: **457 passed, 1
+skipped**. Done: 16→17, Not Started 65→64. Next: TASK-502 (semantic_class 6-value enum migration). Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
+## 2026-06-11 tasklist | Exercise Generation v2 (TASK-501–536) — plan only
+
+Converted [[features/exercise-generation-v2]] into [[tasklist/exercise-generation-v2.tasks]] — **36 tasks, no code
+written**, IDs map 1:1 to the plan's deliverables (TASK-501 = P0.1 … TASK-536 = P4.3). Phase 0 (501–511) is mostly
+parallelisable foundation work (commit pending tree, semantic_class enum + backfill, family-map fix, capability
+matrix, JA bootstrap + prompt seeds, pronunciation/register enrichment, trad-ZH dual-store groundwork, slug-health
+cron, generation_queue). **TASK-515 (top-1,000 senses × EN/ZH/JA batch run) is the integration gate** — depends on
+504–511 + 513/514/519. Phases 2–3 (520–533) fan out after it; Phase 4 (534–536) marked `[?]` blocked on post-launch
+attempt data. Master summary: Not Started 32→65, Blocked 1→4. Pages created: 1. Pages updated: [[tasklist/master]],
+[[index]], this log. Awaiting operator review of the decomposition before work starts.
+
 ## 2026-06-11 update | Exercise-generation v2 plan — revision 2 with operator decisions
 
 [[features/exercise-generation-v2]] rewritten after the operator answered all 13 open questions: **single ladder

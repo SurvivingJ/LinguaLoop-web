@@ -97,6 +97,7 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 - [[tasklist/practice-merger.tasks]] — Practice Engine merger task breakdown — **NEW 2026-05-21**
 - [[tasklist/study-plans.tasks]] — Study Plans task breakdown
 - [[tasklist/ladder-judge-layer.tasks]] — Ladder Judge Layer (Phase 4): per-level + P1 judges, reject-rate dashboard — **NEW 2026-06-07**
+- [[tasklist/exercise-generation-v2.tasks]] — Exercise Generation v2 (TASK-501–536): consolidation, JA bootstrap, capability matrix, batch run, CJK depth — **NEW 2026-06-11**
 - [[tasklist/language-packs.tasks]] — Language Packs task breakdown
 
 ## Lessons

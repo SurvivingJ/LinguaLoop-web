@@ -112,8 +112,10 @@ def test_judge_rejects_one_retry_succeeds():
 
     assert result is not None
     assert result['correct_answer'] == 'ran'
-    # The retry batch was used.
-    assert result['options'] == ['ran', 'galloped', 'sprinted', 'ate']
+    # Distractors are POOLED across batches (see ClozeGenerator docstring):
+    # the two batch-1 survivors ('runs', 'eats') are kept and topped up from the
+    # retry batch ('galloped'), then trimmed to the first 3.
+    assert result['options'] == ['ran', 'runs', 'eats', 'galloped']
     assert gen._last_judge_meta['rejected'] >= 1
     assert 'walked' in gen._last_judge_meta['rejected_items']
 
