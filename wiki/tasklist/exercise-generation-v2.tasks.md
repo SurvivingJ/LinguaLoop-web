@@ -4,7 +4,7 @@ feature: exercise-generation-v2
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../features/exercise-generation-v2.md
 total_tasks: 36
-done: 3
+done: 4
 ---
 
 # Exercise Generation v2 — Task Breakdown
@@ -102,20 +102,22 @@ Live `dim_exercise_types` mis-maps legacy types (cloze→collocation, jumbled→
 
 ## TASK-504: `dim_exercise_capabilities` — table, seeds, wiring, invariant test
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-14)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
 **Depends On:** TASK-502, TASK-503
 
+**Resolution note:** `migrations/dim_exercise_capabilities.sql` applied live (Supabase MCP) — 55 rows (54 enabled, 1 disabled marker = ZH `morphology_slot`), §6.2 DDL verbatim. Seeds encode §5's Lang column for all three languages. **DB-vs-spec resolution (flagged):** the live `dim_exercise_types` had 25 rows but **no `morphology_slot`** row, although it is L4's `exercise_type` in `config.py` LADDER_LEVELS, is §5 #5, and is the explicit `(1,'morphology_slot',…)` example in the §6.2 DDL — TASK-503 added the 12 new types assuming it pre-existed (it never did). Since capability rows FK-reference `dim_exercise_types(type_code)`, the migration additively backfills that one missing type row (`form_production`, 45s, `ON CONFLICT DO NOTHING`) — same additive pattern TASK-503 used for the `fluency` CHECK. **Key design choice:** `compute_active_levels` is now matrix-derived (distinct enabled `ladder_level` over rows whose `pos_classes` cover the class), language-aware, yet produces the *same* canonical level sets as TASK-502 (`proper`→[], `function`→[1,2,3,6,7], `concrete`→[1,2,3,4,6,7,9] with the L4 *type* differing per language: ZH=classifier_match, EN=morphology_slot, JA=particle/counter, all+cloze_typed as the general productive L4) — so the existing `test_active_levels_routing.py` stayed green with no changes. The `'all'` pos sentinel matches every class except `proper`; legacy hardcoded routing retained only as `_fallback_active_levels` (used when a language has no matrix rows). In-code `CAPABILITY_MATRIX` mirrors the SQL seeds (the offline routing + test source; DB copy is runtime SoT, cached by `DimensionService.get_exercise_capabilities`). New `tests/test_capability_matrix.py` (25 tests) asserts the §4 inventory invariant for all 18 (language × class) pairs + structural checks (judge_key NULL ⟺ deterministic) + the ZH-concrete verification. Suite: **523 passed, 1 skipped**.
+
 **Description:**
 Create the routing core (§6.2 DDL verbatim): one row per (language, type) declaring pos_classes, ladder_level, generator kind, data requirements, and judge_key. Seed EN/ZH/JA per §5's Lang column. Rewire `compute_active_levels` (and the generation planner) to read this table instead of hardcoded config.
 
 **Acceptance Criteria:**
-- [ ] Table live with §6.2 schema; seeds for all enabled (language, type) pairs incl. disabled markers (`(1,'morphology_slot',is_enabled=false)`)
-- [ ] `compute_active_levels` derives levels from the matrix; hardcoded ZH/EN special cases in `config.py` deleted or reduced to fallback
-- [ ] Invariant test: every `(language_id, semantic_class)` combination yields ≥1 enabled type per required family (the §4 inventory contract)
-- [ ] DimensionService caches the matrix at startup (same pattern as other dim tables)
+- [x] Table live with §6.2 schema; seeds for all enabled (language, type) pairs incl. disabled markers (`(1,'morphology_slot',is_enabled=false)`)
+- [x] `compute_active_levels` derives levels from the matrix; hardcoded ZH/EN special cases in `config.py` reduced to `_fallback_active_levels` only
+- [x] Invariant test: every `(language_id, semantic_class)` combination yields ≥1 enabled type per required family (the §4 inventory contract)
+- [x] DimensionService caches the matrix at startup (`get_exercise_capabilities`, same pattern as other dim tables)
 
 **Files to Create / Modify:**
 - `migrations/dim_exercise_capabilities.sql` — DDL + seeds

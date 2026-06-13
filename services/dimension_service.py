@@ -33,6 +33,7 @@ class DimensionService:
     _test_type_cache: Dict[str, int] = {}
     _languages_metadata: List[Dict] = []
     _test_types_metadata: List[Dict] = []
+    _exercise_capabilities: List[Dict] = []
     _initialized: bool = False
 
     @classmethod
@@ -61,8 +62,26 @@ class DimensionService:
             cls._test_types_metadata = types.data or []
             cls._test_type_cache = {r['type_code']: r['id'] for r in cls._test_types_metadata}
 
+            # Cache the exercise capability matrix (dim_exercise_capabilities,
+            # TASK-504). Isolated in its own try so a missing/empty table never
+            # blocks core dimension init — routing falls back to the in-code
+            # CAPABILITY_MATRIX mirror in services.vocabulary_ladder.config.
+            try:
+                caps = client.table('dim_exercise_capabilities')\
+                    .select('language_id, type_code, pos_classes, ladder_level, '
+                            'generator, requires, judge_key, is_enabled')\
+                    .execute()
+                cls._exercise_capabilities = caps.data or []
+            except Exception as cap_err:
+                logger.error(f"Failed to cache dim_exercise_capabilities: {cap_err}")
+                cls._exercise_capabilities = []
+
             cls._initialized = True
-            logger.info(f"DimensionService initialized: {len(cls._language_cache)} languages, {len(cls._test_type_cache)} test types")
+            logger.info(
+                f"DimensionService initialized: {len(cls._language_cache)} languages, "
+                f"{len(cls._test_type_cache)} test types, "
+                f"{len(cls._exercise_capabilities)} exercise capabilities"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize DimensionService: {e}")
@@ -71,6 +90,19 @@ class DimensionService:
     def get_all_languages(cls) -> List[Dict]:
         """Return cached language metadata for /api/metadata endpoint."""
         return cls._languages_metadata
+
+    @classmethod
+    def get_exercise_capabilities(cls, language_id: Optional[int] = None) -> List[Dict]:
+        """Return cached dim_exercise_capabilities rows (TASK-504 routing matrix).
+
+        With `language_id`, returns only that language's rows. The DB copy is the
+        runtime source of truth; the in-code mirror in
+        services.vocabulary_ladder.config (CAPABILITY_MATRIX) is the seed +
+        offline routing source and must stay in sync with it.
+        """
+        if language_id is None:
+            return cls._exercise_capabilities
+        return [r for r in cls._exercise_capabilities if r.get('language_id') == language_id]
 
     @classmethod
     def get_all_test_types(cls, supabase_client=None) -> List[Dict] | Tuple[Dict[str, int], Dict[int, str]]:

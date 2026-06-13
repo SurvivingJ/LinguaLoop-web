@@ -229,21 +229,130 @@ LADDER_EXCLUDED_CLASSES: frozenset[str] = frozenset({'proper'})
 FUNCTION_ACTIVE_LEVELS: list[int] = [1, 2, 3, 6, 7]
 
 
-def compute_active_levels(
-    semantic_class: str | None,
-    language_id: int = 2,  # reserved: TASK-504 replaces this with the capability matrix
-) -> list[int]:
-    """Return the active ladder levels for a word's ratified semantic_class.
+# ---------------------------------------------------------------------------
+# dim_exercise_capabilities — the (language, type) routing matrix (TASK-504)
+# ---------------------------------------------------------------------------
+# This in-code constant MIRRORS migrations/dim_exercise_capabilities.sql — the
+# DB table is the runtime source of truth (cached by DimensionService), and this
+# copy is the authoritative *seed* + the offline-testable routing source. KEEP
+# THE TWO IN SYNC: any row change here must be reflected in that migration (and
+# re-applied live) and vice versa. compute_active_levels and the §4 inventory
+# invariant test (tests/test_capability_matrix.py) read this constant so routing
+# stays correct with no DB dependency (asset_pipeline runs before any cache load
+# and must never silently fall back to all-9-levels for a known class).
+#
+# pos_classes sentinel 'all' matches every ratified class EXCEPT 'proper'
+# (proper is never ladder-subscribed). A row applies to 'proper' only if it
+# names it explicitly. ladder_level None = non-ladder (speed round, flashcards)
+# — excluded from active_levels.
 
-    See the routing table above. `proper` is not subscribed to the ladder
-    (returns []); `function` words get receptive + discrimination levels only;
-    `concrete` nouns skip the collocation levels (5, 8); everything else
-    (including unclassified pre-backfill words) gets the full 9-level ladder.
+POS_ALL: str = 'all'
 
-    `language_id` is accepted for forward-compatibility — the L4 *type* per
-    language is the capability matrix's concern (TASK-504), not the level's
-    presence — so the level set is derived from semantic_class alone for now.
+# type_code -> cognitive family (mirror of dim_exercise_types, plan §5 / TASK-503).
+EXERCISE_TYPE_FAMILY: dict[str, str] = {
+    'phonetic_recognition':    'form_recognition',
+    'definition_match':        'form_recognition',
+    'cloze_completion':        'meaning_recall',
+    'cloze_typed':             'form_production',
+    'morphology_slot':         'form_production',
+    'classifier_match':        'form_production',
+    'particle_selection':      'form_production',
+    'counter_match':           'form_production',
+    'collocation_gap_fill':    'collocation',
+    'semantic_discrimination': 'semantic_discrimination',
+    'spot_incorrect_sentence': 'semantic_discrimination',
+    'collocation_repair':      'collocation',
+    'jumbled_sentence':        'form_production',
+    'hanzi_to_pinyin':         'form_recognition',
+    'pinyin_to_hanzi':         'form_recognition',
+    'tone_id_word':            'form_recognition',
+    'kanji_to_reading':        'form_recognition',
+    'reading_to_kanji':        'form_recognition',
+    'synonym_antonym_match':   'semantic_discrimination',
+    'word_family':             'form_production',
+    'tl_nl_translation':       'meaning_recall',
+    'nl_tl_translation':       'meaning_recall',
+    'text_flashcard':          'meaning_recall',
+    'listening_flashcard':     'form_recognition',
+    'timed_speed_round':       'fluency',
+}
+
+# Compact spec: (type_code, language_ids, pos_classes, ladder_level, generator,
+# requires, judge_key, is_enabled). Expanded to one row per language below.
+_CAPABILITY_SPEC: list[tuple] = [
+    ('phonetic_recognition', (2, 3), ('all',), 1, 'llm', ('p1_sentences', 'tts'), 'l1_distractor', True),
+    ('phonetic_recognition', (1,), ('all',), 1, 'llm', ('p1_sentences', 'tts', 'pronunciation'), 'l1_distractor', True),
+    ('definition_match', (1, 2, 3), ('all',), 2, 'deterministic', ('same_tier_senses',), None, True),
+    ('cloze_completion', (1, 2, 3), ('all',), 3, 'llm', ('p1_sentences',), 'cloze', True),
+    ('cloze_typed', (1, 2, 3), ('concrete', 'abstract', 'action', 'property'), 4, 'deterministic', ('cloze_asset',), None, True),
+    ('morphology_slot', (2,), ('concrete', 'action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', True),
+    ('morphology_slot', (3,), ('action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', True),
+    ('morphology_slot', (1,), ('action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', False),
+    ('classifier_match', (1,), ('concrete',), 4, 'deterministic', ('classifier_dict',), None, True),
+    ('particle_selection', (3,), ('concrete', 'abstract', 'action'), 4, 'llm', ('p1_sentences', 'tokenised_particles'), 'particle', True),
+    ('counter_match', (3,), ('concrete',), 4, 'deterministic', ('counter_dict',), None, True),
+    ('collocation_gap_fill', (1, 2, 3), ('abstract', 'action', 'property'), 5, 'llm', ('primary_collocate',), 'collocation', True),
+    ('semantic_discrimination', (1, 2, 3), ('all',), 6, 'llm', ('p1_definition',), 'sentence_validity', True),
+    ('spot_incorrect_sentence', (1, 2, 3), ('all',), 7, 'llm', ('p1_sentences',), 'sentence_validity', True),
+    ('collocation_repair', (1, 2, 3), ('abstract', 'action', 'property'), 8, 'llm', ('primary_collocate',), 'collocation', True),
+    ('jumbled_sentence', (1, 2, 3), ('concrete', 'abstract', 'action', 'property'), 9, 'deterministic', ('p1_sentences',), None, True),
+    ('hanzi_to_pinyin', (1,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
+    ('pinyin_to_hanzi', (1,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
+    ('tone_id_word', (1,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
+    ('kanji_to_reading', (3,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
+    ('reading_to_kanji', (3,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
+    ('synonym_antonym_match', (1, 2, 3), ('abstract', 'action', 'property'), 6, 'llm', ('sense_embedding',), 'relation', True),
+    ('word_family', (2,), ('abstract', 'action', 'property'), 4, 'llm', ('morph_forms>=2',), 'word_family', True),
+    ('tl_nl_translation', (1, 3), ('all',), 3, 'llm', ('p1_sentences', 'nl_gloss'), 'translation_uniqueness', True),
+    ('nl_tl_translation', (1, 3), ('all',), 3, 'llm', ('p1_sentences', 'nl_gloss'), 'translation_uniqueness', True),
+    ('text_flashcard', (1, 2, 3), ('all',), None, 'deterministic', ('p1_sentences',), None, True),
+    ('listening_flashcard', (1, 2, 3), ('all',), None, 'deterministic', ('p1_sentences', 'tts'), None, True),
+    ('timed_speed_round', (1, 2, 3), ('all',), None, 'deterministic', (), None, True),
+]
+
+CAPABILITY_MATRIX: list[dict] = [
+    {
+        'language_id': lang,
+        'type_code': type_code,
+        'pos_classes': list(pos_classes),
+        'ladder_level': ladder_level,
+        'generator': generator,
+        'requires': list(requires),
+        'judge_key': judge_key,
+        'is_enabled': is_enabled,
+    }
+    for (type_code, langs, pos_classes, ladder_level, generator, requires, judge_key, is_enabled)
+    in _CAPABILITY_SPEC
+    for lang in langs
+]
+
+
+def _pos_matches(semantic_class: str | None, pos_classes: list[str]) -> bool:
+    """Whether a ratified `semantic_class` is covered by a row's pos_classes.
+
+    The 'all' sentinel covers every class EXCEPT 'proper'; 'proper' is matched
+    only when listed explicitly.
     """
+    if semantic_class in pos_classes:
+        return True
+    return POS_ALL in pos_classes and semantic_class != 'proper'
+
+
+def enabled_capabilities(language_id: int, semantic_class: str | None) -> list[dict]:
+    """Enabled capability rows for a (language, ratified semantic_class) pair."""
+    return [
+        cap for cap in CAPABILITY_MATRIX
+        if cap['language_id'] == language_id
+        and cap['is_enabled']
+        and _pos_matches(semantic_class, cap['pos_classes'])
+    ]
+
+
+def _fallback_active_levels(semantic_class: str | None) -> list[int]:
+    """Legacy semantic_class-only routing — used only when the matrix has no
+    rows for the requested language (unconfigured language / misconfiguration).
+    Mirrors the pre-TASK-504 behaviour so a new language degrades gracefully
+    rather than returning nothing."""
     if semantic_class in LADDER_EXCLUDED_CLASSES:
         return []
     if semantic_class in FUNCTION_CLASSES:
@@ -254,6 +363,52 @@ def compute_active_levels(
     if not skip:
         return list(ALL_LEVELS)
     return [lv for lv in ALL_LEVELS if lv not in skip]
+
+
+def compute_active_levels(
+    semantic_class: str | None,
+    language_id: int = 2,
+) -> list[int]:
+    """Return the active ladder levels for a word, derived from the capability
+    matrix (TASK-504, plan §6.2).
+
+    The level set is the sorted distinct `ladder_level` over all *enabled*
+    capability rows for `language_id` whose `pos_classes` cover the word's
+    ratified `semantic_class`. This makes routing language-aware (e.g. ZH
+    concrete L4 = classifier_match, EN/JA L4 = morphology/particle/counter) while
+    keeping the canonical level sets: `proper` -> [] (not subscribed),
+    `function` -> [1,2,3,6,7] (no productive/collocation levels), `concrete` ->
+    [1,2,3,4,6,7,9] (collocation L5/L8 dropped), everything else -> full 9.
+
+    Unclassified / unrecognised semantic_class (NULL or a legacy value not in the
+    ratified enum) returns the permissive full ladder — the pre-backfill default.
+    If the matrix has no rows for the language at all, falls back to the legacy
+    semantic_class-only routing.
+    """
+    if semantic_class not in SEMANTIC_CLASSES:
+        # Pre-backfill / unrecognised: permissive full ladder.
+        return list(ALL_LEVELS)
+
+    if not any(cap['language_id'] == language_id for cap in CAPABILITY_MATRIX):
+        return _fallback_active_levels(semantic_class)
+
+    levels = {
+        cap['ladder_level']
+        for cap in enabled_capabilities(language_id, semantic_class)
+        if cap['ladder_level'] is not None
+    }
+    return sorted(levels)
+
+
+def required_families(language_id: int, semantic_class: str | None) -> set[str]:
+    """The cognitive families a (language, semantic_class) word must be able to
+    practise — derived from its active ladder levels (§4 inventory contract).
+    The capability matrix must supply >=1 enabled type per required family."""
+    return {
+        LADDER_LEVELS[lv]['family']
+        for lv in compute_active_levels(semantic_class, language_id)
+        if lv in LADDER_LEVELS
+    }
 
 
 # ---------------------------------------------------------------------------

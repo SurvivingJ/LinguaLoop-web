@@ -1,5 +1,30 @@
 # Activity Log
 
+## 2026-06-14 change | TASK-504 done — dim_exercise_capabilities routing matrix
+
+Phase-0 foundation. Created `dim_exercise_capabilities` (§6.2 DDL verbatim) and applied
+`migrations/dim_exercise_capabilities.sql` live (Supabase MCP): **55 rows** (54 enabled, 1 disabled marker =
+ZH `morphology_slot` — Chinese is analytic, its L4 is `classifier_match`). Seeds encode §5's Lang column across
+ZH/EN/JA: per-(language, type) `pos_classes`, `ladder_level`, `generator`, `requires`, `judge_key`, `is_enabled`.
+**DB-vs-spec resolution (flagged):** the live `dim_exercise_types` had 25 rows but **no `morphology_slot`** despite
+it being L4's `exercise_type` in `config.py` LADDER_LEVELS, §5 #5, and the explicit `(1,'morphology_slot',…)` example
+in the §6.2 DDL — TASK-503 added the 12 new types assuming it pre-existed (it never did). Capability rows FK-reference
+`dim_exercise_types(type_code)`, so the migration additively backfills that one missing type row (`form_production`,
+45s, `ON CONFLICT DO NOTHING`) — same additive pattern TASK-503 used for the `fluency` CHECK. **Routing rewire:**
+`services/vocabulary_ladder/config.py` `compute_active_levels` is now matrix-derived (sorted distinct enabled
+`ladder_level` over rows whose `pos_classes` cover the class), language-aware, but produces the *same* canonical level
+sets as TASK-502 (`proper`→[], `function`→[1,2,3,6,7], `concrete`→[1,2,3,4,6,7,9] with L4 type per language:
+ZH=classifier_match, EN=morphology_slot, JA=particle/counter, all+cloze_typed as the general productive L4) — so the
+existing `test_active_levels_routing.py` stayed green unchanged. Legacy hardcoded routing kept only as
+`_fallback_active_levels` (used when a language has no matrix rows); `'all'` pos sentinel = every class except `proper`.
+In-code `CAPABILITY_MATRIX` mirrors the SQL seeds (offline routing + test source; DB copy is runtime SoT, cached at
+startup by `DimensionService.get_exercise_capabilities`). New `tests/test_capability_matrix.py` (25 tests) enforces the
+§4 inventory invariant (every (language × semantic_class) has ≥1 enabled type per required family) + structural checks
+(judge_key NULL ⟺ deterministic) + the ZH-concrete verification (classifier_match@L4, no morphology_slot). Suite:
+**523 passed, 1 skipped** (498 baseline + 25 new). Done 19→20, Not Started 62→61. Next: TASK-505 (JA vocab bootstrap,
+no deps) or the Phase-0 fan-out (506–511) toward the TASK-515 batch gate. Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-13 change | TASK-503 done — dim_exercise_types family map fixed + 12 new types
 
 Applied `migrations/fix_dim_exercise_types_families.sql` live (Supabase MCP), verified — all 25 rows match §5.
