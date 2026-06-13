@@ -1,5 +1,22 @@
 # Activity Log
 
+## 2026-06-13 change | TASK-503 done — dim_exercise_types family map fixed + 12 new types
+
+Applied `migrations/fix_dim_exercise_types_families.sql` live (Supabase MCP), verified — all 25 rows match §5.
+Corrected 6 mis-mapped legacy rows (cloze_completion→meaning_recall, definition_match→form_recognition,
+jumbled_sentence→form_production, listening_flashcard→form_recognition, spot_incorrect_sentence +
+spot_incorrect_part→semantic_discrimination — fixes finding G4 family mis-drilling). Inserted the 12 new type_codes
+(`cloze_typed`, `classifier_match`, `particle_selection`, `counter_match`, `hanzi_to_pinyin`, `kanji_to_reading`,
+`pinyin_to_hanzi`, `reading_to_kanji`, `tone_id_word`, `synonym_antonym_match`, `word_family`, `timed_speed_round`)
+with §5 families + expected_seconds (readings/tone 15s, speed-round 8s, rest 45s). **DB-vs-spec resolution:** the live
+`dim_exercise_types_family_check` forbade §5's `fluency` family (timed_speed_round), so the constraint was additively
+extended to include it — safe, `fluency` is non-BKT (no `FAMILY_WEIGHTS` entry → never feeds p_known/coverage). The
+constraint was first defined in `phase12_dim_exercise_types.sql` (kept as the table's canonical record; the new file is
+the newest definer of that one constraint). Idempotent (keyed UPDATEs + DROP IF EXISTS/re-ADD + ON CONFLICT DO
+NOTHING). No code/tests touched. Done 18→19, Not Started 63→62. Next: TASK-504 (the `dim_exercise_capabilities` routing
+matrix — depends on 502+503, both now done). Pages updated: [[tasklist/exercise-generation-v2]], [[tasklist/master]],
+this log.
+
 ## 2026-06-13 change | TASK-502 done — semantic_class 6-value enum ratified + migrated
 
 Phase-0 foundation. Applied `migrations/semantic_class_enum.sql` live (Supabase MCP): remapped the 11 legacy

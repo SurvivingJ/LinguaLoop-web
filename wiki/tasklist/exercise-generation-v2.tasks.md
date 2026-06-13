@@ -4,7 +4,7 @@ feature: exercise-generation-v2
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../features/exercise-generation-v2.md
 total_tasks: 36
-done: 2
+done: 3
 ---
 
 # Exercise Generation v2 — Task Breakdown
@@ -76,19 +76,21 @@ Replace the informal `semantic_class` values with the ratified 6-value enum (§4
 
 ## TASK-503: Fix `dim_exercise_types.family` + add new type rows
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-13)
 **Feature:** exercise-generation-v2
 **Type:** bug
 **Complexity:** S (1-3h)
 **Depends On:** none
 
+**Resolution note:** `migrations/fix_dim_exercise_types_families.sql` applied live (Supabase MCP), verified — all 25 rows (13 corrected + 12 new) match §5. Corrected: `cloze_completion`→meaning_recall, `definition_match`→form_recognition, `jumbled_sentence`→form_production, `listening_flashcard`→form_recognition, `spot_incorrect_sentence`+`spot_incorrect_part`→semantic_discrimination. Added 12: readings (`hanzi_to_pinyin`/`kanji_to_reading`/`pinyin_to_hanzi`/`reading_to_kanji`) + `tone_id_word` @15s, `timed_speed_round` @8s, others (`cloze_typed`/`classifier_match`/`particle_selection`/`counter_match`/`synonym_antonym_match`/`word_family`) @45s. **DB-vs-spec resolution:** the `family` CHECK forbade §5's `fluency` family (timed_speed_round), so the constraint was additively extended to include it — safe, as `fluency` is non-BKT (no `FAMILY_WEIGHTS` entry → never feeds `p_known`/coverage). Idempotent (keyed UPDATEs + DROP IF EXISTS/re-ADD + `ON CONFLICT DO NOTHING`).
+
 **Description:**
 Live `dim_exercise_types` mis-maps legacy types (cloze→collocation, jumbled→collocation, listening_flashcard→meaning_recall), so Acquisition-mode family targeting mis-drills (finding G4). Correct every row to the §5 Family column and insert rows for the 12 new type_codes with realistic `expected_seconds`.
 
 **Acceptance Criteria:**
-- [ ] All 13 existing rows match §5 (cloze_completion→meaning_recall, jumbled_sentence→form_production, listening_flashcard→form_recognition, etc.)
-- [ ] New rows inserted: `cloze_typed`, `classifier_match`, `particle_selection`, `counter_match`, `hanzi_to_pinyin`, `kanji_to_reading`, `pinyin_to_hanzi`, `reading_to_kanji`, `tone_id_word`, `synonym_antonym_match`, `word_family`, `timed_speed_round` — each with family + `expected_seconds` (reading/tone ≈15s, speed-round ≈8s, others ≈45s)
-- [ ] Migration is idempotent (keyed UPDATEs + `ON CONFLICT DO NOTHING`)
+- [x] All 13 existing rows match §5 (cloze_completion→meaning_recall, jumbled_sentence→form_production, listening_flashcard→form_recognition, etc.)
+- [x] New rows inserted: `cloze_typed`, `classifier_match`, `particle_selection`, `counter_match`, `hanzi_to_pinyin`, `kanji_to_reading`, `pinyin_to_hanzi`, `reading_to_kanji`, `tone_id_word`, `synonym_antonym_match`, `word_family`, `timed_speed_round` — each with family + `expected_seconds` (reading/tone ≈15s, speed-round ≈8s, others ≈45s)
+- [x] Migration is idempotent (keyed UPDATEs + `ON CONFLICT DO NOTHING`)
 
 **Files to Create / Modify:**
 - `migrations/fix_dim_exercise_types_families.sql`
