@@ -53,7 +53,7 @@ def _make_sentences_zh(word: str, n: int = 10) -> list[dict]:
 
 _SHEEP_ASSET = {
     'pos': 'noun',
-    'semantic_class': 'concrete_noun',
+    'semantic_class': 'concrete',
     'definition': 'A domesticated ruminant mammal.',
     'primary_collocate': 'woolly',
     'pronunciation': 'sheep',
@@ -87,7 +87,7 @@ def test_sheep_has_active_levels():
 
 _XIONG_ASSET = {
     'pos': '名词',
-    'semantic_class': '具体名词',
+    'semantic_class': 'concrete',
     'definition': '体型较小的熊；也常指玩具熊。',
     'primary_collocate': '一只',
     'pronunciation': 'xiǎo xióng',
@@ -123,7 +123,7 @@ def test_xiong_has_active_levels():
 
 _THE_ASSET = {
     'pos': 'determiner',
-    'semantic_class': 'function_word',
+    'semantic_class': 'function',
     'definition': 'Definite article used before nouns.',
     'primary_collocate': '',
     'pronunciation': 'the',

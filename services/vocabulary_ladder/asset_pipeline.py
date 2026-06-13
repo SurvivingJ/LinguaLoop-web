@@ -19,7 +19,7 @@ from uuid import uuid4
 
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
-    compute_active_levels,
+    compute_active_levels, normalize_semantic_class,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
     L7_CORRECT_INDICES_A, L7_CORRECT_INDICES_B,
 )
@@ -132,7 +132,7 @@ class VocabAssetPipeline:
                           validation_warnings=p1_warnings or None)
         self._update_vocabulary_metadata(sense_id, core_asset)
 
-        semantic_class = core_asset.get('semantic_class', '')
+        semantic_class = normalize_semantic_class(core_asset.get('semantic_class'))
         active_levels = compute_active_levels(semantic_class, language_id)
 
         # Aggressively gate L5 (Collocation Gap) on corpus evidence of a fixed
@@ -665,7 +665,9 @@ class VocabAssetPipeline:
 
             if vocab_id:
                 self.db.table('dim_vocabulary').update({
-                    'semantic_class': core_asset.get('semantic_class'),
+                    # Normalise legacy P1 labels to the ratified enum so the
+                    # write stays inside the dim_vocabulary CHECK constraint.
+                    'semantic_class': normalize_semantic_class(core_asset.get('semantic_class')),
                     'part_of_speech': core_asset.get('pos'),
                 }).eq('id', vocab_id).execute()
 

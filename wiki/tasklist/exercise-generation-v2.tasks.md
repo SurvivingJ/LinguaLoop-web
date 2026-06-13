@@ -4,7 +4,7 @@ feature: exercise-generation-v2
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../features/exercise-generation-v2.md
 total_tasks: 36
-done: 1
+done: 2
 ---
 
 # Exercise Generation v2 — Task Breakdown
@@ -47,20 +47,22 @@ The judge-integration and slug-fix work from 2026-06-10 (cloze block-on-short, s
 
 ## TASK-502: Ratify + migrate the `semantic_class` controlled vocabulary
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-13)
 **Feature:** exercise-generation-v2
 **Type:** infra
 **Complexity:** S (1-3h)
 **Depends On:** none
 
+**Resolution note:** Migration `migrations/semantic_class_enum.sql` applied live (Supabase MCP): the 11 legacy non-null rows remapped (`abstract_noun→abstract`×4, `action_verb→action`×4, `adjective→property`×2, `具体名词→concrete`×1) and a `CHECK (semantic_class IS NULL OR IN (concrete,abstract,action,property,function,proper))` constraint added (NULL still allowed pre-backfill). `config.py` rewired: `compute_active_levels` now routes off the 6-value enum (proper→[] excluded from ladder; function→[1,2,3,6,7]; concrete→drop L5/L8, keep L4 for matrix-routed classifier; others→full); `LANGUAGE_VALIDATION_PROFILES` key on the single `SEMANTIC_CLASSES` set; the old `COLLOCATION_SKIP_CLASSES`/`MORPHOLOGY_LEVELS`/`NO_MORPHOLOGY_LANGUAGES`/`_SEMANTIC_CLASSES_EN/ZH` removed. **Added `normalize_semantic_class()`** and applied it at the `asset_pipeline` write boundary (and the active_levels read) so P1's still-legacy labels don't violate the new constraint — generation stays safe until the P1 prompts are reseeded. New `tests/test_active_levels_routing.py` (routing matrix + normalizer); existing validator fixtures moved to the ratified values. Suite: 498 passed, 1 skipped.
+
 **Description:**
 Replace the informal `semantic_class` values with the ratified 6-value enum (§4 table: `concrete | abstract | action | property | function | proper`) so the capability matrix and `active_levels` routing have a stable key. The platform is pre-launch — the handful of existing non-null values (≈11 rows) are remapped in the same migration.
 
 **Acceptance Criteria:**
-- [ ] Migration adds `CHECK (semantic_class IN ('concrete','abstract','action','property','function','proper'))` on `dim_vocabulary` (NULL still allowed pre-backfill)
-- [ ] Existing non-null rows remapped to the new values (or NULLed with a log of what was dropped)
-- [ ] `LANGUAGE_VALIDATION_PROFILES` + `compute_active_levels` in `services/vocabulary_ladder/config.py` use only the 6 new values; `proper` is excluded from ladder subscription
-- [ ] Unit test: each enum value → expected `active_levels` per language
+- [x] Migration adds `CHECK (semantic_class IN ('concrete','abstract','action','property','function','proper'))` on `dim_vocabulary` (NULL still allowed pre-backfill)
+- [x] Existing non-null rows remapped to the new values (or NULLed with a log of what was dropped)
+- [x] `LANGUAGE_VALIDATION_PROFILES` + `compute_active_levels` in `services/vocabulary_ladder/config.py` use only the 6 new values; `proper` is excluded from ladder subscription
+- [x] Unit test: each enum value → expected `active_levels` per language
 
 **Files to Create / Modify:**
 - `migrations/semantic_class_enum.sql` — constraint + remap

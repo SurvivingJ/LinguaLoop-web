@@ -9,9 +9,9 @@ last_updated: 2026-06-11
 
 | Status | Count |
 |--------|-------|
-| Not Started | 64 |
+| Not Started | 63 |
 | In Progress | 0 |
-| Done | 17 |
+| Done | 18 |
 | Blocked | 4 |
 
 ## All Tasks
@@ -88,7 +88,7 @@ See [[tasklist/exercise-generation-v2.tasks]] for full spec per task. Implements
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-501 | exercise-generation-v2 | Commit 2026-06-10 working tree + verify live state | [x] | XS | — |
-| TASK-502 | exercise-generation-v2 | Ratify + migrate `semantic_class` 6-value enum | [ ] | S | — |
+| TASK-502 | exercise-generation-v2 | Ratify + migrate `semantic_class` 6-value enum | [x] | S | — |
 | TASK-503 | exercise-generation-v2 | Fix `dim_exercise_types.family` + new type rows | [ ] | S | — |
 | TASK-504 | exercise-generation-v2 | `dim_exercise_capabilities` table + seeds + wiring | [ ] | M | 502, 503 |
 | TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [ ] | M | — |

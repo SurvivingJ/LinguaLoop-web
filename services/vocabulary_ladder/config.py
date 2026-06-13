@@ -209,34 +209,48 @@ WORD_STATES: list[str] = [
 ]
 
 # ---------------------------------------------------------------------------
-# Collocation skip rules
+# semantic_class -> active ladder levels routing (ratified enum, plan §4)
 # ---------------------------------------------------------------------------
+# The ratified controlled vocabulary is exactly six language-neutral values:
+#   concrete | abstract | action | property | function | proper
+# Routing (plan §4 table):
+#   concrete                 -> skip L5/L8 (no tight collocates); L4 stays active
+#                               and is routed to classifier/counter/plural by the
+#                               capability matrix (TASK-504)
+#   abstract/action/property -> full ladder
+#   function                 -> L1-L3 + L6/L7 only (no collocation/morphology/jumble)
+#   proper                   -> not subscribed to the ladder (definition-flashcard only)
+#   NULL / unrecognised      -> permissive full ladder (pre-backfill default)
 
 COLLOCATION_LEVELS: set[int] = {5, 8}
-COLLOCATION_SKIP_CLASSES: set[str] = {'concrete_noun', '具体名词'}
-
-# L4 (Morphology Slot) is meaningless for analytic languages that have no
-# inflectional morphology. Rather than relying on the model returning null,
-# drop it at the config level so P3 never generates the exercise.
-MORPHOLOGY_LEVELS: set[int] = {4}
-NO_MORPHOLOGY_LANGUAGES: frozenset[int] = frozenset({1})  # 1 = Chinese (Mandarin)
+CONCRETE_CLASSES: frozenset[str] = frozenset({'concrete'})
+FUNCTION_CLASSES: frozenset[str] = frozenset({'function'})
+LADDER_EXCLUDED_CLASSES: frozenset[str] = frozenset({'proper'})
+FUNCTION_ACTIVE_LEVELS: list[int] = [1, 2, 3, 6, 7]
 
 
 def compute_active_levels(
     semantic_class: str | None,
-    language_id: int = 2,
+    language_id: int = 2,  # reserved: TASK-504 replaces this with the capability matrix
 ) -> list[int]:
-    """Return the active ladder levels for a word's semantic class and language.
+    """Return the active ladder levels for a word's ratified semantic_class.
 
-    Concrete nouns skip levels 5 and 8 (collocation-focused).
-    Non-inflecting languages (e.g. Chinese) skip level 4 (morphology slot).
-    All other word types and languages get all 9 levels.
+    See the routing table above. `proper` is not subscribed to the ladder
+    (returns []); `function` words get receptive + discrimination levels only;
+    `concrete` nouns skip the collocation levels (5, 8); everything else
+    (including unclassified pre-backfill words) gets the full 9-level ladder.
+
+    `language_id` is accepted for forward-compatibility — the L4 *type* per
+    language is the capability matrix's concern (TASK-504), not the level's
+    presence — so the level set is derived from semantic_class alone for now.
     """
+    if semantic_class in LADDER_EXCLUDED_CLASSES:
+        return []
+    if semantic_class in FUNCTION_CLASSES:
+        return list(FUNCTION_ACTIVE_LEVELS)
     skip: set[int] = set()
-    if semantic_class in COLLOCATION_SKIP_CLASSES:
+    if semantic_class in CONCRETE_CLASSES:
         skip |= COLLOCATION_LEVELS
-    if language_id in NO_MORPHOLOGY_LANGUAGES:
-        skip |= MORPHOLOGY_LEVELS
     if not skip:
         return list(ALL_LEVELS)
     return [lv for lv in ALL_LEVELS if lv not in skip]
@@ -269,21 +283,49 @@ _POS_ZH: frozenset[str] = frozenset({
     '量词', '助词', '叹词', '方向补语', '结果补语', '情态动词',
 })
 
-_SEMANTIC_CLASSES_EN: frozenset[str] = frozenset({
-    'concrete_noun', 'abstract_noun', 'action_verb', 'state_verb',
-    'adjective', 'adverb', 'function_word', 'other',
+# Ratified semantic_class controlled vocabulary (plan §4). Language-neutral:
+# the same six values key every language's validation profile and the
+# capability matrix (TASK-504). Enforced as a CHECK constraint on
+# dim_vocabulary.semantic_class (migrations/semantic_class_enum.sql).
+SEMANTIC_CLASSES: frozenset[str] = frozenset({
+    'concrete', 'abstract', 'action', 'property', 'function', 'proper',
 })
 
-# Chinese mirror of the English semantic-class enum.
-_SEMANTIC_CLASSES_ZH: frozenset[str] = frozenset({
-    '具体名词', '抽象名词', '动作动词', '状态动词',
-    '形容词', '副词', '功能词', '其他',
-})
-
-# Merged enums — the permissive default for unconfigured languages, and the
-# historical (English + Chinese) accepted set.
+# Merged POS enum — permissive default for unconfigured languages. POS stays
+# per-language; semantic_class is now language-neutral.
 DEFAULT_POS_SET: frozenset[str] = _POS_EN | _POS_ZH
-DEFAULT_SEMANTIC_CLASS_SET: frozenset[str] = _SEMANTIC_CLASSES_EN | _SEMANTIC_CLASSES_ZH
+DEFAULT_SEMANTIC_CLASS_SET: frozenset[str] = SEMANTIC_CLASSES
+
+# Legacy semantic_class labels (the old EN/ZH P1 enums + historical DB values)
+# mapped onto the ratified set. The P1 prompts still emit these older labels
+# until they are reseeded, so any value written back to dim_vocabulary must be
+# normalised first — otherwise it violates the CHECK constraint
+# (migrations/semantic_class_enum.sql). Unrecognised / "other" -> None
+# (unclassified; NULL is allowed pre-backfill). `proper` has no legacy label.
+_LEGACY_SEMANTIC_CLASS_MAP: dict[str, str] = {
+    'concrete_noun': 'concrete', '具体名词': 'concrete',
+    'abstract_noun': 'abstract', '抽象名词': 'abstract',
+    'action_verb':   'action',   '动作动词': 'action',
+    'state_verb':    'action',   '状态动词': 'action',
+    'adjective':     'property', '形容词':   'property',
+    'adverb':        'property', '副词':     'property',
+    'function_word': 'function', '功能词':   'function',
+}
+
+
+def normalize_semantic_class(raw: str | None) -> str | None:
+    """Map a raw semantic_class label onto the ratified enum, or None.
+
+    Already-ratified values pass through; known legacy EN/ZH labels are
+    translated; empty or unrecognised input returns None (NULL-safe). Use this
+    at every boundary that persists semantic_class to dim_vocabulary.
+    """
+    if not raw:
+        return None
+    value = raw.strip()
+    if value in SEMANTIC_CLASSES:
+        return value
+    return _LEGACY_SEMANTIC_CLASS_MAP.get(value)
 
 
 @dataclass(frozen=True)
@@ -312,14 +354,14 @@ LANGUAGE_VALIDATION_PROFILES: dict[int, LanguageValidationProfile] = {
         min_morphological_forms=0,   # P1 rule 18 permits empty forms
         ipa_required=False,          # carries pinyin, not IPA
         pos_set=_POS_ZH,
-        semantic_class_set=_SEMANTIC_CLASSES_ZH,
+        semantic_class_set=SEMANTIC_CLASSES,
     ),
     2: LanguageValidationProfile(  # English
         language_id=2,
         min_morphological_forms=2,   # warn (not block) invariant words
         ipa_required=True,
         pos_set=_POS_EN,
-        semantic_class_set=_SEMANTIC_CLASSES_EN,
+        semantic_class_set=SEMANTIC_CLASSES,
     ),
     3: LanguageValidationProfile(  # Japanese
         language_id=3,

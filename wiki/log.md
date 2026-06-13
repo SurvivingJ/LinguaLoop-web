@@ -1,5 +1,24 @@
 # Activity Log
 
+## 2026-06-13 change | TASK-502 done — semantic_class 6-value enum ratified + migrated
+
+Phase-0 foundation. Applied `migrations/semantic_class_enum.sql` live (Supabase MCP): remapped the 11 legacy
+non-null rows (`abstract_noun→abstract`×4, `action_verb→action`×4, `adjective→property`×2, `具体名词→concrete`×1)
+and added a `CHECK` constraint pinning `dim_vocabulary.semantic_class` to the ratified set
+`{concrete, abstract, action, property, function, proper}` (NULL still allowed until the TASK-507 backfill). Verified:
+distribution correct, constraint def present, a bogus UPDATE is rejected (`check_violation`). Rewired
+`services/vocabulary_ladder/config.py` — `compute_active_levels` now routes off the 6-value enum (`proper`→[] not
+subscribed; `function`→[1,2,3,6,7]; `concrete`→drop collocation L5/L8 but **keep L4** for the capability-matrix
+classifier/counter routing; abstract/action/property→full ladder), `LANGUAGE_VALIDATION_PROFILES` key on a single
+language-neutral `SEMANTIC_CLASSES`, and the legacy `COLLOCATION_SKIP_CLASSES`/`MORPHOLOGY_LEVELS`/
+`NO_MORPHOLOGY_LANGUAGES`/`_SEMANTIC_CLASSES_EN/ZH` constants deleted. **Guardrail:** P1 prompts still emit old labels,
+which would now violate the constraint, so added `normalize_semantic_class()` and applied it at the
+`asset_pipeline` write boundary + the active_levels read — legacy labels map to the ratified enum (unknown→NULL), so
+generation stays safe until the P1 prompts are reseeded. Tests: new `tests/test_active_levels_routing.py` (full routing
+matrix + normalizer); existing validator fixtures moved to ratified values. Suite **498 passed, 1 skipped**. Done
+17→18, Not Started 64→63. Next: TASK-503 (fix `dim_exercise_types.family` + add the 12 new type rows). Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-12 change | TASK-501 done — working tree verified + test suite green
 
 First task of the [[tasklist/exercise-generation-v2]] execution. The 2026-06-10 judge/slug tree was **already
