@@ -6,7 +6,7 @@
   'use strict';
 
   const THEMES = {
-    default: { name: 'Default', icon: 'fa-sun' },
+    default: { name: 'Still Water', icon: 'fa-sun' },
     midnight: { name: 'Midnight', icon: 'fa-moon' },
     sakura: { name: 'Sakura', icon: 'fa-fan' },
     forest: { name: 'Forest', icon: 'fa-leaf' },

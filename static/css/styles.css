@@ -1,81 +1,96 @@
 /* ============================================
-   LinguaDojo — Inkstone & Vermilion design system
-   Default theme: scholar's-desk palette anchored on
-   ink, parchment, and a single Pompeiian-red accent.
+   LinguaDojo — Still Water design system
+   Default theme: calm-water palette anchored on a
+   deep teal primary, porcelain ground, and a warm
+   apricot accent reserved for reward moments.
    Anti-positioning: explicitly NOT gamified consumer
    ed-tech (no neon greens, no cobalt-on-white).
    ============================================ */
 
 :root {
-  /* ----- Brand-native tokens (the source of truth) ----- */
-  --ink: #0e1116; /* warmed near-black, printed-type */
-  --ink-soft: #2a2d33;
-  --graphite: #4a4843; /* sepia-leaning muted text */
-  --parchment: #f5f1e8; /* warm paper, default surface */
-  --parchment-soft: #ece6d6;
+  /* ----- Still Water brand tokens (the source of truth) ----- */
+  --teal: #0e7569; /* primary — 5.6:1 on white */
+  --teal-deep: #0a574e; /* hover */
+  --teal-wash: #ddeeea; /* selection tint */
+  --apricot: #e8833a; /* accent — decorative/large only (2.7:1) */
+  --apricot-deep: #c9661f;
+  --apricot-text: #a35417; /* AA-safe apricot for text */
+  --apricot-wash: #fbe9da;
+  --porcelain: #f6f9f8; /* warm-cool paper, default surface */
+  --porcelain-soft: #eaf1ef;
   --paper: #fff; /* elevated surface (cards, modals) */
-  --rule: #d9d2c2; /* hairline borders */
-  --rule-strong: #b8b0a0;
+  --ink: #13282b; /* teal-tinted near-black */
+  --ink-soft: #29403f;
+  --mist: #51686a; /* muted text */
+  --hairline: #dde7e5; /* hairline borders */
+  --hairline-strong: #b9cac7;
 
-  --vermilion: #b5331e; /* primary accent — Pompeiian red, manuscript rubrication */
-  --vermilion-deep: #8c2516;
-  --vermilion-wash: #f4dcd4; /* selected-row tint */
-
-  --moss: #4a6b3a; /* success — deep olive, never lime */
-  --brass: #b8862c; /* warning — aged brass / mustard */
-  --oxblood: #7a2222; /* error — dried-blood */
-  --lapis: #2d4a6b; /* info — deep manuscript blue */
+  --success-core: #2e7d4f;
+  --danger-core: #c24a3f;
+  --warning-core: #c28f2c;
+  --warning-text: #7d5a10; /* AA-safe warning for text */
+  --info-core: #3b6ea8;
 
   /* ----- Legacy tokens kept for backwards compatibility -----
      The downstream CSS still references these names; they now
-     resolve to the brand-native palette above so existing
+     resolve to the Still Water palette above so existing
      selectors automatically inherit the new look. */
-  --primary: var(--vermilion);
-  --primary-hover: var(--vermilion-deep);
-  --success: var(--moss);
-  --success-hover: #3a5530;
-  --danger: var(--oxblood);
-  --danger-hover: #5e1a1a;
-  --warning: var(--brass);
-  --info: var(--lapis);
-  --accent: var(--brass);
+  --primary: var(--teal);
+  --primary-hover: var(--teal-deep);
+  --success: var(--success-core);
+  --success-hover: #245f3d;
+  --danger: var(--danger-core);
+  --danger-hover: #9e3a31;
+  --warning: var(--warning-core);
+  --info: var(--info-core);
+  --accent: var(--apricot);
 
-  /* Warm neutral scale (replaces the old cool slate scale).
+  /* Cool teal-grey neutral scale.
      Variable names retained because utility classes consume them. */
   --slate-900: var(--ink);
-  --slate-800: #1a1d23;
+  --slate-800: #1d3336;
   --slate-700: var(--ink-soft);
-  --slate-600: var(--graphite);
-  --slate-500: #6b695f;
-  --slate-400: #8e8b7f;
-  --slate-300: var(--rule-strong);
-  --slate-200: var(--rule);
-  --slate-100: var(--parchment-soft);
-  --slate-50: var(--parchment);
+  --slate-600: var(--mist);
+  --slate-500: #6a7f80;
+  --slate-400: #93a6a4;
+  --slate-300: var(--hairline-strong);
+  --slate-200: var(--hairline);
+  --slate-100: var(--porcelain-soft);
+  --slate-50: var(--porcelain);
 
   /* Semantic surface & text (theme-overridable) */
-  --bg-body: var(--parchment);
+  --bg-body: var(--porcelain);
   --bg-surface: var(--paper);
-  --bg-surface-hover: var(--parchment-soft);
-  --bg-muted: var(--parchment-soft);
+  --bg-surface-hover: var(--porcelain-soft);
+  --bg-muted: var(--porcelain-soft);
   --text-primary: var(--ink);
-  --text-secondary: var(--graphite);
-  --text-muted: #6b695f;
-  --border-default: var(--rule);
-  --border-strong: var(--rule-strong);
-  --focus-ring: rgb(181 51 30 / 18%);
+  --text-secondary: var(--mist);
+  --text-muted: #5e7375;
+  --border-default: var(--hairline);
+  --border-strong: var(--hairline-strong);
+  --focus-ring: rgb(14 117 105 / 20%);
 
-  /* Semantic backgrounds — earthy, never shrill */
-  --success-bg: #e2ead9;
-  --danger-bg: #ead4d4;
-  --warning-bg: #f2e5cc;
-  --info-bg: #dae0e9;
-  --selected-bg: var(--vermilion-wash);
+  /* Semantic backgrounds — soft washes */
+  --success-bg: #ddefe4;
+  --danger-bg: #f6e2df;
+  --warning-bg: #f7ecd6;
+  --info-bg: #e1eaf5;
+  --selected-bg: var(--teal-wash);
 
-  /* Shadows — ink-tinted, restrained */
-  --shadow-sm: 0 1px 2px rgb(14 17 22 / 6%);
-  --shadow-md: 0 2px 8px rgb(14 17 22 / 8%);
-  --shadow-lg: 0 16px 48px rgb(14 17 22 / 18%);
+  /* Dangling template refs — now defined */
+  --bg-page: var(--bg-body);
+  --surface: var(--bg-surface);
+
+  /* Radius scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Shadows — teal-tinted, softer/longer */
+  --shadow-sm: 0 1px 2px rgb(19 40 43 / 5%);
+  --shadow-md: 0 4px 14px rgb(19 40 43 / 8%);
+  --shadow-lg: 0 20px 56px rgb(19 40 43 / 16%);
 
   /* Bootstrap overrides so framework chrome inherits the brand */
   --bs-body-bg: var(--bg-body);
@@ -83,13 +98,14 @@
   --bs-border-color: var(--border-default);
   --bs-secondary-color: var(--text-muted);
   --bs-emphasis-color: var(--text-primary);
-  --bs-link-color: var(--vermilion);
-  --bs-link-hover-color: var(--vermilion-deep);
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-hover);
 
   /* ----- Typography ----- */
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', roboto, sans-serif;
-  --font-serif: 'IBM Plex Serif', 'Source Serif Pro', charter, 'Iowan Old Style', georgia, serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', menlo, consolas, monospace;
+  --font-sans: 'Inter', 'Hiragino Sans', 'Yu Gothic UI', meiryo, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-display: 'Sora', var(--font-sans);
+  --font-serif: var(--font-display);
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', consolas, monospace;
 
   --text-xs: 0.8rem; /* 12.8px */
   --text-sm: 0.875rem; /* 14px */
@@ -161,7 +177,7 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'ss01', 'cv02', 'cv11';
+  font-feature-settings: 'cv05', 'cv11';
 }
 
 h1,
@@ -174,7 +190,7 @@ h6 {
   font-family: var(--font-serif);
   font-weight: 500;
   line-height: var(--leading-tight);
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
 }
 
 h1 {
@@ -207,23 +223,24 @@ h6 {
 }
 
 a {
-  color: var(--vermilion);
+  color: var(--primary);
   text-decoration: none;
   transition: var(--transition-fast);
 }
 
 a:hover {
-  color: var(--vermilion-deep);
+  color: var(--primary-hover);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
 }
 
 /* Editorial long-form passages (lesson body, reading exercises in target
-   languages, articles). Caps line length for readability and uses Plex Serif. */
+   languages, articles). Caps line length for readability; uses the body sans
+   so CJK passages resolve via system CJK fallbacks, not a Latin display face. */
 .editorial,
 .prose {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
   max-width: 65ch;
@@ -244,8 +261,8 @@ a:hover {
 
 /* Selection */
 ::selection {
-  background: var(--vermilion-wash);
-  color: var(--ink);
+  background: var(--selected-bg);
+  color: var(--text-primary);
 }
 
 /* Honour user's reduced-motion preference */
@@ -264,7 +281,7 @@ a:hover {
    Buttons
    ============================================ */
 .btn {
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
@@ -274,6 +291,11 @@ a:hover {
 
 .btn:active {
   transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .btn:disabled {
@@ -307,7 +329,7 @@ a:hover {
   background: var(--success-hover);
   border-color: var(--success-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgb(74 107 58 / 22%);
+  box-shadow: 0 4px 12px rgb(46 125 79 / 22%);
 }
 
 /* Secondary Button */
@@ -332,7 +354,7 @@ a:hover {
 .btn-danger:focus {
   background: var(--danger-hover);
   border-color: var(--danger-hover);
-  box-shadow: 0 4px 12px rgb(122 34 34 / 22%);
+  box-shadow: 0 4px 12px rgb(194 74 63 / 22%);
 }
 
 /* Icon Button */
@@ -362,17 +384,21 @@ a:hover {
 .card {
   background: var(--bg-surface);
   color: var(--text-primary);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 /* Question Card */
 .question-card {
   background: var(--bg-surface);
   border: 2px solid var(--border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
 }
@@ -385,7 +411,7 @@ a:hover {
 .answer-option {
   background: var(--bg-surface);
   border: 2px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   cursor: pointer;
   transition: var(--transition-fast);
@@ -417,7 +443,7 @@ a:hover {
 /* Dashboard Card */
 .dashboard-card {
   background: var(--bg-surface);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 20px;
 }
 
@@ -425,7 +451,7 @@ a:hover {
 .audio-player {
   background: var(--bg-body);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 20px;
 }
 
@@ -435,7 +461,7 @@ a:hover {
 .form-control {
   background: var(--bg-surface);
   border: 2px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 12px 16px;
   font-size: 16px;
   color: var(--text-primary);
@@ -458,7 +484,7 @@ a:hover {
 }
 
 .form-control.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgb(122 34 34 / 15%);
+  box-shadow: 0 0 0 3px rgb(194 74 63 / 18%);
 }
 
 /* Seamless Input Groups */
@@ -499,10 +525,17 @@ a:hover {
    Navigation
    ============================================ */
 .navbar {
-  background: var(--bg-surface);
+  --nav-bg: rgb(255 255 255 / 82%);
+  background: var(--nav-bg);
   border-bottom: 1px solid var(--border-default);
   padding: 16px 0;
   box-shadow: var(--shadow-sm);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .navbar {
+    backdrop-filter: blur(12px);
+  }
 }
 
 .nav-link {
@@ -602,12 +635,12 @@ summary:focus-visible {
    ============================================ */
 .progress {
   height: 8px;
-  background: var(--border-default);
+  background: var(--bg-muted);
   border-radius: 4px;
 }
 
 .progress-bar {
-  background: var(--vermilion);
+  background: var(--primary);
   border-radius: 4px;
   transition: width 0.4s var(--ease-standard);
 }
@@ -624,9 +657,9 @@ summary:focus-visible {
 }
 
 .milestone.completed {
-  background: var(--brass);
-  border-color: var(--brass);
-  box-shadow: 0 0 6px rgb(184 134 44 / 35%);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgb(232 131 58 / 35%);
   animation: pulse 0.4s var(--ease-standard);
 }
 
@@ -650,7 +683,7 @@ summary:focus-visible {
    Alerts & Feedback
    ============================================ */
 .alert {
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   border-left-width: 4px;
 }
@@ -671,7 +704,7 @@ summary:focus-visible {
 
 .alert-warning {
   background: var(--warning-bg);
-  color: var(--warning);
+  color: var(--warning-text);
   border-color: var(--warning);
   border-left-color: var(--warning);
 }
@@ -690,7 +723,7 @@ summary:focus-visible {
   padding: 6px 12px;
   font-size: 14px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
 }
 
 .badge-score {
@@ -705,16 +738,16 @@ summary:focus-visible {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
 }
 
 .tag-medium {
   background: var(--warning-bg);
-  color: var(--warning);
+  color: var(--warning-text);
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
 }
 
 .tag-hard {
@@ -723,15 +756,15 @@ summary:focus-visible {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
 }
 
-/* Level Badge — brass on ink, the master's mark */
+/* Level Badge — apricot reward mark, dark ink text for AA contrast */
 .badge-level {
-  background: var(--brass);
-  color: var(--paper);
+  background: var(--accent);
+  color: var(--ink);
   padding: 6px 14px;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
   font-family: var(--font-sans);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -748,6 +781,8 @@ summary:focus-visible {
 .dropdown-menu {
   background: var(--bg-surface);
   border-color: var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .dropdown-item {
@@ -774,7 +809,7 @@ summary:focus-visible {
    ============================================ */
 .modal-content {
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   background: var(--bg-surface);
 }
@@ -858,7 +893,7 @@ summary:focus-visible {
 }
 
 .chart-bar {
-  background: var(--vermilion);
+  background: var(--primary);
   border-radius: 2px 2px 0 0;
   transition: var(--transition-slow);
 }
@@ -986,12 +1021,12 @@ summary:focus-visible {
   animation: slideUp 0.3s ease;
 }
 
-/* Logo / wordmark — editorial serif, ink-on-parchment */
+/* Logo / wordmark — Sora display face, ink on porcelain */
 .logo {
   font-family: var(--font-serif);
   font-size: 28px;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--text-primary);
   letter-spacing: -0.015em;
   font-feature-settings: 'lnum';
 }
@@ -1001,7 +1036,7 @@ summary:focus-visible {
 }
 
 .logo:hover {
-  color: var(--vermilion);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -1042,61 +1077,56 @@ footer,
 }
 
 /* ============================================
-   Theme: Midnight — Inkstone & Vermilion, inverted.
-   The dojo at night: ink as ground, parchment as text,
-   vermilion brightened to hold contrast on dark.
+   Theme: Midnight — Still Water, after dark.
+   Deep teal-black ground, brightened teal primary,
+   warm apricot accent held for reward moments.
+   Overrides only what differs from :root.
    ============================================ */
 [data-theme='midnight'] {
-  --vermilion: #d44833; /* brightened for dark-mode contrast */
-  --vermilion-deep: #e85b43;
-  --vermilion-wash: rgb(212 72 51 / 18%);
+  --nav-bg: rgb(18 32 33 / 82%);
 
-  --moss: #6b8b5e;
-  --brass: #d4a140;
-  --oxblood: #b5494a;
-  --lapis: #5479a2;
+  --primary: #3db3a0; /* brightened teal for dark-mode contrast */
+  --primary-hover: #5cc6b5;
+  --success: #57a877;
+  --success-hover: #6fbb8c;
+  --danger: #e0796f;
+  --danger-hover: #ec9089;
+  --warning: #dcae54;
+  --warning-text: #dcae54; /* gold reads as light text on dark */
+  --info: #7aa3d6;
+  --accent: #f0975a;
 
-  --primary: var(--vermilion);
-  --primary-hover: var(--vermilion-deep);
-  --success: var(--moss);
-  --success-hover: #7a9d6c;
-  --danger: var(--oxblood);
-  --danger-hover: #c76060;
-  --warning: var(--brass);
-  --info: var(--lapis);
-  --accent: var(--brass);
+  /* Inverted cool teal-grey scale */
+  --slate-900: #eef4f3;
+  --slate-800: #d8e3e1;
+  --slate-700: #bcd0cd;
+  --slate-600: #93a6a4;
+  --slate-500: #7e9794;
+  --slate-400: #5e7375;
+  --slate-300: #33494b;
+  --slate-200: #1f3335;
+  --slate-100: #18292a;
+  --slate-50: #0b1416;
 
-  /* Inverted warm-neutral scale */
-  --slate-900: #f5f1e8;
-  --slate-800: #ece6d6;
-  --slate-700: #d9d2c2;
-  --slate-600: #b8b0a0;
-  --slate-500: #8e8b7f;
-  --slate-400: #6b695f;
-  --slate-300: #4a4843;
-  --slate-200: #2a2d33;
-  --slate-100: #1a1d23;
-  --slate-50: #0e1116;
+  --bg-body: #0b1416;
+  --bg-surface: #122021;
+  --bg-surface-hover: #18292a;
+  --bg-muted: #102022;
+  --text-primary: #eef4f3;
+  --text-secondary: #bcd0cd;
+  --text-muted: #7e9794;
+  --border-default: #1f3335;
+  --border-strong: #33494b;
+  --focus-ring: rgb(61 179 160 / 30%);
 
-  --bg-body: #0e1116;
-  --bg-surface: #1a1d23;
-  --bg-surface-hover: #232730;
-  --bg-muted: #1f2228;
-  --text-primary: #f5f1e8;
-  --text-secondary: #d9d2c2;
-  --text-muted: #8e8b7f;
-  --border-default: #2a2d33;
-  --border-strong: #4a4843;
-  --focus-ring: rgb(212 72 51 / 28%);
-
-  --success-bg: rgb(107 139 94 / 18%);
-  --danger-bg: rgb(181 73 74 / 20%);
-  --warning-bg: rgb(212 161 64 / 18%);
-  --info-bg: rgb(84 121 162 / 18%);
-  --selected-bg: var(--vermilion-wash);
+  --success-bg: rgb(87 168 119 / 18%);
+  --danger-bg: rgb(224 121 111 / 18%);
+  --warning-bg: rgb(220 174 84 / 18%);
+  --info-bg: rgb(122 163 214 / 18%);
+  --selected-bg: rgb(61 179 160 / 18%);
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-  --shadow-md: 0 4px 12px rgb(0 0 0 / 45%);
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 45%);
   --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
 
   /* Bootstrap overrides */
@@ -1106,111 +1136,101 @@ footer,
   --bs-card-color: var(--text-primary);
   --bs-secondary-color: var(--text-muted);
   --bs-emphasis-color: var(--text-primary);
-  --bs-link-color: var(--vermilion);
-  --bs-link-hover-color: var(--vermilion-deep);
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-hover);
   color-scheme: dark;
 }
 
 /* ============================================
    Theme: Sakura (Warm Rose)
+   Keeps its rose identity; status colors inherit
+   the new :root defaults.
    ============================================ */
 [data-theme='sakura'] {
-  --primary: #be185d;
-  --primary-hover: #9d174d;
-  --success: #059669;
-  --success-hover: #047857;
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
-  --warning: #ea580c;
-  --info: #be185d;
-  --accent: #f472b6;
+  --nav-bg: rgb(255 255 255 / 82%);
 
-  --slate-900: #1c1917;
-  --slate-800: #292524;
-  --slate-700: #44403c;
-  --slate-600: #57534e;
-  --slate-500: #78716c;
-  --slate-400: #a8a29e;
-  --slate-300: #d6d3d1;
-  --slate-200: #e7e5e4;
-  --slate-100: #f5f5f4;
-  --slate-50: #fafaf9;
+  --primary: #c0407c;
+  --primary-hover: #9c2f63;
+  --accent: #e8833a;
 
-  --bg-body: #fdf2f8;
+  --slate-900: #2a1620;
+  --slate-800: #3d2230;
+  --slate-700: #5a3848;
+  --slate-600: #7a5566;
+  --slate-500: #9a7585;
+  --slate-400: #c29db0;
+  --slate-300: #dfb3c6;
+  --slate-200: #f0d5e0;
+  --slate-100: #f8e6ee;
+  --slate-50: #fbf3f6;
+
+  --bg-body: #fbf3f6;
   --bg-surface: #fff;
-  --bg-surface-hover: #fce7f3;
-  --bg-muted: #fce7f3;
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-muted: #78716c;
-  --border-default: #f9a8d4;
-  --border-strong: #f472b6;
-  --focus-ring: rgb(190 24 93 / 12%);
+  --bg-surface-hover: #f8e6ee;
+  --bg-muted: #f8e6ee;
+  --text-primary: #2a1620;
+  --text-secondary: #7a5566;
+  --text-muted: #8a6575;
+  --border-default: #f0d5e0;
+  --border-strong: #dfb3c6;
+  --focus-ring: rgb(192 64 124 / 18%);
+  --selected-bg: #f8e6ee;
 
-  --success-bg: #d1fae5;
-  --danger-bg: #fee2e2;
-  --warning-bg: #fed7aa;
-  --info-bg: #fce7f3;
-  --selected-bg: #fce7f3;
-
-  --shadow-sm: 0 1px 2px rgb(190 24 93 / 5%);
-  --shadow-md: 0 4px 12px rgb(190 24 93 / 8%);
-  --shadow-lg: 0 20px 60px rgb(190 24 93 / 12%);
+  --shadow-sm: 0 1px 2px rgb(192 64 124 / 6%);
+  --shadow-md: 0 4px 14px rgb(192 64 124 / 8%);
+  --shadow-lg: 0 20px 56px rgb(192 64 124 / 14%);
 
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-primary);
   --bs-border-color: var(--border-default);
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-hover);
 }
 
 /* ============================================
    Theme: Forest (Earthy Green)
+   Keeps its green identity; status colors inherit
+   the new :root defaults.
    ============================================ */
 [data-theme='forest'] {
-  --primary: #15803d;
-  --primary-hover: #166534;
-  --success: #15803d;
-  --success-hover: #166534;
-  --danger: #b91c1c;
-  --danger-hover: #991b1b;
-  --warning: #b45309;
-  --info: #0e7490;
-  --accent: #a16207;
+  --nav-bg: rgb(255 255 255 / 82%);
 
-  --slate-900: #1a2e1a;
-  --slate-800: #2d3b2d;
-  --slate-700: #3f4f3f;
-  --slate-600: #5a6b5a;
-  --slate-500: #7a8a7a;
-  --slate-400: #a3b0a3;
-  --slate-300: #c8d1c8;
-  --slate-200: #dde3dd;
-  --slate-100: #eef2ee;
-  --slate-50: #f5f7f5;
+  --primary: #2f7d46;
+  --primary-hover: #256238;
+  --accent: #b08530;
 
-  --bg-body: #f7f5f0;
-  --bg-surface: #fdfcf9;
-  --bg-surface-hover: #f0ece4;
-  --bg-muted: #eee9df;
-  --text-primary: #1a2e1a;
-  --text-secondary: #5a6b5a;
-  --text-muted: #7a8a7a;
-  --border-default: #c8d1c8;
-  --border-strong: #a3b0a3;
-  --focus-ring: rgb(21 128 61 / 12%);
+  --slate-900: #14241a;
+  --slate-800: #25372b;
+  --slate-700: #3a4f40;
+  --slate-600: #566b5c;
+  --slate-500: #768a7c;
+  --slate-400: #9fb0a4;
+  --slate-300: #a9bfa9;
+  --slate-200: #cfdccf;
+  --slate-100: #e6eee6;
+  --slate-50: #f4f8f4;
 
-  --success-bg: #dcfce7;
-  --danger-bg: #fee2e2;
-  --warning-bg: #fef3c7;
-  --info-bg: #e0f2fe;
-  --selected-bg: #dcfce7;
+  --bg-body: #f4f8f4;
+  --bg-surface: #fdfefd;
+  --bg-surface-hover: #e9f1e9;
+  --bg-muted: #e6eee6;
+  --text-primary: #14241a;
+  --text-secondary: #566b5c;
+  --text-muted: #6a7e70;
+  --border-default: #cfdccf;
+  --border-strong: #a9bfa9;
+  --focus-ring: rgb(47 125 70 / 18%);
+  --selected-bg: #e1efe3;
 
-  --shadow-sm: 0 1px 2px rgb(26 46 26 / 6%);
-  --shadow-md: 0 4px 12px rgb(26 46 26 / 10%);
-  --shadow-lg: 0 20px 60px rgb(26 46 26 / 15%);
+  --shadow-sm: 0 1px 2px rgb(20 36 26 / 6%);
+  --shadow-md: 0 4px 14px rgb(20 36 26 / 9%);
+  --shadow-lg: 0 20px 56px rgb(20 36 26 / 14%);
 
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-primary);
   --bs-border-color: var(--border-default);
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-hover);
 }
 
 /* ============================================================
@@ -1924,10 +1944,10 @@ footer,
    .pitch-accent-page - migrated from templates/test_pitch_accent.html (Phase 3)
    ============================================================ */
 .pitch-accent-page {
-  --accent-heiban: #43a047;
-  --accent-atamadaka: #e53935;
-  --accent-nakadaka: #f57c00;
-  --accent-odaka: #1e88e5;
+  --accent-heiban: #2e7d4f;
+  --accent-atamadaka: #c24a3f;
+  --accent-nakadaka: #c9661f;
+  --accent-odaka: #3b6ea8;
   --accent-unknown: #9e9e9e;
   --pitch-h: #1e88e5;
   --pitch-l: #475569;
@@ -2891,7 +2911,7 @@ footer,
   }
 
   .tier-badge.premium {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, var(--apricot) 0%, var(--apricot-deep) 100%);
     color: white;
     padding: 2px 8px;
     border-radius: 4px;
@@ -2953,7 +2973,7 @@ footer,
 
   /* Random Test Card */
   .random-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
     border: none;
     cursor: pointer;
     position: relative;
@@ -3014,7 +3034,7 @@ footer,
        DAILY TEST LOAD SECTION
        ============================================ */
   .daily-load-section {
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgb(99 102 241 / 3%) 100%);
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgb(14 117 105 / 4%) 100%);
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
@@ -3135,15 +3155,15 @@ footer,
   }
 
   .slot-badge-retry {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #f59e0b;
+    background: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning);
   }
 
   .slot-badge-new {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #3b82f6;
+    background: var(--info-bg);
+    color: var(--info);
+    border: 1px solid var(--info);
   }
 
   .slot-badge-completed {
@@ -3177,7 +3197,7 @@ footer,
 
   .daily-original-score {
     font-size: 12px;
-    color: #92400e;
+    color: var(--warning-text);
     font-weight: 500;
   }
 
@@ -3235,14 +3255,14 @@ footer,
    .mystery-page - migrated from templates/mystery.html (Phase 3)
    ============================================================ */
 .mystery-page {
-  --mystery-dark-bg: #0f172a;
-  --mystery-dark-surface: #1e293b;
-  --mystery-dark-surface-light: #334155;
-  --mystery-gold: #d4af37;
-  --mystery-gold-light: #e8c547;
-  --mystery-gold-muted: #a89632;
-  --mystery-text-primary: #f1f5f9;
-  --mystery-text-secondary: #cbd5e1;
+  --mystery-dark-bg: #0b1416;
+  --mystery-dark-surface: #122021;
+  --mystery-dark-surface-light: #1f3335;
+  --mystery-gold: #d9a441;
+  --mystery-gold-light: #e8bd66;
+  --mystery-gold-muted: #a87f33;
+  --mystery-text-primary: #eef4f3;
+  --mystery-text-secondary: #bcd0cd;
 
   /* ===== Dark Theme with Gold Trim ===== */
 
