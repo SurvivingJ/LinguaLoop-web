@@ -213,7 +213,7 @@ Classify every lemma (EN + ZH + JA, ~10k after JA bootstrap) into the ratified 6
 
 ## TASK-508: Japanese prompt seeds (P1/P2/P3 + 4 judges + generation rows)
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress (2026-06-14 — seeds + code landed; live P1 smoke deferred)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -223,10 +223,10 @@ Classify every lemma (EN + ZH + JA, ~10k after JA bootstrap) into the ratified 6
 Seed every `prompt_templates` row JA generation needs, cloned structurally from the ZH set, all on `qwen/qwen3.7-plus`: `vocab_prompt1_core`(3) — with the three JA-specific additions from §6.6 (per-sense `register`, kana readings per sentence occurrence, counter word for concrete nouns, mirroring ZH rule 18); `vocab_prompt2_exercises`(3); `vocab_prompt3_transforms`(3); the 4 ladder judges (p1_sentence/l1_distractor/collocation/sentence_validity, with JA error taxonomies — particle confusion, conjugation class, long/short vowel); activate `cloze_distractor_generation`(3); seed `exercise_sentence_generation`(3).
 
 **Acceptance Criteria:**
-- [ ] All rows present, active, `provider='openrouter'`, model `qwen/qwen3.7-plus`
-- [ ] JA P1 output schema includes `register` + readings + counter keys (numeric-key JSON, documented in the migration header)
-- [ ] `_load_models`/`get_template_config` resolve for language_id=3 without error
-- [ ] One end-to-end smoke sense generated producing ≥1 valid P1 asset (cleaned up after)
+- [x] All rows present, active, `provider='openrouter'`, model `qwen/qwen3.7-plus`
+- [x] JA P1 output schema includes `register` + readings + counter keys (numeric-key JSON, documented in the migration header)
+- [x] `_load_models`/`get_template_config` resolve for language_id=3 without error
+- [ ] One end-to-end smoke sense generated producing ≥1 valid P1 asset (cleaned up after) — DEFERRED (no JA senses until TASK-505 batch; cost)
 
 **Files to Create / Modify:**
 - `migrations/ja_prompt_seeds.sql` — new (idempotent NOT EXISTS guards)
@@ -234,6 +234,40 @@ Seed every `prompt_templates` row JA generation needs, cloned structurally from 
 
 **Verification:**
 Smoke-sense run log + `SELECT task_name, is_active FROM prompt_templates WHERE language_id=3` matches the list.
+
+**Resolution (2026-06-14 — seeds + code landed; live P1 smoke deferred):**
+- `migrations/ja_prompt_seeds.sql` written + applied live. Seeds 8 JA (lang=3) tasks structurally
+  cloned from the active ZH set, all `provider='openrouter'`, `model='qwen/qwen3.7-plus'`,
+  idempotent `WHERE NOT EXISTS` guards (no unique constraint exists on
+  `(task_name,language_id,version)` — verified, only PK on id): `vocab_prompt1_core` (with §6.6
+  JA additions), `vocab_prompt2_exercises`, `vocab_prompt3_transforms`, `ladder_p1_sentence_judge`,
+  `ladder_l1_distractor_judge`, `ladder_collocation_judge`, `ladder_sentence_validity_judge`,
+  `exercise_sentence_generation`; plus activated the pre-existing `cloze_distractor_generation`
+  lang=3 v1 (it was already a complete JA template on qwen3.7-plus, just inactive). Verified: all
+  9 tasks have exactly 1 active row with model+provider populated (what `get_template_config`
+  requires → resolves for lang=3 without error).
+- **JA P1 schema additions (documented in the migration header):** key `10`=register (keigo:
+  plain|polite|honorific|humble|formal|casual); key `5`=kana reading of the lemma; per-sentence
+  furigana as sentence-object key `5`; counter (助数詞) as a `morphological_forms` (key 9) entry
+  labeled 助数詞 (JA analogue of ZH rule 18). JA L1 distractor rules + judge enforce **audio**
+  confusability (long/short vowel, dakuten, sokuon/hatsuon, pitch) per [[l1_is_listening]] — never
+  visual similarity. JA error taxonomies (particle confusion, conjugation/aspect, 助数詞,
+  long/short vowel) baked into P2/P3/judges.
+- **`semantic_class` decision (flagged):** `_LEGACY_SEMANTIC_CLASS_MAP` has ZH/EN labels but **no
+  JA labels**, so the JA P1 prompt emits the ratified English enum tokens directly
+  (`concrete|abstract|action|property|function|proper`) — they pass through
+  `normalize_semantic_class` cleanly, avoiding a `dim_vocabulary.semantic_class` CHECK violation.
+- **Code (flagged location):** register *parsing* (numeric→descriptive) was already handled by
+  `PROMPT1_KEY_MAP '10'→register` in prompt1_core's `_remap_output`; no change needed there. The
+  *persist* to `dim_word_senses.register` was missing — added to
+  `asset_pipeline._update_vocabulary_metadata` (where all other P1→dim_word_senses phonetic writes
+  live), guarded so it's a no-op for ZH/EN. Added `'5':'furigana'` to `SENTENCE_KEY_MAP`
+  (config.py). Suite: **530 passed, 1 skipped** (baseline unchanged).
+- **Sequencing (flagged):** applied `migrations/dim_word_senses_register.sql` (nominally TASK-506's
+  file) NOW so the register write target exists; committed with this task.
+- **DEFERRED:** the live end-to-end P1 smoke sense — there are 0 JA senses until the TASK-505 batch
+  runs, and the single LLM call is held for the cost-budgeted TASK-505 session. Code is ready to
+  run it. Not fabricated.
 
 ---
 

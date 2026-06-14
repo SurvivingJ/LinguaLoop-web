@@ -9,8 +9,8 @@ last_updated: 2026-06-14
 
 | Status | Count |
 |--------|-------|
-| Not Started | 59 |
-| In Progress | 1 |
+| Not Started | 58 |
+| In Progress | 2 |
 | Done | 21 |
 | Blocked | 4 |
 
@@ -94,7 +94,7 @@ See [[tasklist/exercise-generation-v2.tasks]] for full spec per task. Implements
 | TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [~] | M | — |
 | TASK-506 | exercise-generation-v2 | Pronunciation backfill (ZH/JA) + JA `register` column | [ ] | M | TASK-505 |
 | TASK-507 | exercise-generation-v2 | `semantic_class` LLM backfill + spot-check | [ ] | M | 502, 505 |
-| TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [ ] | M | TASK-501 |
+| TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [~] | M | TASK-501 |
 | TASK-509 | exercise-generation-v2 | Traditional Chinese groundwork (dual-store + `hant` mirrors) | [ ] | M | TASK-501 |
 | TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [ ] | S | TASK-501 |
 | TASK-511 | exercise-generation-v2 | `generation_queue` migration | [x] | XS | — |

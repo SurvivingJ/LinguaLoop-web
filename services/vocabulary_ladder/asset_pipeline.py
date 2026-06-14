@@ -680,6 +680,11 @@ class VocabAssetPipeline:
                 updates['morphological_forms'] = core_asset['morphological_forms']
             if core_asset.get('pronunciation'):
                 updates['pronunciation'] = core_asset['pronunciation']
+            # JA P1 emits a keigo register (PROMPT1_KEY_MAP '10'); persist it to
+            # dim_word_senses.register. No-op for ZH/EN P1 (no register key) and
+            # safe pre-backfill (column added by migrations/dim_word_senses_register.sql).
+            if core_asset.get('register'):
+                updates['register'] = core_asset['register']
 
             # Replace placeholder definitions with the LLM-generated one. The
             # admin upload helper writes "Definition for {lemma}" when no

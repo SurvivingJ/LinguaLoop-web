@@ -1,5 +1,31 @@
 # Activity Log
 
+## 2026-06-14 change | TASK-508 in progress — JA prompt seeds (seeds + code landed; live smoke deferred)
+
+Seeded all JA (lang=3) `prompt_templates` rows, structurally cloned from the active ZH set, all
+`provider='openrouter'` / `model='qwen/qwen3.7-plus'`. `migrations/ja_prompt_seeds.sql` (idempotent
+`WHERE NOT EXISTS` — there is **no** unique `(task_name,language_id,version)` constraint, only PK on
+id, verified) applied live: `vocab_prompt1_core` (+ §6.6 JA additions), `vocab_prompt2_exercises`,
+`vocab_prompt3_transforms`, the 4 ladder judges, `exercise_sentence_generation`; plus activated the
+pre-existing `cloze_distractor_generation` lang=3 v1 (already a complete JA template, just inactive).
+Verified: all 9 tasks have exactly 1 active row with model+provider populated → `get_template_config`
+resolves for lang=3. **JA P1 numeric-key schema** (documented in the migration header): key 10=register
+(keigo), key 5=lemma kana reading, per-sentence furigana=sentence key 5, 助数詞 counter under
+morphological_forms (key 9, JA analogue of ZH rule 18). **`semantic_class` decision (flagged):**
+`_LEGACY_SEMANTIC_CLASS_MAP` has no JA labels, so the JA P1 emits the ratified English enum tokens
+directly (pass through `normalize_semantic_class`, no CHECK violation). **L1 distractor rules + judge
+enforce AUDIO confusability** (long/short vowel, dakuten, sokuon/hatsuon, pitch) per
+[[l1_is_listening]], never visual similarity. **Code:** register *parse* already handled by
+`PROMPT1_KEY_MAP '10'→register`; added the missing *persist* of `register` to
+`asset_pipeline._update_vocabulary_metadata` (no-op for ZH/EN), and `'5':'furigana'` to
+`SENTENCE_KEY_MAP`. **Sequencing (flagged):** applied `migrations/dim_word_senses_register.sql`
+(nominally TASK-506's file) now so the register write target exists — committed with this task.
+**DEFERRED:** the live end-to-end P1 smoke sense — 0 JA senses exist until the TASK-505 batch; the
+single LLM call is held for that cost-budgeted session (code ready, not fabricated). Status 508 Not
+Started → In Progress. Suite: **530 passed, 1 skipped** (baseline). In Progress 1→2, Not Started 59→58.
+Next: TASK-506 (pronunciation backfill — ZH deterministic run now; JA deferred). Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-14 change | TASK-511 done — generation_queue migration
 
 Phase-0 infra (XS, no deps). Created `migrations/generation_queue.sql` (§6.5 DDL verbatim:

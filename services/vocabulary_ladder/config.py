@@ -735,6 +735,7 @@ SENTENCE_KEY_MAP: dict[str, str] = {
     '2': 'target_word',
     '3': 'source',
     '4': 'complexity_tier',
+    '5': 'furigana',  # JA P1: kana reading for this sentence occurrence (NULL/absent for ZH/EN)
 }
 
 
