@@ -1,5 +1,22 @@
 # Activity Log
 
+## 2026-06-14 change | TASK-506 in progress — register column + ZH pronunciation backfill (JA deferred)
+
+`migrations/dim_word_senses_register.sql` (ADD COLUMN IF NOT EXISTS `register text`) applied live +
+verified (committed under TASK-508 for sequencing). New deterministic, no-LLM-cost
+`scripts/backfill_pronunciations.py`: ZH reuses the existing sandhi engine
+`services/pinyin_service.process_passage` (jieba word-context + pypinyin + 三声/一/不 sandhi), storing
+`"<tone-marked pinyin> (<tone digits, sandhi-applied>)"` (diacritics=base tones, digits=context tones);
+JA uses fugashi + unidic-lite → hiragana (verified offline: 食べる→たべる, 学校→がっこう, 図書館→としょかん).
+**ZH run hit 100% coverage (8084/8084)**, polyphones correctly disambiguated by word context
+(便宜=pián yi, 重复=chóng fù, 重要=zhòng yào, 长大=zhǎng dà, 音乐=yīn yuè); idempotent re-run fetched 0
+rows. (The run was launched via a `| findstr` pipe that errored under bash — `findstr` is a cmd builtin,
+not a Unix tool — but the Python writer completed all DB updates; the script is clean.) **DEFERRED:**
+the JA kana backfill (≥95%) — 0 JA senses exist until the TASK-505 batch; `--language ja` is a no-op
+today, code path ready. Status 506 Not Started → In Progress. In Progress 2→3, Not Started 58→57.
+Phase-0 fan-out for this session complete (511 done; 508 + 506 landed, JA-data-dependent pieces deferred
+to TASK-505). Pages updated: [[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-14 change | TASK-508 in progress — JA prompt seeds (seeds + code landed; live smoke deferred)
 
 Seeded all JA (lang=3) `prompt_templates` rows, structurally cloned from the active ZH set, all

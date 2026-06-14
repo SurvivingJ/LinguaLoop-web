@@ -161,7 +161,7 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 
 ## TASK-506: Pronunciation backfill (ZH + JA) + JA `register` column
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress (2026-06-14 — register column + ZH backfill done; JA pronunciation deferred to TASK-505)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -171,10 +171,10 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 `dim_word_senses.pronunciation` is ≈0% populated (finding G3) but is a hard requirement for reading/tone exercise types. Backfill deterministically: pypinyin with jieba word-context (+ existing sandhi engine output stored as tone digits) for all ZH senses; fugashi/UniDic kana readings for all JA senses. Add `dim_word_senses.register text` (keigo: `plain|polite|honorific|humble|formal|casual`, NULL elsewhere) per operator answer 13 — populated by the JA P1 prompt going forward (TASK-508).
 
 **Acceptance Criteria:**
-- [ ] `pronunciation` populated for ≥99% of ZH senses (tone-marked pinyin + machine-readable tone digits) and ≥95% of JA senses (kana); failures logged with reason
-- [ ] Polyphones resolved with the lemma's word context (jieba) — spot-class sample checked
-- [ ] `migrations/dim_word_senses_register.sql` applied; column documented
-- [ ] Script is idempotent (skips already-populated rows unless `--force`)
+- [~] `pronunciation` populated for ≥99% of ZH senses (tone-marked pinyin + machine-readable tone digits) [DONE: 100%, 8084/8084] and ≥95% of JA senses (kana) [DEFERRED: 0 JA senses until TASK-505]; failures logged with reason
+- [x] Polyphones resolved with the lemma's word context (jieba) — spot-class sample checked (便宜=pián yi, 重复=chóng fù, 重要=zhòng yào, 长大=zhǎng dà, 音乐=yīn yuè)
+- [x] `migrations/dim_word_senses_register.sql` applied; column documented
+- [x] Script is idempotent (skips already-populated rows unless `--force`)
 
 **Files to Create / Modify:**
 - `scripts/backfill_pronunciations.py` — new
@@ -182,6 +182,24 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 
 **Verification:**
 Coverage query per language ≥ thresholds; re-run is a no-op.
+
+**Resolution (2026-06-14 — register column + ZH backfill done; JA pronunciation deferred):**
+- `migrations/dim_word_senses_register.sql` (ADD COLUMN IF NOT EXISTS `register text`) applied live +
+  verified. (Applied during TASK-508 for sequencing — committed there; the column carries JA keigo
+  plain|polite|honorific|humble|formal|casual, NULL elsewhere; populated going forward by the JA P1
+  prompt via `asset_pipeline._update_vocabulary_metadata`.)
+- `scripts/backfill_pronunciations.py` (new, deterministic, NO LLM cost): ZH uses the existing sandhi
+  engine `services/pinyin_service.process_passage` (jieba word-context + pypinyin + 三声/一/不 sandhi);
+  stores `"<tone-marked pinyin> (<tone digits, sandhi-applied>)"` (diacritics = base/dictionary tones,
+  digits = spoken/context tones). JA uses fugashi + unidic-lite → hiragana reading (verified offline:
+  食べる→たべる, 学校→がっこう, 図書館→としょかん). Idempotent (skips populated unless `--force`).
+- **ZH run: 100% coverage (8084/8084)**, polyphones correctly disambiguated by word context (spot-check
+  above). Idempotent re-run fetched 0 rows. (NB: the run was driven via a `| findstr` pipe that errored
+  under bash — `findstr` is a cmd builtin — but the Python writer completed all updates; the script
+  itself is clean. fugashi/unidic-lite confirmed installed.)
+- **DEFERRED:** the JA kana backfill (≥95%) — there are 0 JA senses until the TASK-505 JA extraction
+  batch runs. The JA code path is implemented and tested offline; `--language ja` is a no-op today and
+  will fill JA senses once they exist. Tied to the same cost-budgeted TASK-505 session.
 
 ---
 
