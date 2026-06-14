@@ -1,5 +1,19 @@
 # Activity Log
 
+## 2026-06-14 change | TASK-511 done — generation_queue migration
+
+Phase-0 infra (XS, no deps). Created `migrations/generation_queue.sql` (§6.5 DDL verbatim:
+`id` bigint identity PK, `sense_id` int FK→dim_word_senses, `language_id` smallint, `reason`
+text, `status` text default 'pending', `detail` jsonb, `requested_at`/`completed_at` timestamptz,
+`UNIQUE (sense_id, reason)`) with idempotent `CREATE TABLE/INDEX IF NOT EXISTS` and the required
+`(status, requested_at)` index. Applied live via Supabase MCP. Verified: 8 columns, 1 UNIQUE
+constraint, status index present; round-trip DO-block smoke (insert → duplicate `ON CONFLICT DO
+NOTHING` no-op confirmed → status update → cleanup) left the table empty. The FK to
+`dim_word_senses(id)` is satisfied by existing ZH/EN senses (JA senses still absent — fine, the
+queue can be empty of JA). Note for downstream: `dim_word_senses` has **no `language_id`** column;
+the queue's `language_id` is producer-supplied. Done 20→21, Not Started 60→59. Next: TASK-508 (JA
+prompt seeds). Pages updated: [[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-14 change | TASK-505 in progress — B4 CJK whole-word fix (code only; batch deferred)
 
 Operator paused the expensive live LLM extraction batch (session cost guardrail, ~$74) and asked for the code

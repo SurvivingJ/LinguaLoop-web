@@ -9,9 +9,9 @@ last_updated: 2026-06-14
 
 | Status | Count |
 |--------|-------|
-| Not Started | 60 |
+| Not Started | 59 |
 | In Progress | 1 |
-| Done | 20 |
+| Done | 21 |
 | Blocked | 4 |
 
 ## All Tasks
@@ -97,7 +97,7 @@ See [[tasklist/exercise-generation-v2.tasks]] for full spec per task. Implements
 | TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [ ] | M | TASK-501 |
 | TASK-509 | exercise-generation-v2 | Traditional Chinese groundwork (dual-store + `hant` mirrors) | [ ] | M | TASK-501 |
 | TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [ ] | S | TASK-501 |
-| TASK-511 | exercise-generation-v2 | `generation_queue` migration | [ ] | XS | — |
+| TASK-511 | exercise-generation-v2 | `generation_queue` migration | [x] | XS | — |
 | TASK-512 | exercise-generation-v2 | Consolidation — ladder is the sole vocab generator | [ ] | M | TASK-501 |
 | TASK-513 | exercise-generation-v2 | Transcript mining as a P1 sentence source | [ ] | M | TASK-512 |
 | TASK-514 | exercise-generation-v2 | Robustness: non-destructive regen, P1 retry, matrix-gated L4 | [ ] | M | TASK-504 |

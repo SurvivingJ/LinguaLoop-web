@@ -295,7 +295,7 @@ Probe with a planted dead slug → banner JSON lists it; batch with a judge row 
 
 ## TASK-511: `generation_queue` migration
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-14)
 **Feature:** exercise-generation-v2
 **Type:** infra
 **Complexity:** XS (<1h)
@@ -305,14 +305,23 @@ Probe with a planted dead slug → banner JSON lists it; batch with a judge row 
 Create the async work queue (§6.5 DDL verbatim): per-sense rows with `reason ∈ (pack, subscribe_topup, coverage_gap, regen)`, status lifecycle, `UNIQUE (sense_id, reason)`.
 
 **Acceptance Criteria:**
-- [ ] Table live per §6.5; index on `(status, requested_at)`
-- [ ] Duplicate (sense, reason) insert upserts/no-ops rather than erroring
+- [x] Table live per §6.5; index on `(status, requested_at)`
+- [x] Duplicate (sense, reason) insert upserts/no-ops rather than erroring
 
 **Files to Create / Modify:**
 - `migrations/generation_queue.sql`
 
 **Verification:**
 Insert/duplicate-insert/status-update round-trip in a SQL smoke test.
+
+**Resolution (2026-06-14):** `migrations/generation_queue.sql` written (§6.5 DDL verbatim,
+`CREATE TABLE IF NOT EXISTS` + `CREATE INDEX IF NOT EXISTS` on `(status, requested_at)`) and
+applied live via Supabase MCP. Verified: 8 columns, 1 UNIQUE constraint `(sense_id, reason)`,
+status index present. Round-trip smoke (DO block over a real `dim_word_senses` sense): insert →
+duplicate insert (`ON CONFLICT (sense_id, reason) DO NOTHING`, no error → no-op confirmed) →
+status update to `done` → cleanup; table left empty (0 rows). FK to `dim_word_senses(id)` works
+fine despite JA senses being absent. Note: `dim_word_senses` has no `language_id` column, so the
+queue's `language_id` is producer-supplied (independent of the senses table).
 
 ---
 
