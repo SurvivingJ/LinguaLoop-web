@@ -1,5 +1,24 @@
 # Activity Log
 
+## 2026-06-14 change | TASK-505 in progress — B4 CJK whole-word fix (code only; batch deferred)
+
+Operator paused the expensive live LLM extraction batch (session cost guardrail, ~$74) and asked for the code
+prerequisites only. **Key finding: most of B4 / TASK-505 was already in the repo before this session** —
+(a) `asset_pipeline._extract_sentences_with_word` already takes `language_id` + uses
+`LanguageProcessor.for_language(...)` (the `self.db_language_id` typo that hardcoded the English processor is gone);
+(b) `services/vocabulary/frequency_service.py` is already language-agnostic with `ja` in `_LANG_MAP` and `wordfreq`
+already in `requirements.txt`; (c) `scripts/backfill_vocab.py` already accepts `--language ja`, propagates
+`language_id`, and sets `frequency_rank` from `compute_zipf_for_vocab_item` (zipf-as-rank, pre-existing). **Net-new
+code:** the last remaining B4 item — CJK whole-word matching was still a substring fallback
+(`contains_target_whole_word` → `word in sentence`, which false-positives 子 inside 椅子). Added
+`LanguageProcessor.contains_whole_word` (ASCII → `\b`; non-ASCII → tokenise and accept only a standalone token or an
+exact contiguous token run) and wired it into `_extract_sentences_with_word`. New `tests/test_contains_whole_word.py`
+(7 tests: stub-tokenizer algorithm + real jieba). Suite: **530 passed, 1 skipped**. **Deferred (operator-approved):**
+acceptance 2–4 — the live `backfill_vocab.py --language ja` run over the 82 JA tests (dim_vocabulary lang-3 rows > 0),
+`frequency_rank` ≥90% coverage, and the 50-lemma spot-check — all need the LLM batch + live writes; held for a fresh
+cost-budgeted session (code is ready to run it). Status: TASK-505 Not Started → In Progress; counts In Progress 0→1,
+Not Started 61→60. Pages updated: [[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-14 change | TASK-504 done — dim_exercise_capabilities routing matrix
 
 Phase-0 foundation. Created `dim_exercise_capabilities` (§6.2 DDL verbatim) and applied

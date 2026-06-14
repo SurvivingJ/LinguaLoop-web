@@ -9,8 +9,8 @@ last_updated: 2026-06-14
 
 | Status | Count |
 |--------|-------|
-| Not Started | 61 |
-| In Progress | 0 |
+| Not Started | 60 |
+| In Progress | 1 |
 | Done | 20 |
 | Blocked | 4 |
 
@@ -91,7 +91,7 @@ See [[tasklist/exercise-generation-v2.tasks]] for full spec per task. Implements
 | TASK-502 | exercise-generation-v2 | Ratify + migrate `semantic_class` 6-value enum | [x] | S | — |
 | TASK-503 | exercise-generation-v2 | Fix `dim_exercise_types.family` + new type rows | [x] | S | — |
 | TASK-504 | exercise-generation-v2 | `dim_exercise_capabilities` table + seeds + wiring | [x] | M | 502, 503 |
-| TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [ ] | M | — |
+| TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [~] | M | — |
 | TASK-506 | exercise-generation-v2 | Pronunciation backfill (ZH/JA) + JA `register` column | [ ] | M | TASK-505 |
 | TASK-507 | exercise-generation-v2 | `semantic_class` LLM backfill + spot-check | [ ] | M | 502, 505 |
 | TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [ ] | M | TASK-501 |

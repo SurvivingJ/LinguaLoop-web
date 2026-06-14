@@ -132,11 +132,13 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 
 ## TASK-505: Japanese vocabulary bootstrap (transcripts only)
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — code prerequisites landed; live extraction batch deferred (cost)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
 **Depends On:** none
+
+**Resolution note (2026-06-14, partial — code only):** Operator paused the expensive live LLM extraction batch (session cost guardrail) and asked for the code prerequisites only. **Finding: most of B4 was already fixed in the repo before this session.** Evidence: (a) `asset_pipeline._extract_sentences_with_word` already takes `language_id` and uses `LanguageProcessor.for_language(language_id)` — the `self.db_language_id` typo that hardcoded the English processor is gone; (b) `services/vocabulary/frequency_service.py` is already language-agnostic with `ja` in `_LANG_MAP`, and `wordfreq` is already in `requirements.txt`; (c) `scripts/backfill_vocab.py` already accepts `--language ja`, propagates `language_id`, and sets `frequency_rank` from `compute_zipf_for_vocab_item(item, language_code)` (zipf score stored as the rank — pre-existing design) — so the JA extraction CLI + frequency path are wired end-to-end. **Net-new code this session:** the one remaining B4 item — CJK whole-word matching was still a substring fallback (`contains_target_whole_word` → `word in sentence`), which false-positives 子 inside 椅子. Added `LanguageProcessor.contains_whole_word` (tokenizer-based: ASCII uses `\b`; non-ASCII tokenises and accepts only a standalone token or an exact contiguous token run) and wired it into `_extract_sentences_with_word` (replacing the substring matcher). `tests/test_contains_whole_word.py` (7 tests, stub-tokenizer + real jieba). Suite: **530 passed, 1 skipped**. **Deferred (operator-approved):** acceptance criteria 2–4 — the live extraction run over the 82 JA tests (`scripts/backfill_vocab.py --language ja`; `dim_vocabulary` lang-3 rows > 0), `frequency_rank` coverage ≥90%, and the 50-lemma human spot-check — all require the LLM batch + live writes and are held for a fresh, cost-budgeted session. The code is ready to run that batch.
 
 **Description:**
 `dim_vocabulary`/`dim_word_senses` have zero JA rows despite 82 JA tests (finding G2). Fix audit bug B4 first (`asset_pipeline.py:340` — `self.db_language_id` typo hardcodes the English processor; `\b` regex breaks on CJK), then run vocabulary extraction over all JA tests via the existing japanese processor + sense generator. Operator decision: transcripts only, no frequency-list top-up. Establish JA `frequency_rank` via the `wordfreq` library.

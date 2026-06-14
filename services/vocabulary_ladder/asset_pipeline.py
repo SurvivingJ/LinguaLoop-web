@@ -462,7 +462,6 @@ class VocabAssetPipeline:
         """Split text into sentences and return those containing the lemma."""
         import re
         from services.exercise_generation.language_processor import LanguageProcessor
-        from services.vocabulary_ladder.validators import contains_target_whole_word
 
         processor = LanguageProcessor.for_language(language_id)
 
@@ -477,7 +476,9 @@ class VocabAssetPipeline:
             sent = sent.strip()
             if len(sent) < 10:
                 continue
-            if not contains_target_whole_word(sent, lemma_lower):
+            # Tokenizer-based whole-word match (audit B4): CJK-safe, no `\b`
+            # dependency — rejects in-token substring false positives.
+            if not processor.contains_whole_word(sent, lemma_lower):
                 continue
 
             # Preserve original case for ASCII; use lemma directly for non-ASCII

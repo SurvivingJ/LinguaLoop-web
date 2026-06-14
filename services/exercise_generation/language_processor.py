@@ -41,6 +41,39 @@ class LanguageProcessor(ABC):
         """Return True if collocation_text appears as a contiguous substring."""
         return collocation_text.lower() in sentence.lower()
 
+    def contains_whole_word(self, sentence: str, word: str) -> bool:
+        r"""Whole-word membership test that is CJK-safe (audit B4).
+
+        For ASCII targets, uses an alphabetic word boundary (\b). For non-ASCII
+        targets — CJK, where \b forms no boundaries between characters — tokenise
+        the sentence with this language's tokenizer and accept the word only if
+        it is a standalone token or a contiguous run of tokens. So 子 does NOT
+        match inside the single token 椅子, avoiding the substring false positives
+        of a naive ``word in sentence`` check. On tokeniser failure, degrades to
+        the substring check rather than dropping the sentence.
+        """
+        if not sentence or not word:
+            return False
+        if word.isascii():
+            return re.search(rf'\b{re.escape(word)}\b', sentence, re.IGNORECASE) is not None
+        try:
+            tokens = self.tokenize(sentence)
+        except Exception:
+            return word in sentence
+        if word in tokens:
+            return True
+        # Lemma the tokenizer splits across adjacent tokens: accept a contiguous
+        # run that concatenates exactly to the word (still rejects in-token substrings).
+        for i in range(len(tokens)):
+            acc = ''
+            for j in range(i, len(tokens)):
+                acc += tokens[j]
+                if acc == word:
+                    return True
+                if len(acc) >= len(word):
+                    break
+        return False
+
     def merge_short_chunks(self, chunks: list[str], min_tokens: int = 2) -> list[str]:
         """Merge chunks shorter than min_tokens with their left neighbour."""
         if not chunks:
