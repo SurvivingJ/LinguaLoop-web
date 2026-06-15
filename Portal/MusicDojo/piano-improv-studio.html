@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0e0b1f" />
+<title>Piano Improv Studio</title>
+<style>
+/* ============================================================
+   Piano Improv Studio — standalone, dependency-free
+   ============================================================ */
+:root{
+  --bg0:#0a0814; --bg1:#130d2b; --bg2:#1b1140;
+  --glass:rgba(255,255,255,.05);
+  --glass-bd:rgba(255,255,255,.10);
+  --txt:#f3f0ff; --txt-dim:#a99fce;
+  --primary:#7c6cff; --primary2:#a26bff;
+  --cyan:#38e8ff; --magenta:#ff5cc8; --gold:#ffd25c; --green:#4ade80;
+  --root:#ff7a59; --scale:#7c6cff; --active:#38e8ff;
+  --radius:18px;
+  --shadow:0 10px 40px rgba(0,0,0,.45);
+  font-size:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color:var(--txt);
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 700px at 12% -8%, #2a1763 0%, transparent 55%),
+    radial-gradient(1000px 700px at 105% 8%, #4a1a6a 0%, transparent 50%),
+    radial-gradient(900px 900px at 50% 120%, #122a5a 0%, transparent 55%),
+    linear-gradient(160deg,var(--bg0),var(--bg1) 55%,var(--bg2));
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+/* animated aurora overlay */
+body::before{
+  content:"";position:fixed;inset:-30%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(40% 40% at 30% 30%, rgba(124,108,255,.18), transparent 60%),
+    radial-gradient(35% 35% at 70% 60%, rgba(56,232,255,.14), transparent 60%),
+    radial-gradient(40% 40% at 50% 80%, rgba(255,92,200,.12), transparent 60%);
+  filter:blur(20px);
+  animation:drift 26s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{transform:translate(-3%, -2%) rotate(0deg) scale(1.05)}
+  100%{transform:translate(4%, 3%) rotate(8deg) scale(1.15)}
+}
+
+.wrap{max-width:1040px;margin:0 auto;padding:18px 14px 120px}
+
+/* ---------- Header ---------- */
+header{text-align:center;margin:6px 0 16px}
+.logo{
+  font-size:clamp(1.5rem,5vw,2.3rem);font-weight:800;letter-spacing:.5px;
+  background:linear-gradient(92deg,var(--cyan),var(--primary2) 45%,var(--magenta));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 14px rgba(124,108,255,.35));
+}
+.tagline{color:var(--txt-dim);font-size:.82rem;margin-top:2px;letter-spacing:.4px}
+
+/* ---------- Glass card ---------- */
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  border:1px solid var(--glass-bd);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:16px;margin-bottom:14px;
+}
+
+/* ---------- Now Playing display ---------- */
+.np{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.np-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.np-scale{font-size:clamp(1.4rem,6vw,2rem);font-weight:800;line-height:1.05}
+.np-scale .key-acc{
+  background:linear-gradient(90deg,var(--cyan),var(--primary2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.np-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.78rem}
+.badge{
+  padding:3px 10px;border-radius:999px;font-weight:600;font-size:.72rem;letter-spacing:.3px;
+  border:1px solid var(--glass-bd);background:var(--glass);color:var(--txt-dim);
+}
+.badge.cat{background:linear-gradient(90deg,rgba(124,108,255,.35),rgba(162,107,255,.25));color:#e9e4ff;border-color:transparent}
+.mood{color:var(--gold);font-weight:600}
+.chords{color:var(--cyan)}
+
+/* dice generate */
+.gen-btn{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 18px;border:none;border-radius:14px;cursor:pointer;
+  font-size:.95rem;font-weight:700;color:#0a0814;
+  background:linear-gradient(92deg,var(--cyan),var(--primary2));
+  box-shadow:0 8px 24px rgba(124,108,255,.4);
+  transition:transform .12s ease,box-shadow .2s ease;
+}
+.gen-btn:hover{transform:translateY(-2px)}
+.gen-btn:active{transform:scale(.96)}
+.gen-btn .ico{font-size:1.15rem;display:inline-block}
+.gen-btn.rolling .ico{animation:roll .6s ease}
+@keyframes roll{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+/* ---------- Keyboard ---------- */
+.kb-scroll{overflow-x:auto;overflow-y:hidden;border-radius:14px;-webkit-overflow-scrolling:touch}
+.keyboard{
+  position:relative;height:190px;min-width:560px;
+  border-radius:14px;padding:0;user-select:none;
+  background:linear-gradient(180deg,#1a1330,#0d0a1c);
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.6);
+}
+@media(max-width:600px){.keyboard{height:158px}}
+.key{position:absolute;top:0;cursor:pointer;transition:transform .04s ease, box-shadow .15s ease, background .2s ease;}
+.key.white{
+  height:100%;border-radius:0 0 7px 7px;
+  background:linear-gradient(180deg,#f6f3ff,#d8d2ea);
+  border:1px solid #2a2440;border-top:none;
+  box-shadow:inset 0 -6px 8px rgba(120,110,160,.25);
+  z-index:1;
+}
+.key.black{
+  height:62%;border-radius:0 0 6px 6px;
+  background:linear-gradient(180deg,#2c2740,#0d0b18);
+  border:1px solid #000;border-top:none;
+  box-shadow:0 4px 6px rgba(0,0,0,.6);
+  z-index:2;
+}
+.key .lbl{
+  position:absolute;bottom:6px;left:0;right:0;text-align:center;
+  font-size:.6rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .2s;
+}
+.key.white .lbl{color:#5b5280}
+.key.black .lbl{color:#cfc6ef;bottom:4px}
+.keyboard.show-labels .key.in .lbl{opacity:1}
+
+/* scale membership */
+.key.white.in{background:linear-gradient(180deg,#efeaff,#c9bcff)}
+.key.black.in{background:linear-gradient(180deg,#5b4da8,#2c2456)}
+.key.white.root{background:linear-gradient(180deg,#ffd9cb,#ff9b7e)}
+.key.black.root{background:linear-gradient(180deg,#ff8a63,#c04a28)}
+.key.in::after{
+  content:"";position:absolute;left:50%;transform:translateX(-50%);
+  width:9px;height:9px;border-radius:50%;background:var(--scale);
+  box-shadow:0 0 8px var(--scale);opacity:.75;
+}
+.key.white.in::after{bottom:16px}
+.key.black.in::after{bottom:10px;width:7px;height:7px}
+.key.root::after{background:var(--root);box-shadow:0 0 10px var(--root)}
+
+/* active (currently sounding) */
+.key.playing{transform:translateY(4px) scaleY(.985)}
+.key.white.playing{background:linear-gradient(180deg,#bff6ff,#38e8ff);box-shadow:0 0 24px var(--active),inset 0 -4px 8px rgba(0,80,100,.4)}
+.key.black.playing{background:linear-gradient(180deg,#7af2ff,#13a7c4);box-shadow:0 0 22px var(--active)}
+.key.playing::after{background:#fff;box-shadow:0 0 14px #fff;opacity:1}
+/* motif highlight ring */
+.key.motif::before{
+  content:"";position:absolute;inset:auto 50% 30px 50%;transform:translateX(-50%);
+  width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);
+}
+.key.black.motif::before{bottom:22px}
+
+/* ---------- Step sequencer strip ---------- */
+.seq{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.step{
+  min-width:42px;flex:1 1 42px;max-width:70px;
+  border-radius:10px;padding:8px 4px;text-align:center;
+  background:var(--glass);border:1px solid var(--glass-bd);
+  font-size:.7rem;color:var(--txt-dim);position:relative;overflow:hidden;
+  transition:background .12s ease, transform .12s ease, border-color .12s;
+}
+.step .deg{font-weight:700;color:var(--txt);font-size:.82rem;line-height:1.2}
+.step.rest .deg{color:var(--txt-dim);opacity:.5}
+.step.on{
+  background:linear-gradient(180deg,rgba(56,232,255,.35),rgba(124,108,255,.25));
+  border-color:var(--cyan);transform:translateY(-3px);
+  box-shadow:0 6px 18px rgba(56,232,255,.3);
+}
+.step.on .deg{color:#fff;text-shadow:0 0 10px var(--cyan)}
+
+/* ---------- Transport ---------- */
+.transport{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.tbtn{
+  width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+  display:grid;place-items:center;font-size:1.4rem;color:#0a0814;
+  background:linear-gradient(135deg,var(--cyan),var(--primary2));
+  box-shadow:0 8px 22px rgba(124,108,255,.45);
+  transition:transform .12s ease;
+}
+.tbtn:active{transform:scale(.92)}
+.tbtn.sec{
+  width:46px;height:46px;font-size:1rem;color:var(--txt);
+  background:var(--glass);border:1px solid var(--glass-bd);box-shadow:none;
+}
+.tbtn.sec.active{background:linear-gradient(135deg,var(--magenta),var(--primary2));color:#fff;border-color:transparent}
+.tempo-box{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:120px;flex:1}
+.tempo-val{font-weight:800;font-size:1.1rem}
+.tempo-val small{font-size:.65rem;color:var(--txt-dim);font-weight:500}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--primary),var(--cyan));outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;cursor:pointer;
+  background:#fff;box-shadow:0 0 10px rgba(56,232,255,.8);border:2px solid var(--primary2);
+}
+input[type=range]::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid var(--primary2);
+  background:#fff;box-shadow:0 0 10px rgba(56,232,255,.8);
+}
+
+/* ---------- Controls grid ---------- */
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.controls{grid-template-columns:1fr}}
+.ctrl{display:flex;flex-direction:column;gap:6px}
+.ctrl.span{grid-column:1/-1}
+.ctrl label{font-size:.72rem;text-transform:uppercase;letter-spacing:.8px;color:var(--txt-dim);font-weight:700}
+select{
+  appearance:none;-webkit-appearance:none;width:100%;
+  padding:12px 36px 12px 14px;border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.06) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23a99fce' viewBox='0 0 16 16'><path d='M4 6l4 4 4-4'/></svg>") no-repeat right 12px center;
+  border:1px solid var(--glass-bd);color:var(--txt);font-size:.95rem;font-weight:600;
+  transition:border-color .2s, box-shadow .2s;
+}
+select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,232,255,.2)}
+select optgroup{background:#15102e;color:var(--cyan);font-weight:700}
+select option{background:#1b1140;color:var(--txt);font-weight:500}
+
+/* ---------- Vibe chips ---------- */
+.section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--txt-dim);font-weight:800;margin:0 0 10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  padding:8px 15px;border-radius:999px;cursor:pointer;font-size:.82rem;font-weight:600;
+  background:var(--glass);border:1px solid var(--glass-bd);color:var(--txt-dim);
+  transition:all .18s ease;
+}
+.chip:hover{color:var(--txt);border-color:var(--primary)}
+.chip.active{
+  background:linear-gradient(92deg,var(--primary),var(--magenta));color:#fff;border-color:transparent;
+  box-shadow:0 6px 18px rgba(162,107,255,.4);
+}
+
+/* ---------- Motif panel ---------- */
+.motif-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.motif-name{font-weight:800;font-size:1.05rem}
+.motif-name .tform{color:var(--gold);font-weight:600;font-size:.8rem}
+.motif-degrees{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.deg-pill{
+  display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:9px;
+  background:linear-gradient(180deg,rgba(255,210,92,.25),rgba(255,210,92,.1));
+  border:1px solid rgba(255,210,92,.35);color:var(--gold);font-weight:800;font-size:.9rem;
+}
+.deg-arrow{color:var(--txt-dim);font-size:.7rem}
+.motif-rhythm{display:flex;gap:8px;align-items:center;margin-top:4px;color:var(--txt-dim);font-size:1rem}
+.motif-desc{color:var(--txt-dim);font-size:.8rem;margin-top:8px;line-height:1.4}
+
+/* diatonic chord chips */
+.prog{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.prog-chip{
+  display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;
+  padding:7px 12px;border-radius:11px;background:var(--glass);border:1px solid var(--glass-bd);
+  transition:all .15s ease;min-width:52px;
+}
+.prog-chip:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.prog-chip .rn{font-weight:800;font-size:.9rem;color:var(--cyan)}
+.prog-chip .nm{font-size:.68rem;color:var(--txt-dim)}
+
+.small-btn{
+  padding:8px 14px;border-radius:10px;border:1px solid var(--glass-bd);cursor:pointer;
+  background:var(--glass);color:var(--txt);font-weight:700;font-size:.8rem;display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s ease;
+}
+.small-btn:hover{border-color:var(--cyan);color:#fff}
+.small-btn.go{background:linear-gradient(92deg,var(--cyan),var(--primary2));color:#0a0814;border-color:transparent}
+
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+footer{text-align:center;color:var(--txt-dim);font-size:.72rem;margin-top:20px;opacity:.7;line-height:1.6}
+
+.hint{color:var(--txt-dim);font-size:.74rem;text-align:center;margin-top:8px}
+
+/* fade-in */
+.fade{animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">⬤ Piano Improv Studio</div>
+    <div class="tagline">scales · voicings · motifs — heard, not just seen</div>
+  </header>
+
+  <!-- Now playing -->
+  <div class="card">
+    <div class="np">
+      <div class="np-main">
+        <div class="np-scale" id="npScale">C <span class="key-acc">Major</span></div>
+        <div class="np-meta" id="npMeta"></div>
+      </div>
+      <button class="gen-btn" id="genBtn"><span class="ico">🎲</span><span>Generate</span></button>
+    </div>
+  </div>
+
+  <!-- Keyboard + sequencer -->
+  <div class="card">
+    <div class="kb-scroll"><div class="keyboard show-labels" id="keyboard"></div></div>
+    <div class="seq" id="seq"></div>
+    <div class="hint" id="kbHint">Tap any key to hear it · the lit keys are the current pattern step</div>
+  </div>
+
+  <!-- Transport -->
+  <div class="card">
+    <div class="transport">
+      <button class="tbtn" id="playBtn" aria-label="play">▶</button>
+      <div class="tempo-box">
+        <div class="tempo-val"><span id="tempoVal">96</span> <small>BPM</small></div>
+        <input type="range" id="tempo" min="40" max="220" value="96" />
+      </div>
+      <button class="tbtn sec" id="swingBtn" title="Swing feel">⤴</button>
+      <button class="tbtn sec active" id="loopBtn" title="Loop">↻</button>
+    </div>
+    <div class="transport" style="margin-top:14px">
+      <span class="badge" style="color:var(--txt-dim)">Vol</span>
+      <input type="range" id="vol" min="0" max="100" value="70" style="max-width:160px" />
+      <button class="small-btn" id="bassBtn">🎚 Backing chord: off</button>
+      <button class="small-btn" id="labelBtn">🔤 Note names: on</button>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Key</label>
+        <select id="selKey"></select>
+      </div>
+      <div class="ctrl">
+        <label>Scale</label>
+        <select id="selScale"></select>
+      </div>
+      <div class="ctrl span">
+        <label>Left-hand Pattern</label>
+        <select id="selPattern"></select>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <p class="section-title">Vibe filter <span style="text-transform:none;font-weight:500">— biases the dice</span></p>
+      <div class="chips" id="vibes"></div>
+    </div>
+  </div>
+
+  <!-- Diatonic chords -->
+  <div class="card" id="progCard">
+    <p class="section-title">Diatonic chords <span style="text-transform:none;font-weight:500" id="progSub"></span></p>
+    <div class="prog" id="prog"></div>
+  </div>
+
+  <!-- Motif -->
+  <div class="card">
+    <div class="motif-head">
+      <div class="motif-name" id="motifName">Motif</div>
+      <div class="toggle-row">
+        <button class="small-btn" id="motifNew">🔁 New motif</button>
+        <button class="small-btn go" id="motifPlay">▶ Play</button>
+      </div>
+    </div>
+    <div class="motif-degrees" id="motifDegrees"></div>
+    <div class="motif-rhythm" id="motifRhythm"></div>
+    <div class="motif-desc" id="motifDesc"></div>
+  </div>
+
+  <footer>
+    Web-Audio synthesised · no libraries · works offline.<br/>
+    A refactor of the MusicDojo Improv Generator — now you can <em>hear</em> the patterns.
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ===========================================================================
+   1. MUSIC DATA
+   =========================================================================== */
+const SHARP_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT_NAMES  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const CHROMATIC   = ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const FLAT_KEYS   = new Set(['F','Bb','Eb','Ab','Db','Gb']);
+
+const SCALES = {
+  'Major':[0,2,4,5,7,9,11],'Natural Minor':[0,2,3,5,7,8,10],
+  'Dorian':[0,2,3,5,7,9,10],'Phrygian':[0,1,3,5,7,8,10],'Lydian':[0,2,4,6,7,9,11],
+  'Mixolydian':[0,2,4,5,7,9,10],'Locrian':[0,1,3,5,6,8,10],
+  'Harmonic Minor':[0,2,3,5,7,8,11],'Melodic Minor':[0,2,3,5,7,9,11],'Jazz Minor':[0,2,3,5,7,9,11],
+  'Lydian Dominant':[0,2,4,6,7,9,10],'Altered':[0,1,3,4,6,8,10],'Phrygian Dominant':[0,1,4,5,7,8,10],
+  'Dominant Bebop':[0,2,4,5,7,9,10,11],'Major Bebop':[0,2,4,5,7,8,9,11],'Minor Bebop':[0,2,3,5,7,8,9,10],
+  'Whole Tone':[0,2,4,6,8,10],'Diminished HW':[0,1,3,4,6,7,9,10],'Whole-Half Diminished':[0,2,3,5,6,8,9,11],
+  'Prometheus':[0,2,4,6,9,10],'Enigmatic':[0,1,4,6,8,10,11],
+  'Pentatonic Major':[0,2,4,7,9],'Pentatonic Minor':[0,3,5,7,10],'Blues':[0,3,5,6,7,10],
+  'Dominant Pentatonic':[0,2,4,7,10],'Egyptian':[0,2,5,7,10],'Scottish Pentatonic':[0,2,5,7,9],
+  'Persian':[0,1,4,5,6,8,11],'Byzantine':[0,1,4,5,7,8,11],'Neapolitan Minor':[0,1,3,5,7,8,11],
+  'Neapolitan Major':[0,1,3,5,7,9,11],'Hungarian Minor':[0,2,3,6,7,8,11],'Hungarian Major':[0,3,4,6,7,9,10],
+  'Romanian Major':[0,1,4,6,7,9,10],'Arabian':[0,2,4,5,6,8,10],'Asian':[0,1,4,5,6,9,10],'Javanese Pelog':[0,1,3,5,7,9,10],
+  'Hirajoshi':[0,2,3,7,8],'In Sen':[0,1,5,7,10],'Iwato':[0,1,5,6,10],'Kumoi':[0,2,5,7,8],'Balinese Pelog':[0,1,3,7,8],
+};
+const SCALE_CATEGORIES = {
+  'Beginner':['Major','Natural Minor','Pentatonic Major','Pentatonic Minor','Blues'],
+  'Common':['Harmonic Minor','Melodic Minor','Jazz Minor'],
+  'Modes':['Dorian','Phrygian','Lydian','Mixolydian','Locrian'],
+  'Jazz':['Lydian Dominant','Altered','Phrygian Dominant'],
+  'Bebop':['Dominant Bebop','Major Bebop','Minor Bebop'],
+  'Symmetric':['Whole Tone','Diminished HW','Whole-Half Diminished','Prometheus','Enigmatic'],
+  'Pentatonic':['Dominant Pentatonic','Egyptian','Scottish Pentatonic'],
+  'World':['Persian','Byzantine','Neapolitan Minor','Neapolitan Major','Hungarian Minor','Hungarian Major','Romanian Major','Arabian','Asian','Javanese Pelog'],
+  'Japanese':['Hirajoshi','In Sen','Iwato','Kumoi','Balinese Pelog'],
+};
+const SCALE_META = {
+  'Major':['Bright, Happy','Beginner',['maj7','6']],'Natural Minor':['Sad, Dark','Beginner',['min7']],
+  'Pentatonic Major':['Open, Cheerful','Beginner',['maj','6']],'Pentatonic Minor':['Bluesy, Soulful','Beginner',['min7']],
+  'Blues':['Gritty, Expressive','Common',['7','min7']],'Harmonic Minor':['Classical, Dramatic','Common',['min(maj7)','dim7']],
+  'Melodic Minor':['Smooth, Jazz','Common',['min(maj7)']],'Jazz Minor':['Smooth, Modern','Jazz',['min(maj7)']],
+  'Dorian':['Cool, Mellow','Modes',['min7','min9']],'Phrygian':['Spanish, Dark','Modes',['min7','sus4b9']],
+  'Lydian':['Dreamy, Floating','Modes',['maj7#11']],'Mixolydian':['Bluesy, Rock','Modes',['7','9','13']],
+  'Locrian':['Unstable, Tense','Modes',['min7b5']],'Lydian Dominant':['Bright, Tension','Jazz',['7#11']],
+  'Altered':['Tense, Chromatic','Jazz',['7alt','7#9b13']],'Phrygian Dominant':['Flamenco, Exotic','Jazz',['7b9']],
+  'Dominant Bebop':['Swinging, Chromatic','Bebop',['7','9']],'Major Bebop':['Swinging, Bright','Bebop',['maj7','6']],
+  'Minor Bebop':['Swinging, Dark','Bebop',['min7']],'Whole Tone':['Dreamy, Impressionist','Symmetric',['7#5','aug']],
+  'Diminished HW':['Tense, Angular','Symmetric',['dim7','7b9']],'Whole-Half Diminished':['Eerie, Symmetrical','Symmetric',['dim7']],
+  'Prometheus':['Mystic, Other-worldly','Symmetric',['7#11']],'Enigmatic':['Chromatic, Intense','Symmetric',[]],
+  'Dominant Pentatonic':['Bluesy, Dominant','Pentatonic',['7','9']],'Egyptian':['Open, Suspended','Pentatonic',['sus2','sus4']],
+  'Scottish Pentatonic':['Open, Folkloric','Pentatonic',['sus2']],'Persian':['Middle Eastern, Tense','World',['maj7']],
+  'Byzantine':['Majestic, Eastern','World',['maj','7b9']],'Neapolitan Minor':['Dark, Classical','World',['min(maj7)']],
+  'Neapolitan Major':['Warm, Classical','World',['maj7']],'Hungarian Minor':['Dark, Exotic','World',['min(maj7)','dim7']],
+  'Hungarian Major':['Dominant, Exotic','World',['7','7b9']],'Romanian Major':['Tense, Lydian','World',['7','7#11']],
+  'Arabian':['Desert, Mysterious','World',['7b5']],'Asian':['Eastern, Minor','World',['min','sus4']],
+  'Javanese Pelog':['Indonesian, Soft','World',['min7','sus2']],'Hirajoshi':['Sparse, Mysterious','Japanese',['min7']],
+  'In Sen':['Dark, Stark','Japanese',['min7','sus4']],'Iwato':['Dissonant, Haunting','Japanese',['min7b5']],
+  'Kumoi':['Gentle, Wistful','Japanese',['min','sus4']],'Balinese Pelog':['Exotic, Mystical','Japanese',['min','sus2']],
+};
+
+/* Left-hand patterns. Each step is an eighth note.
+   Numbers = scale degrees (1-indexed, octave-wrapping). 0 = rest. Arrays = simultaneous (chord). */
+const PATTERNS = {
+  'Block Chords':{seq:[[1,3,5]],desc:'All chord tones at once',vibe:['all']},
+  'Alberti Bass':{seq:[1,5,3,5],desc:'Root-fifth-third-fifth — classical staple',vibe:['classical']},
+  'Waltz':{seq:[1,[3,5],[3,5]],desc:'3/4 oom-pah-pah',vibe:['classical']},
+  'Arpeggio Up':{seq:[1,3,5,8],desc:'Rising broken chord',vibe:['all']},
+  'Arpeggio Down':{seq:[8,5,3,1],desc:'Falling broken chord',vibe:['all']},
+  'Walking Bass':{seq:[1,2,3,5],desc:'Stepwise ascending bass',vibe:['jazz']},
+  'Stride':{seq:[1,[3,5,8],5,[3,5,8]],desc:'Low bass then mid chord — ragtime',vibe:['jazz']},
+  'Shell Voicing':{seq:[[1,7]],desc:'Root + 7th (Bud Powell)',vibe:['jazz']},
+  'Shell Voicing Alt':{seq:[[1,3]],desc:'Root + 3rd shell',vibe:['jazz']},
+  'Rootless A':{seq:[[3,5,7,9]],desc:'Bill Evans 3-5-7-9 voicing',vibe:['jazz']},
+  'Rootless B':{seq:[[7,9,3,5]],desc:'Inverted rootless 7-9-3-5',vibe:['jazz']},
+  'Quartal Voicing':{seq:[[1,4,7]],desc:'Stacked 4ths — McCoy Tyner',vibe:['jazz','modal']},
+  'Boogie Shuffle':{seq:[1,5,6,5],desc:'Root-fifth-sixth-fifth swing',vibe:['blues']},
+  'Boogie Chop':{seq:[1,8,1,8],desc:'Octave jump boogie',vibe:['blues']},
+  'Boogie Ascending':{seq:[1,2,3,4,5,6,5,3],desc:'Walking chromatic climb',vibe:['blues']},
+  '12-Bar Groove':{seq:[1,5,1,5,[1,5],[1,5]],desc:'Bass + power chords',vibe:['blues']},
+  'Gospel Chop':{seq:[[1,5],[3,7],[1,5],[3,7,9]],desc:'Bass chord + extension',vibe:['gospel']},
+  'Funk Stab':{seq:[[1,3,7],0,[1,3,7],0],desc:'Chord stabs with rests',vibe:['funk']},
+  'Syncopated Bass':{seq:[1,0,5,1,0,5,3,5],desc:'Off-beat bass movement',vibe:['funk']},
+  'New Orleans':{seq:[1,3,5,3,[1,5],3,5,3],desc:'Circular bass phrase',vibe:['blues']},
+  'Bossa Nova':{seq:[1,5,8,5,1,5,3,5],desc:'Syncopated Latin rhythm',vibe:['latin','jazz']},
+  'Montuno':{seq:[1,3,5,3,8,5,3,5],desc:'Cuban repeated figure',vibe:['latin']},
+  'Cha-Cha':{seq:[1,1,5,5,1,0,5,0],desc:'Steady cha-cha-cha feel',vibe:['latin']},
+  'Mambo Bass':{seq:[1,5,8,5,1,0,8,5],desc:'Driving mambo left hand',vibe:['latin']},
+  'Open Fifth Ostinato':{seq:[[1,5],[1,5],[1,5],[1,5]],desc:'Power-chord drone',vibe:['modal']},
+  'Two-Note Vamp':{seq:[1,0,1,0,5,0,5,0],desc:'Alternating root/fifth pedal',vibe:['modal']},
+  'Pedal Bass':{seq:[1,1,1,1],desc:'Static bass tension builder',vibe:['modal']},
+  'Rhumba Clave':{seq:[1,0,0,5,0,1,0,0],desc:'3-2 clave feel in bass',vibe:['latin']},
+};
+const PATTERN_CATEGORIES = {
+  'Classical':['Block Chords','Alberti Bass','Waltz','Arpeggio Up','Arpeggio Down'],
+  'Jazz':['Walking Bass','Stride','Shell Voicing','Shell Voicing Alt'],
+  'Voicings':['Rootless A','Rootless B','Quartal Voicing'],
+  'Boogie / Blues':['Boogie Shuffle','Boogie Chop','Boogie Ascending','12-Bar Groove'],
+  'Funk / Gospel':['Gospel Chop','Funk Stab','Syncopated Bass','New Orleans'],
+  'Latin':['Bossa Nova','Montuno','Cha-Cha','Mambo Bass'],
+  'Ostinato':['Open Fifth Ostinato','Two-Note Vamp','Pedal Bass','Rhumba Clave'],
+};
+
+const MOTIFS = {
+  'Rising 3rd':{intervals:[1,3],rhythm:[1,1],desc:'Simple ascending 3rd — the seed cell of countless phrases'},
+  'Call Riff':{intervals:[1,3,2,1],rhythm:[.5,.5,.5,1.5],desc:'Classic jazz call figure — resolves to the root'},
+  'Pentatonic Drop':{intervals:[5,4,3,1],rhythm:[.5,.5,.5,.5],desc:'Falling pentatonic lick from 5th to root'},
+  'Blues Wail':{intervals:[5,4,3,4,3],rhythm:[1,.5,.5,.5,1.5],desc:'Bent blues cry — 5 to 4 with a linger'},
+  'Jazz Enclosure':{intervals:[4,2,3,3],rhythm:[.5,.5,.5,1.5],desc:'Approach the target from above and below'},
+  'Ascending Sequence':{intervals:[1,2,3,2,3,4,3,4,5],rhythm:[.5,.5,.5,.5,.5,.5,.5,.5,1],desc:'Stepwise climb in overlapping 3rds'},
+};
+const TRANSFORMS = ['transpose','invert','retrograde','augment','diminish','fragment','displace'];
+
+const VIBES = {
+  'All':{scales:null,patternVibes:null},
+  'Jazzy':{scales:['Dorian','Altered','Lydian Dominant','Dominant Bebop','Major Bebop','Minor Bebop','Jazz Minor','Lydian','Mixolydian'],patternVibes:['jazz','modal']},
+  'Bluesy':{scales:['Blues','Pentatonic Minor','Dominant Pentatonic','Mixolydian','Dorian'],patternVibes:['blues','funk']},
+  'World':{scales:['Hungarian Minor','Hungarian Major','Byzantine','Persian','Romanian Major','Arabian','Hirajoshi','In Sen','Iwato','Kumoi','Phrygian Dominant'],patternVibes:['latin','modal']},
+  'Classical':{scales:['Major','Natural Minor','Harmonic Minor','Melodic Minor','Neapolitan Minor','Neapolitan Major'],patternVibes:['classical']},
+  'Modal':{scales:['Dorian','Lydian','Phrygian','Mixolydian','Whole Tone','Locrian'],patternVibes:['modal']},
+};
+
+/* ===========================================================================
+   2. AUDIO ENGINE — polyphonic synth piano (Web Audio, no samples)
+   =========================================================================== */
+class Synth{
+  constructor(){this.ctx=null;this.master=null;this.reverb=null;this.vol=0.7;}
+  ensure(){
+    if(this.ctx) {if(this.ctx.state==='suspended')this.ctx.resume();return;}
+    const AC=window.AudioContext||window.webkitAudioContext;
+    this.ctx=new AC();
+    this.master=this.ctx.createGain();this.master.gain.value=this.vol;
+    // gentle compressor for glue
+    const comp=this.ctx.createDynamicsCompressor();
+    comp.threshold.value=-18;comp.ratio.value=3;
+    this.master.connect(comp);comp.connect(this.ctx.destination);
+    // algorithmic reverb
+    this.reverb=this.ctx.createConvolver();
+    this.reverb.buffer=this._impulse(1.7,2.6);
+    const wet=this.ctx.createGain();wet.gain.value=0.18;
+    this.reverb.connect(wet);wet.connect(comp);
+    this.send=this.ctx.createGain();this.send.connect(this.reverb);
+  }
+  _impulse(dur,decay){
+    const rate=this.ctx.sampleRate,len=rate*dur;
+    const buf=this.ctx.createBuffer(2,len,rate);
+    for(let c=0;c<2;c++){const d=buf.getChannelData(c);
+      for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}
+    return buf;
+  }
+  setVol(v){this.vol=v;if(this.master)this.master.gain.setTargetAtTime(v,this.ctx.currentTime,.02);}
+  freq(m){return 440*Math.pow(2,(m-69)/12);}
+  // Schedule a struck-piano-ish note at absolute ctx time `t`
+  note(midi,t,dur=0.6,vel=0.8){
+    this.ensure();const ctx=this.ctx,f=this.freq(midi);
+    const g=ctx.createGain();
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';
+    lp.frequency.setValueAtTime(Math.min(8000,f*7+1200),t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(500,f*2.2),t+dur*0.9);
+    // two partials + a soft sub
+    const o1=ctx.createOscillator();o1.type='triangle';o1.frequency.value=f;
+    const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*2;o2.detune.value=4;
+    const o3=ctx.createOscillator();o3.type='sine';o3.frequency.value=f*0.5;
+    const g2=ctx.createGain();g2.gain.value=0.16;
+    const g3=ctx.createGain();g3.gain.value=0.10;
+    o1.connect(g);o2.connect(g2);g2.connect(g);o3.connect(g3);g3.connect(g);
+    g.connect(lp);lp.connect(this.master);lp.connect(this.send);
+    // percussive ADSR
+    const peak=Math.max(0.04,Math.min(1,vel))*0.5;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(peak,t+0.006);
+    g.gain.exponentialRampToValueAtTime(peak*0.35,t+0.18);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    [o1,o2,o3].forEach(o=>{o.start(t);o.stop(t+dur+0.05);});
+  }
+  now(){this.ensure();return this.ctx.currentTime;}
+}
+const synth=new Synth();
+
+/* ===========================================================================
+   3. MUSIC THEORY HELPERS
+   =========================================================================== */
+const BLACK_PC=new Set([1,3,6,8,10]);
+const WHITE_PC=[0,2,4,5,7,9,11];
+
+function noteName(pc,key){
+  const arr=FLAT_KEYS.has(key)?FLAT_NAMES:SHARP_NAMES;
+  return arr[((pc%12)+12)%12];
+}
+// degree (1-indexed) -> midi, relative to a root midi & scale intervals.
+// Octaves wrap on a fixed 7-degree diatonic frame so "8" is always the root
+// octave (the convention these accompaniment patterns are written in); shorter
+// scales (pentatonic, whole-tone) clamp the in-octave index to their top tone.
+function degreeToMidi(deg,rootMidi,intervals){
+  const oct=Math.floor((deg-1)/7);
+  let idx=((deg-1)%7+7)%7;
+  if(idx>=intervals.length)idx=intervals.length-1;
+  return rootMidi+intervals[idx]+12*oct;
+}
+
+/* ===========================================================================
+   4. APP STATE + ENGINE
+   =========================================================================== */
+const KB_LOW=48, KB_HIGH=84;            // C3 .. C6
+const BASS_ROOT_OCT=3;                  // left-hand patterns anchored at C3
+const App={
+  key:'C', scale:'Major', pattern:'Block Chords', vibe:'All',
+  motif:null,
+  tempo:96, swing:false, loop:true, backing:false, labels:true,
+  isPlaying:false, step:0, timer:null, nextTime:0, schedStep:0,
+  stepEls:[], keyEls:{},
+};
+
+/* ---- scale / pattern computation ---- */
+function rootPc(){return CHROMATIC.indexOf(App.key);}
+function scaleIntervals(){return SCALES[App.scale]||SCALES['Major'];}
+function scalePcs(){const r=rootPc();return new Set(scaleIntervals().map(i=>(r+i)%12));}
+
+// expand the active pattern into [{notes:[midi...], rest:bool, label:string}]
+function patternSteps(){
+  const pat=PATTERNS[App.pattern];if(!pat)return[];
+  const r=rootPc(), bassRoot=r+(BASS_ROOT_OCT+1)*12-12; // C3-ish bass register
+  const iv=scaleIntervals();
+  return pat.seq.map(step=>{
+    if(step===0)return{notes:[],rest:true,label:'·'};
+    const degs=Array.isArray(step)?step:[step];
+    const notes=degs.map(d=>degreeToMidi(d,bassRoot,iv));
+    return{notes,rest:false,label:degs.join('+')};
+  });
+}
+
+/* ===========================================================================
+   5. RENDERING
+   =========================================================================== */
+function buildKeyboard(){
+  const kb=document.getElementById('keyboard');
+  const whites=[];for(let m=KB_LOW;m<=KB_HIGH;m++)if(WHITE_PC.includes(m%12))whites.push(m);
+  const ww=100/whites.length, bw=ww*0.62;
+  let html='';App.keyEls={};
+  // white keys
+  whites.forEach((m,i)=>{
+    html+=`<div class="key white" data-midi="${m}" style="left:${i*ww}%;width:${ww}%"><span class="lbl"></span></div>`;
+  });
+  // black keys
+  for(let m=KB_LOW;m<=KB_HIGH;m++){
+    if(!BLACK_PC.has(m%12))continue;
+    // white index of the white key just below
+    let below=m-1;const wi=whites.indexOf(below);
+    if(wi<0)continue;
+    const left=(wi+1)*ww-bw/2;
+    html+=`<div class="key black" data-midi="${m}" style="left:${left}%;width:${bw}%"><span class="lbl"></span></div>`;
+  }
+  kb.innerHTML=html;
+  kb.querySelectorAll('.key').forEach(el=>{
+    const m=+el.dataset.midi;App.keyEls[m]=el;
+    el.addEventListener('pointerdown',e=>{e.preventDefault();playKey(m,el);});
+  });
+  paintScale();
+}
+
+function paintScale(){
+  const pcs=scalePcs(), r=rootPc();
+  for(const m in App.keyEls){
+    const midi=+m, el=App.keyEls[m], pc=midi%12;
+    el.classList.remove('in','root','playing','motif');
+    if(pcs.has(pc)){el.classList.add('in');if(pc===r)el.classList.add('root');}
+    el.querySelector('.lbl').textContent=noteName(pc,App.key);
+  }
+  // motif overlay (same register the motif is played in)
+  if(App.motif){
+    const iv=scaleIntervals();
+    App.motif.intervals.forEach(d=>{
+      const midi=degreeToMidi(d,r+60,iv);
+      if(App.keyEls[midi])App.keyEls[midi].classList.add('motif');
+    });
+  }
+  document.getElementById('keyboard').classList.toggle('show-labels',App.labels);
+}
+
+function renderSeq(){
+  const wrap=document.getElementById('seq');
+  const steps=patternSteps();App.stepEls=[];
+  wrap.innerHTML='';
+  steps.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='step'+(s.rest?' rest':'');
+    d.innerHTML=`<div class="deg">${s.rest?'—':s.label}</div><div>${i+1}</div>`;
+    wrap.appendChild(d);App.stepEls.push(d);
+  });
+}
+
+function renderNowPlaying(){
+  const meta=SCALE_META[App.scale];
+  document.getElementById('npScale').innerHTML=`${App.key} <span class="key-acc">${App.scale}</span>`;
+  const m=document.getElementById('npMeta');
+  if(meta){
+    let h=`<span class="badge cat">${meta[1]}</span><span class="mood">${meta[0]}</span>`;
+    if(meta[2]&&meta[2].length)h+=`<span class="chords">▸ ${meta[2].join(' · ')}</span>`;
+    m.innerHTML=h;
+  }else m.innerHTML='';
+  document.getElementById('selKey').value=App.key;
+  document.getElementById('selScale').value=App.scale;
+  document.getElementById('selPattern').value=App.pattern;
+}
+
+/* ---- diatonic chord builder ---- */
+function romanFor(quality,deg){
+  const map=['I','II','III','IV','V','VI','VII'];
+  let rn=map[deg]||(''+(deg+1));
+  if(quality==='min'||quality==='dim')rn=rn.toLowerCase();
+  if(quality==='dim')rn+='°';if(quality==='aug')rn+='+';
+  return rn;
+}
+function renderProg(){
+  const card=document.getElementById('progCard'),wrap=document.getElementById('prog');
+  const iv=scaleIntervals();
+  if(iv.length<7){card.style.display='none';return;}
+  card.style.display='';
+  document.getElementById('progSub').textContent='— tap a chord to hear it';
+  const r=rootPc();wrap.innerHTML='';
+  for(let d=0;d<iv.length;d++){
+    const third=(iv[(d+2)%iv.length]-iv[d]+12)%12;
+    const fifth=(iv[(d+4)%iv.length]-iv[d]+12)%12;
+    let q='maj';
+    if(third===3&&fifth===7)q='min';
+    else if(third===4&&fifth===7)q='maj';
+    else if(third===3&&fifth===6)q='dim';
+    else if(third===4&&fifth===8)q='aug';
+    else if(third===4&&fifth===6)q='maj'; // lydian-ish
+    else if(third===3&&fifth===8)q='min';
+    const nm=noteName((r+iv[d])%12,App.key)+(q==='min'?'m':q==='dim'?'°':q==='aug'?'+':'');
+    const chip=document.createElement('div');chip.className='prog-chip';
+    chip.innerHTML=`<span class="rn">${romanFor(q,d)}</span><span class="nm">${nm}</span>`;
+    chip.addEventListener('click',()=>{
+      const t=synth.now()+0.02;
+      const base=degreeToMidi(d+1,r+60,iv);
+      synth.note(base,t,1.3,0.7);
+      synth.note(base+third,t,1.3,0.6);
+      synth.note(base+fifth,t,1.3,0.6);
+      flashKeys([base,base+third,base+fifth]);
+    });
+    wrap.appendChild(chip);
+  }
+}
+
+/* ===========================================================================
+   6. PLAYBACK ENGINE  (look-ahead scheduler)
+   =========================================================================== */
+function swingPair(i){
+  // returns multiplier for swing: long-short on eighths
+  if(!App.swing)return 1;
+  return (i%2===0)?1.34:0.66;
+}
+
+function startPlayback(){
+  synth.ensure();
+  App.isPlaying=true;document.getElementById('playBtn').textContent='⏸';
+  App.schedStep=0;App.nextTime=synth.now()+0.06;
+  scheduler();
+  App.timer=setInterval(scheduler,25);
+}
+function stopPlayback(){
+  App.isPlaying=false;document.getElementById('playBtn').textContent='▶';
+  clearInterval(App.timer);App.timer=null;
+  // clear lit keys
+  for(const m in App.keyEls)App.keyEls[m].classList.remove('playing');
+  App.stepEls.forEach(e=>e.classList.remove('on'));
+}
+function scheduler(){
+  const steps=patternSteps();if(!steps.length)return;
+  const eighth=(60/App.tempo)/2;
+  while(App.nextTime < synth.now()+0.12){
+    const i=App.schedStep%steps.length;
+    const s=steps[i];
+    const dur=eighth*swingPair(i);
+    if(!s.rest){
+      s.notes.forEach(n=>synth.note(n,App.nextTime,Math.min(1.4,dur*1.6),0.8));
+      if(App.backing && i===0) playBacking(App.nextTime, steps.length*eighth*0.9);
+    }
+    scheduleUI(i,(App.nextTime-synth.now())*1000);
+    App.nextTime+=dur;
+    App.schedStep++;
+    if(!App.loop && App.schedStep>=steps.length){
+      setTimeout(()=>{if(App.isPlaying)stopPlayback();},dur*1000+60);
+      break;
+    }
+  }
+}
+function playBacking(t,dur){
+  // sustain a soft tonic triad (scale degrees 1-3-5) one octave up
+  const iv=scaleIntervals(),r=rootPc(),base=r+60;
+  [1,3,5].forEach(d=>synth.note(degreeToMidi(d,base,iv),t,dur,0.28));
+}
+function scheduleUI(i,delayMs){
+  setTimeout(()=>{
+    if(!App.isPlaying)return;
+    const steps=patternSteps();
+    App.stepEls.forEach((e,j)=>e.classList.toggle('on',j===i));
+    for(const m in App.keyEls)App.keyEls[m].classList.remove('playing');
+    const s=steps[i];if(s&&!s.rest)s.notes.forEach(n=>{if(App.keyEls[n])App.keyEls[n].classList.add('playing');});
+  },Math.max(0,delayMs));
+}
+
+/* one-shot helpers */
+function playKey(midi,el){
+  synth.note(midi,synth.now()+0.001,0.8,0.9);
+  if(el){el.classList.add('playing');setTimeout(()=>el.classList.remove('playing'),180);}
+}
+function flashKeys(midis){
+  midis.forEach(m=>{const el=App.keyEls[m];if(el){el.classList.add('playing');setTimeout(()=>el.classList.remove('playing'),260);}});
+}
+
+/* ===========================================================================
+   7. MOTIF SYSTEM
+   =========================================================================== */
+function generateMotif(difficulty=5){
+  const names=Object.keys(MOTIFS);
+  const baseName=names[Math.floor(Math.random()*names.length)];
+  const base=MOTIFS[baseName];
+  const n=Math.min(Math.floor(difficulty/3),TRANSFORMS.length);
+  const transforms=[...TRANSFORMS].sort(()=>Math.random()-0.5).slice(0,n);
+  let intervals=[...base.intervals],rhythm=[...base.rhythm];
+  for(const t of transforms){
+    if(t==='transpose'){const s=[-2,-1,1,2][Math.floor(Math.random()*4)];intervals=intervals.map(x=>x+s);}
+    else if(t==='invert'){const pivot=intervals[0];intervals=intervals.map(x=>2*pivot-x);}
+    else if(t==='retrograde'){intervals.reverse();rhythm.reverse();}
+    else if(t==='augment'){rhythm=rhythm.map(r=>r*2);}
+    else if(t==='diminish'){rhythm=rhythm.map(r=>r/2);}
+    else if(t==='fragment'){const k=Math.max(2,Math.floor(intervals.length/2));intervals=intervals.slice(0,k);rhythm=rhythm.slice(0,k);}
+    else if(t==='displace'){intervals=[...intervals.slice(1),intervals[0]];}
+  }
+  return{baseName,transforms,intervals,rhythm,desc:base.desc};
+}
+function renderMotif(){
+  const mo=App.motif;if(!mo)return;
+  const nm=document.getElementById('motifName');
+  nm.innerHTML=mo.baseName+(mo.transforms.length?` <span class="tform">· ${mo.transforms.map(t=>t[0].toUpperCase()+t.slice(1)).join(' + ')}</span>`:'');
+  const dg=document.getElementById('motifDegrees');
+  dg.innerHTML=mo.intervals.map((d,i)=>{
+    const pill=`<span class="deg-pill">${d>0?d:d}</span>`;
+    return i<mo.intervals.length-1?pill+'<span class="deg-arrow">▸</span>':pill;
+  }).join('');
+  const rh=document.getElementById('motifRhythm');
+  rh.innerHTML='<span style="font-size:.7rem;color:var(--txt-dim);letter-spacing:1px">RHYTHM</span> '+
+    mo.rhythm.map(r=>r>=1?'●':r>=0.5?'◐':'○').join(' ');
+  document.getElementById('motifDesc').textContent=mo.desc;
+  paintScale();
+}
+function playMotif(){
+  const mo=App.motif;if(!mo)return;
+  synth.ensure();
+  const iv=scaleIntervals(),base=rootPc()+60;
+  let t=synth.now()+0.06;const beat=60/App.tempo;
+  mo.intervals.forEach((d,i)=>{
+    const midi=degreeToMidi(d,base,iv);
+    const dur=(mo.rhythm[i]||0.5)*beat;
+    synth.note(midi,t,Math.min(1.6,dur*1.4),0.85);
+    const delay=(t-synth.now())*1000;
+    setTimeout(()=>{const el=App.keyEls[midi];if(el){el.classList.add('playing');setTimeout(()=>el.classList.remove('playing'),Math.min(400,dur*1000));}},Math.max(0,delay));
+    t+=dur;
+  });
+}
+
+/* ===========================================================================
+   8. GENERATION (vibe-biased dice)
+   =========================================================================== */
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function generate(){
+  const v=VIBES[App.vibe];
+  let scalePool=(v.scales||Object.keys(SCALES)).filter(s=>SCALES[s]);
+  let patPool=Object.keys(PATTERNS);
+  if(v.patternVibes){
+    const f=patPool.filter(p=>{const pv=PATTERNS[p].vibe;return pv.includes('all')||pv.some(x=>v.patternVibes.includes(x));});
+    if(f.length)patPool=f;
+  }
+  App.key=pick(CHROMATIC);
+  App.scale=pick(scalePool);
+  App.pattern=pick(patPool);
+  App.motif=generateMotif(5);
+  refreshAll();
+}
+function refreshAll(){
+  renderNowPlaying();renderSeq();paintScale();renderProg();renderMotif();
+  if(App.isPlaying){App.schedStep=0;App.nextTime=synth.now()+0.05;}
+}
+
+/* ===========================================================================
+   9. UI WIRING
+   =========================================================================== */
+function buildSelects(){
+  const k=document.getElementById('selKey');
+  k.innerHTML=CHROMATIC.map(x=>`<option value="${x}">${x}</option>`).join('');
+  const sc=document.getElementById('selScale');
+  sc.innerHTML=Object.entries(SCALE_CATEGORIES).map(([c,arr])=>
+    `<optgroup label="${c}">${arr.map(s=>`<option value="${s}">${s}</option>`).join('')}</optgroup>`).join('');
+  const pt=document.getElementById('selPattern');
+  pt.innerHTML=Object.entries(PATTERN_CATEGORIES).map(([c,arr])=>
+    `<optgroup label="${c}">${arr.map(p=>`<option value="${p}">${p}</option>`).join('')}</optgroup>`).join('');
+  const vb=document.getElementById('vibes');
+  vb.innerHTML=Object.keys(VIBES).map(x=>`<div class="chip${x===App.vibe?' active':''}" data-v="${x}">${x}</div>`).join('');
+}
+function wire(){
+  document.getElementById('selKey').addEventListener('change',e=>{App.key=e.target.value;refreshAll();});
+  document.getElementById('selScale').addEventListener('change',e=>{App.scale=e.target.value;refreshAll();});
+  document.getElementById('selPattern').addEventListener('change',e=>{App.pattern=e.target.value;renderSeq();});
+  document.getElementById('vibes').addEventListener('click',e=>{
+    const c=e.target.closest('.chip');if(!c)return;
+    App.vibe=c.dataset.v;
+    document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===c));
+  });
+  const gb=document.getElementById('genBtn');
+  gb.addEventListener('click',()=>{gb.classList.add('rolling');setTimeout(()=>gb.classList.remove('rolling'),600);generate();});
+
+  document.getElementById('playBtn').addEventListener('click',()=>{App.isPlaying?stopPlayback():startPlayback();});
+  const tempo=document.getElementById('tempo');
+  tempo.addEventListener('input',e=>{App.tempo=+e.target.value;document.getElementById('tempoVal').textContent=App.tempo;});
+  document.getElementById('vol').addEventListener('input',e=>{synth.setVol(+e.target.value/100);});
+  const sw=document.getElementById('swingBtn');
+  sw.addEventListener('click',()=>{App.swing=!App.swing;sw.classList.toggle('active',App.swing);});
+  const lp=document.getElementById('loopBtn');
+  lp.addEventListener('click',()=>{App.loop=!App.loop;lp.classList.toggle('active',App.loop);});
+  const bs=document.getElementById('bassBtn');
+  bs.addEventListener('click',()=>{App.backing=!App.backing;bs.textContent=`🎚 Backing chord: ${App.backing?'on':'off'}`;bs.classList.toggle('go',App.backing);});
+  const lb=document.getElementById('labelBtn');
+  lb.addEventListener('click',()=>{App.labels=!App.labels;lb.textContent=`🔤 Note names: ${App.labels?'on':'off'}`;paintScale();});
+
+  document.getElementById('motifNew').addEventListener('click',()=>{App.motif=generateMotif(5);renderMotif();});
+  document.getElementById('motifPlay').addEventListener('click',playMotif);
+
+  // spacebar = play/stop
+  document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='SELECT'){e.preventDefault();App.isPlaying?stopPlayback():startPlayback();}});
+}
+
+/* ===========================================================================
+   10. INIT
+   =========================================================================== */
+function init(){
+  buildSelects();
+  buildKeyboard();
+  App.motif=generateMotif(5);
+  refreshAll();
+  wire();
+}
+init();
+</script>
+</body>
+</html>
