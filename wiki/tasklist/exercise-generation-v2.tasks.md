@@ -256,7 +256,7 @@ Classify every lemma (EN + ZH + JA, ~10k after JA bootstrap) into the ratified 6
 
 ## TASK-508: Japanese prompt seeds (P1/P2/P3 + 4 judges + generation rows)
 
-**Status:** [~] In Progress (2026-06-14 — seeds + code landed; live P1 smoke deferred)
+**Status:** [x] Done (2026-06-17 — seeds + code landed; live P1 smoke passed)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -269,7 +269,7 @@ Seed every `prompt_templates` row JA generation needs, cloned structurally from 
 - [x] All rows present, active, `provider='openrouter'`, model `qwen/qwen3.7-plus`
 - [x] JA P1 output schema includes `register` + readings + counter keys (numeric-key JSON, documented in the migration header)
 - [x] `_load_models`/`get_template_config` resolve for language_id=3 without error
-- [ ] One end-to-end smoke sense generated producing ≥1 valid P1 asset (cleaned up after) — DEFERRED (no JA senses until TASK-505 batch; cost)
+- [x] One end-to-end smoke sense generated producing ≥1 valid P1 asset (2026-06-17: sense 35000 機械 → valid asset; all 3 JA additions verified live — register=polite, furigana=きかい べんり, 助数詞=台; semantic_class=concrete token; 10 sentences; model qwen/qwen3.7-plus; generate()-only, no DB write to clean up)
 
 **Files to Create / Modify:**
 - `migrations/ja_prompt_seeds.sql` — new (idempotent NOT EXISTS guards)

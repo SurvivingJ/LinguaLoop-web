@@ -1,5 +1,17 @@
 # Activity Log
 
+## 2026-06-17 change | TASK-508 done — live JA P1 smoke passed
+
+Ran the deferred TASK-508 acceptance (now unblocked: JA senses exist post-TASK-505). Generated one JA P1
+asset via `CoreAssetGenerator(db, 3).generate(35000, [])` (機械, concrete noun; throwaway script in
+c:\tmp, generate()-only so no DB write/cleanup). **SMOKE PASS** on model qwen/qwen3.7-plus: all 11 keys
+present, 10 sentences; **all three JA-specific additions verified live** — register=`polite` (keigo),
+per-sentence furigana=`きかい べんり`, 助数詞 counter=`台` in morphological_forms; and semantic_class
+emitted the ratified English token `concrete` (normalises cleanly, as designed). This closes the last
+TASK-508 acceptance criterion. TASK-508 [~]→[x]. Done 23→24, In Progress 1→0. With 505/506/508/511 all
+done, the JA-data-dependent Phase-0 fan-out is fully closed. Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-16 change | TASK-505 done + TASK-506 done — JA vocab bootstrap (live batch over 82 tests)
 
 Ran the deferred JA extraction batch (`scripts/backfill_vocab.py --language ja`) over all 82 JA tests.
