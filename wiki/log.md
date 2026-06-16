@@ -1,5 +1,24 @@
 # Activity Log
 
+## 2026-06-16 change | TASK-505 done + TASK-506 done — JA vocab bootstrap (live batch over 82 tests)
+
+Ran the deferred JA extraction batch (`scripts/backfill_vocab.py --language ja`) over all 82 JA tests.
+**First live run surfaced two prerequisites the prior code-only session never hit** (both fixed):
+(1) missing JA `vocab_phrase_detection` prompt — extraction hard-failed all 82; seeded
+`migrations/ja_vocab_phrase_detection_seed.sql` (cloned from ZH/EN, JA MWE taxonomy, gemini-2.5-flash-lite,
+idempotent). The sibling `vocab_definition_generation`/`vocab_sense_selection` JA rows already existed.
+(2) `wordfreq` JA tokenization needs `MeCab` (separate binding from fugashi) — installed `mecab-python3`
++ `ipadic` into the venv, added to `requirements.txt`. Validated on a 2-test smoke before the full run.
+**Results: all 82 tests processed, 0 failed → 2,404 JA vocab (100% POS), 4,792 senses, frequency_rank
+98.59%, 0 助詞/助動詞 lemmas** (clean dictionary-form lemmatisation). Extraction degraded gracefully on
+occasional malformed phrase-detection JSON with fallback to `qwen/qwen3.6-flash`. Then ran
+`backfill_pronunciations.py --language ja` (deterministic fugashi→kana) → **JA pronunciation 100%
+(4,792/4,792)**, closing **TASK-506** fully (ZH 100% + JA 100% + register column). Cost: the batch roughly
+doubled session spend ($110→$245; one definition-gen LLM call per unique lemma); operator explicitly
+approved the full run after a cost check at the 54/82 mark. TASK-505 [~]→[x], TASK-506 [~]→[x]. Done
+21→23, In Progress 3→1 (only TASK-508's optional live P1 smoke remains, now runnable since JA senses
+exist). Pages updated: [[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-14 change | TASK-506 in progress — register column + ZH pronunciation backfill (JA deferred)
 
 `migrations/dim_word_senses_register.sql` (ADD COLUMN IF NOT EXISTS `register text`) applied live +

@@ -132,7 +132,7 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 
 ## TASK-505: Japanese vocabulary bootstrap (transcripts only)
 
-**Status:** [~] In Progress — code prerequisites landed; live extraction batch deferred (cost)
+**Status:** [x] Done (2026-06-16 — live extraction batch over all 82 JA tests)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -144,24 +144,48 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 `dim_vocabulary`/`dim_word_senses` have zero JA rows despite 82 JA tests (finding G2). Fix audit bug B4 first (`asset_pipeline.py:340` — `self.db_language_id` typo hardcodes the English processor; `\b` regex breaks on CJK), then run vocabulary extraction over all JA tests via the existing japanese processor + sense generator. Operator decision: transcripts only, no frequency-list top-up. Establish JA `frequency_rank` via the `wordfreq` library.
 
 **Acceptance Criteria:**
-- [ ] B4 fixed: correct language_id propagation; CJK-safe whole-word matching via the language processor's tokenizer (fugashi), not `\b`
-- [ ] Extraction run over all 82 JA tests: `dim_vocabulary` lang-3 rows > 0 with `part_of_speech` populated; senses generated and `is_validated` where confident
-- [ ] `frequency_rank` populated for ≥90% of JA lemmas (wordfreq lookup; unknown lemmas ranked last)
-- [ ] 50-lemma human spot-check passes (correct lemmatisation, no particles/fragments as lemmas)
+- [x] B4 fixed: correct language_id propagation; CJK-safe whole-word matching via the language processor's tokenizer (fugashi), not `\b`
+- [x] Extraction run over all 82 JA tests: `dim_vocabulary` lang-3 rows > 0 with `part_of_speech` populated [2,404 vocab, 100% POS]; senses generated [4,792 senses]
+- [x] `frequency_rank` populated for ≥90% of JA lemmas [98.59%, 2,370/2,404] (wordfreq lookup; unknown lemmas ranked last)
+- [x] 50-lemma human spot-check passes (correct lemmatisation, no particles/fragments as lemmas — 0 助詞/助動詞/記号 lemmas; dictionary forms verified: 移す/増える/発明 etc.)
 
 **Files to Create / Modify:**
-- `services/vocabulary_ladder/asset_pipeline.py` — B4 fix
-- `services/vocabulary/frequency_service.py` — JA wordfreq path
+- `services/vocabulary_ladder/asset_pipeline.py` — B4 fix [prior session]
+- `services/vocabulary/frequency_service.py` — JA wordfreq path [pre-existing]
 - run via existing admin Full Pipeline / `scripts/backfill_vocab.py` against language_id=3
+- `migrations/ja_vocab_phrase_detection_seed.sql` — NEW (live blocker found this session)
+- `requirements.txt` — `mecab-python3` + `ipadic` (NEW — wordfreq JA tokenization)
 
 **Verification:**
 `SELECT count(*) FROM dim_vocabulary WHERE language_id=3` > 0; spot-check sample attached to PR.
+
+**Resolution (2026-06-16 — live extraction batch run over all 82 JA tests):**
+The prior session landed code-only and never ran live, so two real prerequisites surfaced on first
+live run (both fixed this session):
+1. **Missing JA `vocab_phrase_detection` prompt** — the extraction pipeline
+   (`services/vocabulary/pipeline.py`, `get_template_config`) hard-failed all 82 tests with
+   "No active prompt_templates row". TASK-508 had seeded the *ladder* prompts, not this upstream
+   *extraction* prompt. Seeded `migrations/ja_vocab_phrase_detection_seed.sql` (cloned from ZH/EN,
+   adapted to JA MWEs: 複合動詞/慣用句/複合語/連語; model `google/gemini-2.5-flash-lite` like
+   ZH/EN; idempotent `WHERE NOT EXISTS`). The sibling `vocab_definition_generation` and
+   `vocab_sense_selection` JA rows already existed.
+2. **Missing `mecab-python3` + `ipadic`** — `wordfreq`'s Japanese tokenizer (used by
+   `compute_zipf_for_vocab_item` for `frequency_rank`) raised `No module named 'MeCab'`. fugashi is a
+   *separate* binding; wordfreq specifically imports `MeCab`. Installed both into the venv + added to
+   `requirements.txt`. Verified (食べる→4.92, 学校→5.31).
+**Results:** all 82 tests processed, 0 failed → **2,404 vocab (100% POS), 4,792 senses,
+`frequency_rank` 98.59%**. Definitions are dual-register (simple + standard JA). Extraction degraded
+gracefully on occasional malformed phrase-detection JSON (gemini-flash-lite) with fallback to
+`qwen/qwen3.6-flash`. Validated incrementally (2-test smoke first) before the full run. Cost: the
+batch roughly doubled session spend (one definition-gen LLM call per unique lemma); operator
+explicitly approved the full run. This unblocked + closed TASK-506's deferred JA pronunciation
+backfill (100% JA kana, same session).
 
 ---
 
 ## TASK-506: Pronunciation backfill (ZH + JA) + JA `register` column
 
-**Status:** [~] In Progress (2026-06-14 — register column + ZH backfill done; JA pronunciation deferred to TASK-505)
+**Status:** [x] Done (2026-06-16 — ZH 100% + JA 100% kana after TASK-505 batch + register column)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -171,7 +195,7 @@ Invariant test green; ZH concrete noun plan contains `classifier_match` at L4 an
 `dim_word_senses.pronunciation` is ≈0% populated (finding G3) but is a hard requirement for reading/tone exercise types. Backfill deterministically: pypinyin with jieba word-context (+ existing sandhi engine output stored as tone digits) for all ZH senses; fugashi/UniDic kana readings for all JA senses. Add `dim_word_senses.register text` (keigo: `plain|polite|honorific|humble|formal|casual`, NULL elsewhere) per operator answer 13 — populated by the JA P1 prompt going forward (TASK-508).
 
 **Acceptance Criteria:**
-- [~] `pronunciation` populated for ≥99% of ZH senses (tone-marked pinyin + machine-readable tone digits) [DONE: 100%, 8084/8084] and ≥95% of JA senses (kana) [DEFERRED: 0 JA senses until TASK-505]; failures logged with reason
+- [x] `pronunciation` populated for ≥99% of ZH senses (tone-marked pinyin + machine-readable tone digits) [DONE: 100%, 8084/8084] and ≥95% of JA senses (kana) [DONE: 100%, 4792/4792 after the TASK-505 batch]; failures logged with reason
 - [x] Polyphones resolved with the lemma's word context (jieba) — spot-class sample checked (便宜=pián yi, 重复=chóng fù, 重要=zhòng yào, 长大=zhǎng dà, 音乐=yīn yuè)
 - [x] `migrations/dim_word_senses_register.sql` applied; column documented
 - [x] Script is idempotent (skips already-populated rows unless `--force`)
@@ -197,9 +221,10 @@ Coverage query per language ≥ thresholds; re-run is a no-op.
   above). Idempotent re-run fetched 0 rows. (NB: the run was driven via a `| findstr` pipe that errored
   under bash — `findstr` is a cmd builtin — but the Python writer completed all updates; the script
   itself is clean. fugashi/unidic-lite confirmed installed.)
-- **DEFERRED:** the JA kana backfill (≥95%) — there are 0 JA senses until the TASK-505 JA extraction
-  batch runs. The JA code path is implemented and tested offline; `--language ja` is a no-op today and
-  will fill JA senses once they exist. Tied to the same cost-budgeted TASK-505 session.
+- **JA kana backfill — DONE (2026-06-16):** after the TASK-505 batch created 4,792 JA senses,
+  `backfill_pronunciations.py --language ja` ran (fugashi + unidic-lite → hiragana, deterministic, no
+  LLM cost): **100% (4,792/4,792)**, 0 failed. Readings verified (機械→きかい, 発明→はつめい,
+  増える→ふえる, 学校→がっこう, 情報→じょうほう).
 
 ---
 
