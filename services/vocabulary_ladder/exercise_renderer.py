@@ -30,6 +30,7 @@ class LadderExerciseRenderer:
     def __init__(self, db=None, audio_synthesizer=None):
         self.db = db or get_supabase_admin()
         self.audio_synthesizer = audio_synthesizer
+        self._script_converter = None  # lazy ZH Simplified→Traditional mirror (TASK-509)
 
     def render_all(self, sense_id: int, language_id: int) -> list[dict]:
         """Render exercises for all active ladder levels and insert them.
@@ -124,6 +125,12 @@ class LadderExerciseRenderer:
                     legacy_meta = content.pop('__judge_meta', None)
                     if legacy_meta is not None:
                         judge_metas.setdefault('cloze', legacy_meta)
+
+                    # TASK-509: dual-store the Traditional-script mirror on every
+                    # ZH exercise so practice surfaces can serve either variant
+                    # (see users.exercise_preferences.script_variant). Runs after
+                    # judge sidecars are popped so __judge_* never leaks into hant.
+                    self._render_hant_mirror(content, language_id)
 
                     exercise_type = LADDER_LEVELS[level]['exercise_type']
                     tags = {
@@ -700,6 +707,27 @@ class LadderExerciseRenderer:
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _hant_converter(self):
+        """Lazily build the ZH Simplified→Traditional converter (loads overrides once)."""
+        if self._script_converter is None:
+            from services.vocabulary_ladder.script_converter import ScriptConverter
+            self._script_converter = ScriptConverter.from_db(self.db)
+        return self._script_converter
+
+    def _render_hant_mirror(self, content: dict, language_id: int) -> None:
+        """Attach ``content['hant']`` — a Traditional-script mirror of every
+        learner-visible TL string — for ZH exercises only (in place, no-op for
+        other languages). Non-Han values (pinyin, English) pass through unchanged
+        by the converter, so deep-converting the whole content dict is safe and
+        covers stem, options, and reasoning text. Failures never abort a render.
+        """
+        if language_id != 1 or not isinstance(content, dict):
+            return
+        try:
+            content['hant'] = self._hant_converter().convert_content(content)
+        except Exception as exc:
+            logger.warning("hant mirror failed (sense content): %s", exc)
 
     def _load_assets(self, sense_id: int) -> dict:
         """Load all valid word_assets for a sense, keyed by asset_type."""

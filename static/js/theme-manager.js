@@ -10,6 +10,7 @@
     midnight: { name: 'Midnight', icon: 'fa-moon' },
     sakura: { name: 'Sakura', icon: 'fa-fan' },
     forest: { name: 'Forest', icon: 'fa-leaf' },
+    inkstone: { name: 'Inkstone & Vermilion', icon: 'fa-pen-nib' },
   };
 
   const STORAGE_KEY = 'linguadojo-theme';

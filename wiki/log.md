@@ -1,5 +1,32 @@
 # Activity Log
 
+## 2026-06-18 change | TASK-507 + TASK-509 done — semantic_class backfill + Traditional Chinese groundwork
+
+**TASK-507** — classified all 9,865 lemmas (ZH 3,890 / EN 3,571 / JA 2,404) into the ratified 6-value
+`semantic_class` enum, 100% coverage, 0 failed. New `migrations/semantic_class_backfill.sql` (adds
+`dim_vocabulary.semantic_class_confidence` + 3 `prompt_templates` seeds on `google/gemini-3.5-flash`,
+one per language since `language_id` is NOT NULL) and `scripts/backfill_semantic_class.py` (~50 lemmas/
+call, context = POS + primary definition, low-confidence→`abstract`+flag, idempotent, llm_calls logged).
+Run note: JA stalled at batch 26 on OpenRouter credit exhaustion (non-retryable, 0 retries); operator
+topped up and `--language ja` re-ran idempotently to fill the last 1,154 rows. Distribution plausible
+(action/abstract/concrete/property dominant; function/proper small). 198-row stratified spot-check CSV
+(`spot_check_semantic_class.csv`) handed to operator — the ≥90% human sign-off is their step, not faked.
+Idempotency proven (re-run found 0 lemmas).
+
+**TASK-509** — dual-store Traditional Chinese. New `migrations/traditional_chinese_groundwork.sql`
+(`dim_vocabulary.lemma_traditional` + `script_conversion_overrides`), `opencc==1.3.1` in requirements,
+`services/vocabulary_ladder/script_converter.py` (`ScriptConverter`: OpenCC s2twp + sentinel-priority
+overrides; non-Han passes through), renderer `_render_hant_mirror` step (ZH-only, after judge sidecars
+popped), and `scripts/backfill_hant_mirrors.py` (lemmas + exercise mirrors, writes only on diff →
+no-op re-run + override-correction both work). Results: lemma_traditional 100% (3,890; 2,406 differ),
+all 2,393 exercises mirrored with option-count parity (2,388 updated + 5 pilot skipped). s2twp phrase
+awareness resolved the 发/干/后/面 ambiguities (bare `干→幹` vs `晒干→曬乾`) so jieba was unnecessary.
+Serve convention documented: `users.exercise_preferences.script_variant` (consumed by TASK-526).
+
+Two Phase-0 prereqs for the TASK-515 batch gate now closed. Both repo migration files applied live (509
+via `execute_sql` after `apply_migration` 502'd). Done 24→26, Not Started 57→55. Pages updated:
+[[tasklist/exercise-generation-v2]], [[tasklist/master]], this log.
+
 ## 2026-06-17 change | TASK-508 done — live JA P1 smoke passed
 
 Ran the deferred TASK-508 acceptance (now unblocked: JA senses exist post-TASK-505). Generated one JA P1

@@ -1233,6 +1233,71 @@ footer,
   --bs-link-hover-color: var(--primary-hover);
 }
 
+/* ============================================
+   Theme: Inkstone & Vermilion (heritage)
+   The original scholar's-desk palette — warm
+   parchment ground, Pompeiian-red accent, earthy
+   status hues. Colors only; fonts inherit the
+   Still Water stacks but fall back to system serif
+   for a print-leaning feel.
+   ============================================ */
+[data-theme='inkstone'] {
+  --nav-bg: rgb(245 241 232 / 82%);
+
+  --primary: #b5331e; /* Pompeiian red */
+  --primary-hover: #8c2516;
+  --success: #4a6b3a; /* deep olive */
+  --success-hover: #3a5530;
+  --danger: #7a2222; /* oxblood */
+  --danger-hover: #5e1a1a;
+  --warning: #b8862c; /* aged brass */
+  --warning-text: #6f5212; /* AA-safe brass for text */
+  --info: #2d4a6b; /* manuscript blue */
+  --accent: #b8862c;
+
+  /* Warm neutral scale */
+  --slate-900: #0e1116;
+  --slate-800: #1a1d23;
+  --slate-700: #2a2d33;
+  --slate-600: #4a4843;
+  --slate-500: #6b695f;
+  --slate-400: #8e8b7f;
+  --slate-300: #b8b0a0;
+  --slate-200: #d9d2c2;
+  --slate-100: #ece6d6;
+  --slate-50: #f5f1e8;
+
+  --bg-body: #f5f1e8;
+  --bg-surface: #fff;
+  --bg-surface-hover: #ece6d6;
+  --bg-muted: #ece6d6;
+  --text-primary: #0e1116;
+  --text-secondary: #4a4843;
+  --text-muted: #6b695f;
+  --border-default: #d9d2c2;
+  --border-strong: #b8b0a0;
+  --focus-ring: rgb(181 51 30 / 18%);
+
+  --success-bg: #e2ead9;
+  --danger-bg: #ead4d4;
+  --warning-bg: #f2e5cc;
+  --info-bg: #dae0e9;
+  --selected-bg: #f4dcd4;
+
+  --shadow-sm: 0 1px 2px rgb(14 17 22 / 6%);
+  --shadow-md: 0 2px 8px rgb(14 17 22 / 8%);
+  --shadow-lg: 0 16px 48px rgb(14 17 22 / 18%);
+
+  /* Print-leaning serif for headings; system fallbacks (IBM Plex not loaded) */
+  --font-serif: 'Iowan Old Style', 'Source Serif Pro', charter, georgia, serif;
+
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-primary);
+  --bs-border-color: var(--border-default);
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-hover);
+}
+
 /* ============================================================
    .test-page - migrated from templates/test.html (Phase 3)
    ============================================================ */

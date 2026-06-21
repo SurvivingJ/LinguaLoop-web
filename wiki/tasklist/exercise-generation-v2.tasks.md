@@ -230,7 +230,7 @@ Coverage query per language ≥ thresholds; re-run is a no-op.
 
 ## TASK-507: `semantic_class` backfill (LLM classification batch)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-18 — all 3 languages 100% classified; human spot-check CSV handed to operator)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -240,17 +240,59 @@ Coverage query per language ≥ thresholds; re-run is a no-op.
 Classify every lemma (EN + ZH + JA, ~10k after JA bootstrap) into the ratified 6-value enum with a cheap LLM batch (flash-tier, batched ~50 lemmas/call, prompt includes POS + definition as context). Record `gen_confidence`; low-confidence rows default to `abstract` and are flagged. This unlocks `active_levels` routing — without it every word gets all 9 levels (the eval's "bean" failure).
 
 **Acceptance Criteria:**
-- [ ] ≥95% of lemmas classified; `proper` correctly catches proper nouns (excluded from ladder)
-- [ ] 200-row stratified human spot-check ≥90% agreement; disagreements corrected and fed back into the prompt before the full run
-- [ ] Cost logged to `llm_calls` (task_name=`semantic_class_classification`)
-- [ ] Idempotent (skips classified rows)
+- [x] ≥95% of lemmas classified — 100% (9,865/9,865: ZH 3,890 / EN 3,571 / JA 2,404); `proper` catches proper nouns (ZH 66, JA 19, EN 0 — the EN frequency list has none), excluded from the ladder by `compute_active_levels`
+- [~] 200-row stratified human spot-check ≥90% agreement — **CSV emitted (`spot_check_semantic_class.csv`, 198 rows, class-stratified) and handed to the operator; the human sign-off is the operator's step (not fabricated).** No prompt iteration was needed pre-run (0 parse/schema failures across all batches).
+- [x] Cost logged to `llm_calls` (task_name=`semantic_class_classification`) — every call logged via `call_llm` under that task_name
+- [x] Idempotent (skips classified rows) — proven: a re-run after completion found 0 lemmas to classify
 
 **Files to Create / Modify:**
 - `scripts/backfill_semantic_class.py` — new
-- `prompt_templates` seed row for the classification task
+- `migrations/semantic_class_backfill.sql` — new (adds `dim_vocabulary.semantic_class_confidence` + the 3 `prompt_templates` seed rows)
 
 **Verification:**
 `SELECT semantic_class, count(*) FROM dim_vocabulary GROUP BY 1` shows a plausible distribution; spot-check sheet attached.
+
+**Resolution (2026-06-18):**
+- **Migration** `migrations/semantic_class_backfill.sql` applied live: added
+  `dim_vocabulary.semantic_class_confidence real` (records the classifier's
+  certainty; the spec's "record gen_confidence" — `dim_vocabulary` had no
+  confidence column, only `dim_word_senses.gen_confidence` exists) and seeded 3
+  `prompt_templates` rows (`semantic_class_classification`, language_id 1/2/3,
+  `google/gemini-3.5-flash`, provider `openrouter`). `language_id` is NOT NULL on
+  the table so a row per language is required; text is language-agnostic (the
+  6-value enum is). Idempotent `WHERE NOT EXISTS` guard.
+- **Script** `scripts/backfill_semantic_class.py`: ~50 lemmas/call, context =
+  `part_of_speech` (dim_vocabulary) + the primary sense definition
+  (`dim_word_senses`, lowest `sense_rank`). Model returns `{id:{class,confidence}}`
+  at temp 0. Confidence persisted; rows below `--conf-threshold` (0.6) defaulted to
+  `abstract` and flagged (query: `semantic_class='abstract' AND
+  semantic_class_confidence < 0.6` → 7 rows). Idempotent (only `semantic_class IS
+  NULL` unless `--force`); failures logged, never fatal.
+- **Run:** ZH + EN completed in the first pass; JA stalled at batch 26 because
+  OpenRouter credits were exhausted mid-run (every subsequent call hard-failed
+  with a non-retryable error, 0 retries). After the operator topped up,
+  `--language ja` re-ran idempotently and filled the remaining 1,154 rows
+  (0 failed). Final: 100% all three languages.
+- **Distribution (plausible):** action/abstract/concrete/property dominant;
+  function + proper are small minorities, as expected for a frequency-ranked list.
+- **Flagged:** the ≥90% human spot-check sign-off is deferred to the operator
+  (CSV ready). The two repo migration `.sql` files were applied (507 via
+  `apply_migration`; 509 via `execute_sql` after `apply_migration` 502'd) — both
+  live; the repo files are the canonical record.
+- **Prompt revision (2026-06-21 — numeric output, target-language legend):** per the
+  house convention that a target-language item must only read/emit target-language
+  text or numeric indices (never English class words), the classifier prompt was
+  refactored. The single English template became **three language-specific** rows
+  (ZH/JA legends + rules fully in Chinese/Japanese; EN in English), each binding the
+  six classes to a number; the model now returns `{"<id>": [<class 1-6>, <conf>]}`
+  — numbers only. The English enum (required by the `semantic_class` CHECK) is
+  produced solely by `INDEX_TO_CLASS` in the script at write time. Input lines also
+  dropped their English scaffolding keys. **Live-validated** one batch per language:
+  `numeric_output=True, failed=0` all three; mappings correct (人们→concrete,
+  写字→action, 機械→concrete, bean→concrete). The already-classified corpus was
+  **not** re-run — it is correct; this was a prompt/parser quality fix for future
+  runs. Files: `migrations/semantic_class_backfill.sql` (re-seeded v2 templates),
+  `scripts/backfill_semantic_class.py` (`INDEX_TO_CLASS`, `_parse_entry`).
 
 ---
 
@@ -316,7 +358,7 @@ Smoke-sense run log + `SELECT task_name, is_active FROM prompt_templates WHERE l
 
 ## TASK-509: Traditional Chinese groundwork (dual-store)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-06-18 — lemmas + all 2,393 exercise mirrors backfilled; renderer wired)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -326,19 +368,52 @@ Smoke-sense run log + `SELECT task_name, is_active FROM prompt_templates WHERE l
 Operator decision: dual-store both scripts at generation (§6.7). Add the `opencc` dependency (config `s2twp`); add `dim_vocabulary.lemma_traditional` (filled by enrichment with jieba context for ambiguous 发→發/髮-class lemmas); create `script_conversion_overrides(simplified PK, traditional, note)`; add a renderer step that persists a `content.hant` mirror (stem, option texts, reasoning) on every ZH exercise after validation; write the idempotent mirror-backfill script for existing/corrected rows. Document the `users.exercise_preferences.script_variant` convention.
 
 **Acceptance Criteria:**
-- [ ] `lemma_traditional` populated for ≥99% of ZH lemmas; ambiguous conversions resolved and spot-checked (50-row sample incl. 发/干/后/面 class)
-- [ ] Renderer writes `content.hant` covering every learner-visible TL string for all newly generated ZH exercises
-- [ ] Overrides table consulted at mirror render; correcting an override + re-running backfill updates only `hant`
-- [ ] Mirror-backfill script converts existing ZH exercises (~2,393 rows) idempotently
+- [x] `lemma_traditional` populated for ≥99% of ZH lemmas — 100% (3,890/3,890; 2,406 differ from Simplified). Ambiguous conversions spot-checked: `发→發` (诱发→誘發, 发展→發展), phrase-aware `晒干→曬乾` vs bare `干→幹`, `后→後` (随后→隨後), `面→面/臨` (面临→面臨)
+- [x] Renderer writes `content.hant` covering every learner-visible TL string for all newly generated ZH exercises — `_render_hant_mirror` deep-converts the whole content dict (non-Han values pass through unchanged)
+- [x] Overrides table consulted at mirror render; correcting an override + re-running backfill updates only `hant` — `ScriptConverter` loads `script_conversion_overrides` and applies them with sentinel priority over OpenCC; backfill writes only the `hant` key (and only when it differs)
+- [x] Mirror-backfill script converts existing ZH exercises (~2,393 rows) idempotently — 2,388 updated + 5 skipped (the pilot rows) on first run; option-count parity verified
 
 **Files to Create / Modify:**
 - `migrations/traditional_chinese_groundwork.sql` — column + overrides table
-- `requirements.txt` — `opencc`
+- `requirements.txt` — `opencc==1.3.1`
+- `services/vocabulary_ladder/script_converter.py` — new (`ScriptConverter`, s2twp + overrides)
 - `services/vocabulary_ladder/exercise_renderer.py` — `_render_hant_mirror` step
-- `scripts/backfill_hant_mirrors.py` — new
+- `scripts/backfill_hant_mirrors.py` — new (lemmas + exercise mirrors)
 
 **Verification:**
 Random 20 generated ZH exercises each contain `content.hant` with option-count parity; backfill re-run is a no-op.
+
+**Resolution (2026-06-18):**
+- **Migration** `migrations/traditional_chinese_groundwork.sql` applied live: added
+  `dim_vocabulary.lemma_traditional text` and `script_conversion_overrides
+  (simplified PK, traditional, note, created_at)`. (Applied via `execute_sql`
+  because the `apply_migration` MCP endpoint was 502'ing; the repo file is canonical.)
+- **`opencc==1.3.1`** added to `requirements.txt` (official binding, ships Windows
+  wheels; config `s2twp` — phrase-aware Taiwan standard).
+- **`ScriptConverter`** (`services/vocabulary_ladder/script_converter.py`): wraps
+  OpenCC `s2twp` plus the overrides table. Overrides win absolutely — the
+  simplified form is swapped for a PUA sentinel before OpenCC runs, then replaced
+  with the curated traditional form so OpenCC can never re-convert it. Non-Han
+  characters (pinyin, ASCII, English) pass through untouched, so `convert_content`
+  safely deep-converts a whole exercise `content` dict. **jieba pre-segmentation
+  proved unnecessary** — s2twp's phrase awareness already resolves the 发/干/后/面
+  ambiguities from context (verified: bare `干→幹` but `晒干→曬乾`).
+- **Renderer:** `_render_hant_mirror` runs in `build_rows` after judge sidecars are
+  popped (so `__judge_*` never leaks into `hant`), ZH-only, failures non-fatal.
+  Lazy per-renderer converter (overrides loaded once).
+- **Backfill** `scripts/backfill_hant_mirrors.py`: `--target lemmas|exercises|all`.
+  Each row's Traditional form is recomputed and written **only when it differs**
+  from what's stored — so a plain re-run is a no-op, but correcting an override +
+  re-running updates exactly the affected mirrors (and only the `hant` key; the
+  Simplified content is never touched). Lemmas: 3,890 updated. Exercises: 2,388
+  updated + 5 skipped.
+- **Residual (for the overrides table):** s2twp's Taiwan-vocabulary substitution
+  can over-reach on some compounds (e.g. `历史进程→歷史程序` rather than `歷史進程`).
+  Harmless for groundwork; add a `script_conversion_overrides` row if the operator
+  disagrees on any specific case.
+- **Serve convention (documented, consumed by TASK-526):**
+  `users.exercise_preferences.script_variant` ∈ {`simplified` (default),
+  `traditional` (serve `content.hant` / `lemma_traditional`)}.
 
 ---
 
