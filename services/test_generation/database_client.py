@@ -55,8 +55,8 @@ class LanguageConfig:
     language_code: str
     language_name: str
     native_name: str
-    prose_model: str = 'google/gemini-2.0-flash-exp'
-    question_model: str = 'google/gemini-2.0-flash-exp'
+    prose_model: str = 'google/gemini-2.0-flash-001'
+    question_model: str = 'google/gemini-2.0-flash-001'
     tts_voice_ids: List[str] = field(default_factory=lambda: ['alloy'])
     tts_speed: float = 1.0
     grammar_check_enabled: bool = False

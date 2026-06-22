@@ -16,6 +16,7 @@ const session = {
   queue: [], // [{ kind:'test'|'practice', id, slug?, test_type?, mode?, is_completed }]
   index: 0,
   player: null, // { destroy() } handle for the currently-mounted player
+  _completing: false, // re-entrancy latch for onItemComplete (M3)
 };
 
 document.addEventListener('DOMContentLoaded', init);
@@ -126,25 +127,48 @@ function runCurrent() {
   }
 }
 
+// Persist one item's completion. Returns true only on an acknowledged 2xx.
+// authFetch resolves (not rejects) on 4xx/5xx, so we must check res.ok —
+// otherwise a server rejection looks identical to success.
+async function persistCompletion(item) {
+  const [url, payload] =
+    item.kind === 'test'
+      ? ['/api/tests/daily-load/complete', { test_id: item.id, language_id: session.languageId }]
+      : [
+          '/api/study-session/complete-block',
+          { block_id: item.id, language_id: session.languageId },
+        ];
+  const res = await window.authFetch(url, { method: 'POST', body: JSON.stringify(payload) });
+  return !!(res && res.ok);
+}
+
 async function onItemComplete(item, result) {
+  // Re-entrancy latch (M3): players can fire onComplete more than once (e.g. a
+  // second click during the await). Without this, completion POSTs twice and
+  // ELO can be awarded twice.
+  if (session._completing) return;
+  session._completing = true;
   try {
-    if (item.kind === 'test') {
-      await window.authFetch('/api/tests/daily-load/complete', {
-        method: 'POST',
-        body: JSON.stringify({ test_id: item.id, language_id: session.languageId }),
-      });
-    } else if (item.kind === 'practice') {
-      await window.authFetch('/api/study-session/complete-block', {
-        method: 'POST',
-        body: JSON.stringify({ block_id: item.id, language_id: session.languageId }),
-      });
+    if (item.kind === 'test' || item.kind === 'practice') {
+      let ok = false;
+      try {
+        ok = await persistCompletion(item);
+        if (!ok) ok = await persistCompletion(item); // one silent retry (M2)
+      } catch (e) {
+        console.error('Failed to persist completion:', e);
+      }
+      if (!ok && typeof window.showToast === 'function') {
+        // Surface the failure but still advance — the learner already finished.
+        window.showToast(
+          T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
+        );
+      }
     }
-  } catch (e) {
-    // Best-effort: the user already finished; don't block advancing.
-    console.error('Failed to persist completion:', e);
+    item.is_completed = true;
+    advance();
+  } finally {
+    session._completing = false;
   }
-  item.is_completed = true;
-  advance();
 }
 
 function advance() {

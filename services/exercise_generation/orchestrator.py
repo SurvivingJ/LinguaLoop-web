@@ -124,8 +124,24 @@ class ExerciseGenerationOrchestrator:
         self._batch_insert(all_rows)
 
         total = sum(counts.values())
+
+        # L1: report per-type shortfalls so a thin batch is observable in
+        # monitoring instead of looking like a clean success. Only types we
+        # actually attempted (present in counts) are considered — intentionally
+        # skipped types (translation/phase gating) are not shortfalls.
+        shortfalls = {
+            ex_type: distribution[ex_type] - produced
+            for ex_type, produced in counts.items()
+            if produced < distribution.get(ex_type, 0)
+        }
+        if shortfalls:
+            logger.warning(
+                "Batch %s under target for %d type(s): %s",
+                batch_id, len(shortfalls), shortfalls,
+            )
+
         logger.info("Batch %s complete: %d total exercises", batch_id, total)
-        return {'batch_id': batch_id, 'counts': counts, 'total': total}
+        return {'batch_id': batch_id, 'counts': counts, 'total': total, 'shortfalls': shortfalls}
 
     def _load_models(self, language_id: int) -> tuple[str, str]:
         """Resolve the exercise_model and exercise_sentence_model for a language.

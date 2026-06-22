@@ -31,13 +31,13 @@ class MysteryGenConfig:
         default_factory=lambda: os.getenv('OPENROUTER_API_KEY', '')
     )
     plot_model: str = field(
-        default_factory=lambda: os.getenv('MYSTERY_GEN_PLOT_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('MYSTERY_GEN_PLOT_MODEL', 'google/gemini-2.0-flash-001')
     )
     scene_model: str = field(
-        default_factory=lambda: os.getenv('MYSTERY_GEN_SCENE_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('MYSTERY_GEN_SCENE_MODEL', 'google/gemini-2.0-flash-001')
     )
     question_model: str = field(
-        default_factory=lambda: os.getenv('MYSTERY_GEN_QUESTION_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('MYSTERY_GEN_QUESTION_MODEL', 'google/gemini-2.0-flash-001')
     )
     plot_temperature: float = 0.9
     scene_temperature: float = 0.8

@@ -51,7 +51,7 @@ class TopicGenConfig:
 
     # LLM Configuration (via OpenRouter)
     llm_model: str = field(
-        default_factory=lambda: os.getenv('TOPIC_LLM_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('TOPIC_LLM_MODEL', 'google/gemini-2.0-flash-001')
     )
     llm_temperature: float = field(
         default_factory=lambda: float(os.getenv('TOPIC_LLM_TEMPERATURE', '0.8'))

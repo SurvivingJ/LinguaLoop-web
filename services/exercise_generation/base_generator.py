@@ -66,6 +66,15 @@ class ExerciseGenerator(ABC):
             except Exception as exc:
                 logger.error("generate_one error for %s: %s", self.exercise_type, exc)
 
+        # L1: surface a shortfall rather than silently returning a thin batch.
+        # The loop fails closed (bad content is skipped), so a flaky LLM or an
+        # under-sized pool yields fewer than target_count with no other signal.
+        if len(results) < target_count:
+            logger.warning(
+                "%s: produced %d/%d exercises (pool of %d exhausted before target)",
+                self.exercise_type, len(results), target_count, len(sentence_pool),
+            )
+
         return results
 
     def _build_exercise_row(

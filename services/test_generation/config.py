@@ -38,10 +38,10 @@ class TestGenConfig:
 
     # LLM Configuration (via OpenRouter)
     default_prose_model: str = field(
-        default_factory=lambda: os.getenv('TEST_GEN_PROSE_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('TEST_GEN_PROSE_MODEL', 'google/gemini-2.0-flash-001')
     )
     default_question_model: str = field(
-        default_factory=lambda: os.getenv('TEST_GEN_QUESTION_MODEL', 'google/gemini-2.0-flash-exp')
+        default_factory=lambda: os.getenv('TEST_GEN_QUESTION_MODEL', 'google/gemini-2.0-flash-001')
     )
     prose_temperature: float = field(
         default_factory=lambda: float(os.getenv('TEST_GEN_PROSE_TEMP', '0.7'))

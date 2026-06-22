@@ -578,6 +578,37 @@
             return response;
         };
 
+        /**
+         * Minimal non-blocking toast (no Bootstrap JS dependency).
+         * window.showToast(message, type) — type: 'error' (default) | 'success' | 'info'.
+         * Auto-dismisses after ~4s. Used to surface silent save failures (M2).
+         */
+        window.showToast = function(message, type = 'error') {
+            let container = document.getElementById('lingua-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'lingua-toast-container';
+                container.style.cssText =
+                    'position:fixed;top:1rem;right:1rem;z-index:2000;display:flex;' +
+                    'flex-direction:column;gap:.5rem;max-width:min(90vw,360px);';
+                document.body.appendChild(container);
+            }
+            const bg = type === 'success' ? '#198754' : type === 'info' ? '#0d6efd' : '#dc3545';
+            const toast = document.createElement('div');
+            toast.setAttribute('role', 'alert');
+            toast.style.cssText =
+                'background:' + bg + ';color:#fff;padding:.6rem .9rem;border-radius:.4rem;' +
+                'box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:.9rem;opacity:0;' +
+                'transition:opacity .2s ease;';
+            toast.textContent = message;
+            container.appendChild(toast);
+            requestAnimationFrame(function() { toast.style.opacity = '1'; });
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 250);
+            }, 4000);
+        };
+
         function updateLanguageIndicator() {
             const savedLanguage = localStorage.getItem('selectedLanguage');
             if (savedLanguage) {

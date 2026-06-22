@@ -150,29 +150,49 @@ export function mount(container, ctx) {
     if (btn) btn.classList.add('show');
   }
 
-  function submitAttempt(ok, response) {
+  // POST one attempt. authFetch resolves on 4xx/5xx, so check r.ok explicitly;
+  // returns the parsed body on success, or null on any failure.
+  async function postAttempt(ex, ok, response) {
+    const r = await window.authFetch('/api/practice/attempt', {
+      method: 'POST',
+      body: JSON.stringify({
+        exercise_id: ex.exercise_id,
+        is_correct: ok,
+        user_response: response,
+        time_taken_ms: 0,
+        session_mode: mode,
+        language_id: languageId,
+      }),
+    });
+    if (!r || !r.ok) return null;
+    return r.json();
+  }
+
+  async function submitAttempt(ok, response) {
     const ex = state.exercises[state.currentIndex];
     if (!ex) return;
     state.totalAnswered++;
     if (ok) state.correctCount++;
 
-    window
-      .authFetch('/api/practice/attempt', {
-        method: 'POST',
-        body: JSON.stringify({
-          exercise_id: ex.exercise_id,
-          is_correct: ok,
-          user_response: response,
-          time_taken_ms: 0,
-          session_mode: mode,
-          language_id: languageId,
-        }),
-      })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && data.requeue && !ok) state.retryQueue.push({ ...ex, _retry: true });
-      })
-      .catch((e) => console.error('Practice attempt error:', e));
+    let data = null;
+    for (let attempt = 0; attempt < 2 && data === null; attempt++) {
+      try {
+        data = await postAttempt(ex, ok, response); // one silent retry on failure (M2)
+      } catch (e) {
+        console.error('Practice attempt error:', e);
+        data = null;
+      }
+    }
+    if (data === null) {
+      // Persisted nothing — surface it instead of silently dropping the attempt.
+      if (typeof window.showToast === 'function') {
+        window.showToast(
+          T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
+        );
+      }
+    } else if (data.requeue && !ok) {
+      state.retryQueue.push({ ...ex, _retry: true });
+    }
   }
 
   function nextExercise() {
