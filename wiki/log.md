@@ -1,5 +1,154 @@
 # Activity Log
 
+## 2026-06-23 implement | TASK-606 done (unit-tested) — dual-translation grading cascade
+
+Built `services/dual_translation/prompts.py` (L2-only system/user prompt builders for Tier 1/2;
+fixed `CATEGORY_ENUM`/`SOURCE_ENUM`/`SEVERITY_ENUM` constants mirroring the live
+`dt_error_instance` CHECK constraints; AI-authored first-draft EN/ZH/JA instructional templates,
+flagged for native-speaker QA alongside TASK-616) and `services/dual_translation/grader_cascade.py`
+(`grade_submission`: Tier 0 short-circuit → Tier 1 accuracy/range → Tier 2
+understandability/fidelity/naturalness, which always runs once Tier 0 hasn't resolved since those
+three dims are Tier-2-exclusive → eager explanation render → fail-open merge). Had to make two
+JSON config shapes concrete that the wiki only described in prose — documented in
+[[algorithms/translation-grading-cascade.tech]] "Implementation contracts": `dt_rubric_version.config`
+(weights + band descriptors) and `dt_taxonomy_version.taxonomy` (per-pair subtype tables with an
+L2-baseline fallback, **new** `subtype_glosses` for what the model sees in the L2-only prompt vs.
+the existing per-L1 `templates` for the learner-facing explanation — also documented in
+[[business-rules/translation-error-taxonomy]]). Escalation ("Tier 2 re-checks accuracy/range on low
+confidence or large diff") is two module constants (`CONFIDENCE_ESCALATION_THRESHOLD=0.6`,
+`LARGE_DIFF_RATIO=0.3`); the diff-ratio side reuses a new `Tier0Result.mismatch_ratio` field
+(additive change to TASK-605's `tier0.py`, both existing test suites re-verified green) instead of
+re-diffing. Fail-open is uniform across failure modes (no usable slug, malformed/unparseable JSON):
+the affected tier's owned dimensions default to `MAX_BAND` and contribute no errors — total outage
+degrades to a Tier 0-style full-marks grade, a deliberate generous reading of "fail-open to Tier 0
+marks." 38 unit tests across 4 files (router 9, tier0 8, prompts 11, grader_cascade 10), all
+passing; every DB/OpenRouter boundary is mocked (`get_active_rubric`, `get_active_taxonomy`,
+`resolve_tier`, `call_model_with_usage`), mirroring TASK-600's `resolve_tier` mocking convention.
+One of the new tests caught a real pre-ship bug: the first prompt draft leaked raw English
+enum/subtype identifier strings (e.g. literal "grammatical", "article_omission") into the ZH/JA
+prompts — fixed with per-language `_CATEGORY_GLOSS`/`_SOURCE_GLOSS`/`_SEVERITY_GLOSS` constants and
+the `subtype_glosses` concept. **Outstanding:** live smoke (one passage per L2 end-to-end against
+real OpenRouter) needs TASK-604 (rubric seed) and at least a baseline taxonomy seed first — neither
+has shipped, so `get_active_rubric`/`get_active_taxonomy` currently raise loudly (by design, no
+silent fallback) in any real environment. Marked done in [[tasklist/dual-translation.tasks]] and
+[[tasklist/master]].
+
+## 2026-06-23 implement | TASK-605 done — dual-translation Tier 0 deterministic pre-pass
+
+Built `services/dual_translation/tier0.py`: `grade_tier0(passage_id, gold_l2, reproduction,
+language_code)` — the always-first, no-model-call grading step. Pipeline: NFKC width
+normalization + `jaconv.kata2hira` kana folding for JA (same pairing `services.furigana_service`
+already uses for reading comparisons) on top of `services.dictation.grader.grade_dictation`, which
+is reused unmodified for tokenization, Levenshtein-tolerant diffing, and the opcode array that
+becomes `dt_grade.diff`. Exact or fuzzy-equal (`accuracy == 1.0`) resolves with all-4 scores across
+the 5 rubric dimensions, empty `errors[]`, `grader_trace={tier:'tier0', deterministic_prefilter:true,
+cache_hit:false, tokens:{in:0,out:0}, slugs:[]}`. The embedding-similarity gate (provider still
+OPEN per [[algorithms/translation-grading-cascade.tech]]) is a literal diff-mismatch-ratio stub
+(`NEAR_EXACT_MISMATCH_RATIO=0.05`) with a `TODO(embedding-provider)` marker — submissions within the
+ratio resolve the same as a true fuzzy match; large diffs return `resolved=False` for the cascade
+(TASK-606, not built yet) to pick up, diff already computed so it's never redone. Result cache is a
+plain in-process `dict` keyed `sha256(passage_id:normalized_reproduction)`, matching this package's
+existing convention (`router.py`'s `_cfg_cache`) rather than a new DB-backed layer. Tests:
+`tests/test_dual_translation_tier0.py`, 8 new cases (exact match, fuzzy-typo tolerance, gate-stub
+small diff, large-diff escalation, cache hit on resubmit, cache key includes passage_id, JA
+full-width-digit normalization, JA kana normalization) — 17/17 passing alongside the existing router
+suite. Marked done in [[tasklist/dual-translation.tasks]] and [[tasklist/master]].
+
+## 2026-06-23 implement | TASK-602 done — dual-translation groundwork migration
+
+Created `migrations/dual_translation_groundwork.sql` — the 7 `dt_*` tables exactly per
+[[features/dual-translation.tech]] Database Impact: `dt_passage`, `dt_passage_reference`,
+`dt_submission`, `dt_grade`, `dt_error_instance`, `dt_rubric_version`, `dt_taxonomy_version`.
+Applied to the live DB via Supabase MCP and verified via `information_schema`/`pg_constraint`:
+all 7 present; `dt_passage.source_kind` CHECK is `test_transcript`-only (no `mystery_scene`);
+`dt_passage_reference` has `UNIQUE (passage_id, l1_language_id)` and `ON DELETE CASCADE` on
+`passage_id`; `dt_grade.submission_id` is `UNIQUE` with `ON DELETE CASCADE`;
+`dt_error_instance.explanation` is `NOT NULL`. One deliberate deviation from the literal spec:
+`dt_passage.source_ref_id` is typed `uuid`, not the spec's `bigint` — `tests.id` is `uuid` in the
+live schema (confirmed via `information_schema.columns`), so `bigint` could never have held a
+real value; no FK was added to `tests(id)` (polymorphic source pointer, mirrors
+`llm_calls.artifact_id` — `source_kind` is locked down via CHECK today but the column is designed
+to support other source kinds later without a type change). RLS/grants were left out of scope —
+not part of this task's acceptance criteria, and the tech spec calls out submission ownership as
+an application-layer check, not a database-level one; flagged as a follow-up before TASK-607
+(routes) ships. Marked done in [[tasklist/dual-translation.tasks]] and [[tasklist/master]].
+
+## 2026-06-23 implement | TASK-600 done — dual-translation model router
+
+Built `services/dual_translation/router.py`: `resolve_tier(db, tier, language_id)` resolves
+tier1/tier2/tier3 to an OpenRouter slug via `prompt_service.get_template_config` (keyed by
+`task_name='dual_translation_tier{1,2,3}'` + `language_id`), then re-verifies the slug against
+`model_arena.pricing.fetch_model_list`. On a missing/delisted slug it walks down to the next
+cheaper tier (and ultimately to a `tier0`/`slug=None` sentinel if nothing is usable) and logs the
+fall-open — never hard-fails, per the cascade's existing fail-open contract. `ResolvedRoute.as_trace_entry()`
+gives `grader_trace.slugs[]` the slug actually used, not the one originally requested.
+Added `migrations/dual_translation_router_seed.sql` — 9 rows (3 tiers × ZH/EN/JA), EN on
+`google/gemini-2.5-flash-lite` (tier1) / `google/gemini-3.5-flash` (tier2/3), ZH+JA on
+`qwen/qwen3.6-flash` (tier1) / `qwen/qwen3.7-plus` (tier2/3) — all slugs already confirmed live
+elsewhere in this repo, explicitly avoiding the delisted `qwen/qwen-max` / `google/gemini-flash-1.5`
+(memory `prompt-template-model-slug-rot`). Tests: `tests/test_dual_translation_router.py`, 9 new
+cases (basic resolution, per-language threading, single- and multi-step fall-open, exhausted-tiers
+sentinel, verify=False short-circuit, cfg caching, model-list-fetch-failure non-fallback). Full
+suite: 539 passed, 1 skipped. Marked done in [[tasklist/dual-translation.tasks]] and
+[[tasklist/master]]. Did not touch `dt_*` table migrations (TASK-602, separate task).
+
+## 2026-06-23 update | Dual Translation routing — model + thinking per task
+
+Annotated [[tasklist/dual-translation.tasks]] with a per-task **model + thinking-level** execution
+layer (cost-tiered: Opus 4.8 for hard/novel/linguistic-content, Sonnet 4.6 for standard
+implementation, Haiku 4.5 for trivial single-table migrations). Added an **Execution routing**
+section (routing table + dependency-ordered waves 0–5 + critical path 602→605→606→607→608→617).
+No task re-scoped (still 19). Tally: Opus ×6 (603,604,606,610,616,618), Sonnet ×11, Haiku ×2
+(609,612); ultrathink ×2 (606,616). Pages updated: [[tasklist/dual-translation.tasks]], this log.
+
+## 2026-06-23 revise | Dual Translation — operator editing notes applied
+
+Refinements after the initial ingest (same day):
+- **Privacy:** no special posture; learner reproduction text is **retained for analysis**. Closed the OPEN privacy question.
+- **Budget:** per-user/day token budget is a **required tunable config value** (not hardcoded).
+- **Source:** `tests.transcript` **only** (mystery scenes dropped from `source_kind`).
+- **Selection:** passages served from the learner's **already-completed** tests (reading/listening/dictation) → at-level by construction.
+- **Grading level:** **level-neutral** (difficulty controlled at selection); only `naturalness` is tier-dependent and hidden at age tiers 1–2. New **[[decisions/ADR-018-level-neutral-grading]]**.
+- **Remediation interleaving:** error exercises interleave into **both** the dual-translation queue **and** Practice Engine sessions; error cards are **not sense-linked** (subtype-keyed stream). New **TASK-618**; ADR-017 consequence revised.
+- **Embeddings:** **not needed** — cluster errors deterministically by taxonomy subtype (pgvector optional later). Closed the OPEN embeddings question; TASK-610 revised.
+- **Models:** **flash-style, language-dependent** OpenRouter slugs (Gemini-flash EN, Qwen ZH/JA). Grading prompts are **target-language-only, numerical-index output** (no English/prose); **explanations rendered from per-subtype × per-L1 templates** keyed by the numerical subtype index (ADR-015 revised; eager + cheap + rule-compliant).
+
+Pages updated: [[features/dual-translation]] (+ .tech), [[features/dual-translation-remediation.tech]],
+[[algorithms/translation-grading-cascade.tech]], [[business-rules/translation-error-taxonomy]],
+ADR-015, ADR-017, **+ADR-018**, [[tasklist/dual-translation.tasks]] (18→19 tasks),
+[[tasklist/master]] (Not Started 73→74), [[index]] (86→87), this log.
+
+## 2026-06-23 ingest | Dual Translation feature (brief + learning-science report)
+
+Source: `raw/dual-translation-implementation-brief.md` + `raw/compass_artifact_…_text_markdown.md`
+(the "Designing a Dual-Translation Feature" learning-science report). Ingested per the brief's §0
+("load repo conventions; established repo principles win; resolve [RECONCILE] against the codebase;
+output a staged plan").
+
+**Clarifying interview (4 questions answered before any page written):**
+1. Source corpus → **short passages (2–4 sentences) from test transcripts / mysteries**; corpus is
+   L2-only, so L1 references are generated and stored alongside (`dt_passage_reference`).
+2. Direction → **L1→L2 back-translation only** (MVP).
+3. L1 model → **per-user L1 (any of ZH/EN/JA)** → directed-pair taxonomy, L1 reference per supported L1.
+4. Placement → **fully standalone surface** (`dt_*` tables/routes/pages), reuse existing services as code.
+
+**[RECONCILE] resolutions (operator notes win over the brief):** OpenRouter slugs in `prompt_templates`
+(not Anthropic Haiku/Sonnet/Opus tiers; no batch-discount tier exists → "batch" = off-hot-path);
+**age tiers (ADR-003)** not CEFR for rubric bands; **explanations eager/first-class** (overrides brief
+§4.4 lazy — operator: explaining *why* each error is an error is vital); source from **existing corpus**;
+**reuse** dictation Levenshtein grader for Tier 0 and FSRS-4 code for remediation scheduling.
+
+**Pages created (11):** [[features/dual-translation]] + .tech (Feature 1 grading) +
+[[features/dual-translation-remediation.tech]] (Feature 2); [[algorithms/translation-grading-cascade]]
++ .tech; [[business-rules/translation-error-taxonomy]]; ADR-014 (reference-first grading), ADR-015
+(eager explanations), ADR-016 (per-pair taxonomy), ADR-017 (standalone, L1→L2 MVP);
+[[tasklist/dual-translation.tasks]] (TASK-600–617, 4 stages + cross-cutting).
+**Pages updated:** [[index]] (75→86), [[tasklist/master]] (Not Started 55→73), this log.
+
+**Open questions flagged (not blocking):** embeddings provider for error clustering (Stage 2);
+privacy/retention posture for learner text sent to OpenRouter (resolve before Stage 1 ships);
+N/W promotion thresholds (defaults proposed: N=3, W=30d/20 submissions); per-user/day token budget value.
+
 ## 2026-06-18 change | TASK-507 + TASK-509 done — semantic_class backfill + Traditional Chinese groundwork
 
 **TASK-507** — classified all 9,865 lemmas (ZH 3,890 / EN 3,571 / JA 2,404) into the ratified 6-value

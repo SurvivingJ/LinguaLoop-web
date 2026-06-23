@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026-06-11) | Pages: 75
+Last updated: 2026-06-23 (dual-translation feature ingest + editing-notes revision — see log.md 2026-06-23) | Pages: 87
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -44,6 +44,9 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 - [[features/measure-word-trainer.tech]] — dim_classifiers schema, session RPC, sentinel-test ELO pattern
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
+- [[features/dual-translation]] — **NEW 2026-06-23 (planned)**: L1→L2 back-translation practice; noticing/diff loop; explained errors + spaced remediation
+- [[features/dual-translation.tech]] — Feature 1 (grading): data model, OpenRouter cascade, rubric, RPCs
+- [[features/dual-translation-remediation.tech]] — Feature 2: error synthesis, FSRS cards, recurrence instrumentation
 
 ## Algorithms
 - [[algorithms/practice-unified-score]] — Four-signal scoring for the merged Practice Engine — **NEW 2026-05-21**
@@ -60,6 +63,8 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 - [[algorithms/bkt-implementation-analysis.tech]] — BKT technical analysis: 9 SQL functions, architecture map, improvement status
 - [[algorithms/ladder-implementation-analysis]] — Ladder/exercise audit (Priority-1 integration gap resolved by Practice Engine merger 2026-05-21)
 - [[algorithms/ladder-implementation-analysis.tech]] — Ladder technical analysis with consolidation proposals
+- [[algorithms/translation-grading-cascade]] — **NEW 2026-06-23**: Tier-0-deterministic-first grading ladder for dual translation
+- [[algorithms/translation-grading-cascade.tech]] — Tiers, OpenRouter slugs, prompt caching, budget guardrails
 
 ## Database
 - [[database/schema]] — Data model overview (10 domains, 62 tables, complete from Supabase)
@@ -76,6 +81,7 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 
 ## Business Rules
 - [[business-rules/auth-and-access]] — Auth, roles, access control
+- [[business-rules/translation-error-taxonomy]] — **NEW 2026-06-23**: category×source×severity×error-vs-mistake; per-pair subtypes; promotion rule
 
 ## Decisions
 - [[decisions/ADR-001-dual-elo]] — Dual ELO rating system
@@ -91,6 +97,11 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 - [[decisions/ADR-011-per-language-independent-budgets]] — Per-language independent plan rows
 - [[decisions/ADR-012-grammar-items-excluded-v1]] — Grammar/style items deferred from V1 Practice pool
 - [[decisions/ADR-013-global-feature-flag-rollout]] — Single global Config flag for rollout + immediate-flip strategy
+- [[decisions/ADR-014-reference-first-grading]] — **NEW**: deterministic Tier-0 diff before any LLM (reuses dictation grader)
+- [[decisions/ADR-015-eager-error-explanations]] — **NEW**: explanations eager/first-class (overrides brief §4.4 lazy)
+- [[decisions/ADR-016-per-pair-error-taxonomy]] — **NEW**: per-user L1 → directed-pair taxonomy + per-L1 references
+- [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]] — **NEW**: standalone surface, L1→L2-only MVP, reuse-as-code
+- [[decisions/ADR-018-level-neutral-grading]] — **NEW**: level-neutral grading (difficulty controlled at selection); only naturalness is tier-dependent
 
 ## Task Lists
 - [[tasklist/master]] — All tasks, current status
@@ -99,6 +110,7 @@ Last updated: 2026-06-11 (exercise-generation v2 design plan — see log.md 2026
 - [[tasklist/ladder-judge-layer.tasks]] — Ladder Judge Layer (Phase 4): per-level + P1 judges, reject-rate dashboard — **NEW 2026-06-07**
 - [[tasklist/exercise-generation-v2.tasks]] — Exercise Generation v2 (TASK-501–536): consolidation, JA bootstrap, capability matrix, batch run, CJK depth — **NEW 2026-06-11**
 - [[tasklist/language-packs.tasks]] — Language Packs task breakdown
+- [[tasklist/dual-translation.tasks]] — **NEW 2026-06-23**: Dual Translation (TASK-600–617): 4-stage build — grading MVP, error synthesis, spaced remediation, localisation
 
 ## Lessons
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
