@@ -7,6 +7,7 @@ import traceback
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.dimension_service import parse_language_id
 from services.test_service import get_test_service
 from utils.responses import api_success, bad_request, not_found, server_error, ApiResponse
 
@@ -152,3 +153,59 @@ def update_preferences() -> ApiResponse:
     except Exception as e:
         logger.error(f"Preferences update error: {e}", exc_info=True)
         return server_error("Failed to update preferences")
+
+
+@users_bp.route('/native-language', methods=['GET'])
+@supabase_jwt_required
+def get_native_language() -> ApiResponse:
+    """Return the user's native (L1) language id, or null if never set.
+
+    NULL is a legitimate state for every existing user (no onboarding UI
+    captured this before TASK-619) — callers must treat null as "not set",
+    never as an error. Dual Translation falls back to English on null; see
+    routes/dual_translation.py::_resolve_l1_language_id.
+    """
+    try:
+        user_id = g.current_user_id
+        resp = current_app.supabase_service.table('users') \
+            .select('native_language_id') \
+            .eq('id', user_id) \
+            .single() \
+            .execute()
+        native_id = (resp.data or {}).get('native_language_id')
+        return api_success({"native_language_id": native_id})
+    except Exception as e:
+        logger.error(f"Native language fetch error: {e}")
+        return server_error("Failed to fetch native language")
+
+
+@users_bp.route('/native-language', methods=['PATCH'])
+@supabase_jwt_required
+def update_native_language() -> ApiResponse:
+    """Set the user's native (L1) language.
+
+    Body: {"language_id": 1|2|3}. Validated against the supported set
+    (Config.VALID_LANGUAGE_IDS, via parse_language_id) — anything outside it,
+    or a non-integer, is rejected with 400. Writes the plain
+    users.native_language_id column directly (not JSONB like preferences).
+    """
+    try:
+        user_id = g.current_user_id
+        data = request.get_json(silent=True) or {}
+        if 'language_id' not in data:
+            return bad_request("language_id required")
+
+        language_id = parse_language_id(data['language_id'])
+        if language_id is None:
+            return bad_request("language_id must be a supported language id")
+
+        current_app.supabase_service.table('users') \
+            .update({'native_language_id': language_id}) \
+            .eq('id', user_id) \
+            .execute()
+
+        return api_success({"native_language_id": language_id})
+
+    except Exception as e:
+        logger.error(f"Native language update error: {e}", exc_info=True)
+        return server_error("Failed to update native language")

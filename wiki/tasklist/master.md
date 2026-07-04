@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-06-23
+last_updated: 2026-07-04
 ---
 
 # Master Task List
@@ -9,9 +9,9 @@ last_updated: 2026-06-23
 
 | Status | Count |
 |--------|-------|
-| Not Started | 70 |
+| Not Started | 65 |
 | In Progress | 0 |
-| Done | 30 |
+| Done | 37 |
 | Blocked | 4 |
 
 ## All Tasks
@@ -132,12 +132,12 @@ See [[tasklist/dual-translation.tasks]] for full spec per task. Implements [[fea
 | TASK-600 | dual-translation | Model router + OpenRouter slug config (grading tiers) | [x] | M | — |
 | TASK-601 | dual-translation | Budget guardrail + cost dashboard hooks | [ ] | S | TASK-600 |
 | TASK-602 | dual-translation | Migration — 7 `dt_*` core tables | [x] | M | — |
-| TASK-603 | dual-translation | Passage builder — corpus extract + L1 reference gen | [ ] | L | 600, 602 |
-| TASK-604 | dual-translation | Versioned rubric + age-tier band descriptors | [ ] | M | TASK-602 |
+| TASK-603 | dual-translation | Passage builder — corpus extract + L1 reference gen | [x] Done (2026-07-01, verified live: 28 passages + 56 refs; grading smoke = TASK-606 follow-up) | L | 600, 602 |
+| TASK-604 | dual-translation | Versioned rubric + age-tier band descriptors | [x] | M | TASK-602 |
 | TASK-605 | dual-translation | Tier 0 deterministic pre-pass (reuse dictation grader) | [x] | M | TASK-602 |
 | TASK-606 | dual-translation | Grading cascade + compact JSON + eager explanations | [x] | L | 600, 604, 605 |
-| TASK-607 | dual-translation | Routes + submit RPC + idempotency | [ ] | M | TASK-606 |
-| TASK-608 | dual-translation | Diff-centric result UI (feed-up/back/forward) | [ ] | L | TASK-607 |
+| TASK-607 | dual-translation | Routes + submit RPC + idempotency | [x] | M | TASK-606 |
+| TASK-608 | dual-translation | Diff-centric result UI (feed-up/back/forward) | [x] | L | TASK-607 |
 | TASK-609 | dual-translation | Migration — `dt_error_profile_entry` | [ ] | S | TASK-602 |
 | TASK-610 | dual-translation | Mistake gate + embedding clustering + promotion | [ ] | L | TASK-609 |
 | TASK-611 | dual-translation | Error-profile dashboard endpoint + UI | [ ] | M | TASK-610 |
@@ -145,9 +145,11 @@ See [[tasklist/dual-translation.tasks]] for full spec per task. Implements [[fea
 | TASK-613 | dual-translation | Card generation (cloze + isolate-retranslate) | [ ] | M | 610, 612 |
 | TASK-614 | dual-translation | FSRS scheduling (reuse) + interleaving + review endpoints | [ ] | M | TASK-613 |
 | TASK-615 | dual-translation | Recurrence-reduction instrumentation | [ ] | S | TASK-614 |
-| TASK-616 | dual-translation | Localise taxonomy + weights per directed pair | [ ] | L | TASK-606 |
-| TASK-617 | dual-translation | Correction-style A/B flag wiring | [ ] | S | TASK-608 |
+| TASK-616 | dual-translation | Localise taxonomy + weights per directed pair | [x] Done (2026-07-04, applied live + paid smoke: JA fidelity=2 + keigo_register err, ZH accuracy=3 + classifier err) | L | TASK-606 |
+| TASK-617 | dual-translation | Correction-style A/B flag wiring | [x] | S | TASK-608 |
 | TASK-618 | dual-translation | Inject error exercises into Practice Engine sessions (non-sense-linked) | [ ] | M | TASK-614 |
+| TASK-619 | dual-translation | Native-language (L1) picker — onboarding + settings UI | [x] | M | TASK-607 |
+| TASK-620 | dual-translation | Taxonomy v1 baseline seed (subtypes + glosses + templates) | [x] | M | TASK-602 |
 
 ### Language Packs (existing — unchanged)
 

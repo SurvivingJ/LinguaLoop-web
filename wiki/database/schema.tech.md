@@ -374,11 +374,12 @@ Public mirror of `auth.users`. Auto-created by trigger on auth signup.
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 | `last_login` | timestamptz | YES | now() | |
+| `native_language_id` | smallint | YES | | FK -> dim_languages. The learner's L1 (added TASK-607, migrations/add_users_native_language.sql). NULL until an onboarding UI sets it — `user_languages` only tracks L2 *study* languages and never recorded this. |
 
 - **Primary Key:** `users_pkey (id)`
 - **Unique:** `users_email_key (email)`
 - **Indexes:** `idx_users_active (id WHERE deleted_at IS NULL)`, `idx_users_email (email)`, `idx_users_free_test_date (last_free_test_date)`, `idx_users_organization (organization_id WHERE NOT NULL)`, `idx_users_subscription_tier (subscription_tier_id)`
-- **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`
+- **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`, `native_language_id` -> `dim_languages.id`
 - **Triggers:** AFTER INSERT -> `create_user_dependencies()`, BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled (Phase 6). Policies: users read own profile, users update own profile, service_role full access, admin read all users.
 - **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, dim_word_senses (validated_by), vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections

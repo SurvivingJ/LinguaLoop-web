@@ -45,6 +45,7 @@ from routes.classifier_drill import classifier_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
+from routes.dual_translation import dual_translation_bp
 
 
 def create_app(config_class=Config):
@@ -366,6 +367,7 @@ def _register_blueprints(app):
     app.register_blueprint(practice_bp, url_prefix='/api/practice')
     app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
     app.register_blueprint(study_session_bp, url_prefix='/api/study-session')
+    app.register_blueprint(dual_translation_bp, url_prefix='/api/dual-translation')
 
     app.logger.info("Blueprints registered")
 
@@ -517,6 +519,11 @@ def _register_web_routes(app):
     def classifier_drill_page():
         """Render Chinese measure-word infinite trainer."""
         return render_template('classifier_drill.html')
+
+    @app.route('/dual-translation')
+    def dual_translation_page():
+        """Render the dual-translation reproduce → diff-centric result UI (TASK-608)."""
+        return render_template('dual_translation.html')
 
     @app.route('/admin/vocab-preview')
     def admin_vocab_preview():

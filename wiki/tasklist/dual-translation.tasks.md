@@ -3,9 +3,9 @@ title: "Dual Translation — Task Breakdown"
 feature: dual-translation
 prose_page: ../features/dual-translation.md
 tech_page: ../features/dual-translation.tech.md
-total_tasks: 19
-done: 4
-last_updated: 2026-06-23
+total_tasks: 21
+done: 8
+last_updated: 2026-07-04
 ---
 
 # Dual Translation — Task Breakdown
@@ -48,13 +48,15 @@ Models: Opus 4.8 (`claude-opus-4-8`) · Sonnet 4.6 (`claude-sonnet-4-6`) · Haik
 | 616 | Localise taxonomy + per-pair templates/weights | L | Opus 4.8 | **ultrathink** | Deep linguistic content (は/が, keigo, classifiers); templates *are* the payload |
 | 617 | Correction-style A/B flag wiring | S | Sonnet 4.6 | think | Config flag + JS branch |
 | 618 | Inject error exercises into Practice Engine | M | Opus 4.8 | think hard | Cross-feature integration into the live session assembler — higher blast radius |
+| 620 | Taxonomy v1 baseline seed | M | Opus 4.8 | think hard | Multilingual taxonomy authoring (subtypes + per-L2 glosses + per-L1 templates); conforms to the TASK-606 contract |
+| 620 | Taxonomy v1 baseline seed | M | Opus 4.8 | think hard | Multilingual taxonomy authoring (subtypes + per-L2 glosses + per-L1 templates); conforms to the TASK-606 contract |
 
-**Tally:** Opus 4.8 × 6 (603, 604, 606, 610, 616, 618) · Sonnet 4.6 × 11 · Haiku 4.5 × 2 (609, 612).
-Thinking: ultrathink × 2 (606, 616) · think hard × 9 · think × 8.
+**Tally:** Opus 4.8 × 7 (603, 604, 606, 610, 616, 618, 620) · Sonnet 4.6 × 11 · Haiku 4.5 × 2 (609, 612).
+Thinking: ultrathink × 2 (606, 616) · think hard × 10 · think × 8.
 
 ### Execution waves (dependency-ordered; each wave internally parallel)
 - **Wave 0 (foundation):** 600 · 602
-- **Wave 1 (← 600/602):** 601 · 603 · 604 · 605 · 609
+- **Wave 1 (← 600/602):** 601 · 603 · 604 · 605 · 609 · 620
 - **Wave 2 (← Wave 1):** 606 (←600,604,605) · 610 (←609) · 612 (←609)
 - **Wave 3 (← Wave 2):** 607 (←606) · 616 (←606) · 611 (←610) · 613 (←610,612)
 - **Wave 4 (← Wave 3):** 608 (←607) · 614 (←613)
@@ -115,31 +117,95 @@ this task's acceptance criteria; ownership checks are spec'd as application-laye
 TASK-607 (routes) ships.
 
 ## TASK-603: Passage builder — extract L2 passages from corpus + batch-generate L1 references
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** 600, 602
+**Status:** [x] Done (2026-07-01, built + verified live; all 4 acceptance criteria met). The cross-cutting end-to-end *grading* smoke (TASK-606 cascade) is the only follow-up — see REMAINING. · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** 600, 602
 **Description:** Extract 2–4 sentence spans from `tests.transcript` **only** (not mystery scenes)
 into `dt_passage` (carry `age_tier`, `register`); generate one `dt_passage_reference` per supported
 L1 via OpenRouter (off hot path). Source from existing corpus only. Serving (TASK-607) restricts to
 tests the learner has already completed, so the at-level guarantee comes from selection.
 **Acceptance Criteria:**
-- [ ] Only `test_transcript` sources; `source_kind` CHECK has no `mystery_scene`.
-- [ ] Passages carry age_tier inherited from source; no CEFR.
-- [ ] L1 references generated for each supported L1; provenance slug stored.
-- [ ] Idempotent re-run (no duplicate passages).
-**Files:** `services/dual_translation/passage_builder.py`, `scripts/build_dt_passages.py`.
-**Verification:** run over a small fixture; rows present with all L1 refs.
+- [x] Only `test_transcript` sources; `source_kind` CHECK has no `mystery_scene`. (Builder hardcodes `source_kind='test_transcript'`; runner sources only `tests`, never mysteries.)
+- [x] Passages carry age_tier (no CEFR) — **derived from `tests.difficulty`**, see deviation below.
+- [x] L1 references generated for each supported L1; provenance slug stored (`generator_slug`).
+- [x] Idempotent re-run (no duplicate passages) — in-app dedupe on `(source_ref_id, normalized l2_text)`.
+**Files:** `services/dual_translation/passage_builder.py`, `scripts/build_dt_passages.py`, `tests/test_dual_translation_passages.py` (39 tests, all mocked).
+**Verification:** run over a small fixture; rows present with all L1 refs. *(Offline unit suite green: 39/39; live fixture run deferred — see REMAINING.)*
+
+**Notes (design decisions confirmed with user 2026-06-29):**
+1. **age_tier is DERIVED, not inherited (deviation from brief).** Live `tests` has **no** `age_tier`,
+   `register`, `type`, or `status` column (verified against `schema.tech.md`). It carries
+   `difficulty` (1–9, NOT NULL). The builder folds difficulty → tier via `DIFFICULTY_TO_TIER`
+   (`services.conversation_generation.categorical_maps`: 1–2→T1, 3→T2, 4–5→T3, 6→T4, 7→T5, 8–9→T6)
+   → the int 1–6 for `dt_passage.age_tier`. `register` has no source column → left **NULL**.
+   "test_transcript only" = simply never touch the mystery tables; the "active test" filter is
+   `tests.is_active = true` (there is no `tests.status`/`tests.type`).
+2. **Idempotency = in-app dedupe, no schema change.** `dt_passage` has no content UNIQUE; the runner
+   loads existing `(source_ref_id, normalized l2_text)` keys per L2 and skips matches (also collapses
+   intra-batch dupes). References are backstopped by `dt_passage_reference UNIQUE(passage_id, l1_language_id)`
+   and pre-checked to avoid wasted OpenRouter calls on re-run.
+3. **CJK-aware regex segmentation (no library).** Split on `。！？…!?` (CJK path for zh/ja) or `.!?`
+   followed by whitespace/EOL (Latin path); whitespace collapsed first. Non-overlapping 2–4 sentence
+   windows; a short (<2) trailing remainder is merged + rebalanced with the previous window so every
+   window stays within [2,4] and no sentence is dropped (e.g. 4+1 → 3+2). <2 sentences total → skipped.
+4. **References reuse the grading router.** `resolve_tier(db,'tier1',l2_language_id)` picks the cheap
+   slug configured for grading that L2; the reference is a **plain L1 translation** (NOT the grader's
+   L2-only/numerical contract). Falls open to skip (logs) if the router yields no slug.
+5. **First-batch cost cap:** runner defaults to `--limit 4` source tests **per language** (~12 tests),
+   a cheap zh/en/ja smoke; `--limit 0` lifts the cap. `--dry-run` reports counts with no writes/calls.
+
+**LIVE VERIFICATION (2026-07-01, project kpfqrjtfxmujzolwsvdq):**
+- [x] Confirmed `tests` has NO `age_tier`/`register`/`type`/`status` columns (only difficulty/id/is_active/language_id/topic_id/transcript) — the derive-from-difficulty design is correct against the live schema.
+- [x] TASK-620 taxonomy + TASK-604 rubric both have exactly 1 `is_active` row live.
+- [x] Built a fixture of 3 source tests (1 per L2) via `--test-ids` (new flag): **28 dt_passage rows** (zh 8 @ age_tier 6, en 10 @ tier 3, ja 10 @ tier 3; all `active`, `test_transcript`).
+- [x] **56 dt_passage_reference rows** — every passage has both L1 refs; fan-out exact (zh→[en,ja], en→[zh,ja], ja→[zh,en]); `generator_slug` recorded (en→`google/gemini-2.5-flash-lite`, zh/ja→`qwen/qwen3.6-flash`).
+- [x] **Serving proof:** the exact `_select_next_passage` query for an English-L1 learner who completed the zh test returns a zh passage + its real English reference. (A persisted `test_attempts` fixture was declined by the write classifier, so this was verified read-only against the live rows.)
+- [x] **Idempotent re-run confirmed live:** re-run inserted 0 passages and backfilled missing refs (0 dupes).
+
+**Dependency fix applied this session:** TASK-600's router seed (`migrations/dual_translation_router_seed.sql`) had **never been applied live** (0 `dual_translation_*` rows in `prompt_templates`) — references + grading both fail open without it. Applied via tracked migration `dual_translation_router_seed` (9 rows, vetted non-404 flash/Qwen slugs). **Runner bug fixed:** reference generation was tied to passage *insertion*, so a passage inserted while the router was unseeded never got refs on re-run; refactored to reconcile references against **all** in-scope passages (new + pre-existing), making reference idempotency independent of insertion.
+
+**REMAINING (TASK-606 cascade scope, not TASK-603):**
+- [ ] End-to-end live *grading* smoke: submit one reproduction per L2 through real OpenRouter, confirm the §2.2 contract. Attempted 2026-07-01 but the standalone smoke harness hit `DimensionService.get_language_code` returning None — `DimensionService`'s `dim_languages` cache is hydrated at Flask startup but not in a bare script; **one-line fix** (hydrate `DimensionService` before calling `grade_submission`). Not a product defect; deferred on session cost.
 
 ## TASK-604: Versioned rubric + age-tier band descriptors (config)
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-602
+**Status:** [x] Done (2026-06-27, applied live + verified) · **Type:** feature · **Complexity:** M · **Model:** Opus 4.8 · **Thinking:** ultrathink · **Depends On:** TASK-602
 **Description:** Seed `dt_rubric_version` with the 5 dimensions, default weights, and 4-band
 descriptors written **per age tier** (1–6), plus per-language weight overrides (JA fidelity/
 particle, ZH classifier/aspect). Grading is **level-neutral** ([[decisions/ADR-018-level-neutral-grading]]):
 descriptors calibrate the model, they are not a per-tier leniency curve. `naturalness` is hidden at
 age tiers 1–2.
 **Acceptance Criteria:**
-- [ ] Descriptors reference age tiers, not CEFR.
-- [ ] `understandability`+`accuracy` highest weight; `naturalness` lowest and hidden at tiers 1–2.
-**Files:** `migrations/dt_rubric_v1_seed.sql`.
+- [x] Descriptors reference age tiers, not CEFR.
+- [x] `understandability`+`accuracy` highest weight; `naturalness` lowest and hidden at tiers 1–2.
+**Files:** `migrations/dt_rubric_v1_seed.sql`, `tests/test_dual_translation_rubric_seed.py`.
 **Verification:** load active rubric; weights and bands match spec.
+**Notes:** `config` conforms to the TASK-606 "Implementation contracts" shape
+([[algorithms/translation-grading-cascade.tech]]) — **not** reinvented: `weights.default[dim]` +
+partial `weights.by_language[l2][dim]` overrides, and
+`band_descriptors[str(age_tier)][dim][l2] = {"1".."4": text}`. 5 dims; default weights put
+`accuracy`+`understandability` highest (0.30 each), `fidelity`/`range` mid (0.15), `naturalness`
+lowest (0.10). Per-language **baseline** overrides: `ja fidelity 0.25` (particle/keigo register
+fidelity), `zh accuracy 0.35` (classifier/aspect). Band descriptors are 4 bands × 6 tiers × 3 L2
+(zh/en/ja) = **336** strings: a single level-neutral quality ladder per dimension (ADR-018) with a
+per-tier *content-level* frame (concrete→abstract) as the only thing that varies by tier;
+`naturalness` omitted at tiers 1–2. ZH/JA descriptor text is an AI-authored first draft, not
+native-reviewed (same caveat as `prompts.py`) — flagged for QA with TASK-616. Applied live via
+`apply_migration` (tracked migration `dual_translation_rubric_v1_seed`); verified exactly **one**
+`is_active` row (v1), real `get_active_rubric` returns it, the live `config` is **byte-identical**
+to the committed migration, and all three readers — `compute_overall_band`,
+`routes/dual_translation.py::_rubric_descriptors_for`, `prompts._band_descriptors_text` — read it
+without `KeyError`. Shape test `tests/test_dual_translation_rubric_seed.py` (49 cases) extracts the
+real seed JSON straight out of the `.sql` and feeds it through both consumer access paths (no live
+DB). Idempotent: `ON CONFLICT (version) DO UPDATE` refreshes config/description only — no duplicate,
+no second active row, and `is_active` is set only on the initial INSERT (re-apply after a later
+version supersedes v1 will not silently re-activate v1).
+**REMAINING GAP (not built here):** the end-to-end live grading smoke (one passage per L2 through
+real OpenRouter) is still blocked — `get_active_taxonomy` raises the same way until a baseline
+`dt_taxonomy_version` row is seeded, and there are no passages to serve yet (TASK-603). Do the live
+smoke as part of/after the taxonomy seed + TASK-603, per TASK-606's verification note.
+**RESOLVED (TASK-616, 2026-07-04):** per-language weight ownership **stays in `dt_rubric_version`** —
+it is the sole reader (`compute_overall_band`); the taxonomy has no weight path. TASK-616 superseded
+this baseline `by_language` block via **rubric v2** (`dt_rubric_v2_seed.sql`), raising `ja.fidelity`
+0.25→0.30 and `zh.accuracy` 0.35→0.40. This v1 rubric seed is not archived — it remains the sole repo
+record of the still-present version=1 row.
 
 ## TASK-605: Tier 0 deterministic pre-pass (reuse dictation grader)
 **Status:** [x] Done (2026-06-23) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** TASK-602
@@ -166,7 +232,7 @@ diff, large-diff escalation, cache hit, cache key includes passage_id, JA full-w
 kana norm) — all pass alongside the existing 9 router tests (17/17).
 
 ## TASK-606: Grading cascade + compact JSON contract + eager explanations
-**Status:** [x] Done (2026-06-23, unit-tested; live smoke still outstanding) · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** ultrathink · **Depends On:** 600,604,605
+**Status:** [x] Done (2026-06-23 unit-tested; **live smoke VERIFIED 2026-07-02** — one passage per L2 through real OpenRouter, full §2.2 contract) · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** ultrathink · **Depends On:** 600,604,605
 **Description:** Tier 1/2 OpenRouter calls with **L2-only prompts** that emit **numerical indices**
 (score ints, subtype/severity/source enum indices, span offsets — no English, no prose). Then the
 **eager explanation step renders `explanation` from per-subtype × per-L1 templates** keyed by the
@@ -185,6 +251,19 @@ baseline taxonomy seed haven't shipped yet, so there is no active `dt_rubric_ver
 `dt_taxonomy_version` row to grade against in any real environment. `get_active_rubric`/
 `get_active_taxonomy` raise loudly (no silent fallback) until one exists — do the live smoke as
 part of or after TASK-604/616.
+**VERIFIED LIVE (2026-07-02):** all data foundations now shipped (rubric TASK-604, taxonomy
+TASK-620, passages TASK-603), so the live smoke ran — one imperfect reproduction (~15% dropped, to
+escalate past Tier 0) per L2 through real OpenRouter. Results: **zh** passage 1 (age_tier 6) →
+tier1 `qwen/qwen3.6-flash` + tier2 `qwen/qwen3.7-plus`, tokens 1942/7828, 66 diff ops, 2 errors,
+overall_band 3; **en** passage 9 (tier 3) → tier1 `google/gemini-2.5-flash-lite` + tier2
+`google/gemini-3.5-flash`, tokens 1804/223, 30 diff ops, 0 errors, band 4; **ja** passage 19 (tier
+3) → same Qwen pair, tokens 2283/9761, 99 diff ops, 2 errors, band 2. Every surviving error carried
+non-empty spans + learner_form + corrected_form + a **template-rendered** explanation (not model
+prose), and `grader_trace` recorded the real per-L2 slugs + token usage with `fell_open: False`. The
+`_decode_error` fail-soft path was also exercised live: a malformed model error (empty `learner_form`
+on an insertion span) was dropped with a log line, not crashing the submission. One QA note for
+TASK-616: the `omission` explanation sometimes quotes an over-long `corrected_form` span — a
+model-prompt-quality issue, not a contract defect.
 **Notes:** Built `services/dual_translation/prompts.py` (L2-only system/user prompt builders, fixed
 `CATEGORY_ENUM`/`SOURCE_ENUM`/`SEVERITY_ENUM` constants mirroring the live `dt_error_instance` CHECK
 constraints, per-language instructional templates for EN/ZH/JA — the ZH/JA text is an AI-authored
@@ -211,26 +290,138 @@ prompts (e.g. literal "grammatical", "article_omission") — fixed by adding `_C
 `_SOURCE_GLOSS`/`_SEVERITY_GLOSS` per-language constants and the `subtype_glosses` config concept.
 
 ## TASK-607: Routes + submit RPC + idempotency
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-606
+**Status:** [x] Done (2026-06-25 unit-tested; **live route path VERIFIED 2026-07-02** — /next → /submit → idempotent re-submit against live DB) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-606
 **Description:** `GET /api/dual-translation/next`, `POST /api/dual-translation/<sub>/submit`
 (idempotent), ownership checks, persist grade+errors, enqueue systematic errors.
 **Acceptance Criteria:**
-- [ ] Submit returns the full §2.2 contract; duplicate key returns cached grade.
-- [ ] Non-owner submission rejected.
+- [x] Submit returns the full §2.2 contract; duplicate key returns cached grade.
+- [x] Non-owner submission rejected.
 **Files:** `routes/dual_translation.py`, register blueprint in `app.py`.
 **Verification:** curl the endpoints against a seeded passage.
+**Notes:** Built `routes/dual_translation.py` as a thin orchestrator: every DB-touching step is its
+own monkeypatchable helper (`_resolve_l1_language_id`, `_select_next_passage`,
+`_rubric_descriptors_for`, `_get_submission`, `_get_passage`, `_cached_grade`, `_persist_grade`),
+mirroring TASK-606's "boundary functions tests can monkeypatch" convention rather than mocking the
+raw Supabase chain. Grading itself is delegated wholesale to
+`grader_cascade.grade_submission` — this module never reimplements grading, only persistence.
+**Real gap found and fixed, not worked around:** the wiki's own selection rule ("L1 reference
+chosen from `user_languages`") doesn't hold — `user_languages` is the L2 *study*-language
+enrollment table (confirmed against `Project Knowledge/12-PRD/.../08-language-selection.md`); no
+column anywhere recorded a learner's native language. Flagged to the user, who chose to add the
+column rather than paper over it with a heuristic. Added `users.native_language_id` (smallint,
+nullable, FK → `dim_languages`) via `migrations/add_users_native_language.sql`, applied live to the
+Supabase project (`kpfqrjtfxmujzolwsvdq`) and verified via `information_schema.columns`. `GET /next`
+reads it and falls back to English (id=2) while it's NULL — no onboarding UI sets it yet, so today
+every user hits the fallback; that UI is a real follow-up, not built here.
+**Duplicate-submission semantics:** implemented as "does a `dt_grade` row already exist for this
+`submission_id`" rather than a literal idempotency-key string match. `dt_grade.submission_id` is
+UNIQUE, so a second grade attempt on an already-graded submission would otherwise hit a DB
+integrity error regardless of what key the client sends — checking grade-existence is the
+crash-proof superset of the literal "key matches" rule and still satisfies it (the key *does*
+match on a same-key retry, since `_persist_grade` writes it back onto `dt_submission` after the
+first successful grade). The existing `idx_dt_submission_user_idempotency` partial index
+(TASK-602) isn't exercised by this path — it would matter for a cross-submission "did I already
+submit with this key" lookup, which isn't needed here because the client always learns
+`submission_id` from `/next` before it ever submits.
+**Other business rule wired in while building the "feed-up":** `_rubric_descriptors_for` hides
+`naturalness` at age tiers 1–2 per [[decisions/ADR-018-level-neutral-grading]] and degrades to `{}`
+(never 500s) when no `dt_rubric_version` is active yet — TASK-604 hasn't shipped, so this is the
+common case today.
+**Stubs, exactly as scoped — not built here:** `BUDGET_EXCEEDED` is a `# TODO(TASK-601)` marker at
+the `grade_submission` call site (always grades at full `tier2`); the Feature-2 enqueue point is a
+`# TODO(TASK-610)` marker after `_persist_grade` (no `dt_error_profile_entry` table exists yet to
+enqueue into).
+**Verification gap, as expected:** 21 unit tests in `tests/test_dual_translation_routes.py` (all
+passing, full suite re-verified green: 589 passed/1 skipped) mock every DB/OpenRouter boundary —
+no live DB in this repo's test run. Live curl against a real seeded passage is still blocked on
+TASK-603 (passage builder) and TASK-604 (rubric seed), exactly as flagged in this task's brief; not
+attempted.
+**VERIFIED LIVE (2026-07-02):** with passages + rubric + taxonomy all live, drove the real route
+handlers (not mocks) via Flask `test_client` against the live DB — `_authenticate` patched to supply
+the fixture user (`de6fd05b…`), who was given one authorized smoke `test_attempts` row on the zh
+fixture test `8658495d…` so `_select_next_passage` had a completed test to draw from. `GET /next` →
+200: served zh passage 1 (age_tier 6), returned the English `l1_text`, all five `rubric_descriptors`
+(naturalness correctly **shown** at tier 6 — hidden only at 1–2 per ADR-018), and created
+`dt_submission` id 1. `POST /submit` (imperfect repro) → 200: tier2, two OpenRouter calls, persisted
+1 `dt_grade` + 2 `dt_error_instance`, overall_band 3. `POST /submit` again (same key) → 200 with an
+**identical** trace and **no** further OpenRouter calls in the logs — the `_cached_grade` path
+reconstructed the §2.2 contract from the persisted rows; `dt_grade` stayed at exactly 1 row (the
+`submission_id` UNIQUE held). Idempotency + ownership recheck + persistence all confirmed live.
+**Live artifacts left in the DB** (smoke evidence; safe to purge): `test_attempts`
+`72cd5618-9baf-46a9-b4bb-a16b6d3b316b`, `dt_submission` id 1 + its `dt_grade`/`dt_error_instance` rows.
 
 ## TASK-608: Diff-centric result UI (feed-up / feed-back / feed-forward)
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** L · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** TASK-607
+**Status:** [x] Done (2026-07-02, built + statically verified; live browser click-through is the one residual human step) · **Type:** feature · **Complexity:** L · **Model:** Sonnet 4.6 (built this session on Opus 4.8) · **Thinking:** think hard · **Depends On:** TASK-607
 **Description:** Reproduction page shows L1 reference + rubric **feed-up** (cached client-side) and
 optional self-rating before reveal; result page makes the **diff the centrepiece** with per-dim
 bands and the eager **explanation** per error (feed-forward: corrected form + "drill this").
 **Acceptance Criteria:**
-- [ ] Diff is the visual focus; each error shows which-rule-and-why explanation.
-- [ ] Naturalness shown as low-stakes/optional with a learner-override affordance.
-- [ ] Correction style (direct+metalinguistic vs flag-only) behind a config/A-B flag.
-**Files:** `templates/dual_translation.html`, `static/js/dual_translation.js`.
+- [x] Diff is the visual focus; each error shows which-rule-and-why explanation.
+- [x] Naturalness shown as low-stakes/optional with a learner-override affordance.
+- [x] Correction style (direct+metalinguistic vs flag-only) behind a config/A-B flag.
+**Files:** `templates/dual_translation.html`, `static/js/dual_translation.js`, `app.py` (page route
+`/dual-translation`), `static/i18n/{en,es,ja,zh}.json` (43 `dual_translation.*` keys each).
 **Verification:** manual click-through of submit → result.
+**Notes (built 2026-07-02):** SPA-style single page with two phases, matching `classifier_drill`'s
+house style (base.html blocks, `authFetch`/`LinguaI18n`/`showToast`, external JS via `extra_js`).
+Phase 1 (feed-up): renders the L1 `l1_text`, the `rubric_descriptors` from `/next` (top-band
+descriptor per dimension) inside a collapsible, and an optional pre-reveal **self-rating (1–4)** —
+**client-only per the operator's decision** (no schema change; persisted to `localStorage`
+`dt_selfrating_<submission_id>`, recalled on the result as "You predicted X/4"). Phase 2: the **diff
+is the centrepiece** — one flex "cell" per `diff` opcode with the reference (gold L2) on top and the
+learner's deviation below, so the two tracks stay aligned token-for-token even in CJK (**token-level**,
+straight off the cascade's `WordDiff` opcodes — no JS re-diff, since char-level would need re-diffing
+data the contract doesn't carry; insert/delete/replace/equal each get a distinct colour + a legend).
+Per-dimension **bands** from `scores` (colour-graded 1–4); **naturalness** is hidden outright at age
+tiers 1–2 (mirrors `_rubric_descriptors_for`) and at tiers 3+ is rendered low-stakes behind a
+**learner-override toggle** ("Show naturalness (optional)"). Each error shows the **eager
+which-rule-and-why**: `learner_form → corrected_form`, the template-rendered `explanation`, and
+category/subtype/severity/source chips (enum values mirrored via i18n with a humanized-slug fallback,
+so a not-yet-localised subtype never renders a raw key). **"Drill this"** is a disabled placeholder
+carrying `data-subtype` — the clean hook for TASK-613 cards, which don't exist yet. **TASK-617 seam:**
+correction style is read from `data-correction-style` on `.dt-wrap` (default `direct_metalinguistic`;
+`flag_only` branch hides the correction behind a reveal). The A/B assignment/logging itself is *not*
+built — only the branch. Double-submit latch + `crypto.randomUUID()` idempotency key on submit.
+**Verified this session (no extra OpenRouter spend):** all 4 i18n files parse and carry the identical
+43-key `dual_translation.*` set (per memory `i18n-applytodom-clobbers-defaults`); `GET /dual-translation`
+renders 200 with every element ID + the JS include the client needs; and the exact `/next`→`/submit`
+contract the JS consumes was live-proven in the same session's TASK-607 curl. **Residual:** a human
+visual browser click-through (would cost one more live grade), and native review of the ZH/JA/ES
+first-draft UI strings (same QA caveat as `prompts.py`/TASK-616). **Out of scope, as briefed:** L1
+picker (TASK-619), the A/B experiment (TASK-617), error-profile/remediation (TASK-609+).
+
+## TASK-619: Native-language (L1) picker — onboarding + settings UI
+**Status:** [x] Done (2026-07-04) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-607
+**Description:** All four acceptance criteria met. Native language picker is wired into both
+onboarding (optional, fire-and-forget) and profile/settings (with optimistic UI and rollback).
+Backed by GET/PATCH `/api/users/native-language` endpoints. The column `users.native_language_id`
+(smallint, nullable, FK → `dim_languages`) was added in TASK-607; this task added the UI to set it.
+**Acceptance Criteria:**
+- [x] A new user completing onboarding has `native_language_id` set without a separate manual step — picker is optional; NULL is preserved if skipped.
+- [x] An existing user can view and change their native language from the profile/settings page — loadNativeLanguage() on load, saveNativeLanguage() with optimistic UI.
+- [x] Submitting an unsupported/invalid language_id is rejected (400) — validated against dim_languages ids (1/2/3).
+- [x] `routes/dual_translation.py::_resolve_l1_language_id` picks up the newly-set value on the next `GET /next` call — confirmed by reading; unchanged and reads native_language_id directly from users table.
+
+**Files Built:**
+- `routes/users.py` — GET/PATCH /api/users/native-language endpoints (lines 158–211)
+- `templates/onboarding.html` — three aria-role=radio cards (zh/en/ja), fires PATCH fire-and-forget before navigating to /language-selection (lines 218–317)
+- `templates/profile.html` — view/change section with loadNativeLanguage() on page load and saveNativeLanguage() with optimistic UI + rollback (lines 41–51, 532–626)
+- `tests/test_native_language_pages.py` — two smoke tests (onboarding render + profile render)
+
+**Verification:** All acceptance criteria verified by codebase inspection. Endpoints present with correct validation and auth. Onboarding picker optional (NULL preserved if skipped), fires PATCH on "Get Started". Profile section loads current value, optimistic UI on save, rollback on failure. _resolve_l1_language_id unchanged — no code changes needed there. Smoke tests present and passing.
+
+## TASK-620: Versioned error-taxonomy baseline seed (subtypes + glosses + templates)
+**Status:** [x] Done (2026-06-29, applied live + verified via tracked apply_migration `dual_translation_taxonomy_v1_seed`) · **Type:** feature · **Complexity:** M · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-602 (conforms to the TASK-606 contract)
+**Description:** Seed + activate the single `dt_taxonomy_version` row the grading cascade hard-requires — the taxonomy twin of TASK-604. `services/dual_translation/grader_cascade.py::get_active_taxonomy` raises `RuntimeError` until an `is_active` row exists (no silent fallback), the same hard-block TASK-604 cleared for the rubric. With the rubric seeded, this is the last data-foundation blocker before the cascade can run; only TASK-603 (passages) then remains for the end-to-end live grading smoke. **Baseline only** — full per-directed-pair `<l1>-<l2>` tables, rich templates (は/が, keigo nuance, classifier specifics), and per-pair weight overrides are TASK-616, which supersedes this via a version bump.
+**Acceptance Criteria:**
+- [x] `taxonomy` conforms to the TASK-606 "Implementation contracts" shape (`pairs` / `subtype_glosses` / `templates`); `category`/`source`/`severity` NOT included (hardcoded enums + `dt_error_instance` CHECK).
+- [x] An `<l2>`-baseline subtype table per L2 (zh/en/ja); every (l1,l2) resolves via the `<l2>` baseline fallback (no per-pair key) without raising.
+- [x] Every baseline subtype has an L2 gloss; every subtype has en/zh/ja templates using only `{learner_form}`/`{corrected_form}`; the numeric subtype index round-trips through `_decode_error` back to the slug (ordering stable).
+- [x] Idempotent live apply: exactly one `is_active=true` row (v1); `get_active_taxonomy`'s exact query returns it (live-verified).
+**Files:** `migrations/dt_taxonomy_v1_seed.sql`, `tests/test_dual_translation_taxonomy_seed.py`, generator `c:\tmp\gen_dt_taxonomy_seed.py` (single source of truth, mirrors TASK-604's `gen_rubric_seed.py`).
+**Verification:** 31-case shape test extracts the real seed JSON straight out of the `.sql` and drives the production consumers — `get_active_taxonomy`, `_resolve_subtypes`, `_resolve_subtype_labels`, `render_explanation`, and a `_decode_error` index→slug round-trip — for every (l1,l2), with no live DB. All pass (full DT suite re-verified: 101 green). Live: `apply_migration` (tracked), then confirm one `is_active` row + `get_active_taxonomy` returns it.
+**Notes:** L1 template coverage = **all three live L1s (en/zh/ja)**; subtype set = the **full per-language catalogue** from [[business-rules/translation-error-taxonomy]] — shared cross-linguistic `[word_order, word_choice, omission, register]` (positions 0–3) + EN `[article, preposition, phrasal_verb, tense_aspect, subject_verb_agreement]`; JA `[particle, keigo_register, counter_classifier, script_choice, topic_comment]`; ZH `[classifier, aspect_marker, topic_comment, ba_construction, resultative_complement]`. 18 distinct subtypes, 9 per L2; 27 L2 glosses; 54 L1 templates. **Brief premise corrected:** `dim_languages` holds only zh(1)/en(2)/ja(3) — there is no `es` row, and `l1_language_id` FKs to `dim_languages`, so an `es` L1 can never reach `render_explanation`; Spanish is a UI i18n locale only (`static/i18n/es.json`), so the brief's "all four L1s" was not achievable. **Task ID:** the brief suggested TASK-617, but 617/618/619 were already assigned (A/B flag, Practice-Engine inject, L1 picker) — filed as **TASK-620**. ZH/JA glosses + templates are AI-authored first drafts pending native review (same caveat as `prompts.py` / TASK-604), flagged for QA with TASK-616.
+**APPLIED LIVE (2026-06-29):** applied via tracked `apply_migration` (`dual_translation_taxonomy_v1_seed`) to project `kpfqrjtfxmujzolwsvdq`. Live-verified: exactly one `is_active=true` row (v1); top keys `pairs/subtype_glosses/templates`; `pairs` = en/ja/zh (9 subtypes each); 18 gloss subtypes; 18 template subtypes — the same query shape `get_active_taxonomy` runs. (The earlier MCP disconnect was waited out per the operator; no DATABASE_URL write was used.) **TASK-603 (passages) is now the sole remaining blocker** for the end-to-end live grading smoke (one passage per L2 through real OpenRouter) — do not attempt the live grade until passages exist.
 
 ---
 
@@ -315,22 +506,91 @@ dashboard metric flags subtypes not improving within ~3–4 cycles.
 ## Stage 4 — Localisation
 
 ## TASK-616: Localise taxonomy + weights per directed pair (EN L2 first, then JA, ZH)
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** ultrathink · **Depends On:** TASK-606
+**Status:** [x] Done (2026-07-04, applied live to `kpfqrjtfxmujzolwsvdq` + paid live smoke through real OpenRouter) · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** ultrathink · **Depends On:** TASK-606
 **Description:** Seed `dt_taxonomy_version` per-pair subtype tables + weight overrides per
 [[business-rules/translation-error-taxonomy]]. EN articles/prepositions; JA particles/keigo
 (keigo = first-class fidelity); ZH classifiers/aspect. Per-language cached prefixes.
 **Acceptance Criteria:**
-- [ ] Subtypes resolved from config, not code.
-- [ ] JA keigo_register scored under fidelity; ZH classifier/aspect up-weighted.
-**Files:** `migrations/dt_taxonomy_*_seed.sql`.
+- [x] Subtypes resolved from config, not code — per-directed-pair `pairs["<l1>-<l2>"]` tables (all 6 directed pairs) in taxonomy v4; every directed (l1,l2) now resolves via the pair path, not the L2-baseline fallback.
+- [x] JA keigo_register scored under fidelity; ZH classifier/aspect up-weighted — live smoke: JA keigo/register downgrade → **fidelity=2** (down from 4) + 2 `keigo_register` errors; ZH 个-overuse → **accuracy=3** + 4 `classifier` errors.
+**Files:** `migrations/dt_taxonomy_{en,ja,zh}_seed.sql` (taxonomy v2/v3/v4), **`migrations/dt_rubric_v2_seed.sql`** (weight bump — see §"weight ownership" below), `tests/test_dual_translation_taxonomy_localised.py`, `tests/test_dual_translation_rubric_v2.py`, generator `scratchpad/gen_dt_localised.py`.
+**Verification:** offline shape/round-trip suites (41 new + 80 baseline, all green); live smoke confirmed the §2.2 contract with the enriched templates rendered (keigo template naming teineigo/sonkeigo/kenjougo; classifier template naming the measure word 件).
+
+**KEY DESIGN CORRECTION — weight ownership (confirmed with user 2026-07-04):** the brief's premise
+("seed a new `dt_taxonomy_version` with per-pair tables **+ weight overrides**") does not match the
+implementation. `grader_cascade.compute_overall_band` reads dimension weights **only** from
+`dt_rubric_version.config.weights.by_language`; the taxonomy carries **no** weights and nothing reads
+one there. Putting "weight overrides" in the taxonomy would be dead config. So TASK-616 bumps **two**
+active versions (user chose "Rubric v2 + taxonomy per-pair", no code change):
+- **`dt_rubric_version` v2** — raises `by_language.ja.fidelity` 0.25→**0.30** and `by_language.zh.accuracy`
+  0.35→**0.40** (band descriptors byte-identical to v1). This is what actually makes JA fidelity / ZH
+  accuracy up-weighted. **Resolves the TASK-604 open question** on weight ownership (weights stay in
+  `dt_rubric_version`, the sole reader).
+- **`dt_taxonomy_version` v4** — per-directed-pair tables + richer per-L1 templates / per-L2 glosses.
+"JA keigo scored under fidelity" is mechanical: `keigo_register` is a JA subtype (error tagged there),
+the JA `fidelity` descriptor+gloss already name 敬語レベル, and the rubric up-weights fidelity.
+
+**Taxonomy structure:** cumulative, self-contained, one active row (the cascade loads ONE row).
+v2 (EN, `dt_taxonomy_en_seed.sql`) = v1 baseline + `ja-en`/`zh-en` pairs + enriched article/preposition
+(definiteness; verb-governed prepositions). v3 (JA) = v2 + `en-ja`/`zh-ja` + enriched particle (は=topic
+vs が=new-subject) + keigo_register (teineigo/sonkeigo/kenjougo, "grammatical-but-wrong-level is still an
+error"). v4 (ZH) = v3 + `en-zh`/`ja-zh` + enriched classifier (个 overuse, measure-word agreement) +
+aspect_marker (了/过/着 = aspect not tense). Final v4 = all 6 directed pairs + en/ja/zh baselines.
+**Per-pair subtype LISTS mirror the L2 baseline set/order** (guarantees gloss+template coverage and a
+trivially-correct index round-trip); the localisation payload is the enriched templates/glosses + the
+explicit `pairs[l1-l2]` key (so resolution uses the per-pair path and prompts.py's per-(L1,L2)
+cache-narrowing note becomes real; future L1-specific divergence has a home). ZH/JA strings are still
+AI-authored first drafts pending native review (same standing caveat as `prompts.py`/TASK-604/620).
+
+**APPLIED LIVE (2026-07-04):** four tracked migrations via `apply_migration` — `dt_rubric_v2_seed_task616`,
+then `dt_taxonomy_{en,ja,zh}_seed_task616` (EN→JA→ZH). To apply the exact committed artifacts without
+re-emitting 10–28 KB of JSON per file (transcription-drift risk), each migration **derives the new
+version in-DB from the previous version's row** (baseline copy + the small enrichment deltas via
+`jsonb_set`/`||`), which is semantically identical to the committed full-JSON `.sql` files. A host
+script (app's own Supabase client) then **verified the live active rows are semantically identical to
+the committed `dt_taxonomy_zh_seed.sql` / `dt_rubric_v2_seed.sql`** (dict-equality PASS) — so the
+committed `.sql` files faithfully reflect live. Post-apply: `dt_taxonomy_version` = `1,2,3,4*` (one
+active), `dt_rubric_version` = `1,2*` (one active). The v1 seed files are **not** archived — they remain
+the sole repo record of the still-present version=1 rows (distinct PKs, not redefined).
+**LIVE SMOKE (real OpenRouter, l1=en):** JA passage 20 keigo/register downgrade → scores
+`{accuracy:3, range:2, understandability:4, fidelity:2, naturalness:3}`, tier2, `fell_open:False`,
+11 errors incl. 2 `keigo_register` (`ロボットアームだ`→`ロボットアームです`, `格別だぞ`→`格別ですよ`)
++ several `register`; ZH passage 1 个-overuse → `{accuracy:3, range:3, understandability:4, fidelity:4,
+naturalness:3}`, tier2, 4 `classifier` errors (`一个`→`一件`, `这个`→`这件`). Both explanations are the
+new enriched templates.
 **Verification:** grade a JA keigo-wrong reproduction → fidelity penalised + keigo_register error.
 
 ## TASK-617: Correction-style A/B flag wiring
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-608
+**Status:** [x] Done (2026-07-02, built + unit-verified; migration applied live) · **Type:** feature · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-608
 **Description:** Config flag for direct+metalinguistic vs indirect/flag-only correction; the
 Truscott–Ferris debate is unresolved, so this is A/B-tested, not hardcoded.
-**Files:** `config.py`, `static/js/dual_translation.js`.
+**Files:** `config.py`, `static/js/dual_translation.js`, `routes/dual_translation.py`,
+`migrations/dt_add_correction_style.sql`, `tests/test_dual_translation_correction_style.py`,
+`tests/test_dual_translation_routes.py`.
 **Verification:** toggling the flag changes the feedback presentation.
+**Notes (built 2026-07-02):** Turned TASK-608's static `data-correction-style` seam into a real
+config-driven A/B assignment. **Config (`config.py`):** `DT_CORRECTION_STYLE` env flag with three
+modes — `direct_metalinguistic` (force eager), `flag_only` (force reveal-on-demand), `experiment`
+(default). `Config.resolve_correction_style(user_id)` returns the forced arm in a forced mode, else
+a **deterministic 50/50 split on `sha256(user_id)`** (`digest[0] & 1`) — a given user is stably
+bucketed across sessions; an unrecognized flag value fails safe to `experiment`. Force modes are the
+no-code-change QA/rollback lever. **Mechanism = `GET /next` returns `correction_style`** (chosen over
+a template context var as **lower blast radius**: `/next` is already `@supabase_jwt_required` with
+`g.current_user_id` resolved and already returns the JSON contract the JS consumes; the page route
+`/dual-translation` is unauthenticated `render_template` with no user_id — stamping there would mean
+adding auth to it). The static `data-correction-style="direct_metalinguistic"` on `.dt-wrap` stays as
+a **safe fallback default** when the field is absent. **Persistence/logging (operator decision):** the
+resolved arm is **stamped onto `dt_submission.correction_style` at `/next` time** (new nullable column
++ CHECK on the two arms — `migrations/dt_add_correction_style.sql`, applied live to
+`kpfqrjtfxmujzolwsvdq` via tracked `apply_migration`, column+CHECK confirmed). Persisting per-submission
+(vs. only recomputing from user_id) keeps the experiment analyzable even if the config mode or bucketing
+changes later. **JS:** `loadNext` overrides `CORRECTION_STYLE` from the `/next` payload; the existing
+`flag_only` reveal branch in `buildErrorCard` (TASK-608) is unchanged. **Verified:** 7 new resolver
+tests (force-both-arms · stable-per-user · both-arms-reachable · ~50/50 balance · unknown-mode-fails-safe)
++ extended `TestGetNext` asserting the arm is both returned in the payload and written to the
+`dt_submission` insert; full DT suite **185 passed**. No OpenRouter spend (presentation wiring only).
+**Residual (unchanged from TASK-608):** a human visual browser click-through of reproduce→result (would
+cost one live grade) and native ZH/JA/ES UI-string review (folds into TASK-616) were not done.
 
 ---
 

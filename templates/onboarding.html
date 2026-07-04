@@ -92,6 +92,65 @@
         font-size: 1.1rem;
         font-weight: 600;
     }
+
+    /* Native-language picker — mirrors language_selection.html's card pattern,
+       but persists server-side (users.native_language_id), not localStorage. */
+    .native-language-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .native-language-card {
+        flex: 1 1 140px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--bg-surface);
+        border: 2px solid var(--border-strong);
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        cursor: pointer;
+        transition: var(--transition-fast);
+    }
+
+    .native-language-card:hover {
+        border-color: var(--slate-400);
+        background: var(--bg-surface-hover);
+    }
+
+    .native-language-card.selected {
+        border-color: var(--primary);
+        background: var(--selected-bg);
+    }
+
+    .native-language-card .nl-flag {
+        font-size: 28px;
+        user-select: none;
+    }
+
+    .native-language-card .nl-name {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--slate-700);
+        flex-grow: 1;
+    }
+
+    .native-language-card.selected .nl-name {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .native-language-card .nl-check {
+        color: var(--primary);
+        font-size: 18px;
+        display: none;
+    }
+
+    .native-language-card.selected .nl-check {
+        display: inline;
+    }
 </style>
 {% endblock %}
 
@@ -156,6 +215,29 @@
             </ul>
         </div>
 
+        <!-- Native Language Picker -->
+        <div class="info-section">
+            <h3 data-i18n="onboarding.native_title">What's your native language?</h3>
+            <p class="text-muted" data-i18n="onboarding.native_desc">We'll use this to show translations in a language you already know. You can change it anytime from your profile.</p>
+            <div class="native-language-options" role="radiogroup" aria-label="Native language">
+                <div class="native-language-card" data-id="1" role="radio" tabindex="0" aria-checked="false">
+                    <span class="nl-flag">🇨🇳</span>
+                    <span class="nl-name">中文</span>
+                    <i class="fas fa-check-circle nl-check"></i>
+                </div>
+                <div class="native-language-card" data-id="2" role="radio" tabindex="0" aria-checked="false">
+                    <span class="nl-flag">🇺🇸</span>
+                    <span class="nl-name">English</span>
+                    <i class="fas fa-check-circle nl-check"></i>
+                </div>
+                <div class="native-language-card" data-id="3" role="radio" tabindex="0" aria-checked="false">
+                    <span class="nl-flag">🇯🇵</span>
+                    <span class="nl-name">日本語</span>
+                    <i class="fas fa-check-circle nl-check"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- Get Started Button -->
         <div class="text-center mt-4">
             <a href="/language-selection" id="get-started-btn" class="btn btn-primary get-started-btn">
@@ -168,6 +250,32 @@
 
 {% block extra_js %}
 <script>
+    // Native-language picker. Selection is optional — leaving it unset keeps
+    // native_language_id NULL, which is a legitimate state (Dual Translation
+    // falls back to English). We persist server-side rather than to
+    // localStorage: the target-study-language picker on the next page owns
+    // localStorage; native language (L1) is a distinct concept.
+    let selectedNativeLanguageId = null;
+    const nativeCards = document.querySelectorAll('.native-language-card');
+    function selectNativeCard(card) {
+        nativeCards.forEach(c => {
+            c.classList.remove('selected');
+            c.setAttribute('aria-checked', 'false');
+        });
+        card.classList.add('selected');
+        card.setAttribute('aria-checked', 'true');
+        selectedNativeLanguageId = parseInt(card.dataset.id, 10);
+    }
+    nativeCards.forEach(card => {
+        card.addEventListener('click', () => selectNativeCard(card));
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectNativeCard(card);
+            }
+        });
+    });
+
     // When the first-time user clicks "Get Started", flip the has_seen_welcome
     // flag server-side so we don't show this page on their next login. Don't
     // block navigation on the network call — worst case they see this page
@@ -175,6 +283,16 @@
     document.getElementById('get-started-btn').addEventListener('click', function(e) {
         e.preventDefault();
         const go = () => { window.location.href = '/language-selection'; };
+
+        // Persist the chosen native language (fire-and-forget — navigation is
+        // gated on mark-welcome-seen below, not on this). Skip entirely if the
+        // user didn't pick one, leaving native_language_id NULL.
+        if (selectedNativeLanguageId && typeof window.authFetch === 'function') {
+            window.authFetch('/api/users/native-language', {
+                method: 'PATCH',
+                body: JSON.stringify({ language_id: selectedNativeLanguageId }),
+            }).catch(err => console.error('set native-language failed:', err));
+        }
 
         // Optimistically update cached user_data so a refresh of /welcome
         // doesn't strand them here.

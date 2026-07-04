@@ -4,6 +4,7 @@ Unified application configuration - Single source of truth.
 All configuration should be accessed via this module.
 """
 
+import hashlib
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -111,6 +112,21 @@ class Config:
     # has its own is_active boolean so an admin can roll passages out
     # individually after QA.
     LISTENING_LAB_ENABLED = os.environ.get('LISTENING_LAB_ENABLED', 'False').lower() == 'true'
+
+    # Dual Translation — correction-style A/B (TASK-617). The Truscott–Ferris
+    # debate (direct+metalinguistic vs indirect/flag-only written correction)
+    # is unresolved, so correction style is A/B-tested, not hardcoded. Three
+    # operator-adjustable modes via the DT_CORRECTION_STYLE env var:
+    #   'direct_metalinguistic' — force everyone to the eager arm (QA / rollback)
+    #   'flag_only'             — force everyone to the reveal-on-demand arm (QA)
+    #   'experiment'            — deterministic 50/50 per-user bucketing (default)
+    # A forced arm is a no-code-change QA/rollback lever (force-on/off). In
+    # 'experiment' mode the arm is a stable hash of user_id, so a given user
+    # always sees the same arm. Consumed by routes/dual_translation.py::get_next,
+    # which stamps the resolved arm onto dt_submission.correction_style and
+    # returns it in the /next payload for static/js/dual_translation.js.
+    DT_CORRECTION_ARMS = ('direct_metalinguistic', 'flag_only')
+    DT_CORRECTION_STYLE = os.getenv('DT_CORRECTION_STYLE', 'experiment')
 
     # ==========================================================================
     # ELO & GAME CONSTANTS
@@ -259,6 +275,29 @@ class Config:
             return Config.DEFAULT_AI_MODEL
         lang_config = Config.AI_MODELS.get(language.lower(), Config.AI_MODELS['english'])
         return lang_config.get(task, Config.DEFAULT_AI_MODEL)
+
+    @staticmethod
+    def resolve_correction_style(user_id: str) -> str:
+        """Resolve the dual-translation correction-style A/B arm for a user.
+
+        In a forced mode (``DT_CORRECTION_STYLE`` set to one of
+        ``DT_CORRECTION_ARMS``) every user gets that arm — the QA/rollback lever
+        that needs no code change. In ``'experiment'`` mode (or any unrecognized
+        value, which fails safe to experiment) the arm is a deterministic 50/50
+        split on a SHA-256 of the ``user_id``, so a given user is stably bucketed
+        across sessions and the split is reproducible offline for analysis.
+
+        Args:
+            user_id: The authenticated user's id (uuid string).
+
+        Returns:
+            One of ``DT_CORRECTION_ARMS`` ('direct_metalinguistic' | 'flag_only').
+        """
+        mode = Config.DT_CORRECTION_STYLE
+        if mode in Config.DT_CORRECTION_ARMS:
+            return mode
+        digest = hashlib.sha256(str(user_id).encode('utf-8')).digest()
+        return Config.DT_CORRECTION_ARMS[digest[0] & 1]
 
     @staticmethod
     def get_language_name(language_id: int) -> str:

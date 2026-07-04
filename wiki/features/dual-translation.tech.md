@@ -1,12 +1,13 @@
 ---
 title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-06-23
+last_updated: 2026-06-25
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
+  - "table: users.native_language_id (added TASK-607, migrations/add_users_native_language.sql) — the learner's L1; user_languages only tracks L2 study languages, never recorded this"
   - "table: prompt_templates — holds OpenRouter model slugs per language/stage (model router)"
   - "service: services.dictation.grader (Levenshtein WordDiff) — reused for Tier 0"
   - "service: shared OpenRouter client (as used by services.model_arena.llm_runner)"
@@ -112,8 +113,8 @@ The L2 gold + L1 reference(s), sourced from existing corpus.
 | `source_kind` | text NOT NULL | CHECK: `test_transcript` (mystery scenes excluded per 2026-06-23 notes) |
 | `source_ref_id` | uuid NOT NULL | id of the originating `tests` row (the transcript source); no FK — polymorphic pointer, see reconciliation note above |
 | `l2_text` | text NOT NULL | the gold reference (2–4 sentences, extracted span of source) |
-| `age_tier` | smallint NOT NULL | CHECK: BETWEEN 1 AND 6 ([[decisions/ADR-003-age-tiers]]); inherited from source |
-| `register` | text | politeness/register metadata (esp. JA keigo level) |
+| `age_tier` | smallint NOT NULL | CHECK: BETWEEN 1 AND 6 ([[decisions/ADR-003-age-tiers]]); **derived**, not inherited — `tests` has no `age_tier` column, so the builder (TASK-603) folds `tests.difficulty` (1–9) via `DIFFICULTY_TO_TIER` to the tier int 1–6 |
+| `register` | text | politeness/register metadata (esp. JA keigo level); `tests` has no `register` column, so the corpus builder (TASK-603) leaves this NULL |
 | `status` | text NOT NULL DEFAULT 'active' | CHECK: `active` \| `draft` \| `retired` |
 | `created_at` | timestamptz | |
 
@@ -184,7 +185,10 @@ age tier. Never hardcoded in app code.
 
 ### `dt_taxonomy_version`
 Versioned taxonomy config (JSONB): the cross-linguistic schema + per-pair subtype tables. Never
-hardcoded in app code.
+hardcoded in app code. **Live: v4 (TASK-616, 2026-07-04)** — all six directed-pair tables
+(`ja-en`/`zh-en`/`en-ja`/`zh-ja`/`en-zh`/`ja-zh`) + en/ja/zh baselines, with enriched per-L1 templates /
+per-L2 glosses. Dimension **weights** are *not* here — they live in `dt_rubric_version` (v2 raised
+`ja.fidelity` 0.30, `zh.accuracy` 0.40); see [[algorithms/translation-grading-cascade.tech]].
 | column | type | notes |
 |---|---|---|
 | `id` | bigint PK | |
@@ -228,10 +232,13 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Side effects:** writes dt_grade + dt_error_instance[]; enqueues systematic errors for Feature 2; logs grader_trace cost.
 
 ### `GET /api/dual-translation/next`
-- **Purpose:** serve the next passage for the user (L1 reference chosen from `user_languages`).
+- **Purpose:** serve the next passage for the user (L1 reference chosen via `users.native_language_id`).
 - **Selection rule:** draw only from `dt_passage` whose `source_ref_id` is a test the **user has
   already completed** (any of reading/listening/dictation — check `test_attempts` for the user),
   so content is inherently at-level. L1 reference chosen for the user's L1.
+  **Correction (TASK-607):** the original draft said this came from `user_languages` — it doesn't;
+  that table only tracks L2 *study* languages. `users.native_language_id` was added specifically
+  for this (nullable; falls back to English, id=2, while unset — no onboarding UI sets it yet).
 - **Returns:** `{submission_id, l1_text, age_tier, rubric_descriptors}` (rubric shown as "feed-up").
 - **Interleaving:** the served queue **interleaves due error exercises** (isolate-and-re-translate /
   cloze) with fresh passages — see [[features/dual-translation-remediation.tech]].

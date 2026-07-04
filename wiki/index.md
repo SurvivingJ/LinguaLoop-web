@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-06-23 (dual-translation feature ingest + editing-notes revision — see log.md 2026-06-23) | Pages: 87
+Last updated: 2026-07-04 (TASK-616 dual-translation taxonomy localisation + rubric v2 weight bump, applied live — see log.md 2026-07-04) | Pages: 87
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists

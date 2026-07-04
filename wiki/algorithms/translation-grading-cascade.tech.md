@@ -132,9 +132,14 @@ prompt, never a crash) — only a missing **row** (`get_active_rubric` finds no 
 constraints on the live `dt_error_instance` table (TASK-602), so `prompts.CATEGORY_ENUM` /
 `SOURCE_ENUM` / `SEVERITY_ENUM` mirror those exact values as code constants; only `subtype` is the
 open-ended, versioned axis. `pairs` falls back from the exact `<l1>-<l2>` key to an `<l2>`-only
-baseline when no per-pair table exists yet (true today, pre-TASK-616) — every L1 shares one
-baseline subtype list, which also maximizes the prompt-cache prefix's reuse until per-pair data
-genuinely diverges it. `subtype_glosses` is new: the model must never see a bare English subtype
+baseline when no per-pair table exists. **As of TASK-616 (taxonomy v4, live 2026-07-04) all six
+directed-pair `<l1>-<l2>` tables exist** (`ja-en`/`zh-en`/`en-ja`/`zh-ja`/`en-zh`/`ja-zh`), so every
+real (l1,l2) now resolves via the per-pair path; the `<l2>` baselines remain as a safety fallback.
+The per-pair subtype *lists* currently mirror their L2 baseline set/order — the localisation payload
+is the enriched per-L1 `templates` / per-L2 `subtype_glosses` (は/が, keigo teineigo/sonkeigo/kenjougo,
+classifier 个-overuse, aspect 了/过/着), not divergent subtype lists. **Weights** are not in the
+taxonomy at all: `by_language` up-weights (TASK-616 rubric v2: `ja.fidelity` 0.30, `zh.accuracy` 0.40)
+live in `dt_rubric_version.config`, the only place `compute_overall_band` reads them. `subtype_glosses` is new: the model must never see a bare English subtype
 slug inside an L2-only ZH/JA prompt, so each subtype needs a short gloss *in the L2 being graded*
 (distinct from `templates`, which is keyed by the learner's **L1** and used only for the
 post-grading explanation render, never shown to the model). A missing gloss falls back to the bare

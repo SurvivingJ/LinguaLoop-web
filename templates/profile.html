@@ -38,6 +38,18 @@
         <p class="mb-0 opacity-90" data-i18n="profile.subtitle">Track your language learning progress</p>
     </div>
 
+    <!-- Native Language (settings) — always shown, independent of test history -->
+    <div class="card p-4 mb-4" id="nativeLanguageSection">
+        <h5 class="mb-1"><i class="fas fa-language me-2"></i><span data-i18n="profile.native_title">Native Language</span></h5>
+        <p class="text-muted mb-3" data-i18n="profile.native_desc">Used to show translations in a language you understand.</p>
+        <p class="mb-3">
+            <span data-i18n="profile.native_current">Current:</span>
+            <strong id="nativeLanguageCurrent" data-i18n="profile.native_loading">Loading…</strong>
+        </p>
+        <div class="row g-2" id="nativeLanguageCards"></div>
+        <div id="nativeLanguageStatus" class="small mt-2" role="status" aria-live="polite"></div>
+    </div>
+
     <!-- Loading -->
     <div id="loadingState" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
@@ -124,6 +136,7 @@
 
         console.log('Calling loadProfile()...');
         loadProfile();
+        loadNativeLanguage();
 
         // Wire up load more button
         const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -514,6 +527,102 @@
         console.log('Generated history HTML length:', html.length);
         container.innerHTML = html;
         console.log('=== RENDER HISTORY END ===');
+    }
+
+    // -----------------------------------------------------------------------
+    // Native language (L1) settings — TASK-619.
+    // Distinct from the per-language ELO cards above: this is the user's own
+    // native language, persisted on users.native_language_id via the new
+    // /api/users/native-language endpoints. NULL ("not set") is legitimate.
+    // -----------------------------------------------------------------------
+    const NATIVE_LANGUAGES = [
+        { id: 1, flag: '🇨🇳', name: '中文' },
+        { id: 2, flag: '🇺🇸', name: 'English' },
+        { id: 3, flag: '🇯🇵', name: '日本語' },
+    ];
+    let currentNativeLanguageId = null;
+
+    function nativeLanguageName(id) {
+        const lang = NATIVE_LANGUAGES.find(l => l.id === id);
+        return lang ? `${lang.flag} ${lang.name}` : null;
+    }
+
+    function renderNativeCurrent() {
+        const el = document.getElementById('nativeLanguageCurrent');
+        if (!el) return;
+        const name = nativeLanguageName(currentNativeLanguageId);
+        if (name) {
+            // A concrete language name isn't translatable copy — pin it so a
+            // later applyToDOM() (fires on UI-language switch) can't clobber it.
+            el.removeAttribute('data-i18n');
+            el.textContent = name;
+        } else {
+            // Keep it i18n-managed so it re-localizes on language switch.
+            el.setAttribute('data-i18n', 'profile.native_not_set');
+            el.textContent = window.LinguaI18n ? LinguaI18n.t('profile.native_not_set') : 'Not set';
+        }
+        // Reflect the active card.
+        document.querySelectorAll('#nativeLanguageCards .language-card').forEach(card => {
+            card.classList.toggle('active', parseInt(card.dataset.id, 10) === currentNativeLanguageId);
+        });
+    }
+
+    function renderNativeCards() {
+        const container = document.getElementById('nativeLanguageCards');
+        if (!container) return;
+        container.innerHTML = NATIVE_LANGUAGES.map(lang => `
+            <div class="col-md-4">
+                <div class="card language-card h-100 p-3" data-id="${lang.id}" role="button" tabindex="0">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-2 me-3">${lang.flag}</span>
+                        <h6 class="mb-0">${lang.name}</h6>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        container.querySelectorAll('.language-card').forEach(card => {
+            const handler = () => saveNativeLanguage(parseInt(card.dataset.id, 10));
+            card.addEventListener('click', handler);
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }
+            });
+        });
+    }
+
+    async function loadNativeLanguage() {
+        renderNativeCards();
+        try {
+            const res = await window.authFetch('/api/users/native-language');
+            if (res.ok) {
+                const data = await res.json();
+                currentNativeLanguageId = data.native_language_id || null;
+            }
+        } catch (err) {
+            console.error('loadNativeLanguage failed:', err);
+        }
+        renderNativeCurrent();
+    }
+
+    async function saveNativeLanguage(languageId) {
+        const status = document.getElementById('nativeLanguageStatus');
+        const previous = currentNativeLanguageId;
+        // Optimistic: reflect the choice immediately, roll back on failure.
+        currentNativeLanguageId = languageId;
+        renderNativeCurrent();
+        if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.native_saving') : 'Saving…';
+        try {
+            const res = await window.authFetch('/api/users/native-language', {
+                method: 'PATCH',
+                body: JSON.stringify({ language_id: languageId }),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.native_saved') : 'Saved';
+        } catch (err) {
+            console.error('saveNativeLanguage failed:', err);
+            currentNativeLanguageId = previous;
+            renderNativeCurrent();
+            if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.native_save_failed') : 'Could not save — try again';
+        }
     }
 
     function getFlag(langCode) {

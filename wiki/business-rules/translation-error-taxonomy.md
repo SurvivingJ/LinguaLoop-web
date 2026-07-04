@@ -12,6 +12,15 @@ open_questions:
 Versioned, language-scoped reference data (stored in `dt_taxonomy_version`, never hardcoded in
 application code). A shared cross-linguistic schema plus per-directed-pair subtype tables.
 
+> **Implementation status (TASK-616, live 2026-07-04):** shipped. `dt_taxonomy_version` **v4** carries all
+> six directed-pair subtype tables (`ja-en`, `zh-en`, `en-ja`, `zh-ja`, `en-zh`, `ja-zh`) plus the en/ja/zh
+> baselines, with enriched per-L1 templates / per-L2 glosses (EN article/preposition; JA particle は/が +
+> keigo teineigo/sonkeigo/kenjougo; ZH classifier 个-overuse + aspect 了/过/着). **Weights do NOT live in
+> the taxonomy** — the "weight overrides" below are dimension weights read only from
+> `dt_rubric_version.config.weights.by_language` by `grader_cascade.compute_overall_band`. TASK-616 raised
+> them in **rubric v2** (`ja.fidelity` 0.25→0.30, `zh.accuracy` 0.35→0.40). See
+> [[tasklist/dual-translation.tasks]] TASK-616 and [[algorithms/translation-grading-cascade.tech]].
+
 ## Shared cross-linguistic schema (every error is tagged on four axes)
 1. **category** — `grammatical` | `lexical` | `pragmatic_expressional`
 2. **source** — `interlingual` (L1 transfer) | `intralingual` (within-L2 overgeneralisation).

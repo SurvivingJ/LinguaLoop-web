@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Dual Translation | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block main_class %}container py-4{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dt-wrap { max-width: 760px; margin: 0 auto; }
+
+    .dt-header {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .dt-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .dt-back { color: var(--text-muted); text-decoration: none; font-size: 1.2rem; line-height: 1; }
+    .dt-back:hover { color: var(--text-primary); }
+
+    .dt-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 14px;
+        padding: 22px 24px;
+        margin-bottom: 18px;
+        box-shadow: var(--shadow-sm);
+    }
+    .dt-card-label {
+        font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    }
+
+    /* Feed-up: reference + rubric */
+    .dt-reference {
+        font-size: 1.3rem; line-height: 1.6; color: var(--text-primary);
+        white-space: pre-wrap;
+    }
+    .dt-rubric-list { display: flex; flex-direction: column; gap: 8px; }
+    .dt-rubric-row { font-size: 0.95rem; color: var(--text-secondary); }
+    .dt-rubric-row strong { color: var(--text-primary); }
+    details.dt-rubric > summary {
+        cursor: pointer; font-size: 0.9rem; color: var(--primary); font-weight: 600;
+        list-style: none;
+    }
+    details.dt-rubric > summary::-webkit-details-marker { display: none; }
+    details.dt-rubric[open] > summary { margin-bottom: 12px; }
+
+    /* Self-rating */
+    .dt-selfrate { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .dt-selfrate button {
+        flex: 1 1 0; min-width: 60px; padding: 10px 6px;
+        border: 2px solid var(--border-default); border-radius: 10px;
+        background: var(--bg-surface); color: var(--text-secondary);
+        font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.12s;
+    }
+    .dt-selfrate button:hover { border-color: var(--primary); }
+    .dt-selfrate button.selected { background: var(--focus-ring); border-color: var(--primary); color: var(--primary); }
+    .dt-hint { font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; }
+
+    /* Reproduction input */
+    .dt-textarea {
+        width: 100%; min-height: 140px; resize: vertical;
+        font-size: 1.15rem; line-height: 1.6; padding: 14px 16px;
+        border: 2px solid var(--border-default); border-radius: 12px;
+        background: var(--bg-surface); color: var(--text-primary); outline: none;
+    }
+    .dt-textarea:focus { border-color: var(--primary); }
+
+    .dt-submit {
+        width: 100%; margin-top: 16px; padding: 14px;
+        background: var(--primary); color: #fff; font-weight: 600; font-size: 1.05rem;
+        border: 0; border-radius: 12px; cursor: pointer;
+    }
+    .dt-submit:disabled { opacity: 0.6; cursor: default; }
+
+    /* Result: diff centrepiece. Each cell is one diff opcode; reference (gold
+       L2) sits on top, the learner's deviation below, so the two tracks stay
+       aligned even for CJK (no word spaces). */
+    .dt-diff {
+        display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: stretch;
+        font-size: 1.25rem; line-height: 1.5;
+    }
+    .dt-cell { display: inline-flex; flex-direction: column; align-items: center; }
+    .dt-cell .dt-top, .dt-cell .dt-bot { padding: 1px 4px; border-radius: 6px; }
+    .dt-cell.eq .dt-top { color: var(--text-primary); }
+    .dt-cell.rep .dt-top { color: #047857; background: #ecfdf5; font-weight: 600; }
+    .dt-cell.rep .dt-bot { color: #b91c1c; text-decoration: line-through; font-size: 0.85em; }
+    .dt-cell.del .dt-top { color: #047857; background: #ecfdf5; font-weight: 600; }
+    .dt-cell.del .dt-bot { color: var(--text-muted); font-size: 0.85em; }
+    .dt-cell.ins .dt-top { color: var(--text-muted); font-size: 0.85em; }
+    .dt-cell.ins .dt-bot { color: #b91c1c; text-decoration: line-through; font-size: 0.9em; }
+
+    .dt-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; font-size: 0.82rem; color: var(--text-muted); }
+    .dt-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .dt-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    /* Dimension bands */
+    .dt-dims { display: flex; flex-wrap: wrap; gap: 10px; }
+    .dt-dim {
+        flex: 1 1 120px; padding: 12px; border: 1px solid var(--border-default);
+        border-radius: 10px; text-align: center; background: var(--bg-page);
+    }
+    .dt-dim .dt-dim-name { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .dt-dim .dt-dim-band { font-size: 1.5rem; font-weight: 700; }
+    .dt-dim.b1 .dt-dim-band { color: #b91c1c; }
+    .dt-dim.b2 .dt-dim-band { color: #d97706; }
+    .dt-dim.b3 .dt-dim-band { color: #2563eb; }
+    .dt-dim.b4 .dt-dim-band { color: #047857; }
+    .dt-dim.optional { border-style: dashed; opacity: 0.9; }
+    .dt-dim-tag { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
+
+    .dt-overall { display: flex; align-items: baseline; gap: 10px; }
+    .dt-overall .dt-overall-band { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+
+    /* Errors (feed-forward) */
+    .dt-error {
+        border: 1px solid var(--border-default); border-left: 4px solid #d97706;
+        border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--bg-surface);
+    }
+    .dt-error.sev-global { border-left-color: #b91c1c; }
+    .dt-error-forms { font-size: 1.1rem; margin-bottom: 8px; }
+    .dt-error-forms .dt-learner { color: #b91c1c; text-decoration: line-through; }
+    .dt-error-forms .dt-arrow { color: var(--text-muted); margin: 0 8px; }
+    .dt-error-forms .dt-corrected { color: #047857; font-weight: 600; }
+    .dt-error-expl { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 10px; }
+    .dt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .dt-chip {
+        font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+        background: var(--bg-page); color: var(--text-secondary);
+    }
+    .dt-reveal-btn {
+        font-size: 0.85rem; font-weight: 600; color: var(--primary);
+        background: transparent; border: 1px solid var(--primary); border-radius: 8px;
+        padding: 5px 12px; cursor: pointer;
+    }
+    .dt-drill-btn {
+        font-size: 0.82rem; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+        border: 1px dashed var(--border-default); background: transparent;
+        color: var(--text-muted); cursor: not-allowed;
+    }
+
+    .dt-actions { display: flex; gap: 12px; margin-top: 8px; }
+    .dt-actions button {
+        flex: 1; padding: 13px; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer;
+    }
+    .dt-actions .dt-primary { background: var(--primary); color: #fff; border: 0; }
+    .dt-actions .dt-secondary { background: var(--bg-page); color: var(--text-primary); border: 1px solid var(--border-default); }
+
+    @media (max-width: 600px) {
+        .dt-reference { font-size: 1.15rem; }
+        .dt-diff { font-size: 1.1rem; }
+        .dt-dim { flex-basis: 45%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- TASK-617 seam: correction-style A/B flag, read by dual_translation.js from
+     this data attribute. 'direct_metalinguistic' (default) shows corrected_form
+     + explanation eagerly; 'flag_only' marks the error and reveals the
+     correction on demand. The experiment itself (assignment/logging) is
+     TASK-617 — this only keeps the branch clean. -->
+<div class="dt-wrap" data-correction-style="direct_metalinguistic">
+    <div class="dt-header">
+        <a href="/tests" class="dt-back" aria-label="Back">&larr;</a>
+        <h1 data-i18n="dual_translation.title">Dual Translation</h1>
+    </div>
+
+    <div id="dtLoading" class="text-center py-20 text-slate-500" data-i18n="dual_translation.loading">Loading…</div>
+
+    <div id="dtError" class="dt-card" style="display:none; text-align:center; color:var(--text-secondary);"></div>
+
+    <!-- ===== PHASE 1: Reproduction (feed-up) ===== -->
+    <div id="dtReproduce" style="display:none;">
+        <div class="dt-card">
+            <div class="dt-card-label" data-i18n="dual_translation.reference_label">Reference (in your language)</div>
+            <div class="dt-reference" id="dtReference"></div>
+        </div>
+
+        <div class="dt-card">
+            <details class="dt-rubric">
+                <summary data-i18n="dual_translation.rubric_heading">What you'll be graded on</summary>
+                <div class="dt-rubric-list" id="dtRubricList"></div>
+            </details>
+        </div>
+
+        <div class="dt-card" id="dtSelfRateCard">
+            <div class="dt-card-label" data-i18n="dual_translation.self_rating_prompt">How well do you think you'll do?</div>
+            <div class="dt-selfrate" id="dtSelfRate">
+                <button type="button" data-rating="1">1</button>
+                <button type="button" data-rating="2">2</button>
+                <button type="button" data-rating="3">3</button>
+                <button type="button" data-rating="4">4</button>
+            </div>
+            <div class="dt-hint" data-i18n="dual_translation.self_rating_hint">Just for your own reflection — this isn't graded.</div>
+        </div>
+
+        <div class="dt-card">
+            <div class="dt-card-label" data-i18n="dual_translation.your_translation_label">Your translation</div>
+            <textarea id="dtReproduction" class="dt-textarea"
+                      data-i18n-placeholder="dual_translation.reproduction_placeholder"
+                      placeholder="Type your translation here…"></textarea>
+            <button id="dtSubmit" class="dt-submit" data-i18n="dual_translation.submit">Submit for feedback</button>
+        </div>
+    </div>
+
+    <!-- ===== PHASE 2: Result (feed-back / feed-forward) ===== -->
+    <div id="dtResult" style="display:none;">
+        <div class="dt-card">
+            <div class="dt-overall">
+                <span class="dt-overall-band" id="dtOverallBand">–</span>
+                <div>
+                    <div class="dt-card-label" style="margin:0;" data-i18n="dual_translation.overall_band">Overall band</div>
+                    <div class="dt-hint" id="dtSelfRateRecall" style="margin-top:2px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diff = centrepiece -->
+        <div class="dt-card">
+            <div class="dt-card-label" data-i18n="dual_translation.diff_heading">Reference vs. your translation</div>
+            <div class="dt-diff" id="dtDiff"></div>
+            <div class="dt-legend">
+                <span><span class="dt-swatch" style="background:#ecfdf5;border:1px solid #047857;"></span><span data-i18n="dual_translation.legend_reference">Reference</span></span>
+                <span><span class="dt-swatch" style="background:#fee2e2;border:1px solid #b91c1c;"></span><span data-i18n="dual_translation.legend_yours">What you wrote</span></span>
+            </div>
+        </div>
+
+        <!-- Per-dimension bands -->
+        <div class="dt-card">
+            <div class="dt-card-label" data-i18n="dual_translation.dimensions_heading">How it scored</div>
+            <div class="dt-dims" id="dtDims"></div>
+            <div id="dtNaturalnessToggleWrap" style="margin-top:12px; display:none;">
+                <button id="dtNaturalnessToggle" class="dt-reveal-btn" data-i18n="dual_translation.naturalness_show">Show naturalness (optional)</button>
+            </div>
+        </div>
+
+        <!-- Errors = feed-forward -->
+        <div class="dt-card">
+            <div class="dt-card-label" data-i18n="dual_translation.errors_heading">Points to notice</div>
+            <div id="dtErrors"></div>
+        </div>
+
+        <div class="dt-actions">
+            <button class="dt-secondary" id="dtTryAnother" data-i18n="dual_translation.try_another">Try another</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dual_translation.js') }}"></script>
+{% endblock %}
