@@ -117,7 +117,6 @@
         border: 1px solid var(--border-default); border-left: 4px solid #d97706;
         border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--bg-surface);
     }
-    .dt-error.sev-global { border-left-color: #b91c1c; }
     .dt-error-forms { font-size: 1.1rem; margin-bottom: 8px; }
     .dt-error-forms .dt-learner { color: #b91c1c; text-decoration: line-through; }
     .dt-error-forms .dt-arrow { color: var(--text-muted); margin: 0 8px; }
@@ -138,6 +137,56 @@
         border: 1px dashed var(--border-default); background: transparent;
         color: var(--text-muted); cursor: not-allowed;
     }
+
+    /* TASK-631: positive-evidence highlights, sitting under the diff. Each is a
+       span of the learner's own reproduction the detector flagged as a success. */
+    .dt-highlights {
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;
+        margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-default);
+    }
+    .dt-highlights-label {
+        flex-basis: 100%; font-size: 0.78rem; font-weight: 600; color: #047857;
+        letter-spacing: 0.02em;
+    }
+    .dt-highlight {
+        display: inline-flex; flex-direction: column; gap: 2px;
+        padding: 6px 10px; border-radius: 8px; background: #ecfdf5; border: 1px solid #a7f3d0;
+    }
+    .dt-highlight .dt-hl-text { font-size: 1rem; color: #065f46; font-weight: 600; }
+    .dt-highlight .dt-hl-reason {
+        font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.03em; color: #047857;
+    }
+
+    /* TASK-631: per-dimension computed "because" line, client-derived from
+       errors + bands. Kept quiet — the error-profile trend is the headline. */
+    .dt-dim .dt-dim-because {
+        font-size: 0.68rem; color: var(--text-muted); margin-top: 6px; line-height: 1.3;
+    }
+
+    /* TASK-631: three-level severity chips (was two — minor previously unstyled). */
+    .dt-chip.sev-minor { background: #fef9c3; color: #854d0e; }
+    .dt-chip.sev-major { background: #ffedd5; color: #9a3412; }
+    .dt-chip.sev-critical { background: #fee2e2; color: #991b1b; }
+
+    /* TASK-631: card border-left tracks the worst severity, three levels. */
+    .dt-error.sev-card-minor { border-left-color: #d97706; }
+    .dt-error.sev-card-major { border-left-color: #ea580c; }
+    .dt-error.sev-card-critical { border-left-color: #b91c1c; }
+
+    /* TASK-631: Rule (general) and Application (this-sentence) as distinct layers. */
+    .dt-expl-rule { font-size: 0.95rem; color: var(--text-secondary); }
+    .dt-expl-application {
+        font-size: 0.95rem; color: var(--text-primary); margin-top: 6px;
+        padding-left: 10px; border-left: 3px solid var(--primary);
+    }
+
+    /* TASK-631: "next focus" feed-forward line above the error list. */
+    .dt-next-focus {
+        padding: 10px 12px; margin-bottom: 12px; border-radius: 8px;
+        background: var(--bg-page); border: 1px solid var(--border-default);
+    }
+    .dt-next-focus .dt-nf-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+    .dt-next-focus .dt-nf-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
 
     .dt-actions { display: flex; gap: 12px; margin-top: 8px; }
     .dt-actions button {
@@ -206,6 +255,11 @@
 
     <!-- ===== PHASE 2: Result (feed-back / feed-forward) ===== -->
     <div id="dtResult" style="display:none;">
+        <!-- TASK-628: shown when the v2 grade is provisional (a grading pass failed).
+             Minimal notice; the full provisional UX is TASK-631. -->
+        <div id="dtProvisionalNotice"
+             style="display:none; margin-bottom:12px; padding:10px 14px; border-radius:8px; background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-size:0.9rem;"
+             data-i18n="dual_translation.grading_incomplete">Grading didn't finish — submit again to get full feedback.</div>
         <div class="dt-card">
             <div class="dt-overall">
                 <span class="dt-overall-band" id="dtOverallBand">–</span>
@@ -224,6 +278,9 @@
                 <span><span class="dt-swatch" style="background:#ecfdf5;border:1px solid #047857;"></span><span data-i18n="dual_translation.legend_reference">Reference</span></span>
                 <span><span class="dt-swatch" style="background:#fee2e2;border:1px solid #b91c1c;"></span><span data-i18n="dual_translation.legend_yours">What you wrote</span></span>
             </div>
+            <!-- TASK-631: positive-evidence highlights (v2 detector). Populated by
+                 renderHighlights(); stays hidden when the contract carries none. -->
+            <div class="dt-highlights" id="dtHighlights" style="display:none;"></div>
         </div>
 
         <!-- Per-dimension bands -->
@@ -238,6 +295,9 @@
         <!-- Errors = feed-forward -->
         <div class="dt-card">
             <div class="dt-card-label" data-i18n="dual_translation.errors_heading">Points to notice</div>
+            <!-- TASK-631: "next focus" — top recurring subtype in this submission.
+                 Populated by renderNextFocus(); hidden when there are no errors. -->
+            <div class="dt-next-focus" id="dtNextFocus" style="display:none;"></div>
             <div id="dtErrors"></div>
         </div>
 

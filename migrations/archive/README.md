@@ -19,12 +19,16 @@ because they remain the sole repo record of other still-live objects.
 | `process_test_submission_v2.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
 | `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
 | `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present (see CR-04 caveat below) |
-| `fix_get_recommended_tests_signature.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent + pinyin + dictation filter present |
-| `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent present |
-| `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `add_pitch_accent_to_get_recommended_tests.sql` | pitch_accent present |
+| `fix_get_recommended_tests_signature.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
+| `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
+| `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
+| `add_pitch_accent_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present (TASK-702) |
 | `get_distractors_drop_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
 | `restore_get_distractors_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
-| `phase13_build_daily_session_test_objs.sql` | `build_daily_session(uuid,smallint,date)` | `phase13_build_daily_session_classifier_drill.sql` | `classifier_drill` present |
+| `phase13_build_daily_session_test_objs.sql` | `build_daily_session(uuid,smallint,date)` | `task702_build_daily_session.sql` | `requested_counts` / `slot_type='replay'` present |
+| `phase13_build_daily_session_classifier_drill.sql` | `build_daily_session(uuid,smallint,date)` | `task702_build_daily_session.sql` | `requested_counts` / `slot_type='replay'` present (TASK-702) |
+| `phase12_deprecation_wrappers.sql` | `get_exercise_session(...)`, `get_ladder_session(...)` | *(dropped — no canonical)* | both `DROP`ped by `phase17_drop_deprecation_wrappers.sql` (TASK-220) |
+| `phase13_record_session_progress.sql` | `record_session_progress(uuid,smallint,uuid,text,text,int,int)` | `phase18_practice_time_seconds.sql` | 8-arg signature with `p_delta_seconds`; accrues `practice_completed_*_sec` and derives `*_min` (TASK-701) |
 
 ## Note: CR-04 drift parked in `phase14_test_kfactor_decay.sql`
 

@@ -70,6 +70,16 @@ def final(taxonomies) -> dict:
     return taxonomies[4]
 
 
+@pytest.fixture(autouse=True)
+def _clear_grader_cascade_caches():
+    """get_active_taxonomy caches process-wide (TASK-642); drop it either side of
+    every test so each seed version is really re-read rather than served from a
+    sibling module's cached taxonomy."""
+    grader_cascade.clear_caches()
+    yield
+    grader_cascade.clear_caches()
+
+
 # Minimal fake Supabase query-builder returning the seeded taxonomy row (mirrors the
 # baseline test), so the REAL get_active_taxonomy code runs end-to-end.
 class _FakeResult:
@@ -192,7 +202,7 @@ def test_subtype_index_round_trips_through_decode_error(final, l1_code, l2_code)
             "subtype": i, "learner_form": "L", "corrected_form": "C",
             "confidence": 0.9, "is_mistake": False,
         }
-        decoded = grader_cascade._decode_error(raw, subs, final, l1_code)
+        decoded = grader_cascade._decode_error(raw, subs, final, l1_code, "L", "C")
         assert decoded is not None, (l1_code, l2_code, i)
         assert decoded["subtype"] == slug, (l1_code, l2_code, i, slug)
         assert decoded["category"] == prompts.CATEGORY_ENUM[0]

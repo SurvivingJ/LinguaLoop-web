@@ -1,7 +1,7 @@
 # routes/exercises.py
 """Exercise practice routes — browse, attempt, and track exercises."""
 
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, redirect
 from datetime import datetime, timezone
 import logging
 
@@ -112,25 +112,18 @@ def get_exercises() -> ApiResponse:
 
 @exercises_bp.route('/session', methods=['GET'])
 @supabase_jwt_required
-def get_exercise_session() -> ApiResponse:
-    """Get today's exercise session (computed or cached).
+def exercise_session_redirect():
+    """DEPRECATED (TASK-220) — 302 to the canonical Practice surface.
 
-    Query params:
-        language_id: required
+    The standalone Exercises page was retired; the merged Practice Engine
+    (/api/practice/session) is the single session source. This redirect is
+    kept only so bookmarked / straggler callers land on the canonical
+    endpoint. `auto` mode mirrors the legacy daily-mixed-session behaviour.
     """
-    try:
-        language_id = request.args.get('language_id', type=int)
-        if not language_id:
-            return bad_request("language_id required")
-
-        from services.exercise_session_service import get_exercise_session_service
-        service = get_exercise_session_service()
-        session = service.get_or_create_daily_session(g.current_user_id, language_id)
-        return api_success({"session": session})
-
-    except Exception as e:
-        logger.error(f"Error fetching exercise session: {e}")
-        return server_error("Failed to fetch exercise session")
+    language_id = request.args.get('language_id', '')
+    return redirect(
+        f"/api/practice/session?mode=auto&language_id={language_id}", code=302
+    )
 
 
 @exercises_bp.route('/session/complete', methods=['POST'])
@@ -145,8 +138,8 @@ def complete_session_exercise() -> ApiResponse:
         if not data or 'exercise_id' not in data or 'language_id' not in data:
             return bad_request("exercise_id and language_id required")
 
-        from services.exercise_session_service import get_exercise_session_service
-        service = get_exercise_session_service()
+        from services.practice_session_service import get_practice_session_service
+        service = get_practice_session_service()
         result = service.mark_exercise_complete(
             g.current_user_id,
             data['language_id'],
@@ -180,8 +173,8 @@ def submit_attempt() -> ApiResponse:
                 'exercise_type': 'jumbled_sentence',
             })
 
-        from services.exercise_session_service import get_exercise_session_service
-        service = get_exercise_session_service()
+        from services.practice_session_service import get_practice_session_service
+        service = get_practice_session_service()
         result = service.record_attempt_with_updates(
             user_id=current_user_id,
             exercise_id=data['exercise_id'],

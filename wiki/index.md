@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-07-04 (TASK-616 dual-translation taxonomy localisation + rubric v2 weight bump, applied live — see log.md 2026-07-04) | Pages: 87
+Last updated: 2026-07-19 (TASK-632 final eval — Evidence-First v2 LIVE, [[evaluations/dt-grading-v2-2026-07-19]] filed; v1 cascade pages deprecated) | Pages: 95
 
 ## Overview
 - [[overview/project]] — What LinguaLoop is and why it exists
@@ -65,6 +65,10 @@ Last updated: 2026-07-04 (TASK-616 dual-translation taxonomy localisation + rubr
 - [[algorithms/ladder-implementation-analysis.tech]] — Ladder technical analysis with consolidation proposals
 - [[algorithms/translation-grading-cascade]] — **NEW 2026-06-23**: Tier-0-deterministic-first grading ladder for dual translation
 - [[algorithms/translation-grading-cascade.tech]] — Tiers, OpenRouter slugs, prompt caching, budget guardrails
+- [[algorithms/evidence-first-grading]] — **NEW 2026-07-04 (planned)**: DT grading v2 — scores computed from severity-weighted errors (MQM), Detector/Verifier split, 3-layer explanations, eval harness; research-grounded
+- [[algorithms/evidence-first-grading.tech]] — Full v2 spec: derived scoring formulas, taxonomy v5, complete Detector/Verifier/Explainer prompts (EN/ZH/JA), rollout phases
+- [[algorithms/daily-session-implementation-analysis]] — **NEW 2026-07-05**: Daily training pipeline audit — 4 verdicts (HTML ready-ish; 6 types covered; scheduling broken ×3; no interleaving)
+- [[algorithms/daily-session-implementation-analysis.tech]] — Findings F1–F16 with file/line evidence and fix sketches (weekly seeding, 0-ms practice, silent hydration shortfall, …)
 
 ## Database
 - [[database/schema]] — Data model overview (10 domains, 62 tables, complete from Supabase)
@@ -102,20 +106,27 @@ Last updated: 2026-07-04 (TASK-616 dual-translation taxonomy localisation + rubr
 - [[decisions/ADR-016-per-pair-error-taxonomy]] — **NEW**: per-user L1 → directed-pair taxonomy + per-L1 references
 - [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]] — **NEW**: standalone surface, L1→L2-only MVP, reuse-as-code
 - [[decisions/ADR-018-level-neutral-grading]] — **NEW**: level-neutral grading (difficulty controlled at selection); only naturalness is tier-dependent
+- [[decisions/ADR-019-evidence-first-scoring]] — **PROPOSED 2026-07-04**: derived (computed) scores from severity-weighted errors; severity triad; Detector/Verifier roles; instance-specific Application explanation layer (revises ADR-015)
+- [[decisions/ADR-020-late-symbolic-resolution-must-fail-safe]] — **PROPOSED 2026-07-15**: a slug referencing an independently versioned artifact must never fall back into the value space (`enum[0]`); analyses the TASK-637 JA `particle` bug as the 4th instance of one class; proposes fail-safe resolution, a cross-artifact reference test, and `requires_taxonomy_version` pinning
 
 ## Task Lists
-- [[tasklist/master]] — All tasks, current status
-- [[tasklist/practice-merger.tasks]] — Practice Engine merger task breakdown — **NEW 2026-05-21**
-- [[tasklist/study-plans.tasks]] — Study Plans task breakdown
-- [[tasklist/ladder-judge-layer.tasks]] — Ladder Judge Layer (Phase 4): per-level + P1 judges, reject-rate dashboard — **NEW 2026-06-07**
-- [[tasklist/exercise-generation-v2.tasks]] — Exercise Generation v2 (TASK-501–536): consolidation, JA bootstrap, capability matrix, batch run, CJK depth — **NEW 2026-06-11**
-- [[tasklist/language-packs.tasks]] — Language Packs task breakdown
-- [[tasklist/dual-translation.tasks]] — **NEW 2026-06-23**: Dual Translation (TASK-600–617): 4-stage build — grading MVP, error synthesis, spaced remediation, localisation
+- [[tasklist/master]] — **Rebuilt 2026-07-13**: incomplete tasks only, cross-checked against the live codebase + Supabase (found Practice Engine Merger and Study Plans nearly fully shipped but unchecked — see the file's "Recently confirmed complete" section)
+- [[tasklist/archive/master-pre-2026-07-13-audit]] — Prior master.md snapshot, superseded
+- [[tasklist/archive/practice-merger.tasks]] — Practice Engine merger task breakdown (11/12 done; only TASK-111 open) — archived
+- [[tasklist/archive/study-plans.tasks]] — Study Plans task breakdown (19/20 done; only TASK-220 open) — archived
+- [[tasklist/archive/ladder-judge-layer.tasks]] — Ladder Judge Layer (Phase 4) — **fully complete**, archived
+- [[tasklist/archive/exercise-generation-v2.tasks]] — Exercise Generation v2 (TASK-501–536): consolidation, JA bootstrap, capability matrix, batch run, CJK depth — archived
+- [[tasklist/archive/language-packs.tasks]] — Language Packs task breakdown (blocked, design resolution needed) — archived
+- [[tasklist/archive/dual-translation.tasks]] — Dual Translation (TASK-600–620): 4-stage build — grading MVP, error synthesis, spaced remediation, localisation (TASK-609 confirmed done in the audit) — archived
+- [[tasklist/archive/evidence-first-grading.tasks]] — DT Grading v2 (TASK-621–649): measure → prompts → structural → UX + hardening batch; implements ADR-019 — archived
+- [[tasklist/archive/daily-session-hardening.tasks]] — Daily Session hardening (TASK-700–713): weekly seeding, practice timing, shortfall telemetry, interleaving, retry slots, UX/a11y — archived
 
 ## Lessons
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
 
 ## Evaluations
+- [[evaluations/dt-grading-v2-2026-07-19]] — Evidence-First v2 final eval (TASK-632): Detector/Verifier + derived scoring + rubric v6 candidate; EN span F1 .941 / clean FP .000 / overall QWK .824, JA .880/.100/.419, ZH per page; per-phase progression 622→632; `DT_FRAMEWORK_V2` flipped ON on this pass; v6 live apply owed (TASK-629).
+- [[evaluations/dt-grading-baseline-2026-07-05]] — DT grading v1 baseline (TASK-622): Tier-0 near-exact gate resolved 83/90 gold items (all 45 single-error seeds) to full marks before detection; recall is the floor (EN .222 / JA .111 / ZH .000), overall-band QWK EN .516 / JA .186 / ZH .000, clean-FP 0.000 across all L2s; regression floor for TASK-623+.
 - [[evaluations/exercise-pipeline-eval-2026-06-09]] — `services/exercise_generation` EN vocab pipeline eval: configured model `google/gemini-flash-1.5` is 404-delisted + missing/inactive templates (dead on arrival); once unblocked, 59% accept / 27% reject over 160 EN exercises (tl_nl_translation degenerate, semantic_discrimination mislabels valid English); cloze judge ships rejected distractors anyway. ZH unmeasured (qwen 429).
 
 ## Reviews

@@ -9,11 +9,11 @@ open_questions: []
 
 # Vocab Dojo
 
-> **DEPRECATED — see [[features/practice-engine]].** As of 2026-05-21, Vocab Dojo is folded into the merged Practice Engine alongside [[features/exercises|Exercises]]. The `/api/vocab-dojo/session` route remains as a thin wrapper around `get_practice_session('acquisition', ...)` for one release; the canonical surface is `/api/practice/session?mode=acquisition&minutes=...`. Gate and stress-test endpoints (`/api/vocab-dojo/gate`, `.../gate/result`, `.../stress-test`, `.../stress-test/result`) are unchanged — they still call `ladder_pass_gate` / stress logic directly. Decision rationale in [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+> **RETIRED 2026-07-14 (TASK-220) — see [[features/practice-engine]].** The standalone `/vocab-dojo` page (route, template, and nav link) has been removed, the `get_ladder_session` wrapper RPC dropped, and `/api/vocab-dojo/session` now **302s** to `/api/practice/session?mode=acquisition`. The canonical surface is the unified `/session` Practice player. The gate and stress-test endpoints (`/api/vocab-dojo/gate`, `.../gate/result`, `.../stress-test`, `.../stress-test/result`) plus `/api/vocab-dojo/word/<sense_id>/exercises` are **unchanged** — they still call `ladder_pass_gate` / stress logic directly and remain live. Original merger context (2026-05-21) per [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 >
 > The open-question about whether the daily mixed session should surface ladder content is resolved by the merger: there is no longer a separate daily mixed session.
 >
-> Content below describes the legacy single-surface design and is preserved for historical context until the deprecation wrapper is removed.
+> Content below describes the legacy single-surface design and is preserved for historical context only.
 
 ## Purpose
 

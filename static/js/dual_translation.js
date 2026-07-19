@@ -12,8 +12,16 @@
  *   GET /next  -> { submission_id, l1_text, age_tier, rubric_descriptors }
  *   POST /submit -> { scores{dim:1-4}, overall_band, diff[{op,correct,user}],
  *                     errors[{category,subtype,source,severity,learner_form,
- *                             corrected_form,explanation,confidence,is_mistake}],
- *                     grader_trace }
+ *                             corrected_form,explanation,confidence,is_mistake,
+ *                             explanation_parts{rule,application|null}}],
+ *                     highlights[{span_reproduction:[a,b],reason}],
+ *                     provisional, grader_trace }
+ *
+ * TASK-631 (Result UI v2) surfaces the v2 signal the contract now carries:
+ * positive-evidence highlights on the diff, client-derived per-dimension "because"
+ * lines, three-level severity chips, the provisional banner, a feed-forward "next
+ * focus" line, and Rule/Application as distinct explanation layers. `highlights`
+ * and `explanation_parts` are absent on v1/cached grades and degrade gracefully.
  */
 (function () {
   'use strict';
@@ -23,6 +31,76 @@
   // routes/dual_translation.py::_rubric_descriptors_for.
   const DIMENSIONS = ['accuracy', 'understandability', 'fidelity', 'range', 'naturalness'];
   const NATURALNESS_HIDDEN_TIERS = [1, 2];
+
+  // TASK-639/TASK-631: single source of truth for how a severity presents. The MQM
+  // triad (TASK-625) now styles all three levels distinctly — `chipClass` on the
+  // severity chip, `cardClass` on the error card's left border (minor was previously
+  // unstyled; the three-level chips are a TASK-631 acceptance criterion).
+  const SEVERITY_META = {
+    minor: {
+      chipClass: 'sev-minor',
+      cardClass: 'sev-card-minor',
+      i18nKey: 'dual_translation.severity.minor',
+    },
+    major: {
+      chipClass: 'sev-major',
+      cardClass: 'sev-card-major',
+      i18nKey: 'dual_translation.severity.major',
+    },
+    critical: {
+      chipClass: 'sev-critical',
+      cardClass: 'sev-card-critical',
+      i18nKey: 'dual_translation.severity.critical',
+    },
+  };
+
+  // Ascending impact — used to pick the "worst" severity that drives a because-line.
+  const SEVERITY_ORDER = ['minor', 'major', 'critical'];
+
+  // Pre-triad vocabulary. dt_severity_triad.sql backfilled the live rows, but an
+  // un-migrated environment (or a _cached_grade row served verbatim) can still
+  // carry these, and their i18n keys are gone from the locale files.
+  const LEGACY_SEVERITY = { global: 'major', local: 'minor' };
+
+  function canonicalSeverity(severity) {
+    return LEGACY_SEVERITY[severity] || severity;
+  }
+
+  function severityMeta(severity) {
+    const canonical = canonicalSeverity(severity);
+    return (
+      SEVERITY_META[canonical] || {
+        chipClass: '',
+        cardClass: '',
+        i18nKey: 'dual_translation.severity.' + canonical,
+      }
+    );
+  }
+
+  // TASK-631: client-side proxy mapping the model's per-error `category` axis
+  // (grammatical/lexical/pragmatic_expressional) onto the scored *dimension* a
+  // because-line describes. The authoritative subtype->dimension map lives in the
+  // taxonomy `subtype_meta`, which is NOT in the /submit contract (the AC forbids
+  // new API surface), so a because-line attributes errors by this correlation —
+  // approximate, but the error-profile trend stays the headline (anti-gamification).
+  // accuracy <- grammatical; fidelity <- lexical. understandability draws on ALL
+  // errors (severity axis); range/naturalness are model-judged, not error-derived.
+  const CATEGORY_DIMENSION = {
+    grammatical: 'accuracy',
+    lexical: 'fidelity',
+    pragmatic_expressional: 'naturalness',
+  };
+
+  // Dims scored by a judgment of the whole reproduction rather than by discrete
+  // error instances (mirrors scoring.JUDGE_DIMENSIONS) — their because-line is the
+  // "judged from your whole translation" phrase, not an error tally.
+  const JUDGED_DIMS = ['range', 'naturalness'];
+
+  const BECAUSE_KEY = {
+    minor: 'dual_translation.because_minor',
+    major: 'dual_translation.because_major',
+    critical: 'dual_translation.because_critical',
+  };
 
   // TASK-617 seam. Default keeps the eager, direct+metalinguistic feedback the
   // rest of the feature was designed around; 'flag_only' hides the correction
@@ -36,6 +114,9 @@
     submitting: false,
     naturalnessShown: false,
     lastContract: null,
+    // TASK-631: the reproduction the learner just submitted, kept so highlight
+    // spans (char offsets into this string) can slice out their evidence text.
+    reproduction: '',
   };
 
   const el = {};
@@ -114,12 +195,15 @@
       'dtReproduction',
       'dtSubmit',
       'dtResult',
+      'dtProvisionalNotice',
       'dtOverallBand',
       'dtSelfRateRecall',
       'dtDiff',
+      'dtHighlights',
       'dtDims',
       'dtNaturalnessToggleWrap',
       'dtNaturalnessToggle',
+      'dtNextFocus',
       'dtErrors',
       'dtTryAnother',
     ].forEach(function (id) {
@@ -261,6 +345,7 @@
     }
     const contract = await resp.json();
     state.lastContract = contract;
+    state.reproduction = reproduction;
     state.submitting = false;
     renderResult(contract);
   }
@@ -277,6 +362,13 @@
 
   // ----------------------------------------------------------- render result
   function renderResult(contract) {
+    // TASK-628: a provisional grade means a grading pass failed (v2). Show the
+    // "grading incomplete — retry" notice; when both passes failed the contract
+    // also has no scores/overall_band, so the '–' fallback below still holds.
+    if (el.provisionalNotice) {
+      el.provisionalNotice.style.display = contract.provisional ? 'block' : 'none';
+    }
+
     el.overallBand.textContent = contract.overall_band != null ? contract.overall_band : '–';
 
     if (state.selfRating != null) {
@@ -289,7 +381,9 @@
     }
 
     renderDiff(contract.diff || []);
+    renderHighlights(contract.highlights || [], state.reproduction || '');
     renderDims(contract.scores || {});
+    renderNextFocus(contract.errors || []);
     renderErrors(contract.errors || []);
 
     showPhase('result');
@@ -342,8 +436,120 @@
       '<span class="text-slate-500">' + escapeHtml(tr('dual_translation.diff_empty')) + '</span>';
   }
 
+  // TASK-631: positive-evidence highlights from the v2 detector, shown under the
+  // diff. Each is {span_reproduction:[a,b], reason} where the span indexes the
+  // learner's reproduction (the same string submitted, kept in state.reproduction).
+  // Absent/empty -> hide the strip entirely (graceful on v1/cached grades).
+  function renderHighlights(highlights, reproduction) {
+    if (!el.highlights) return;
+    const cards = (highlights || [])
+      .map(function (h) {
+        if (!h || !Array.isArray(h.span_reproduction)) return '';
+        const text = String(reproduction).slice(h.span_reproduction[0], h.span_reproduction[1]);
+        if (!text) return '';
+        const reasonLabel = label(
+          'dual_translation.highlight_reason.' + h.reason,
+          humanize(h.reason)
+        );
+        return (
+          '<div class="dt-highlight">' +
+          '<span class="dt-hl-text">' +
+          escapeHtml(text) +
+          '</span>' +
+          '<span class="dt-hl-reason">' +
+          escapeHtml(reasonLabel) +
+          '</span>' +
+          '</div>'
+        );
+      })
+      .filter(Boolean)
+      .join('');
+    if (!cards) {
+      el.highlights.innerHTML = '';
+      el.highlights.style.display = 'none';
+      return;
+    }
+    el.highlights.innerHTML =
+      '<div class="dt-highlights-label">' +
+      escapeHtml(tr('dual_translation.highlights_heading')) +
+      '</div>' +
+      cards;
+    el.highlights.style.display = 'flex';
+  }
+
+  // TASK-631: feed-forward "next focus" — the most frequent subtype among this
+  // submission's real (non-is_mistake) errors. It will link into remediation once
+  // Feature 2 (drill cards) is user-facing; for now it names the focus and notes
+  // that targeted practice is coming. Hidden when there are no errors to focus on.
+  function renderNextFocus(errors) {
+    if (!el.nextFocus) return;
+    const counts = {};
+    (errors || []).forEach(function (e) {
+      if (!e || e.is_mistake || !e.subtype) return;
+      counts[e.subtype] = (counts[e.subtype] || 0) + 1;
+    });
+    let top = null;
+    let topN = 0;
+    Object.keys(counts).forEach(function (s) {
+      if (counts[s] > topN) {
+        topN = counts[s];
+        top = s;
+      }
+    });
+    if (!top) {
+      el.nextFocus.innerHTML = '';
+      el.nextFocus.style.display = 'none';
+      return;
+    }
+    el.nextFocus.innerHTML =
+      '<div class="dt-nf-title">' +
+      escapeHtml(tr('dual_translation.next_focus', { subtype: humanize(top) })) +
+      '</div>' +
+      '<div class="dt-nf-hint">' +
+      escapeHtml(tr('dual_translation.next_focus_hint')) +
+      '</div>';
+    el.nextFocus.style.display = 'block';
+  }
+
+  // TASK-631: a per-dimension "because" line derived entirely client-side from the
+  // errors + bands already in the contract (no new API surface). Judged dims get a
+  // fixed "judged from your whole translation" phrase; error-driven dims get a terse
+  // tally of the worst-severity errors attributed to them, or a clean phrase when none.
+  function becauseLineFor(dim, errors) {
+    if (JUDGED_DIMS.indexOf(dim) !== -1) {
+      return tr('dual_translation.because_judged');
+    }
+    const relevant = errorsForDimension(dim, errors);
+    if (!relevant.length) {
+      return tr('dual_translation.because_clean');
+    }
+    let worstRank = 0;
+    relevant.forEach(function (e) {
+      const r = SEVERITY_ORDER.indexOf(canonicalSeverity(e.severity));
+      if (r > worstRank) worstRank = r;
+    });
+    const worst = SEVERITY_ORDER[worstRank];
+    const count = relevant.filter(function (e) {
+      return canonicalSeverity(e.severity) === worst;
+    }).length;
+    return tr(BECAUSE_KEY[worst], { count: count });
+  }
+
+  // Errors a dimension's because-line should tally. is_mistake errors are acceptable
+  // variations that never drove a band down, so they're excluded. understandability
+  // draws on every real error (severity axis); accuracy/fidelity on the
+  // CATEGORY_DIMENSION-attributed subset.
+  function errorsForDimension(dim, errors) {
+    return (errors || []).filter(function (e) {
+      if (!e || e.is_mistake) return false;
+      if (dim === 'understandability') return true;
+      return CATEGORY_DIMENSION[e.category] === dim;
+    });
+  }
+
   function renderDims(scores) {
     const hideNaturalness = NATURALNESS_HIDDEN_TIERS.indexOf(state.ageTier) !== -1;
+    const errors = (state.lastContract && state.lastContract.errors) || [];
     el.dims.innerHTML = '';
 
     DIMENSIONS.forEach(function (dim) {
@@ -364,6 +570,11 @@
         '<div class="dt-dim-band">' +
         escapeHtml(band) +
         '</div>';
+      // TASK-631: computed "because" line — why this dim landed on this band.
+      const because = becauseLineFor(dim, errors);
+      if (because) {
+        html += '<div class="dt-dim-because">' + escapeHtml(because) + '</div>';
+      }
       if (dim === 'naturalness') {
         html +=
           '<div class="dt-dim-tag">' +
@@ -395,13 +606,14 @@
 
   function buildErrorCard(err, idx) {
     const card = document.createElement('div');
-    card.className = 'dt-error' + (err.severity === 'global' ? ' sev-global' : '');
+    const sev = severityMeta(err.severity);
+    card.className = 'dt-error' + (sev.cardClass ? ' ' + sev.cardClass : '');
 
     const chips =
       '<div class="dt-chips">' +
       chip(label('dual_translation.category.' + err.category, humanize(err.category))) +
       chip(humanize(err.subtype)) +
-      chip(label('dual_translation.severity.' + err.severity, humanize(err.severity))) +
+      chip(label(sev.i18nKey, humanize(err.severity)), sev.chipClass) +
       (err.source
         ? chip(label('dual_translation.source.' + err.source, humanize(err.source)))
         : '') +
@@ -419,7 +631,7 @@
       escapeHtml(err.corrected_form) +
       '</span>' +
       '</div>';
-    const expl = '<div class="dt-error-expl">' + escapeHtml(err.explanation) + '</div>';
+    const expl = buildExplanation(err);
 
     const drill =
       '<button class="dt-drill-btn" disabled title="' +
@@ -459,8 +671,33 @@
     return card;
   }
 
-  function chip(text) {
-    return '<span class="dt-chip">' + escapeHtml(text) + '</span>';
+  function chip(text, extraClass) {
+    return (
+      '<span class="dt-chip' +
+      (extraClass ? ' ' + extraClass : '') +
+      '">' +
+      escapeHtml(text) +
+      '</span>'
+    );
+  }
+
+  // TASK-631: render the explanation as distinct Rule (general) and Application
+  // (this-sentence) layers when the v2 contract carries explanation_parts (TASK-630),
+  // falling back to the flat explanation string for v1/cached grades that lack the
+  // breakdown. All model-derived text is HTML-escaped (AC).
+  function buildExplanation(err) {
+    const parts = err.explanation_parts;
+    if (parts && typeof parts === 'object') {
+      let inner = '';
+      if (parts.rule) {
+        inner += '<div class="dt-expl-rule">' + escapeHtml(parts.rule) + '</div>';
+      }
+      if (parts.application) {
+        inner += '<div class="dt-expl-application">' + escapeHtml(parts.application) + '</div>';
+      }
+      if (inner) return '<div class="dt-error-expl">' + inner + '</div>';
+    }
+    return '<div class="dt-error-expl">' + escapeHtml(err.explanation || '') + '</div>';
   }
 
   function showError(message) {

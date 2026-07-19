@@ -189,11 +189,11 @@ def _initialize_services(app):
 
             # Initialize dimension table cache for fast lookups (use service client to bypass RLS)
             from services.test_service import get_test_service
-            from services.exercise_session_service import get_exercise_session_service
+            from services.practice_session_service import get_practice_session_service
             DimensionService.initialize(app.supabase_service)
             app.test_service = get_test_service()  # Singleton for reuse
-            app.exercise_session_service = get_exercise_session_service()
-            app.logger.info("DimensionService cache, TestService, and ExerciseSessionService initialized")
+            app.practice_session_service = get_practice_session_service()
+            app.logger.info("DimensionService cache, TestService, and PracticeSessionService initialized")
         else:
             raise ValueError("Missing Supabase credentials")
     except Exception as e:
@@ -484,11 +484,6 @@ def _register_web_routes(app):
         """Render flashcards review page"""
         return render_template('flashcards.html')
 
-    @app.route('/exercises')
-    def exercises():
-        """Render exercises practice page"""
-        return render_template('exercises.html')
-
     @app.route('/mysteries')
     def mysteries():
         """Render mystery list page"""
@@ -510,11 +505,6 @@ def _register_web_routes(app):
             """Render listening lab player page"""
             return render_template('listening_lab.html')
 
-    @app.route('/vocab-dojo')
-    def vocab_dojo():
-        """Render vocabulary dojo page"""
-        return render_template('vocab_dojo.html')
-
     @app.route('/classifier-drill')
     def classifier_drill_page():
         """Render Chinese measure-word infinite trainer."""
@@ -524,6 +514,11 @@ def _register_web_routes(app):
     def dual_translation_page():
         """Render the dual-translation reproduce → diff-centric result UI (TASK-608)."""
         return render_template('dual_translation.html')
+
+    @app.route('/dual-translation/profile')
+    def dual_translation_profile_page():
+        """Render the error-profile self-regulation dashboard (TASK-611)."""
+        return render_template('dual_translation_profile.html')
 
     @app.route('/admin/vocab-preview')
     def admin_vocab_preview():

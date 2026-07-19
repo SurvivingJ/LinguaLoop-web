@@ -8,7 +8,7 @@ import json
 import hashlib
 import logging
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from typing import Optional, Dict, List, Any, Tuple
 from uuid import uuid4
 
@@ -481,12 +481,37 @@ class TestService:
         # ------------------------------------------------------------------
         if Config.STUDY_PLAN_ENABLED and self._user_has_study_plan(user_id, language_id):
             try:
-                from services.study_plan_service import StudyPlanService
-                resolver_result = StudyPlanService(db=self.admin).build_daily_session(
-                    user_id, language_id,
-                )
+                from services.study_plan_service import StudyPlanService, _monday_of
+                svc = StudyPlanService(db=self.admin)
+                resolver_result = svc.build_daily_session(user_id, language_id)
+
+                # E_NOWEEK: no weekly_plan_states row exists for the target
+                # week (a freshly-created plan, or the Sunday pacer has not
+                # seeded it yet). Lazily compute the week once, then retry the
+                # resolver. This is rate-guarded by construction — it only fires
+                # on the absent-week code, never on a normal request — so the
+                # retry either succeeds or we fall through to legacy below.
+                if (isinstance(resolver_result, dict)
+                        and resolver_result.get('code') == 'E_NOWEEK'):
+                    raw_week = resolver_result.get('week_start')
+                    try:
+                        week_start = (
+                            date.fromisoformat(raw_week) if raw_week
+                            else _monday_of(date.today())
+                        )
+                    except (TypeError, ValueError):
+                        week_start = _monday_of(date.today())
+                    logger.info(
+                        'build_daily_session E_NOWEEK for user=%s lang=%s; '
+                        'lazily computing weekly plan for week=%s and retrying',
+                        user_id, language_id, week_start,
+                    )
+                    svc.compute_weekly_plan(user_id, language_id, week_start)
+                    resolver_result = svc.build_daily_session(user_id, language_id)
+
                 # Non-error result means the RPC UPSERTed; re-fetch + enrich.
                 if isinstance(resolver_result, dict) and 'error' not in resolver_result:
+                    self._log_hydration_shortfalls(user_id, language_id, resolver_result)
                     refetched = self.admin.table('daily_test_loads')\
                         .select('*')\
                         .eq('user_id', user_id)\
@@ -529,6 +554,48 @@ class TestService:
         }).execute()
 
         return self._enrich_daily_load(record.data[0])
+
+    @staticmethod
+    def _log_hydration_shortfalls(user_id: str, language_id: int, resolver_result: Dict) -> None:
+        """Emit a WARNING per skill where build_daily_session budgeted more test
+        slots than it could hydrate (TASK-702).
+
+        The resolver reports per-skill ``requested_counts`` (budgeted),
+        ``hydrated_counts`` (never-attempted / primary fill only) and
+        ``replay_counts`` (exhausted-pool fallback fill) in its return jsonb.
+        ``hydrated < requested`` means the never-attempted pool ran dry — the F3
+        failure class that silently dropped pinyin / pitch_accent /
+        classifier_drill slots in production. We WARN on that regardless of
+        whether replay covered the gap: replay is a band-aid, and a slot that
+        can only be filled by replaying old tests still signals a content
+        shortfall worth acting on. The message records how the gap resolved
+        (replay-covered vs slots dropped). Best-effort: never raise into the
+        daily-load path.
+        """
+        try:
+            requested = resolver_result.get('requested_counts') or {}
+            hydrated = resolver_result.get('hydrated_counts') or {}
+            replay = resolver_result.get('replay_counts') or {}
+            for skill, req in requested.items():
+                got = hydrated.get(skill, 0)
+                if got >= req:
+                    continue
+                covered = replay.get(skill, 0)
+                dropped = req - got - covered
+                if dropped > 0:
+                    resolution = (
+                        'replay covered %s, %s slot(s) DROPPED' % (covered, dropped)
+                    )
+                else:
+                    resolution = 'replay covered the %s-slot gap' % (req - got)
+                logger.warning(
+                    'build_daily_session hydration shortfall for user=%s '
+                    'lang=%s skill=%s: requested=%s hydrated=%s '
+                    '(never-attempted pool exhausted; %s)',
+                    user_id, language_id, skill, req, got, resolution,
+                )
+        except Exception as e:  # pragma: no cover - pure observability
+            logger.debug('shortfall logging skipped: %s', e)
 
     def _user_has_study_plan(self, user_id: str, language_id: int) -> bool:
         """Cheap probe: does user_study_plans have a row for (user, language)?"""

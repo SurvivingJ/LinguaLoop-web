@@ -22,7 +22,7 @@ breaking_change_risk: medium
 > - `dim_study_plan_templates(template_id PK, language_id FK, daily_minutes, weekly_test_counts jsonb, practice_total_minutes, base_maintenance_share=0.30, practice_minutes_flex_pct=0.25, is_default)` — 9 seed rows (3 langs × 3 buckets).
 > - `dim_study_goals(goal_id PK, goal_type, target_value, target_date, language_id FK)` — V2 placeholder, empty in V1.
 > - `user_study_plans(user_id, language_id) PK, template_id FK, daily_minutes CHECK 10–180, weekday_shape jsonb default [1,1,1,1,1,1,1], skill_weight_overrides jsonb default {}, goal_id FK nullable, timezone TEXT default 'UTC', created_at, updated_at)`.
-> - `weekly_plan_states(user_id, language_id, week_start_date) PK, target_counts jsonb, completed_counts jsonb default {}, practice_target_minutes, practice_completed_maint_min default 0, practice_completed_acq_min default 0, maintenance_share, acquisition_share, total_weekly_minutes, session_progress_log jsonb default {}, computed_at)` + index on `week_start_date`.
+> - `weekly_plan_states(user_id, language_id, week_start_date) PK, target_counts jsonb, completed_counts jsonb default {}, practice_target_minutes, practice_completed_maint_sec int default 0, practice_completed_acq_sec int default 0, practice_completed_maint_min default 0, practice_completed_acq_min default 0, maintenance_share, acquisition_share, total_weekly_minutes, session_progress_log jsonb default {}, computed_at)` + index on `week_start_date`. The `_sec` columns are the seconds ledger (source of truth, TASK-701); the `_min` columns are derived reads (`ROUND(sec/60)`) the resolver consumes.
 >
 > **New columns on existing tables:**
 > - `test_attempts.started_at timestamptz`; `test_attempts.duration_ms integer` CHECK > 0 AND < 3_600_000.

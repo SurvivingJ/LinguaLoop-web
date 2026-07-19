@@ -96,7 +96,11 @@ def submit_practice_attempt() -> ApiResponse:
         exercise_id   : required (uuid str)
         is_correct    : required (bool)
         user_response : optional (dict)
-        time_taken_ms : optional (int)
+        time_taken_ms : optional (int) — render→submit elapsed for this item;
+                        drives weekly practice-minute accrual (TASK-701).
+        expected_seconds : optional (int) — the item's p50 time estimate;
+                        credited as a fallback when time_taken_ms is missing,
+                        zero, or absurdly large.
         session_mode  : optional ('acquisition'|'maintenance'); when set,
                         record_session_progress is called to bump the
                         weekly_plan_states counter for the right Practice
@@ -143,6 +147,7 @@ def submit_practice_attempt() -> ApiResponse:
             time_taken_ms=data.get('time_taken_ms'),
             session_mode=session_mode,
             language_id=data.get('language_id'),
+            expected_seconds=data.get('expected_seconds'),
         )
 
         if isinstance(result, dict) and result.get('error'):

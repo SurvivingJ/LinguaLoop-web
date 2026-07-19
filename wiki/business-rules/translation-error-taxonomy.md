@@ -1,8 +1,8 @@
 ---
 title: Translation Error Taxonomy
 type: business-rule
-status: planned
-last_updated: 2026-06-23
+status: complete
+last_updated: 2026-07-19
 open_questions:
   - "OPEN: value of N (recurrence threshold) and window W for promotion to SRS — tunable config, default proposed below."
 ---
@@ -12,22 +12,32 @@ open_questions:
 Versioned, language-scoped reference data (stored in `dt_taxonomy_version`, never hardcoded in
 application code). A shared cross-linguistic schema plus per-directed-pair subtype tables.
 
-> **Implementation status (TASK-616, live 2026-07-04):** shipped. `dt_taxonomy_version` **v4** carries all
-> six directed-pair subtype tables (`ja-en`, `zh-en`, `en-ja`, `zh-ja`, `en-zh`, `ja-zh`) plus the en/ja/zh
-> baselines, with enriched per-L1 templates / per-L2 glosses (EN article/preposition; JA particle は/が +
-> keigo teineigo/sonkeigo/kenjougo; ZH classifier 个-overuse + aspect 了/过/着). **Weights do NOT live in
-> the taxonomy** — the "weight overrides" below are dimension weights read only from
-> `dt_rubric_version.config.weights.by_language` by `grader_cascade.compute_overall_band`. TASK-616 raised
-> them in **rubric v2** (`ja.fidelity` 0.25→0.30, `zh.accuracy` 0.35→0.40). See
-> [[tasklist/dual-translation.tasks]] TASK-616 and [[algorithms/translation-grading-cascade.tech]].
+> **Implementation status (v5 live since 2026-07-13, TASK-626):** the active `dt_taxonomy_version`
+> is **v5** — per-L2 subtype sets grown to the evidence-first §5 sizes (**EN 15 / JA 17 / ZH 17**,
+> shared core 8), all six directed-pair tables + baselines, per-L1 templates / per-L2 glosses.
+> JA `particle` is **split** into `particle_wa_ga` / `particle_case` / `particle_other` (the old
+> `particle` survives only as a `historical_alias` in `subtype_meta` so v1–v4 stored rows still
+> resolve). New in v5: **`subtype_meta`** (33 entries) mapping every subtype to
+> `{dimension: accuracy|fidelity|naturalness, default_severity, treatable, cloze_suitable}` — this
+> is what the v2 derived scoring (`services/dual_translation/scoring.py`, live since TASK-632)
+> reads to attribute each error's penalty to a band dimension. **Weights do NOT live in the
+> taxonomy** — dimension weights are read from `dt_rubric_version.config.weights.by_language`
+> (raised in rubric v2: `ja.fidelity` 0.25→0.30, `zh.accuracy` 0.35→0.40). ZH/JA strings for the
+> 15 v5-new subtypes are AI-drafted, flagged for native review. See
+> [[tasklist/archive/evidence-first-grading.tasks]] TASK-626 and
+> [[algorithms/evidence-first-grading.tech]] §5.
 
 ## Shared cross-linguistic schema (every error is tagged on four axes)
 1. **category** — `grammatical` | `lexical` | `pragmatic_expressional`
 2. **source** — `interlingual` (L1 transfer) | `intralingual` (within-L2 overgeneralisation).
    Interlingual classification depends on the learner's **L1**, so it is defined per directed
    pair — see [[decisions/ADR-016-per-pair-error-taxonomy]].
-3. **severity** — `global` (impairs comprehension) | `local` (noticeable but meaning survives).
-   Global errors rank first in the profile.
+3. **severity** — the MQM triad `minor` | `major` | `critical` since TASK-625 (2026-07-06;
+   the original 2-level `global`/`local` was backfilled `local→minor` / `global→major`).
+   Reader-impact tests: minor = reads on; major = the reader stumbles or re-reads;
+   critical = meaning breaks or inverts. Severity drives the v2 derived scoring weights
+   (`severity_weights` 1/5/25, `understandability_weights` 0/2/25 — rubric config).
+   Critical/major errors rank first in the profile.
 4. **error vs mistake** — only **systematic errors** are remediated. A `mistake` is a
    self-corrected or one-off slip; it is logged but never drilled (Corder).
 

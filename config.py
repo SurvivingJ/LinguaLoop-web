@@ -128,6 +128,38 @@ class Config:
     DT_CORRECTION_ARMS = ('direct_metalinguistic', 'flag_only')
     DT_CORRECTION_STYLE = os.getenv('DT_CORRECTION_STYLE', 'experiment')
 
+    # Dual Translation — per-user/day token budget guardrail (TASK-601). Sum
+    # of dt_grade.grader_trace token counts (in+out) for a user's submissions
+    # since UTC midnight is compared against this each submit; at/over budget
+    # degrades the cascade to max_tier='tier1' (Tier 2 dimensions fail open to
+    # MAX_BAND) rather than hard-failing the submission. Operator-adjustable
+    # so a cost incident can be throttled without a code deploy.
+    DT_DAILY_TOKEN_BUDGET = int(os.environ.get('DT_DAILY_TOKEN_BUDGET', '20000'))
+
+    # Dual Translation — Evidence-First Grading v2 framework (TASK-628, ADR-019).
+    # Global config flag (ADR-013 rollout pattern), default OFF. When False the
+    # grading cascade runs the shipped v1 flow (Tier-1 accuracy/range + Tier-2
+    # rest, model-emitted band scores). When True it runs the v2 flow: a Detector
+    # call (errors + highlights, no scores) followed by a Verifier call (verdicts +
+    # added errors + naturalness/range judgments with mandatory evidence spans),
+    # a Python merge, then DERIVED severity-weighted scoring (services.dual_
+    # translation.scoring, TASK-627). Default ON since 2026-07-19 (TASK-632: the
+    # eval harness passed on the v2 stack — span F1 and clean-FP improved vs the
+    # Phase-1 baseline on EN/ZH, JA span F1 up with a one-item clean-FP caveat; see
+    # wiki/evaluations/dt-grading-v2-2026-07-19.md). Roll back by exporting
+    # DT_FRAMEWORK_V2=false — the v1 tier1/tier2 body is retained for exactly that.
+    # Requires the rubric v5+ config (scoring keys) to be active.
+    DT_FRAMEWORK_V2 = os.environ.get('DT_FRAMEWORK_V2', 'True').lower() == 'true'
+
+    # Dual Translation — v2 Tier-3 arbiter escalation (TASK-628, tech spec §2).
+    # Config-gated, default OFF (the existing reserved tier-3 slot). Only consulted
+    # under DT_FRAMEWORK_V2: when the Verifier rejects >= 50% of the Detector's
+    # proposed errors OR its own confidence < 0.5, a Tier-3 arbiter re-adjudicates
+    # the contested errors. Off by default so the two-call flow is the shipping
+    # behaviour; an operator turns this on only if the FP/rejection data warrants
+    # the third call's cost.
+    DT_TIER3_ARBITER_ENABLED = os.environ.get('DT_TIER3_ARBITER_ENABLED', 'False').lower() == 'true'
+
     # ==========================================================================
     # ELO & GAME CONSTANTS
     # ==========================================================================

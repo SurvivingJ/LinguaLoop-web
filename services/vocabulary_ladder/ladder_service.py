@@ -8,8 +8,8 @@ logic atomically in PostgreSQL:
   - ladder_pass_gate: threshold gate pass/fail
   - ladder_graduate: stress test → mastery → FSRS initialization
 
-Session building is handled by the get_ladder_session RPC (called from
-the vocab_dojo route) or by ExerciseSessionService (daily mixed session).
+Session building is handled by the merged Practice Engine
+(the get_practice_session RPC, via services.practice_session_service).
 
 This class provides:
   - record_attempt(): one-liner RPC call

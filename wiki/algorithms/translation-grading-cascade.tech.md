@@ -1,9 +1,9 @@
 ---
 title: Translation Grading Cascade — Technical Specification
 type: algorithm-tech
-status: planned
+status: deprecated
 prose_page: ./translation-grading-cascade.md
-last_updated: 2026-06-23
+last_updated: 2026-07-19
 dependencies:
   - "service: services.dictation.grader (Levenshtein WordDiff)"
   - "table: prompt_templates (OpenRouter slugs per language+stage)"
@@ -15,6 +15,15 @@ breaking_change_risk: low
 ---
 
 # Translation Grading Cascade — Technical Specification
+
+> **Superseded (2026-07-19, TASK-632):** the v2 Detector/Verifier flow
+> ([[algorithms/evidence-first-grading.tech]]) is the LIVE default — `Config.DT_FRAMEWORK_V2`
+> defaults ON; harness pass in [[evaluations/dt-grading-v2-2026-07-19]]. Sections below describing
+> the tier1/tier2 role split, model-emitted band scores, `CONFIDENCE_ESCALATION_THRESHOLD` /
+> `LARGE_DIFF_RATIO` escalation, and fail-open-to-MAX_BAND are v1-only and apply ONLY on the
+> `DT_FRAMEWORK_V2=false` rollback path. Still-current shared machinery: Tier 0
+> (normalization-class gate), `_decode_error`/`_reconcile_span_form` span repair, `_diff_regions`
+> candidate regions, taxonomy explanation templates, and the router/slug resolution.
 
 Objective function (from the brief): **minimize (calls × tokens × model-price)** while
 protecting quality on the two high-weight dimensions (`accuracy`, `understandability`).
@@ -146,8 +155,10 @@ post-grading explanation render, never shown to the model). A missing gloss fall
 slug and logs an authoring flag — same non-blocking pattern as a missing explanation template.
 
 **Raw per-tier model JSON** (L2-only prompt, `prompts.validate_raw_response` checks the outer
-shape; `grader_cascade._decode_error` validates each error and drops malformed entries individually
-rather than discarding the whole response):
+shape **and that `scores` carries a usable band for every dimension the tier was asked to grade** —
+`prompts.asked_dimensions(tier, extra_dims)`, the same helper that builds the score instruction, so
+validation cannot drift from the ask; `grader_cascade._decode_error` validates each error and drops
+malformed entries individually rather than discarding the whole response):
 ```json
 {
   "confidence": 0.0,
@@ -173,6 +184,18 @@ Tier 0 hasn't resolved (`understandability`/`fidelity`/`naturalness` are Tier-2-
 self-reported `confidence` is below the threshold or Tier 0's `mismatch_ratio` (now a field on
 `tier0.Tier0Result`, reused rather than re-diffed) exceeds the ratio.
 
+**Concurrent forced re-check (TASK-643):** the `mismatch_ratio > LARGE_DIFF_RATIO` branch forces
+the re-check *unconditionally*, so Tier 2's `extra_dims` (`= tier1_dims`) — and therefore its whole
+prompt — are fixed before Tier 1 runs. In that branch only, `grade_submission` submits the Tier-2
+`_call_tier` to a request-scoped `ThreadPoolExecutor(max_workers=1)` and drives Tier 1 on the main
+thread, joining at the existing Tier-2 merge point (`tier2_future.result()`). Trace/token/score/
+error merge order is byte-identical to the sequential path — only *where* the Tier-2 call runs
+changes — so the two multi-second model calls overlap instead of running back-to-back. The
+**confidence-gated** re-check stays sequential: its `extra_dims` depend on `tier1_confidence`, which
+doesn't exist until Tier 1 returns. Regression coverage: a 2-party barrier proves overlap on the
+forced path; a max-in-flight tracker proves none on the confidence path
+(`tests/test_dual_translation_grader_cascade.py`).
+
 **Fail-open, precisely:** a tier with no usable slug (router exhausted to `tier0`/`slug=None`) or
 a response that fails JSON parsing/shape validation contributes nothing — that tier's owned
 dimensions default to `MAX_BAND` (4) and add no errors, rather than hard-failing the submission.
@@ -183,6 +206,7 @@ Tier 0 marks on malformed grader JSON" for total-outage: never block the learner
 of an occasionally too-generous grade during an outage.
 
 ## Related Pages
+- [[algorithms/evidence-first-grading.tech]] — **v2 framework (planned, 2026-07-04)**: derived scores from severity-weighted errors, Detector/Verifier split, 3-layer explanations — supersedes this spec's grading logic by design when implemented
 - [[features/dual-translation.tech]] — where the cascade is invoked
 - [[features/dictation.tech]] — Tier 0 diff grader
 - [[features/model-arena.tech]] — OpenRouter pricing fetcher + runner pattern

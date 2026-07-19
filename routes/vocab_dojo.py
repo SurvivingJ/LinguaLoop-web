@@ -1,7 +1,7 @@
 # routes/vocab_dojo.py
 """Vocabulary Dojo routes — ladder sessions, attempts, and word preview."""
 
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, redirect
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
@@ -13,61 +13,20 @@ vocab_dojo_bp = Blueprint("vocab_dojo", __name__)
 
 @vocab_dojo_bp.route('/session', methods=['GET'])
 @supabase_jwt_required
-def get_dojo_session() -> ApiResponse:
-    """Get a vocabulary dojo session via the get_ladder_session RPC.
+def dojo_session_redirect():
+    """DEPRECATED (TASK-220) — 302 to the canonical Practice surface.
 
-    Query params:
-        language_id: required
-        count: optional (default 20)
+    The standalone Vocab Dojo page was retired; word-acquisition sessions are
+    now served by the merged Practice Engine (/api/practice/session) in
+    `acquisition` mode. This redirect is kept only so bookmarked / straggler
+    callers land on the canonical endpoint. Ladder lazy-init (formerly done
+    here) is handled inside the Practice Engine's acquisition path.
     """
-    try:
-        language_id = request.args.get('language_id', type=int)
-        if not language_id:
-            return bad_request("language_id required")
-
-        count = min(request.args.get('count', 20, type=int), 50)
-
-        from services.supabase_factory import get_supabase_admin
-        db = get_supabase_admin()
-
-        # Lazy-init: ensure user_word_ladder rows exist for words that have
-        # exercises but no ladder entry yet (e.g. newly uploaded words).
-        _ensure_ladder_rows(db, g.current_user_id, language_id)
-
-        resp = db.rpc('get_ladder_session', {
-            'p_user_id': g.current_user_id,
-            'p_language_id': language_id,
-            'p_count': count,
-        }).execute()
-
-        exercises = resp.data or []
-
-        # Prepare jumbled sentence content at serve time
-        from services.exercise_generation.language_processor import prepare_jumbled_content
-        from services.vocabulary_ladder.config import LADDER_LEVELS
-        for ex in exercises:
-            level = ex.get('out_ladder_level')
-            if level and level in LADDER_LEVELS:
-                ex['ladder_name'] = LADDER_LEVELS[level]['name']
-                ex['family'] = LADDER_LEVELS[level].get('family', '')
-
-            content = ex.get('out_content')
-            if (ex.get('out_exercise_type') == 'jumbled_sentence'
-                    and isinstance(content, dict)
-                    and 'chunks' not in content):
-                try:
-                    ex['out_content'] = prepare_jumbled_content(content, language_id)
-                except Exception as e:
-                    logger.error("Failed to prepare jumbled content: %s", e)
-
-        return api_success({
-            'exercises': exercises,
-            'count': len(exercises),
-        })
-
-    except Exception as e:
-        logger.error("Error building dojo session: %s", e)
-        return server_error("Failed to build vocabulary session")
+    language_id = request.args.get('language_id', '')
+    return redirect(
+        f"/api/practice/session?mode=acquisition&language_id={language_id}",
+        code=302,
+    )
 
 
 @vocab_dojo_bp.route('/attempt', methods=['POST'])
@@ -367,52 +326,3 @@ def submit_stress_test_result() -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting stress test result: %s", e, exc_info=True)
         return server_error("Failed to submit stress test result")
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _ensure_ladder_rows(db, user_id: str, language_id: int) -> None:
-    """Create user_word_ladder rows for word senses that have exercises but
-    no ladder entry yet. This bridges the gap between admin word upload
-    (which creates exercises) and the dojo session (which needs ladder rows).
-    """
-    try:
-        # Find senses with active ladder exercises for this language
-        ex_resp = (
-            db.table('exercises')
-            .select('word_sense_id')
-            .eq('language_id', language_id)
-            .eq('is_active', True)
-            .not_.is_('ladder_level', 'null')
-            .execute()
-        )
-        all_sense_ids = list({row['word_sense_id'] for row in (ex_resp.data or [])})
-        if not all_sense_ids:
-            return
-
-        # Find which of those already have a ladder row for this user
-        existing_resp = (
-            db.table('user_word_ladder')
-            .select('sense_id')
-            .eq('user_id', user_id)
-            .in_('sense_id', all_sense_ids)
-            .execute()
-        )
-        existing = {row['sense_id'] for row in (existing_resp.data or [])}
-        missing = [sid for sid in all_sense_ids if sid not in existing]
-
-        if not missing:
-            return
-
-        # Init ladder rows for missing senses
-        from services.vocabulary_ladder.ladder_service import LadderService
-        service = LadderService()
-        for sense_id in missing:
-            service.init_ladder(user_id, sense_id, language_id)
-
-        logger.info("Initialized %d ladder rows for user %s", len(missing), user_id)
-
-    except Exception as e:
-        logger.error("Failed to ensure ladder rows: %s", e)

@@ -9,6 +9,14 @@ done: 0
 
 # Practice Engine Merger — Task Breakdown
 
+> **Audit note (2026-07-13):** This file's per-task `**Status:**` markers below are stale — they
+> were never flipped when the work shipped. A codebase + live-DB audit confirmed **TASK-101–110
+> and TASK-112 are DONE** (phase12_* migrations applied, `services/practice_session_service.py`,
+> `routes/practice.py`, nightly `_refresh_exercise_time_estimates` cron all present and wired,
+> first committed 2026-05-21). **Only TASK-111 (parity tests) remains open.** Current status lives
+> in [[tasklist/master]]; this file is retained for full task detail (Acceptance Criteria, Files,
+> Verification) and archived as of this audit.
+
 Implements [[decisions/ADR-007-merge-exercises-vocab-dojo]]. Atomic tasks that ship `get_practice_session` and the deprecation wrappers, preserving full ladder mechanics from [[decisions/ADR-005-momentum-bands]]. Order respects dependencies. Numbers in `TASK-1xx` are reserved for the merger work; Study Plan tasks are `TASK-2xx`.
 
 ---
@@ -262,7 +270,19 @@ Run existing exercise + vocab-dojo route integration tests; all green. Inspect p
 
 ## TASK-111: Parity tests — Jaccard ≥ 0.70
 
-**Status:** [ ] Not Started
+> **CLOSED 2026-07-13 — Won't Do (obsolete). Not implemented.** This parity test was a
+> *pre-cutover* safety net: diff the old independent `get_ladder_session` / `get_exercise_session`
+> against the new `get_practice_session` and require Jaccard ≥ 0.70 before decommissioning the old
+> RPCs. That window closed on 2026-05-21 when TASK-110 (`migrations/phase12_deprecation_wrappers.sql`)
+> replaced both legacy RPC bodies with thin wrappers that call `get_practice_session` internally —
+> so there is no independent old implementation left to compare against. The test would diff
+> `get_practice_session` against a wrapper of itself (Jaccard ≈ 1.0 by construction), giving false
+> confidence, not coverage. It also can't run in the mocked-Supabase pytest harness (needs live
+> staging creds). The "no ranking regression at cutover" evidence has been provided by ~2 months of
+> production traffic. Reviving the pre-merger RPC bodies from git history for a meaningful diff was
+> judged not worth it for a shipped, stable feature. The Practice Engine Merger epic is now complete.
+
+**Status:** ~~[ ] Not Started~~ Won't Do (obsolete)
 **Type:** test
 **Complexity:** M
 **Depends On:** TASK-110

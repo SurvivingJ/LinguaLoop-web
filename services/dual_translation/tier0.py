@@ -10,15 +10,23 @@ pre-pass"). Never calls a model. Pipeline:
   2. Diff via services.dictation.grader.grade_dictation — reused as-is, not
      reimplemented. Its WordDiff opcode list (equal/replace/insert/delete) is
      exactly the "token opcode array" shape dt_grade.diff wants.
-  3. Exact / fuzzy-equal (grading.accuracy == 1.0) -> full marks, no errors.
-  4. Embedding-similarity gate: STUB. The embedding provider is an explicit
-     OPEN decision (see the cascade doc), so this routes purely on diff
-     mismatch ratio as a stand-in for semantic closeness. TODO(embedding-
-     provider): replace NEAR_EXACT_MISMATCH_RATIO with a real similarity
-     score once a provider is chosen; until then this is a deliberately
-     coarse proxy and is not expected to be the final word on borderline
-     submissions.
-  5. Result cache, keyed hash(passage_id, normalized_reproduction) — a plain
+  3. Full-marks gate (TASK-623): resolve to full marks, no errors, only when
+     the reproduction is identical to the gold *modulo normalization*. Both
+     texts are already folded (step 1's _normalize_l2, plus grade_dictation's
+     own services.dictation.tokenizer.normalize) before the diff is computed,
+     so a normalization-only difference — punctuation / full-half width / kana —
+     never survives as a non-'equal' opcode. Full marks therefore holds iff
+     every diff opcode is 'equal'; any surviving replace/insert/delete — a real
+     word swapped, dropped or added — escalates to the cascade. The gate keys
+     on the opcode CLASS, not on grade_dictation's accuracy: its Levenshtein
+     fuzzy tolerance marks a >=4-char, edit-distance-1 replace as "correct"
+     (accuracy 1.0) while still emitting a 'replace' opcode, so a strict,
+     non-fuzzy opcode check is what stops a real single-character edit from
+     sailing through. This retires the old NEAR_EXACT_MISMATCH_RATIO proxy,
+     which resolved any submission whose token-mismatch ratio sat under 5% and
+     thereby silently awarded full marks to single-token errors in multi-
+     sentence passages (the leniency hole the v1 baseline exposed).
+  4. Result cache, keyed hash(passage_id, normalized_reproduction) — a plain
      in-process dict matching this repo's existing convention for
      low-cardinality lookup caches (services.dual_translation.router's
      `_cfg_cache`, services.prompt_service.PromptService._prompt_cache):
@@ -50,11 +58,6 @@ logger = logging.getLogger(__name__)
 # trivially 4 regardless of weights.
 RUBRIC_DIMENSIONS = ("accuracy", "understandability", "fidelity", "range", "naturalness")
 MAX_BAND = 4
-
-# STUB for the embedding-similarity gate (point 4 above). A mismatch ratio at
-# or below this is treated as close enough to resolve at Tier 0 without a
-# model call, same as a true fuzzy-equal match.
-NEAR_EXACT_MISMATCH_RATIO = 0.05
 
 
 @dataclass
@@ -107,7 +110,7 @@ def grade_tier0(
     grading = grade_dictation(normalized_gold, normalized_reproduction, language_code)
     mismatch_ratio = 1.0 - grading.accuracy
 
-    if grading.accuracy == 1.0 or mismatch_ratio <= NEAR_EXACT_MISMATCH_RATIO:
+    if _resolves_full_marks(grading):
         result = _full_marks_result(grading, mismatch_ratio)
     else:
         result = Tier0Result(
@@ -129,6 +132,27 @@ def clear_cache() -> None:
 # ---------------------------------------------------------------------------
 # Internals
 # ---------------------------------------------------------------------------
+
+def _resolves_full_marks(grading: GradingResult) -> bool:
+    """Tier 0 awards full marks only when reproduction == gold modulo
+    normalization: every diff opcode must be 'equal'.
+
+    grade_tier0 folds both texts through _normalize_l2 (width/kana) and
+    grade_dictation folds them again through services.dictation.tokenizer.
+    normalize (case/diacritics/punct/whitespace) *before* tokenizing, so a
+    normalization-only difference never survives as a non-'equal' opcode in the
+    first place — the diff spans are drawn straight from that fully-folded token
+    stream. Full marks therefore holds iff there are no non-'equal' opcodes; an
+    exact match satisfies this vacuously.
+
+    Keys on the opcode CLASS, never on is_correct / accuracy — grade_dictation's
+    fuzzy tolerance inflates accuracy to 1.0 for a >=4-char edit-distance-1
+    replace while still emitting a 'replace' opcode, so this strict, non-fuzzy
+    check is what keeps a real single-character edit from resolving here
+    (TASK-623; replaces NEAR_EXACT_MISMATCH_RATIO).
+    """
+    return all(entry.op == "equal" for entry in grading.diff)
+
 
 def _normalize_l2(text: str, language_code: str) -> str:
     """Width + kana normalization layer, applied before grade_dictation's own

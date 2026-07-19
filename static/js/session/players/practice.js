@@ -30,6 +30,10 @@ export function mount(container, ctx) {
     correctCount: 0,
     totalAnswered: 0,
     isAnswered: false,
+    // TASK-701: timestamp (performance.now) of when the current item was
+    // rendered, so we can measure render→submit elapsed and credit real
+    // practice minutes server-side.
+    renderedAt: 0,
   };
 
   const q = (id) => container.querySelector('#' + id);
@@ -74,8 +78,12 @@ export function mount(container, ctx) {
         `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}`
       );
       const data = await res.json();
+      // Skip gate / stress markers, and injected DT error-remediation cards
+      // (TASK-618) — this v1 player has no renderer for them yet; wiring the
+      // error-card UI is the tracked follow-up. They still ride in the payload
+      // so that follow-up (and API-level verification) sees them.
       const items = (data.items || data.exercises || []).filter(
-        (it) => !it.is_gate_marker && !it.is_stress_test_marker
+        (it) => !it.is_gate_marker && !it.is_stress_test_marker && !it.is_error_exercise
       );
 
       if (!res.ok || items.length === 0) {
@@ -127,6 +135,9 @@ export function mount(container, ctx) {
     }
     const w = ribbon + ladderBadge;
 
+    // Start the per-item timer as the exercise becomes visible (TASK-701).
+    state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
+
     try {
       ER.dispatch(ex.exercise_type, ex, c, w);
     } catch (e) {
@@ -152,14 +163,17 @@ export function mount(container, ctx) {
 
   // POST one attempt. authFetch resolves on 4xx/5xx, so check r.ok explicitly;
   // returns the parsed body on success, or null on any failure.
-  async function postAttempt(ex, ok, response) {
+  // `timeTakenMs` is the measured render→submit elapsed for this item; the
+  // server clamps absurd values and falls back to `expected_seconds` (TASK-701).
+  async function postAttempt(ex, ok, response, timeTakenMs) {
     const r = await window.authFetch('/api/practice/attempt', {
       method: 'POST',
       body: JSON.stringify({
         exercise_id: ex.exercise_id,
         is_correct: ok,
         user_response: response,
-        time_taken_ms: 0,
+        time_taken_ms: timeTakenMs,
+        expected_seconds: ex.expected_seconds,
         session_mode: mode,
         language_id: languageId,
       }),
@@ -174,10 +188,16 @@ export function mount(container, ctx) {
     state.totalAnswered++;
     if (ok) state.correctCount++;
 
+    // Measure once, before the retry loop, so a retry doesn't inflate the
+    // elapsed time. 0 when the timer never started — the server credits the
+    // item's expected_seconds estimate rather than nothing.
+    const now = window.performance && performance.now ? performance.now() : Date.now();
+    const elapsedMs = state.renderedAt ? Math.max(0, Math.round(now - state.renderedAt)) : 0;
+
     let data = null;
     for (let attempt = 0; attempt < 2 && data === null; attempt++) {
       try {
-        data = await postAttempt(ex, ok, response); // one silent retry on failure (M2)
+        data = await postAttempt(ex, ok, response, elapsedMs); // one silent retry on failure (M2)
       } catch (e) {
         console.error('Practice attempt error:', e);
         data = null;

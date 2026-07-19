@@ -45,7 +45,8 @@ POST /api/practice/attempt
   → ladder_record_attempt (if sense-linked) or exercise-only attempt log
   → bkt_update_* + fsrs update (existing)
   → record_session_progress(user, language, attempt_id, 'practice_'||mode,
-                            NULL, minutes_for_this_item)
+                            p_delta_seconds=effective_seconds_for_this_item)
+     (measured render→submit elapsed, clamped + p50 fallback; TASK-701)
   → Return RPC jsonb
 ```
 
@@ -376,6 +377,13 @@ Service-layer `expected_seconds(exercise_type)` returns `det.expected_seconds_p5
 
 ## Deprecation wrappers
 
+> **REMOVED 2026-07-14 (TASK-220).** Both wrappers were dropped by
+> `migrations/phase17_drop_deprecation_wrappers.sql` after the one-release
+> deprecation window elapsed. `/api/exercises/session` and
+> `/api/vocab-dojo/session` now 302 to `/api/practice/session`, and the two
+> standalone pages were retired. The SQL below is kept as historical record of
+> the wrapper bodies (see `migrations/archive/phase12_deprecation_wrappers.sql`).
+
 ```sql
 -- get_exercise_session — wraps get_practice_session('auto', ...)
 CREATE OR REPLACE FUNCTION public.get_exercise_session(
@@ -424,6 +432,41 @@ Equivalent wrapper for `get_ladder_session` calls `get_practice_session('acquisi
 | `routes/practice.py` (NEW) | Canonical `/api/practice/session?mode=...&minutes=...`. Also `POST /api/practice/attempt`. |
 | `services/irt/calibrator.py` | Nightly `_refresh_exercise_time_estimates` step added (04:05 UTC). |
 | `app.py:227-251` | Add `exercise_time_estimate_refresh` cron entry. |
+
+## Post-RPC error-card injection (Dual Translation, TASK-618)
+
+After `get_practice_session` returns, `PracticeSessionService.get_session` interleaves due
+Dual-Translation error-remediation cards into `payload['items']` as a **separate, non-sense-linked
+stream** — they never pass through the RPC's sense-keyed candidate pools or the `sense_id IS NOT
+NULL` filter (decision 6 above). This keeps remediation in the flow of normal practice without
+Study-Plan orchestration.
+
+- **Selector:** `services/dual_translation/cards.py::select_error_exercises_for_practice(db,
+  user_id, *, language_id, normal_item_count, max_cards=None, fraction=None)`. Materialises due
+  cards first (idempotent `generate_cards_for_queued_entries`), fetches due `dt_card` rows
+  (`due_date ≤ today OR state='new'`) **scoped to the session L2** (`dt_card` has no language
+  column → scope via `profile_entry_id → dt_error_profile_entry.l2_language_id`), and round-robins
+  them through the existing `interleave_by_subtype`.
+- **Cap (does not crowd out normal practice):** `min(available_due, max_cards,
+  ceil(fraction × normal_item_count))`. Env knobs `DT_PRACTICE_ERROR_CARD_MAX` (default 3) and
+  `DT_PRACTICE_ERROR_CARD_FRACTION` (default 0.34), read straight from the environment to match
+  `DT_ERROR_CARD_INTERLEAVE_EVERY`. With `normal_item_count = 0` the fraction cap is 0, so an empty
+  practice session stays empty — `GET /api/dual-translation/next` remains the surface for a due
+  queue with no accompanying practice.
+- **Placement:** `PracticeSessionService._interleave_extras` spreads the capped items evenly
+  through the normal items (never clumped at the tail; the session still opens on a normal item).
+- **Item shape:** `{ id: "dt-error-<card_id>", exercise_type: "dt_error_card", type: "error_card",
+  is_error_exercise: true, word_sense_id: null, card_id, card_type, subtype, prompt_payload,
+  state, due_date }`. Graded via the existing `POST /api/dual-translation/cards/<id>/review`
+  (FSRS state lives on `dt_card`), **not** `POST /api/practice/attempt`. The payload also gains
+  `error_cards_injected: <n>` when any were injected.
+- **Best-effort:** the whole injection is wrapped so a remediation failure is logged and never
+  breaks the practice session.
+- **FE (deferred):** the v1 practice player (`static/js/session/players/practice.js`) and the
+  legacy `get_or_create_daily_session` shape both **skip** `is_error_exercise` items exactly as
+  they skip gate / stress-test markers, so nothing renders broken. Wiring the cloze /
+  isolate-retranslate renderer into the practice player is the tracked follow-up; the cards ride
+  in the payload regardless.
 
 ## Parity test (R4.7)
 

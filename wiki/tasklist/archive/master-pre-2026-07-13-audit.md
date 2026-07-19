@@ -1,0 +1,228 @@
+---
+title: Master Task List
+last_updated: 2026-07-13
+---
+
+# Master Task List
+
+> **Archive note:** This is the pre-audit snapshot of `master.md` (working-tree state as of the
+> start of the 2026-07-13 tasklist-consolidation audit, including the same-day uncommitted
+> TASK-633–649 hardening-batch addition). It is superseded by [[tasklist/master]]. A codebase +
+> live-Supabase audit found the Practice Engine Merger and Study Plans rows below marked `[ ]`
+> were mostly already shipped and never checked off — see the current master.md's "Recently
+> confirmed complete" section for details.
+
+## Summary
+
+| Status | Count |
+|--------|-------|
+| Not Started | 100 |
+| In Progress | 0 |
+| Done | 43 |
+| Blocked | 6 |
+
+## All Tasks
+
+### Practice Engine Merger
+See [[tasklist/archive/practice-merger.tasks]] for full spec per task. Implements [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-101 | practice-engine | Migration — `dim_exercise_types` | [ ] | S | — |
+| TASK-102 | practice-engine | Migration — `dim_practice_modes` | [ ] | XS | — |
+| TASK-103 | practice-engine | Migration — `user_exercise_sessions.mode + target_minutes` | [ ] | XS | TASK-102 |
+| TASK-104 | practice-engine | SQL helper `practice_unified_score` | [ ] | S | TASK-102 |
+| TASK-105 | practice-engine | RPC `get_practice_session` (Maintenance branch) | [ ] | M | 101, 102, 104 |
+| TASK-106 | practice-engine | Practice service refactor → `practice_session_service.py` | [ ] | M | TASK-105 |
+| TASK-107 | practice-engine | RPC `get_practice_session` (Acquisition + iteration) | [ ] | L | 105, 106 |
+| TASK-108 | practice-engine | `auto` dispatch + Maintenance fall-through | [ ] | S | TASK-107 |
+| TASK-109 | practice-engine | New `/api/practice/session` + `/attempt` routes | [ ] | S | TASK-108 |
+| TASK-110 | practice-engine | Deprecation wrappers for legacy RPCs | [ ] | S | TASK-108 |
+| TASK-111 | practice-engine | Parity tests (Jaccard ≥ 0.70) | [ ] | M | TASK-110 |
+| TASK-112 | practice-engine | Nightly `_refresh_exercise_time_estimates` | [ ] | S | TASK-101 |
+
+### Study Plans
+See [[tasklist/archive/study-plans.tasks]] for full spec per task. Implements [[decisions/ADR-008-study-plan-orchestration-layer]].
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-201 | study-plans | Migration — `test_attempts.started_at`, `duration_ms` | [ ] | XS | — |
+| TASK-202 | study-plans | Migration — `daily_test_loads.daily_session_targets` | [ ] | XS | — |
+| TASK-203 | study-plans | Migration — `dim_test_types.expected_minutes_p50` | [ ] | XS | — |
+| TASK-204 | study-plans | Migration — `dim_study_plan_templates` + seed (9 rows) | [ ] | S | — |
+| TASK-205 | study-plans | Migration — `dim_study_goals` (empty V2 placeholder) | [ ] | XS | — |
+| TASK-206 | study-plans | Migration — `user_study_plans` | [ ] | S | 204, 205 |
+| TASK-207 | study-plans | Migration — `weekly_plan_states` + index | [ ] | S | TASK-206 |
+| TASK-208 | study-plans | RPC `apply_study_plan_template` | [ ] | XS | TASK-206 |
+| TASK-209 | study-plans | Python — weakness signal helpers | [ ] | M | TASK-207 |
+| TASK-210 | study-plans | RPC `compute_weekly_plan` (Tier B) | [ ] | L | TASK-209 |
+| TASK-211 | study-plans | RPC `record_session_progress` | [ ] | S | TASK-207 |
+| TASK-212 | study-plans | Wire `record_session_progress` into all submit paths | [ ] | M | 211, 201 |
+| TASK-213 | study-plans | RPC `build_daily_session` (Tier C) | [ ] | L | 210, 202 |
+| TASK-214 | study-plans | Wire `build_daily_session` into `get_or_create_daily_load` | [ ] | S | TASK-213 |
+| TASK-215 | study-plans | Cron — `study_plan_weekly_recompute` (Sun 23:00 UTC) | [ ] | S | TASK-210 |
+| TASK-216 | study-plans | `/api/study-plan` endpoints | [ ] | S | 208, 210 |
+| TASK-217 | study-plans | Settings UI — Study Plan tab | [ ] | M | TASK-216 |
+| TASK-218 | study-plans | Wipe user-state tables for launch (revised 2026-05-22 from backfill) | [ ] | XS | 206, 207 |
+| TASK-219 | study-plans | Flag flip + monitoring | [ ] | M | 214, 215, 217, 218 |
+| TASK-220 | study-plans | Deprecation cleanup (T+30 days) | [ ] | M | TASK-219 |
+
+### Ladder Judge Layer (Phase 4)
+See [[tasklist/archive/ladder-judge-layer.tasks]] for full spec per task. Implements B3.1 + B3.6 of [[reviews/exercise-generation-audit-2026-06-07]]. Extends the judge layer from L3-only to every LLM-authored ladder level (L1/L5/L6/L7/L8) plus the P1 sentence corpus, en + zh. **Complete** — all four judge chains (P1/L1/collocation/sentence-validity) plus the 4.3 observability layer (reject-rate view + admin dashboard + integration test) shipped; seed migration applied.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-401 | ladder-judge-layer | Generalize renderer judge-meta tag sidecar | [x] | S | — |
+| TASK-402 | ladder-judge-layer | P1 sentence judge module | [x] | M | — |
+| TASK-403 | ladder-judge-layer | Seed `ladder_p1_sentence_judge` prompts (en+zh) | [x] | M | TASK-402 |
+| TASK-404 | ladder-judge-layer | Wire P1 sentence judge into asset_pipeline | [x] | M | 402, 403 |
+| TASK-405 | ladder-judge-layer | L1 distractor judge module | [x] | S | TASK-401 |
+| TASK-406 | ladder-judge-layer | Seed `ladder_l1_distractor_judge` prompts (en+zh) | [x] | S | TASK-405 |
+| TASK-407 | ladder-judge-layer | Wire L1 judge into `_render_phonetic` | [x] | S | 405, 406 |
+| TASK-408 | ladder-judge-layer | Collocation judge module (L5+L8) | [x] | M | TASK-401 |
+| TASK-409 | ladder-judge-layer | Seed `ladder_collocation_judge` prompts (en+zh) | [x] | S | TASK-408 |
+| TASK-410 | ladder-judge-layer | Wire collocation judge into L5/L8; retire L8 hack | [x] | M | 408, 409 |
+| TASK-411 | ladder-judge-layer | Sentence-validity judge module (L6+L7) | [x] | M | TASK-401 |
+| TASK-412 | ladder-judge-layer | Seed `ladder_sentence_validity_judge` prompts (en+zh) | [x] | S | TASK-411 |
+| TASK-413 | ladder-judge-layer | Wire sentence-validity judge into L6/L7 | [x] | M | 411, 412 |
+| TASK-414 | ladder-judge-layer | Reject-rate SQL view (judge-as-data) | [x] | M | 404, 407, 410, 413 |
+| TASK-415 | ladder-judge-layer | Admin reject-rate dashboard | [x] | S | TASK-414 |
+| TASK-416 | ladder-judge-layer | Judge-layer integration test + smoke query | [x] | S | 404, 407, 410, 413 |
+
+### Exercise Generation v2
+See [[tasklist/archive/exercise-generation-v2.tasks]] for full spec per task. Implements [[features/exercise-generation-v2]] (design plan, all operator decisions final 2026-06-11). Task IDs map 1:1 to the plan's deliverables (TASK-501 = P0.1 … TASK-536 = P4.3). TASK-515 (the top-1,000 × 3-language batch run) is the integration gate.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-501 | exercise-generation-v2 | Commit 2026-06-10 working tree + verify live state | [x] | XS | — |
+| TASK-502 | exercise-generation-v2 | Ratify + migrate `semantic_class` 6-value enum | [x] | S | — |
+| TASK-503 | exercise-generation-v2 | Fix `dim_exercise_types.family` + new type rows | [x] | S | — |
+| TASK-504 | exercise-generation-v2 | `dim_exercise_capabilities` table + seeds + wiring | [x] | M | 502, 503 |
+| TASK-505 | exercise-generation-v2 | JA vocab bootstrap (transcripts only; B4 fix) | [x] | M | — |
+| TASK-506 | exercise-generation-v2 | Pronunciation backfill (ZH/JA) + JA `register` column | [x] | M | TASK-505 |
+| TASK-507 | exercise-generation-v2 | `semantic_class` LLM backfill + spot-check | [x] | M | 502, 505 |
+| TASK-508 | exercise-generation-v2 | JA prompt seeds (P1/P2/P3 + 4 judges + gen rows) | [x] | M | TASK-501 |
+| TASK-509 | exercise-generation-v2 | Traditional Chinese groundwork (dual-store + `hant` mirrors) | [x] | M | TASK-501 |
+| TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [ ] | S | TASK-501 |
+| TASK-511 | exercise-generation-v2 | `generation_queue` migration | [x] | XS | — |
+| TASK-512 | exercise-generation-v2 | Consolidation — ladder is the sole vocab generator | [ ] | M | TASK-501 |
+| TASK-513 | exercise-generation-v2 | Transcript mining as a P1 sentence source | [ ] | M | TASK-512 |
+| TASK-514 | exercise-generation-v2 | Robustness: non-destructive regen, P1 retry, matrix-gated L4 | [ ] | M | TASK-504 |
+| TASK-515 | exercise-generation-v2 | Batch run — top 1,000 senses × EN/ZH/JA | [ ] | L | 504–511, 513, 514, 519 |
+| TASK-516 | exercise-generation-v2 | Deterministic generators (def-match, jumbled, readings, tone) | [ ] | L | 503, 506 |
+| TASK-517 | exercise-generation-v2 | Coverage check + batch report + queue drain | [ ] | M | 504, 511 |
+| TASK-518 | exercise-generation-v2 | Per-sense legacy exercise dedupe | [ ] | S | TASK-515 |
+| TASK-519 | exercise-generation-v2 | Multi-nl content rules (`content.nl` keyed maps) | [ ] | S | TASK-501 |
+| TASK-520 | exercise-generation-v2 | Prompt split — L4 + L8 out of P3 monolith | [ ] | M | TASK-515 |
+| TASK-521 | exercise-generation-v2 | Sense embeddings (pgvector) | [ ] | M | TASK-501 |
+| TASK-522 | exercise-generation-v2 | `synonym_antonym_match` + `word_family` generators | [ ] | L | 504, 521 |
+| TASK-523 | exercise-generation-v2 | Collocation grounding for L5/L8 | [ ] | M | TASK-515 |
+| TASK-524 | exercise-generation-v2 | Sentence-tier hard gate | [ ] | S | TASK-513 |
+| TASK-525 | exercise-generation-v2 | tl_nl uniqueness judge | [ ] | S | TASK-501 |
+| TASK-526 | exercise-generation-v2 | Traditional-script serve toggle (practice surfaces) | [ ] | M | 509, 515 |
+| TASK-527 | exercise-generation-v2 | JA `particle_selection` generator + judge | [ ] | M | 508, 515 |
+| TASK-528 | exercise-generation-v2 | ZH `classifier_match` as ladder L4 | [ ] | M | TASK-504 |
+| TASK-529 | exercise-generation-v2 | `reading_to_kanji` / `pinyin_to_hanzi` + component table | [ ] | M | TASK-516 |
+| TASK-530 | exercise-generation-v2 | JA counter drill (助数詞) + `counter_match` | [ ] | L | TASK-504 |
+| TASK-531 | exercise-generation-v2 | Audio at scale (L1 + listening) | [ ] | M | TASK-515 |
+| TASK-532 | exercise-generation-v2 | `cloze_typed` free input (normalised match) | [ ] | M | TASK-515 |
+| TASK-533 | exercise-generation-v2 | `timed_speed_round` serve-time composer | [ ] | M | TASK-515 |
+| TASK-534 | exercise-generation-v2 | Exercise-type effectiveness view | [?] | M | 515 + launch data |
+| TASK-535 | exercise-generation-v2 | Thompson-sampling type tie-breaker | [?] | L | TASK-534 |
+| TASK-536 | exercise-generation-v2 | Per-user format prefs + item retirement | [?] | M | TASK-534 |
+
+### Dual Translation
+See [[tasklist/archive/dual-translation.tasks]] for full spec per task. Implements [[features/dual-translation]] (ingested 2026-06-23 from `raw/dual-translation-implementation-brief.md` + the dual-translation learning-science report). Decisions: [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]], [[decisions/ADR-018-level-neutral-grading]]. Staged: Stage 1 grading MVP → Stage 2 synthesis → Stage 3 remediation → Stage 4 localisation.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-600 | dual-translation | Model router + OpenRouter slug config (grading tiers) | [x] | M | — |
+| TASK-601 | dual-translation | Budget guardrail + cost dashboard hooks | [ ] | S | TASK-600 |
+| TASK-602 | dual-translation | Migration — 7 `dt_*` core tables | [x] | M | — |
+| TASK-603 | dual-translation | Passage builder — corpus extract + L1 reference gen | [x] Done (2026-07-01, verified live: 28 passages + 56 refs; grading smoke = TASK-606 follow-up) | L | 600, 602 |
+| TASK-604 | dual-translation | Versioned rubric + age-tier band descriptors | [x] | M | TASK-602 |
+| TASK-605 | dual-translation | Tier 0 deterministic pre-pass (reuse dictation grader) | [x] | M | TASK-602 |
+| TASK-606 | dual-translation | Grading cascade + compact JSON + eager explanations | [x] | L | 600, 604, 605 |
+| TASK-607 | dual-translation | Routes + submit RPC + idempotency | [x] | M | TASK-606 |
+| TASK-608 | dual-translation | Diff-centric result UI (feed-up/back/forward) | [x] | L | TASK-607 |
+| TASK-609 | dual-translation | Migration — `dt_error_profile_entry` | [ ] | S | TASK-602 |
+| TASK-610 | dual-translation | Mistake gate + embedding clustering + promotion | [ ] | L | TASK-609 |
+| TASK-611 | dual-translation | Error-profile dashboard endpoint + UI | [ ] | M | TASK-610 |
+| TASK-612 | dual-translation | Migration — `dt_card`, `dt_card_review` | [ ] | S | TASK-609 |
+| TASK-613 | dual-translation | Card generation (cloze + isolate-retranslate) | [ ] | M | 610, 612 |
+| TASK-614 | dual-translation | FSRS scheduling (reuse) + interleaving + review endpoints | [ ] | M | TASK-613 |
+| TASK-615 | dual-translation | Recurrence-reduction instrumentation | [ ] | S | TASK-614 |
+| TASK-616 | dual-translation | Localise taxonomy + weights per directed pair | [x] Done (2026-07-04, applied live + paid smoke: JA fidelity=2 + keigo_register err, ZH accuracy=3 + classifier err) | L | TASK-606 |
+| TASK-617 | dual-translation | Correction-style A/B flag wiring | [x] | S | TASK-608 |
+| TASK-618 | dual-translation | Inject error exercises into Practice Engine sessions (non-sense-linked) | [ ] | M | TASK-614 |
+| TASK-619 | dual-translation | Native-language (L1) picker — onboarding + settings UI | [x] | M | TASK-607 |
+| TASK-620 | dual-translation | Taxonomy v1 baseline seed (subtypes + glosses + templates) | [x] | M | TASK-602 |
+
+### Evidence-First Grading (Dual Translation v2)
+See [[tasklist/archive/evidence-first-grading.tasks]] for full spec per task. Implements [[algorithms/evidence-first-grading.tech]] per [[decisions/ADR-019-evidence-first-scoring]] (accepted 2026-07-04). Phases: 0 measure → 1 prompts → 2 structural → 3 UX; every behaviour-changing task is gated on the TASK-622 harness. TASK-633–649 are a code-review hardening batch (2026-07-13) on the TASK-624/625/626 work — recommended before TASK-627 continues, since TASK-640/641 fix integrity bugs in the TASK-622 regression gate itself.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-621 | evidence-first-grading | Gold calibration sets (EN/ZH/JA) | [x] Done | L | — |
+| TASK-622 | evidence-first-grading | Eval harness + v1 baseline report | [x] Done | L | TASK-621 |
+| TASK-623 | evidence-first-grading | Tier-0 precision fixes | [x] Done | S | TASK-622 |
+| TASK-624 | evidence-first-grading | Phase-1 prompt upgrades + rubric v4 seed | [x] | L | TASK-623 |
+| TASK-625 | evidence-first-grading | Severity triad migration (minor/major/critical) | [x] Done | M | TASK-624 |
+| TASK-626 | evidence-first-grading | Taxonomy v5 — expanded subtypes + subtype_meta | [x] Done | XL | TASK-625 |
+| TASK-633 | evidence-first-grading | Fix non-atomic grade persistence poisoning submission cache | [ ] | M | — |
+| TASK-634 | evidence-first-grading | Fix span reconciliation (occurrence snapping, normalization, raw regions) | [ ] | L | — |
+| TASK-635 | evidence-first-grading | Require complete scores before skipping Tier-2 recheck | [ ] | S | — |
+| TASK-636 | evidence-first-grading | Guard rubric v4 seed against zero active rows | [ ] | XS | — |
+| TASK-637 | evidence-first-grading | Fix JA exemplar retired subtype + severity slug resolution | [ ] | S | — |
+| TASK-638 | evidence-first-grading | Fix empty-correction dangling explanation text | [ ] | XS | — |
+| TASK-639 | evidence-first-grading | Centralize severity styling; handle legacy severities in UI | [ ] | S | — |
+| TASK-640 | evidence-first-grading | Fix eval-harness severity/dimension duplication + align_errors drift | [ ] | S | — |
+| TASK-641 | evidence-first-grading | Decouple gold-seed bands from hardcoded weights; drop dead severity_v1 | [ ] | S | — |
+| TASK-642 | evidence-first-grading | Cache active rubric/taxonomy config on grading hot path | [ ] | S | — |
+| TASK-643 | evidence-first-grading | Run forced Tier-2 recheck concurrently with Tier-1 | [ ] | M | — |
+| TASK-644 | evidence-first-grading | Replace O(n²) eval checkpoint with append-only JSONL | [ ] | S | — |
+| TASK-645 | evidence-first-grading | Remove dead re-normalization in tier-0 full-marks gate | [ ] | XS | — |
+| TASK-646 | evidence-first-grading | Migration-authoring guidance: lock hold time on backfills | [ ] | XS | — |
+| TASK-647 | evidence-first-grading | Replace hand-rolled eval retry loop with tenacity | [ ] | S | — |
+| TASK-648 | evidence-first-grading | Delete stale severity comment + dead parameters | [ ] | XS | — |
+| TASK-649 | evidence-first-grading | Wiki hygiene — status frontmatter, dates, evaluations category | [ ] | XS | — |
+| TASK-627 | evidence-first-grading | Derived scoring module + rubric v5 config | [ ] | L | TASK-626 |
+| TASK-628 | evidence-first-grading | Detector/Verifier cascade restructure | [ ] | XL | TASK-627 |
+| TASK-629 | evidence-first-grading | Band descriptors v3 rewrite (authoring) | [ ] | L | TASK-627 |
+| TASK-630 | evidence-first-grading | Explainer pass — instance Application layer | [ ] | M | TASK-628 |
+| TASK-631 | evidence-first-grading | Result UI v2 — highlights, "because" lines, next focus | [ ] | L | TASK-630 |
+| TASK-632 | evidence-first-grading | Final eval + wiki reconciliation | [ ] | S | TASK-631 |
+
+### Daily Session Hardening
+See [[tasklist/archive/daily-session-hardening.tasks]] for full spec per task. Remediates findings F1–F16 from the 2026-07-05 audit [[algorithms/daily-session-implementation-analysis]]. TASK-700–702 are the scheduling-correctness tier (weekly seeding, practice minutes, hydration shortfalls) and unblock everything user-visible.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-700 | daily-session-hardening | Fix weekly-plan seeding (lazy Tier B + cron target week) | [ ] | M | — |
+| TASK-701 | daily-session-hardening | Real practice timing → weekly minute counters advance | [ ] | M | — |
+| TASK-702 | daily-session-hardening | Surface + reduce hydration shortfalls | [ ] | M | — |
+| TASK-703 | daily-session-hardening | Interleave the session queue | [ ] | M | TASK-701 |
+| TASK-704 | daily-session-hardening | Retry slots in the plan path (ADR-006) | [ ] | S | TASK-702 |
+| TASK-705 | daily-session-hardening | Make build_daily_session same-day-safe | [ ] | S | — |
+| TASK-706 | daily-session-hardening | Advisory lock actually guards the weekly cron | [ ] | S | — |
+| TASK-707 | daily-session-hardening | Legacy fallback correctness (type labels + ELO band) | [ ] | S | — |
+| TASK-708 | daily-session-hardening | /session discoverability (navbar + entry flow) | [ ] | S | — |
+| TASK-709 | daily-session-hardening | Runner UX/a11y hardening | [ ] | S | — |
+| TASK-710 | daily-session-hardening | Consolidate the duplicated greedy pass | [ ] | S | 702, 704, 705 |
+| TASK-711 | daily-session-hardening | Document the plannable-type boundary | [?] | XS | product decision |
+| TASK-712 | daily-session-hardening | Day-boundary timezone decision | [?] | XS | product decision |
+| TASK-713 | daily-session-hardening | Wiki truth reconciliation (Phase 13) | [ ] | S | — |
+
+### Language Packs (existing — unchanged)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| — | language-packs | (all tasks blocked) | [?] | — | Design resolution needed |
+
+See [[tasklist/archive/language-packs.tasks]] and [[features/language-packs.tech]] `open_questions` for blockers.
+
+## Notes
+
+The Practice Engine merger (TASK-101 — TASK-112) ships independently from and BEFORE Study Plans (TASK-201 — TASK-220). Study Plans (Tier C) consumes `get_practice_session` for Practice slot hydration, so the merger must be in production and parity-tested first. The order in the master list reflects this — work TASK-101 through TASK-112 before starting TASK-201.
+
+Study Plans tasks include the rollout sequence in TASK-219 (immediate flip + monitor per [[decisions/ADR-013-global-feature-flag-rollout]]); TASK-220 (deprecation cleanup) waits 30 days after a stable launch.

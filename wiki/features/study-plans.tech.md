@@ -163,7 +163,9 @@ CREATE TABLE weekly_plan_states (
   target_counts                 jsonb    NOT NULL,
   completed_counts              jsonb    NOT NULL DEFAULT '{}'::jsonb,
   practice_target_minutes       smallint NOT NULL,
-  practice_completed_maint_min  smallint NOT NULL DEFAULT 0,
+  practice_completed_maint_sec  int      NOT NULL DEFAULT 0,   -- seconds ledger (source of truth); TASK-701
+  practice_completed_acq_sec    int      NOT NULL DEFAULT 0,
+  practice_completed_maint_min  smallint NOT NULL DEFAULT 0,    -- ROUND(sec/60), derived read for the resolver
   practice_completed_acq_min    smallint NOT NULL DEFAULT 0,
   maintenance_share             numeric(3,2) NOT NULL,
   acquisition_share             numeric(3,2) NOT NULL,
@@ -281,71 +283,84 @@ Behavior:
 1. Look up `weekly_plan_states` for the Monday of `p_date`'s week. If none and `Config.STUDY_PLAN_ENABLED`, call `compute_weekly_plan` then continue. If `Config.STUDY_PLAN_ENABLED = false`, return `{"error":"plan_disabled"}` (callers fall back to legacy `_compute_daily_load`).
 2. Compute `today_budget = total_weekly_minutes · weekday_weight[today] / 7`.
 3. Run greedy allocator (algorithm in [[algorithms/study-plan-adaptation.tech]]).
-4. Hydrate test slots via existing `get_recommended_tests(user, language)` filtered per skill.
-5. UPSERT `daily_test_loads` row with computed `test_ids` and `daily_session_targets` jsonb.
-6. UPSERT `daily_test_load_items` for each test_id.
-7. Return upserted row + targets.
+4. Hydrate test slots per skill:
+   - **Primary:** `get_recommended_tests(user, language)` — never-attempted ELO
+     matches, `slot_type='new'`. Its per-type cap was raised **3 → 10**
+     (`task702_get_recommended_tests_rank_cap.sql`) so heavy-weekday budgets
+     (e.g. `reading:6`) don't outrun the pool.
+   - **Exhausted-pool fallback (TASK-702):** if the never-attempted pool
+     underfills a budgeted skill, top up the remaining slots from
+     `get_replay_tests(...)` — nearest-ELO **previously-attempted** tests not
+     seen in the last **7 days** (`c_replay_min_age_days`), excluding anything
+     already chosen — stamped `slot_type='replay'`. `get_replay_tests` is shared
+     selection code with TASK-704 retry slots. ADR-006 reduced-volatility ELO is
+     designed to apply to these repeats at submission time; note the live
+     `process_test_submission` does **not** currently implement that damping (the
+     phase14 path dropped it — see `migrations/archive/README.md` CR-04 note), so
+     replay repeats currently move ELO the same as any other repeat until damping
+     is re-landed.
+   - **`classifier_drill`** has no ELO pool; it hydrates the per-language
+     `__classifier_drill_<lang>` sentinel and never uses replay.
+5. **Shortfall surfacing (TASK-702):** record per-skill `requested_counts`
+   (budgeted), `hydrated_counts` (**primary / never-attempted fill only**), and
+   `replay_counts` (fallback fill) into both the return jsonb and
+   `daily_session_targets` (no schema change). `hydrated` is primary-only *on
+   purpose* — a slot covered only by replay is still a real shortfall (the
+   never-attempted pool ran dry), so `TestService._log_hydration_shortfalls`
+   logs a WARNING whenever `hydrated < requested`, noting whether replay covered
+   the gap or slots were dropped. `used_minutes` now reflects **hydrated + replay
+   + practice** minutes (slots actually placed), not budgeted; the raw budget
+   total is preserved as `budgeted_minutes`.
+6. UPSERT `daily_test_loads` row with computed `test_ids` and `daily_session_targets` jsonb.
+7. UPSERT `daily_test_load_items` for each test_id.
+8. Return upserted row + targets.
+
+Canonical migration: `task702_build_daily_session.sql` (supersedes
+`phase13_build_daily_session_classifier_drill.sql`).
 
 If `weekly_plan_states` row exists but Tier B failed somehow, fall back to template defaults (no carry-over) and log a warning. Logged for monitoring.
 
 ## RPC: `record_session_progress`
 
+**Time accounting (TASK-701, `phase18_practice_time_seconds.sql`):** practice time
+accrues at **seconds** granularity. `weekly_plan_states` gained
+`practice_completed_maint_sec` / `practice_completed_acq_sec` (`int`, source of
+truth); the `_min` columns are re-derived as `ROUND(sec/60)` on every apply and
+remain the readable projection the resolver consumes. This replaced the old
+per-attempt `round(ms/60000)` which credited 0 for any block of sub-minute
+attempts. The 7-arg signature was dropped and `p_delta_seconds int` appended
+(both live callers use named-arg invocation, so defaults keep the test path
+working).
+
 ```sql
 CREATE OR REPLACE FUNCTION public.record_session_progress(
   p_user_id        uuid,
   p_language_id    smallint,
-  p_attempt_id     uuid,            -- test_attempts.id or exercise_attempts.id
-  p_kind           text,            -- 'test' | 'practice_maint' | 'practice_acq'
-  p_skill          text,            -- nullable; required for 'test'
-  p_delta_count    int,             -- typically 1 for tests, 0 for practice
-  p_delta_minutes  int              -- minutes consumed
-) RETURNS boolean                    -- false if attempt_id already recorded
+  p_attempt_id     uuid,               -- test_attempts.id or exercise_attempts.id
+  p_kind           text,               -- 'test' | 'practice_maint' | 'practice_acq'
+  p_skill          text,               -- nullable; required for 'test'
+  p_delta_count    int DEFAULT 0,       -- typically 1 for tests, 0 for practice
+  p_delta_minutes  int DEFAULT 0,       -- test path: minutes consumed
+  p_delta_seconds  int DEFAULT 0        -- practice path: seconds consumed (server-computed)
+) RETURNS boolean                        -- false if attempt_id already recorded
 LANGUAGE plpgsql AS $$
-DECLARE
-  v_week_start date := date_trunc('week', NOW())::date;  -- Monday
-  v_log_key    text := CASE p_kind
-                         WHEN 'test' THEN p_skill
-                         ELSE p_kind
-                       END;
-  v_already    boolean;
-BEGIN
-  -- Idempotency: check if attempt_id already in log
-  SELECT EXISTS (
-    SELECT 1 FROM weekly_plan_states
-    WHERE user_id = p_user_id AND language_id = p_language_id
-      AND week_start_date = v_week_start
-      AND session_progress_log -> v_log_key ? p_attempt_id::text
-  ) INTO v_already;
-  IF v_already THEN RETURN false; END IF;
-
-  -- Update counters + append to log
-  UPDATE weekly_plan_states SET
-    completed_counts = CASE
-      WHEN p_kind = 'test' THEN
-        jsonb_set(completed_counts, ARRAY[p_skill],
-                  to_jsonb(COALESCE((completed_counts->>p_skill)::int, 0) + p_delta_count))
-      ELSE completed_counts
-    END,
-    practice_completed_maint_min = practice_completed_maint_min
-      + CASE WHEN p_kind = 'practice_maint' THEN p_delta_minutes ELSE 0 END,
-    practice_completed_acq_min = practice_completed_acq_min
-      + CASE WHEN p_kind = 'practice_acq' THEN p_delta_minutes ELSE 0 END,
-    session_progress_log = jsonb_set(
-      session_progress_log,
-      ARRAY[v_log_key],
-      COALESCE(session_progress_log->v_log_key, '[]'::jsonb) || to_jsonb(p_attempt_id::text)
-    )
-  WHERE user_id = p_user_id AND language_id = p_language_id
-    AND week_start_date = v_week_start;
-
-  RETURN true;
-END;
+-- ... idempotency by attempt_id as before ...
+--   practice_completed_maint_sec += (kind='practice_maint' ? GREATEST(0,p_delta_seconds) : 0)
+--   practice_completed_acq_sec   += (kind='practice_acq'   ? GREATEST(0,p_delta_seconds) : 0)
+--   practice_completed_maint_min  = ROUND((maint_sec + delta)/60.0)
+--   practice_completed_acq_min    = ROUND((acq_sec   + delta)/60.0)
 $$;
 ```
 
+The effective per-attempt seconds are computed in
+`services/practice_session_service.py::_effective_practice_seconds`: measured
+render→submit elapsed, clamped so an absurd value (>5 min) or a missing/zero
+value falls back to the item's `expected_seconds` (p50) estimate rather than
+crediting nothing.
+
 Called from:
-- `process_test_submission` (inside the same transaction).
-- `record_attempt_with_updates` in the practice service.
+- `apply_attempt_timing_and_progress` (test path, `p_delta_minutes`; never touches the practice `_sec`/`_min` columns).
+- `record_attempt_with_updates` in the practice service (`p_delta_seconds`).
 
 ## Modified RPCs / services
 
@@ -354,7 +369,7 @@ Called from:
 | `process_test_submission` (and dictation/pinyin/pitch variants) | **Unchanged.** Body-of-RPC modification was deferred during implementation in favor of a side-car hook RPC — see next row. The submission RPCs are entangled with ELO + idempotency + retry-slot factor + furigana and a 4× duplication would have been brittle. Timing capture has no influence on ELO calculation, so isolating it in a hook is clean. |
 | `apply_attempt_timing_and_progress(p_attempt_id, p_started_at, p_finished_at) RETURNS jsonb` **(new)** | Post-submission hook called by `routes/tests.py` after each submission RPC returns its `attempt_id`. Atomically: (a) UPDATEs `test_attempts(started_at, duration_ms)` after computing `duration_ms = (finished − started)·1000` and silently capping to (0, 3_600_000); (b) calls `record_session_progress(..., 'test', <skill from dim_test_types.type_code>, 1, duration_minutes)`. NULL-timestamp-tolerant (skips the UPDATE while still recording progress). Best-effort: failures are warned, not raised. See `migrations/phase13_apply_attempt_timing_and_progress.sql`. |
 | `services/test_service.py::get_or_create_daily_load` | If `Config.STUDY_PLAN_ENABLED` AND `user_study_plans` row exists for (user, language), call `build_daily_session(user, language, today)`; else legacy `_compute_daily_load`. External signature unchanged. |
-| `services/practice_session_service.py::record_attempt_with_updates` | Accept `session_mode` from caller; call `record_session_progress(..., 'practice_'||mode, NULL, 0, time_taken_ms/60_000)`. |
+| `services/practice_session_service.py::record_attempt_with_updates` | Accept `session_mode` + `expected_seconds` from caller; compute effective seconds via `_effective_practice_seconds` (clamp + p50 fallback) and call `record_session_progress(..., 'practice_'||mode, p_delta_seconds=<sec>)` (TASK-701). |
 | `routes/tests.py` — all 4 submit handlers (`submit_test_attempt`, `submit_pinyin_attempt`, `submit_pitch_accent_attempt`, `submit_dictation_attempt`) | Read `started_at` / `finished_at` from request body and call `_apply_timing_and_progress(client, attempt_id, body)` helper right after the submission RPC succeeds. Helper wraps the new hook RPC and logs (but does not raise) on failure. |
 
 ## Cron jobs
@@ -560,7 +575,7 @@ Next word: sense_id=2117, ring=1, K=1. Pick 1 item. Elapsed = 360s.
 Next: sense_id=3801, ring=3, K=1. Pick 1 item. Elapsed = 405s.
 Next: sense_id=5009, ring=2, K=3. Pick 3 items. Elapsed = 540s ≈ target. Stop.
 
-Returned: 11 items across 4 words. User completes 8, submit fires `record_session_progress(..., 'practice_acq', NULL, 0, 7)` → `practice_completed_acq_min` becomes 7.
+Returned: 11 items across 4 words. User completes 8; each submit fires `record_session_progress(..., 'practice_acq', p_delta_seconds=<elapsed>)`, accruing into `practice_completed_acq_sec`. After ~7 min of attempts `practice_completed_acq_min` (= ROUND(sec/60)) becomes 7.
 
 ## Key Architectural Decisions
 

@@ -1,0 +1,918 @@
+[
+  {
+    "id": "zh_clean_01",
+    "kind": "clean",
+    "source_passage_id": 1,
+    "note": "synonym 非常→十分",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一件十分特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_02",
+    "kind": "clean",
+    "source_passage_id": 2,
+    "note": "synonym 好像→似乎",
+    "reference": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "reproduction": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它似乎在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_03",
+    "kind": "clean",
+    "source_passage_id": 3,
+    "note": "synonym 每次→每当",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每当看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_04",
+    "kind": "clean",
+    "source_passage_id": 4,
+    "note": "synonym 有时候→有时",
+    "reference": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "reproduction": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_05",
+    "kind": "clean",
+    "source_passage_id": 5,
+    "note": "exact faithful copy (0 edits)",
+    "reference": "它让我感到很放松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+    "reproduction": "它让我感到很放松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_06",
+    "kind": "clean",
+    "source_passage_id": 6,
+    "note": "optional comma dropped (punctuation)",
+    "reference": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+    "reproduction": "但是当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_07",
+    "kind": "clean",
+    "source_passage_id": 7,
+    "note": "synonym 珍惜→珍视",
+    "reference": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。所以，尽管它只是一件普通的T恤，但对我来说，它有着非凡的意义。它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+    "reproduction": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍视。每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。所以，尽管它只是一件普通的T恤，但对我来说，它有着非凡的意义。它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_08",
+    "kind": "clean",
+    "source_passage_id": 8,
+    "note": "synonym 希望→盼望",
+    "reference": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "reproduction": "我盼望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_09",
+    "kind": "clean",
+    "source_passage_id": 1,
+    "note": "synonym 舒服→舒适",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒适，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_clean_10",
+    "kind": "clean",
+    "source_passage_id": 2,
+    "note": "synonym 微微→轻轻",
+    "reference": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "reproduction": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角轻轻向上翘起，看起来非常开心。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_01",
+    "kind": "single",
+    "source_passage_id": 1,
+    "note": "classifier 个-substitution: 一件→一个 (clothing takes 件)",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一个非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          8,
+          14
+        ],
+        "span_ref": [
+          8,
+          14
+        ],
+        "subtype": "classifier",
+        "subtype_v5_target": "classifier",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "一个非常特别",
+        "corrected_form": "一件非常特别"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_02",
+    "kind": "single",
+    "source_passage_id": 1,
+    "note": "aspect 了 omission: 洗了→洗",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          66,
+          70
+        ],
+        "span_ref": [
+          66,
+          71
+        ],
+        "subtype": "aspect_marker",
+        "subtype_v5_target": "aspect_marker",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "洗很多次",
+        "corrected_form": "洗了很多次"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_03",
+    "kind": "single",
+    "source_passage_id": 3,
+    "note": "aspect misuse 了→过: 承载了→承载过",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载过很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          83,
+          88
+        ],
+        "span_ref": [
+          83,
+          88
+        ],
+        "subtype": "aspect_marker",
+        "subtype_v5_target": "aspect_marker",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "承载过很多",
+        "corrected_form": "承载了很多"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_04",
+    "kind": "single",
+    "source_passage_id": 4,
+    "note": "word order: adverb 都 misplaced after verb (都夸→夸都)",
+    "reference": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "reproduction": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们夸都我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          34,
+          39
+        ],
+        "span_ref": [
+          34,
+          39
+        ],
+        "subtype": "word_order",
+        "subtype_v5_target": "word_order",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "朋友们夸都",
+        "corrected_form": "朋友们都夸"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_05",
+    "kind": "single",
+    "source_passage_id": 3,
+    "note": "omission: correlative 因为 dropped (更是因为→更是)",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          78,
+          83
+        ],
+        "span_ref": [
+          78,
+          85
+        ],
+        "subtype": "omission",
+        "subtype_v5_target": "omission",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "更是它承载",
+        "corrected_form": "更是因为它承载"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_06",
+    "kind": "single",
+    "source_passage_id": 5,
+    "note": "word choice 放松→轻松 (relaxed→easy)",
+    "reference": "它让我感到很放松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+    "reproduction": "它让我感到很轻松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          3,
+          8
+        ],
+        "span_ref": [
+          3,
+          8
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "感到很轻松",
+        "corrected_form": "感到很放松"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_07",
+    "kind": "single",
+    "source_passage_id": 2,
+    "note": "register: slang 非常→贼 (贼开心)",
+    "reference": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "reproduction": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来贼开心。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          103,
+          106
+        ],
+        "span_ref": [
+          103,
+          107
+        ],
+        "subtype": "register",
+        "subtype_v5_target": "register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "贼开心",
+        "corrected_form": "非常开心"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_08",
+    "kind": "single",
+    "source_passage_id": 8,
+    "note": "把-construction: 把 dropped (会把它→会它)",
+    "reference": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "reproduction": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          31,
+          37
+        ],
+        "span_ref": [
+          31,
+          38
+        ],
+        "subtype": "ba_construction",
+        "subtype_v5_target": "ba_construction",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "我也会它好好",
+        "corrected_form": "我也会把它好好"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_09",
+    "kind": "single",
+    "source_passage_id": 3,
+    "note": "resultative complement dropped: 变好→变 (心情变好→心情变)",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          51,
+          54
+        ],
+        "span_ref": [
+          51,
+          55
+        ],
+        "subtype": "resultative_complement",
+        "subtype_v5_target": "resultative_complement",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "心情变",
+        "corrected_form": "心情变好"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_10",
+    "kind": "single",
+    "source_passage_id": 7,
+    "note": "topic-comment: fronted topic 对我来说 moved to end",
+    "reference": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。所以，尽管它只是一件普通的T恤，但对我来说，它有着非凡的意义。它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+    "reproduction": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。所以，尽管它只是一件普通的T恤，但它有着非凡的意义，对我来说。它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          80,
+          93
+        ],
+        "span_ref": [
+          80,
+          93
+        ],
+        "subtype": "topic_comment",
+        "subtype_v5_target": "topic_comment",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "它有着非凡的意义，对我来说",
+        "corrected_form": "对我来说，它有着非凡的意义"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 3
+    }
+  },
+  {
+    "id": "zh_seed_11",
+    "kind": "single",
+    "source_passage_id": 3,
+    "note": "de-particle 得→的: 画得→画的",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画的很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          5,
+          10
+        ],
+        "span_ref": [
+          5,
+          10
+        ],
+        "subtype": "de_particles",
+        "subtype_v5_target": "de_particles",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "画的很细致",
+        "corrected_form": "画得很细致"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_12",
+    "kind": "single",
+    "source_passage_id": 1,
+    "note": "word choice (major) 正→浅: 颜色很正→颜色很浅",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很浅，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          61,
+          65
+        ],
+        "span_ref": [
+          61,
+          65
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "颜色很浅",
+        "corrected_form": "颜色很正"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_13",
+    "kind": "single",
+    "source_passage_id": 2,
+    "note": "critical: 开心→伤心 (smiling cat looks sad; meaning inverted)",
+    "reference": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "reproduction": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常伤心。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          100,
+          107
+        ],
+        "span_ref": [
+          100,
+          107
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "critical",
+        "learner_form": "看起来非常伤心",
+        "corrected_form": "看起来非常开心"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 2,
+      "fidelity": 1,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_14",
+    "kind": "single",
+    "source_passage_id": 8,
+    "note": "directional complement 起来→下来: 收藏起来→收藏下来",
+    "reference": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "reproduction": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏下来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          36,
+          42
+        ],
+        "span_ref": [
+          36,
+          42
+        ],
+        "subtype": "directional_complement",
+        "subtype_v5_target": "directional_complement",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "好好收藏下来",
+        "corrected_form": "好好收藏起来"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_seed_15",
+    "kind": "single",
+    "source_passage_id": 1,
+    "note": "adverbial order: time 夏天 misplaced (夏天穿→穿夏天)",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，穿夏天也不会觉得热。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          97,
+          103
+        ],
+        "span_ref": [
+          97,
+          103
+        ],
+        "subtype": "adverbial_order",
+        "subtype_v5_target": "adverbial_order",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "穿夏天也不会",
+        "corrected_form": "夏天穿也不会"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_multi_01",
+    "kind": "multi",
+    "source_passage_id": 1,
+    "note": "classifier 件→个 (min) + aspect 了 omission 洗了→洗 (maj)",
+    "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "reproduction": "我最喜欢的T恤是一个非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          8,
+          14
+        ],
+        "span_ref": [
+          8,
+          14
+        ],
+        "subtype": "classifier",
+        "subtype_v5_target": "classifier",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "一个非常特别",
+        "corrected_form": "一件非常特别"
+      },
+      {
+        "span_repro": [
+          66,
+          70
+        ],
+        "span_ref": [
+          66,
+          71
+        ],
+        "subtype": "aspect_marker",
+        "subtype_v5_target": "aspect_marker",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "洗很多次",
+        "corrected_form": "洗了很多次"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_multi_02",
+    "kind": "multi",
+    "source_passage_id": 3,
+    "note": "de 得→的 (min) + resultative 变好→变 (maj) + word choice 简单→普通 (min)",
+    "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "reproduction": "猫咪的毛发画的很细致，虽然只是一个普通的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          5,
+          10
+        ],
+        "span_ref": [
+          5,
+          10
+        ],
+        "subtype": "de_particles",
+        "subtype_v5_target": "de_particles",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "画的很细致",
+        "corrected_form": "画得很细致"
+      },
+      {
+        "span_repro": [
+          17,
+          22
+        ],
+        "span_ref": [
+          17,
+          22
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "普通的图案",
+        "corrected_form": "简单的图案"
+      },
+      {
+        "span_repro": [
+          51,
+          54
+        ],
+        "span_ref": [
+          51,
+          55
+        ],
+        "subtype": "resultative_complement",
+        "subtype_v5_target": "resultative_complement",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "心情变",
+        "corrected_form": "心情变好"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_multi_03",
+    "kind": "multi",
+    "source_passage_id": 2,
+    "note": "critical 开心→伤心 + classifier 只→个 (只→个 for cat, min)",
+    "reference": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+    "reproduction": "这件T恤最特别的地方是它的图案。在T恤的胸口位置，有一个小小的、很可爱的图画。这个图画是一个正在微笑的小猫，它好像在看着我，又好像在和我说话。小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常伤心。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          44,
+          50
+        ],
+        "span_ref": [
+          44,
+          50
+        ],
+        "subtype": "classifier",
+        "subtype_v5_target": "classifier",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "一个正在微笑",
+        "corrected_form": "一只正在微笑"
+      },
+      {
+        "span_repro": [
+          100,
+          107
+        ],
+        "span_ref": [
+          100,
+          107
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "critical",
+        "learner_form": "看起来非常伤心",
+        "corrected_form": "看起来非常开心"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 2,
+      "fidelity": 1,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "zh_multi_04",
+    "kind": "multi",
+    "source_passage_id": 4,
+    "note": "word order 都夸→夸都 (maj) + register slang 很可爱→贼可爱 (maj)",
+    "reference": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "reproduction": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们夸都我的T恤贼可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          34,
+          39
+        ],
+        "span_ref": [
+          34,
+          39
+        ],
+        "subtype": "word_order",
+        "subtype_v5_target": "word_order",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "朋友们夸都",
+        "corrected_form": "朋友们都夸"
+      },
+      {
+        "span_repro": [
+          41,
+          46
+        ],
+        "span_ref": [
+          41,
+          46
+        ],
+        "subtype": "register",
+        "subtype_v5_target": "register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "T恤贼可爱",
+        "corrected_form": "T恤很可爱"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 3,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 3
+    }
+  },
+  {
+    "id": "zh_multi_05",
+    "kind": "multi",
+    "source_passage_id": 8,
+    "note": "把 dropped (maj) + directional 起来→下来 (min)",
+    "reference": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "reproduction": "我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会它好好收藏下来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          32,
+          35
+        ],
+        "span_ref": [
+          32,
+          36
+        ],
+        "subtype": "ba_construction",
+        "subtype_v5_target": "ba_construction",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "也会它",
+        "corrected_form": "也会把它"
+      },
+      {
+        "span_repro": [
+          37,
+          41
+        ],
+        "span_ref": [
+          38,
+          42
+        ],
+        "subtype": "directional_complement",
+        "subtype_v5_target": "directional_complement",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "收藏下来",
+        "corrected_form": "收藏起来"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  }
+]

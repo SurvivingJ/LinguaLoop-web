@@ -10,6 +10,14 @@ last_updated: 2026-07-04
 
 # Dual Translation — Task Breakdown
 
+> **Audit note (2026-07-13):** TASK-609 (`dt_error_profile_entry` migration) below is marked
+> Not Started but is actually **DONE** — `migrations/dt_error_profile.sql` (committed 2026-07-04,
+> commit `279319ab`) is confirmed applied live via Supabase (table exists, correct schema, 0 rows
+> pending the TASK-610 synthesis pipeline that populates it). TASK-610–615 and TASK-618 remain
+> genuinely not started (no `dt_card` table live, no mistake-gate/clustering service found).
+> Current status lives in [[tasklist/master]]; this file is retained for full task detail and
+> archived as of this audit.
+
 Mapped to the brief's build sequence (§6): Stage 1 grading MVP → Stage 2 error synthesis →
 Stage 3 spaced remediation → Stage 4 localisation, with cross-cutting infra from day one.
 All decisions: [[decisions/ADR-014-reference-first-grading]],
@@ -84,15 +92,25 @@ verification with fail-open to the previous tier on 404.
 **Verification:** unit test resolves a tier; simulate 404 → fallback path taken.
 
 ## TASK-601: Budget guardrail + cost dashboard hooks
-**Status:** [ ] Not Started · **Type:** infra · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-600
+**Status:** [x] Done (2026-07-13) · **Type:** infra · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-600
 **Description:** Per-user/day token budget as a **required tunable config value** in `Config`
 (operator-adjustable, not hardcoded); on breach degrade to Tier 0+1. Log `grader_trace` (tier,
 cache hit/miss, tokens, slugs) per submission for a cost dashboard.
 **Acceptance Criteria:**
-- [ ] Over-budget user is graded Tier 0+1 only, never hard-failed.
-- [ ] grader_trace persisted on every grade.
+- [x] Over-budget user is graded Tier 0+1 only, never hard-failed.
+- [x] grader_trace persisted on every grade.
 **Files:** `config.py`, `services/dual_translation/grader_cascade.py`.
 **Verification:** force budget=0 → submission still returns a grade with `tier<=1`.
+**Notes:** `Config.DT_DAILY_TOKEN_BUDGET` (env `DT_DAILY_TOKEN_BUDGET`, default 20000) added.
+`routes/dual_translation.py::_tokens_used_today` sums `dt_grade.grader_trace.tokens.{in,out}`
+across the user's `dt_submission` rows created since UTC midnight (two-step query — the
+Supabase chain used throughout this file has no join primitive); `submit()` passes
+`max_tier='tier1'` once that sum reaches the budget, using `grade_submission`'s existing
+TASK-606 `max_tier` hook (no cascade changes needed — it already failed Tier 2 open to
+MAX_BAND). `grader_trace` persistence into `dt_grade` was already wired by TASK-607
+(`_persist_grade`); this task only added the gate that decides `max_tier`. Cost-dashboard
+*UI* (reading `grader_trace` back out for an operator view) is not built here — flagged as a
+follow-up if TASK-611's error-profile dashboard endpoint gets extended, or a new task if not.
 
 ---
 
@@ -432,7 +450,8 @@ Backed by GET/PATCH `/api/users/native-language` endpoints. The column `users.na
 **Files:** `migrations/dt_error_profile.sql`. **Verification:** table present with UNIQUE key.
 
 ## TASK-610: Mistake gate + embedding clustering + promotion rule
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-609
+**Status:** [x] Done (2026-07-14) · **Type:** feature · **Complexity:** L · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-609
+**Done:** No embeddings — clustering is a deterministic `(user, l1↔l2 pair, subtype)` group-by on the grader's emitted subtype. Mistake gate drops `is_mistake=True` before clustering; promotion is recurrence `>= N` in window `W` (env `DT_SYNTHESIS_WINDOW_DAYS`=30 / `DT_SYNTHESIS_PROMOTE_THRESHOLD`=3; proceduralization-gap OR-path stubbed pending TASK-614). `severity_rank` = sum of MQM severity weights (1/2/3). Status machine never regresses `drilling`/`resolved`. Files: `services/dual_translation/synthesis.py` (pure), `scripts/dt_nightly_synthesis.py` (DB wiring, upserts `dt_error_profile_entry`), `tests/test_dual_translation_synthesis.py` (20 tests, green). Live nightly run pending real `dt_error_instance` volume. See `log.md` 2026-07-14.
 **Description:** Nightly job: drop `is_mistake`; cluster errors **deterministically by
 `(user, l1↔l2 pair, subtype)`** (no embeddings — the grader already emits the subtype); promote a
 subtype to the queue only on recurrence ≥ N in window W (or proceduralization gap). N/W tunable config.
@@ -443,11 +462,20 @@ subtype to the queue only on recurrence ≥ N in window W (or proceduralization 
 **Verification:** seeded fixture promotes only the recurring subtype.
 
 ## TASK-611: Error-profile dashboard endpoint + UI (self-regulation)
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-610
+**Status:** [x] Done (2026-07-14) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-610
 **Description:** `GET /api/dual-translation/profile` ranked by frequency×severity with trend;
 UI gamifies the **shrinking profile**, never the score.
 **Files:** `routes/dual_translation.py`, `templates/dual_translation_profile.html`.
 **Verification:** dashboard shows ranked subtypes + trend on seeded data.
+**Notes:** `get_profile`/`_fetch_profile_entries` in `routes/dual_translation.py` read the
+user's `dt_error_profile_entry` rows ordered by `severity_rank DESC` and resolve language
+ids to codes via `DimensionService.get_language_code`. New page `/dual-translation/profile`
+(`app.py` + `templates/dual_translation_profile.html` + `static/js/dual_translation_profile.js`)
+never renders `severity_rank` itself — it splits entries into an "active" list (ranked,
+watching/queued/drilling) and a celebratory "resolved" section, and renders `trend.delta_pct`
+as a plain fewer/more-this-window line. i18n keys added under `dual_translation.profile.*` to
+all 4 locales (en/es/ja/zh). 5 new unit tests in `tests/test_dual_translation_routes.py`
+(`TestFetchProfileEntries`, `TestGetProfile`); full suite green (892 passed).
 
 ---
 
@@ -458,48 +486,143 @@ UI gamifies the **shrinking profile**, never the score.
 **Files:** `migrations/dt_cards.sql`. **Verification:** tables present.
 
 ## TASK-613: Card generation (cloze + isolate-and-re-translate) toward corrected_form
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** 610,612
+**Status:** [x] Done (2026-07-14) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** 610,612
 **Description:** Build cloze cards (delete only the corrected element, one atom/card) and
 isolate-and-re-translate cards (from stored spans). Prompt always toward `corrected_form`.
 **Acceptance Criteria:**
-- [ ] Card answer target == corrected_form, never learner_form (invariant test).
-- [ ] One atomic target per cloze card.
-**Files:** `services/dual_translation/cards.py`.
+- [x] Card answer target == corrected_form, never learner_form (invariant test).
+- [x] One atomic target per cloze card.
+**Files:** `services/dual_translation/cards.py` (new), `tests/test_dual_translation_cards.py` (new, 8 tests).
 **Verification:** generated card invariant test passes.
+**Notes:** Pure, DB-free module (mirrors `synthesis.py`'s pattern) — `build_cloze_card` /
+`build_isolate_retranslate_card` / `build_cards` operate on plain `dt_error_instance`-shaped
+dicts (`span_reference`, `corrected_form`, `subtype`) plus the passage's `gold_l2`/`l1_text`
+strings; no `dt_card` row writes or FSRS wiring here (that's TASK-614). Both card types isolate
+to the **sentence containing the error** (a local, language-agnostic Latin/CJK terminator
+regex — not `passage_builder.segment_sentences`, since that helper collapses whitespace and
+discards offsets, which would break span alignment for zero-width omission spans), not the
+whole 2-4 sentence passage. `prompt_payload` never includes `learner_form` at all (not just
+"not as the target") — cloze blanks the `span_reference` slice with `____`, so one atom per
+card falls out of the one-error-per-card design rather than needing separate enforcement.
+Zero-width spans (omission errors) are handled by the same blank-insertion code path as
+deletion spans. 8 new unit tests all green; full suite re-verified (900 passed / 1 skipped,
+no regressions).
 
 ## TASK-614: FSRS scheduling (reuse) + interleaving + review endpoints
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** TASK-613
+**Status:** [x] Done (2026-07-14) · **Type:** feature · **Complexity:** M · **Model:** Sonnet 4.6 · **Thinking:** think hard · **Depends On:** TASK-613
 **Description:** Schedule via `services/vocabulary/fsrs.py`; due queue interleaves subtypes;
 `/cards/due` + `/cards/<id>/review` (appends `dt_card_review`). Error cards are **not sense-linked**
 (subtype-keyed) and are interleaved into the **dual-translation queue** (GET /next). Practice Engine
 interleaving is TASK-618.
 **Acceptance Criteria:**
-- [ ] Due queue does not block-group one subtype.
-- [ ] Review updates FSRS state via reused scheduler.
-- [ ] Error exercises interleave into the dual-translation /next queue.
+- [x] Due queue does not block-group one subtype.
+- [x] Review updates FSRS state via reused scheduler.
+- [x] Error exercises interleave into the dual-translation /next queue.
 **Files:** `routes/dual_translation.py`, `services/dual_translation/cards.py`.
 **Verification:** review a card → due_date advances per FSRS; /next mixes passages + due error cards.
+**Notes:** `services/dual_translation/cards.py` gained the DB-wiring half of pipeline steps 5-6:
+`generate_cards_for_queued_entries` materialises `dt_card` rows (both `cloze` and
+`isolate_retranslate`) from any `queued` `dt_error_profile_entry` cluster that doesn't have cards
+yet — fetching the representative `dt_error_instance`, its passage `l2_text`, and the matching
+`dt_passage_reference.l1_text` via explicit id-set lookups (no embedded-select FK reliance, matching
+`scripts/dt_nightly_synthesis.py`'s convention) — then flips the entry to `drilling`. It's called
+lazily from both `GET /cards/due` and `GET /next`'s interleave path, so it's idempotent and needs no
+separate cron. `interleave_by_subtype` (pure, in `cards.py`) round-robins the due queue across
+subtypes so a review session never block-groups one subtype.
+`routes/dual_translation.py` reuses `CardState`/`schedule_review`/`AGAIN` from
+`services/vocabulary/fsrs.py` as-is (same reconstruction pattern as `routes/flashcards.py`) —
+`POST /cards/<id>/review` updates `dt_card`'s FSRS columns and appends an append-only
+`dt_card_review` row (`was_correct` defaults to `rating != AGAIN`, overridable by the client).
+`GET /next` interleaving is probability-based (~1-in-`DT_ERROR_CARD_INTERLEAVE_EVERY`, env-tunable,
+default 4) rather than a call-counter: a counter driven off `dt_submission` row counts would get
+stuck re-triggering every subsequent call once the ratio is hit, since serving a card doesn't itself
+create a `dt_submission` row to advance past the threshold. The response now carries a `type` field
+(`'passage'` | `'error_card'`) so callers can discriminate; the frontend wiring for rendering
+`error_card` responses in `static/js/dual_translation.js` is not part of this task (not in its Files
+list) and is left as a follow-up alongside TASK-618. 26 new unit tests
+(`tests/test_dual_translation_cards.py`, `tests/test_dual_translation_routes.py`); full suite green
+(927 passed / 1 skipped, no regressions).
 
 ## TASK-618: Inject error exercises into Practice Engine sessions
-**Status:** [ ] Not Started · **Type:** feature · **Complexity:** M · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-614
+**Status:** [x] Done (2026-07-14) · **Type:** feature · **Complexity:** M · **Model:** Opus 4.8 · **Thinking:** think hard · **Depends On:** TASK-614
 **Description:** Interleave due dual-translation error exercises into the **Practice Engine**
 exercise sessions as a separate, **non-sense-linked** stream (distinct from the sense-keyed
 candidate pools), so remediation happens in the flow of normal practice. Lightweight injection at
 session-assembly time; not full Study-Plan orchestration.
 **Acceptance Criteria:**
-- [ ] Practice sessions include due error exercises without going through sense-pool selection.
-- [ ] Injection rate is capped/configurable so it does not crowd out normal practice.
-**Files:** practice session assembler (`services/practice/*`), `services/dual_translation/cards.py`.
+- [x] Practice sessions include due error exercises without going through sense-pool selection.
+- [x] Injection rate is capped/configurable so it does not crowd out normal practice.
+**Files:** `services/practice_session_service.py` (the assembler; `services/practice/*` in the
+brief is the flat `practice_session_service.py`), `services/dual_translation/cards.py`,
+`static/js/session/players/practice.js` (defensive skip only).
 **Verification:** a user with due error cards gets them interleaved into a Practice Engine session.
+**Notes:** `cards.py` gained `select_error_exercises_for_practice(db, user_id, *, language_id,
+normal_item_count, max_cards=None, fraction=None)` — the injection selector. It (1) calls the
+idempotent `generate_cards_for_queued_entries` so a user who only ever opens Practice still gets
+freshly-promoted clusters carded; (2) fetches due `dt_card` rows (`due_date` ≤ today OR
+`state='new'`) **scoped to the session's L2** — `dt_card` carries no language column, so scope
+resolves through `profile_entry_id → dt_error_profile_entry.l2_language_id` via the module's
+existing no-embedded-select id-set convention, so a JA session never surfaces a ZH card;
+(3) round-robins the rows through the existing pure `interleave_by_subtype`; and (4) caps the
+count at `min(available_due, max_cards, ceil(fraction × normal_item_count))`. Two env knobs
+(`DT_PRACTICE_ERROR_CARD_MAX`=3, `DT_PRACTICE_ERROR_CARD_FRACTION`=0.34) read straight from the
+environment to match `DT_ERROR_CARD_INTERLEAVE_EVERY` and the other DT_* tunables (memory
+`dt-synthesis-tunables-in-env`), not `Config`. Items are shaped as Practice items marked
+`is_error_exercise: True` / `type: 'error_card'` / `exercise_type: 'dt_error_card'`, with
+`word_sense_id: None` (the non-sense-linked invariant) and `card_id` so the FE grades via the
+existing `POST /cards/<id>/review` (FSRS lives on `dt_card`), not `POST /api/practice/attempt`.
+`PracticeSessionService.get_session` injects **after** the RPC returns, spreading the capped items
+evenly through the normal items via a new `_interleave_extras` staticmethod — best-effort
+(exceptions are logged, never raised) and only into a **non-empty** session (an empty practice
+session stays empty; with `normal_item_count=0` the fraction cap is 0, so `GET /next` remains the
+surface for a due queue with no accompanying practice). Injection is mode-agnostic (acquisition /
+maintenance / auto). **Deliberately not built here:** the error-card *renderer* in the practice
+player — the v1 player (`static/js/session/players/practice.js`) and the legacy
+`get_or_create_daily_session` shape both **skip** `is_error_exercise` items exactly as they skip
+gate/stress markers, so the current FE never renders them as broken exercises; wiring the actual
+cloze / isolate-retranslate UI into the practice player is the tracked follow-up (analogous to the
+`static/js/dual_translation.js` error-card render still owed from TASK-614). The cards ride in the
+payload regardless, so both that follow-up and API-level verification (`error_cards_injected` count
+on the session payload) already see them. 12 new unit tests
+(`tests/test_practice_error_card_injection.py` — end-to-end injection, empty-session guard,
+non-fatal failure, RPC-error short-circuit, `_interleave_extras` spread; plus a
+`TestSelectErrorExercisesForPractice` class in `tests/test_dual_translation_cards.py` — caps,
+non-sense-linked shape, subtype interleave, language scoping). Full suite green
+(951 passed / 1 skipped, no regressions).
 
 ## TASK-615: Recurrence-reduction instrumentation
-**Status:** [ ] Not Started · **Type:** test · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-614
+**Status:** [x] Done (2026-07-14) · **Type:** test · **Complexity:** S · **Model:** Sonnet 4.6 · **Thinking:** think · **Depends On:** TASK-614
 **Description:** Log delayed re-test accuracy (`dt_card_review.was_correct`) keyed to subtype;
 dashboard metric flags subtypes not improving within ~3–4 cycles.
 **Acceptance Criteria:**
-- [ ] Metric computable per subtype; decreasing on a seeded improving fixture.
+- [x] Metric computable per subtype; decreasing on a seeded improving fixture.
 **Files:** `services/dual_translation/metrics.py`.
 **Verification:** metric query returns expected trend on fixture.
+**Notes:** `dt_card_review.was_correct` logging was already wired by TASK-614's
+`submit_card_review`; this task is purely the metric-computation half. Pure module
+(no I/O, mirrors `synthesis.py`'s "plain dict" convention) takes already-joined
+`dt_card_review` records (`card_id`, `subtype`, `was_correct`, `reviewed_at` — the
+DB join to `dt_card.subtype` is the caller's job, not built here). Core design
+decision: "cycle" = a card's Nth review (1-indexed, assigned by sorting each card's
+own reviews chronologically), **not** a calendar period — the report's "~3-4 review
+cycles" language is about repetition count. `recurrence_rate_by_cycle` computes, per
+cycle number, the fraction of that cycle's reviews (across all of a subtype's cards)
+that were wrong; `evaluate_trend` compares the latest observed cycle (capped at 4)
+against the cycle-1 baseline and returns one of three statuses —
+`insufficient_data` (fewer than 3 cycles observed anywhere in the subtype; never
+flagged, since a quiet subtype isn't a failing one), `improving` (recurrence dropped
+below baseline), or `not_improving` (`flagged: true` — the dashboard's actionable
+signal that a card's formulation may be violating the minimum-information
+principle). `compute_recurrence_metrics` is the top-level per-subtype aggregation
+(dashboard entry point). 8 unit tests in `tests/test_dual_translation_metrics.py`:
+cycle indexing is per-card not global, rate math, out-of-order input still sorts
+correctly, the literal acceptance-criterion fixture (seeded improving subtype ->
+monotonically decreasing curve, `status=improving`, `flagged=False`), a seeded
+stalled subtype (`status=not_improving`, `flagged=True`), the insufficient-data
+guard, multi-subtype independence, and empty input. Full dual-translation suite
+re-verified green (356 passed). **Not built here, left as a future task:** wiring
+this into a route/dashboard endpoint (e.g. extending TASK-611's profile page) —
+out of scope per this task's own Files list, which names only `metrics.py`.
 
 ---
 

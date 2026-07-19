@@ -61,6 +61,9 @@ wiki/
 ├── decisions/
 │   └── ADR-[nnn]-[slug].md           # Architectural Decision Records
 │
+├── evaluations/
+│   └── [eval-slug]-[date].md         # Eval-harness results (gold-set metrics, regression baselines)
+│
 └── tasklist/
     ├── master.md                     # All tasks, status at a glance
     └── [feature-slug].tasks.md       # Feature-specific task breakdown
@@ -468,7 +471,7 @@ Contradictions: N. Orphans: N. Missing pages: N. Suggested: [topics].
 | Field | Values |
 |-------|--------|
 | `status` | `planned` \| `in-progress` \| `complete` \| `deprecated` |
-| `type` | `feature` \| `algorithm` \| `overview` \| `page` \| `business-rule` \| `feature-tech` \| `algorithm-tech` \| `schema-tech` \| `api-tech` \| `page-tech` |
+| `type` | `feature` \| `algorithm` \| `overview` \| `page` \| `business-rule` \| `evaluation` \| `feature-tech` \| `algorithm-tech` \| `schema-tech` \| `api-tech` \| `page-tech` |
 | `breaking_change_risk` | `low` \| `medium` \| `high` |
 | `open_questions` | array of strings — remove items when resolved |
 

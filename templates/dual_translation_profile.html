@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Error Profile | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block main_class %}container py-4{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dtp-wrap { max-width: 760px; margin: 0 auto; }
+
+    .dtp-header {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .dtp-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .dtp-back { color: var(--text-muted); text-decoration: none; font-size: 1.2rem; line-height: 1; }
+    .dtp-back:hover { color: var(--text-primary); }
+
+    .dtp-intro { font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 18px; }
+
+    .dtp-section-label {
+        font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; color: var(--text-muted); margin: 22px 0 10px;
+    }
+
+    /* Self-regulation, never gamified on score: cards show the SHAPE of the
+       pattern (pair, status, trend direction) — never a raw numeric rank. */
+    .dtp-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-left: 4px solid var(--border-default);
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-sm);
+        display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .dtp-card.status-queued { border-left-color: #d97706; }
+    .dtp-card.status-drilling { border-left-color: #2563eb; }
+    .dtp-card.status-resolved { border-left-color: #047857; background: #f0fdf4; }
+
+    .dtp-card-main { flex: 1 1 220px; min-width: 0; }
+    .dtp-subtype { font-size: 1.02rem; font-weight: 600; color: var(--text-primary); }
+    .dtp-pair { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+    .dtp-status {
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+        background: var(--bg-page); color: var(--text-secondary);
+    }
+    .dtp-status.status-queued { background: #fef3c7; color: #92400e; }
+    .dtp-status.status-drilling { background: #dbeafe; color: #1d4ed8; }
+    .dtp-status.status-resolved { background: #d1fae5; color: #065f46; }
+
+    .dtp-trend { font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .dtp-trend.down { color: #047857; }
+    .dtp-trend.up { color: var(--text-muted); font-weight: 500; }
+    .dtp-trend.flat { color: var(--text-muted); font-weight: 500; }
+
+    .dtp-empty, .dtp-loading, .dtp-error {
+        text-align: center; padding: 40px 20px; color: var(--text-muted);
+    }
+
+    .dtp-resolved-banner {
+        display: flex; align-items: center; gap: 10px;
+        background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 14px;
+        padding: 14px 18px; margin-bottom: 8px; color: #065f46; font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+        .dtp-card { padding: 14px 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dtp-wrap">
+    <div class="dtp-header">
+        <a href="/dual-translation" class="dtp-back" aria-label="Back">&larr;</a>
+        <h1 data-i18n="dual_translation.profile.title">My Error Profile</h1>
+    </div>
+
+    <div class="dtp-intro" data-i18n="dual_translation.profile.intro">
+        Patterns from your translations, tracked so you can watch them shrink over time.
+    </div>
+
+    <div id="dtpLoading" class="dtp-loading" data-i18n="dual_translation.profile.loading">Loading…</div>
+    <div id="dtpError" class="dtp-error" style="display:none;"></div>
+    <div id="dtpEmpty" class="dtp-empty" style="display:none;" data-i18n="dual_translation.profile.empty">
+        No patterns tracked yet — keep practicing and this page will fill in.
+    </div>
+
+    <div id="dtpResolvedBanner" class="dtp-resolved-banner" style="display:none;"></div>
+
+    <div id="dtpActiveLabel" class="dtp-section-label" style="display:none;" data-i18n="dual_translation.profile.active_label">
+        Currently watching
+    </div>
+    <div id="dtpActiveList"></div>
+
+    <div id="dtpResolvedSection" style="display:none;">
+        <div class="dtp-section-label" data-i18n="dual_translation.profile.resolved_label">Resolved</div>
+        <div id="dtpResolvedList"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dual_translation_profile.js') }}"></script>
+{% endblock %}

@@ -54,6 +54,16 @@ def taxonomy() -> dict:
     return _load_seed_taxonomy()
 
 
+@pytest.fixture(autouse=True)
+def _clear_grader_cascade_caches():
+    """get_active_taxonomy caches process-wide (TASK-642); drop it either side of
+    every test so these _FakeDB reads actually hit the real query code and don't
+    leak a taxonomy into another module's tests."""
+    grader_cascade.clear_caches()
+    yield
+    grader_cascade.clear_caches()
+
+
 # ---------------------------------------------------------------------------
 # Minimal fake Supabase query-builder returning the seeded taxonomy row, so the
 # REAL get_active_taxonomy code runs end-to-end (mirrors the rubric seed test).
@@ -196,14 +206,14 @@ def test_subtype_index_round_trips_through_decode_error(taxonomy, l1_code, l2_co
             "span_ref": [0, 1],
             "category": 0,   # -> grammatical
             "source": 0,     # -> interlingual
-            "severity": 0,   # -> global
+            "severity": 0,   # -> minor
             "subtype": i,    # numeric index, as the model emits it
             "learner_form": "L",
             "corrected_form": "C",
             "confidence": 0.9,
             "is_mistake": False,
         }
-        decoded = grader_cascade._decode_error(raw, subs, taxonomy, l1_code)
+        decoded = grader_cascade._decode_error(raw, subs, taxonomy, l1_code, "L", "C")
         assert decoded is not None, (l1_code, l2_code, i)
         assert decoded["subtype"] == slug, (l1_code, l2_code, i, slug)
         assert decoded["category"] == prompts.CATEGORY_ENUM[0]
@@ -218,7 +228,7 @@ def test_out_of_range_subtype_index_is_dropped(taxonomy):
         "subtype": len(subs),  # one past the end -> out of range
         "learner_form": "L", "corrected_form": "C", "confidence": 0.5,
     }
-    assert grader_cascade._decode_error(raw, subs, taxonomy, "en") is None
+    assert grader_cascade._decode_error(raw, subs, taxonomy, "en", "L", "C") is None
 
 
 # ---------------------------------------------------------------------------

@@ -195,6 +195,21 @@ def update_study_plan() -> ApiResponse:
             except Exception as e:
                 logger.error("apply_study_plan_template failed: %s", e)
                 return server_error("Failed to apply template")
+            # Seed this week's plan immediately so the very first daily load
+            # after applying a template is plan-driven, instead of waiting for
+            # the Sunday pacer (which seeds next week) or leaning on the lazy
+            # compute in get_or_create_daily_load. Best-effort: a failure here
+            # still returns the applied template — the lazy path recovers it.
+            try:
+                from services.study_plan_service import StudyPlanService
+                StudyPlanService(db=db).compute_weekly_plan(
+                    user_id, language_id, _monday_of(date.today()),
+                )
+            except Exception as e:
+                logger.warning(
+                    "post-template weekly-plan compute failed for "
+                    "user=%s lang=%s: %s", user_id, language_id, e,
+                )
             return api_success({'plan': rpc_resp.data})
 
         # Build a partial UPDATE payload.

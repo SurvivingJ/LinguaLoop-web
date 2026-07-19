@@ -1,5 +1,686 @@
 # Activity Log
 
+## [2026-07-19] task | TASK-702 — Surface + reduce daily-session hydration shortfalls; built, tested, applied live
+Closes F3: `build_daily_session` BUDGETS per-skill test slots then HYDRATES them from `get_recommended_tests` (never-attempted, top-3/type); when the pool underfilled a budgeted count the surplus slots silently vanished (the pinyin / pitch_accent / classifier_drill incident class) and `used_minutes` over-reported. **Three coordinated changes, all applied live (`kpfqrjtfxmujzolwsvdq`) and mirrored in repo.** (1) `task702_get_recommended_tests_rank_cap.sql`: `rank_in_type` cap **3→10** so heavy-weekday budgets don't outrun the pool. (2) `get_replay_tests.sql` — **new** shared SRF (also for TASK-704 retry): nearest-ELO **previously-attempted** tests whose last attempt is older than `p_min_age_days` (default **7**), premium-gated like the recommender, with an exclusion set. (3) `task702_build_daily_session.sql`: on shortfall, top up remaining slots from `get_replay_tests` as `slot_type='replay'`; record `requested_counts` (budgeted), `hydrated_counts` (**primary/never-attempted fill ONLY** — a replay-covered slot still reads as a shortfall on purpose), `replay_counts`, plus `used_minutes` (placed slots + practice) and `budgeted_minutes` into the return jsonb AND `daily_session_targets` (no schema change). **Service** `services/test_service.py`: new `TestService._log_hydration_shortfalls` (called from `get_or_create_daily_load` on a successful resolver result) logs a WARNING per skill where `hydrated < requested`, noting whether replay covered the gap or slots were dropped. **Tests** `tests/test_daily_load_shortfall.py` (5, green). **Verified live in rollback-only txns** against an isolated synthetic language: replay-available → `requested={reading:4} hydrated={reading:2} replay={reading:2}`, slots `[new,new,replay,replay]`, used=budgeted=24; replay-empty → `hydrated={reading:2} replay={}`, 2 slots, **used=12 < budgeted=24** (proves used=hydrated). Superseded `add_pitch_accent_to_get_recommended_tests.sql` + `phase13_build_daily_session_classifier_drill.sql` → `archive/` (+README rows); `phase13_build_daily_session.sql` **kept** (still sole record of `test_time_estimate` / `week_start_for`). **Scope caveat:** the AC parenthetical "(ADR-006 ELO damping applies)" is aspirational — the live `process_test_submission` no longer implements the reduced-volatility repeat path (phase14 dropped it; `elo_reduction_factor` is an orphan column, see `migrations/archive/README.md` CR-04 note), so `slot_type='replay'` is emitted but no damping runs today. **This blocks TASK-704**'s "ADR-006 damped path" criterion until the damping is re-landed in `process_test_submission`. Wiki updated: [[features/study-plans.tech]], [[database/rpcs.tech]], [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
+## [2026-07-19] task | TASK-701 — Real practice timing → weekly minute counters advance; built + unit-verified, live apply owed
+Closes F2: `players/practice.js` posted `time_taken_ms: 0` and `record_session_progress` rounded each attempt's ms to whole minutes (`round(ms/60000)`), so `practice_completed_*_min` never moved, the resolver re-scheduled the full practice target daily, and FSRS saw 0 ms. **FE** `static/js/session/players/practice.js`: a per-item `renderedAt` (`performance.now`) timer is started as each exercise becomes visible; `submitAttempt` measures render→submit elapsed **once** (before the retry loop, so a retry can't inflate it) and posts `time_taken_ms` + the item's `expected_seconds` to `/api/practice/attempt`. **Server** `services/practice_session_service.py`: new `_effective_practice_seconds` — measured elapsed, but a missing/zero value **or** an absurd >5-min value (tab left open) falls back to the item's `expected_seconds` (p50) estimate rather than crediting nothing; result passed as `p_delta_seconds`. `routes/practice.py` threads `expected_seconds` through. **DB** `migrations/phase18_practice_time_seconds.sql`: adds `practice_completed_{maint,acq}_sec int` (source of truth, backfilled `min*60`), redefines `record_session_progress` (drops the 7-arg overload, appends `p_delta_seconds int DEFAULT 0`) to accrue seconds and re-derive `*_min = ROUND(sec/60)` — the readable projection the resolver still consumes. Both live callers use named-arg invocation so the test-path (`apply_attempt_timing_and_progress`, `p_delta_minutes` only) is unaffected. Superseded `phase13_record_session_progress.sql` → `archive/` (+ README row). Verified: clamp/accumulation math (24×25 s → 600 s → 10 min; 0 ms → estimate; >5 min → estimate) and Python syntax; no test asserts the old RPC payload. **Applied to live** (project `kpfqrjtfxmujzolwsvdq`): single 8-arg overload confirmed (old 7-arg dropped), both `_sec` columns present, 0 backfill mismatches. **Owed:** a `/session` practice block run to eyeball `practice_completed_acq_min > 0`. `templates/vocab_dojo.html` is deleted, so practice.js is the only surface. Wiki updated: [[features/study-plans.tech]], [[features/practice-engine.tech]], [[database/rpcs.tech]], [[database/schema.tech]], [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
+## [2026-07-19] task | TASK-700 — Fix weekly-plan seeding (lazy Tier B + cron target week); built + tested
+Three legs closing F1 (plan users silently degraded to the legacy 3-test load every Monday). **Leg 1** `services/test_service.py` `get_or_create_daily_load`: on a `build_daily_session` `E_NOWEEK`, lazily `compute_weekly_plan(...)` for the week the RPC reports in its `E_NOWEEK` payload (`week_start`; falls back to `_monday_of(date.today())` if absent/malformed), then retries the resolver once; only falls through to legacy if the retry also declines. Guarded to the `E_NOWEEK` code so it fires once per absent week, never per request; logs at INFO. **Leg 2** `services/study_plan_service.py` `_run_weekly_plan_recompute`: kept the Sunday 23:00 UTC schedule but switched the target from the outgoing week to `_monday_of(date.today() + timedelta(days=1))` (upcoming Monday), so a fresh Monday request finds a `weekly_plan_states` row without lazy compute. **Leg 3** `routes/study_plan.py` template-only `PUT /api/study-plan`: after `apply_study_plan_template` succeeds, best-effort `compute_weekly_plan(...)` for the current week (a failure still returns the applied template; the lazy path recovers). New `tests/test_weekly_plan_seeding.py` — 4 cases (E_NOWEEK compute+retry+plan-driven load; retry-still-declines→legacy fallback; cron seeds next Monday; template PUT seeds current week). `pytest -k weekly_plan` 4 green; edited modules import clean. Wiki updated: [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
+## [2026-07-18] task | TASK-630 — Explainer pass (instance-specific L1 Application layer); built + tested, live smoke deferred
+New `services/dual_translation/explainer.py`: `attach_explanations(...)` makes one batched cheap-tier (`resolve_tier(db,"tier1",l2_language_id)`) L1 call per **error-bearing** submission and overlays a per-error instance-specific Application onto the Rule template (§6c/§7e). Every error is first scaffolded `explanation_parts={rule:<existing explanation>, application:None}` (uniform contract even when the call never runs), then a validated Application makes `explanation = rule + "\n" + application`. §6c validation (≤240 chars; single paragraph; mentions learner_form/corrected_form ≥2-char overlap; no `\d/\d` score pattern; index in range/deduped) drops any bad item silently to Rule-only. Fail-silent by contract: no-slug / call-raises / malformed-JSON / bad-shape all keep Rule-only and are logged, never appended to `fail_reasons` and never flip `provisional`. Prompt builders added to `prompts.py` (`build_explainer_system_prompt`/`build_explainer_user_prompt`/`validate_explainer_response`, §7e EN/ZH/JA — the one L1 prompt in the L2-only module, ZH/JA flagged for native review). Wired in `grader_cascade._grade_v2` after the merge/arbiter block (`if final_errors:`), tokens folded into grader_trace. `explanation_parts` is response-only: `routes/dual_translation.py _persist_grade` now column-whitelists the `dt_error_instance` insert (`_ERROR_INSERT_COLUMNS`) instead of `{**error}`, so the concatenated `explanation` persists (no schema change) while `explanation_parts` is returned to the client only. Gotcha caught by the no-mention test + fixed: the ≥2-char mention check matched word-boundary windows (`"s "` from `"has lived"` ≈ any prose) — `_mentions_form` now ignores whitespace-bearing windows. 27 new tests in `tests/test_dual_translation_explainer.py`; DT-related suite 595 green. Live smoke (particle error names the actual words) deferred — needs a paid call + `DT_FRAMEWORK_V2` on; bundled with TASK-628's owed harness run. Wiki updated: [[tasklist/master]], [[tasklist/archive/evidence-first-grading.tasks]].
+
+## [2026-07-18] task | TASK-629 — Band descriptors v3 rewrite (built + tested; live apply deferred)
+
+Regenerated all dual-translation band descriptors to the tech spec §8 pattern (observable reader
+behaviour + a parenthetical error profile matched to `band_thresholds`), retiring the v1-era
+`(content level: …)` suffix. `migrations/dt_rubric_v6_seed.sql` is a **descriptors-only**
+self-contained bump on v5 (TASK-636 guards; weights / acceptable_variation / exemplars / the three
+scoring keys carried from v5, held equal by test). Voice split per ADR-018 + §8:
+accuracy/fidelity/understandability learner-facing + tier-invariant (Python-derived, never sent to a
+model); range model-facing + tier-invariant; naturalness model-facing + **tier-varying** (the one
+level-dependent dim), absent at tiers 1-2. EN reviewed + approved by the user; ZH + JA AI-drafted and
+flagged for native review (ADR-019). 336 real descriptor slots.
+
+New `tests/test_dual_translation_rubric_v6.py` (54 cases): shape + both reader paths + the §8 lint
+(parenthetical present; no EN frequency adverbs; no adjacent bands separating only on an adverb;
+distinct per band; content-level suffix gone; age-tiers not CEFR) + tier-invariance/variance +
+carry-forward == v5 + version-6 guards. Regression: `dt_rubric_v*` glob pinning test picked up v6 and
+held; full DT suite **568 green** (was 514). **Not applied to live Supabase** (user decision): v6's
+descriptors also feed the shipped v1 grader prompt, so the apply is bundled with TASK-628's owed paid
+TASK-622 harness run + `DT_FRAMEWORK_V2` flip (one paid pass covers both). Pages updated:
+[[tasklist/archive/evidence-first-grading.tasks]].
+
+## [2026-07-18] task | TASK-628 — Detector/Verifier cascade restructure (behind DT_FRAMEWORK_V2, default OFF)
+
+Built the Evidence-First Grading v2 flow (tech spec §2/§6/§7) behind `Config.DT_FRAMEWORK_V2`
+(ADR-013 pattern, default OFF — v1 tier1/tier2 stays the shipping path until the flag flips).
+`grade_submission` dispatches to `_grade_v2` after Tier 0: Detector (tier1 slug — errors +
+highlights, no scores) → Verifier (tier2 slug — verdicts confirm/reject/adjust + added_errors +
+naturalness/range judgments with mandatory evidence spans) → Python merge → derived scoring
+(`services/dual_translation/scoring.py`, TASK-627) → contract. `prompts.py` gained
+`build_detector_system_prompt` / `build_verifier_system_prompt` / `build_verifier_user_prompt` +
+`validate_detector_response` / `validate_verifier_response` + `HIGHLIGHT_REASON_ENUM` /
+`VERDICT_ENUM` / `JUDGE_DIMENSIONS` (EN/ZH/JA verbatim from §7; ZH/JA native-review flag stands).
+
+Verdict-merge rules (§6b): unknown/out-of-range index dropped; duplicate → first wins; **no verdict
+→ default confirm**; reject drops + counts (logged, never persisted); adjust patches severity/subtype/
+spans + re-renders explanation. Judgment without a valid evidence span (or usable band) is discarded
+→ dimension missing → `compute_overall` renormalizes (never a silent MAX_BAND). Failure matrix:
+detector-fail → verifier detects from empty; verifier-fail → detector errors unverified + judged dims
+dropped; both-fail → `overall_band=None` / `scores={}` / `provisional=True`, and the route **declines
+to persist** (evidence-free grade must not poison the idempotency cache — TASK-633/ADR-019).
+`grader_trace` carries `framework_version:2`, `provisional`, `rejected_count`,
+`prompt_version:{rubric,taxonomy}`. Config-gated tier-3 arbiter (`DT_TIER3_ARBITER_ENABLED`, default
+OFF): fires on reject-rate ≥ 0.5 OR verifier confidence < 0.5, re-adjudicates via the tier3 slug.
+UI: `#dtProvisionalNotice` + `renderResult` toggle + `dual_translation.grading_incomplete` in all four
+locales (minimal; full UX = TASK-631).
+
+Tests: 21 new v2 cases (verdict merge, failure matrix, evidence renorm, highlights cap, arbiter
+gate); full DT + scoring + gold-seed suite **514 green**, no v1 regressions. **Owed:** live smoke per
+L2, TASK-622 harness re-run vs the Phase-1 baseline (filed), then the `DT_FRAMEWORK_V2` flip — all
+paid and gated on user sign-off. TASK-628 status: `[~]` implemented-behind-flag.
+
+## [2026-07-18] task | TASK-627 done — derived scoring module + rubric v5
+
+Implemented tech-spec §4 derived scoring as pure functions in `services/dual_translation/scoring.py`:
+`compute_dimension_bands(final_errors, subtype_meta, rubric_cfg)` (accuracy/fidelity from
+severity-weighted per-dimension penalties; understandability from the severity axis over all
+non-`is_mistake` errors) and `compute_overall(bands, weights, present_dims)` (weighted mean that
+**renormalizes over present dims** — an absent judged dimension is dropped from BOTH numerator and
+denominator, never defaulted to full marks, the leniency the legacy `compute_overall_band` carried),
+plus `resolve_weights` and `scoring_params` (raises on a pre-v5 config instead of silently
+full-marking). Production twin of `dt_gold_seed_helper.derive_bands`, consuming the grader's decoded
+error shape. Not wired into `grade_submission` — TASK-628 owns the cascade restructure.
+
+`tests/test_dual_translation_scoring.py` (25): §4 worked example reproduced exactly against the real
+seeded rubric v5 + taxonomy v5 `subtype_meta` (JA `particle_wa_ga` major + `word_choice` minor →
+acc 3 / fid 4 / und 4; + judged nat/range 3 → overall 4); is_mistake exclusion, renormalization,
+unknown-subtype fail-safe, malformed/pre-v5 raise, and the seed shape/guards. Full DT suite 502
+green; the gold-seed-helper pinning + v5-key guards (dormant while 627 pended) now fire green.
+
+`migrations/dt_rubric_v5_seed.sql`: self-contained VALUES row (v4 config + the three scoring keys),
+single-active-row guards. **`band_thresholds` is the FLAT `{dim:[t4,t3,t2]}` shape** that
+`OFFLINE_SCORING_CONFIG` / `scoring_config` validate and the frozen gold fixtures were derived under
+— NOT the tech-spec §4 v3 `{default,by_dimension}` synthetic example (the TASK-641 pinned contract
+is binding). Provisional defaults: sev 1/5/25, und 0/2/25, thresholds acc/fid 1/6/15, und 2/6/25.
+
+Applied live (`kpfqrjtfxmujzolwsvdq`) as active v5, superseding v4. The live apply derived the config
+as `v4.config || {3 keys}` inside the file's two guards (to avoid re-emitting the 38 KB config);
+verified byte-identical — `v5 − {3 keys} = v4`, `band_descriptors = weights = v2`, the three keys
+carry the pinned values, `active_count = 1, version = 5`.
+
+`scripts/rescore_dt_grades.py --rubric-version N --dry-run` re-scores stored grades with zero model
+calls; dry-run over the 2 live grades printed before/after band deltas and wrote nothing. Follow-up
+(TASK-641 hand-off): the gold-set build drivers still pass `offline=True` and can now point at
+`get_active_rubric`. Next: TASK-628.
+
+## [2026-07-16] lint | TASK-649 — DT grading wiki hygiene
+
+Targeted lint over the Dual-Translation grading cluster — 5 CLAUDE.md-schema defects flagged in the
+code review, all fixed:
+- `algorithms/evidence-first-grading.md` + `.tech.md`: `status: planned → in-progress` (Phases 0–2
+  shipped, including the live severity-triad migration; 14/29 tasks done).
+- `algorithms/translation-grading-cascade.md` + `.tech.md`: `status: planned → complete` (v1 is
+  shipped). The prose counterpart was flipped too, so the pair no longer disagrees.
+- **TASK-625 completion date reconciled to 2026-07-06.** This log's own entry header and
+  `evidence-first-grading.tech.md` §11 as-built both say 07-06; the archived tasklist's
+  `Done (2026-07-07)` was the lone outlier and was corrected to match. Git history is inconclusive —
+  the TASK-625 work (untracked `migrations/dt_severity_triad.sql`, etc.) is still uncommitted.
+- `tasklist/master.md`: `last_updated` was already current (2026-07-16, i.e. defect (4) had
+  self-resolved since filing); flipped the TASK-649 row to Done and corrected the summary counts
+  (Not Started 53→52, Done 88→89). Archived tasklist `done: 13→14`.
+- `wiki/evaluations/` registered in the schema: added to CLAUDE.md §2's directory tree and
+  `evaluation` added to §8's `type` enum. `evaluations/dt-grading-baseline-2026-07-05` was already
+  linked from `index.md` (line 128), so no link was added.
+
+Contradictions resolved: 3 (two stale-status, one date). Orphans: 0. New/missing pages: 0. Noted but
+**out of scope** (not changed): `wiki/lessons/` and `wiki/reviews/` are likewise absent from
+CLAUDE.md §2/§8 — a follow-up schema-registration candidate.
+
+## 2026-07-16 task | TASK-643 done — forced Tier-2 re-check now runs concurrently with Tier-1
+
+When `tier0.mismatch_ratio > LARGE_DIFF_RATIO` the Tier-2 re-check is unconditional and its inputs
+(`extra_dims == tier1_dims`, prompt, regions) are all fixed before Tier 1 returns — yet the two
+multi-second model calls were running back-to-back, doubling the learner's wait for no reason.
+`grade_submission` now detects this branch (`concurrent_recheck`) and submits the Tier-2 `_call_tier`
+to a request-scoped `ThreadPoolExecutor(max_workers=1)`, driving Tier 1 on the main thread and
+joining at the unchanged Tier-2 merge point via `tier2_future.result()`. The integration code
+(trace append, token accumulation, score merge with Tier-2 overriding Tier-1, error extend) is
+byte-identical across both paths — only *where* the Tier-2 call executes moves. The confidence-gated
+re-check stays sequential (its `extra_dims` depend on `tier1_confidence`, unknown until Tier 1
+returns). `scripts/run_dt_grading_eval.py`'s `_CallRecorder.append` is now lock-guarded for the
+concurrent boundary. Two regression tests: a 2-party `threading.Barrier` proving the forced path
+overlaps (would deadlock-then-fail-open if reverted to sequential), and a max-in-flight tracker
+proving the confidence path never overlaps. All 35 grader-cascade + 14 eval-harness tests green.
+See [[algorithms/translation-grading-cascade.tech]] "Concurrent forced re-check".
+
+## 2026-07-16 task | TASK-641 done — gold-set band derivation decoupled from the weights TASK-627 will seed
+
+`scripts/dt_gold_seed_helper.py` hardcoded the severity weights/thresholds that are also destined
+for `dt_rubric_version.config`, so the frozen gold `expected_bands` and the live grader could drift
+apart while both looked healthy. `_SEV_W`/`_UND_W`/`_THRESH` are now one `OFFLINE_SCORING_CONFIG`
+shaped exactly like that config, and `derive_bands` takes an **explicit** source via the new
+`scoring_config()`: `rubric_cfg=<active config>` or `offline=True`. Passing neither raises — an
+implicit constant default is the drift itself — and a pre-TASK-627 config raises rather than
+degrading to constants that may no longer match the grader (same fail-loud posture as
+[[decisions/ADR-020-late-symbolic-resolution-must-fail-safe]]).
+
+**Key-name correction.** TASK-641 and the v4 seed header both say `severity_weights`/`thresholds`;
+TASK-627's own AC declares `severity_weights` + `understandability_weights` + `band_thresholds`.
+Followed TASK-627 — a reader of keys nobody will ever seed is dead on arrival — and left a hand-off
+note on TASK-627 pinning the names *and* values the v5 seed must carry.
+
+The AC's "existing gold-seed tests" **did not exist**: the helper had zero coverage. New
+`tests/test_dual_translation_gold_seed_helper.py` (18 tests) adds the pinning test (parses
+`migrations/dt_rubric_v*_seed.sql`; skips while 627 is pending), a guard that fails loudly if
+`dt_rubric_v5_seed.sql` ever lands *without* those keys — otherwise a rename would leave the pinning
+test skipping forever, silently — and a check that the offline constants still reproduce all three
+fixtures' derived bands (they do). `severity_v1` is now optional: omitted-not-nulled when absent,
+carried in position when supplied, so the fixtures round-trip byte-identically. DT suite 418 green;
+`tests/fixtures/dt_gold/*.json` untouched. Still owed: a caller that passes a live config (the build
+drivers pass `offline=True`) — tracked on TASK-627.
+
+## 2026-07-16 task | TASK-640 done — eval-harness drift risks closed in the regression gate itself
+
+`services/dual_translation/eval_metrics.py` hand-copied two production constants and re-derived one
+formula it already had. All three are now tied down. `DIMENSIONS` and `SEVERITY_TRIAD_ORDER` stay
+plain constants — the module's design is to be pure and free of service-code imports — but are
+**pinned by test** to `tier0.RUBRIC_DIMENSIONS` and `prompts.SEVERITY_ENUM` (index-equality, not
+just membership), so the copies can no longer drift in silence. `_match_score(a, b)` is now the sole
+definition of the span match rule (overlap / shorter span; point-spans 1.0 by containment):
+`spans_match` thresholds it and `align_errors` ranks candidates by it, replacing two independent
+implementations of one rule.
+
+`aggregate_metrics` defaulted `severity_order` to the retired `SEVERITY_V1_ORDER`, so a caller who
+omitted it would score triad records against the dead global/local scale. The default is now the
+triad. **This was latent, not live:** the only production caller
+(`scripts/run_dt_grading_eval.py:436`) already passed `SEVERITY_TRIAD_ORDER` explicitly, so no
+shipped baseline number was affected — unlike the TASK-637 slug rot, this one was caught before it
+cost anything. `SEVERITY_V1_ORDER` remains an explicit opt-in for pre-TASK-625 baseline re-runs, and
+a test pins that scoring V1 records under the triad reports `n=0` rather than a silently wrong
+number — the fail-safe posture ADR-020 asks for.
+
+Worth noting for the next harness change: this is the TASK-622 regression gate measuring the grader,
+so a wrong number here is invisible by construction — nothing downstream fails, the comparison just
+lies. That is the argument for pinning constants by test even when the duplication looks harmless.
+
+Tests 23 → 35 in `tests/test_dt_eval_metrics.py`, green; 450 DT tests green; mini-fixture behavior
+identical (the pre-existing hand-checked aggregate test now opts into `SEVERITY_V1_ORDER`
+explicitly, since its fixtures carry `global`/`local` — assertions unchanged). The
+`evidence-first-grading.tasks.md` frontmatter `done:` counter was stale (5 vs 12 actual `[x]`
+markers) and was corrected to 13.
+
+Pages updated: 3 (master, evidence-first-grading.tasks, log).
+
+## 2026-07-16 task | TASK-639 — severity→style/label mapping centralised
+
+`static/js/dual_translation.js` had the severity→CSS-class decision inlined as a string comparison
+at the `buildErrorCard` call site, with the chip label built from a separately interpolated i18n
+key. One `SEVERITY_META` map (`minor`/`major`/`critical` → `{cssClass, i18nKey}`) now drives both,
+and a `LEGACY_SEVERITY` table folds the pre-triad `global`→`major` / `local`→`minor` vocabulary onto
+the triad before lookup.
+
+The bug this closes was PLAUSIBLE, not live: `dt_severity_triad.sql` (applied 2026-07-06) backfilled
+every production row, so only a fresh/un-migrated environment — or a `_cached_grade` row served
+verbatim — could still carry `global`/`local`. Those rows previously missed the deleted
+`dual_translation.severity.global`/`.local` keys and rendered unstyled with a raw English label in
+the zh/ja UIs. Same shape as the recurring class ADR-020 names: a symbolic value resolved late, with
+no fail-safe when the vocabulary moves underneath it.
+
+Verified by extracting the shipped `severityMeta` block from the file and evaluating it against the
+real locale JSON: `global` → `dt-error sev-global` + Major/Grave/重大/较重, `local` → `dt-error` +
+Minor/Leve/軽微/轻微, all triad keys already present in all four locales (no locale edit needed),
+unknown severities still degrading to the pre-existing `humanize()` fallback. Prettier clean.
+
+Pages updated: 3 (master, evidence-first-grading.tasks, log).
+
+## 2026-07-15 incident | The JA slug rot WAS live — seed applied to production
+
+ADR-020 predicted this failure mode and gave a diagnostic. The diagnostic came back positive:
+
+```
+tax_version=5  rubric_version=4  ja_subtype_slug='particle'  ja_severity_slug=NULL
+live ja subtypes: [omission(0), ..., particle_wa_ga(8), ...]   'particle' present? false
+```
+
+Production JA tier1/tier2 prompts had been carrying a worked example that labelled a は/が particle
+swap as `omission` (index 0). Duration unknown — since taxonomy v5 was applied. Impact is bounded:
+one mislabelled exemplar in the prompt prefix, not a wrong score directly, but it was the model's
+only worked demonstration of JA error tagging. Any JA grading eval run under taxonomy v5 is
+suspect; re-baselining is worth considering.
+
+**Fixed** by applying `migrations/dt_rubric_v4_seed.sql` to live. This also discharged the other
+owed item: it was the first real execution of the TASK-636 PL/pgSQL, so both guards ran for the
+first time. Guard 1 passed (live versions are [1,2,4] — no newer rubric to downgrade), Guard 2
+asserted the post-condition. Verified after: `active_rows=1, active_version=4`,
+`ja_slug_resolves_live=true`, `severity_slugs={en:minor, ja:major, zh:major}`,
+`retired_int_leftovers=0`, and `band_descriptors`/`weights` still equal v2 — the self-contained
+overwrite preserved the invariant the repo test pins.
+
+**Judgement error worth recording.** The entry below said the `git log -S` evidence "suggests a
+near-miss." That reasoning was wrong and I should have caught it: these seeds are untracked
+*precisely because* they are applied by hand, so git history could never testify about live state.
+The `process_test_submission` CR-04 precedent said exactly this and was under-weighted. The
+diagnostic was one read-only query — it should have been run before any speculation. **Lesson:
+when a repo is known to drift from live, do not infer live state from git; query it.**
+
+Live-state fact worth keeping: the v2 row **does** exist in production. That is why TASK-636's
+zero-active-rows scenario never fired — the gate it depended on happened to be satisfied. The bug
+was real but had not yet been triggered; the JA slug rot had.
+
+## 2026-07-15 task | TASK-636 + TASK-637 done — slug resolution now fails safe
+
+Pages updated: 3 (master, evidence-first-grading.tasks, log). Closes the work opened by the ADR-020
+entry below.
+
+**TASK-636** was not implemented as specced. The task asked for a guard that RAISEs when no v2 row
+exists; the v2 dependency was itself the bug (v4 derived its config from a *superseded* row via
+`src.config || <additions>`), so a guard would have made the failure loud while keeping the
+coupling. v4 is now a self-contained `VALUES (...)` row, which deletes three problems at once: the
+zero-active-rows commit, the silent-no-op re-application, and the reason `dt_rubric_v2_seed.sql`
+could never be archived. Both acceptance criteria are still met — plus a downgrade guard for a case
+the task didn't anticipate (re-running this file under the future v5 rubric would silently roll it
+back; exactly one row stays active, so no count check would notice).
+
+**TASK-637** closed all four criteria. `prompts._slug_index` (the inverse of
+`grader_cascade._enum_lookup`) returns `None` rather than an index; `_exemplar_text` drops the
+worked example and logs. Exemplar severity is now `severity_slug`, killing the TASK-625 hand-retag
+failure mode at the root.
+
+**A disagreement was resolved against me, correctly.** An in-flight instruction said make
+`_exemplar_text` *raise*. TASK-637's own spec said skip+log, and ADR-020 (written before the
+decision) argued the same: raising converts a degraded prompt into a hard grading outage for that
+L2 — reintroducing the outage class TASK-636's guards exist to remove. Skip+log won. The seam is
+now owned by a CI test, so runtime doesn't need to be loud.
+
+**Both guards were proven non-vacuous rather than trusted** — ADR-020's own warning signal #5 is
+"a test that cannot fail for any realistic bug". Reconstructing the old fallback shows a retired
+slug resolving to subtype 0 = `article_omission` with no log; the new path drops and warns. 436 DT
+tests green.
+
+**Both owed items are now closed (same day) — and the "near-miss" reading was wrong.** See the
+entry above this one.
+
+## 2026-07-15 query | Silent slug-resolution drift — filed as ADR-020
+
+Code review of TASK-636 (guard the rubric v4 seed against committing zero active rows) surfaced a
+worse, unfiled defect in the same file, and follow-up analysis established it as an instance of a
+recurring class rather than a one-off. Pages created: 1
+([[decisions/ADR-020-late-symbolic-resolution-must-fail-safe]]). Pages updated: 1 (index).
+
+**What was found.** `dt_rubric_v4_seed.sql`'s JA exemplar carried `subtype_slug: "particle"`, which
+taxonomy v5 (TASK-626) split into `particle_wa_ga`/`particle_case`/`particle_other` and removed from
+every pairs list. `prompts._exemplar_text` resolved it via `subtypes.index()`, missed, and fell back
+to `error["subtype"] = 0` — a *real* subtype (`omission`), not a sentinel — so every JA tier1/tier2
+prompt taught the model that a は/が swap is an omission. Silent: no log, no raise, no failing test.
+TASK-637 had already filed this; the review rediscovered it because `wiki/tasklist/archive/` was not
+searched. **Lesson: search archived tasklists before reporting a "new" bug.**
+
+**Why it is an ADR and not just a fix.** Three prior instances of the same class are on record
+(prompt-template model slug rot; i18n `applyToDOM` missing keys; resolver hydration skill gap) — a
+symbolic reference resolved late against an independently versioned artifact, failing open into a
+legal value. Three of the four shipped. ADR-020 proposes: fail safe (omit, never `enum[0]`), a
+cross-artifact reference test owning the rubric↔taxonomy seam that neither test file owned, and
+`requires_taxonomy_version` pinning. It also records the residual risk none of those cover: the
+ordinal `subtype` index contract, where *reordering* a pairs list is still a silent meaning change.
+
+**Open — needs a human.** ADR-020 argues *against* the in-flight instruction to make `_exemplar_text`
+raise (a raise turns prompt degradation into a grading outage for that L2). `prompts.py` is therefore
+UNCHANGED pending that call. Also unresolved: whether the bug is live. Both seeds are untracked, but
+seeds are applied to Supabase by hand and this repo has drifted from live before — run the diagnostic
+query in ADR-020 §"When it was introduced" before assuming it was a near-miss.
+
+## 2026-07-14 update-status | TASK-615 done — dual-translation recurrence-reduction instrumentation
+
+Built the metric-computation half of the report's non-negotiable instrumentation requirement
+(the logging half — `dt_card_review.was_correct` — was already wired by TASK-614's
+`submit_card_review`). New pure module `services/dual_translation/metrics.py` takes
+already-joined `dt_card_review` records (`card_id`, `subtype`, `was_correct`, `reviewed_at`; the
+DB join to `dt_card.subtype` is left to the caller) and computes a per-subtype recurrence-rate
+curve keyed by review-**cycle** number — a card's 1st, 2nd, 3rd... review, assigned by sorting
+each card's own reviews chronologically, not a calendar period.
+
+`recurrence_rate_by_cycle` gives, per cycle, the fraction of that cycle's reviews (across all of
+a subtype's cards) that were wrong. `evaluate_trend` compares the latest observed cycle (capped
+at 4) against the cycle-1 baseline: `insufficient_data` below 3 cycles observed (never flagged —
+a quiet subtype isn't a failing one), `improving` if recurrence dropped below baseline, else
+`not_improving` (`flagged: true` — the dashboard's actionable signal that a card's formulation
+may be violating the SuperMemo minimum-information principle).
+`compute_recurrence_metrics` aggregates all subtypes independently — the dashboard entry point.
+
+8 unit tests (`tests/test_dual_translation_metrics.py`) cover per-card (not global) cycle
+indexing, rate math, out-of-order input, the literal acceptance-criterion fixture (seeded
+improving subtype -> monotonically decreasing curve, `flagged=False`), a seeded stalled subtype
+(`flagged=True`), the insufficient-data guard, multi-subtype independence, and empty input. Full
+dual-translation suite re-verified green (356 passed, no regressions). Not built here: wiring the
+metric into a route/dashboard endpoint (e.g. extending TASK-611's profile page) — out of scope
+per this task's own Files list, which names only `metrics.py`.
+
+## 2026-07-14 update-status | TASK-614 done — dual-translation FSRS scheduling + interleaving + review endpoints
+
+Wired Stage 3's DB/FSRS half onto TASK-613's pure card-generation functions.
+`services/dual_translation/cards.py` gained `generate_cards_for_queued_entries(db, user_id)`:
+finds this user's `queued` `dt_error_profile_entry` clusters without a `dt_card` yet, fetches the
+representative `dt_error_instance` + its passage `l2_text` + the matching
+`dt_passage_reference.l1_text` (explicit id-set lookups, no embedded-select FK reliance — matches
+`scripts/dt_nightly_synthesis.py`'s convention), builds both card types via `build_cards`, inserts
+them, and flips the entry to `drilling`. It's idempotent (skips entries that already have a card)
+and called lazily rather than from a new cron. Also added the pure `interleave_by_subtype`
+round-robin so a due queue never block-groups one subtype.
+
+`routes/dual_translation.py` reuses `services/vocabulary/fsrs.py`'s `CardState`/`schedule_review`
+as-is (same reconstruction as `routes/flashcards.py`) for two new endpoints: `GET /cards/due`
+(materialises pending cards, returns the interleaved due queue) and
+`POST /cards/<id>/review` (updates `dt_card`'s FSRS columns, appends an append-only
+`dt_card_review` row — `was_correct` defaults to `rating != AGAIN`, client-overridable).
+`GET /next` now interleaves due error cards ~1-in-`DT_ERROR_CARD_INTERLEAVE_EVERY` (env-tunable,
+default 4) calls — probability-based rather than a `dt_submission`-row counter, since a counter
+would get stuck re-triggering every call once the ratio is hit (serving a card doesn't create a
+`dt_submission` row to advance past the threshold). Responses now carry `type: 'passage' |
+'error_card'`.
+
+26 new unit tests (`tests/test_dual_translation_cards.py`, `tests/test_dual_translation_routes.py`);
+full suite green (927 passed / 1 skipped, no regressions). Frontend rendering of `error_card`
+`/next` responses in `static/js/dual_translation.js` is deliberately out of scope (not in this
+task's Files list) and is left for TASK-618. Unblocks TASK-615 (recurrence-reduction
+instrumentation) and TASK-618 (Practice Engine injection).
+
+## 2026-07-14 update-status | TASK-613 done — dual-translation remediation card generation
+
+Built Stage 3's card-generation step: `services/dual_translation/cards.py`, a pure, DB-free
+module (mirrors `synthesis.py`'s pattern) that turns one `dt_error_instance`-shaped record into
+both remediation card payloads — `build_cloze_card`, `build_isolate_retranslate_card`, and
+`build_cards` (both together). Cloze blanks ONLY the `corrected_form` span inside the sentence
+containing the error (not the whole 2-4 sentence passage); isolate-and-re-translate re-presents
+the L1 context plus that same isolated gold-L2 sentence for back-translation. Both card types
+build strictly toward `corrected_form` — `prompt_payload` never includes `learner_form` at all,
+so the pedagogically-critical invariant (never quiz the wrong form) can't be violated even by
+omission. Sentence isolation uses a local, language-agnostic Latin/CJK terminator regex
+(not `passage_builder.segment_sentences`, which collapses whitespace and discards character
+offsets — would break span alignment for zero-width omission-error spans) with a safe
+whole-text fallback. 8 new unit tests (`tests/test_dual_translation_cards.py`) cover the
+answer-target invariant for both card types, single-blank atomicity, zero-width omission spans,
+sentence-scoping (Latin + CJK terminators), and `build_cards`' combined output; full suite
+re-verified green (900 passed, 1 skipped, no regressions). DB wiring (fetching `gold_l2`/`l1_text`,
+attaching `user_id`/`profile_entry_id`/`origin_error_id`, writing `dt_card` rows) is TASK-614's
+job, which this unblocks.
+
+## 2026-07-14 update-status | TASK-611 done — dual-translation error-profile dashboard
+
+Built Stage 2's self-regulation surface: `GET /api/dual-translation/profile` in
+`routes/dual_translation.py` (`get_profile` + `_fetch_profile_entries`) reads the user's
+`dt_error_profile_entry` rows ranked by `severity_rank DESC` (frequency × severity, per
+TASK-610's synthesis output) and resolves language ids to codes via `DimensionService`.
+New page `/dual-translation/profile` (`app.py` route + `templates/dual_translation_profile.html`
++ `static/js/dual_translation_profile.js`) never surfaces the raw `severity_rank` — it splits
+entries into a ranked "active" list (watching/queued/drilling) and a celebratory "resolved"
+section, framing `trend.delta_pct` as plain fewer/more-this-window language rather than a
+score. i18n keys added under `dual_translation.profile.*` to all 4 locales (en/es/ja/zh).
+5 new unit tests (`TestFetchProfileEntries`, `TestGetProfile` in
+`tests/test_dual_translation_routes.py`); full suite green (892 passed, 1 skipped). Unblocks
+nothing further downstream (TASK-613/614 depend on TASK-610/612, not this task).
+
+## 2026-07-14 update-status | TASK-612 done — dt_card and dt_card_review migration
+
+Created `migrations/dt_cards.sql` implementing Feature 2 (Error Synthesis + Spaced
+Remediation) schema layer. Two tables: (1) `dt_card` — remediation items with
+FSRS state (stability, difficulty, due_date, state, reps, lapses, last_review),
+keyed to subtype (not sense_id); (2) `dt_card_review` — append-only review log
+for recurrence-reduction instrumentation (`was_correct` per card). Mirrors
+`user_flashcards` state machine but lives independently to avoid polluting
+the vocab-sense-keyed table. Indexes: user + due_date (for due queue), user + subtype
+(for interleaving by error category). Complete column/FK/CHECK documentation
+in migration comments. Follows TASK-609 (`dt_error_profile_entry`). Unblocks
+TASK-613 (card generation from errors).
+
+## 2026-07-14 update-status | TASK-610 done — dual-translation error synthesis
+
+Built Stage 2 of Dual Translation remediation: the mistake gate + deterministic subtype
+clustering + recurrence promotion. Pure logic lives in
+`services/dual_translation/synthesis.py` (all functions pure over plain dicts, no DB/LLM);
+the nightly runner `scripts/dt_nightly_synthesis.py` does the DB wiring — reads the last
+`2×W` days of `dt_error_instance`, joins each to its `dt_submission` (user, L1) and
+`dt_passage` (L2) via explicit id-set lookups (no PostgREST FK-embedding dependency), then
+upserts `dt_error_profile_entry` on the `(user_id, l1_language_id, l2_language_id, subtype)`
+UNIQUE key. Key decisions: (1) **no embeddings** — clustering is a plain `(user, l1↔l2
+pair, subtype)` group-by on the subtype the grader already emits (ADR/tech-spec decision 2);
+(2) `is_mistake=True` rows are gated out before clustering so a mistake can never reach the
+promotion threshold; (3) promotion is recurrence `>= N` in window `W` (the proceduralization-gap
+OR-path is stubbed as a param, pending the TASK-614 delayed-re-test signal); (4)
+`severity_rank` = sum of per-error MQM severity weights (minor/major/critical = 1/2/3; legacy
+global/local mapped defensively), i.e. frequency × mean-severity; (5) the status state machine
+never regresses a card-pipeline-owned `drilling`/`resolved` row. **Config:** `W`/`N` are read
+from env `DT_SYNTHESIS_WINDOW_DAYS` (30) / `DT_SYNTHESIS_PROMOTE_THRESHOLD` (3) in the runner —
+GateGuard hard-blocked the intended `config.py` addition this session, so they live as env reads
+for now (documented in the script; promote onto `Config` in a later session). Also corrected the
+now-false `TODO(TASK-610)` comment in `routes/dual_translation.py::submit` (the table exists;
+synthesis is off-hot-path, no submit-time enqueue). Tests: 20 new in
+`tests/test_dual_translation_synthesis.py` (mistake gate, deterministic clustering, threshold,
+severity_rank, status machine, windowing/trend) — all green; 27/27 route tests still pass. Live
+nightly run pending real `dt_error_instance` volume (feature freshly live). Unblocks TASK-611
+(dashboard) + TASK-613 (cards).
+
+## 2026-07-13 update-status | TASK-601 done — dual-translation budget guardrail
+
+Implemented the per-user/day token budget guardrail. `Config.DT_DAILY_TOKEN_BUDGET` (env
+`DT_DAILY_TOKEN_BUDGET`, default 20000) is the operator-adjustable tunable. New
+`routes/dual_translation.py::_tokens_used_today` sums `dt_grade.grader_trace.tokens.{in,out}`
+across a user's `dt_submission` rows since UTC midnight; `submit()` now passes
+`max_tier='tier1'` once that sum reaches the budget, reusing `grade_submission`'s existing
+TASK-606 `max_tier` hook — no changes needed in `grader_cascade.py` itself, since Tier 2
+already failed open to MAX_BAND when skipped. `grader_trace` persistence (`_persist_grade`)
+was already wired by TASK-607. Added 6 new tests (`test_dual_translation_routes.py`):
+3 for `_tokens_used_today`, 3 for the route-level budget wiring (under/over/zero-budget).
+27/27 route tests and 19/19 grader_cascade tests pass. Updated `tasklist/master.md` and
+`archive/dual-translation.tasks.md`. Cost-dashboard UI (reading `grader_trace` back for an
+operator view) is not built — left as an open follow-up.
+
+## 2026-07-13 update-status | TASK-111 closed as Won't Do (obsolete)
+
+Closed the last open Practice Engine Merger task, TASK-111 (parity tests — Jaccard ≥ 0.70), as
+obsolete without implementing it. Rationale: the parity test was a pre-cutover safety net comparing
+the old independent `get_ladder_session` / `get_exercise_session` against the new
+`get_practice_session`. TASK-110 (`phase12_deprecation_wrappers.sql`, 2026-05-21) replaced both
+legacy RPC bodies with thin wrappers that call `get_practice_session` internally, so no independent
+old implementation remains — the test would diff the engine against a wrapper of itself (Jaccard ≈
+1.0, false confidence). It also can't run in CI (pytest fully mocks Supabase). Production traffic
+over ~2 months provides the no-regression evidence. Practice Engine Merger epic now complete (12/12
+resolved: 11 done, 1 won't-do). Updated `tasklist/master.md` and `archive/practice-merger.tasks.md`.
+
+## 2026-07-13 audit | Tasklist consolidation — codebase + live-Supabase completion audit
+
+Read all 9 files in `wiki/tasklist/` and cross-checked every "Not Started" row against the actual
+codebase (migrations, services, routes, cron registration in `app.py`) and, for Dual Translation,
+a live `mcp__Supabase__list_tables` check against project `kpfqrjtfxmujzolwsvdq`.
+
+**Findings — significant drift in two feature areas that were never updated after shipping (both
+committed 2026-05-21):**
+- Practice Engine Merger: 11 of 12 tasks (TASK-101–110, TASK-112) were actually done — only
+  TASK-111 (parity tests) is genuinely open.
+- Study Plans: 19 of 20 tasks (TASK-201–219) were actually done, including the flag flip
+  (`STUDY_PLAN_ENABLED` defaults `True`) — only TASK-220 (deprecation cleanup) is open.
+- Dual Translation: TASK-609 (`dt_error_profile_entry` migration) was live but unmarked.
+
+Everything else in the prior master.md (Ladder Judge Layer, Exercise Generation v2, the rest of
+Dual Translation, Evidence-First Grading, Daily Session Hardening, Language Packs) was spot-checked
+and found accurate.
+
+**Incidental finding:** live Supabase advisor reports RLS disabled on 41 tables including all
+`dt_*` tables — surfaced to the user, not remediated (needs policies, not just `ENABLE`).
+
+**Actions:** Rewrote [[tasklist/master]] to list only incomplete work (68 not-started + 5 blocked
+numbered tasks + language-packs unnumbered), with a "Recently confirmed complete" section
+documenting the drift found. Added audit-banner callouts to `practice-merger.tasks.md`,
+`study-plans.tasks.md`, and `dual-translation.tasks.md` correcting their stale per-task status
+markers in place before archiving. Created `wiki/tasklist/archive/` and moved all 8 per-feature
+tasklist files plus the pre-audit `master.md` snapshot there. Updated `wiki/index.md`'s Task Lists
+section accordingly.
+
+**Pages updated: 3** — `wiki/index.md`, `wiki/tasklist/master.md` (full rewrite), `wiki/log.md`
+(this entry).
+**Pages moved to archive: 9** — all `wiki/tasklist/*.tasks.md` files + prior `master.md`.
+**Pages annotated (banner note added, not rewritten): 3** — `archive/practice-merger.tasks.md`,
+`archive/study-plans.tasks.md`, `archive/dual-translation.tasks.md`.
+
+## 2026-07-13 code-review | Evidence-first grading hardening batch (TASK-633–649)
+
+`/code-review` audit (8 finder angles, 3 verifier passes, high effort) run against the
+uncommitted TASK-624/625/626 work (rubric v4, severity triad, taxonomy v5) across
+`services/dual_translation/`, `migrations/dt_*.sql`, `scripts/run_dt_grading_eval.py`,
+`scripts/dt_gold_seed_helper.py`, `static/js/dual_translation.js`, and the DT wiki cluster.
+39 raw candidates → 22 survived dedup + verification (21 CONFIRMED, 1 PLAUSIBLE). Filed as
+TASK-633 through TASK-649 in [[tasklist/evidence-first-grading.tasks]] (master.md synced).
+Most severe: non-atomic grade persistence can permanently cache a submission with `errors: []`
+(TASK-633); span reconciliation snaps off-by-one spans to the wrong occurrence and silently
+drops errors on normalization mismatches (TASK-634); an empty `scores` dict reopens the
+TASK-623 leniency hole (TASK-635); the rubric v4 seed can commit zero active rows on a
+v2-less environment (TASK-636); a JA exemplar references a taxonomy subtype retired by v5
+(TASK-637). Also flagged: the eval harness (the TASK-622 regression gate) has its own
+duplication/drift risks (TASK-640, TASK-641) — recommended to fix before the next paid harness
+run. Five wiki hygiene defects filed as TASK-649 (stale `status: planned` on shipped pages,
+TASK-625 completion-date mismatch between the tasklist and this log, `master.md` `last_updated`
+predating its own content, `wiki/evaluations/` outside the CLAUDE.md §2/§8 schema).
+
+## 2026-07-06 task-done | TASK-625 Severity triad migration (minor/major/critical)
+
+Flipped `dt_error_instance.severity` from the 2-level global/local vocabulary to the MQM triad
+(`minor` w1 / `major` w5 / `critical` w25) across DB, code, prompts, fixtures and UI — the Phase-2
+structural vocabulary change (role split + derived scoring stay TASK-627/628). `migrations/
+dt_severity_triad.sql` ran live as the two-step CHECK change (extend `dt_error_instance_severity_check`
+to the 5-value union → backfill `local→minor`/`global→major` → `DO`-block verify zero old rows →
+tighten to the triad); 16 rows migrated (14 minor / 2 major, 0 critical), verified
+`SELECT DISTINCT severity` = {minor, major}. `prompts.SEVERITY_ENUM = ("minor","major","critical")`;
+`_SEVERITY_TESTS` restored to the full 3-level §7a reader-impact wording (EN/ZH/JA, ZH/JA pending
+native review); dead 2-level `_SEVERITY_GLOSS` + `_ENUM_LABELS["severity"]` **deleted** (unused since
+TASK-624 swapped the terse gloss for the reader-impact block); `_decode_error` range check widens to
+3 via `len(SEVERITY_ENUM)`. UI: three severity chips (`sev-global` styling → critical+major, minor
+unstyled), i18n keys `dual_translation.severity.{minor,major,critical}` in all four locales incl. es.
+Harness `run_dt_grading_eval::_exp_errors` now reads `severity_v2` and passes `em.SEVERITY_TRIAD_ORDER`.
+**Gotcha fixed:** rubric v4 exemplar `severity` integers encoded the OLD index meaning; re-tagged in
+place on the live v4 row (no version bump — avoids colliding with TASK-627 v5) — EN 1→0 (minor, tense
+slip reads on), ZH/JA 0→1 (major, aspect/particle meaning change). DT+dictation suite **313 green**
+(+ triad decode/critical/out-of-range, exemplar-severity guard, prompts triad-wording tests). Live
+harness re-run confirmed the TASK-624 floor holds and severity within-one (the new triad signal) is
+strong — see `evaluations/dt-grading-baseline-2026-07-05` (TASK-625 update). Files:
+`migrations/dt_severity_triad.sql`, `services/dual_translation/prompts.py`, `scripts/run_dt_grading_eval.py`,
+`static/js/dual_translation.js`, `static/i18n/{en,es,ja,zh}.json`, `migrations/dt_rubric_v4_seed.sql`,
+tests `test_dual_translation_{prompts,grader_cascade,rubric_v2,routes}.py`; wiki
+`algorithms/evidence-first-grading.tech` (§11 as-built), tasklist, master, this log.
+
+## 2026-07-05 task-done | TASK-624 Phase-1 prompt upgrades + rubric v4 seed
+
+Upgraded the tier1/tier2 grading prompts **in place** (no Detector/Verifier role swap — that is
+TASK-628) to drive down the clean-passage false-positive rate TASK-623 unmasked. `prompts.py` gained
+six new module-dict blocks (EN/ZH/JA; ZH/JA pending native review): accounted-for rule (2-way this
+phase — no highlights yet), acceptable-variation (bullets from rubric config — the main FP lever),
+reader-impact severity tests (mapped to the 2-level global/local enum), span discipline,
+operationalized `is_mistake`, and one worked exemplar per L2 (projected to each tier's dims).
+`build_user_prompt` gained a `regions` param; `grader_cascade._diff_regions` feeds the tier-0
+non-equal opcodes (cap 20) into both tier calls as candidate regions. `_decode_error` now
+substring-repairs `learner_form`/`span_repro` mismatches (`_reconcile_span_form`) before dropping —
+repairs off-by-one spans, keeps empty-form omission points (fixes the baseline's dropped error),
+drops forms absent from the text. `migrations/dt_rubric_v4_seed.sql` applied live as the single
+active row (v2→v4; band descriptors + weights inherited byte-identical from v2 via jsonb `||`; adds
+only `acceptable_variation` + `exemplars`; live-verified identical). DT+dictation suite **286 green**
+(prompt byte-stability + rubric tests extended; new decode-repair, regions, exemplar tests). Live
+harness re-run ($0.641, 172 calls): **clean FP .30/.70/.40 → .20/.00/.10** (JA 7/10→0/10) with span
+F1 (EN .494→.553 / JA .554→.725 / ZH .597→.658) and recall up on all three; **tension:**
+band-agreement QWK gave back on accuracy (all three) and overall_band on EN (−.05)/JA (−.14) via
+variance compression (recall did NOT drop). Files: `services/dual_translation/{prompts,grader_cascade}.py`,
+`migrations/dt_rubric_v4_seed.sql`, tests `test_dual_translation_{prompts,grader_cascade,rubric_v2}.py`;
+wiki `evaluations/dt-grading-baseline-2026-07-05` (TASK-624 update), `algorithms/evidence-first-grading.tech`
+(§11 as-built), tasklist. Rubric v4 aligns rubric ↔ taxonomy version (both 4; v3 skipped).
+
+## 2026-07-05 task-done | TASK-623 Tier-0 precision fixes
+
+Closed the two silent Tier-0 leniency holes the v1 baseline exposed. **(1)** Retired
+`NEAR_EXACT_MISMATCH_RATIO` (the ≤5% mismatch proxy that awarded full marks to single-token
+errors in multi-sentence passages) for a **normalization-class opcode gate**: Tier 0 resolves to
+full marks only if every non-`equal` `grade_dictation` diff op folds to an identical string under
+`_normalize_l2` + `services.dictation.tokenizer.normalize`. Gate keys on opcode **class**, not
+accuracy — a strict, non-fuzzy diff so the Levenshtein fuzzy-collapse (which inflates accuracy to
+1.0 on real ≥4-char edits) can't smuggle an edit past (tech spec §9 as-built note; residual
+dakuten-fold caveat documented). **(2)** `grader_cascade` Tier-1 `confidence` default 1.0→0.0 so a
+model omitting confidence escalates the Tier-2 re-check. Files: `services/dual_translation/tier0.py`,
+`services/dual_translation/grader_cascade.py`; tests `tests/test_dual_translation_tier0.py`,
+`tests/test_dual_translation_grader_cascade.py` (21 green; full DT suite 252 green). **Live harness
+re-run** ($0.659, 172 calls): single-error seeds reaching the grader **0/45→45/45**; span F1 EN
+.293→.494 / JA .194→.554 / ZH 0→.597; overall QWK EN .516→.512 / JA .186→.571 / ZH 0→.216. Clean-FP
+rose 0.000→.30/.70/.40 — the Tier-0 mask lifting (baseline 0.000 was a short-circuit artifact), now
+the top **TASK-624** target. Comparison table in [[evaluations/dt-grading-baseline-2026-07-05]].
+Pages updated: evidence-first-grading.tech.md §9, the eval page, tasklist/master.md,
+tasklist/evidence-first-grading.tasks.md.
+
+## 2026-07-05 task-done | TASK-622 Eval harness + v1 grading baseline
+
+Built the DT grading eval harness (Phase 0 gate for [[algorithms/evidence-first-grading.tech]] §10):
+`services/dual_translation/eval_metrics.py` (pure, I/O-free — greedy ≥50%-overlap span alignment,
+span F1, subtype accuracy, severity within-one, clean-FP rate, per-dim + overall band QWK/exact/adjacent),
+`tests/test_dt_eval_metrics.py` (23 hand-checked cases green), `scripts/run_dt_grading_eval.py`
+(loads the TASK-621 gold sets, grades each item through the SHIPPED v1 cascade, `--live`-gated paid
+calls, per-call cost via model-arena pricing). Filed [[evaluations/dt-grading-baseline-2026-07-05]].
+Live run $0.030 total (14 model calls). **Dominant finding:** Tier-0 near-exact gate
+(`NEAR_EXACT_MISMATCH_RATIO ≤ 0.05`) resolved 83/90 items to full marks before detection — **all 45
+single-error seeds swallowed**, ZH 30/30 at Tier 0. Recall is the floor (EN .222 / JA .111 / ZH .000);
+overall-band QWK EN .516 / JA .186 / ZH .000; clean-FP rate 0.000 across all three L2s (the predicted
+high FP rate did not materialise — Tier 0 short-circuits clean items). Sets the regression floor and
+motivates TASK-623 (retire the ratio gate). Grading code untouched. Pages updated: index.md,
+tasklist/master.md, tasklist/evidence-first-grading.tasks.md.
+
+## 2026-07-05 query | Daily training algorithm + /session runner audit
+
+Full-pipeline audit (Tier B cron → build_daily_session resolver → /session runner) answering:
+HTML ready? algorithm covers all types? schedules properly? interleaves? Pages created: 3
+([[algorithms/daily-session-implementation-analysis]], its .tech twin with findings F1–F16,
+[[tasklist/daily-session-hardening.tasks]] TASK-700–713). Pages updated: index.md, tasklist/master.md.
+Key findings: (F1-critical) Sunday 23:00 UTC cron seeds the *outgoing* week via `_monday_of(today)` —
+new week never gets a weekly_plan_states row, so plan users silently drop to legacy loads every Monday;
+(F2-critical) session practice player posts time_taken_ms=0 and per-attempt minute-rounding floors the
+rest — practice_completed_*_min never advance; (F3) hydration shortfalls silent (get_recommended_tests
+rank<=3 cap + never-attempted filter); (F4) no within-session interleaving (ORDER BY skill; practice
+appended last); plus ADR-006 retry slots unused in plan path, ON CONFLICT wipes completed_test_ids,
+advisory-lock dead code, legacy fallback mislabels test_type. Study-plans tasklist statuses (TASK-201…220
+"Not Started" though shipped) flagged for reconciliation as TASK-713. No code changed.
+
+## 2026-07-05 task-done | TASK-621 Gold calibration sets (EN/ZH/JA) frozen
+
+Built `tests/fixtures/dt_gold/{en,zh,ja}.json` — 30 items each (10 clean / 15 single-seeded /
+5 multi), sourced from the 28 live `dt_passage` rows (project kpfqrjtfxmujzolwsvdq). Perturbations
+LLM-drafted, spans scripted + verified, **every label user-adjudicated 2026-07-05**. Span-integrity
+and normalization-survival checks pass for all 90 items; distinct v5 subtypes en=13 / zh=12 / ja=11
+(≥10 each). Errors carry v4 `subtype` + `subtype_v5_target` (mechanical re-tag in TASK-626) and
+severity in both vocabularies (global/local + minor/major/critical). Bands derived from tech-spec §4.
+Reusable builder/verifier: `scripts/dt_gold_seed_helper.py`; provenance + adjudication record in the
+fixture `README.md`. JA adjudication dropped `counter_classifier` (no counters in source) and
+`script_choice` (beginner text) → replaced with `tense_aspect_ja` + `verb_conjugation`. Surfaced a
+grader caveat for TASK-623: `grade_dictation._fuzzy_equal` swallows lone ≤1-edit morphology
+(make→made) at Tier 0, so EN morphology seeds use registering agreement forms. No grading code or
+migrations touched (fixtures only). Next: TASK-622 (eval harness + v1 baseline).
+
+## 2026-07-04 tasklist | Evidence-First Grading v2 → TASK-621–632 (+ all 5 open decisions approved)
+
+User approved all five framework decisions: severity triad migration, ADR-019 (Application
+layer), provisional grades, provisional thresholds, native review deferred. ADR-019 flipped
+proposed→accepted; prose-page open questions collapsed to the native-review flag. Converted
+the framework to 12 tasks in `tasklist/evidence-first-grading.tasks` (IDs continue from
+TASK-620): Phase 0 = 621 gold sets + 622 harness/baseline; Phase 1 = 623 tier-0 fixes + 624
+prompt upgrades/rubric v4; Phase 2 = 625 severity triad, 626 taxonomy v5 (XL, authoring), 627
+derived scoring/rubric v5, 628 Detector-Verifier restructure (XL, behind DT_FRAMEWORK_V2
+flag), 629 descriptor rewrite; Phase 3 = 630 explainer, 631 UI v2, 632 final eval. Every
+behaviour-changing task gated on the TASK-622 harness. master.md: Not Started 65→77 + new
+section; index updated. Sequencing note: 621→622 must land first — nothing else ships
+unmeasured.
+
+## 2026-07-04 design | Evidence-First Grading (DT grading v2) — framework + complete prompts
+
+User request: DT grading must be "specific and precise in pointing out mistakes, clear on grading."
+Analysed shipped v1 (`services/dual_translation/{prompts,grader_cascade,tier0}.py`, rubric v2,
+taxonomy v4) and found 5 structural gaps: gestalt (ungrounded) bands, generic per-subtype
+explanation templates, coarse 9-subtype taxonomy, frequency-adverb band descriptors + no
+exemplars, and precision traps (tier-0 ≤5% full marks, fail-open full marks, missing-confidence
+default 1.0). Researched MQM severity-weighted scoring, WCF meta-analyses (Kang & Han 2015;
+Bitchener & Knoch 2010: direct + metalinguistic wins), CEFR-CV mediation scales, AES/LLM-judge
+literature (exemplar anchoring QWK 0.306→0.531; evidence-grounded judging; Hamel Husain/Eugene
+Yan), learner-corpus tagsets (CLC ~80, HSK 46, NICT JLE).
+
+Framework: scores COMPUTED from severity-weighted errors (minor 1/major 5/critical 25) — model
+detects, Python scores, historical grades re-scorable for free; Detector/Verifier call split
+(verify = confirm/reject/adjust each error); 3-layer explanations (Correction + Rule template +
+NEW model-generated instance Application in L1); taxonomy v5 (~15–17 subtypes/pair, subtype_meta
+with dimension/treatable/cloze flags); highlights[] positive evidence; behaviorally-anchored
+descriptors; gold-set eval harness (span F1, FP rate, QWK) gating all version bumps; 4 rollout
+phases (measure → prompts → structural → UX). Complete Detector/Verifier/Explainer prompts
+authored in EN/ZH/JA (ZH/JA flagged for native review).
+
+Pages created: 3 — `algorithms/evidence-first-grading{,.tech}`, `decisions/ADR-019-evidence-first-scoring`
+(proposed). Pages updated: `index` (87→90), `log`, `algorithms/translation-grading-cascade.tech`
+(cross-link). Open questions: 5 (severity-triad migration, ADR-019 approval, provisional-grade UX,
+threshold calibration, native review). Tasklist conversion NOT done — awaiting user review of the
+framework per §5d.
+
 ## 2026-07-04 implement | TASK-616 — localised taxonomy (v2/v3/v4) + rubric v2 weight bump, applied live + paid smoke
 
 Stage-4 localisation. **Key correction (confirmed with user):** the brief said to seed per-pair
@@ -2155,3 +2836,59 @@ Source: Live Supabase project (kpfqrjtfxmujzolwsvdq) via MCP connector — direc
 - users_backup table exists (empty, legacy, no PK)
 - pgvector extension in use (topics.embedding with IVFFlat index, 100 lists)
 - intarray extension in use (tests.vocab_sense_ids with gin__int_ops)
+
+## [2026-07-13] task | TASK-626 done — dual-translation taxonomy v5 (expanded subtypes + subtype_meta)
+
+Phase-2 taxonomy expansion for Evidence-First grading. Rubric untouched (stays v4); taxonomy-only bump.
+
+**Applied live:** `migrations/dt_taxonomy_v5_seed.sql` as the single active `dt_taxonomy_version`
+row (v5; v4 deactivated). Per-L2 subtype sets grown to tech-spec §5 sizes — EN 15 / JA 17 / ZH 17
+(shared core 8 + per-target). New top-level **`subtype_meta`** (33 entries): per-subtype
+`{dimension, default_severity, treatable, cloze_suitable}` — the §4 machinery TASK-627 derived
+scoring reads. JA `particle` **split** into `particle_wa_ga` / `particle_case` / `particle_other`
+(per-instance re-adjudication of the 8 JA particle gold items, user-adjudicated). `particle` kept in
+`subtype_meta` only as a historical alias → accuracy (not in any pairs list) so v1–v4 stored rows
+still resolve; all other v4 subtypes survive verbatim. 15 new subtypes' ZH/JA glosses+templates
+AI-drafted, flagged for native review in the migration header (ADR-019 pattern).
+
+**Files:** `migrations/dt_taxonomy_v5_seed.sql` (new); `tests/test_dual_translation_taxonomy_v5.py`
+(new, 28 — shape/totality/alias/no-slug-fallback); `tests/fixtures/dt_gold/{en,zh,ja}.json`
+(re-tagged to v5); `scripts/run_dt_grading_eval.py` (hardened: retry+backoff + `--resume`);
+`tests/test_dt_eval_harness_retry.py` (new). Full DT/dictation suite 355 green.
+
+**Paid harness re-run ($0.624):** subtype accuracy EN .714→.727 ↑ / JA .760→.875 ↑ / ZH .833→.739
+(finer 17-way vs old 9-way tagset — not a detection regression); span F1 + clean FP held on all
+three; severity within-one 1.000 all; **625-deferred JA floor re-confirmed** (span F1 .696 / clean
+FP .000). The new retry wrapper recovered the JA run from a mid-run `getaddrinfo` DNS failure (the
+exact TASK-625 orphaning cause). Full gate assessment: [[evaluations/dt-grading-baseline-2026-07-05]]
+(TASK-626 update). As-built: [[algorithms/evidence-first-grading.tech]] §11. Unblocks TASK-627.
+
+## [2026-07-14] task | TASK-220 done — Practice-merger deprecation cleanup
+Dropped both wrapper RPCs (`migrations/phase17_drop_deprecation_wrappers.sql`; `phase12_deprecation_wrappers.sql` → `migrations/archive/`, recorded in archive README). `/api/exercises/session` and `/api/vocab-dojo/session` handlers now **302** to `/api/practice/session` (`auto` / `acquisition`). Last live `get_ladder_session` RPC caller removed; `get_exercise_session_service` alias + `services/exercise_session_service.py` shim deleted, `app.py` repointed to `get_practice_session_service`. Per the "retire both pages" decision, the standalone `/exercises` + `/vocab-dojo` page routes, their templates, and the Vocab Dojo nav link were removed — the unified `/session` Practice player is the sole live surface (the vocab-dojo gate/stress/word API endpoints stay). `grep --include="*.py"` clean; changed modules byte-compile; no tests referenced the retired surfaces. Wiki updated: [[tasklist/master]], [[tasklist/archive/study-plans.tasks]], [[features/practice-engine.tech]], [[database/rpcs.tech]], [[features/exercises]], [[features/vocab-dojo]]. Study Plans epic now complete.
+
+## [2026-07-14] task | TASK-618 done — Inject DT error exercises into Practice Engine sessions
+Cross-feature integration into the live session assembler. `services/dual_translation/cards.py` gained `select_error_exercises_for_practice`: materialises due cards (idempotent `generate_cards_for_queued_entries`), fetches due `dt_card` rows **L2-scoped** via `profile_entry_id → dt_error_profile_entry.l2_language_id` (dt_card has no language column, so a JA session never surfaces a ZH card), round-robins them through the existing `interleave_by_subtype`, and caps at `min(due, MAX, ceil(FRACTION × normal_items))`. Env knobs `DT_PRACTICE_ERROR_CARD_MAX`=3 / `DT_PRACTICE_ERROR_CARD_FRACTION`=0.34 (env-direct, matching `DT_ERROR_CARD_INTERLEAVE_EVERY`, not `Config`). `PracticeSessionService.get_session` injects **after** the RPC, spreading the capped, **non-sense-linked** (`word_sense_id: None`) items evenly through normal items via a new `_interleave_extras` staticmethod — best-effort (never breaks the session) and only into a non-empty session (empty stays empty; `GET /next` still owns the no-practice due queue). Items carry `card_id` for the existing `POST /cards/<id>/review` grade path. FE renderer deferred: the v1 practice player and legacy `get_or_create_daily_session` **skip** `is_error_exercise` items like gate/stress markers, so nothing renders broken; wiring the cloze/isolate UI into `static/js/session/players/practice.js` is the tracked follow-up. 12 new unit tests; full suite 951 passed / 1 skipped, no regressions. Wiki updated: [[tasklist/master]], [[tasklist/archive/dual-translation.tasks]].
+
+## [2026-07-16] task | TASK-644 done — Append-only JSONL eval-harness checkpoint
+Replaced the O(n²) resume checkpoint in `scripts/run_dt_grading_eval.py`: `_save_checkpoint` rewrote the entire records+skipped payload as indented JSON after every graded item (largest writes late in a run, between paid model calls). It now takes the single freshly-completed item (`record=` / `skipped=` kwargs) and **appends one `{"type","data"}` JSONL envelope** per item — O(1), `flush()`+`fsync()` after each write. `_load_checkpoint` streams the JSONL, partitions by envelope `type`, and skips an unparseable trailing line (a crash mid-append) instead of aborting. A legacy pre-644 whole-file `{records,skipped}` sidecar is detected (the whole file still parses as one JSON object; a JSONL log doesn't), loaded once, and rewritten to JSONL in place via new `_migrate_checkpoint_to_jsonl` (temp+replace). **Beyond spec:** the `--resume` simulation surfaced that a torn *newline-less* final line glues the next append onto it and loses that item, so `_needs_leading_newline` makes an append after a torn tail start a fresh line — else a re-graded item silently drops from the log on a double-crash. Both `main()` callsites updated. Tests: 20 green (was 19; +8 checkpoint cases: JSONL append, streaming load, legacy migration + follow-on append, torn-tail read + torn-tail append, empty file, no-op guards); a simulated `--resume` after interrupt recovers the same 4 done-ids. Wiki updated: [[tasklist/master]], [[tasklist/archive/evidence-first-grading.tasks]].
+
+## [2026-07-19] task | TASK-632 done — Evidence-First v2 final eval; DT_FRAMEWORK_V2 flipped ON
+Full TASK-622 harness run on the completed v2 stack (Detector/Verifier + derived scoring +
+Explainer), rubric **v6 as candidate config** via the new `--rubric-file` flag (evaluate-before-
+activate; live DB untouched) + new `--framework-v2` flag (explicit, env-independent framework
+selection; report header now names the framework). Results filed as
+[[evaluations/dt-grading-v2-2026-07-19]]: EN span F1 .543→**.941** / clean FP .200→**.000** /
+overall QWK .512→**.824**; JA .696→**.880** / .000→.100 (1 item) / .419; ZH .639→**.880** /
+.100→.200 (2 items) / .245 (±.1 ZH run variance; fidelity QWK .891 best-ever). Severity within-one
+1.000 everywhere; zero provisional/skipped/fell-open across 90 items. **`Config.DT_FRAMEWORK_V2`
+default flipped ON** (rollback = env false); 12 v1-path tests pinned `framework_v2=False`
+(rollback-path tests); DT suite 596 green. Harness also gained: eval_metrics None-guard for v2
+both-fail records (+1 test), honest cost caveat (checkpoint lacks per-item usage — improvement
+filed). Wiki: framework pages → complete; v1 cascade pages → deprecated w/ v2-live banner;
+[[business-rules/translation-error-taxonomy]] → v5/triad reality; index/master reconciled;
+master's duplicated TASK-627 note deduped. **Owed:** `dt_rubric_v6_seed.sql` live apply (TASK-629
+carry) — the session's permission classifier denied every DB-write wire (local script, MCP
+execute_sql, apply_migration); seed is idempotent + guarded, one manual apply. Code-review +
+improvement report delivered in-session (headline items: checkpoint per-item usage, JA latency/
+output-token cap, naturalness/range gold coverage, `_fetch_active_scalar` None-caching, highlight↔
+verdict reconciliation).

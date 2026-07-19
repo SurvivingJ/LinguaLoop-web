@@ -27,8 +27,8 @@ breaking_change_risk: high
 > - `apply_study_plan_template(p_user_id uuid, p_language_id smallint, p_template_id smallint) RETURNS user_study_plans` — onboarding hook (UPSERT).
 > - `compute_weekly_plan_load_signals(p_user_id, p_language_id, p_week_start) RETURNS jsonb` — Tier B Python adapter pulls every needed signal in one round-trip.
 > - `compute_weekly_plan_persist(p_user_id, p_language_id, p_week_start, p_computed jsonb) RETURNS jsonb` — atomic UPSERT of Python-computed Tier B output; preserves `completed_counts`/`practice_completed_*_min`/`session_progress_log`.
-> - `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date=CURRENT_DATE) RETURNS jsonb` — Tier C resolver in PL/pgSQL; greedy + spacing-penalty fill; writes `daily_test_loads` + `daily_session_targets`. Returns `code=E_NOPLAN` or `E_NOWEEK` jsonb on missing prerequisites.
-> - `record_session_progress(p_user_id, p_language_id, p_attempt_id uuid, p_kind text, p_skill text, p_delta_count int, p_delta_minutes int) RETURNS boolean` — idempotent counter update keyed by `attempt_id`.
+> - `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date=CURRENT_DATE) RETURNS jsonb` — Tier C resolver in PL/pgSQL; greedy + spacing-penalty fill; writes `daily_test_loads` + `daily_session_targets`. Returns `code=E_NOPLAN` or `E_NOWEEK` jsonb on missing prerequisites. **TASK-702:** hydrates budgeted slots from `get_recommended_tests` (`slot_type='new'`) then tops up shortfalls from `get_replay_tests` (`slot_type='replay'`); returns per-skill `requested_counts` / `hydrated_counts` (primary fill only) / `replay_counts`; `used_minutes` reflects placed slots (+ `budgeted_minutes` for the raw budget). Canonical: `task702_build_daily_session.sql`.
+> - `record_session_progress(p_user_id, p_language_id, p_attempt_id uuid, p_kind text, p_skill text, p_delta_count int DEFAULT 0, p_delta_minutes int DEFAULT 0, p_delta_seconds int DEFAULT 0) RETURNS boolean` — idempotent counter update keyed by `attempt_id`. Practice accrues `p_delta_seconds` into `practice_completed_*_sec`; the `*_min` columns are re-derived as `ROUND(sec/60)` (TASK-701, `phase18_practice_time_seconds.sql`). Test path uses `p_delta_count`/`p_delta_minutes`.
 > - `apply_attempt_timing_and_progress(p_attempt_id uuid, p_started_at timestamptz, p_finished_at timestamptz) RETURNS jsonb` — post-submission hook called by `routes/tests.py` to persist `started_at`/`duration_ms` on `test_attempts` and invoke `record_session_progress(..., 'test', ...)` atomically. NULL-timestamp-tolerant.
 > - `refresh_practice_time_estimates() RETURNS jsonb` — nightly job that refreshes `dim_exercise_types.expected_seconds_p50` (from `exercise_attempts.time_taken_ms`) and `dim_test_types.expected_minutes_p50` (from `test_attempts.duration_ms`) from observed P50s over the last 30 days, requiring ≥30 samples per type.
 > - `test_time_estimate(p_skill text) RETURNS numeric` — `STABLE` helper. Prefers `dim_test_types.expected_minutes_p50` when set; else falls back to a hard-coded seed matching `Config.TEST_TYPE_MINUTES`.
@@ -38,8 +38,8 @@ breaking_change_risk: high
 >
 > **Submission RPCs (`process_test_submission` + variants): unchanged.** Body-of-RPC modification was deferred in favor of the `apply_attempt_timing_and_progress` hook called by the route handler after the submission returns. Timing has no influence on ELO calculation so isolating it as a hook avoids duplicating ~250 lines × 4 RPCs.
 >
-> **Deprecation wrappers:**
-> - `get_exercise_session`, `get_ladder_session` — kept as thin wrappers delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)` respectively, with `RAISE WARNING 'DEPRECATED'`. Scheduled for removal one release after launch (TASK-220).
+> **Deprecation wrappers — REMOVED 2026-07-14 (TASK-220):**
+> - `get_exercise_session`, `get_ladder_session` — **dropped** by `migrations/phase17_drop_deprecation_wrappers.sql`. They had been thin wrappers delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)`. `/api/exercises/session` and `/api/vocab-dojo/session` now 302 to `/api/practice/session`; the standalone pages were retired. The full-spec sections for both RPCs below are retained as historical record only.
 >
 > **Cron:**
 > - New job `study_plan_weekly_recompute` — Sundays at 23:00 UTC; iterates `user_study_plans`, calls `compute_weekly_plan` per row under an advisory lock (same pattern as `irt_calibration_nightly`).
@@ -65,7 +65,7 @@ breaking_change_risk: high
 | Token Economy | 4 | `add_tokens_atomic`, `get_token_balance`, `get_test_token_cost`, `get_daily_free_test_limit` (`can_use_free_test` dropped 2026-05-15 — no callers) |
 | Payment Processing | 1 | `process_stripe_payment` |
 | ELO / Skill Rating | 3 | `calculate_elo_rating`, `calculate_volatility_multiplier`, `update_skill_attempts_count` |
-| Test & Content | 5 | `get_recommended_test`, `get_recommended_tests`, `process_test_submission`, `update_test_attempts_count`, `tests_containing_sense` |
+| Test & Content | 6 | `get_recommended_test`, `get_recommended_tests`, `get_replay_tests`, `process_test_submission`, `update_test_attempts_count`, `tests_containing_sense` |
 | Vocabulary & Knowledge (BKT) | 13 | `bkt_update`, `bkt_status`, `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `bkt_apply_decay`, `bkt_effective_p_known`, `bkt_phase`, `bkt_phase_thresholds`, `update_vocabulary_from_test`, `update_vocabulary_from_word_test`, `get_word_quiz_candidates`, `update_user_vocab_stats` (`get_vocab_recommendations` dropped 2026-05-15 — no callers) |
 | Vocabulary Lookup | 2 | `batch_lookup_lemmas`, `get_distractors` |
 | Mystery System | 2 | `get_recommended_mysteries`, `process_mystery_submission` |
@@ -719,14 +719,23 @@ $function$
 
 ---
 
+### `get_replay_tests(p_user_id uuid, p_language_id smallint, p_test_type text, p_min_age_days int=7, p_exclude uuid[]='{}', p_limit int=10): TABLE(...)`
+
+- **Security:** DEFINER · **Language:** plpgsql · **Added:** 2026-07-19 (TASK-702), [migrations/get_replay_tests.sql](../../migrations/get_replay_tests.sql)
+- **Description:** Exhausted-pool fallback / shared selection code for `build_daily_session`'s replay slots (and, later, TASK-704 retry slots). The **inverse** of `get_recommended_tests`: returns the nearest-ELO tests of one `p_test_type` that the user **has** attempted, but whose most-recent attempt is **older than `p_min_age_days`** (default 7), excluding `p_exclude` and honouring the same premium/tier gating. Ordered by `|test_elo − user_elo|` asc, then oldest-attempt first. Returns nothing for an unknown/inactive `p_test_type`.
+- **Returns:** `TABLE(test_id uuid, test_type text, elo_rating integer, elo_diff integer, last_attempt_at timestamptz)`
+- **Callers stamp `slot_type='replay'`** on the result. ADR-006 reduced-volatility ELO is *designed* to apply to these repeats at submission, but the live `process_test_submission` does not currently implement that damping (see `migrations/archive/README.md` CR-04 note) — so no damping runs on replay repeats yet.
+
 ### `get_recommended_tests(p_user_id uuid, p_language_id smallint): TABLE(...)`
 
 - **Security:** DEFINER
 - **Language:** plpgsql
-- **Description:** Returns multiple recommended tests for a user by language id. Checks subscription tier for premium access. Excludes tests the user has already attempted **for that same test type**. Returns up to 3 tests per test type (listening, reading, dictation), deduplicated by `(test_id, test_type)`, sorted by ELO proximity.
+- **Description:** Returns multiple recommended tests for a user by language id. Checks subscription tier for premium access. Excludes tests the user has already attempted **for that same test type**. Returns up to **10** tests per test type (listening, reading, dictation, pinyin, pitch_accent), deduplicated by `(test_id, test_type)`, sorted by ELO proximity.
 - **Migration history:**
-  - 2026-05-13 — signature changed from `(uuid, text)` to `(uuid, smallint)` via [migrations/fix_get_recommended_tests_signature.sql](../../migrations/fix_get_recommended_tests_signature.sql).
-  - 2026-05-17 — [migrations/update_get_recommended_tests_for_dictation.sql](../../migrations/update_get_recommended_tests_for_dictation.sql): the `NOT EXISTS test_attempts` exclusion key changed from `(user_id, test_id)` to `(user_id, test_id, test_type_id)` so a user who took the listening version of a test still sees the dictation lane; added an 80-word transcript cap on the dictation lane specifically; CTE filter now requires `dim_test_types.is_active = true`.
+  - 2026-05-13 — signature changed from `(uuid, text)` to `(uuid, smallint)` via [migrations/fix_get_recommended_tests_signature.sql](../../migrations/archive/fix_get_recommended_tests_signature.sql).
+  - 2026-05-17 — [migrations/update_get_recommended_tests_for_dictation.sql](../../migrations/archive/update_get_recommended_tests_for_dictation.sql): the `NOT EXISTS test_attempts` exclusion key changed from `(user_id, test_id)` to `(user_id, test_id, test_type_id)` so a user who took the listening version of a test still sees the dictation lane; added an 80-word transcript cap on the dictation lane specifically; CTE filter now requires `dim_test_types.is_active = true`.
+  - 2026-06 — pinyin then pitch_accent added to `target_types` (now the full slug-based set the study planner can schedule).
+  - 2026-07-19 (TASK-702) — per-type candidate cap raised **3 → 10** (`rank_in_type <= 10`) via [migrations/task702_get_recommended_tests_rank_cap.sql](../../migrations/task702_get_recommended_tests_rank_cap.sql), so `build_daily_session` can hydrate heavy-weekday budgets before falling back to replay slots. Canonical file is now `task702_get_recommended_tests_rank_cap.sql`.
 
 **Returns:** `TABLE(test_id uuid, slug text, test_type text, title text, difficulty_level integer, elo_rating integer, elo_diff integer, tier text)`
 
@@ -805,7 +814,7 @@ BEGIN
       c_test_id, c_slug, c_test_type, c_title,
       c_difficulty_level, c_elo_rating, c_elo_diff, c_tier
     FROM all_candidates
-    WHERE rank_in_type <= 3
+    WHERE rank_in_type <= 10   -- TASK-702: raised from 3
     ORDER BY c_test_id, c_elo_diff ASC
   )
   SELECT

@@ -4,16 +4,14 @@ Practice Session Service — unified vocabulary practice surface.
 Module-level factory:
   get_practice_session_service()  → returns a process-wide singleton.
 
-Legacy aliases (one-release deprecation window):
-  ExerciseSessionService             ← class alias
-  get_exercise_session_service()     ← factory alias
-  PracticeSessionService.get_or_create_daily_session(...)  ← back-compat method
-  PracticeSessionService.mark_exercise_complete(...)       ← back-compat method
+Back-compat methods retained on PracticeSessionService:
+  get_or_create_daily_session(...)   ← legacy daily-mixed shape
+  mark_exercise_complete(...)        ← no-op under the merged engine
 
 
-Replaces the split between Daily Mixed Session (`get_exercise_session`) and
-Vocab Dojo (`get_ladder_session`) with a single mode-dispatched RPC
-`get_practice_session`. See [[features/practice-engine.tech]] and ADR-007.
+Replaces the split between the legacy daily-mixed-session and vocab-dojo
+session RPCs with a single mode-dispatched RPC `get_practice_session`.
+See [[features/practice-engine.tech]] and ADR-007.
 
 Modes:
   - acquisition  : word-anchored loop (one word → K family-targeted items →
@@ -31,8 +29,8 @@ This service:
      that propagates to record_session_progress for weekly counter updates.
 
 Renamed from services/exercise_session_service.py (TASK-106). The legacy
-class name `ExerciseSessionService` is re-exported as an alias so existing
-imports keep working during the deprecation cycle.
+class/factory aliases and the compatibility shim were removed in TASK-220
+once the deprecation window elapsed.
 
 Follows the singleton pattern used by TestService / VocabularyKnowledgeService.
 """
@@ -49,6 +47,14 @@ from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 
 logger = logging.getLogger(__name__)
+
+# TASK-701: practice time accrues at seconds granularity. An attempt whose
+# measured elapsed exceeds this (a tab left open, a coffee break) is treated as
+# absurd and falls back to the exercise's expected_seconds estimate.
+PRACTICE_ATTEMPT_MAX_SECONDS = 300      # 5 minutes
+# Final fallback when the item carries no expected_seconds estimate — matches
+# the seed default in get_practice_session (COALESCE(..., 45)).
+DEFAULT_EXPECTED_SECONDS = 45
 
 
 class PracticeSessionService:
@@ -139,7 +145,58 @@ class PracticeSessionService:
         if cold_subscribed:
             payload['cold_subscribed'] = cold_subscribed
 
+        # TASK-618: interleave due Dual-Translation error-remediation cards into
+        # the session as a separate, non-sense-linked stream — capped so it never
+        # crowds out normal practice, and best-effort so a remediation hiccup
+        # never breaks the practice session. An empty normal session stays empty
+        # (see cards.select_error_exercises_for_practice); GET /next remains the
+        # surface for a due queue with no accompanying practice.
+        try:
+            from services.dual_translation import cards as dt_cards
+            normal_items = payload.get('items', []) or []
+            error_items = dt_cards.select_error_exercises_for_practice(
+                self.db,
+                user_id,
+                language_id=language_id,
+                normal_item_count=len(normal_items),
+            )
+            if error_items:
+                payload['items'] = self._interleave_extras(normal_items, error_items)
+                payload['error_cards_injected'] = len(error_items)
+        except Exception as e:
+            logger.warning(
+                'DT error-card injection failed (non-fatal) for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+
         return payload
+
+    @staticmethod
+    def _interleave_extras(
+        normal: List[Dict[str, Any]], extras: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Spread ``extras`` roughly evenly through ``normal`` (never clumped at
+        the end), preserving each list's internal order. Each extra lands AFTER
+        a normal item, so an assembled session still opens on a normal item.
+        """
+        if not extras:
+            return list(normal)
+        if not normal:
+            return list(extras)
+        result: List[Dict[str, Any]] = []
+        interval = len(normal) / len(extras)
+        ei = 0
+        next_threshold = interval
+        for i, item in enumerate(normal):
+            result.append(item)
+            while ei < len(extras) and (i + 1) >= next_threshold:
+                result.append(extras[ei])
+                ei += 1
+                next_threshold += interval
+        while ei < len(extras):
+            result.append(extras[ei])
+            ei += 1
+        return result
 
     # ------------------------------------------------------------------
     # Public API — attempt recording (carried over from legacy service)
@@ -154,11 +211,12 @@ class PracticeSessionService:
         time_taken_ms: Optional[int] = None,
         session_mode: Optional[str] = None,
         language_id: Optional[int] = None,
+        expected_seconds: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Record an attempt and propagate BKT / FSRS / Tier-B progress.
 
         Args mirror the legacy ExerciseSessionService.record_attempt_with_updates
-        with TWO new optional fields:
+        with THREE new optional fields:
 
           session_mode  : 'acquisition' | 'maintenance' | None
               If provided, record_session_progress is called with
@@ -168,6 +226,9 @@ class PracticeSessionService:
           language_id   : optional override; otherwise looked up from
               exercises.language_id. Required if session_mode is set so the
               progress call routes to the right weekly_plan_states row.
+          expected_seconds : the item's p50 time estimate (as served on the
+              session item). Used as the credited fallback when time_taken_ms
+              is missing/zero or absurdly large (TASK-701).
         """
         # 1. Look up exercise metadata
         exercise = (
@@ -259,7 +320,9 @@ class PracticeSessionService:
             and eff_language_id
         ):
             try:
-                minutes = max(0, round((time_taken_ms or 0) / 60_000.0))
+                delta_seconds = self._effective_practice_seconds(
+                    time_taken_ms, expected_seconds
+                )
                 self.db.rpc('record_session_progress', {
                     'p_user_id':       user_id,
                     'p_language_id':   eff_language_id,
@@ -268,7 +331,7 @@ class PracticeSessionService:
                                        else 'practice_maint',
                     'p_skill':         None,
                     'p_delta_count':   0,
-                    'p_delta_minutes': minutes,
+                    'p_delta_seconds': delta_seconds,
                 }).execute()
             except Exception as e:
                 # Non-fatal: progress tracking is best-effort.
@@ -278,6 +341,39 @@ class PracticeSessionService:
                 )
 
         return result
+
+    # ------------------------------------------------------------------
+    # Internal: practice time accounting (TASK-701)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _effective_practice_seconds(
+        time_taken_ms: Optional[int], expected_seconds: Optional[int]
+    ) -> int:
+        """Effective per-attempt seconds to credit toward weekly practice time.
+
+        - Missing / zero / negative ms  → credit the item's expected_seconds
+          estimate (never nothing).
+        - Absurd elapsed (> 5 min, e.g. a tab left open) → same estimate.
+        - Otherwise → measured elapsed, rounded to whole seconds.
+
+        The estimate itself is clamped to [1, PRACTICE_ATTEMPT_MAX_SECONDS] and
+        defaults to DEFAULT_EXPECTED_SECONDS when the item carries none.
+        """
+        try:
+            est = int(expected_seconds) if expected_seconds else DEFAULT_EXPECTED_SECONDS
+        except (TypeError, ValueError):
+            est = DEFAULT_EXPECTED_SECONDS
+        if est <= 0:
+            est = DEFAULT_EXPECTED_SECONDS
+        est = min(est, PRACTICE_ATTEMPT_MAX_SECONDS)
+
+        if not time_taken_ms or time_taken_ms <= 0:
+            return est
+        secs = time_taken_ms / 1000.0
+        if secs > PRACTICE_ATTEMPT_MAX_SECONDS:
+            return est
+        return max(1, round(secs))
 
     # ------------------------------------------------------------------
     # Internal: cold-ladder auto-subscribe
@@ -550,12 +646,14 @@ class PracticeSessionService:
             }
 
         items = (payload or {}).get('items', []) or []
-        # Strip gate / stress markers from the legacy shape — old callers
-        # don't know what to do with them and would render as empty exercises.
+        # Strip gate / stress markers and injected DT error cards (TASK-618)
+        # from the legacy shape — old callers don't know what to do with them
+        # and would render as empty/broken exercises.
         exercises = [
             it for it in items
             if not it.get('is_gate_marker')
             and not it.get('is_stress_test_marker')
+            and not it.get('is_error_exercise')
         ]
         return {
             'load_date':    _date.today().isoformat(),
@@ -594,11 +692,3 @@ def get_practice_session_service() -> PracticeSessionService:
     return _singleton
 
 
-# ---------------------------------------------------------------------------
-# Legacy aliases — existing callers (routes/exercises.py, routes/vocab_dojo.py)
-# imported ExerciseSessionService / get_exercise_session_service. Keep both
-# names available pointing at the new class so the deprecation cycle doesn't
-# bork imports.
-# ---------------------------------------------------------------------------
-ExerciseSessionService = PracticeSessionService
-get_exercise_session_service = get_practice_session_service

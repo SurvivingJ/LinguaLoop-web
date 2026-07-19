@@ -1,0 +1,934 @@
+[
+  {
+    "id": "ja_clean_01",
+    "kind": "clean",
+    "source_passage_id": 20,
+    "note": "synonym とても→非常に",
+    "reference": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "reproduction": "私たちが作るものは、小さな物を掴むことができる、非常にシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_02",
+    "kind": "clean",
+    "source_passage_id": 21,
+    "note": "kanji→kana 掴む→つかむ (acceptable)",
+    "reference": "まず、アームを動かすための「モーター」。これは、電気を力に変えて、アームを動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、物を掴むための部分です。",
+    "reproduction": "まず、アームを動かすための「モーター」。これは、電気を力に変えて、アームを動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、物をつかむための部分です。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_03",
+    "kind": "clean",
+    "source_passage_id": 22,
+    "note": "kanji→kana 繋ぎ→つなぎ (acceptable)",
+    "reference": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。製作のステップ 設計図を描く: まず、どのような形のアームにするか、簡単な設計図を描きましょう。どこにモーターをつけて、グリッパーはどう動かすかなどを考えます。部品を集める: 設計図をもとに、必要な部品を揃えます。",
+    "reproduction": "そして、これらの部品をつなぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。製作のステップ 設計図を描く: まず、どのような形のアームにするか、簡単な設計図を描きましょう。どこにモーターをつけて、グリッパーはどう動かすかなどを考えます。部品を集める: 設計図をもとに、必要な部品を揃えます。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_04",
+    "kind": "clean",
+    "source_passage_id": 23,
+    "note": "synonym 部品→パーツ",
+    "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要なパーツがセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_05",
+    "kind": "clean",
+    "source_passage_id": 24,
+    "note": "exact faithful copy (0 edits)",
+    "reference": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "reproduction": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_06",
+    "kind": "clean",
+    "source_passage_id": 25,
+    "note": "kana→kanji うまく→上手く (acceptable)",
+    "reference": "小さなブロックや消しゴムなどを掴ませて、うまく掴めるか確認します。もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。なぜこれを作るの？このロボットアームを作ることは、単に物を作るだけでなく、様々なことを学ぶ良い機会になります。",
+    "reproduction": "小さなブロックや消しゴムなどを掴ませて、上手く掴めるか確認します。もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。なぜこれを作るの？このロボットアームを作ることは、単に物を作るだけでなく、様々なことを学ぶ良い機会になります。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_07",
+    "kind": "clean",
+    "source_passage_id": 26,
+    "note": "synonym もっと→より",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、より複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_08",
+    "kind": "clean",
+    "source_passage_id": 27,
+    "note": "synonym 色々な→様々な",
+    "reference": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "reproduction": "このシンプルなロボットアームをベースに、さらに様々な機能を追加することもできます。例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_09",
+    "kind": "clean",
+    "source_passage_id": 28,
+    "note": "orthographic ください→下さい (acceptable)",
+    "reference": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。ぜひ、挑戦してみてください！",
+    "reproduction": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。ぜひ、挑戦してみて下さい！",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_clean_10",
+    "kind": "clean",
+    "source_passage_id": 23,
+    "note": "kana→kanji もの→物 (acceptable)",
+    "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになった物も見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "expected_errors": [],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_01",
+    "kind": "single",
+    "source_passage_id": 23,
+    "note": "は/が: relative-clause subject must be が",
+    "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要な部品はセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          31,
+          37
+        ],
+        "span_ref": [
+          31,
+          37
+        ],
+        "subtype": "particle_wa_ga",
+        "subtype_v5_target": "particle_wa_ga",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "部品はセット",
+        "corrected_form": "部品がセット"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_02",
+    "kind": "single",
+    "source_passage_id": 24,
+    "note": "case を→に (掴む takes を)",
+    "reference": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "reproduction": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物に掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          55,
+          59
+        ],
+        "span_ref": [
+          55,
+          59
+        ],
+        "subtype": "particle_case",
+        "subtype_v5_target": "particle_case",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "物に掴む",
+        "corrected_form": "物を掴む"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_03",
+    "kind": "single",
+    "source_passage_id": 26,
+    "note": "particle_other や→と (exhaustive listing nuance)",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気と部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "expected_errors": [
+      {
+        "span_repro": [
+          75,
+          80
+        ],
+        "span_ref": [
+          75,
+          80
+        ],
+        "subtype": "particle_other",
+        "subtype_v5_target": "particle_other",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "電気と部品",
+        "corrected_form": "電気や部品"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_04",
+    "kind": "single",
+    "source_passage_id": 20,
+    "note": "keigo downgrade です→だ in polite text",
+    "reference": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "reproduction": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要だ。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          113,
+          119
+        ],
+        "span_ref": [
+          113,
+          120
+        ],
+        "subtype": "keigo_register",
+        "subtype_v5_target": "keigo_register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "部品が必要だ",
+        "corrected_form": "部品が必要です"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_05",
+    "kind": "single",
+    "source_passage_id": 26,
+    "note": "tense/aspect: ている→た (are made → were made)",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られたのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "expected_errors": [
+      {
+        "span_repro": [
+          42,
+          48
+        ],
+        "span_ref": [
+          42,
+          50
+        ],
+        "subtype": "tense_aspect_ja",
+        "subtype_v5_target": "tense_aspect_ja",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "作られたのか",
+        "corrected_form": "作られているのか"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_06",
+    "kind": "single",
+    "source_passage_id": 26,
+    "note": "omission: noun 力 dropped (考える力→考える)",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考えるが養われます。さらに面白くするには？",
+    "expected_errors": [
+      {
+        "span_repro": [
+          153,
+          157
+        ],
+        "span_ref": [
+          153,
+          158
+        ],
+        "subtype": "omission",
+        "subtype_v5_target": "omission",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "が養われ",
+        "corrected_form": "力が養われ"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_07",
+    "kind": "single",
+    "source_passage_id": 20,
+    "note": "word order: adverb とても misplaced after シンプルな",
+    "reference": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "reproduction": "私たちが作るものは、小さな物を掴むことができる、シンプルなとてもロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          24,
+          32
+        ],
+        "span_ref": [
+          24,
+          32
+        ],
+        "subtype": "word_order",
+        "subtype_v5_target": "word_order",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "シンプルなとても",
+        "corrected_form": "とてもシンプルな"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_08",
+    "kind": "single",
+    "source_passage_id": 21,
+    "note": "word choice 掴む→持つ (grip→hold, meaning survives)",
+    "reference": "まず、アームを動かすための「モーター」。これは、電気を力に変えて、アームを動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、物を掴むための部分です。",
+    "reproduction": "まず、アームを動かすための「モーター」。これは、電気を力に変えて、アームを動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、物を持つための部分です。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          72,
+          79
+        ],
+        "span_ref": [
+          72,
+          79
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "物を持つための",
+        "corrected_form": "物を掴むための"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_09",
+    "kind": "single",
+    "source_passage_id": 28,
+    "note": "register: slang 面白さ→ヤバさ in expository text",
+    "reference": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。ぜひ、挑戦してみてください！",
+    "reproduction": "この「製作」を通して、科学技術のヤバさを感じ、未来の技術者を目指すきっかけになれば嬉しいです。ぜひ、挑戦してみてください！",
+    "expected_errors": [
+      {
+        "span_repro": [
+          16,
+          22
+        ],
+        "span_ref": [
+          16,
+          22
+        ],
+        "subtype": "register",
+        "subtype_v5_target": "register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "ヤバさを感じ",
+        "corrected_form": "面白さを感じ"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_10",
+    "kind": "single",
+    "source_passage_id": 27,
+    "note": "verb conjugation: ら抜き言葉 見つけられる→見つけれる",
+    "reference": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "reproduction": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。例えば、カメラをつけて、対象物を見つけれるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          57,
+          62
+        ],
+        "span_ref": [
+          57,
+          63
+        ],
+        "subtype": "verb_conjugation",
+        "subtype_v5_target": "verb_conjugation",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "見つけれる",
+        "corrected_form": "見つけられる"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_11",
+    "kind": "single",
+    "source_passage_id": 25,
+    "note": "topic-comment: topic marker は dropped (作ることは→作ること)",
+    "reference": "小さなブロックや消しゴムなどを掴ませて、うまく掴めるか確認します。もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。なぜこれを作るの？このロボットアームを作ることは、単に物を作るだけでなく、様々なことを学ぶ良い機会になります。",
+    "reproduction": "小さなブロックや消しゴムなどを掴ませて、うまく掴めるか確認します。もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。なぜこれを作るの？このロボットアームを作ること、単に物を作るだけでなく、様々なことを学ぶ良い機会になります。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          101,
+          108
+        ],
+        "span_ref": [
+          101,
+          109
+        ],
+        "subtype": "topic_comment",
+        "subtype_v5_target": "topic_comment",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "作ること、単に",
+        "corrected_form": "作ることは、単に"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 3
+    }
+  },
+  {
+    "id": "ja_seed_12",
+    "kind": "single",
+    "source_passage_id": 22,
+    "note": "case に→で (attachment point takes に with つける)",
+    "reference": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。製作のステップ 設計図を描く: まず、どのような形のアームにするか、簡単な設計図を描きましょう。どこにモーターをつけて、グリッパーはどう動かすかなどを考えます。部品を集める: 設計図をもとに、必要な部品を揃えます。",
+    "reproduction": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。製作のステップ 設計図を描く: まず、どのような形のアームにするか、簡単な設計図を描きましょう。どこでモーターをつけて、グリッパーはどう動かすかなどを考えます。部品を集める: 設計図をもとに、必要な部品を揃えます。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          102,
+          109
+        ],
+        "span_ref": [
+          102,
+          109
+        ],
+        "subtype": "particle_case",
+        "subtype_v5_target": "particle_case",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "どこでモーター",
+        "corrected_form": "どこにモーター"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_13",
+    "kind": "single",
+    "source_passage_id": 27,
+    "note": "omission (minor): modifier 色々な dropped",
+    "reference": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "reproduction": "このシンプルなロボットアームをベースに、さらに機能を追加することもできます。例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          20,
+          25
+        ],
+        "span_ref": [
+          20,
+          28
+        ],
+        "subtype": "omission",
+        "subtype_v5_target": "omission",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "さらに機能",
+        "corrected_form": "さらに色々な機能"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_14",
+    "kind": "single",
+    "source_passage_id": 24,
+    "note": "word choice (major): 面白い→難しい (interesting→difficult)",
+    "reference": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "reproduction": "プログラミング: ここが一番難しいところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          12,
+          20
+        ],
+        "span_ref": [
+          12,
+          20
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "一番難しいところ",
+        "corrected_form": "一番面白いところ"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_seed_15",
+    "kind": "single",
+    "source_passage_id": 26,
+    "note": "critical: 複雑→簡単 (complex→simple, meaning inverted)",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと簡単なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "expected_errors": [
+      {
+        "span_repro": [
+          26,
+          32
+        ],
+        "span_ref": [
+          26,
+          32
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "critical",
+        "learner_form": "もっと簡単な",
+        "corrected_form": "もっと複雑な"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 2,
+      "fidelity": 1,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_multi_01",
+    "kind": "multi",
+    "source_passage_id": 23,
+    "note": "は/が (major) + word choice 醍醐味→面白さ (minor)",
+    "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+    "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要な部品はセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の面白さですね。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          31,
+          37
+        ],
+        "span_ref": [
+          31,
+          37
+        ],
+        "subtype": "particle_wa_ga",
+        "subtype_v5_target": "particle_wa_ga",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "部品はセット",
+        "corrected_form": "部品がセット"
+      },
+      {
+        "span_repro": [
+          122,
+          128
+        ],
+        "span_ref": [
+          122,
+          128
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "面白さですね",
+        "corrected_form": "醍醐味ですね"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_multi_02",
+    "kind": "multi",
+    "source_passage_id": 21,
+    "note": "case を→に (major) + omission 物を (major) + word choice まず→最初 (minor)",
+    "reference": "まず、アームを動かすための「モーター」。これは、電気を力に変えて、アームを動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、物を掴むための部分です。",
+    "reproduction": "最初、アームを動かすための「モーター」。これは、電気を力に変えて、アームに動かす役割をします。次に、アームの指先にあたる「グリッパー」。これは、掴むための部分です。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          0,
+          6
+        ],
+        "span_ref": [
+          0,
+          6
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "最初、アーム",
+        "corrected_form": "まず、アーム"
+      },
+      {
+        "span_repro": [
+          33,
+          42
+        ],
+        "span_ref": [
+          33,
+          42
+        ],
+        "subtype": "particle_case",
+        "subtype_v5_target": "particle_case",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "アームに動かす役割",
+        "corrected_form": "アームを動かす役割"
+      },
+      {
+        "span_repro": [
+          68,
+          74
+        ],
+        "span_ref": [
+          68,
+          76
+        ],
+        "subtype": "omission",
+        "subtype_v5_target": "omission",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "これは、掴む",
+        "corrected_form": "これは、物を掴む"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 3,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_multi_03",
+    "kind": "multi",
+    "source_passage_id": 24,
+    "note": "keigo downgrade (major) + word choice 面白い→難しい (major)",
+    "reference": "プログラミング: ここが一番面白いところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "reproduction": "プログラミング: ここが一番難しいところかもしれません。アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込む。この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          12,
+          20
+        ],
+        "span_ref": [
+          12,
+          20
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "一番難しいところ",
+        "corrected_form": "一番面白いところ"
+      },
+      {
+        "span_repro": [
+          103,
+          107
+        ],
+        "span_ref": [
+          103,
+          109
+        ],
+        "subtype": "keigo_register",
+        "subtype_v5_target": "keigo_register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "教え込む",
+        "corrected_form": "教え込みます"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 3,
+      "fidelity": 2,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_multi_04",
+    "kind": "multi",
+    "source_passage_id": 26,
+    "note": "critical 複雑→簡単 + word choice 役割→仕事 (minor) + case を→が (major)",
+    "reference": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "reproduction": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと簡単なロボットがどのように作られているのか、理解する手助けになります。「電子工作」を通して、電気や部品の仕事を学び、実際に手が動かすことの楽しさを体験できます。そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。さらに面白くするには？",
+    "expected_errors": [
+      {
+        "span_repro": [
+          26,
+          32
+        ],
+        "span_ref": [
+          26,
+          32
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "global",
+        "severity_v2": "critical",
+        "learner_form": "もっと簡単な",
+        "corrected_form": "もっと複雑な"
+      },
+      {
+        "span_repro": [
+          78,
+          86
+        ],
+        "span_ref": [
+          78,
+          86
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v1": "local",
+        "severity_v2": "minor",
+        "learner_form": "部品の仕事を学び",
+        "corrected_form": "部品の役割を学び"
+      },
+      {
+        "span_repro": [
+          90,
+          98
+        ],
+        "span_ref": [
+          90,
+          98
+        ],
+        "subtype": "particle_case",
+        "subtype_v5_target": "particle_case",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "手が動かすことの",
+        "corrected_form": "手を動かすことの"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 1,
+      "fidelity": 1,
+      "range": 4,
+      "naturalness": 4
+    }
+  },
+  {
+    "id": "ja_multi_05",
+    "kind": "multi",
+    "source_passage_id": 20,
+    "note": "は/が double-は (major) + register slang insert マジ (major)",
+    "reference": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "reproduction": "私たちは作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感はマジ格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+    "expected_errors": [
+      {
+        "span_repro": [
+          0,
+          9
+        ],
+        "span_ref": [
+          0,
+          9
+        ],
+        "subtype": "particle_wa_ga",
+        "subtype_v5_target": "particle_wa_ga",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "私たちは作るものは",
+        "corrected_form": "私たちが作るものは"
+      },
+      {
+        "span_repro": [
+          78,
+          85
+        ],
+        "span_ref": [
+          78,
+          83
+        ],
+        "subtype": "register",
+        "subtype_v5_target": "register",
+        "severity_v1": "global",
+        "severity_v2": "major",
+        "learner_form": "マジ格別ですよ",
+        "corrected_form": "格別ですよ"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 3,
+      "understandability": 3,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 3
+    }
+  }
+]

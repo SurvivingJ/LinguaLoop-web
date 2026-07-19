@@ -30,6 +30,17 @@ def _assert_full_marks(result: tier0.Tier0Result):
     assert result.scores == {dim: 4 for dim in tier0.RUBRIC_DIMENSIONS}
     assert result.overall_band == 4
     assert result.errors == []
+    # Tier 0 never calls a model: resolving must cost zero tokens.
+    assert result.grader_trace["deterministic_prefilter"] is True
+    assert result.grader_trace["tokens"] == {"in": 0, "out": 0}
+
+
+def _assert_escalated(result: tier0.Tier0Result):
+    """Tier 0 declined to resolve — the cascade must grade this one."""
+    assert result.resolved is False
+    assert result.scores is None
+    assert result.overall_band is None
+    assert result.grader_trace["deterministic_prefilter"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -53,36 +64,67 @@ def test_grade_tier0_exact_match_full_marks_no_model_call():
 
 
 # ---------------------------------------------------------------------------
-# Near-exact (fuzzy-equal) match
+# Single-token errors now escalate (TASK-623 — retired NEAR_EXACT_MISMATCH_RATIO)
 # ---------------------------------------------------------------------------
 
-def test_grade_tier0_fuzzy_typo_within_tolerance_full_marks():
-    """'lazyy' is a single-character insertion on a >=4-char word — within
-    services.dictation.grader's Levenshtein fuzzy tolerance, so the overall
-    diff still reads as a perfect (accuracy == 1.0) match."""
+def test_grade_tier0_ja_single_kana_swap_escalates():
+    """The headline leniency hole the v1 baseline exposed: a 1-char は→が swap
+    in a ~50-char JA passage. Its mismatch ratio (~3%) sat under the old
+    NEAR_EXACT_MISMATCH_RATIO 0.05 gate, so Tier 0 awarded full marks before
+    the grader ever saw it. Under the normalization-class gate the が→か-folded
+    replace opcode is NOT normalization-class (は != か), so it must escalate."""
+    gold = "彼女は昨日の午後に図書館へ行って新しい小説を借りてきたと友達に話していましたが、とても面白かったそうです"
+    assert len(gold) >= 45  # ~50-char passage per the task
+    reproduction = gold.replace("は", "が", 1)
+
+    result = tier0.grade_tier0(passage_id=2, gold_l2=gold, reproduction=reproduction, language_code="ja")
+
+    _assert_escalated(result)
+    assert isinstance(result.diff, list) and len(result.diff) > 0
+
+
+def test_grade_tier0_fuzzy_tolerant_edit_escalates_not_swallowed():
+    """The fuzzy-collapse gotcha: 'lazy'->'lazyy' is a >=4-char, edit-distance-1
+    replace, so grade_dictation's Levenshtein tolerance marks it correct and
+    inflates accuracy to 1.0 — but it is still a 'replace' opcode and a real
+    edit. The gate keys on opcode class, not accuracy, so it must escalate
+    rather than resolve vacuously at full marks."""
     gold = "The quick brown fox jumps over the lazy dog"
     reproduction = "The quick brown fox jumps over the lazyy dog"
 
-    result = tier0.grade_tier0(passage_id=2, gold_l2=gold, reproduction=reproduction, language_code="en")
+    result = tier0.grade_tier0(passage_id=3, gold_l2=gold, reproduction=reproduction, language_code="en")
 
-    _assert_full_marks(result)
-    assert result.grader_trace["deterministic_prefilter"] is True
-    assert result.grader_trace["tokens"] == {"in": 0, "out": 0}
+    _assert_escalated(result)
 
 
-def test_grade_tier0_small_diff_embedding_gate_stub_full_marks():
-    """One genuinely wrong token (fails fuzzy tolerance) out of 21 — under
-    the stub's NEAR_EXACT_MISMATCH_RATIO threshold, so it still resolves at
-    Tier 0 rather than escalating to the cascade."""
+def test_grade_tier0_single_wrong_token_in_long_passage_escalates():
+    """One genuinely wrong token out of 21 (~4.8% mismatch) used to slip under
+    the old ratio gate; now a non-normalization-class replace opcode escalates
+    it to the cascade."""
     tokens = [f"word{i}" for i in range(21)]
     gold = " ".join(tokens)
     tokens[10] = "zzz"
     reproduction = " ".join(tokens)
 
-    result = tier0.grade_tier0(passage_id=3, gold_l2=gold, reproduction=reproduction, language_code="en")
+    result = tier0.grade_tier0(passage_id=4, gold_l2=gold, reproduction=reproduction, language_code="en")
+
+    _assert_escalated(result)
+
+
+# ---------------------------------------------------------------------------
+# Normalization-only diffs still resolve at Tier 0 with 0 tokens
+# ---------------------------------------------------------------------------
+
+def test_grade_tier0_punctuation_only_diff_resolves_zero_tokens():
+    """Punctuation is stripped by tokenizer.normalize before the diff, so a
+    punctuation-only difference produces no non-equal opcode and resolves at
+    Tier 0 with zero model tokens."""
+    gold = "Hello, world! A fine day, indeed."
+    reproduction = "Hello world  A fine day indeed"
+
+    result = tier0.grade_tier0(passage_id=11, gold_l2=gold, reproduction=reproduction, language_code="en")
 
     _assert_full_marks(result)
-    assert result.grader_trace["deterministic_prefilter"] is True
 
 
 # ---------------------------------------------------------------------------

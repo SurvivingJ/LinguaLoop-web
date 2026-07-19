@@ -363,7 +363,7 @@ def calibrate_all_active_languages(min_attempts: int = DEFAULT_MIN_ATTEMPTS) -> 
 
 
 def compute_user_theta_for_selection(db, user_id: str, language_id: int) -> float:
-    """Real-time theta used by get_exercise_session for IRT weighting.
+    """Real-time theta used by the Practice Engine for IRT weighting.
 
     Delegates to the SQL helper `irt_compute_user_theta` so calibration time
     and selection time use the identical formula. Falls back to 0.0 on any

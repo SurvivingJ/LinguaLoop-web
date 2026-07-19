@@ -539,7 +539,11 @@ def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
     """
     db = get_supabase_admin()
     svc = StudyPlanService(db=db)
-    week_start = _monday_of(date.today())
+    # Fired Sunday 23:00 UTC (app.py CronTrigger). Seed the *upcoming* week,
+    # not the outgoing one: today+1 lands on Monday of next week, so a fresh
+    # Monday-morning request finds a weekly_plan_states row already present and
+    # never has to fall back to the lazy compute / legacy 3-test load.
+    week_start = _monday_of(date.today() + timedelta(days=1))
 
     # Pull plans in pages to avoid loading 100K+ rows at once.
     page_size = 1000

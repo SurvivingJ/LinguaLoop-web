@@ -4,10 +4,22 @@ feature: study-plans
 prose_page: ../features/study-plans.md
 tech_page: ../features/study-plans.tech.md
 total_tasks: 20
-done: 0
+done: 20
 ---
 
 # Study Plans — Task Breakdown
+
+> **Audit note (2026-07-13):** This file's per-task `**Status:**` markers below are stale — they
+> were never flipped when the work shipped. A codebase + live-DB audit confirmed **TASK-201–219
+> are DONE** (phase13_* migrations applied and confirmed live via Supabase — `user_study_plans`,
+> `weekly_plan_states`, `dim_study_plan_templates` etc. all populated; `services/study_plan_service.py`,
+> `routes/study_plan.py`, the `study_plan_weekly_recompute` cron, and `Config.STUDY_PLAN_ENABLED`
+> defaulting `True` all present and wired). **TASK-220 (deprecation cleanup — dropping the legacy
+> `get_exercise_session`/`get_ladder_session` wrappers) closed 2026-07-14**: both RPCs dropped
+> (`phase17_drop_deprecation_wrappers.sql`), `routes/vocab_dojo.py` and `routes/exercises.py` now
+> 302 to `/api/practice/session`, and the two standalone pages were retired. The epic is complete.
+> Current status lives in [[tasklist/master]]; this file is retained for full task detail and
+> archived as of this audit.
 
 Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream ADRs (009, 010, 011, 013). Depends on the Practice Engine merger (`TASK-101` through `TASK-112`) being shipped first — Tier C's Practice slot consumers call the merged `get_practice_session`. Order respects migration dependencies and the rollout sequence in [[features/study-plans.tech#rollout-sequence]].
 
@@ -425,7 +437,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-220: Deprecation cleanup (T+30 days)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — 2026-07-14
 **Type:** refactor
 **Complexity:** M
 **Depends On:** TASK-219 (T+30 days stable)
@@ -433,16 +445,17 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 **Description:** Remove `get_exercise_session` and `get_ladder_session` deprecation wrappers. Replace `/api/exercises/session` and `/api/vocab-dojo/session` handlers with 302 redirects to `/api/practice/session` with appropriate query params. Mark `wiki/features/exercises.md` and `wiki/features/vocab-dojo.md` `status: deprecated` (already done in this round); consider deleting after one more release.
 
 **Acceptance Criteria:**
-- [ ] Wrapper RPCs dropped from DB.
-- [ ] Old routes 302 to new canonical.
-- [ ] All grep-able callers of old RPC names purged.
-- [ ] FE uses `/api/practice/session` exclusively.
+- [x] Wrapper RPCs dropped from DB. — `migrations/phase17_drop_deprecation_wrappers.sql`
+- [x] Old routes 302 to new canonical. — `exercise_session_redirect` / `dojo_session_redirect`
+- [x] All grep-able callers of old RPC names purged. — `grep … --include="*.py"` clean; remaining `*.sql` hits are the drop migration + historical multi-object definers (kept per migrations/CLAUDE.md).
+- [x] FE uses `/api/practice/session` exclusively. — the unified `/session` player already did; the two standalone pages that consumed the old shapes were **retired** rather than adapted (chosen 2026-07-14).
 
-**Files:**
-- `migrations/practice_merger/drop_deprecation_wrappers.sql`.
-- `routes/exercises.py`, `routes/vocab_dojo.py` — replace handlers with 302.
-- All FE callers updated.
+**Files (as-built — the aspirational paths below were superseded by the repo's flat `phaseNN_*.sql` convention):**
+- `migrations/phase17_drop_deprecation_wrappers.sql` — drops both RPCs; `phase12_deprecation_wrappers.sql` → `migrations/archive/`.
+- `routes/exercises.py`, `routes/vocab_dojo.py` — `/session` handlers now 302; `get_ladder_session` RPC call + dead `_ensure_ladder_rows` helper removed.
+- `services/practice_session_service.py` — `get_exercise_session_service` / `ExerciseSessionService` aliases removed; `services/exercise_session_service.py` shim deleted; `app.py` repointed.
+- `app.py` (removed `/exercises` + `/vocab-dojo` page routes), `templates/base.html` (removed Vocab Dojo nav), and `templates/exercises.html` + `templates/vocab_dojo.html` deleted.
 
-**Verification:** `grep -r "get_exercise_session\|get_ladder_session" --include="*.py" --include="*.sql"` returns no matches; integration tests still green.
+**Verification:** `grep -r "get_exercise_session\|get_ladder_session" --include="*.py"` returns no matches; changed modules byte-compile; no test referenced the retired surfaces.
 
 ---

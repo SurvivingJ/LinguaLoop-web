@@ -1,12 +1,18 @@
 ---
 title: Translation Grading Cascade
 type: algorithm
-status: planned
+status: deprecated
 tech_page: ./translation-grading-cascade.tech.md
-last_updated: 2026-06-22
+last_updated: 2026-07-19
 ---
 
 # Translation Grading Cascade
+
+> **Superseded (2026-07-19):** the v2 Evidence-First flow ([[algorithms/evidence-first-grading]])
+> is now the LIVE default (`Config.DT_FRAMEWORK_V2` defaults ON since TASK-632; harness pass filed
+> in [[evaluations/dt-grading-v2-2026-07-19]]). The v1 tier1/tier2 body described here remains in
+> `grader_cascade.py` solely as the `DT_FRAMEWORK_V2=false` rollback path; Tier 0 and the
+> decode/repair/explanation machinery below are shared by both flows and remain current.
 
 ## Purpose
 Grade a learner's L2 reproduction against an existing gold L2 reference as cheaply as possible

@@ -54,6 +54,16 @@ def seed_config() -> dict:
     return _load_seed_config()
 
 
+@pytest.fixture(autouse=True)
+def _clear_grader_cascade_caches():
+    """get_active_rubric caches process-wide (TASK-642); drop it either side of
+    every test so these _FakeDB reads actually hit the real query code and don't
+    leak a config into another module's tests."""
+    grader_cascade.clear_caches()
+    yield
+    grader_cascade.clear_caches()
+
+
 # ---------------------------------------------------------------------------
 # Minimal fake Supabase query-builder returning the seeded rubric row, so the
 # REAL get_active_rubric / _rubric_descriptors_for code runs end-to-end.
