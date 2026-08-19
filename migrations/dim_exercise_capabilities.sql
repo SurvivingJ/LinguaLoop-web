@@ -91,10 +91,16 @@ VALUES
     -- L4 counter_match (form_production) — JA counters (助数詞), deterministic from counter dict
     (3, 'counter_match', ARRAY['concrete'], 4, 'deterministic', ARRAY['counter_dict'], NULL, true),
 
-    -- L5 collocation_gap_fill (collocation) — concrete nouns skip (no tight collocates)
-    (1, 'collocation_gap_fill', ARRAY['abstract','action','property'], 5, 'llm', ARRAY['primary_collocate'], 'collocation', true),
+    -- L5 collocation_gap_fill (collocation) — concrete nouns skip (no tight collocates).
+    -- ZH/JA DISABLED (2026-08-14, audit B1 — see ladder_collocation_disable_zh_ja.sql):
+    -- asset_pipeline drops L5 unless the pair is corpus_validated, and only EN has a
+    -- grounding source (bundled list). Leaving these enabled made the collocation
+    -- family unsatisfiable, so v_sense_family_coverage re-enqueued every abstract/
+    -- action/property sense for a full regeneration every night. Re-enable ZH when
+    -- its collocation corpus is ingested.
+    (1, 'collocation_gap_fill', ARRAY['abstract','action','property'], 5, 'llm', ARRAY['primary_collocate'], 'collocation', false),
     (2, 'collocation_gap_fill', ARRAY['abstract','action','property'], 5, 'llm', ARRAY['primary_collocate'], 'collocation', true),
-    (3, 'collocation_gap_fill', ARRAY['abstract','action','property'], 5, 'llm', ARRAY['primary_collocate'], 'collocation', true),
+    (3, 'collocation_gap_fill', ARRAY['abstract','action','property'], 5, 'llm', ARRAY['primary_collocate'], 'collocation', false),
 
     -- L6 semantic_discrimination
     (1, 'semantic_discrimination', ARRAY['all'], 6, 'llm', ARRAY['p1_definition'], 'sentence_validity', true),
@@ -106,10 +112,11 @@ VALUES
     (2, 'spot_incorrect_sentence', ARRAY['all'], 7, 'llm', ARRAY['p1_sentences'], 'sentence_validity', true),
     (3, 'spot_incorrect_sentence', ARRAY['all'], 7, 'llm', ARRAY['p1_sentences'], 'sentence_validity', true),
 
-    -- L8 collocation_repair (collocation) — concrete nouns skip
-    (1, 'collocation_repair', ARRAY['abstract','action','property'], 8, 'llm', ARRAY['primary_collocate'], 'collocation', true),
+    -- L8 collocation_repair (collocation) — concrete nouns skip.
+    -- ZH/JA DISABLED for the same reason as L5 above.
+    (1, 'collocation_repair', ARRAY['abstract','action','property'], 8, 'llm', ARRAY['primary_collocate'], 'collocation', false),
     (2, 'collocation_repair', ARRAY['abstract','action','property'], 8, 'llm', ARRAY['primary_collocate'], 'collocation', true),
-    (3, 'collocation_repair', ARRAY['abstract','action','property'], 8, 'llm', ARRAY['primary_collocate'], 'collocation', true),
+    (3, 'collocation_repair', ARRAY['abstract','action','property'], 8, 'llm', ARRAY['primary_collocate'], 'collocation', false),
 
     -- L9 jumbled_sentence (form_production) — function words excluded (no productive syntax slot)
     (1, 'jumbled_sentence', ARRAY['concrete','abstract','action','property'], 9, 'deterministic', ARRAY['p1_sentences'], NULL, true),

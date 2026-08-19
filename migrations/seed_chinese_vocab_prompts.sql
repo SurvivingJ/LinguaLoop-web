@@ -162,7 +162,7 @@ VALUES (
   "11": ""
 }$PROMPT$,
     true,
-    'qwen/qwen-2.5-72b-instruct',
+    'qwen/qwen3.7-plus',
     'openrouter'
 )
 ON CONFLICT (task_name, language_id, version) DO NOTHING;

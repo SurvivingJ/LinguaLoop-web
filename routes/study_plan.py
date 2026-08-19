@@ -31,6 +31,7 @@ from flask import Blueprint, current_app, g, request
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.day_boundary import is_valid_timezone
 from services.supabase_factory import get_supabase_admin
 from utils.responses import (
     ApiResponse, api_success, bad_request, not_found, server_error,
@@ -44,7 +45,11 @@ study_plan_bp = Blueprint("study_plan", __name__)
 # Helpers
 # ---------------------------------------------------------------------------
 
-_VALID_TIMEZONE_RE = None  # validation deferred to V2; V1 stores any string.
+# Timezone validation (TASK-716 / ADR-022). V1 accepted any non-empty string,
+# which was harmless while nothing read the field — it now keys the daily load,
+# so garbage in means a learner silently served the UTC day. Validation happens
+# here at the edge; services.day_boundary still fails safe to UTC for the rows
+# V1 already wrote, per ADR-020.
 
 
 def _validate_weekday_shape(shape: Any) -> List[float] | None:
@@ -162,7 +167,8 @@ def update_study_plan() -> ApiResponse:
       skill_weight_overrides : {skill_code: float in [0.5, 2.0]}
       template_id            : must reference dim_study_plan_templates AND
                                 match language_id
-      timezone               : opaque string (V1 stores any non-empty string)
+      timezone               : a valid IANA zone name (TASK-716); rejected
+                                otherwise. Keys the daily load via ADR-022.
     """
     try:
         data = request.get_json() or {}
@@ -263,6 +269,10 @@ def update_study_plan() -> ApiResponse:
             tz = data['timezone']
             if not isinstance(tz, str) or not tz.strip():
                 return bad_request("timezone must be a non-empty string")
+            if not is_valid_timezone(tz):
+                return bad_request(
+                    "timezone must be a valid IANA zone name (e.g. Asia/Tokyo)"
+                )
             update['timezone'] = tz.strip()
 
         if not update:

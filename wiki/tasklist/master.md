@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-07-19
+last_updated: 2026-08-16
 ---
 
 # Master Task List
@@ -19,11 +19,201 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 46 |
-| Blocked (numbered tasks) | 5 |
+| Not Started | 10 |
+| In Progress (`[~]`) | 6 |
+| Blocked / Deferred (numbered tasks) | 3 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 96 |
+| Done (cumulative, not listed here) | 128 |
+
+**TASK-718 done 2026-08-16 — the zh divergence was the judge; model swapped, applied live.**
+A 2×2×3 factorial (v4/v5 × qwen3.6-flash/gemini-3.1-flash-lite × zh/en/ja, 600 calls, **$1.11**)
+over the frozen 150-question sample. zh rejects **16/50 → 1/50** on the live v4 prompt when only the
+model changes; under a common judge zh is the cleanest language, so the content contribution is
+~zero. zh and ja moved to `google/gemini-3.1-flash-lite`
+(`migrations/distractor_judge_model_zh_ja_gemini.sql`), which also restores a middle band in zh/ja
+and costs 6.7× less per call. Harness promoted to `scripts/measure_judge_flag_rate.py`.
+**Caveat:** the two judges' reject sets are disjoint, so no reject signal is validated in absolute
+terms — a gold set now gates TASK-719/720. Not Started 10 → **9**.
+See [[evaluations/distractor-judge-language-divergence-2026-08-16]] §11.
+
+**TASK-717 partially done 2026-08-16 — plumbing shipped, prompt fix measured and reverted.**
+The v5 judge prompt was built, applied live, measured on the frozen 150-question sample across
+four arms, and rolled back the same day. zh `vocabulary_context` rejects held at **9/16 in every
+arm** — invariant to the `type_code` string, the type-conditional rubric and the subject line —
+so that bucket is judge-model behaviour, not a rubric defect, and **TASK-718 is now the
+load-bearing task**. The v5 rubric additionally created 5 en `vocabulary_context` rejects (v4:
+0) and the subject line raised ja rejects in both arms containing it, so v4 is live and the
+caller fix is gated `JUDGE_SUBJECT_KEYWORDS`, default off. Suite **1781 → 1792 passed, 3
+skipped**. Not Started 11 → **10**, In Progress 5 → **6**.
+See [[evaluations/distractor-judge-language-divergence-2026-08-16]] §10.
+
+**Exercise Generation v2 batch closed 2026-08-12 — TASK-521/530/531/534 done,
+526/535/536 deferred, 515 still open.** Suite **1676 → 1718 passed, 3 skipped**
+(+42 tests, no regressions). In Progress 8 → **5**, Done 125 → **128**.
+
+*Four defects were found and fixed along the way, three of which made a feature
+silently inert rather than broken:*
+
+1. **`llm_calls.cost_usd` was never written** — 12,947 rows, all NULL. Every
+   budget ceiling reading it (including TASK-515's `--ceiling`) computed $0 spent
+   and could never fire. Now populated from OpenRouter usage accounting.
+2. **`sense_neighbours` called an RPC signature that has never existed**, and its
+   `except Exception` logged the resulting PGRST202 at INFO as "RPC unavailable".
+   TASK-522's embedding band checks would have stayed inert *after* the TASK-521
+   backfill, indistinguishable from the backfill not having run. Fourth instance
+   of the ADR-020 class.
+3. **`word_assets_asset_type_check` rejected every typed-LLM asset** (23514), so
+   `synonym_antonym_match` / `word_family` / `particle_selection` produced nothing
+   while the pipeline reported success per sense.
+4. **The audio backfill read `content.audio_url` for all types**, reporting
+   0/56 coverage over 56 fully-voiced `listening_flashcard` items (they use
+   `front_audio_url`) — and would have written new audio to a key the renderer
+   never reads.
+
+*Repo-record gaps closed (`migrations/CLAUDE.md`):* `dim_word_senses.embedding`,
+its HNSW index and `nearest_senses()` were live since 2026-08-08 with **no
+migration file at all**; the `counter_drill` test type was missing entirely, so
+every counter-drill submission would have 500'd.
+
+**TASK-537–540 closed 2026-08-11 — ladder numeric-key contract APPLIED LIVE.** All 16 ladder
+prompt rows (EN/ZH/JA) now declare a numeric-key output contract with the legend written in the
+prompt's own language, so no English field name sits in the output contract of a ZH or JA prompt.
+`prompt_version` stayed at **1** (replace in place — `word_assets` has 0 rows bound to the v1
+shape, so a bump would have left dead schema code). The 6 live EN rows were changed with
+`ON CONFLICT … DO UPDATE`, since the files' previous `DO NOTHING` made a corrected re-run a
+silent no-op. Every row's `md5(template_text)` was hash-matched against the `$PROMPT$` body in
+its migration file (16/16) to rule out a transcription error in the CJK payload. Also landed:
+worked examples for every rule that asserts a distinction (notably the JA `syn_ant` polysemy rule,
+which was the only one of the three stated abstractly — now names 甘い taste-vs-lenient), the
+error escape `{"9": "<token>"}` as a *clean skip* rather than a failure, provider-enforced
+`response_format='json_object'` at all seven ladder call sites, and a regression test pinning the
+two ladder judges to one shared Likert polarity. Step 7 of `ladder_prompt_split_l4_l8.sql`, held
+back on 2026-08-10, applied. Suite 1609 → **1634 passed, 3 skipped**.
+Not Started 9 → **5**, Done 121 → **125**.
+
+**TASK-629 closed 2026-08-10 — rubric v6 APPLIED LIVE.** `migrations/dt_rubric_v6_seed.sql` was
+applied to Supabase via MCP `apply_migration`; v5 → v6 is now the active rubric and live grading
+uses the v3 band descriptors. Both seed guards passed, and the descriptors-only contract was
+verified live (band_descriptors differ from v5; weights/exemplars/acceptable_variation/
+band_thresholds/severity_weights/understandability_weights all still equal v5). All 336 descriptor
+leaves were hash-matched against the repo file (md5 `62e6c6c3…`, both sides) to rule out a
+transcription error in the 46 KB payload. In Progress 9 → **8**, Done 120 → **121**.
+**Evidence-First Grading (TASK-620–649) is now fully closed — no open rows.**
+
+**Recount 2026-08-10 (TASK-638/642/645/647/648 closed — reconciliation, not new code).**
+All five were already implemented, committed and covered by tests; only their checkboxes were
+stale — the same drift class as the 2026-07-13 audit below. Verified per-task against the source
+(not just the test names) and by `pytest -k "dual_translation or dt_"` → **600 passed**.
+`git status` on `services/dual_translation/` is clean, so this was shipped code, not
+working-tree-only work. Evidence-First Grading Not Started 5 → **0**; the feature's only
+remaining open row is TASK-629 (`[~]`, live rubric-v6 apply owed). Totals: Not Started 14 → **9**,
+Done 115 → **120**. In Progress unchanged at 9.
+
+**Caveat carried forward:** TASK-642's Verification also named a live/staging smoke proving one
+rubric+taxonomy fetch per activated version rather than per submission. That smoke has **not**
+been run — the in-process caching is proven by tests, the deployment-shape claim is not. Noted on
+the task rather than silently absorbed into the Done count.
+
+**Recount 2026-08-11 (operator-gated batch cleared).** Nine rows moved `[~]` → `[x]`:
+TASK-517, 520, 522, 523, 525, 527, 529, 532, 533. Exercise Generation v2 In Progress
+14 → **5** (515, 521, 526, 530, 531). The full suite is green at **1676 passed, 3 skipped**.
+
+Three of those nine were **already satisfied and only the checkbox was stale** — the same
+drift class as the 2026-07-13 audit. `ladder_prompt_split_l4_l8.sql` (TASK-520),
+`syn_ant_word_family_prompts.sql` (TASK-522) and `particle_selection_prompts.sql` (TASK-527)
+were all verified present live by querying `prompt_templates` directly; only TASK-525's three
+`translation_uniqueness_judge` rows were genuinely missing, and they were applied. **Verify
+against the live DB before trusting a "migration not applied" note** — the note outlived the
+condition by a day in three cases out of four.
+
+The other six were real work:
+- **517** — `run_nightly_drain()` behind `pg_try_advisory_lock_for_queue_drain` (key
+  1363440238, `task517_queue_drain_advisory_lock.sql`, applied), a 04:15 UTC cron in
+  `_initialize_scheduler`, and the `subscribe_topup` enqueue on the dojo word-open path.
+  The lock is what makes `_claim_batch`'s non-atomic claim safe — its docstring already
+  assumed a lock that did not exist.
+- **523** — the OANC list is vendored: `data/collocations/en_collocations.tsv`, 73.7k
+  dependency-parsed pairs from 18.3M words, public domain, built by
+  `scripts/build_en_collocations.py`. The finding-G6 case now behaves: `personalize` +
+  `advertising` returns no match and tags `llm_asserted`.
+- **525** — the migration was rewritten to `ON CONFLICT ... DO UPDATE` before applying. Its
+  header claimed "re-runnable" but the bare `INSERT` would have aborted on the unique index
+  `idx_prompt_templates_task_lang_ver`, *after* the deactivating `UPDATE` in the same
+  transaction — so a second run would have rolled back to a deactivated judge.
+- **529** — `dim_character_components` populated, 27,131 rows, 100% radical/stroke coverage.
+  Source decision: **cjk-decomp (Apache-2.0) + Unihan (Unicode License)**. `cjkvi-ids` was
+  rejected as **GPLv2** — copyleft on a vendored data file would follow it to every
+  deployment, the same test `data/collocations/README.md` applies to the English list.
+- **532** — `cloze_typed` renderer with IME composition handling, plus **server-side
+  grading**: the normalisation rule (NFKC/t2s/case/punctuation) lives in Python, so the
+  client's `is_correct` is overwritten for this type rather than reimplemented in JS.
+  39-case normalisation matrix in `tests/test_answer_normalization.py`.
+- **533** — the session queue now emits a `speed_round` bonus block. Deliberately **not** a
+  `_SURFACE_BLOCKS` member: ADR-021 puts it outside the planner (mastered-only, no weekly
+  target, must not move family confidence), so it is appended after the planned queue and
+  credits no counter.
+
+**Two latent defects were found while doing this and are fixed:**
+1. `deterministic._load_builders()` guarded on `if _REGISTRY:`. A non-empty registry only
+   means *one* builder was imported — and `routes/practice.py` now imports `cloze_typed`
+   directly for `grade`. Under the old guard that single import made the loader a no-op and
+   left the other six builders unregistered: every sense would generate one exercise type
+   instead of seven, with no skip reason. Now guarded on a dedicated `_BUILDERS_LOADED` flag.
+2. `BundledCollocationList.load()` skipped **any** row whose first column was `head`, not
+   just the header — silently discarding every collocation headed by the noun *head*
+   (head/coach, head/department). Now only the first non-comment row is treated as a header.
+
+**Repo-record gaps closed** (`migrations/CLAUDE.md`: the directory must reflect every live
+object). `dim_character_components` and the three `dim_counter_*` tables were live with **no
+migration file at all**; `migrations/dim_character_components.sql` and
+`migrations/counter_drill.sql` now record them, written `IF NOT EXISTS` to match live.
+
+**Recount 2026-08-09 (TASK-520/522/523/526/527/531/533 opened).** All seven moved
+`[ ]` → `[~]`: code, tests and migrations are written and the full suite is green
+(1609 passed), but each is held short of `[x]` by something only an operator can do —
+four unapplied prompt migrations, an un-vendored English collocation list, an Azure TTS
+run, and a live 發/髮 spot-check. Totals: Not Started 21 → **14**, In Progress 2 → **9**,
+Done unchanged at 115. The per-task "what is outstanding" column in
+`archive/exercise-generation-v2.tasks.md` is the authoritative list.
+
+**Recount 2026-08-08 (TASK-510/512/519 shipped, TASK-514 opened).** Exercise Generation v2
+Not Started 23 → **19**: TASK-510, 512, 519 closed and TASK-514 moved to `[~]`. Totals:
+Not Started 28 → **24**, In Progress 1 → **2** (TASK-629, TASK-514), Done 109 → **112**.
+
+**Fourth recount, same day (TASK-513/514/524 closed, TASK-525 opened).** Exercise
+Generation v2 Not Started 19 → **16**: TASK-513 and TASK-524 closed, TASK-514 moved
+`[~]` → `[x]`, TASK-525 moved `[ ]` → `[~]`. Totals: Not Started 24 → **21**,
+In Progress 2 → **2** (TASK-629, TASK-525), Done 112 → **115**.
+
+TASK-514's B5 is now closed: gating is per exercise *type*, not per level, on both the
+generation and render sides — a ZH concrete noun keeps L4 (classifier_match, cloze_typed)
+while P3 stops asking for morphology. The one AC still owed is the regen smoke on a real
+sense, which needs live LLM + DB spend.
+
+TASK-525 is `[~]` rather than `[x]` because
+`migrations/translation_uniqueness_judge_prompts.sql` is written but **not applied live**.
+The judge fails open on a missing template, so until an operator runs it, tl_nl items ship
+unjudged outside a batch.
+
+**Third recount, same day, after TASK-714/715/716 shipped.** Those three were the last open rows in
+Daily Session Hardening; closing them takes Not Started 31 → **28** and Done 106 → **109**. The
+feature now has no open work.
+
+**Counts recomputed 2026-08-07 (TASK-713).** The previous "Not Started 40" was stale — it did not
+match this file's own tables. Recounted directly from the `[ ]` rows below: Exercise Generation v2
+**23** (TASK-510, 512–533) + Evidence-First Grading **5** (TASK-638, 642, 645, 647, 648) + Daily
+Session Hardening **0** = **28**. Blocked `[?]` = TASK-534, 535, 536, 711, 712 = **5**. In progress
+`[~]` = TASK-629 (v6 authored + evaluated, live apply owed). Done incremented 102 → **104** for
+TASK-709 and TASK-713. Note the Study Plans TASK-201–219 flip in
+[[tasklist/archive/study-plans.tasks]] did **not** move the Done total — those were already counted
+as complete in the 2026-07-13 audit below; only their per-task checkboxes were stale.
+
+**Second recount, same day, after the TASK-711/712 decisions landed.** Those two moved from
+Blocked to Done (Blocked 5 → **3**: only TASK-534/535/536 remain, all awaiting launch data; Done
+104 → **106**), and the decisions filed three new implementation tasks — TASK-714, 715, 716 —
+taking Not Started 28 → **31**. Net: the Daily Session Hardening *batch* is closed, but the work it
+uncovered is not, and the counts say so rather than hiding it.
 
 **Completed 2026-07-18:** **TASK-627** (derived-scoring module + rubric v5). `services/dual_translation/scoring.py`
 — pure `compute_dimension_bands` (severity-weighted accuracy/fidelity penalties + understandability
@@ -234,32 +424,35 @@ Full spec: [[tasklist/archive/exercise-generation-v2.tasks]]. Implements [[featu
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [ ] | S | TASK-501 |
-| TASK-512 | exercise-generation-v2 | Consolidation — ladder is the sole vocab generator | [ ] | M | TASK-501 |
-| TASK-513 | exercise-generation-v2 | Transcript mining as a P1 sentence source | [ ] | M | TASK-512 |
-| TASK-514 | exercise-generation-v2 | Robustness: non-destructive regen, P1 retry, matrix-gated L4 | [ ] | M | TASK-504 |
-| TASK-515 | exercise-generation-v2 | Batch run — top 1,000 senses × EN/ZH/JA | [ ] | L | 504–511, 513, 514, 519 |
-| TASK-516 | exercise-generation-v2 | Deterministic generators (def-match, jumbled, readings, tone) | [ ] | L | 503, 506 |
-| TASK-517 | exercise-generation-v2 | Coverage check + batch report + queue drain | [ ] | M | 504, 511 |
-| TASK-518 | exercise-generation-v2 | Per-sense legacy exercise dedupe | [ ] | S | TASK-515 |
-| TASK-519 | exercise-generation-v2 | Multi-nl content rules (`content.nl` keyed maps) | [ ] | S | TASK-501 |
-| TASK-520 | exercise-generation-v2 | Prompt split — L4 + L8 out of P3 monolith | [ ] | M | TASK-515 |
-| TASK-521 | exercise-generation-v2 | Sense embeddings (pgvector) | [ ] | M | TASK-501 |
-| TASK-522 | exercise-generation-v2 | `synonym_antonym_match` + `word_family` generators | [ ] | L | 504, 521 |
-| TASK-523 | exercise-generation-v2 | Collocation grounding for L5/L8 | [ ] | M | TASK-515 |
-| TASK-524 | exercise-generation-v2 | Sentence-tier hard gate | [ ] | S | TASK-513 |
-| TASK-525 | exercise-generation-v2 | tl_nl uniqueness judge | [ ] | S | TASK-501 |
-| TASK-526 | exercise-generation-v2 | Traditional-script serve toggle (practice surfaces) | [ ] | M | 509, 515 |
-| TASK-527 | exercise-generation-v2 | JA `particle_selection` generator + judge | [ ] | M | 508, 515 |
-| TASK-528 | exercise-generation-v2 | ZH `classifier_match` as ladder L4 | [ ] | M | TASK-504 |
-| TASK-529 | exercise-generation-v2 | `reading_to_kanji` / `pinyin_to_hanzi` + component table | [ ] | M | TASK-516 |
-| TASK-530 | exercise-generation-v2 | JA counter drill (助数詞) + `counter_match` | [ ] | L | TASK-504 |
-| TASK-531 | exercise-generation-v2 | Audio at scale (L1 + listening) | [ ] | M | TASK-515 |
-| TASK-532 | exercise-generation-v2 | `cloze_typed` free input (normalised match) | [ ] | M | TASK-515 |
-| TASK-533 | exercise-generation-v2 | `timed_speed_round` serve-time composer | [ ] | M | TASK-515 |
+| TASK-510 | exercise-generation-v2 | Slug health cron + fail-closed batch judges | [x] | S | TASK-501 |
+| TASK-512 | exercise-generation-v2 | Consolidation — ladder is the sole vocab generator | [x] | M | TASK-501 |
+| TASK-513 | exercise-generation-v2 | Transcript mining as a P1 sentence source | [x] | M | TASK-512 |
+| TASK-514 | exercise-generation-v2 | Robustness: non-destructive regen, P1 retry, matrix-gated L4 | [x] | M | TASK-504 |
+| TASK-515 | exercise-generation-v2 | Batch run — top 1,000 senses × EN/ZH/JA | [~] | L | 504–511, 513, 514, 519 |
+| TASK-516 | exercise-generation-v2 | Deterministic generators (def-match, jumbled, readings, tone) | [x] | L | 503, 506 |
+| TASK-517 | exercise-generation-v2 | Coverage check + batch report + queue drain | [x] Done (2026-08-11) | M | 504, 511 |
+| TASK-518 | exercise-generation-v2 | Per-sense legacy exercise dedupe | [x] | S | TASK-515 |
+| TASK-519 | exercise-generation-v2 | Multi-nl content rules (`content.nl` keyed maps) | [x] | S | TASK-501 |
+| TASK-520 | exercise-generation-v2 | Prompt split — L4 + L8 out of P3 monolith | [x] Done (2026-08-11) | M | TASK-515 |
+| TASK-521 | exercise-generation-v2 | Sense embeddings (pgvector) | [~] | M | TASK-501 |
+| TASK-522 | exercise-generation-v2 | `synonym_antonym_match` + `word_family` generators | [x] Done (2026-08-11) | L | 504, 521 |
+| TASK-523 | exercise-generation-v2 | Collocation grounding for L5/L8 | [x] Done (2026-08-11) | M | TASK-515 |
+| TASK-524 | exercise-generation-v2 | Sentence-tier hard gate | [x] | S | TASK-513 |
+| TASK-525 | exercise-generation-v2 | tl_nl uniqueness judge | [x] Done (2026-08-11) | S | TASK-501 |
+| TASK-526 | exercise-generation-v2 | Traditional-script serve toggle (practice surfaces) | [~] | M | 509, 515 |
+| TASK-527 | exercise-generation-v2 | JA `particle_selection` generator + judge | [x] Done (2026-08-11) | M | 508, 515 |
+| TASK-528 | exercise-generation-v2 | ZH `classifier_match` as ladder L4 | [x] | M | TASK-504 |
+| TASK-529 | exercise-generation-v2 | `reading_to_kanji` / `pinyin_to_hanzi` + component table | [x] Done (2026-08-11) | M | TASK-516 |
+| TASK-530 | exercise-generation-v2 | JA counter drill (助数詞) + `counter_match` | [~] | L | TASK-504 |
+| TASK-531 | exercise-generation-v2 | Audio at scale (L1 + listening) | [~] | M | TASK-515 |
+| TASK-532 | exercise-generation-v2 | `cloze_typed` free input (normalised match) | [x] Done (2026-08-11) | M | TASK-515 |
+| TASK-533 | exercise-generation-v2 | `timed_speed_round` serve-time composer | [x] Done (2026-08-11) | M | TASK-515 |
 | TASK-534 | exercise-generation-v2 | Exercise-type effectiveness view | [?] | M | 515 + launch data |
 | TASK-535 | exercise-generation-v2 | Thompson-sampling type tie-breaker | [?] | L | TASK-534 |
 | TASK-536 | exercise-generation-v2 | Per-user format prefs + item retirement | [?] | M | TASK-534 |
+(TASK-537–540, the ladder numeric-key output contract, closed 2026-08-11 — see the
+note under Summary. Removed from this table per the "incomplete work only" rule above;
+full record in [[tasklist/ladder-numeric-keys.tasks]].)
 
 ### Dual Translation
 Full spec: [[tasklist/archive/dual-translation.tasks]]. Implements [[features/dual-translation]]. Stage 1 (grading MVP) and Stage 4 (localisation) are done; remaining work is Stage 2 (error synthesis) and Stage 3 (spaced remediation).
@@ -275,19 +468,19 @@ Full spec: [[tasklist/archive/dual-translation.tasks]]. Implements [[features/du
 | TASK-618 | dual-translation | Inject error exercises into Practice Engine sessions (non-sense-linked) | [x] Done (2026-07-14) | M | TASK-614 (done) |
 
 ### Evidence-First Grading (Dual Translation v2)
-Full spec: [[tasklist/archive/evidence-first-grading.tasks]]. Implements [[algorithms/evidence-first-grading.tech]] per [[decisions/ADR-019-evidence-first-scoring]]. TASK-633–649 are a code-review hardening batch (filed 2026-07-13) on the TASK-624/625/626 work — recommended **before** TASK-627 continues, since TASK-640/641 fix integrity bugs in the TASK-622 regression gate itself. Both are now done (2026-07-16); TASK-641 leaves a hand-off note on TASK-627 pinning the rubric-v5 scoring key names + values.
+Full spec: [[tasklist/archive/evidence-first-grading.tasks]]. Implements [[algorithms/evidence-first-grading.tech]] per [[decisions/ADR-019-evidence-first-scoring]]. TASK-633–649 are a code-review hardening batch (filed 2026-07-13) on the TASK-624/625/626 work — recommended **before** TASK-627 continues, since TASK-640/641 fix integrity bugs in the TASK-622 regression gate itself. Both are now done (2026-07-16); TASK-641 leaves a hand-off note on TASK-627 pinning the rubric-v5 scoring key names + values. **The whole batch is closed as of 2026-08-10** — the last five rows (638/642/645/647/648) were a status reconciliation, not new code. TASK-629's owed live apply also landed that day, so the feature has **no open rows**.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-638 | evidence-first-grading | Fix empty-correction dangling explanation text | [ ] | XS | — |
-| TASK-642 | evidence-first-grading | Cache active rubric/taxonomy config on grading hot path | [ ] | S | — |
-| TASK-645 | evidence-first-grading | Remove dead re-normalization in tier-0 full-marks gate | [ ] | XS | — |
+| TASK-638 | evidence-first-grading | Fix empty-correction dangling explanation text | [x] Done (2026-08-10) | XS | — |
+| TASK-642 | evidence-first-grading | Cache active rubric/taxonomy config on grading hot path | [x] Done (2026-08-10) | S | — |
+| TASK-645 | evidence-first-grading | Remove dead re-normalization in tier-0 full-marks gate | [x] Done (2026-08-10) | XS | — |
 | TASK-646 | evidence-first-grading | Migration-authoring guidance: lock hold time on backfills | [x] Done (2026-07-16) | XS | — |
-| TASK-647 | evidence-first-grading | Replace hand-rolled eval retry loop with tenacity | [ ] | S | — |
-| TASK-648 | evidence-first-grading | Delete stale severity comment + dead parameters | [ ] | XS | — |
+| TASK-647 | evidence-first-grading | Replace hand-rolled eval retry loop with tenacity | [x] Done (2026-08-10) | S | — |
+| TASK-648 | evidence-first-grading | Delete stale severity comment + dead parameters | [x] Done (2026-08-10) | XS | — |
 | TASK-649 | evidence-first-grading | Wiki hygiene — status frontmatter, dates, evaluations category | [x] Done (2026-07-16) | XS | — |
 | TASK-628 | evidence-first-grading | Detector/Verifier cascade restructure | [x] | XL | TASK-627 (done) |
-| TASK-629 | evidence-first-grading | Band descriptors v3 rewrite (live apply owed) | [~] | L | TASK-627 (done) |
+| TASK-629 | evidence-first-grading | Band descriptors v3 rewrite | [x] Done (2026-08-10) | L | TASK-627 (done) |
 | TASK-630 | evidence-first-grading | Explainer pass — instance Application layer | [x] | M | TASK-628 |
 | TASK-631 | evidence-first-grading | Result UI v2 — highlights, "because" lines, next focus | [x] | L | TASK-630 |
 | TASK-632 | evidence-first-grading | Final eval + wiki reconciliation | [x] | S | TASK-631 |
@@ -299,17 +492,58 @@ Full spec: [[tasklist/archive/daily-session-hardening.tasks]]. Remediates findin
 |----|---------|-------|--------|------------|------------|
 | TASK-701 | daily-session-hardening | Real practice timing → weekly minute counters advance | [x] | M | — |
 | TASK-702 | daily-session-hardening | Surface + reduce hydration shortfalls | [x] | M | — |
-| TASK-703 | daily-session-hardening | Interleave the session queue | [ ] | M | TASK-701 |
-| TASK-704 | daily-session-hardening | Retry slots in the plan path (ADR-006) | [ ] | S | TASK-702 |
-| TASK-705 | daily-session-hardening | Make build_daily_session same-day-safe | [ ] | S | — |
-| TASK-706 | daily-session-hardening | Advisory lock actually guards the weekly cron | [ ] | S | — |
-| TASK-707 | daily-session-hardening | Legacy fallback correctness (type labels + ELO band) | [ ] | S | — |
-| TASK-708 | daily-session-hardening | /session discoverability (navbar + entry flow) | [ ] | S | — |
-| TASK-709 | daily-session-hardening | Runner UX/a11y hardening | [ ] | S | — |
-| TASK-710 | daily-session-hardening | Consolidate the duplicated greedy pass | [ ] | S | 702, 704, 705 |
-| TASK-711 | daily-session-hardening | Document the plannable-type boundary | [?] | XS | product decision |
-| TASK-712 | daily-session-hardening | Day-boundary timezone decision | [?] | XS | product decision |
-| TASK-713 | daily-session-hardening | Wiki truth reconciliation (Phase 13) | [ ] | S | — |
+| TASK-703 | daily-session-hardening | Interleave the session queue | [x] | M | TASK-701 |
+| TASK-704 | daily-session-hardening | Retry slots in the plan path (ADR-006) | [x] | S | TASK-702 |
+| TASK-705 | daily-session-hardening | Make build_daily_session same-day-safe | [x] | S | — |
+| TASK-706 | daily-session-hardening | Advisory lock actually guards the weekly cron | [x] | S | — |
+| TASK-707 | daily-session-hardening | Legacy fallback correctness (type labels + ELO band) | [x] Done (2026-07-20) | S | — |
+| TASK-709 | daily-session-hardening | Runner UX/a11y hardening | [x] Done (2026-08-07) | S | — |
+| TASK-710 | daily-session-hardening | Consolidate the duplicated greedy pass | [x] Done (2026-08-07) | S | 702, 704, 705 |
+| TASK-711 | daily-session-hardening | Document the plannable-type boundary | [x] Done (2026-08-07) | XS | product decision (taken) |
+| TASK-712 | daily-session-hardening | Day-boundary timezone decision | [x] Done (2026-08-07) | XS | product decision (taken) |
+| TASK-713 | daily-session-hardening | Wiki truth reconciliation (Phase 13) | [x] Done (2026-08-07) | S | — |
+| TASK-714 | daily-session-hardening | `flashcards` + `dual_translation` as plannable surfaces | [x] Done (2026-08-07) | L | TASK-711 (done) |
+| TASK-715 | daily-session-hardening | Tier-scaled dictation transcript cap | [x] Done (2026-08-07) | M | TASK-711 (done) |
+| TASK-716 | daily-session-hardening | Local-day boundary via plan timezone | [x] Done (2026-08-07) | L | TASK-712 (done) |
+
+**The Daily Session Hardening feature (TASK-700–716) is now fully closed.** TASK-701's owed
+live verification was closed 2026-08-07 via a rollback-only DB check (24 × 25 s attempts →
+`practice_completed_acq_sec 0 → 600`, `_min 0 → 10`). TASK-711 and TASK-712 were unblocked by user
+decisions on 2026-08-07, producing [[decisions/ADR-021-plannable-surface-boundary]] and
+[[decisions/ADR-022-local-day-boundary]]; **TASK-714/715/716 were the implementation work those
+decisions generated** and landed the same day — applied live and verified against the DB. See
+[[tasklist/archive/daily-session-hardening.tasks]] for per-criterion evidence.
+
+### Distractor Judge Calibration
+
+Full spec: [[tasklist/distractor-judge-calibration.tasks]]. Remediates
+[[evaluations/distractor-judge-language-divergence-2026-08-16]] — the v4 Likert distractor judge
+rejects 30% of zh questions vs 4% of en, and its review-queue channel fires only in English.
+TASK-717 is the entry point and is correct regardless of every downstream outcome.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-717 | comprehension-tests | Make the judge's dead prompt slots load-bearing (`keywords`, `type_code`) | [~] | M | — |
+| TASK-718 | comprehension-tests | Cross-model judge A/B — judge harshness vs content quality | [x] Done (2026-08-16) | S | TASK-717 (partial — not blocking) |
+| TASK-719 | comprehension-tests | Split the rating onto two axes (topical fit / confusability) | [ ] | M | gold set (unfiled), was TASK-718 |
+| TASK-720 | comprehension-tests | Redefine the review band as explicit uncertainty | [ ] | S | TASK-719 |
+| TASK-721 | comprehension-tests | Give the 18 generator prompts a distractor specification | [ ] | M | TASK-717 |
+| TASK-722 | comprehension-tests | Rewrite the zh/ja `vocabulary_context` prompts natively | [ ] | M | — |
+
+**Sequencing revised 2026-08-16 by the TASK-718 result.** The zh divergence was the judge, not the
+content: swapping zh/ja to `gemini-3.1-flash-lite` takes zh from **32% → 2%**, and under a common
+judge zh is the *cleanest* of the three languages (zh 2%, en 4%, ja 6%). Applied live.
+
+But the same run showed the two judges' reject sets are **disjoint** — across 150 questions they
+agree on one reject, and all 25 zh distractors qwen rejected were rated 4–5 by gemini. The reject
+signal is not merely mis-scaled, it is unvalidated. **A gold set is now the gate on TASK-719 and
+TASK-720** and needs a task ID. TASK-721 and TASK-722 depend on none of this and are the best next
+work.
+
+The middle band is no longer missing: the model swap alone gives zh and ja band-3 ratings, so
+`generation_review_queue` is multilingual without a prompt change. Band 1 has now fired three times
+in 1,800 ratings — still rare enough that "the judge does not catch the failure it was built for"
+holds in substance.
 
 ### Language Packs (existing — unchanged)
 
@@ -329,5 +563,9 @@ The Practice Engine merger and Study Plans are both live in production (only the
 cleanup/test tasks remain open) — the old sequencing note ("ship 101–112 before starting
 TASK-201") is no longer operative and has been removed.
 
-Evidence-First Grading's hardening batch (TASK-633–649) was filed the same day as this audit
-(2026-07-13) and should be triaged before resuming TASK-627.
+Evidence-First Grading's hardening batch (TASK-633–649) was filed 2026-07-13 and is now **fully
+closed** (last five reconciled 2026-07-16 … 2026-08-10). Its original sequencing note ("triage
+before resuming TASK-627") is spent — TASK-627 and the whole TASK-628/630/631/632 v2 stack shipped
+2026-07-18/19. **TASK-629 closed 2026-08-10**: `migrations/dt_rubric_v6_seed.sql` was applied live
+via Supabase MCP, so grading now serves v6 band descriptors rather than v5. Evidence-First Grading
+has no open rows.

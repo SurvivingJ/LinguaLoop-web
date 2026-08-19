@@ -58,11 +58,18 @@
 
                 </div>
 
-                <!-- Continue Button -->
+                <!-- Primary CTA: Daily Session (with Browse Tests as secondary) -->
                 <div class="mt-4">
-                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.continue">
-                        Continue to Tests
+                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.start_session">
+                        Start Daily Session
                     </button>
+                    <div class="text-center mt-3">
+                        <a id="browse-tests-link" href="{{ url_for('tests') }}"
+                           class="text-decoration-none" data-i18n="lang_select.browse_tests"
+                           style="color: var(--slate-500); font-size: 14px; pointer-events: none; opacity: 0.5;">
+                            Browse tests
+                        </a>
+                    </div>
                 </div>
 
             </div>
@@ -141,6 +148,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const languageCards = document.querySelectorAll('.language-card');
         const continueBtn = document.getElementById('continue-btn');
+        const browseTestsLink = document.getElementById('browse-tests-link');
         let selectedLanguage = null;
 
         // Fetch native names from metadata
@@ -174,21 +182,43 @@
                     id: parseInt(this.dataset.id)
                 };
 
-                // Enable continue button
+                // Enable continue button and the secondary browse-tests link
                 continueBtn.disabled = false;
+                if (browseTestsLink) {
+                    browseTestsLink.style.pointerEvents = 'auto';
+                    browseTestsLink.style.opacity = '1';
+                }
             });
         });
 
-        // Handle continue button click
+        // Persist the chosen language (1=Chinese, 2=English, 3=Japanese) before
+        // navigating, so both the daily session and the tests page see it.
+        function persistSelectedLanguage() {
+            if (selectedLanguage) {
+                localStorage.setItem('selectedLanguageId', selectedLanguage.id.toString());
+            }
+        }
+
+        // Primary CTA: start the daily study session.
         continueBtn.addEventListener('click', function() {
             if (selectedLanguage) {
-                // Store the language ID (1=Chinese, 2=English, 3=Japanese)
-                localStorage.setItem('selectedLanguageId', selectedLanguage.id.toString());
-
-                // Redirect to home/test page
-                window.location.href = "{{ url_for('tests') }}";
+                persistSelectedLanguage();
+                window.location.href = "{{ url_for('study_session_page') }}";
             }
         });
+
+        // Secondary CTA: browse tests. The href already points to the tests page;
+        // this handler just persists the selection first (and no-ops until a
+        // language is chosen, matching the disabled visual state).
+        if (browseTestsLink) {
+            browseTestsLink.addEventListener('click', function(e) {
+                if (!selectedLanguage) {
+                    e.preventDefault();
+                    return;
+                }
+                persistSelectedLanguage();
+            });
+        }
 
         // Check if language was previously selected
         const savedLanguageId = localStorage.getItem('selectedLanguageId');

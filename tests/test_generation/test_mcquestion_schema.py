@@ -163,8 +163,8 @@ def _stub_seq(parsed_outputs):
 
     def stub(**kw):
         parsed = next(it)
-        # (parsed, raw_content, parsed_ok, latency_ms)
-        return parsed, repr(parsed), True, 42
+        # (parsed, raw_content, parsed_ok, latency_ms, cost_usd)
+        return parsed, repr(parsed), True, 42, 0.0001
     return stub
 
 

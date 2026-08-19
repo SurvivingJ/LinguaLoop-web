@@ -109,7 +109,8 @@ def get_preferences() -> ApiResponse:
 def update_preferences() -> ApiResponse:
     """Update user exercise preferences.
 
-    Body: {"session_size": 15} and/or {"furigana_enabled": true}
+    Body: any of {"session_size": 15}, {"furigana_enabled": true},
+    {"script_variant": "traditional"}.
     """
     try:
         user_id = g.current_user_id
@@ -142,6 +143,17 @@ def update_preferences() -> ApiResponse:
             if not isinstance(data['furigana_enabled'], bool):
                 return bad_request("furigana_enabled must be boolean")
             prefs['furigana_enabled'] = data['furigana_enabled']
+
+        # TASK-526. Chinese only in effect — the practice surface ignores it
+        # for other languages — but stored unconditionally so a learner who
+        # sets it while studying Japanese does not have it silently dropped.
+        if 'script_variant' in data:
+            from services.vocabulary_ladder.script_serving import VALID_VARIANTS
+            if data['script_variant'] not in VALID_VARIANTS:
+                return bad_request(
+                    f"script_variant must be one of {list(VALID_VARIANTS)}"
+                )
+            prefs['script_variant'] = data['script_variant']
 
         current_app.supabase_service.table('users') \
             .update({'exercise_preferences': prefs}) \

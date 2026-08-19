@@ -50,6 +50,19 @@
         <div id="nativeLanguageStatus" class="small mt-2" role="status" aria-live="polite"></div>
     </div>
 
+    <!-- Chinese script variant (TASK-526). Practice/vocab surfaces only:
+         tests and mysteries are a later epic, so the copy says so rather than
+         promising a site-wide switch. -->
+    <div class="card p-4 mb-4" id="scriptVariantSection">
+        <h5 class="mb-1"><i class="fas fa-font me-2"></i><span data-i18n="profile.script_title">Chinese Script</span></h5>
+        <p class="text-muted mb-3" data-i18n="profile.script_desc">Choose the script used in Chinese practice sessions. Tests are unaffected for now.</p>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="scriptVariantToggle">
+            <label class="form-check-label" for="scriptVariantToggle" data-i18n="profile.script_traditional">Use Traditional characters (繁體)</label>
+        </div>
+        <div id="scriptVariantStatus" class="small mt-2" role="status" aria-live="polite"></div>
+    </div>
+
     <!-- Loading -->
     <div id="loadingState" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
@@ -137,6 +150,7 @@
         console.log('Calling loadProfile()...');
         loadProfile();
         loadNativeLanguage();
+        loadScriptVariant();
 
         // Wire up load more button
         const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -622,6 +636,50 @@
             currentNativeLanguageId = previous;
             renderNativeCurrent();
             if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.native_save_failed') : 'Could not save — try again';
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Chinese script variant (TASK-526)
+    // ---------------------------------------------------------------
+    // Reads and writes users.exercise_preferences.script_variant. The
+    // practice session service does the field selection server-side over the
+    // dual-stored content.hant mirror; the toggle only records the choice.
+
+    async function loadScriptVariant() {
+        const cb = document.getElementById('scriptVariantToggle');
+        if (!cb) return;
+        try {
+            const res = await window.authFetch('/api/users/preferences');
+            if (res.ok) {
+                const body = await res.json();
+                const prefs = (body && (body.data || body).exercise_preferences) || {};
+                cb.checked = prefs.script_variant === 'traditional';
+            }
+        } catch (err) {
+            console.error('loadScriptVariant failed:', err);
+        }
+        cb.addEventListener('change', () => saveScriptVariant(cb.checked));
+    }
+
+    async function saveScriptVariant(traditional) {
+        const cb = document.getElementById('scriptVariantToggle');
+        const status = document.getElementById('scriptVariantStatus');
+        const variant = traditional ? 'traditional' : 'simplified';
+        if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.script_saving') : 'Saving…';
+        try {
+            const res = await window.authFetch('/api/users/preferences', {
+                method: 'PATCH',
+                body: JSON.stringify({ script_variant: variant }),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.script_saved') : 'Saved';
+        } catch (err) {
+            console.error('saveScriptVariant failed:', err);
+            // Roll the switch back so it never shows a preference the server
+            // did not accept.
+            if (cb) cb.checked = !traditional;
+            if (status) status.textContent = window.LinguaI18n ? LinguaI18n.t('profile.script_save_failed') : 'Could not save — try again';
         }
     }
 

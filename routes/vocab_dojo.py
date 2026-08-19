@@ -106,6 +106,30 @@ def get_word_exercises(sense_id: int) -> ApiResponse:
         )
         exercises = resp.data or []
 
+        # TASK-517 — sense-subscription top-up. A learner has opened a word's
+        # ladder and there is nothing to show: that is the one moment we know
+        # for certain a sense needs generating, and the one the nightly
+        # coverage sweep cannot infer, because the sweep only looks at senses
+        # that already have assets to find gaps *in*.
+        #
+        # Deliberately gated on "no exercises at all" rather than on the
+        # coverage view. A partial gap is the sweep's job; running the view on
+        # every word open would add a query per request to serve a case that is
+        # already handled within 24 hours. `enqueue` is a no-op when the sense
+        # is already queued, so a learner refreshing does not pile up rows.
+        if not exercises:
+            try:
+                from services.vocabulary_ladder import queue_drain
+                queue_drain.enqueue(
+                    db, sense_id, language_id,
+                    queue_drain.REASON_SUBSCRIBE_TOPUP,
+                    {'trigger': 'word_exercises', 'user_visible': True},
+                )
+            except Exception as exc:
+                # Never fail the read because the top-up could not be queued.
+                logger.warning("subscribe_topup enqueue failed for sense %s: %s",
+                               sense_id, exc)
+
         # Fetch word metadata
         sense_resp = (
             db.table('dim_word_senses')

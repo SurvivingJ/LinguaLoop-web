@@ -1,0 +1,555 @@
+{% extends "base.html" %}
+
+{% block title %}Counter Drill | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Structural sibling of classifier_drill.html. Class names mirror that file's
+   cd-* set with a ct-* prefix so the two drills read as one pattern. */
+.ct-header { position: sticky; top: 0; z-index: 20; background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-default); display: flex; flex-wrap: wrap; }
+.ct-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }
+.ct-header-right { display: flex; align-items: center; gap: 12px; }
+.ct-header-controls { flex: 0 0 auto; }
+.ct-progress-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--bg-muted); }
+.ct-progress-fill { height: 100%; width: 0%; background: var(--brand-primary, #4f46e5); transition: width .25s ease; }
+
+.ct-mode-toggle { display: inline-flex; border: 1px solid var(--border-default); border-radius: 8px; overflow: hidden; }
+.ct-mode-toggle button { border: 0; background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 13px; padding: 6px 12px; cursor: pointer; }
+.ct-mode-toggle button.active { background: var(--brand-primary, #4f46e5); color: #fff; }
+
+.ct-stage { max-width: 640px; margin: 0 auto; padding: 40px 20px 24px; text-align: center; }
+.ct-prompt { font-size: clamp(2rem, 8vw, 3.25rem); font-weight: 600; line-height: 1.25;
+    display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.ct-blank { display: inline-block; min-width: 1.4em; border-bottom: 3px solid var(--brand-primary, #4f46e5);
+    color: var(--brand-primary, #4f46e5); }
+.ct-blank.correct { border-color: var(--success); color: var(--success); }
+.ct-blank.wrong { border-color: var(--danger); color: var(--danger); }
+.ct-reading { margin-top: 10px; color: var(--text-secondary); font-size: 1rem; }
+.ct-gloss { margin-top: 4px; color: var(--text-muted); font-size: .95rem; }
+
+.ct-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 32px; }
+@media (min-width: 560px) { .ct-options { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.ct-option { padding: 18px 8px; border: 2px solid var(--border-default); border-radius: 12px;
+    background: var(--bg-surface); cursor: pointer; transition: border-color .15s, background .15s; }
+.ct-option:hover:not(:disabled) { border-color: var(--brand-primary, #4f46e5); }
+.ct-option:disabled { cursor: default; }
+.ct-option .ct-option-text { font-size: 1.75rem; font-weight: 600; line-height: 1.1; }
+.ct-option .ct-option-reading { font-size: .8rem; color: var(--text-muted); margin-top: 4px; }
+.ct-option.correct { border-color: var(--success); background: rgba(5,150,105,.08); }
+.ct-option.wrong { border-color: var(--danger); background: rgba(220,38,38,.08); }
+
+.ct-typed-input { margin-top: 32px; width: 100%; max-width: 260px; text-align: center;
+    font-size: 2rem; padding: 10px 12px; border: 2px solid var(--border-default); border-radius: 12px; }
+.ct-typed-input:focus { outline: none; border-color: var(--brand-primary, #4f46e5); }
+.ct-typed-hint { margin-top: 10px; font-size: .8rem; color: var(--text-muted); }
+
+.ct-feedback { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none;
+    align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+.ct-feedback.show { display: flex; }
+.ct-feedback-card { background: var(--bg-surface); border-radius: 16px; padding: 28px 24px;
+    max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow-lg, 0 20px 40px rgba(0,0,0,.2)); }
+.ct-feedback-canonical { font-size: 2rem; font-weight: 700; }
+.ct-feedback-reading { color: var(--text-secondary); margin-top: 4px; }
+.ct-feedback-group { color: var(--text-muted); font-size: .9rem; margin-top: 10px; }
+.ct-feedback-numerals { margin-top: 14px; font-size: .9rem; color: var(--text-secondary); line-height: 1.7; }
+.ct-feedback-numerals b { color: var(--text-primary); }
+.ct-feedback-alts { margin-top: 12px; font-size: .9rem; color: var(--text-secondary); }
+.ct-feedback-cta { margin-top: 20px; width: 100%; padding: 12px; border: 0; border-radius: 10px;
+    background: var(--brand-primary, #4f46e5); color: #fff; font-size: 1rem; cursor: pointer; }
+
+.ct-results { max-width: 480px; margin: 60px auto; text-align: center; background: var(--bg-surface);
+    border-radius: 16px; padding: 32px 24px; box-shadow: var(--shadow-md); }
+.ct-results-grade { font-size: 3rem; }
+.ct-results-pct { font-size: 2.5rem; font-weight: 700; }
+.ct-results-stats { display: flex; justify-content: center; gap: 24px; color: var(--text-secondary); margin-top: 8px; }
+.ct-results-elo-badge { margin-top: 14px; font-size: .9rem; color: var(--text-secondary); }
+.ct-results-actions { display: flex; gap: 12px; margin-top: 24px; }
+.ct-empty { max-width: 480px; margin: 60px auto; text-align: center; color: var(--text-secondary); line-height: 1.6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="ctHeader" class="ct-header py-3 px-3 px-md-4 flex items-center justify-between gap-2" style="display:none;">
+    <div class="ct-header-left">
+        <a href="/tests" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
+        <h1 class="text-base font-semibold" data-i18n="counter_drill.title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Counters</h1>
+    </div>
+    <div class="ct-header-right">
+        <div class="text-sm text-slate-500" style="white-space: nowrap;"><span id="ctProgressLabel">0</span> / <span id="ctProgressTotal">0</span></div>
+    </div>
+    <div class="ct-header-controls">
+        <div class="ct-mode-toggle" id="ctModeToggle">
+            <button type="button" data-mode="mc" class="active" data-i18n="counter_drill.mode_mc">Choose</button>
+            <button type="button" data-mode="type" data-i18n="counter_drill.mode_type">Type</button>
+        </div>
+    </div>
+    <div class="ct-progress-bar"><div class="ct-progress-fill" id="ctProgressFill"></div></div>
+</div>
+
+<div id="ctLoading" class="text-center py-20 text-slate-500" data-i18n="counter_drill.loading">Loading…</div>
+
+<div id="ctEmpty" class="ct-empty" style="display:none;">
+    <p data-i18n="counter_drill.empty">No counter items are available yet.</p>
+</div>
+
+<div id="ctStage" class="ct-stage" style="display:none;">
+    <div class="ct-prompt" id="ctPromptWrap">
+        <span id="ctNoun"></span>
+        <span>を</span>
+        <span id="ctNumeral">一</span>
+        <span class="ct-blank" id="ctPromptBlank">_</span>
+    </div>
+    <div class="ct-reading" id="ctReading"></div>
+    <div class="ct-gloss" id="ctGloss"></div>
+
+    <div class="ct-options" id="ctOptions" style="display:none;"></div>
+
+    <form id="ctTypedForm" style="display:none;" autocomplete="off">
+        <input id="ctTypedInput" type="text" class="ct-typed-input" maxlength="3"
+               inputmode="text" autocapitalize="off" autocorrect="off" spellcheck="false"
+               data-i18n-placeholder="counter_drill.typed_placeholder"
+               placeholder="助数詞" />
+        <div class="ct-typed-hint" data-i18n="counter_drill.typed_hint">Press Enter to check</div>
+    </form>
+</div>
+
+<div id="ctFeedback" class="ct-feedback" role="dialog" aria-modal="true">
+    <div class="ct-feedback-card">
+        <div class="ct-feedback-canonical" id="ctFeedbackCanonical"></div>
+        <div class="ct-feedback-reading" id="ctFeedbackReading"></div>
+        <div class="ct-feedback-group" id="ctFeedbackGroup"></div>
+        <div class="ct-feedback-numerals" id="ctFeedbackNumerals"></div>
+        <div class="ct-feedback-alts" id="ctFeedbackAlts"></div>
+        <button class="ct-feedback-cta" id="ctFeedbackContinue" data-i18n="counter_drill.feedback_continue">Continue</button>
+    </div>
+</div>
+
+<div id="ctResults" class="ct-results" style="display:none;">
+    <div class="ct-results-grade" id="ctResultsGrade">🎯</div>
+    <div class="ct-results-pct"><span id="ctResultsPct">0</span>%</div>
+    <div class="ct-results-stats">
+        <div><strong id="ctResultsCorrect">0</strong> / <span id="ctResultsTotal">0</span> <span data-i18n="counter_drill.results_counters">counters</span></div>
+        <div><strong id="ctResultsTime">0</strong>s</div>
+    </div>
+    <div class="ct-results-elo-badge" id="ctResultsElo" style="display:none;"></div>
+    <div class="ct-results-actions">
+        <button class="ct-feedback-cta" id="ctResultsNext" data-i18n="counter_drill.results_next">Next round</button>
+        <button class="ct-feedback-cta" id="ctResultsExit" style="background: var(--bg-page); color: var(--text-primary);" data-i18n="counter_drill.results_exit">Done</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const TARGET_LANGUAGE = 3; // Japanese — the route rejects anything else.
+    const BATCH_SIZE = 20;
+
+    // Two modes only. The classifier drill also has 'auto', which routes each
+    // item by the learner's per-classifier mastery level; counters have no
+    // equivalent mastery table, so an auto mode here would have nothing to
+    // read and would silently behave as a third name for 'mc'.
+    const state = {
+        mode: localStorage.getItem('ct_mode') || 'mc',
+        items: [],
+        cursor: 0,
+        correct: 0,
+        startTime: 0,
+        currentOptions: [],
+        isLocked: false,
+        currentItem: null,
+    };
+
+    const el = {
+        header: document.getElementById('ctHeader'),
+        loading: document.getElementById('ctLoading'),
+        empty: document.getElementById('ctEmpty'),
+        stage: document.getElementById('ctStage'),
+        promptBlank: document.getElementById('ctPromptBlank'),
+        noun: document.getElementById('ctNoun'),
+        numeral: document.getElementById('ctNumeral'),
+        reading: document.getElementById('ctReading'),
+        gloss: document.getElementById('ctGloss'),
+        options: document.getElementById('ctOptions'),
+        typedForm: document.getElementById('ctTypedForm'),
+        typedInput: document.getElementById('ctTypedInput'),
+        progressLabel: document.getElementById('ctProgressLabel'),
+        progressTotal: document.getElementById('ctProgressTotal'),
+        progressFill: document.getElementById('ctProgressFill'),
+        feedback: document.getElementById('ctFeedback'),
+        fbCanonical: document.getElementById('ctFeedbackCanonical'),
+        fbReading: document.getElementById('ctFeedbackReading'),
+        fbGroup: document.getElementById('ctFeedbackGroup'),
+        fbNumerals: document.getElementById('ctFeedbackNumerals'),
+        fbAlts: document.getElementById('ctFeedbackAlts'),
+        fbContinue: document.getElementById('ctFeedbackContinue'),
+        results: document.getElementById('ctResults'),
+        resultsGrade: document.getElementById('ctResultsGrade'),
+        resultsPct: document.getElementById('ctResultsPct'),
+        resultsCorrect: document.getElementById('ctResultsCorrect'),
+        resultsTotal: document.getElementById('ctResultsTotal'),
+        resultsTime: document.getElementById('ctResultsTime'),
+        resultsElo: document.getElementById('ctResultsElo'),
+        modeToggle: document.getElementById('ctModeToggle'),
+    };
+
+    function tr(key, params) {
+        return (window.LinguaI18n && window.LinguaI18n.t)
+            ? window.LinguaI18n.t(key, params)
+            : key;
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    async function init() {
+        try {
+            if (window.LinguaI18n && window.LinguaI18n.init) {
+                await window.LinguaI18n.init();
+            }
+            applyModeToToggle();
+            bindModeToggle();
+            bindFeedback();
+            bindResults();
+            bindKeyboard();
+            bindTypedInput();
+            await loadBatch();
+        } catch (err) {
+            console.error('Counter drill init error:', err);
+            el.loading.textContent = tr('counter_drill.error_init') + ' ' + (err.message || '');
+        }
+    }
+
+    function applyModeToToggle() {
+        el.modeToggle.querySelectorAll('button').forEach(b =>
+            b.classList.toggle('active', b.dataset.mode === state.mode));
+    }
+
+    function bindModeToggle() {
+        el.modeToggle.addEventListener('click', function(e) {
+            const btn = e.target.closest('button[data-mode]');
+            if (!btn || btn.dataset.mode === state.mode) return;
+            state.mode = btn.dataset.mode;
+            localStorage.setItem('ct_mode', state.mode);
+            applyModeToToggle();
+            // Re-render the current item in the new mode. Skipped while locked
+            // so switching mid-feedback cannot resurrect an answered item.
+            if (state.currentItem && !state.isLocked) {
+                resetPromptStyles();
+                renderInput();
+            }
+        });
+    }
+
+    function bindFeedback() {
+        el.fbContinue.addEventListener('click', closeFeedback);
+    }
+
+    function bindResults() {
+        document.getElementById('ctResultsNext').addEventListener('click', function() {
+            el.results.style.display = 'none';
+            loadBatch();
+        });
+        document.getElementById('ctResultsExit').addEventListener('click', function() {
+            window.location.href = '/tests';
+        });
+    }
+
+    function bindKeyboard() {
+        document.addEventListener('keydown', function(e) {
+            if (el.feedback.classList.contains('show')) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeFeedback();
+                }
+                return;
+            }
+            if (state.mode !== 'mc' || state.isLocked) return;
+            const n = parseInt(e.key, 10);
+            if (n >= 1 && n <= state.currentOptions.length) {
+                e.preventDefault();
+                handleChoiceClick(n - 1);
+            }
+        });
+    }
+
+    // IME-safe typed input. Lifted from renderClozeTyped in
+    // static/js/exercise-renderers.js (TASK-532) rather than rewritten: a
+    // Japanese learner types romaji into a composition buffer and presses Enter
+    // to CHOOSE a candidate, so submitting on that Enter would submit the
+    // half-built romaji. compositionstart/end tracks the buffer, and keyCode
+    // 229 covers the IMEs that never fire compositionstart at all. Both guards
+    // are needed.
+    let composing = false;
+
+    function bindTypedInput() {
+        el.typedInput.addEventListener('compositionstart', () => { composing = true; });
+        el.typedInput.addEventListener('compositionend', () => { composing = false; });
+        el.typedInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !composing && e.keyCode !== 229) {
+                e.preventDefault();
+                submitTyped();
+            }
+        });
+        el.typedForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!composing) submitTyped();
+        });
+    }
+
+    async function loadBatch() {
+        el.loading.style.display = '';
+        el.stage.style.display = 'none';
+        el.empty.style.display = 'none';
+        el.header.style.display = 'none';
+
+        let data;
+        try {
+            const resp = await window.authedFetch(
+                `/api/counter-drill/session?language_id=${TARGET_LANGUAGE}&count=${BATCH_SIZE}`);
+            data = await resp.json();
+        } catch (err) {
+            el.loading.textContent = tr('counter_drill.error_load');
+            return;
+        }
+
+        const items = (data && (data.data && data.data.items || data.items)) || [];
+        if (!items.length) {
+            el.loading.style.display = 'none';
+            el.empty.style.display = '';
+            return;
+        }
+
+        state.items = items;
+        state.cursor = 0;
+        state.correct = 0;
+        state.startTime = Date.now();
+        state.isLocked = false;
+
+        el.loading.style.display = 'none';
+        el.header.style.display = '';
+        el.stage.style.display = '';
+        el.progressTotal.textContent = items.length;
+        el.resultsTotal.textContent = items.length;
+        renderCurrent();
+    }
+
+    function renderCurrent() {
+        const item = state.items[state.cursor];
+        state.currentItem = item;
+        state.isLocked = false;
+        resetPromptStyles();
+
+        el.noun.textContent = item.noun_lemma || '';
+        el.numeral.textContent = '一';
+        el.reading.textContent = item.noun_pronunciation || '';
+        el.gloss.textContent = item.noun_gloss || '';
+        el.progressLabel.textContent = state.cursor;
+        el.progressFill.style.width =
+            ((state.cursor / state.items.length) * 100).toFixed(1) + '%';
+
+        renderInput();
+    }
+
+    function renderInput() {
+        if (state.mode === 'type') {
+            el.options.style.display = 'none';
+            el.typedForm.style.display = '';
+            el.typedInput.value = '';
+            el.typedInput.disabled = false;
+            el.typedInput.focus();
+        } else {
+            el.typedForm.style.display = 'none';
+            el.options.style.display = '';
+            renderMcOptions();
+        }
+    }
+
+    function renderMcOptions() {
+        const item = state.currentItem;
+        const correct = (item.correct_counter_text || [])[0] || '';
+        const correctReading = (item.correct_counter_reading || [])[0] || '';
+
+        const opts = [{ text: correct, reading: correctReading, correct: true }];
+        (item.distractor_text || []).forEach((text, i) => {
+            opts.push({
+                text: text,
+                reading: (item.distractor_reading || [])[i] || '',
+                correct: false,
+            });
+        });
+        state.currentOptions = shuffle(opts);
+
+        el.options.innerHTML = state.currentOptions.map((o, i) =>
+            `<button type="button" class="ct-option" data-idx="${i}">` +
+            `<div class="ct-option-text">${escapeHtml(o.text)}</div>` +
+            `<div class="ct-option-reading">${escapeHtml(o.reading)}</div>` +
+            `</button>`
+        ).join('');
+
+        el.options.querySelectorAll('button[data-idx]').forEach(btn => {
+            btn.addEventListener('click', () =>
+                handleChoiceClick(parseInt(btn.dataset.idx, 10)));
+        });
+    }
+
+    function acceptedAnswers(item) {
+        // Every counter the dictionary marks correct, not just the primary.
+        // 兎 genuinely takes both 匹 and 羽; marking either wrong teaches a
+        // falsehood, which is why the RPC returns an array here.
+        return (item.correct_counter_text || []).filter(Boolean);
+    }
+
+    function handleChoiceClick(idx) {
+        if (state.isLocked) return;
+        state.isLocked = true;
+
+        const picked = state.currentOptions[idx];
+        const isCorrect = !!picked && acceptedAnswers(state.currentItem).includes(picked.text);
+
+        el.options.querySelectorAll('button[data-idx]').forEach((btn, i) => {
+            btn.disabled = true;
+            if (state.currentOptions[i].correct) btn.classList.add('correct');
+            else if (i === idx && !isCorrect) btn.classList.add('wrong');
+        });
+
+        recordAnswer(isCorrect, picked ? picked.text : '');
+    }
+
+    function submitTyped() {
+        if (state.isLocked) return;
+        const raw = (el.typedInput.value || '').trim();
+        if (!raw) return;
+        state.isLocked = true;
+        el.typedInput.disabled = true;
+
+        const isCorrect = acceptedAnswers(state.currentItem).includes(raw);
+        el.promptBlank.textContent = raw;
+        el.promptBlank.classList.add(isCorrect ? 'correct' : 'wrong');
+
+        recordAnswer(isCorrect, raw);
+    }
+
+    function recordAnswer(isCorrect, picked) {
+        if (isCorrect) state.correct += 1;
+        openFeedback(isCorrect, picked);
+    }
+
+    function openFeedback(isCorrect, picked) {
+        const item = state.currentItem;
+        const canonical = (item.correct_counter_text || [])[0] || '';
+        const reading = (item.correct_counter_reading || [])[0] || '';
+        const alts = (item.correct_counter_text || []).slice(1).filter(Boolean);
+
+        el.fbCanonical.textContent = (isCorrect ? '✓ ' : '✕ ') +
+            (item.noun_lemma || '') + 'を一' + canonical;
+        el.fbReading.textContent = reading;
+        el.fbGroup.textContent = item.semantic_label || '';
+
+        // The euphonic numeral readings are the actual difficulty of Japanese
+        // counters — a learner who has memorised 本 without them still cannot
+        // say "three pens". Shown on every item, right or wrong.
+        const numerals = item.numeral_readings || {};
+        const keys = Object.keys(numerals).sort((a, b) => Number(a) - Number(b));
+        el.fbNumerals.innerHTML = keys.length
+            ? escapeHtml(tr('counter_drill.feedback_numerals')) + '<br>' + keys.map(k =>
+                `<b>${escapeHtml(k)}${escapeHtml(canonical)}</b> ${escapeHtml(numerals[k])}`
+              ).join('　')
+            : '';
+
+        el.fbAlts.textContent = alts.length
+            ? tr('counter_drill.feedback_also') + ' ' + alts.join('、')
+            : '';
+
+        el.feedback.classList.add('show');
+        el.fbContinue.focus();
+    }
+
+    function closeFeedback() {
+        el.feedback.classList.remove('show');
+        advance();
+    }
+
+    function resetPromptStyles() {
+        el.promptBlank.textContent = '_';
+        el.promptBlank.classList.remove('correct', 'wrong');
+    }
+
+    function advance() {
+        state.cursor += 1;
+        if (state.cursor >= state.items.length) {
+            finishBatch();
+            return;
+        }
+        renderCurrent();
+    }
+
+    async function finishBatch() {
+        el.stage.style.display = 'none';
+        el.header.style.display = 'none';
+
+        const total = state.items.length;
+        const pct = total ? Math.round((state.correct / total) * 100) : 0;
+        const seconds = Math.round((Date.now() - state.startTime) / 1000);
+
+        el.resultsPct.textContent = pct;
+        el.resultsCorrect.textContent = state.correct;
+        el.resultsTotal.textContent = total;
+        el.resultsTime.textContent = seconds;
+        el.resultsGrade.textContent = pct >= 90 ? '🏆' : pct >= 70 ? '🎯' : '📚';
+        el.results.style.display = '';
+
+        try {
+            const resp = await window.authedFetch('/api/counter-drill/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language_id: TARGET_LANGUAGE,
+                    correct_items: state.correct,
+                    total_items: total,
+                    time_taken: seconds,
+                    idempotency_key: (window.crypto && window.crypto.randomUUID)
+                        ? window.crypto.randomUUID() : undefined,
+                }),
+            });
+            const payload = await resp.json();
+            const result = (payload && (payload.data || payload)) || {};
+            const change = result.user_elo_change && result.user_elo_change.change;
+            if (typeof change === 'number' && change !== 0) {
+                el.resultsElo.textContent =
+                    (change > 0 ? '▲ +' : '▼ ') + change + ' ELO';
+                el.resultsElo.style.display = '';
+            }
+        } catch (err) {
+            // The round is over and the learner has their score; a failed
+            // submission costs ELO, not the session. Surfaced, not swallowed.
+            console.error('Counter drill submit failed:', err);
+            el.resultsElo.textContent = tr('counter_drill.submit_failed');
+            el.resultsElo.style.display = '';
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+{% endblock %}

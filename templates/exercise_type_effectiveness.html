@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Exercise-Type Effectiveness | Admin{% endblock %}
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ef-header { padding: 20px 0; border-bottom: 1px solid var(--border-default); background: var(--bg-surface); }
+    .ef-card { background: var(--bg-surface); border-radius: 12px; box-shadow: var(--shadow-md); padding: 20px; margin-top: 20px; }
+    .ef-bucket-title { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+    .ef-bucket-sub { font-size: 12px; color: var(--text-muted); margin: 0 0 12px; }
+    table.ef-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.ef-table th, table.ef-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-default); }
+    table.ef-table th { font-weight: 600; background: var(--bg-muted); white-space: nowrap; }
+    table.ef-table th.num, table.ef-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.ef-thin td { color: var(--text-muted); }
+    .ef-rate { display: inline-block; min-width: 72px; text-align: right; padding: 2px 8px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+    .ef-rate-pos { background: rgba(5,150,105,0.10); color: var(--success); font-weight: 600; }
+    .ef-rate-flat { background: var(--bg-muted); color: var(--text-secondary); }
+    .ef-rate-neg { background: rgba(220,38,38,0.12); color: var(--danger); font-weight: 600; }
+    .ef-thin-badge { background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 6px; padding: 1px 6px; font-size: 11px; color: var(--text-muted); margin-left: 6px; }
+    .ef-empty { padding: 28px; text-align: center; color: var(--text-muted); font-size: 14px; }
+    .ef-note { color: var(--text-secondary); font-size: 13px; margin-top: 14px; line-height: 1.55; }
+    .ef-note code { background: var(--bg-muted); padding: 1px 5px; border-radius: 4px; }
+    .ef-banner { background: rgba(217,119,6,0.10); border: 1px solid rgba(217,119,6,0.35); color: #b45309; border-radius: 8px; padding: 12px 14px; font-size: 13px; margin-top: 16px; line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="ef-header">
+    <div class="container">
+        <h1 style="font-size:22px;font-weight:700;margin:0">Exercise-Type Effectiveness</h1>
+        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:13px">
+            Knowledge gained per minute of learner time, split by how well the learner
+            already knew the word on arrival. TASK-534.
+        </p>
+    </div>
+</header>
+
+<div class="container">
+
+    {% set graded = rows | rejectattr('is_thin') | list %}
+    {% if rows and not graded %}
+    <div class="ef-banner">
+        <strong>Every cell is below {{ min_attempts }} attempts.</strong>
+        These rates are not yet meaningful — a handful of attempts can produce any
+        number here. Treat this page as a plumbing check until launch traffic
+        accumulates.
+    </div>
+    {% elif not rows %}
+    <div class="ef-banner">
+        <strong>No captured attempts yet.</strong>
+        Outcome capture landed with TASK-534, so only practice attempts recorded
+        after that point appear here. Earlier attempts have no
+        <code>p_known_before</code>/<code>p_known_after</code> pair and cannot be
+        reconstructed.
+    </div>
+    {% endif %}
+
+    {% for bucket in buckets %}
+        {% set bucket_rows = rows | selectattr('p_known_bucket', 'equalto', bucket) | list %}
+        <div class="ef-card">
+            <p class="ef-bucket-title">p_known on arrival: {{ bucket }}</p>
+            <p class="ef-bucket-sub">
+                {% if bucket == '0.0-0.2' %}First contact — the word is essentially unknown.
+                {% elif bucket == '0.2-0.4' %}Early acquisition.
+                {% elif bucket == '0.4-0.6' %}Shaky recognition.
+                {% elif bucket == '0.6-0.8' %}Consolidation.
+                {% else %}Near-mastery — headroom is small, so rates here are naturally lower.
+                {% endif %}
+            </p>
+
+            {% if not bucket_rows %}
+                <div class="ef-empty">No captured attempts in this bucket yet.</div>
+            {% else %}
+            <table class="ef-table">
+                <thead>
+                    <tr>
+                        <th>Exercise type</th>
+                        <th class="num">&Delta;p_known / min</th>
+                        <th class="num">Mean &Delta;p_known</th>
+                        <th class="num">Accuracy</th>
+                        <th class="num">Attempts</th>
+                        <th class="num">Users</th>
+                        <th class="num">Senses</th>
+                        <th class="num">Minutes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in bucket_rows %}
+                    <tr class="{{ 'ef-thin' if row.is_thin else '' }}">
+                        <td>
+                            {{ row.exercise_type }}
+                            {% if row.is_thin %}<span class="ef-thin-badge">thin</span>{% endif %}
+                        </td>
+                        <td class="num">
+                            {% set rate = row.delta_p_known_per_minute %}
+                            {% if rate is none %}
+                                <span class="ef-rate ef-rate-flat">&ndash;</span>
+                            {% else %}
+                                {% set r = rate | float %}
+                                <span class="ef-rate {{ 'ef-rate-pos' if r > 0.0005 else ('ef-rate-neg' if r < -0.0005 else 'ef-rate-flat') }}">
+                                    {{ '%+.4f' | format(r) }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="num">{{ '%+.4f' | format(row.mean_delta_p_known | float) }}</td>
+                        <td class="num">{{ '%.0f%%' | format((row.accuracy | float) * 100) }}</td>
+                        <td class="num">{{ row.attempts }}</td>
+                        <td class="num">{{ row.users }}</td>
+                        <td class="num">{{ row.senses }}</td>
+                        <td class="num">{{ '%.1f' | format(row.total_minutes | float) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <p class="ef-note">
+        <strong>How to read this.</strong> Rates are per minute, so a quick type that
+        moves knowledge a little can legitimately beat a slow type that moves it a
+        lot — learner time is the scarce resource. Compare types <em>within</em> a
+        bucket; across buckets the numbers are not comparable, because a word at
+        0.8&ndash;1.0 has almost no headroom left to gain.
+    </p>
+    <p class="ef-note">
+        <strong>What is counted.</strong> Only attempts where BKT actually ran, so
+        both <code>p_known_before</code> and <code>p_known_after</code> were captured,
+        and where <code>time_taken_ms</code> is positive. Per-attempt time is capped
+        at 5 minutes so an abandoned tab cannot make a type look worthless. Rows
+        marked <span class="ef-thin-badge">thin</span> have fewer than
+        {{ min_attempts }} attempts; read the rate as provisional.
+    </p>
+    <p class="ef-note">
+        A negative rate is a real signal, not a bug: BKT lowers <code>p_known</code>
+        on a wrong first attempt, so a type that mostly catches learners out will
+        sit below zero.
+    </p>
+</div>
+{% endblock %}

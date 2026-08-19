@@ -40,6 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from config import Config
+from services.day_boundary import plan_today
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,23 @@ ACQ_SHARE_CEIL    = 0.85
 
 # Carry-over decay (R3.4)
 CARRY_OVER_DECAY = 0.5
+
+# Catch-all minutes for a skill nobody seeded. Mirrors the SQL
+# test_time_estimate `ELSE 5.0`. Named rather than inlined so the test that
+# pins "no plannable surface may land here" (ADR-021) can reference it.
+UNSEEDED_SKILL_MINUTES = 5
+
+# Surfaces the planner budgets that are NOT dim_test_types rows and never
+# resolve to an ELO-rated `tests` row (ADR-021 / TASK-714). Kept here because
+# Tier B allocation walks weekly_test_counts without caring what a key is;
+# the distinction only matters to the Tier C resolver and the session runner.
+PLANNABLE_SURFACE_SKILLS = ('flashcards', 'dual_translation')
+
+# Explicitly outside the planner (ADR-021). Both ARE dim_test_types rows, which
+# is a modelling artefact, not an intent to schedule them — long-form
+# exploratory content does not belong in a minute budget. Pinned by
+# tests/test_plannable_surfaces.py.
+UNPLANNED_TEST_TYPES = ('listening_lab', 'mystery')
 
 
 # ============================================================================
@@ -255,7 +273,18 @@ def rebalance_practice(
 
 
 def _test_time_estimate(skill: str, db) -> float:
-    """Minutes-per-test for the given skill, preferring observed P50."""
+    """Minutes per budgeted slot of ``skill``, preferring the observed P50.
+
+    Python mirror of the SQL ``public.test_time_estimate``. The two MUST agree:
+    this one sizes ``total_weekly_minutes`` at Tier B, the SQL one sizes the
+    daily greedy fill at Tier C, and a divergence shows up as a week that never
+    fits its own days.
+
+    Unknown skills fall back to 5 minutes — the same catch-all ADR-021 flags as
+    a silent wrong answer. We keep the fallback (a plan must still solve) but
+    WARN, so a newly planned surface nobody seeded is visible in the logs rather
+    than quietly budgeted at 5 minutes forever.
+    """
     try:
         resp = (
             db.table('dim_test_types')
@@ -270,7 +299,17 @@ def _test_time_estimate(skill: str, db) -> float:
                 return float(p50)
     except Exception:
         pass
-    return float(Config.TEST_TYPE_MINUTES.get(skill, 5))
+
+    seeded = Config.TEST_TYPE_MINUTES.get(skill)
+    if seeded is None:
+        logger.warning(
+            'test_time_estimate: no seeded minutes for skill=%r; budgeting at '
+            '%s min/slot. Seed it in Config.TEST_TYPE_MINUTES *and* the SQL '
+            'test_time_estimate CASE (ADR-021).',
+            skill, UNSEEDED_SKILL_MINUTES,
+        )
+        return float(UNSEEDED_SKILL_MINUTES)
+    return float(seeded)
 
 
 # ============================================================================
@@ -436,6 +475,19 @@ class StudyPlanService:
         )
         total_weekly_minutes = int(round(test_minutes + practice_minutes))
 
+        # TASK-714 / ADR-021: cap the week at what the learner actually
+        # committed to. Bringing flashcards and dual_translation into
+        # target_counts adds real minutes to the sum above — but the learner
+        # was already spending those minutes, unseen. Without this clamp,
+        # counting them would LENGTHEN their day (today_budget derives from
+        # total_weekly_minutes) instead of making the existing day honest.
+        # With it, the new surfaces compete with test slots inside the same
+        # budget, which is exactly what ADR-021 means by "dual_translation
+        # competes directly with test time".
+        # rebalance_practice already applies the same ceiling to practice.
+        weekly_ceiling = int(plan['daily_minutes']) * 7
+        total_weekly_minutes = min(total_weekly_minutes, weekly_ceiling)
+
         # 9. Persist
         computed = {
             'target_counts':           target_counts,
@@ -480,8 +532,14 @@ class StudyPlanService:
 
         Returns the RPC jsonb verbatim. Errors with codes E_NOPLAN or
         E_NOWEEK indicate the caller should fall back to legacy daily-load.
+
+        ``target_date`` defaults to the learner's LOCAL date (ADR-022), not
+        ``date.today()`` — the old default was the process's local date, a
+        third independent derivation of "today" on top of the two UTC ones.
+        Callers that already resolved the local date should pass it, so a
+        single request never derives it twice.
         """
-        target_date = target_date or date.today()
+        target_date = target_date or plan_today(self.db, user_id, language_id)
         try:
             resp = self.db.rpc('build_daily_session', {
                 'p_user_id':     user_id,
@@ -503,30 +561,33 @@ class StudyPlanService:
 # Cron entry point (registered in app.py)
 # ============================================================================
 
-_ADVISORY_LOCK_KEY = 0x577D7950  # 'StPP' — Study Plan Pacer
-
 def _try_advisory_lock(db) -> bool:
+    """Best-effort cross-worker mutex for the weekly recompute. Wraps the
+    Study-Plan advisory-lock key server-side (key 'StPP', see
+    migrations/study_plan_advisory_lock.sql). Same shape as the IRT
+    calibrator's _try_advisory_lock. Falls through to True if the RPC is
+    unavailable (e.g. not yet deployed) so a misconfigured environment still
+    runs — Tier B UPSERTs are idempotent, the only cost is ~2× compute.
+    """
     try:
-        resp = db.rpc('irt_try_lock').execute()  # reuse generic try-lock? no
-    except Exception:
-        pass
-    # Use a Study-Plan-specific advisory lock via raw SQL
-    try:
-        resp = db.rpc('pg_try_advisory_lock_for_study_plan').execute()
-        if resp.data is not None:
-            return bool(resp.data)
-    except Exception:
-        pass
-    # Fallback: skip the lock and just run — Tier B is idempotent so
-    # double-runs produce the same UPSERT result. Cost is ~2× compute.
+        resp = db.rpc('pg_try_advisory_lock_for_study_plan', {}).execute()
+        data = resp.data
+        if isinstance(data, list) and data:
+            return bool(data[0])
+        if data is not None:
+            return bool(data)
+    except Exception as exc:
+        logger.warning(
+            'Study-plan advisory lock unavailable, proceeding without it: %s', exc,
+        )
     return True
 
 
 def _release_advisory_lock(db) -> None:
     try:
-        db.rpc('pg_advisory_unlock_for_study_plan').execute()
-    except Exception:
-        pass
+        db.rpc('pg_advisory_unlock_for_study_plan', {}).execute()
+    except Exception as exc:
+        logger.warning('Study-plan advisory unlock failed: %s', exc)
 
 
 def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
@@ -545,6 +606,22 @@ def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
     # never has to fall back to the lazy compute / legacy 3-test load.
     week_start = _monday_of(date.today() + timedelta(days=1))
 
+    # Cross-worker mutex (F7): APScheduler runs in every gunicorn worker, but
+    # only the one that takes the advisory lock runs the sweep. The rest skip.
+    # The recompute is idempotent, so this is purely to avoid N× DB load.
+    if not _try_advisory_lock(db):
+        logger.info(
+            'Another worker holds the study-plan recompute lock; skipping (week=%s).',
+            week_start,
+        )
+        return {
+            'week_start': week_start.isoformat(),
+            'fired':      0,
+            'succeeded':  0,
+            'failed':     0,
+            'skipped':    True,
+        }
+
     # Pull plans in pages to avoid loading 100K+ rows at once.
     page_size = 1000
     offset = 0
@@ -552,35 +629,38 @@ def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
     succeeded = 0
     failed = 0
 
-    while True:
-        resp = (
-            db.table('user_study_plans')
-            .select('user_id, language_id')
-            .range(offset, offset + page_size - 1)
-            .execute()
-        )
-        rows = resp.data or []
-        if not rows:
-            break
-        for row in rows:
-            fired += 1
-            try:
-                result = svc.compute_weekly_plan(
-                    row['user_id'], int(row['language_id']), week_start,
-                )
-                if result is not None:
-                    succeeded += 1
-                else:
+    try:
+        while True:
+            resp = (
+                db.table('user_study_plans')
+                .select('user_id, language_id')
+                .range(offset, offset + page_size - 1)
+                .execute()
+            )
+            rows = resp.data or []
+            if not rows:
+                break
+            for row in rows:
+                fired += 1
+                try:
+                    result = svc.compute_weekly_plan(
+                        row['user_id'], int(row['language_id']), week_start,
+                    )
+                    if result is not None:
+                        succeeded += 1
+                    else:
+                        failed += 1
+                except Exception as e:
                     failed += 1
-            except Exception as e:
-                failed += 1
-                logger.exception(
-                    'compute_weekly_plan crashed for user=%s lang=%s: %s',
-                    row.get('user_id'), row.get('language_id'), e,
-                )
-        offset += page_size
-        if len(rows) < page_size:
-            break
+                    logger.exception(
+                        'compute_weekly_plan crashed for user=%s lang=%s: %s',
+                        row.get('user_id'), row.get('language_id'), e,
+                    )
+            offset += page_size
+            if len(rows) < page_size:
+                break
+    finally:
+        _release_advisory_lock(db)
 
     logger.info(
         '_run_weekly_plan_recompute complete: week=%s fired=%d succeeded=%d failed=%d',
@@ -591,6 +671,7 @@ def _run_weekly_plan_recompute(min_users: int = 0) -> Dict[str, Any]:
         'fired':      fired,
         'succeeded':  succeeded,
         'failed':     failed,
+        'skipped':    False,
     }
 
 

@@ -4,7 +4,8 @@ feature: evidence-first-grading
 prose_page: ../algorithms/evidence-first-grading.md
 tech_page: ../algorithms/evidence-first-grading.tech.md
 total_tasks: 29
-done: 19
+done: 28
+last_updated: 2026-08-10
 ---
 
 # Evidence-First Grading (DT v2) — Task Breakdown
@@ -586,7 +587,7 @@ severity in the rendered prompt.
 
 ## TASK-638: Fix empty-correction dangling explanation text
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-10)
 **Feature:** evidence-first-grading
 **Type:** bug
 **Complexity:** XS
@@ -599,8 +600,8 @@ The drop rule in `grader_cascade.py` was weakened to `not learner_form and not c
 `"corrected: "` into `dt_error_instance.explanation` and showing it on the learner's error card.
 
 **Acceptance Criteria:**
-- [ ] An addition error with `corrected_form=""` renders a template variant that doesn't reference a correction (no dangling "corrected: " text)
-- [ ] The drop gate itself stays AND (empty `corrected_form` is legitimate for zero-width-span addition errors per TASK-624 — do not re-tighten to OR)
+- [x] An addition error with `corrected_form=""` renders a template variant that doesn't reference a correction (no dangling "corrected: " text)
+- [x] The drop gate itself stays AND (empty `corrected_form` is legitimate for zero-width-span addition errors per TASK-624 — do not re-tighten to OR)
 
 **Technical Notes:**
 Branch in `render_explanation` on empty `corrected_form` to select an omission/addition-appropriate
@@ -612,6 +613,17 @@ template, rather than touching the drop gate.
 
 **Verification:**
 New rendering test for an addition error with `corrected_form=""` shows no dangling correction text.
+
+**Resolution (verified 2026-08-10):**
+`render_explanation`'s nested `_generic()` branches on empty `corrected_form` and returns
+`_GENERIC_ADDITION_EXPLANATION_TEMPLATE` (`"remove: {learner_form}"`) instead of the
+`"corrected: {corrected_form}"` generic. **Beyond spec:** an *authored* template that quotes
+`{corrected_form}` when the model produced none also falls back now (the
+`not corrected_form and "{corrected_form}" in template` guard) — otherwise a seeded taxonomy
+template would reintroduce the same empty quotation the task was filed to remove. The drop gate
+in `_decode_error` is unchanged and still AND (`not learner_form and not corrected_form`).
+Pinned by `test_render_explanation_addition_with_empty_correction_omits_correction`
+(`tests/test_dual_translation_grader_cascade.py:546`).
 
 ---
 
@@ -776,7 +788,7 @@ Existing gold-seed tests pass with `severity_v1` omitted from a synthetic edit s
 
 ## TASK-642: Cache active rubric/taxonomy config on the grading hot path
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-10)
 **Feature:** evidence-first-grading
 **Type:** refactor
 **Complexity:** S
@@ -789,9 +801,9 @@ for ~700 lines of JSONB that only changes when an operator activates a new versi
 `router.py` already caches its equivalent config in `_cfg_cache`.
 
 **Acceptance Criteria:**
-- [ ] `grade_submission`'s rubric/taxonomy fetch is cached in-process, following `router.py`'s `_cfg_cache` convention
-- [ ] A `clear_caches()` hook exists for tests and for operator version-activation flows
-- [ ] `scripts/run_dt_grading_eval.py` benefits automatically (no per-item re-fetch)
+- [x] `grade_submission`'s rubric/taxonomy fetch is cached in-process, following `router.py`'s `_cfg_cache` convention
+- [x] A `clear_caches()` hook exists for tests and for operator version-activation flows
+- [x] `scripts/run_dt_grading_eval.py` benefits automatically (no per-item re-fetch)
 
 **Files to Create / Modify:**
 - `services/dual_translation/grader_cascade.py` — `get_active_rubric`, `get_active_taxonomy`
@@ -800,6 +812,22 @@ for ~700 lines of JSONB that only changes when an operator activates a new versi
 **Verification:**
 `pytest` green; a live/staging smoke shows only one rubric+taxonomy fetch per activated version,
 not per submission.
+
+**Resolution (verified 2026-08-10):**
+`grader_cascade._cfg_cache: dict[str, dict]` keyed `'rubric'`/`'taxonomy'` (the module has exactly
+one active version of each, so no composite key is needed — unlike `router._cfg_cache`'s
+`(tier, language_id)`). `get_active_rubric`/`get_active_taxonomy` populate it on first read;
+`clear_caches()` mirrors `router.clear_caches()`. The shared `_fetch_active_config` helper
+**raises rather than caching a miss**, so a transient Supabase outage can't pin a bad read for the
+life of the process. Entries are handed out by reference (no per-call copy) — every consumer reads
+via `.get()` and none mutate. The eval harness benefits automatically since the cache is
+module-level, not request-scoped. Test fixtures call `grader_cascade.clear_caches()` in
+setup/teardown (`test_dual_translation_taxonomy_seed.py:62`,
+`test_dual_translation_taxonomy_localised.py:78`, `test_dual_translation_rubric_v6.py:81`).
+
+**Live smoke still owed:** the fetch-count-per-activated-version check named in Verification has
+not been run against staging. The in-process behaviour is proven by tests; the deployment-shape
+claim is not.
 
 ---
 
@@ -892,7 +920,7 @@ empty file, no-op guards). Verification simulation (`--resume` after a torn inte
 
 ## TASK-645: Remove dead re-normalization in tier-0 full-marks gate
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-10)
 **Feature:** evidence-first-grading
 **Type:** refactor
 **Complexity:** XS
@@ -905,8 +933,8 @@ tokenizing — `_normalization_class_equal` can never return `True` for a non-eq
 the per-opcode double-normalization pure wasted work on the request hot path.
 
 **Acceptance Criteria:**
-- [ ] `_resolves_full_marks` behavior is unchanged (verified by existing tests) after simplifying to `all(e.op == "equal" for e in grading.diff)`
-- [ ] `_normalization_class_equal` removed if it has no other callers
+- [x] `_resolves_full_marks` behavior is unchanged (verified by existing tests) after simplifying to `all(e.op == "equal" for e in grading.diff)`
+- [x] `_normalization_class_equal` removed if it has no other callers
 
 **Files to Create / Modify:**
 - `services/dual_translation/tier0.py`
@@ -914,6 +942,18 @@ the per-opcode double-normalization pure wasted work on the request hot path.
 **Verification:**
 `pytest tests/test_dual_translation_tier0.py` green with identical pass/fail outcomes on all
 existing cases.
+
+**Resolution (verified 2026-08-10):**
+`_resolves_full_marks` is now a one-line `all(entry.op == "equal" for entry in grading.diff)`
+(`services/dual_translation/tier0.py:154`); `_normalization_class_equal` is deleted and a grep of
+`services/dual_translation/` confirms no remaining callers. The reasoning the dead code encoded is
+preserved as the docstring: both texts are folded through `_normalize_l2` (width/kana) *and*
+`services.dictation.tokenizer.normalize` (case/diacritics/punct/whitespace) before tokenizing, so a
+normalization-only difference never survives as a non-`equal` opcode — the re-normalization could
+not change an outcome. The docstring also keeps the TASK-623 warning about why this keys on opcode
+class and never on `is_correct`/`accuracy`: `grade_dictation`'s fuzzy tolerance inflates accuracy
+to 1.0 for a ≥4-char edit-distance-1 replace while still emitting a `replace` opcode, so a strict
+non-fuzzy check is what stops a real single-character edit resolving to full marks.
 
 ---
 
@@ -944,7 +984,7 @@ N/A — documentation-only; apply the pattern the next time a similar backfill m
 
 ## TASK-647: Replace hand-rolled eval-harness retry loop with tenacity
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-10)
 **Feature:** evidence-first-grading
 **Type:** refactor
 **Complexity:** S
@@ -958,9 +998,9 @@ dependency and the established pattern for LLM-call retries elsewhere (`services
 `services/conversation_generation/agents/conversation_writer.py`).
 
 **Acceptance Criteria:**
-- [ ] The grade call is wrapped with `@retry(stop=stop_after_attempt(3), wait=wait_exponential(...))` matching the existing project convention, with a custom `retry_if_exception` predicate reusing the current transient-marker check
-- [ ] Same attempt count/backoff envelope and skipped-item bookkeeping preserved
-- [ ] `tests/test_dt_eval_harness_retry.py` updated to patch tenacity's sleep rather than `time.sleep`
+- [x] The grade call is wrapped with `@retry(stop=stop_after_attempt(3), wait=wait_exponential(...))` matching the existing project convention, with a custom `retry_if_exception` predicate reusing the current transient-marker check
+- [x] Same attempt count/backoff envelope and skipped-item bookkeeping preserved
+- [x] `tests/test_dt_eval_harness_retry.py` updated to patch tenacity's sleep rather than `time.sleep`
 
 **Files to Create / Modify:**
 - `scripts/run_dt_grading_eval.py`
@@ -969,11 +1009,32 @@ dependency and the established pattern for LLM-call retries elsewhere (`services
 **Verification:**
 `pytest tests/test_dt_eval_harness_retry.py` green.
 
+**Resolution (verified 2026-08-10):**
+`_grade_once(grade_fn)` carries the decorator stack
+`@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10),
+retry=retry_if_exception(_is_transient), before_sleep=before_sleep_log(logger, WARNING),
+reraise=True)` — the same envelope as `services/ai_service.py` and
+`services/exercise_generation/base_generator.py`. Two decisions worth keeping:
+
+1. **`reraise=True`** — without it tenacity surfaces `RetryError` and `_grade_with_retry`'s
+   `_is_transient(exc)` bookkeeping log would classify every exhausted item as non-transient,
+   losing the real cause. This preserves the original exception.
+2. **`_is_transient` kept, not replaced by `retry_if_exception_type`** — it now tries typed
+   `httpx` transport errors *first* (`_TRANSIENT_EXC`) and only falls back to message-marker
+   sniffing, which still covers the wrapped `getaddrinfo` DNS failure and upstream 5xx/overload
+   without importing every client's error hierarchy.
+
+`_grade_with_retry` still *returns* `(None, exc)` rather than raising, so one bad item cannot abort
+a whole L2 run — the failure mode that orphaned JA in TASK-625. Tests patch
+`runner._grade_once.retry.sleep` (tenacity's own sleep hook), never `time.sleep`; the 3-attempt
+envelope is asserted as `delays == [2.0, 2.0]` (both clamp to the `min=2` floor), and the
+non-transient case asserts `delays == []` — proving no retry rather than merely a fast one.
+
 ---
 
 ## TASK-648: Delete stale severity comment and dead parameters
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-10)
 **Feature:** evidence-first-grading
 **Type:** docs
 **Complexity:** XS
@@ -989,9 +1050,9 @@ omits an argument (production always passes both); (3) `_diff_regions`' `cap` pa
 passed by any caller.
 
 **Acceptance Criteria:**
-- [ ] Stale global/local parenthetical comment deleted
-- [ ] `_decode_error`'s `reproduction`/`reference` parameters made required; `if not text:` legacy branch removed; test callsites updated to pass both texts
-- [ ] `_diff_regions`' unused `cap` parameter removed; `DIFF_REGION_CAP` referenced directly
+- [x] Stale global/local parenthetical comment deleted
+- [x] `_decode_error`'s `reproduction`/`reference` parameters made required; `if not text:` legacy branch removed; test callsites updated to pass both texts
+- [x] `_diff_regions`' unused `cap` parameter removed; `DIFF_REGION_CAP` referenced directly
 
 **Files to Create / Modify:**
 - `services/dual_translation/prompts.py`
@@ -1000,6 +1061,24 @@ passed by any caller.
 
 **Verification:**
 `pytest` on the dual_translation test files green, no behavior change.
+
+**Resolution (verified 2026-08-10):**
+All three cleanups landed:
+
+1. `prompts.py:50-54` now reads "TASK-625: MQM severity triad (new indices 0=minor / 1=major /
+   2=critical), **replacing** the 2-level global/local enum" — the surviving global/local mentions
+   in `prompts.py:260`, `eval_metrics.py:47,285` and `synthesis.py:31` are deliberate historical
+   references (what was replaced, and the defensive legacy down-mapping), not stale claims about
+   current behaviour.
+2. `_decode_error(raw, subtypes, taxonomy_cfg, l1_code, reproduction, reference, l2_code="")` —
+   `reproduction`/`reference` are positional-required; the `if not text:` bypass is gone from
+   `_reconcile_span_form`, which now opens with `text = text or ""` and runs the full repair path
+   unconditionally. A future caller that omits a text now fails loudly instead of silently
+   skipping substring repair and dropping real errors.
+3. `_diff_regions(diff, gold_l2="", reproduction="", language_code="")` — no `cap` parameter;
+   `DIFF_REGION_CAP` is referenced directly.
+
+No behaviour change: 600 dual-translation tests green.
 
 ---
 
@@ -1243,16 +1322,34 @@ prompt). v6 supersedes v5 as the active rubric; both single-active-row guards ta
 
 ## TASK-629: Band descriptors v3 rewrite (authoring)
 
-**Status:** [~] Authored + built + tested + EVALUATED (2026-07-19) — the TASK-632 harness ran the
-full v2 pass WITH the v6 config (pre-seeded as a candidate via the new `--rubric-file`, so the
-filed numbers correspond to the v2+v6 stack). **Live apply still owed:** this session's
-permission classifier denied every DB-write wire (local script, MCP execute_sql, apply_migration);
-apply `migrations/dt_rubric_v6_seed.sql` manually (idempotent, guarded) — until then live grading
-uses v5 descriptors (scoring keys identical; only descriptor text differs).
+**Status:** [x] Done (2026-08-10) — authored + built + tested + EVALUATED 2026-07-19 (the TASK-632
+harness ran the full v2 pass WITH the v6 config, pre-seeded as a candidate via the new
+`--rubric-file`, so the filed numbers correspond to the v2+v6 stack), and **APPLIED LIVE
+2026-08-10** via Supabase MCP `apply_migration` (the 2026-07-19 session's permission classifier had
+denied every DB-write wire). Live grading now uses v6 descriptors.
 **Feature:** evidence-first-grading
 **Type:** docs
 **Complexity:** L
 **Depends On:** TASK-627
+
+**Live apply (2026-08-10):** applied to project `kpfqrjtfxmujzolwsvdq` with the file's outer
+`BEGIN`/`COMMIT` stripped (Supabase `apply_migration` supplies its own transaction; both `DO $guard$`
+blocks still abort atomically inside it). Pre-state was v5 active, no v6 row, no v7+ — so Guard 1
+(anti-downgrade) passed and this was a clean v5→v6 bump. Post-state verified by the file's own
+Verification block: `active_count=1`, `active_version=6`, `band_descriptors` **differs** from v5
+while `weights` / `exemplars` / `acceptable_variation` / `band_thresholds` / `severity_weights` /
+`understandability_weights` are all **equal** to v5 (the descriptors-only contract held), and no
+legacy `content level` suffix survives.
+
+**Transcription check.** Because the 46 KB seed had to pass through the MCP call as a string, the
+carried-forward keys being v5-equal proves only 6 of 7 top-level keys; `band_descriptors` is new and
+has no v5 counterpart to diff against. So it was verified independently: all 336 leaves
+(6 tiers × dims × 3 langs × 4 bands, naturalness absent at tiers 1–2) were extracted from the live
+row and from the repo file, canonicalised identically, and hashed — **336 leaves and md5
+`62e6c6c35b9428fd501dd818eecb8166` on both sides.** The live config is character-identical to
+`migrations/dt_rubric_v6_seed.sql`.
+
+Post-apply tests: `test_dual_translation_rubric_v6.py` + gold-seed helper + scoring → 98 passed.
 
 **Description:**
 Regenerate all band descriptors (6 tiers × 5 dims × 3 L2s × 4 bands) in the §8 pattern —

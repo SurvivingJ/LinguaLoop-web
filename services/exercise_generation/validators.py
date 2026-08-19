@@ -3,12 +3,21 @@
 from services.exercise_generation.config import (
     REQUIRED_FIELDS_BY_TYPE, MCQ_TYPES, EXPECTED_OPTION_COUNT,
 )
+from services.exercise_generation.schemas import (
+    SCHEMA_VERSION, flatten_for_serve, validate_envelope,
+)
 
 
 class ExerciseValidator:
     """
     Runs deterministic structural validation on exercise content dicts.
     No LLM calls. Called after every generate_one() in the base generator.
+
+    Schema-v2 aware (TASK-519): when content declares ``schema_version >= 2``
+    the envelope rule is enforced first (no nl text at the top level), then the
+    existing per-type checks run against a *flattened* view so they keep seeing
+    the field names they were written for. Legacy v1 content skips the envelope
+    check entirely and validates exactly as before.
     """
 
     def validate(self, content: dict, exercise_type: str) -> tuple[bool, list[str]]:
@@ -17,6 +26,14 @@ class ExerciseValidator:
         Returns (True, []) on success; (False, [error_strings]) on failure.
         """
         errors: list[str] = []
+
+        envelope_errors = validate_envelope(content, exercise_type)
+        if envelope_errors:
+            # A malformed envelope makes the per-type checks meaningless — they
+            # would report every nl field as missing. Report the real cause.
+            return False, envelope_errors
+
+        content = self._flat_view(content)
 
         self._check_required_fields(content, exercise_type, errors)
 
@@ -43,6 +60,24 @@ class ExerciseValidator:
 
         critical = [e for e in errors if not e.startswith('WARN:')]
         return (len(critical) == 0), errors
+
+    def _flat_view(self, content: dict) -> dict:
+        """Flat v1-shaped view of a content dict, for the per-type checkers.
+
+        v2 content is keyed by native language, so a checker looking for
+        ``correct_nl`` would otherwise see nothing. Any single nl block is
+        representative for structural purposes (option counts, required
+        fields), so flattening the first available one is sufficient — this
+        view is never persisted.
+        """
+        if not isinstance(content, dict):
+            return content
+        if int(content.get('schema_version') or 0) < SCHEMA_VERSION:
+            return content
+        nl = content.get('nl')
+        if not isinstance(nl, dict) or not nl:
+            return content
+        return flatten_for_serve(content, next(iter(nl)))
 
     def _check_required_fields(
         self, content: dict, exercise_type: str, errors: list[str]

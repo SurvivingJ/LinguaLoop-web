@@ -51,7 +51,9 @@ from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 
 from services.test_generation.schemas import likert_to_verdict
-from .base import JudgeOutcome, safe_accept, log_judge_verdict
+from .base import (
+    JudgeOutcome, safe_accept, accept_item, log_judge_verdict, guard_fail_open,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +135,8 @@ def judge_collocation_repair(
     before the judge existed).
     """
     if not error_collocate:
-        return safe_accept('no error_collocate to judge')
+        # Nothing to judge is not a judge outage — never abort a batch for it.
+        return accept_item('no error_collocate to judge')
 
     judged = _judge_candidates(
         db, sentence, target, correct_collocate, [error_collocate], language_id,
@@ -259,6 +262,9 @@ def _load_cfg(db, language_id: int) -> dict:
 
 
 def _failopen(candidates: list[str], model: str, version: int) -> dict:
+    # In a generation batch this raises instead of returning — an unreachable
+    # judge must abort the batch, not silently keep every candidate (TASK-510).
+    guard_fail_open('collocation_judge', f'model={model!r} version={version}')
     return {
         'verdicts': {c: 'accept'      for c in candidates},
         'ratings':  {c: _KEEP_RATING  for c in candidates},

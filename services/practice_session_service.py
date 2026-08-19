@@ -145,6 +145,19 @@ class PracticeSessionService:
         if cold_subscribed:
             payload['cold_subscribed'] = cold_subscribed
 
+        # TASK-526: serve the Traditional mirror to learners who asked for it.
+        # Pure field selection over content.hant, which TASK-509 dual-stored at
+        # generation time — no OpenCC on the request path. Best-effort: a
+        # learner who prefers Traditional should get Simplified rather than an
+        # error if anything here goes wrong.
+        try:
+            self._apply_script_variant(payload, user_id, language_id)
+        except Exception as e:
+            logger.warning(
+                'script-variant selection failed (non-fatal) for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+
         # TASK-618: interleave due Dual-Translation error-remediation cards into
         # the session as a separate, non-sense-linked stream — capped so it never
         # crowds out normal practice, and best-effort so a remediation hiccup
@@ -170,6 +183,57 @@ class PracticeSessionService:
             )
 
         return payload
+
+    def _apply_script_variant(
+        self, payload: Dict[str, Any], user_id: str, language_id: int,
+    ) -> None:
+        """Swap ZH item content for its Traditional mirror, in place.
+
+        No-op for every language but Chinese and for every learner who has not
+        set the preference, and the preference is only read once the language
+        could possibly need it — a Japanese session must not pay for a
+        ``users`` round-trip to answer a question about Han script.
+        """
+        from services.vocabulary_ladder import script_serving
+
+        if language_id not in script_serving.SCRIPT_VARIANT_LANGUAGES:
+            return
+
+        variant = script_serving.variant_from_preferences(
+            self._exercise_preferences(user_id)
+        )
+        if not script_serving.applies_to(language_id, variant):
+            return
+
+        flagged = script_serving.apply_to_items(
+            payload.get('items'), variant, language_id,
+        )
+        payload['script_variant'] = variant
+        if flagged:
+            # A mirror that has drifted behind its content serves Simplified
+            # for the affected fields. Surfaced rather than swallowed so it
+            # shows up as a backfill task, not as a confused learner.
+            payload['script_fallback_items'] = flagged
+            logger.info(
+                'script variant %s: %d item(s) fell back to Simplified on at '
+                'least one field (user=%s lang=%s)',
+                variant, flagged, user_id, language_id,
+            )
+
+    def _exercise_preferences(self, user_id: str) -> dict:
+        """The user's ``exercise_preferences`` JSONB, or ``{}``."""
+        try:
+            resp = (
+                self.db.table('users')
+                .select('exercise_preferences')
+                .eq('id', user_id)
+                .single()
+                .execute()
+            )
+            return (resp.data or {}).get('exercise_preferences') or {}
+        except Exception as e:
+            logger.warning('could not read preferences for user=%s: %s', user_id, e)
+            return {}
 
     @staticmethod
     def _interleave_extras(
@@ -305,6 +369,7 @@ class PracticeSessionService:
                     )
                     if bkt_result:
                         result['bkt_update'] = bkt_result
+                        self._capture_knowledge_outcome(attempt_id, bkt_result)
                 except Exception as e:
                     logger.error('BKT update failed for sense %s: %s', sense_id, e)
 
@@ -341,6 +406,43 @@ class PracticeSessionService:
                 )
 
         return result
+
+    # ------------------------------------------------------------------
+    # Internal: knowledge-outcome capture (TASK-534)
+    # ------------------------------------------------------------------
+
+    def _capture_knowledge_outcome(self, attempt_id, bkt_result) -> None:
+        """Persist the BKT before/after onto the attempt row.
+
+        The attempt is inserted before BKT runs (BKT needs the row to exist to
+        decide first-attempt-ness), so this is a follow-up UPDATE rather than
+        part of the insert.
+
+        Both values come from the BKT RPC, which already computed them — this
+        does not re-derive anything. Without the capture the delta is gone: only
+        the current p_known is stored anywhere, so after the next attempt on the
+        same sense there is no way back to what this one changed.
+
+        Best-effort. Analytics capture must never fail a learner's submission,
+        and a missing pair reads correctly downstream as "not captured" rather
+        than as a zero delta.
+        """
+        if not attempt_id or not isinstance(bkt_result, dict):
+            return
+        before = bkt_result.get('out_p_known_before')
+        after = bkt_result.get('out_p_known_after')
+        if before is None or after is None:
+            return
+        try:
+            (self.db.table('exercise_attempts')
+                 .update({'p_known_before': before, 'p_known_after': after})
+                 .eq('id', attempt_id)
+                 .execute())
+        except Exception as e:
+            logger.warning(
+                'p_known capture failed for attempt %s (non-fatal): %s',
+                attempt_id, e,
+            )
 
     # ------------------------------------------------------------------
     # Internal: practice time accounting (TASK-701)
@@ -508,6 +610,65 @@ class PracticeSessionService:
             len(fresh), user_id, language_id,
         )
         return fresh
+
+    # ------------------------------------------------------------------
+    # Speed round (TASK-533)
+    # ------------------------------------------------------------------
+
+    def record_speed_round_attempt(
+        self,
+        user_id: str,
+        exercise_id: str,
+        is_correct: bool,
+        time_taken_ms: Optional[int] = None,
+        timed_out: bool = False,
+    ) -> Dict[str, Any]:
+        """Record one timed-battery answer: FSRS only, never the ladder.
+
+        A speed round draws exclusively on already-mastered words, so its
+        signal is about *retrieval speed*, not about knowledge. Feeding a slow
+        answer into family confidence would push a mastered word back down the
+        ladder for being answered in seven seconds instead of four, which is
+        not what the ladder measures. FSRS, by contrast, genuinely wants to
+        know that a recall was fast and correct — so that half runs.
+
+        Running out of the clock is recorded as incorrect: the learner did not
+        retrieve the word in time, which is exactly the thing being trained.
+        """
+        if timed_out:
+            is_correct = False
+
+        try:
+            resp = (
+                self.db.table('exercises')
+                .select('word_sense_id, language_id, exercise_type')
+                .eq('id', exercise_id)
+                .single()
+                .execute()
+            )
+            row = resp.data or {}
+        except Exception as e:
+            logger.error('speed-round attempt: exercise lookup failed: %s', e)
+            return {'error': 'exercise_not_found'}
+
+        sense_id = row.get('word_sense_id')
+        if not sense_id:
+            return {'error': 'exercise_has_no_sense'}
+
+        self._update_fsrs_for_exercise(
+            user_id, sense_id, is_correct, time_taken_ms,
+        )
+
+        from services.vocabulary_ladder.speed_round import UPDATES_FAMILY_CONFIDENCE
+        return {
+            'is_correct': is_correct,
+            'timed_out': timed_out,
+            'exercise_type': row.get('exercise_type'),
+            'sense_id': sense_id,
+            'time_taken_ms': time_taken_ms,
+            'fsrs_updated': True,
+            'family_confidence_updated': UPDATES_FAMILY_CONFIDENCE,
+        }
 
     # ------------------------------------------------------------------
     # Internal: FSRS update (verbatim from legacy service)

@@ -13,6 +13,11 @@ Ring structure:
   R4 (L8-L9): collocation (advanced), form_production (advanced)
 
 Concrete nouns skip collocation levels (5, 8).
+
+Nine levels is the ceiling, not the guarantee. The capability matrix decides
+how many a given (language, semantic_class) actually runs, and Chinese and
+Japanese currently run **seven** — L5 and L8 are disabled for both because
+neither language has a collocation grounding source (see `_CAPABILITY_SPEC`).
 """
 
 from __future__ import annotations
@@ -31,7 +36,7 @@ LADDER_LEVELS: dict[int, dict] = {
     3: {'name': 'Cloze Completion',      'exercise_type': 'cloze_completion',
         'prompt': 'prompt2', 'family': 'meaning_recall', 'ring': 2},
     4: {'name': 'Morphology Slot',       'exercise_type': 'morphology_slot',
-        'prompt': 'prompt3', 'family': 'form_production', 'ring': 2},
+        'prompt': 'l4_split', 'family': 'form_production', 'ring': 2},
     5: {'name': 'Collocation Gap',       'exercise_type': 'collocation_gap_fill',
         'prompt': 'prompt2', 'family': 'collocation', 'ring': 2},
     6: {'name': 'Semantic Discrimination','exercise_type': 'semantic_discrimination',
@@ -39,7 +44,7 @@ LADDER_LEVELS: dict[int, dict] = {
     7: {'name': 'Spot Incorrect',        'exercise_type': 'spot_incorrect_sentence',
         'prompt': 'prompt3', 'family': 'semantic_discrimination', 'ring': 3},
     8: {'name': 'Collocation Repair',    'exercise_type': 'collocation_repair',
-        'prompt': 'prompt3', 'family': 'collocation', 'ring': 4},
+        'prompt': 'l8_split', 'family': 'collocation', 'ring': 4},
     9: {'name': 'Jumbled Sentence',      'exercise_type': 'jumbled_sentence',
         'prompt': 'local', 'family': 'form_production', 'ring': 4},
 }
@@ -48,9 +53,30 @@ ALL_LEVELS: list[int] = list(range(1, 10))
 
 # Levels served by each prompt
 PROMPT2_LEVELS: set[int] = {1, 3, 5, 6}
-PROMPT3_LEVELS: set[int] = {4, 7, 8}
 DATABASE_LEVELS: set[int] = {2}
 LOCAL_LEVELS: set[int] = {9}
+
+# ---------------------------------------------------------------------------
+# The P3 family: one shared prompt, plus the levels split out of it (TASK-520)
+# ---------------------------------------------------------------------------
+# ``PROMPT3_LEVELS`` is the set of levels the *P3 family* owns — it still keys
+# the per-type generation gate (:func:`prompt3_levels_for_context`) and the
+# renderer's suppression check, both of which reason about types rather than
+# about which prompt produces them.
+#
+# ``PROMPT3_MONOLITH_LEVELS`` is the narrower set the shared prompt still emits.
+# L4 and L8 moved to their own ``task_name``s so they get their own model,
+# their own retry and a JSON-schema gate bound to their own prompt_version
+# (audit B3.2 / B3.4); L7 keeps the shared prompt because nothing about it was
+# failing and a third prompt row per language would be cost with no benefit.
+PROMPT3_LEVELS: set[int] = {4, 7, 8}
+PROMPT3_MONOLITH_LEVELS: set[int] = {7}
+
+# level -> prompt_templates.task_name for the levels that left the monolith.
+SPLIT_LEVEL_TASKS: dict[int, str] = {
+    4: 'ladder_l4_morphology_generation',
+    8: 'ladder_l8_collocation_repair_generation',
+}
 
 # ---------------------------------------------------------------------------
 # Exercise families — cognitive skill groupings with educational weights
@@ -176,6 +202,71 @@ MAX_WORD_APPEARANCES_PER_SESSION = 2  # unless new or gate-failed
 P1_MIN_ACCEPTABLE_SENTENCES: int = 6
 
 # ---------------------------------------------------------------------------
+# Sentence provenance (TASK-513)
+# ---------------------------------------------------------------------------
+# Every P1 sentence records where it came from. `mined` sentences are real
+# corpus usage lifted out of a test transcript via the sense index; `generated`
+# ones the model wrote. Both go through the same tier gate and the same P1
+# judge — provenance is a label, never a licence to skip a check.
+
+SENTENCE_SOURCE_MINED: str = 'mined'
+SENTENCE_SOURCE_GENERATED: str = 'generated'
+
+
+# ---------------------------------------------------------------------------
+# Sentence-tier hard gate (TASK-524)
+# ---------------------------------------------------------------------------
+# The eval's standing failure was a C2-lexis sentence shipped as the example
+# for an A1 word ("the barista's meticulous extraction protocol yielded an
+# exceptionally nuanced espresso" for *coffee*). The P1 judge is an LLM and
+# costs money per sentence; this screen is deterministic, free, and runs first.
+#
+# Each token's Zipf frequency (wordfreq, the same scale stored in
+# dim_vocabulary.frequency_rank) is compared against the *sense's* tier:
+#
+#   soft_floor       — below this a content word is "out of band" for the tier
+#   max_out_of_band  — how many such words a sentence may carry
+#   hard_floor       — a word this rare rejects the sentence on its own,
+#                      however few of them there are
+#   max_unknown      — tokens wordfreq has no entry for (names, typos,
+#                      tokeniser artefacts). Not evidence of tier fit either
+#                      way, so they get their own small budget.
+#
+# Calibrated against the eval fixtures in tests/test_tier_gate.py: an ordinary
+# A1/A2 sentence scores 0-1 out-of-band in all three languages, while the
+# coffee-corpus C2 sentence scores 6 (zh), 8 (ja) and 10 (en). T6 is
+# ungated — at the top tier there is no such thing as lexis that is too hard.
+
+TIER_GATE_PROFILES: dict[str, dict[str, float | int]] = {
+    'T1': {'soft_floor': 4.0, 'max_out_of_band': 2, 'hard_floor': 2.5, 'max_unknown': 1},
+    'T2': {'soft_floor': 3.7, 'max_out_of_band': 3, 'hard_floor': 2.5, 'max_unknown': 2},
+    'T3': {'soft_floor': 3.4, 'max_out_of_band': 3, 'hard_floor': 2.0, 'max_unknown': 3},
+    'T4': {'soft_floor': 3.0, 'max_out_of_band': 5, 'hard_floor': 1.5, 'max_unknown': 4},
+    'T5': {'soft_floor': 2.5, 'max_out_of_band': 7, 'hard_floor': 0.0, 'max_unknown': 6},
+    'T6': {'soft_floor': 0.0, 'max_out_of_band': 999, 'hard_floor': 0.0, 'max_unknown': 999},
+}
+
+# Fallback profile for an unrecognised tier label — permissive, so a bad tier
+# string degrades to "no screen" rather than rejecting every sentence.
+TIER_GATE_DEFAULT_TIER: str = 'T3'
+
+# A lemma's own Zipf → the tier its example sentences are held to. This is
+# what "an A1 word" means operationally: *coffee* (4.9) is a T2 word, so its
+# sentences are screened at T2's band. Ordered high-frequency first; first
+# match wins.
+LEMMA_ZIPF_TO_TIER: list[tuple[float, str]] = [
+    (5.0, 'T1'),
+    (4.3, 'T2'),
+    (3.6, 'T3'),
+    (3.0, 'T4'),
+    (2.3, 'T5'),
+]
+
+# language_id → wordfreq / ISO 639-1 code. Mirrors difficulty.py's map.
+TIER_GATE_LANG_CODES: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+
+# ---------------------------------------------------------------------------
 # Maintenance review template distribution (post-mastery, FSRS-driven)
 # ---------------------------------------------------------------------------
 
@@ -291,10 +382,20 @@ _CAPABILITY_SPEC: list[tuple] = [
     ('classifier_match', (1,), ('concrete',), 4, 'deterministic', ('classifier_dict',), None, True),
     ('particle_selection', (3,), ('concrete', 'abstract', 'action'), 4, 'llm', ('p1_sentences', 'tokenised_particles'), 'particle', True),
     ('counter_match', (3,), ('concrete',), 4, 'deterministic', ('counter_dict',), None, True),
-    ('collocation_gap_fill', (1, 2, 3), ('abstract', 'action', 'property'), 5, 'llm', ('primary_collocate',), 'collocation', True),
+    # L5/L8 collocation is enabled only where a grounding source exists. See
+    # collocation_grounding.GROUNDING_SOURCES: EN has a bundled frequency list,
+    # ZH has only `corpus_collocations` (40 rows), JA has nothing by design.
+    # asset_pipeline drops L5 unless the pair is corpus_validated, so leaving
+    # these enabled for ZH/JA made the collocation family permanently
+    # unsatisfiable — and v_sense_family_coverage re-enqueued every such sense
+    # for a full P1+P2+P3+judges regeneration, nightly, forever (audit B1).
+    # Re-enable ZH when its collocation corpus is ingested.
+    ('collocation_gap_fill', (2,), ('abstract', 'action', 'property'), 5, 'llm', ('primary_collocate',), 'collocation', True),
+    ('collocation_gap_fill', (1, 3), ('abstract', 'action', 'property'), 5, 'llm', ('primary_collocate',), 'collocation', False),
     ('semantic_discrimination', (1, 2, 3), ('all',), 6, 'llm', ('p1_definition',), 'sentence_validity', True),
     ('spot_incorrect_sentence', (1, 2, 3), ('all',), 7, 'llm', ('p1_sentences',), 'sentence_validity', True),
-    ('collocation_repair', (1, 2, 3), ('abstract', 'action', 'property'), 8, 'llm', ('primary_collocate',), 'collocation', True),
+    ('collocation_repair', (2,), ('abstract', 'action', 'property'), 8, 'llm', ('primary_collocate',), 'collocation', True),
+    ('collocation_repair', (1, 3), ('abstract', 'action', 'property'), 8, 'llm', ('primary_collocate',), 'collocation', False),
     ('jumbled_sentence', (1, 2, 3), ('concrete', 'abstract', 'action', 'property'), 9, 'deterministic', ('p1_sentences',), None, True),
     ('hanzi_to_pinyin', (1,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
     ('pinyin_to_hanzi', (1,), ('all',), 1, 'deterministic', ('pronunciation',), None, True),
@@ -398,6 +499,171 @@ def compute_active_levels(
         if cap['ladder_level'] is not None
     }
     return sorted(levels)
+
+
+def requirements_met(requires: list[str] | tuple[str, ...], context: dict) -> bool:
+    """Whether a capability row's ``requires`` tokens are satisfied by ``context``.
+
+    Tokens come in two shapes:
+
+      * ``name>=N``  — a numeric threshold, e.g. ``morph_forms>=2``.
+      * ``name``     — a presence flag, e.g. ``p1_sentences``, ``pronunciation``.
+
+    **Unknown tokens count as satisfied.** Most requirements (``tts``,
+    ``p1_sentences``) can only be judged at render time, when the asset exists;
+    this function runs at *planning* time and must not drop a level just
+    because it cannot see that far ahead. It gates only on what the caller
+    actually supplied in ``context``, keeping the failure mode "plan it and let
+    the renderer skip it" rather than "silently generate nothing".
+
+    Introduced for TASK-514/B5: L4 morphology was previously planned for every
+    word and the pipeline hoped the model would return null for languages
+    without inflection. Hope is not a gate.
+    """
+    for token in requires or ():
+        if '>=' in token:
+            name, _, threshold = token.partition('>=')
+            name = name.strip()
+            if name not in context:
+                continue                        # not evaluable at planning time
+            try:
+                if float(context[name] or 0) < float(threshold):
+                    return False
+            except (TypeError, ValueError):
+                return False
+        else:
+            name = token.strip()
+            if name not in context:
+                continue                        # not evaluable at planning time
+            if not context[name]:
+                return False
+    return True
+
+
+def active_levels_for_context(
+    semantic_class: str | None,
+    language_id: int,
+    context: dict | None = None,
+) -> list[int]:
+    """``compute_active_levels`` narrowed by what this specific word supports.
+
+    A level survives only if at least one enabled capability row for it has its
+    ``requires`` satisfied. With an empty context this is exactly
+    ``compute_active_levels`` — every requirement is unevaluable, so nothing is
+    dropped.
+
+    The motivating case: a ZH concrete noun has no morphological forms, so the
+    only L4 row that could serve it (``morphology_slot``, needing
+    ``morph_forms>=2``) cannot fire. Passing ``{'morph_forms': 0}`` drops L4
+    from the plan instead of asking the model for morphology that does not
+    exist and trusting it to answer null.
+    """
+    base = compute_active_levels(semantic_class, language_id)
+    if not context:
+        return base
+    if semantic_class not in SEMANTIC_CLASSES:
+        return base
+    if not any(cap['language_id'] == language_id for cap in CAPABILITY_MATRIX):
+        return base
+
+    supported = {
+        cap['ladder_level']
+        for cap in enabled_capabilities(language_id, semantic_class)
+        if cap['ladder_level'] is not None
+        and requirements_met(cap.get('requires', ()), context)
+    }
+    return [lv for lv in base if lv in supported]
+
+
+# Which capability type_code each Prompt-3 level asks the model to produce.
+# P3 is one LLM call covering L4/L7/L8, so gating it has to happen per *type*,
+# not per level: a level can legitimately survive on a capability this prompt
+# does not own. ZH `concrete` keeps L4 via `classifier_match` + `cloze_typed`
+# (both deterministic), and the old level-only gate therefore still asked P3
+# for morphology — which is how invented Chinese "inflections" reached the
+# corpus. See TASK-514/B5.
+PROMPT3_TYPE_FOR_LEVEL: dict[int, str] = {
+    4: 'morphology_slot',
+    7: 'spot_incorrect_sentence',
+    8: 'collocation_repair',
+}
+
+
+def capability_context_from_core(core_asset: dict) -> dict:
+    """Build a capability ``requires`` context from a prompt1_core asset.
+
+    Only includes what P1 has actually established. Requirements this can't
+    speak to (``tts``, ``same_tier_senses``, ``classifier_dict``) are
+    deliberately absent so :func:`requirements_met` treats them as satisfied
+    and leaves the decision to the renderer — see its docstring.
+
+    Shared by the generation pipeline and the exercise renderer so both sides
+    gate on identical facts.
+    """
+    forms = (core_asset or {}).get('morphological_forms') or []
+    return {
+        'morph_forms':   len(forms) if isinstance(forms, (list, tuple, dict)) else 0,
+        'pronunciation': bool((core_asset or {}).get('pronunciation')),
+        'p1_definition': bool((core_asset or {}).get('definition')),
+        'p1_sentences':  bool((core_asset or {}).get('sentences')),
+    }
+
+
+def type_is_available(
+    type_code: str,
+    language_id: int,
+    semantic_class: str | None,
+    context: dict | None = None,
+) -> bool:
+    """Whether ``type_code`` can actually be generated for this word.
+
+    True when at least one *enabled* capability row for (language_id,
+    semantic_class) carries this ``type_code`` and has its ``requires``
+    satisfied by ``context``. Unknown requirement tokens count as satisfied —
+    see :func:`requirements_met`.
+
+    Permissive in exactly the two places the rest of this module is: an
+    unrecognised / NULL ``semantic_class`` (pre-backfill) and a language with
+    no matrix rows at all both return True, so a misconfiguration degrades to
+    the old behaviour instead of silently generating nothing.
+    """
+    if semantic_class not in SEMANTIC_CLASSES:
+        return True
+    if not any(cap['language_id'] == language_id for cap in CAPABILITY_MATRIX):
+        return True
+    return any(
+        cap['type_code'] == type_code
+        and requirements_met(cap.get('requires', ()), context or {})
+        for cap in enabled_capabilities(language_id, semantic_class)
+    )
+
+
+def prompt3_levels_for_context(
+    active_levels: list[int],
+    semantic_class: str | None,
+    language_id: int,
+    context: dict | None = None,
+) -> list[int]:
+    """The P3 levels worth asking the model for, gated per exercise *type*.
+
+    ``active_levels`` is the word's planned ladder (already narrowed by
+    :func:`active_levels_for_context`); this narrows further to the subset
+    whose P3-owned type can actually fire. Levels outside
+    :data:`PROMPT3_TYPE_FOR_LEVEL` pass through untouched so a future P3
+    level is never dropped merely for being unmapped.
+
+    A ZH concrete noun keeps L4 in ``active_levels`` (classifier_match) but
+    drops out here, because ``morphology_slot`` has no enabled ZH row.
+    """
+    result = []
+    for level in sorted(lv for lv in active_levels if lv in PROMPT3_LEVELS):
+        type_code = PROMPT3_TYPE_FOR_LEVEL.get(level)
+        if type_code is None:
+            result.append(level)
+            continue
+        if type_is_available(type_code, language_id, semantic_class, context):
+            result.append(level)
+    return result
 
 
 def required_families(language_id: int, semantic_class: str | None) -> set[str]:
@@ -759,6 +1025,20 @@ OPTION_KEY_MAP: dict[str, str] = {
     '1': 'text',
     '2': 'is_correct',
     '3': 'explanation',
+}
+
+# The split single-type ladder prompts (TASK-537) use the same numeric-key idea
+# but a 0-based numbering, because their contract reserves two positions
+# type-wide: 0 is always the option array and 9 is always the error escape. The
+# P2 map above stays 1-based — its prompts are live and its stored assets are
+# bound to that numbering, so aligning the two would mean re-authoring P2 for
+# no gain. ``schemas/_shared.OPTION_KEY_LEGEND`` is the authoritative copy of
+# what these indices mean; this map is how the generators spend it.
+LADDER_OPTION_KEY_MAP: dict[str, str] = {
+    '0': 'text',
+    '1': 'is_correct',
+    '2': 'explanation',
+    '3': 'part_of_speech',
 }
 
 

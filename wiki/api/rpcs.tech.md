@@ -423,6 +423,7 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | `irt_apply_calibration` | `services/irt/calibrator.py:apply_results` | DEFINER. |
 | `irt_compute_user_theta` | `services/irt/calibrator.compute_user_theta_for_selection` + `services/exercise_session_service._compute_session` | STABLE. |
 | `irt_try_lock` / `irt_release_lock` | `services/irt/calibrator.calibrate_all_active_languages` | DEFINER. Postgres advisory lock pair `(8901234567890123)` for nightly job. |
+| `pg_try_advisory_lock_for_study_plan` / `pg_advisory_unlock_for_study_plan` | `services/study_plan_service._run_weekly_plan_recompute` | DEFINER. Postgres advisory lock pair `(1467840848)` for the weekly study-plan recompute; only the worker that takes it runs the sweep (TASK-706). |
 | `get_model_for_task` | `services/prompt_service.get_template_config` (indirectly) | STABLE. |
 | `get_prompt_template` | `services/prompt_service` | STABLE. |
 | `is_admin` / `is_moderator` / `is_org_member` / `get_org_role` | RLS policy expressions | DEFINER, STABLE. |

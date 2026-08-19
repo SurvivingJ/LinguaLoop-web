@@ -31,7 +31,7 @@ from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 
 from services.test_generation.schemas import likert_to_verdict
-from .base import JudgeOutcome, safe_accept, log_judge_verdict
+from .base import JudgeOutcome, safe_accept, accept_item, log_judge_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -118,12 +118,12 @@ def judge_p1_sentences(
         if not isinstance(entry, dict):
             # A missing or malformed per-sentence verdict must never manufacture
             # a rejection — keep the sentence (safe-accept) and move on.
-            outcomes.append(safe_accept('missing per-sentence verdict'))
+            outcomes.append(accept_item('missing per-sentence verdict'))
             continue
         try:
             rating = float(entry.get('rating'))
         except (TypeError, ValueError):
-            outcomes.append(safe_accept('unparseable rating'))
+            outcomes.append(accept_item('unparseable rating'))
             continue
         outcomes.append(JudgeOutcome(
             verdict=likert_to_verdict(rating),

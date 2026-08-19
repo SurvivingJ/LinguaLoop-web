@@ -11,7 +11,9 @@ from services.llm_service import call_llm as _call_llm
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = 'google/gemini-2.0-flash-001'
+# One gemini slug system-wide, per
+# migrations/consolidate_gemini_on_3_5_flash_lite.sql (2026-08-16).
+DEFAULT_MODEL = 'google/gemini-3.5-flash-lite'
 
 
 def call_llm(

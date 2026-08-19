@@ -724,7 +724,7 @@ $function$
 - **Security:** DEFINER · **Language:** plpgsql · **Added:** 2026-07-19 (TASK-702), [migrations/get_replay_tests.sql](../../migrations/get_replay_tests.sql)
 - **Description:** Exhausted-pool fallback / shared selection code for `build_daily_session`'s replay slots (and, later, TASK-704 retry slots). The **inverse** of `get_recommended_tests`: returns the nearest-ELO tests of one `p_test_type` that the user **has** attempted, but whose most-recent attempt is **older than `p_min_age_days`** (default 7), excluding `p_exclude` and honouring the same premium/tier gating. Ordered by `|test_elo − user_elo|` asc, then oldest-attempt first. Returns nothing for an unknown/inactive `p_test_type`.
 - **Returns:** `TABLE(test_id uuid, test_type text, elo_rating integer, elo_diff integer, last_attempt_at timestamptz)`
-- **Callers stamp `slot_type='replay'`** on the result. ADR-006 reduced-volatility ELO is *designed* to apply to these repeats at submission, but the live `process_test_submission` does not currently implement that damping (see `migrations/archive/README.md` CR-04 note) — so no damping runs on replay repeats yet.
+- **Callers stamp `slot_type='replay'`** on the result. As of TASK-704 (2026-07-19) the live `process_test_submission` **does** implement ADR-006 reduced-volatility damping — but it fires **only on `slot_type='retry'`, not `'replay'`** (the retry slot is the intended ADR-006 review surface). So replay repeats still move ELO like any other repeat; only the daily-load retry slot is damped.
 
 ### `get_recommended_tests(p_user_id uuid, p_language_id smallint): TABLE(...)`
 
@@ -840,7 +840,7 @@ $function$
 - **Language:** plpgsql
 - **Description:** The primary test submission handler. Validates answers server-side against the `questions` table, calculates score, updates ELO ratings, records the attempt, and updates user language activity. Supports idempotency via UUID key. As of 2026-05-15, repeat attempts no longer skip ELO updates unconditionally — when a repeat is launched from today's daily-load *retry slot*, it earns reduced-volatility ELO via a time-decay factor. See [[decisions/ADR-006-retry-slot-reduced-elo]] and [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql).
 
-The live function body is maintained in [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql) (V4, supersedes V3 [migrations/wire_volatility_and_exclude_attempted.sql](../../migrations/wire_volatility_and_exclude_attempted.sql)) — refer there for the canonical SQL. High-level outline:
+The live function body is maintained in [migrations/task704_process_test_submission_retry_elo.sql](../../migrations/task704_process_test_submission_retry_elo.sql) (canonical as of TASK-704, 2026-07-19; supersedes the archived `process_test_submission_reduced_repeats.sql` V4) — refer there for the canonical SQL. NB the **live signature is 8-arg**: it also takes `p_furigana_used boolean DEFAULT false` (furigana dampener 0.5× on user K), which the heading above omits. The re-landed damping applies in the live inline-ELO style (logistic expected score), not the archived `calculate_elo_rating`/volatility-helper style. High-level outline:
 
 ```text
 -- 1. Auth + input validation (unchanged)
@@ -2606,6 +2606,13 @@ Source: [migrations/add_irt_calibration_metadata.sql](../../migrations/add_irt_c
 - **Security:** DEFINER
 - **Language:** sql
 - **Description:** Wrappers around `pg_try_advisory_lock(8901234567890123)` / `pg_advisory_unlock(8901234567890123)` so the supabase python client can call them by name. Used by `calibrate_all_active_languages` to ensure only one gunicorn worker runs the nightly sweep even though APScheduler starts in every process.
+
+### `pg_try_advisory_lock_for_study_plan(): boolean`, `pg_advisory_unlock_for_study_plan(): boolean`
+
+- **Security:** DEFINER
+- **Language:** sql
+- **Source:** `migrations/study_plan_advisory_lock.sql` (applied live 2026-07-20, TASK-706)
+- **Description:** Wrappers around `pg_try_advisory_lock(1467840848)` / `pg_advisory_unlock(1467840848)` (key `0x577D7950` = ASCII 'StPP', distinct from the IRT key) so the supabase python client can call them by name. Used by `_run_weekly_plan_recompute` (Sunday 23:00 UTC cron) so only the gunicorn worker that takes the session-level lock runs the sweep; the rest early-return `skipped:True`. The recompute is idempotent, so the lock only saves N× DB load rather than guarding correctness.
 
 ---
 

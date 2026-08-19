@@ -9,6 +9,9 @@ import { mount as mountPinyin } from './players/pinyin.js';
 import { mount as mountPitchAccent } from './players/pitch_accent.js';
 import { mount as mountClassifierDrill } from './players/classifier_drill.js';
 import { mount as mountPractice } from './players/practice.js';
+import { mount as mountFlashcards } from './players/flashcards.js';
+import { mount as mountDualTranslation } from './players/dual_translation.js';
+import { mount as mountSpeedRound } from './players/speed_round.js';
 
 // test_type -> mount fn. Phase 2/3 add dictation / pinyin / pitch_accent /
 // classifier_drill / practice. Anything still unmapped falls through to a
@@ -22,6 +25,24 @@ const TEST_PLAYERS = {
   classifier_drill: mountClassifierDrill,
 };
 
+// Non-test queue kinds (TASK-714 / ADR-021). flashcards and dual_translation
+// are plannable SURFACES, not test types — no `tests` row, no ELO — so they
+// dispatch on item.kind rather than item.test_type. Widening this union is
+// what let the planner budget them without pretending they are tests.
+//
+// listening_lab and mystery are deliberately absent: ADR-021 puts them outside
+// the planner, so the resolver never emits them and nothing here should invite
+// a future contributor to add them.
+const KIND_PLAYERS = {
+  practice: mountPractice,
+  flashcards: mountFlashcards,
+  dual_translation: mountDualTranslation,
+  // TASK-533. A kind, not a test_type and not a ladder level: its capability
+  // row carries ladder_level = NULL precisely so it stays out of the drill
+  // rotation and is reachable only when something schedules it explicitly.
+  speed_round: mountSpeedRound,
+};
+
 const STANDALONE_URL = {
   dictation: (slug) => `/test/${slug}/dictation`,
   pinyin: (slug) => `/test/${slug}/pinyin`,
@@ -29,8 +50,9 @@ const STANDALONE_URL = {
 };
 
 export function getPlayer(item) {
-  if (item.kind === 'practice') {
-    return { mount: mountPractice };
+  const byKind = KIND_PLAYERS[item.kind];
+  if (byKind) {
+    return { mount: byKind };
   }
 
   const mount = TEST_PLAYERS[item.test_type];

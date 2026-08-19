@@ -165,6 +165,16 @@ class SenseGenerator:
             'senses_failed': 0,
             'rows_written': 0,      # individual dim_word_senses rows (2 per sense)
             'fallback_used': 0,
+            # Primary AND fallback both failed for one call. Distinct from
+            # senses_failed: this is the model surface giving up, not a word
+            # the model declined — the signal that tells a run report whether a
+            # vocab shortfall is a provider outage or ordinary attrition.
+            'both_models_failed': 0,
+            # TASK-521 embed-on-create. Counted separately from senses_failed
+            # because a sense written without its vector is a live, usable
+            # sense — a degraded enrichment, not a generation failure.
+            'embeddings_written': 0,
+            'embeddings_failed': 0,
         }
 
     # ------------------------------------------------------------------ setup
@@ -189,19 +199,32 @@ class SenseGenerator:
 
     def _call_llm(self, prompt: str, task_name: str,
                   max_tokens: int = 600) -> dict | None:
-        """Call the sense model expecting numeric-key JSON. Falls back to the
-        secondary model ONLY when the primary returns invalid/empty JSON."""
+        """Call the sense model expecting numeric-key JSON, falling back to the
+        secondary model when the primary fails.
+
+        The fallback fires on ANY persistent primary failure, not only on bad
+        JSON. ``call_llm`` already gives transient API errors three tenacity
+        attempts and gives malformed/empty JSON its own repair turn, so anything
+        reaching here has survived that ladder and is a property of the model
+        rather than of the roll — a delisted slug, a persistent 4xx, a hard
+        timeout. Those are precisely what a fallback model is for. Routing only
+        bad JSON to it meant a dead primary returned None for *every word in
+        the run* while a healthy fallback sat unused.
+        """
         try:
             return llm_call(
                 prompt, model=self._model, temperature=0.0,
                 max_tokens=max_tokens, response_format='json_object',
                 pipeline='vocab_senses', task_name=task_name,
             )
-        except (json.JSONDecodeError, RuntimeError, ValueError) as e:
-            logger.warning(f"Primary model invalid JSON ({e}); retrying with fallback {self._fallback_model}")
         except Exception as e:
-            logger.error(f"Sense LLM call failed: {e}")
-            return None
+            kind = ('invalid JSON'
+                    if isinstance(e, (json.JSONDecodeError, RuntimeError))
+                    else type(e).__name__)
+            logger.warning(
+                f"Primary sense model {self._model} failed ({kind}: {e}); "
+                f"retrying with fallback {self._fallback_model}"
+            )
 
         try:
             result = llm_call(
@@ -212,7 +235,11 @@ class SenseGenerator:
             self.stats['fallback_used'] += 1
             return result
         except Exception as e:
-            logger.error(f"Fallback model also failed: {e}")
+            logger.error(
+                f"Both sense models failed for {task_name} "
+                f"({self._model} then {self._fallback_model}): {e}"
+            )
+            self.stats['both_models_failed'] += 1
             return None
 
     # ------------------------------------------------------------ DB helpers
@@ -383,6 +410,8 @@ class SenseGenerator:
         self._maybe_set_pos(vocab_id, fields['pos_code'])
         self._sense_cache.pop(vocab_id, None)  # invalidate
 
+        self._embed_new_senses(lemma, written)
+
         standard_id = next(
             (r['id'] for r in written if r.get('definition_level') == 'standard'),
             None,
@@ -391,6 +420,66 @@ class SenseGenerator:
             standard_id = self._lookup_standard_id(vocab_id, sense_rank)
         logger.debug(f"  {lemma}: wrote simple+standard at rank {sense_rank} (std id={standard_id})")
         return standard_id
+
+    def _embed_new_senses(self, lemma: str, written: list) -> None:
+        """Embed freshly-written senses (TASK-521 embed-on-create).
+
+        Without this, every sense created after the one-off backfill carries a
+        NULL embedding, and the features that read it — the mid-cosine
+        distractor band, ``definition_match`` upgrades, syn/ant sanity checks —
+        degrade silently for exactly the newest words. The backfill would have
+        to be re-run forever to stay correct.
+
+        Both levels are embedded, not just ``standard``: the backfill embeds
+        every row with a NULL vector, so skipping ``simple`` here would leave
+        the corpus in a state a later backfill "fixes" — the drift this exists
+        to prevent.
+
+        Failure is logged and swallowed. An embedding is an enrichment; a word
+        that exists without one is usable, and a word that failed to be created
+        because its embedding call timed out is not.
+        """
+        if self._dry_run or not written:
+            return
+
+        # Imported lazily: the embedding client pulls in the OpenAI stack, and
+        # sense generation must stay importable in environments (tests, offline
+        # CLI runs) that never embed anything.
+        try:
+            from scripts.backfill_sense_embeddings import build_text
+            from services.topic_generation.agents.embedder import EmbeddingService
+        except Exception as exc:
+            logger.debug("embed-on-create unavailable: %s", exc)
+            return
+
+        rows = []
+        for row in written:
+            sense_id = row.get('id')
+            text = build_text(lemma, row.get('definition'))
+            if sense_id and text:
+                rows.append((sense_id, text))
+        if not rows:
+            return
+
+        try:
+            vectors = EmbeddingService().embed_batch([text for _, text in rows])
+        except Exception as exc:
+            logger.warning("  %s: embed-on-create failed: %s", lemma, exc)
+            self.stats['embeddings_failed'] += len(rows)
+            return
+
+        for (sense_id, _), vector in zip(rows, vectors):
+            if not vector:
+                self.stats['embeddings_failed'] += 1
+                continue
+            try:
+                self._db.table('dim_word_senses').update(
+                    {'embedding': vector}).eq('id', sense_id).execute()
+                self.stats['embeddings_written'] += 1
+            except Exception as exc:
+                logger.warning("  %s: could not store embedding for sense %s: %s",
+                               lemma, sense_id, exc)
+                self.stats['embeddings_failed'] += 1
 
     def _lookup_standard_id(self, vocab_id: int, sense_rank: int) -> int | None:
         resp = self._db.table('dim_word_senses') \

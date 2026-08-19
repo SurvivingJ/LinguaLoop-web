@@ -151,6 +151,89 @@ const ExRenderers = (function () {
     );
   }
 
+  /**
+   * cloze_typed (TASK-532) — the same blank as cloze_completion, no options.
+   *
+   * Two things make this different from every other renderer here:
+   *
+   * 1. **It does not decide correctness.** The accepted set is compared under
+   *    normalisation rules (NFKC, t2s, case, trailing punctuation) that live in
+   *    utils/answer_normalization.py. Re-implementing them in JS would give one
+   *    rule two implementations, so the server's verdict is authoritative and
+   *    the local guess only drives the optimistic UI.
+   *
+   * 2. **It must survive an IME.** For Chinese and Japanese the learner types
+   *    romaji/pinyin into a composition buffer and presses Enter to CHOOSE a
+   *    candidate. Submitting on that Enter would submit the half-built romaji.
+   *    compositionstart/end tracks the buffer, and keydown ignores Enter while
+   *    composing (plus keyCode 229, which some IMEs send instead of firing
+   *    compositionstart at all).
+   */
+  function renderClozeTyped(ex, c, w) {
+    const prompt = escHtml(c.sentence_with_blank || '').replace(
+      '___',
+      '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+    );
+    const isIme = c.input_mode === 'ime';
+    const h =
+      (w || '') +
+      `<div class="exercise-type-badge"><i class="fas fa-keyboard"></i> ${fmtType('cloze_typed')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      `<div class="exercise-instruction">${i18n('exercises.instruction.type_missing_word')}</div>` +
+      `<div class="exercise-prompt">${prompt}</div>` +
+      `<input type="text" class="exercise-input-area" id="ctInput" autocomplete="off" ` +
+      `autocorrect="off" autocapitalize="off" spellcheck="false" ` +
+      `${isIme ? 'inputmode="text" ' : ''}` +
+      `style="width:100%;padding:10px;font-size:18px;" ` +
+      `placeholder="${i18n('exercises.type_word_placeholder')}">` +
+      `<button class="btn btn-primary exercise-check-btn" id="ctCheckBtn"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>` +
+      `<div id="ctCorrection" class="sip-correction" style="display:none;"></div>` +
+      `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
+    _card.innerHTML = h;
+
+    const inp = document.getElementById('ctInput');
+    const btn = document.getElementById('ctCheckBtn');
+    let composing = false;
+    inp.addEventListener('compositionstart', () => {
+      composing = true;
+    });
+    inp.addEventListener('compositionend', () => {
+      composing = false;
+    });
+    inp.focus();
+
+    const submit = () => {
+      if (_isAnswered()) return;
+      const typed = inp.value.trim();
+      if (!typed) return;
+      _setAnswered(true);
+      inp.readOnly = true;
+      btn.style.display = 'none';
+
+      // Optimistic only. _submitAttempt POSTs `typed`; the server re-grades and
+      // its verdict is the one that reaches the ladder.
+      const accepted = (c.answer && c.answer.accepted) || [];
+      const guess = accepted.some((a) => String(a).trim().toLowerCase() === typed.toLowerCase());
+      if (!guess && c.target_word) {
+        const corr = document.getElementById('ctCorrection');
+        corr.innerHTML = '<i class="fas fa-check me-1"></i>' + escHtml(c.target_word);
+        corr.style.display = '';
+      }
+      _showFeedback(guess, c.explanation || '');
+      _submitAttempt(guess, { typed: typed });
+    };
+
+    btn.addEventListener('click', submit);
+    inp.addEventListener('keydown', (e) => {
+      // keyCode 229 = "the IME is handling this key" on browsers that do not
+      // fire compositionstart reliably. Both guards are needed.
+      if (e.key === 'Enter' && !composing && e.keyCode !== 229) {
+        e.preventDefault();
+        submit();
+      }
+    });
+    bindNext();
+  }
+
   function renderTlNl(ex, c, w) {
     mcq(
       fmtType('tl_nl_translation'),
@@ -744,11 +827,57 @@ const ExRenderers = (function () {
     );
   }
 
+  // ── Schema-v2 nl envelope (TASK-519) ──
+
+  /**
+   * Native-language-facing keys inside `content.nl.<code>` map back onto the
+   * flat names the renderers below were written against.
+   */
+  const V2_TO_V1 = {
+    correct: 'correct_nl',
+    prompt: 'nl_sentence',
+    definition: 'word_definition',
+  };
+
+  /**
+   * Flatten a schema-v2 content envelope for the learner's native language.
+   *
+   * v2 stores nl-facing text under `content.nl.<code>` so one item can serve
+   * several native languages. Every renderer predates that, so flattening once
+   * here keeps them all unchanged. v1 content passes through untouched, and an
+   * envelope missing the learner's language falls back to its only block
+   * rather than rendering blank.
+   */
+  function flattenNl(c) {
+    if (!c || typeof c !== 'object' || !(c.schema_version >= 2)) return c;
+    const nl = c.nl;
+    if (!nl || typeof nl !== 'object') return c;
+
+    const want =
+      (window.LinguaI18n && LinguaI18n.currentLanguage && LinguaI18n.currentLanguage()) || 'en';
+    const codes = Object.keys(nl);
+    let block = nl[want];
+    if (!block && codes.length === 1) block = nl[codes[0]];
+    if (!block || typeof block !== 'object') return c;
+
+    const flat = {};
+    Object.keys(c).forEach((k) => {
+      if (k !== 'nl') flat[k] = c[k];
+    });
+    Object.keys(block).forEach((k) => {
+      flat[V2_TO_V1[k] || k] = block[k];
+    });
+    flat.nl_language = nl[want] ? want : codes[0];
+    return flat;
+  }
+
   // ── Dispatcher ──
 
   function dispatch(type, ex, c, w) {
+    c = flattenNl(c);
     const map = {
       cloze_completion: renderCloze,
+      cloze_typed: renderClozeTyped,
       tl_nl_translation: renderTlNl,
       semantic_discrimination: renderSemDiscrim,
       odd_one_out: renderOddOneOut,

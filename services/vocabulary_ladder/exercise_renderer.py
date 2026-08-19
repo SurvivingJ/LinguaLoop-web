@@ -16,8 +16,11 @@ from uuid import uuid4
 
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
-    LADDER_LEVELS, compute_active_levels,
+    COLLOCATION_LEVELS, LADDER_LEVELS, compute_active_levels,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
+    PROMPT3_TYPE_FOR_LEVEL, normalize_semantic_class, type_is_available,
+    capability_context_from_core,
+    SENTENCE_SOURCE_GENERATED, SENTENCE_SOURCE_MINED,
     get_sentence_target,
 )
 
@@ -31,6 +34,9 @@ class LadderExerciseRenderer:
         self.db = db or get_supabase_admin()
         self.audio_synthesizer = audio_synthesizer
         self._script_converter = None  # lazy ZH Simplified→Traditional mirror (TASK-509)
+        # Deterministic-builder skips from the most recent build_rows call, so
+        # the batch runner can report *why* a family is missing (TASK-517).
+        self.last_skips: list = []
 
     def render_all(self, sense_id: int, language_id: int) -> list[dict]:
         """Render exercises for all active ladder levels and insert them.
@@ -77,6 +83,31 @@ class LadderExerciseRenderer:
         asset_ids = self._load_asset_ids(sense_id)
         tier = self._get_tier(core)
 
+        # Per-type gate for the P3-owned levels (TASK-514/B5). The generator
+        # side stops *asking* for morphology it can't have; this stops us
+        # *rendering* it from an asset generated before that gate existed. A ZH
+        # concrete noun's L4 belongs to classifier_match / cloze_typed, not to
+        # morphology_slot, so a stale `level_4` blob must not reach the corpus.
+        #
+        # `semantic_class` on the asset may still carry a legacy P1 label
+        # ('concrete_noun'), so normalise for the gate. compute_active_levels
+        # above is deliberately left on the raw value — narrowing the level set
+        # for legacy assets is a separate, wider behaviour change.
+        gate_class = normalize_semantic_class(semantic_class)
+        gate_context = capability_context_from_core(core)
+        suppressed = {
+            level for level, type_code in PROMPT3_TYPE_FOR_LEVEL.items()
+            if level in active_levels
+            and not type_is_available(type_code, language_id, gate_class, gate_context)
+        }
+        if suppressed:
+            logger.info(
+                "Sense %s: per-type gate suppressed render of level(s) %s "
+                "(language_id=%s semantic_class=%s)",
+                sense_id, sorted(suppressed), language_id, gate_class,
+            )
+            active_levels = [lv for lv in active_levels if lv not in suppressed]
+
         # Build variant list based on available assets
         variant_configs = []
         if assets.get('prompt2_exercises_A') or assets.get('prompt3_transforms_A'):
@@ -84,6 +115,7 @@ class LadderExerciseRenderer:
                 'key': 'A',
                 'p2': assets.get('prompt2_exercises_A', {}),
                 'p3': assets.get('prompt3_transforms_A', {}),
+                'typed': assets.get('llm_types_A', {}),
                 'sentence_assignments': SENTENCE_ASSIGNMENTS_A,
             })
         if assets.get('prompt2_exercises_B') or assets.get('prompt3_transforms_B'):
@@ -91,6 +123,7 @@ class LadderExerciseRenderer:
                 'key': 'B',
                 'p2': assets.get('prompt2_exercises_B', {}),
                 'p3': assets.get('prompt3_transforms_B', {}),
+                'typed': assets.get('llm_types_B', {}),
                 'sentence_assignments': SENTENCE_ASSIGNMENTS_B,
             })
 
@@ -100,10 +133,18 @@ class LadderExerciseRenderer:
                 'key': 'A',
                 'p2': assets.get('prompt2_exercises', {}),
                 'p3': assets.get('prompt3_transforms', {}),
+                'typed': {},
                 'sentence_assignments': SENTENCE_ASSIGNMENTS_A,
             })
 
+        provenance = self._sentence_provenance(core)
+        # TASK-523. Absent on assets generated before grounding existed, in
+        # which case the collocation levels simply carry no grounding tag —
+        # distinguishable in the report from "checked and unattested".
+        collocate_grounding = core.get('collocate_grounding')
+
         rows = []
+        deterministic_skips: list = []
         for variant in variant_configs:
             p2 = variant['p2']
             p3 = variant['p3']
@@ -138,6 +179,15 @@ class LadderExerciseRenderer:
                         'semantic_class': semantic_class,
                         'variant': variant['key'],
                     }
+                    if provenance:
+                        tags['provenance'] = provenance
+                    # TASK-523: L5 and L8 are the only levels built on the
+                    # asserted collocate, so they are the only ones whose
+                    # provenance needs to say how well attested it is. Tagging
+                    # every level would make the field noise rather than a
+                    # signal the batch report can group on.
+                    if level in COLLOCATION_LEVELS and collocate_grounding:
+                        tags['collocate_grounding'] = collocate_grounding
                     for judge_key, meta in judge_metas.items():
                         if meta is not None:
                             tags[f'{judge_key}_judge'] = meta
@@ -161,7 +211,233 @@ class LadderExerciseRenderer:
                     logger.error("Error rendering L%d variant %s for sense %s: %s",
                                  level, variant['key'], sense_id, e)
 
+            # Deterministic types (TASK-516). Keyed by exercise *type*, not by
+            # ladder level, because the matrix puts several types on one level
+            # — ZH L1 is phonetic_recognition AND hanzi_to_pinyin AND
+            # pinyin_to_hanzi AND tone_id_word. They run per variant so A and B
+            # draw different sentences, and they never call an LLM, so a
+            # failure here costs one item rather than a generation retry.
+            rows.extend(self._render_deterministic(
+                core=core,
+                sense_id=sense_id,
+                language_id=language_id,
+                variant=variant,
+                gate_class=gate_class,
+                gate_context=gate_context,
+                semantic_class=semantic_class,
+                tier=tier,
+                asset_ids=asset_ids,
+                provenance=provenance,
+                skips=deterministic_skips,
+            ))
+
+            # Type-registered LLM types (TASK-522 syn/ant + word_family,
+            # TASK-527 particle_selection). Keyed by type like the
+            # deterministic block above, and for the same reason: the matrix
+            # puts several types on one level and the level dispatch cannot
+            # express that. Their model output is already stored, so this pass
+            # only judges and shapes it.
+            rows.extend(self._render_llm_types(
+                core=core,
+                sense_id=sense_id,
+                language_id=language_id,
+                variant=variant,
+                gate_class=gate_class,
+                gate_context=gate_context,
+                semantic_class=semantic_class,
+                tier=tier,
+                asset_ids=asset_ids,
+                provenance=provenance,
+                skips=deterministic_skips,
+            ))
+
+        if deterministic_skips:
+            # Logged, never swallowed: "this sense has no form_production item"
+            # must always come with a reason the coverage check can read
+            # (§6.10).
+            logger.info(
+                "Sense %s deterministic skips: %s",
+                sense_id,
+                '; '.join(f'{s.type_code}: {s.reason}' for s in deterministic_skips),
+            )
+        self.last_skips = deterministic_skips
+
         return rows
+
+    def _render_deterministic(
+        self, core, sense_id, language_id, variant, gate_class, gate_context,
+        semantic_class, tier, asset_ids, provenance, skips,
+    ) -> list[dict]:
+        """Build exercise rows for every applicable deterministic type."""
+        from config import Config
+        from services.vocabulary_ladder import deterministic
+
+        ctx = deterministic.SenseContext(
+            sense_id=sense_id,
+            language_id=language_id,
+            lemma=self._lemma(core, sense_id),
+            core=core,
+            semantic_class=gate_class,
+            tier=tier,
+            pronunciation=core.get('pronunciation'),
+            definition=core.get('definition'),
+            db=self.db,
+            nl_language_code=Config.DEFAULT_NATIVE_LANGUAGE,
+            variant=variant['key'],
+            sentence_assignments=variant['sentence_assignments'],
+        )
+
+        items, item_skips = deterministic.generate(ctx, context=gate_context)
+        skips.extend(item_skips)
+
+        rows = []
+        for item in items:
+            content = dict(item.content)
+            self._render_hant_mirror(content, language_id)
+            tags = {
+                'ladder_level': item.ladder_level,
+                'semantic_class': semantic_class,
+                'variant': variant['key'],
+                'generator': 'deterministic',
+            }
+            if provenance:
+                tags['provenance'] = provenance
+            rows.append({
+                'id': str(uuid4()),
+                'language_id': language_id,
+                'exercise_type': item.type_code,
+                'source_type': 'vocabulary',
+                'content': content,
+                'tags': tags,
+                'complexity_tier': tier,
+                'is_active': True,
+                'word_sense_id': sense_id,
+                'word_asset_id': asset_ids.get('prompt1_core'),
+                'ladder_level': item.ladder_level,
+            })
+        return rows
+
+    def _render_llm_types(
+        self, core, sense_id, language_id, variant, gate_class, gate_context,
+        semantic_class, tier, asset_ids, provenance, skips,
+    ) -> list[dict]:
+        """Build rows for every type-registered LLM generator with an asset.
+
+        A type with no stored fragment is a *skip with a reason*, not silence:
+        the coverage check (TASK-517) reads these to explain why a family is
+        missing, and "the generator never ran" and "the judge rejected it" are
+        different problems with different fixes.
+        """
+        from config import Config
+        from services.vocabulary_ladder import deterministic
+        from services.vocabulary_ladder.asset_generators import typed_llm
+
+        fragments = variant.get('typed') or {}
+        nl_code = Config.DEFAULT_NATIVE_LANGUAGE
+        rows: list[dict] = []
+
+        for cap in typed_llm.applicable_types(language_id, gate_class, gate_context):
+            type_code = cap['type_code']
+            fragment = fragments.get(type_code)
+            if not fragment:
+                skips.append(deterministic.Skip(
+                    type_code, 'no generated asset for this variant'))
+                continue
+
+            generator_cls = typed_llm.generator_class(type_code)
+            try:
+                content = generator_cls(self.db, language_id).render(
+                    self.db, fragment, core, sense_id, language_id, nl_code,
+                )
+            except Exception as exc:
+                logger.error(
+                    'typed renderer %s failed for sense %s: %s',
+                    type_code, sense_id, exc,
+                )
+                skips.append(deterministic.Skip(type_code, f'renderer raised: {exc}'))
+                continue
+
+            if not content:
+                skips.append(deterministic.Skip(
+                    type_code, 'judge or band check left too few distractors'))
+                continue
+
+            judge_metas = content.pop('__judge_metas', None) or {}
+            self._render_hant_mirror(content, language_id)
+
+            tags = {
+                'ladder_level': cap['ladder_level'],
+                'semantic_class': semantic_class,
+                'variant': variant['key'],
+                'generator': 'llm_typed',
+            }
+            if provenance:
+                tags['provenance'] = provenance
+            for judge_key, meta in judge_metas.items():
+                if meta is not None:
+                    tags[f'{judge_key}_judge'] = meta
+
+            rows.append({
+                'id': str(uuid4()),
+                'language_id': language_id,
+                'exercise_type': type_code,
+                'source_type': 'vocabulary',
+                'content': content,
+                'tags': tags,
+                'complexity_tier': tier,
+                'is_active': True,
+                'word_sense_id': sense_id,
+                'word_asset_id': asset_ids.get('prompt1_core'),
+                'ladder_level': cap['ladder_level'],
+            })
+        return rows
+
+    def _lemma(self, core: dict, sense_id: int) -> str:
+        """The word itself, for generators that key on the lemma.
+
+        P1 does not carry the lemma as its own field — it is recoverable from a
+        sentence's target — so fall back to the vocabulary row when the
+        sentences are unusable.
+        """
+        for sentence in (core or {}).get('sentences') or []:
+            target = get_sentence_target(sentence)
+            if target:
+                return target
+        try:
+            resp = (
+                self.db.table('dim_word_senses')
+                .select('dim_vocabulary(lemma)')
+                .eq('id', sense_id)
+                .single()
+                .execute()
+            )
+            return ((resp.data or {}).get('dim_vocabulary') or {}).get('lemma') or ''
+        except Exception:
+            return ''
+
+    @staticmethod
+    def _sentence_provenance(core: dict) -> dict | None:
+        """Echo the asset's sentence provenance into every exercise's tags.
+
+        Recorded at asset level rather than per exercise: several renderers
+        pick their own sentence index at render time (L8 scans for one holding
+        the collocate), so a per-row "this item came from a mined sentence"
+        claim would sometimes be wrong. The index-aligned ``sources`` list is
+        exact and lets a reviewer resolve any row against the asset.
+
+        Returns None for pre-TASK-513 assets, so their tags are unchanged.
+        """
+        sentences = (core or {}).get('sentences') or []
+        sources = [
+            s.get('sentence_source') for s in sentences if isinstance(s, dict)
+        ]
+        if not any(sources):
+            return None
+        return {
+            'sentence_sources': sources,
+            'mined_count': sources.count(SENTENCE_SOURCE_MINED),
+            'generated_count': sources.count(SENTENCE_SOURCE_GENERATED),
+        }
 
     # ------------------------------------------------------------------
     # Per-level renderers

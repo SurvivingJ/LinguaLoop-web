@@ -22,8 +22,25 @@
     .session-dot { width: .7rem; height: .7rem; border-radius: 50%; background: var(--border-default, #cbd5e1); }
     .session-dot.done { background: var(--success, #16a34a); }
     .session-dot.current { background: var(--primary, #4f46e5); box-shadow: 0 0 0 3px rgba(79, 70, 229, .2); }
+    .session-dot.skipped { background: var(--warning, #f59e0b); opacity: .55; }
     .session-stage { min-height: 50vh; }
     .session-card { max-width: 680px; margin: 2rem auto; }
+    .session-results { list-style: none; margin: 1rem 0 0; padding: 0; text-align: left; }
+    .session-results li {
+        display: flex; align-items: center; gap: .6rem;
+        padding: .55rem .25rem; border-bottom: 1px solid var(--border-default, #e2e8f0);
+    }
+    .session-results li:last-child { border-bottom: 0; }
+    .session-results .ico { width: 1.25rem; text-align: center; flex-shrink: 0; }
+    .session-results .meta { flex-grow: 1; min-width: 0; }
+    .session-results .r-title { font-weight: 600; }
+    .session-results .r-type { font-size: .8rem; color: var(--text-muted, #64748b); }
+    .session-results .r-state { font-size: .8rem; font-weight: 600; flex-shrink: 0; }
+    .session-results li.is-done .ico { color: var(--success, #16a34a); }
+    .session-results li.is-skipped { opacity: .65; }
+    .session-results li.is-skipped .r-title { font-weight: 500; text-decoration: line-through; }
+    .session-results li.is-skipped .ico,
+    .session-results li.is-skipped .r-state { color: var(--warning, #b45309); }
 </style>
 {% endblock %}
 
@@ -34,8 +51,13 @@
     <p class="mt-3 text-muted" data-i18n="session.loading">Loading your session…</p>
 </div>
 
-<div id="sessionError" class="alert alert-danger m-4 d-none">
+<div id="sessionError" class="alert alert-danger m-4 d-none" role="alert">
     <i class="fas fa-exclamation-triangle me-2"></i><span id="sessionErrorMsg"></span>
+    <div class="mt-3">
+        <button type="button" class="btn btn-sm btn-outline-danger" id="sessionErrorRetry">
+            <i class="fas fa-rotate-right me-1"></i><span data-i18n="session.retry">Retry</span>
+        </button>
+    </div>
 </div>
 
 <!-- Start / Resume screen -->
@@ -54,13 +76,14 @@
 </div>
 
 <!-- Progress header (during the session) -->
-<div id="sessionProgress" class="session-progress d-none">
+<div id="sessionProgress" class="session-progress d-none" role="group" aria-live="polite"
+     aria-label="Session progress" data-i18n-aria="session.progress_label">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <span class="fw-semibold"><i class="fas fa-calendar-day me-2"></i><span data-i18n="session.header">Daily Session</span></span>
         <span class="text-muted small" id="sessionProgressCount">0/0</span>
     </div>
     <div class="d-flex align-items-center gap-3">
-        <div class="session-dots" id="sessionDots"></div>
+        <div class="session-dots" id="sessionDots" role="list"></div>
         <div class="bar flex-grow-1"><span id="sessionProgressFill"></span></div>
     </div>
 </div>

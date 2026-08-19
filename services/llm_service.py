@@ -10,7 +10,7 @@ Usage:
     from services.llm_service import call_llm
 
     # OpenRouter with explicit model
-    result = call_llm("Translate this", model="google/gemini-2.0-flash-001")
+    result = call_llm("Translate this", model="google/gemini-3.5-flash-lite")
 
     # Ollama with language-based model selection
     result = call_llm("Translate this", provider="ollama", language="chinese")
@@ -60,7 +60,13 @@ OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', os.getenv('CONV_GEN_OLLAMA_URL', 
 OLLAMA_DEFAULT_MODEL = os.getenv('OLLAMA_DEFAULT_MODEL', os.getenv('CONV_GEN_OLLAMA_MODEL', 'qwen2.5:7b-instruct-q4_K_M'))
 
 LLM_DEFAULT_PROVIDER = os.getenv('LLM_DEFAULT_PROVIDER', 'openrouter')
-LLM_DEFAULT_MODEL = os.getenv('LLM_DEFAULT_MODEL', 'google/gemini-2.0-flash-001')
+# Last-resort fallback: used by _resolve_model only when the caller supplies
+# neither an explicit model nor a language. google/gemini-3.5-flash-lite since
+# 2026-08-16 -- one gemini slug system-wide, per
+# migrations/consolidate_gemini_on_3_5_flash_lite.sql. This is a code default,
+# not a prompt_templates row, so the nightly slug-health probe cannot see it;
+# re-check it by hand when a slug rotates.
+LLM_DEFAULT_MODEL = os.getenv('LLM_DEFAULT_MODEL', 'google/gemini-3.5-flash-lite')
 
 # Sense-dictionary generation runs on a cheap hosted model, separate from the
 # test/prose model. DeepSeek V4 Flash was validated head-to-head (10/10 valid
@@ -171,6 +177,7 @@ def _log_llm_call(
     judge_confidence: float | None,
     latency_ms: int | None,
     artifact_id: str | None,
+    cost_usd: float | None = None,
 ) -> None:
     """Insert one row into llm_calls. Best-effort; never raises."""
     try:
@@ -198,6 +205,7 @@ def _log_llm_call(
             'judge_confidence': judge_confidence,
             'latency_ms': latency_ms,
             'artifact_id': artifact_id,
+            'cost_usd': cost_usd,
         }
         client.table('llm_calls').insert(row).execute()
     except Exception as exc:
@@ -246,7 +254,7 @@ def call_llm(
 
     Args:
         prompt:          User message content.
-        model:           Explicit model name (e.g. 'google/gemini-2.0-flash-001').
+        model:           Explicit model name (e.g. 'google/gemini-3.5-flash-lite').
                          When None, resolved from language + provider.
         language:        Target language (e.g. 'chinese'). Drives model selection
                          when model is None.
@@ -309,7 +317,7 @@ def call_llm(
     )
 
     try:
-        parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
+        parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
             client=client,
             model=resolved_model,
             messages=messages,
@@ -353,7 +361,7 @@ def call_llm(
             temperature=temperature, seed=seed, prompt_hash=prompt_hash,
             raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
             judge_verdict=None, judge_confidence=None,
-            latency_ms=latency_ms, artifact_id=artifact_id,
+            latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
         )
         return parsed  # raw text
 
@@ -367,7 +375,7 @@ def call_llm(
                 temperature=temperature, seed=seed, prompt_hash=prompt_hash,
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=True,
                 judge_verdict=None, judge_confidence=None,
-                latency_ms=latency_ms, artifact_id=artifact_id,
+                latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
             )
             return validated
         except ValidationError as exc:
@@ -378,7 +386,7 @@ def call_llm(
                 temperature=temperature, seed=seed, prompt_hash=prompt_hash,
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=False,
                 judge_verdict=None, judge_confidence=None,
-                latency_ms=latency_ms, artifact_id=artifact_id,
+                latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
             )
             return _repair_and_retry(
                 client=client,
@@ -405,7 +413,7 @@ def call_llm(
         temperature=temperature, seed=seed, prompt_hash=prompt_hash,
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id,
+        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
     )
     return parsed
 
@@ -424,10 +432,10 @@ def _make_one_call(
     response_format: str,
     seed: int | None,
     timeout: int,
-) -> tuple[dict | list | str, str, bool, int]:
+) -> tuple[dict | list | str, str, bool, int, float | None]:
     """Execute a single API round-trip.
 
-    Returns (parsed_or_text, raw_content, parsed_ok, latency_ms).
+    Returns (parsed_or_text, raw_content, parsed_ok, latency_ms, cost_usd).
     Raises RuntimeError on empty response or json.JSONDecodeError on malformed
     JSON; both are logged as parsed_ok=False by the caller via the finally-style
     log emission path.
@@ -444,10 +452,18 @@ def _make_one_call(
         payload['seed'] = seed
     if response_format == 'json_object':
         payload['response_format'] = {'type': 'json_object'}
+    if _is_openrouter(client):
+        # Ask OpenRouter to return what the call actually cost. Without this the
+        # response carries token counts but no price, and llm_calls.cost_usd
+        # stays NULL — which silently disarms every budget ceiling that reads it
+        # (run_generation_batch's --ceiling projects from exactly this column).
+        payload['extra_body'] = {'usage': {'include': True}}
 
     start = time.perf_counter()
     response = client.chat.completions.create(**payload)
     latency_ms = int((time.perf_counter() - start) * 1000)
+
+    cost_usd = _extract_cost(response)
 
     if not response.choices:
         raise RuntimeError("LLM returned no choices")
@@ -457,7 +473,7 @@ def _make_one_call(
         raise RuntimeError("LLM returned empty content")
 
     if response_format == 'text':
-        return content, content, True, latency_ms
+        return content, content, True, latency_ms, cost_usd
 
     try:
         parsed = json.loads(clean_json_response(content))
@@ -465,7 +481,45 @@ def _make_one_call(
         # Carry the raw content so the caller can echo it into a repair turn.
         exc.raw_content = content  # type: ignore[attr-defined]
         raise
-    return parsed, content, True, latency_ms
+    return parsed, content, True, latency_ms, cost_usd
+
+
+def _is_openrouter(client) -> bool:
+    """True when this client points at OpenRouter.
+
+    Keyed off base_url rather than the provider name because the client pool is
+    itself keyed by base_url, and callers may build one via explicit
+    base_url/api_key without naming a provider.
+    """
+    try:
+        return 'openrouter' in str(getattr(client, 'base_url', '')).lower()
+    except Exception:
+        return False
+
+
+def _extract_cost(response) -> float | None:
+    """USD cost of one call, as reported by the provider.
+
+    OpenRouter puts it on ``usage.cost`` when usage accounting is requested. The
+    OpenAI SDK's Usage model does not declare that field, so it lands in
+    ``model_extra`` rather than as an attribute — both are checked. Returns None
+    when the provider reports nothing, which is the honest answer: a fabricated
+    per-token estimate would go stale the next time pricing moved, and a
+    ceiling built on it would be wrong in the direction of overspending.
+    """
+    usage = getattr(response, 'usage', None)
+    if usage is None:
+        return None
+    cost = getattr(usage, 'cost', None)
+    if cost is None:
+        extra = getattr(usage, 'model_extra', None) or {}
+        cost = extra.get('cost')
+    if cost is None:
+        return None
+    try:
+        return float(cost)
+    except (TypeError, ValueError):
+        return None
 
 
 def _repair_and_retry(
@@ -504,7 +558,7 @@ def _repair_and_retry(
         {'role': 'user', 'content': repair_prompt},
     ]
 
-    parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
+    parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
         client=client,
         model=model,
         messages=repair_messages,
@@ -531,7 +585,7 @@ def _repair_and_retry(
         temperature=0.0, seed=seed, prompt_hash=prompt_hash,
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id,
+        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
     )
 
     if err is not None:
@@ -577,7 +631,7 @@ def _repair_malformed_json(
     repair_messages.append({'role': 'user', 'content': repair_prompt})
 
     try:
-        parsed, raw_content, parsed_ok, latency_ms = _make_one_call(
+        parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
             client=client,
             model=model,
             messages=repair_messages,
@@ -617,7 +671,7 @@ def _repair_malformed_json(
         temperature=0.0, seed=seed, prompt_hash=prompt_hash,
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id,
+        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
     )
 
     if schema_err is not None:

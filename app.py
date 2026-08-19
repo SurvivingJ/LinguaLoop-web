@@ -42,6 +42,7 @@ from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.classifier_drill import classifier_drill_bp
+from routes.counter_drill import counter_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
@@ -332,12 +333,68 @@ def _initialize_scheduler(app):
         replace_existing=True,
     )
 
+    # TASK-510 — nightly model-slug health probe. Scheduled after IRT so a slow
+    # calibration sweep doesn't delay it; advisory-locked inside the service.
+    def _run_slug_health_check():
+        try:
+            from services.model_health import run_slug_health_check
+            report = run_slug_health_check()
+            dead = report.get('dead') or []
+            if dead:
+                app.logger.error(
+                    "Slug health: %d dead model slug(s) — %s",
+                    len(dead), ', '.join(e['model'] for e in dead),
+                )
+            else:
+                app.logger.info(
+                    "Slug health: %d slug(s) probed, all live",
+                    report.get('probed', 0),
+                )
+        except Exception as exc:
+            app.logger.exception("Nightly slug health check crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_slug_health_check,
+        trigger=CronTrigger(hour=4, minute=10),
+        id='slug_health_nightly',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    # TASK-517 — nightly coverage sweep + generation-queue drain. Last of the
+    # 04:xx chain on purpose: it regenerates content, so it runs after the
+    # slug-health probe has had its chance to flag a dead model rather than
+    # spending the night's drain budget on calls that were going to 404.
+    def _run_generation_queue_drain():
+        try:
+            from services.vocabulary_ladder.queue_drain import run_nightly_drain
+            summary = run_nightly_drain()
+            if summary.get('skipped'):
+                app.logger.info("Generation queue drain: skipped (%s)",
+                                summary.get('reason'))
+            else:
+                app.logger.info("Generation queue drain: %s", summary)
+        except Exception as exc:
+            app.logger.exception("Generation queue drain crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_generation_queue_drain,
+        trigger=CronTrigger(hour=4, minute=15),
+        id='generation_queue_drain_nightly',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
     scheduler.start()
     app.scheduler = scheduler
     app.logger.info(
         "APScheduler started — jobs: "
         "irt_calibration_nightly @ 04:00 UTC, "
         "exercise_time_estimate_refresh @ 04:05 UTC, "
+        "slug_health_nightly @ 04:10 UTC, "
+        "generation_queue_drain_nightly @ 04:15 UTC, "
         "study_plan_weekly_recompute @ Sun 23:00 UTC"
     )
 
@@ -363,6 +420,7 @@ def _register_blueprints(app):
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
     app.register_blueprint(classifier_drill_bp, url_prefix='/api/classifier-drill')
+    app.register_blueprint(counter_drill_bp, url_prefix='/api/counter-drill')
     # Phase 12/13: unified Practice surface + Study Plan orchestration.
     app.register_blueprint(practice_bp, url_prefix='/api/practice')
     app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
@@ -509,6 +567,11 @@ def _register_web_routes(app):
     def classifier_drill_page():
         """Render Chinese measure-word infinite trainer."""
         return render_template('classifier_drill.html')
+
+    @app.route('/counter-drill')
+    def counter_drill_page():
+        """Render Japanese counter (助数詞) infinite trainer."""
+        return render_template('counter_drill.html')
 
     @app.route('/dual-translation')
     def dual_translation_page():

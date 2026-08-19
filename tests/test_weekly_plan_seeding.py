@@ -151,6 +151,55 @@ class TestCronTargetsUpcomingWeek:
 
 
 # ---------------------------------------------------------------------------
+# TASK-706 — the advisory lock actually guards the weekly cron
+# ---------------------------------------------------------------------------
+
+class TestWeeklyRecomputeAdvisoryLock:
+    """Two concurrent workers: exactly one performs work. The worker that
+    fails to take the Postgres advisory lock skips the sweep entirely."""
+
+    def test_worker_without_lock_skips_the_sweep(self):
+        db = MagicMock()
+
+        with patch('services.study_plan_service.get_supabase_admin',
+                   return_value=db), \
+             patch('services.study_plan_service._try_advisory_lock',
+                   return_value=False), \
+             patch('services.study_plan_service._release_advisory_lock') as mock_release, \
+             patch.object(study_plan_service.StudyPlanService,
+                          'compute_weekly_plan') as mock_compute:
+            summary = study_plan_service._run_weekly_plan_recompute()
+
+        # No plans were paged, nothing computed.
+        db.table.assert_not_called()
+        mock_compute.assert_not_called()
+        # Never release a lock we did not take.
+        mock_release.assert_not_called()
+        assert summary['skipped'] is True
+        assert summary['fired'] == 0
+
+    def test_worker_with_lock_runs_then_releases(self):
+        db = MagicMock()
+        db.table.return_value.select.return_value.range.return_value.execute.return_value = (
+            SimpleNamespace(data=[{'user_id': 'u1', 'language_id': 1}])
+        )
+
+        with patch('services.study_plan_service.get_supabase_admin',
+                   return_value=db), \
+             patch('services.study_plan_service._try_advisory_lock',
+                   return_value=True), \
+             patch('services.study_plan_service._release_advisory_lock') as mock_release, \
+             patch.object(study_plan_service.StudyPlanService,
+                          'compute_weekly_plan', return_value={'ok': True}):
+            summary = study_plan_service._run_weekly_plan_recompute()
+
+        # The lock-holder did the work and released the lock afterwards.
+        assert summary['skipped'] is False
+        assert summary['fired'] == 1
+        mock_release.assert_called_once_with(db)
+
+
+# ---------------------------------------------------------------------------
 # Leg 3 — template-only PUT seeds the current week
 # ---------------------------------------------------------------------------
 

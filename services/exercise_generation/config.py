@@ -92,13 +92,10 @@ GRAMMAR_DISTRIBUTION: dict[str, int] = {
     'verb_noun_match':          20,
 }
 
-VOCABULARY_DISTRIBUTION: dict[str, int] = {
-    'text_flashcard':          3,
-    'listening_flashcard':     3,
-    'cloze_completion':        5,
-    'tl_nl_translation':       3,
-    'semantic_discrimination': 2,
-}
+# VOCABULARY_DISTRIBUTION removed by TASK-512. This pipeline no longer
+# generates vocabulary exercises at all — the vocabulary ladder owns them end
+# to end, and its per-level mix comes from the capability matrix in
+# services/vocabulary_ladder/config.py rather than a flat type→count map.
 
 COLLOCATION_DISTRIBUTION: dict[str, int] = {
     'collocation_gap_fill':  5,

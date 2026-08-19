@@ -14,6 +14,7 @@ from uuid import UUID, uuid4
 from dataclasses import dataclass, field
 
 from ..supabase_factory import get_supabase_admin
+from ..dictation.cap import passage_word_range
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +56,12 @@ class LanguageConfig:
     language_code: str
     language_name: str
     native_name: str
-    prose_model: str = 'google/gemini-2.0-flash-001'
-    question_model: str = 'google/gemini-2.0-flash-001'
+    # Dataclass defaults only: _build_language_config always overwrites both
+    # from prompt_templates via _resolve_models. Kept in sync with the one-gemini
+    # -slug policy (migrations/consolidate_gemini_on_3_5_flash_lite.sql) so a
+    # hand-built LanguageConfig cannot resurrect a dead slug.
+    prose_model: str = 'google/gemini-3.5-flash-lite'
+    question_model: str = 'google/gemini-3.5-flash-lite'
     tts_voice_ids: List[str] = field(default_factory=lambda: ['alloy'])
     tts_speed: float = 1.0
     grammar_check_enabled: bool = False
@@ -524,21 +529,25 @@ class TestDatabaseClient:
         return response.data if response.data else []
 
     def get_word_count_range(self, difficulty: int) -> tuple:
-        """Get word count range for a difficulty level."""
-        cefr = self.get_cefr_config(difficulty)
-        if cefr:
-            return (cefr.word_count_min, cefr.word_count_max)
+        """Passage length range (min_words, max_words) for a difficulty level.
 
-        # Fallback defaults
-        defaults = {
-            1: (80, 150), 2: (80, 150),
-            3: (120, 200), 4: (120, 200),
-            5: (200, 300),
-            6: (300, 400),
-            7: (400, 600),
-            8: (600, 900), 9: (600, 900)
-        }
-        return defaults.get(difficulty, (200, 300))
+        TASK-715: this used to return
+        ``(dim_complexity_tiers.word_count_min, .word_count_max)``, but
+        ``word_count_max`` in that table is a VOCABULARY SIZE (500 / 2000 /
+        5000 / 10000 / 15000 / 25000), not a passage length — so the prose
+        prompt was literally being told to write "600-25000 words" at T6.
+        That is why live English difficulty-9 transcripts average ~777 words.
+
+        The range now comes from ``services.dictation.cap``, whose upper bound
+        IS that tier's dictation cap, so every generated test is
+        dictation-eligible at its own difficulty. Dictation has no content of
+        its own — it reuses these same ``tests`` rows — so "generation respects
+        the cap" can only mean this.
+
+        Consequence: new T5/T6 passages are materially shorter than the ones
+        already in the corpus. Existing tests are untouched.
+        """
+        return passage_word_range(difficulty)
 
     # ============================================================
     # QUESTION TYPE DISTRIBUTION

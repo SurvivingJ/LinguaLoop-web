@@ -49,9 +49,26 @@ class TopicGenConfig:
         default_factory=lambda: os.getenv('TOPIC_DEFAULT_LENS', 'practical')
     )
 
-    # LLM Configuration (via OpenRouter)
+    # LLM Configuration (via OpenRouter).
+    #
+    # Was google/gemini-2.0-flash-001 until 2026-08-14, by which point OpenRouter
+    # had delisted that slug — so every Explorer and Gatekeeper call 404'd and
+    # topic generation produced nothing at all. Unlike the judges, these agents
+    # have no fail-open path; the run just raises.
+    #
+    # google/gemini-3.5-flash-lite since 2026-08-16: the system now runs exactly
+    # ONE gemini slug everywhere (migrations/consolidate_gemini_on_3_5_flash_lite.sql),
+    # and this default is the only place that policy lives in code rather than in
+    # prompt_templates. Explorer is English-only, and under the routing policy
+    # (migrations/generator_model_routing_policy.sql) en routes to gemini.
+    #
+    # This is a code default, not a prompt_templates row: explorer_ideation_t1..t6
+    # and gatekeeper_check carry prompt *text* only (model IS NULL), so the
+    # nightly slug-health probe cannot see it. Re-check it by hand when a slug
+    # rotates — see services/model_health.py — and verify the new slug against
+    # services.model_arena.pricing.fetch_model_list() before changing it.
     llm_model: str = field(
-        default_factory=lambda: os.getenv('TOPIC_LLM_MODEL', 'google/gemini-2.0-flash-001')
+        default_factory=lambda: os.getenv('TOPIC_LLM_MODEL', 'google/gemini-3.5-flash-lite')
     )
     llm_temperature: float = field(
         default_factory=lambda: float(os.getenv('TOPIC_LLM_TEMPERATURE', '0.8'))

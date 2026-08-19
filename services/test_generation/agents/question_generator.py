@@ -6,7 +6,7 @@ Supports 6 semantic question types.
 """
 
 import logging
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Sequence, Tuple
 
 from pydantic import ValidationError
 
@@ -31,6 +31,32 @@ _VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}
 # Answer-entailment rejects (a correctness gate) are unaffected.
 
 logger = logging.getLogger(__name__)
+
+
+def _format_subject(
+    topic_concept: Optional[str],
+    keywords: Optional[Sequence[str]],
+) -> str:
+    """Render the distractor judge's subject/domain slot from the topic data.
+
+    The judge's band 2 ("off-topic") is a domain-MEMBERSHIP test, so the judge
+    has to know what the domain is. Until v5 nothing was ever passed and the
+    slot rendered "(infer the subject from the passage above)", leaving each
+    model to invent the boundary — a narrow inference rejects, a broad one
+    accepts, which is most of the measured zh/en judge divergence
+    (see wiki/evaluations/distractor-judge-language-divergence-2026-08-16 §4).
+
+    Source is the same topic concept + keyword list the prose writer was given,
+    already translated into the target language, so the slot never reintroduces
+    English into a zh/ja prompt. Returns '' when there is nothing to say, which
+    restores the infer-from-passage fallback rather than asserting a bogus
+    domain.
+    """
+    parts = [k.strip() for k in (keywords or []) if k and k.strip()]
+    concept = (topic_concept or '').strip()
+    if concept and parts:
+        return f"{concept}: {', '.join(parts)}"
+    return concept or ', '.join(parts)
 
 
 class QuestionGenerator:
@@ -101,15 +127,25 @@ class QuestionGenerator:
         language_id: Optional[int] = None,
         template_version: Optional[int] = None,
         db=None,
+        topic_concept: Optional[str] = None,
+        keywords: Optional[Sequence[str]] = None,
     ) -> List[Dict]:
         """Generate multiple questions for prose content.
 
         Returns a list of dicts with keys: question, choices, answer,
         correct_answer_index, type_code, distractor_types (optional).
+
+        ``topic_concept`` and ``keywords`` are the (already translated) topic
+        data the prose writer was given. They are joined by ``_format_subject``
+        and handed to the distractor-plausibility judge as its subject/domain
+        slot, so its off-topic band tests membership of a KNOWN domain instead
+        of one the judge has to guess. Both optional — omitted, the judge falls
+        back to inferring the subject from the passage.
         """
         logger.info(f"Generating {len(question_type_codes)} questions for {language_name} (diff={difficulty})")
 
         max_attempts = max(1, get_test_gen_config().question_regen_attempts)
+        subject_keywords = _format_subject(topic_concept, keywords)
 
         questions: List[Dict] = []
         # Texts of the questions we have KEPT so far — the "what we already have"
@@ -134,6 +170,7 @@ class QuestionGenerator:
                 language_id=language_id,
                 db=db,
                 max_attempts=max_attempts,
+                subject_keywords=subject_keywords,
             )
 
             # Record every rejected attempt for the funnel diagnostic (these are
@@ -165,6 +202,7 @@ class QuestionGenerator:
         language_id: Optional[int] = None,
         db=None,
         max_attempts: int = 2,
+        subject_keywords: str = '',
     ) -> Tuple[Optional[Dict], List[Dict]]:
         """Generate one question of a type, retrying with feedback on rejection.
 
@@ -233,6 +271,7 @@ class QuestionGenerator:
                     db=db,
                     language_id=language_id,
                     type_code=question_type_code,
+                    subject_keywords=subject_keywords,
                 )
                 if judged_entry is None:
                     if rejection:
@@ -429,6 +468,7 @@ The `distractor_types` array uses null for the correct choice's slot.
         db,
         language_id: int,
         type_code: str,
+        subject_keywords: str = '',
     ) -> Tuple[Optional[Dict], Optional[Dict]]:
         """Run answer-entailment and distractor-plausibility judges on a question.
 
@@ -485,6 +525,7 @@ The `distractor_types` array uses null for the correct choice's slot.
             distractors=distractors,
             language_id=language_id,
             type_code=type_code,
+            keywords=subject_keywords,
         )
         worst_dp = min(
             dp_outcomes,

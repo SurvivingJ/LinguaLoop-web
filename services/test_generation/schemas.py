@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 
 # Fallback used when a judge dumps a bare score (e.g. "0.1") or an empty string
@@ -47,13 +47,18 @@ LIKERT_TO_VERDICT: dict[int, str] = {
 }
 
 
-def likert_to_verdict(rating: int) -> str:
+def likert_to_verdict(rating: int | None) -> str:
     """Map a 1-5 Likert rating to 'accept' | 'flag' | 'reject'.
 
-    Unknown / out-of-range values default to 'flag' (neutral keep) rather than
-    'reject' — a parse glitch must never manufacture a spurious rejection, which
-    is the exact failure v3 exists to remove.
+    ``None`` means the judge returned NO rating for this item — not a weak one.
+    Callers should handle that case before reaching here (see
+    ``judges.base.accept_item``); it maps to 'accept' as a backstop so an
+    absent rating can never manufacture a rejection or a spurious review-queue
+    entry. Out-of-range values keep the historic 'flag' default: this helper is
+    shared by seven judges and only the None branch is new.
     """
+    if rating is None:
+        return 'accept'
     return LIKERT_TO_VERDICT.get(int(rating), 'flag')
 
 
@@ -198,21 +203,39 @@ class MCQuestion(BaseModel):
 # ---------------------------------------------------------------------------
 
 class AnswerEntailmentVerdict(BaseModel):
-    """Judge output: does the passage support the correct answer?
+    """Judge output: how strongly does the passage support the correct answer?
+
+    v2 (TASK-723) replaces the raw 0.0-1.0 confidence with the same 5-point
+    Likert rating the distractor judge uses, so ``llm_calls.judge_confidence``
+    carries one scale instead of two mutually inverting ones — see
+    ``migrations/null_legacy_judge_confidence.sql`` for the collision that forced
+    888 rows to be erased. Bands are a single axis (strength of textual support)
+    and are mutually exclusive:
+
+        5  stated explicitly in the passage
+        4  not stated, but uniquely inferable from it
+        3  partially supported — the passage also permits a different answer
+        2  unsupported; merely on the same topic
+        1  contradicted by the passage, or unrelated to it
+
+    ``likert_to_verdict`` maps 5/4 → accept, 3 → flag, 2/1 → reject.
 
     The judge prompt uses numeric keys so the prompt body can be authored
     entirely in the target language (no English field names leak into ZH/JA
-    prompts).  The ``_normalize`` validator maps both the numeric-key shape
-    returned by non-English prompts and the named-key shape the English
-    prompt may return:
+    prompts).  ``_normalize`` maps both the numeric-key shape returned by
+    non-English prompts and the named-key shape the English prompt may return:
 
-        {"1": 0.85, "2": "reasoning text"} → confidence=0.85, reason="..."
-        {"confidence": 0.85, "reason": "..."}  → passthrough
+        {"1": 4, "2": "reasoning text"}     → rating=4, reason="..."
+        {"rating": 4, "reason": "..."}      → passthrough
 
-    Confidence is clamped to [0.0, 1.0] by ``_validate``.
+    ``rating`` is ``None`` when the judge answered but gave no usable rating —
+    the same "no rating, not a weak one" semantics as
+    ``DistractorPlausibilityVerdict``. It is deliberately NOT coerced to a
+    number: ``likert_to_verdict(None)`` accepts, so an absent rating can never
+    manufacture a rejection.
     """
 
-    confidence: float
+    rating: Optional[int] = None
     reason: str
 
     @model_validator(mode='before')
@@ -223,9 +246,13 @@ class AnswerEntailmentVerdict(BaseModel):
         out: dict[str, Any] = {}
         for k, v in data.items():
             if k in ('1', 1):
-                out['confidence'] = v
+                out['rating'] = v
             elif k in ('2', 2):
                 out['reason'] = v
+            elif k == 'confidence':
+                # Pre-v2 prompt row still active against v2 code. Surfaced by
+                # _validate rather than silently rescaled — see there.
+                out['rating'] = v
             else:
                 out[k] = v
         # An empty or bare-numeric reason is useless as regen feedback; replace
@@ -237,11 +264,47 @@ class AnswerEntailmentVerdict(BaseModel):
 
     @model_validator(mode='after')
     def _validate(self) -> 'AnswerEntailmentVerdict':
-        if not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(
-                f'confidence {self.confidence!r} must be in [0.0, 1.0]'
-            )
+        if self.rating is None:
+            return self
+        if not 1 <= self.rating <= 5:
+            raise ValueError(f'rating {self.rating!r} must be in [1, 5]')
         return self
+
+    @field_validator('rating', mode='before')
+    @classmethod
+    def _reject_legacy_float_scale(cls, value: Any) -> Any:
+        """Backstop for a pre-v3 (0.0-1.0) prompt row feeding v3 code.
+
+        **This is a backstop, not the guard.** It catches only the *fractional*
+        legacy values (0.85, 0.9, 0.5), because the two scales overlap at
+        exactly one point — ``1`` — where they mean opposite things: "maximum
+        confidence, accept" on the old float scale and "worst rating, reject"
+        on Likert. A legacy ``1.0`` is indistinguishable by value from a Likert
+        ``1`` and passes straight through here. That is not a corner case: over
+        391 historical responses in ``llm_calls.raw_response``, **77% were
+        exactly 1.0**, so value-shape detection would miss the majority of a
+        scale mismatch and invert it into a rejection.
+
+        The real guard is therefore the version check in
+        ``judges.answer_entailment._is_pre_likert``, which refuses to run at all
+        against a row older than v3. Keep both: this one still fires if a v3 row
+        is active but the model answers on the old scale anyway.
+
+        Raising routes through the judge's normal error path: ``safe_accept``
+        when serving (a dead judge must not break a live session) and
+        ``JudgeUnavailable`` inside a generation batch, so a half-applied
+        migration aborts the batch rather than shipping unjudged questions.
+        """
+        if value is None or isinstance(value, bool):
+            return value
+        if isinstance(value, float) and not value.is_integer():
+            raise ValueError(
+                f'rating {value!r} is not an integer — this is the pre-v2 '
+                f'0.0-1.0 confidence scale. The prompt_templates row for '
+                f'test_answer_entailment is older than the code; apply '
+                f'migrations/entailment_likert_v2.sql.'
+            )
+        return value
 
 
 class DistractorPlausibilityVerdict(BaseModel):
@@ -265,7 +328,7 @@ class DistractorPlausibilityVerdict(BaseModel):
     ``_validate`` enforces matching list lengths and ratings in [1, 5].
     """
 
-    per_distractor: list[int]
+    per_distractor: list[int | None]
     reasons: list[str]
 
     @model_validator(mode='before')
@@ -276,11 +339,19 @@ class DistractorPlausibilityVerdict(BaseModel):
         # ``reasons``, alias keys, or a list of {rating, reason} dicts. Coerce
         # the common variants into ``{per_distractor, reasons}`` so the judge
         # yields a real verdict instead of failing open (safe_accept). An
-        # unparseable rating falls back to 3 (a neutral "flag"), NOT a reject —
-        # the whole point of v3 is to stop spurious rejects, so a parse glitch
-        # must not manufacture one.
+        # unparseable rating becomes None — "the judge returned no rating for
+        # this item" — NOT a fabricated number.
+        #
+        # This used to fall back to 3, which mapped to 'flag'. That made a parse
+        # miss indistinguishable from a genuine "weak" verdict, and because the
+        # v3 prompt's numeric keys were ambiguous the model frequently returned
+        # reasons with no ratings at all: 80% of live ratings were fabricated 3s
+        # and the review queue filled with judgments that were never made. A
+        # missing rating must stay visibly missing so the judge can accept the
+        # item outright (judges.base.accept_item) instead of queueing a fake
+        # review.
 
-        _FALLBACK_RATING = 3  # neutral 'flag' when a rating cannot be parsed
+        _NO_RATING = None  # the judge returned no rating for this item
 
         def _as_likert(x):
             """Coerce a value to an int Likert rating in [1, 5], or None."""
@@ -356,7 +427,7 @@ class DistractorPlausibilityVerdict(BaseModel):
             ratings, reasons = [], []
             for item in data:
                 s, r = _pair(item)
-                ratings.append(s if s is not None else _FALLBACK_RATING)
+                ratings.append(s if s is not None else _NO_RATING)
                 reasons.append(r)
             out: dict[str, Any] = {'per_distractor': ratings, 'reasons': reasons}
         elif isinstance(data, dict):
@@ -387,7 +458,7 @@ class DistractorPlausibilityVerdict(BaseModel):
                 ratings, reasons = [], []
                 for k in seq:
                     rt, rs = _pair(dig[k])
-                    ratings.append(rt if rt is not None else _FALLBACK_RATING)
+                    ratings.append(rt if rt is not None else _NO_RATING)
                     reasons.append(rs)
                 out = {'per_distractor': ratings, 'reasons': reasons}
             else:
@@ -416,7 +487,7 @@ class DistractorPlausibilityVerdict(BaseModel):
             ratings, reasons = [], []
             for item in pd:
                 s, r = _pair(item)
-                ratings.append(s if s is not None else _FALLBACK_RATING)
+                ratings.append(s if s is not None else _NO_RATING)
                 reasons.append(r)
             out['per_distractor'] = ratings
             if not out.get('reasons'):
@@ -426,7 +497,7 @@ class DistractorPlausibilityVerdict(BaseModel):
         # mixed floats/strings the model may emit, e.g. [5, "4", 2.0]).
         if isinstance(out.get('per_distractor'), list):
             out['per_distractor'] = [
-                (_as_likert(x) if _as_likert(x) is not None else _FALLBACK_RATING)
+                (_as_likert(x) if _as_likert(x) is not None else _NO_RATING)
                 for x in out['per_distractor']
             ]
 
@@ -455,6 +526,11 @@ class DistractorPlausibilityVerdict(BaseModel):
                 f'match reasons length ({len(self.reasons)})'
             )
         for i, c in enumerate(self.per_distractor):
+            # None is legal and load-bearing: it records that the judge
+            # returned no rating for this distractor, which the judge turns
+            # into an outright accept rather than a fabricated 'flag'.
+            if c is None:
+                continue
             if not 1 <= c <= 5:
                 raise ValueError(
                     f'per_distractor[{i}]={c!r} must be a Likert rating in [1, 5]'

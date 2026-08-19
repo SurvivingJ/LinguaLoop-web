@@ -42,10 +42,10 @@ class ConvGenConfig:
 
     # LLM Configuration (OpenRouter primary, Ollama optional)
     conversation_model: str = field(
-        default_factory=lambda: os.getenv('CONV_GEN_MODEL', 'google/gemini-2.0-flash-001')
+        default_factory=lambda: os.getenv('CONV_GEN_MODEL', 'google/gemini-3.5-flash-lite')
     )
     analysis_model: str = field(
-        default_factory=lambda: os.getenv('CONV_GEN_ANALYSIS_MODEL', 'google/gemini-2.0-flash-001')
+        default_factory=lambda: os.getenv('CONV_GEN_ANALYSIS_MODEL', 'google/gemini-3.5-flash-lite')
     )
     temperature: float = field(
         default_factory=lambda: float(os.getenv('CONV_GEN_TEMPERATURE', '0.85'))

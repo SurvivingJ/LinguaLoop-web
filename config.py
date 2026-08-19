@@ -66,11 +66,17 @@ class Config:
     OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
-    # Language-specific model configuration for OpenRouter
+    # Language-specific model configuration for OpenRouter.
+    #
+    # gemini slug: google/gemini-3.5-flash-lite since 2026-08-16. The system runs
+    # exactly ONE gemini slug everywhere -- see
+    # migrations/consolidate_gemini_on_3_5_flash_lite.sql. Runtime routing comes
+    # from prompt_templates; this map is a legacy fallback, so it is swept to keep
+    # the policy true in code as well.
     AI_MODELS = {
         'english': {
-            'transcript': 'google/gemini-2.0-flash-001',
-            'questions': 'google/gemini-2.0-flash-001'
+            'transcript': 'google/gemini-3.5-flash-lite',
+            'questions': 'google/gemini-3.5-flash-lite'
         },
         'chinese': {
             'transcript': 'deepseek/deepseek-chat',
@@ -102,6 +108,13 @@ class Config:
     VALID_LANGUAGE_IDS = set(LANGUAGES.keys())
     LANGUAGE_ID_TO_NAME = {k: v['name'] for k, v in LANGUAGES.items()}
     LANGUAGE_CODE_TO_ID = {v['code']: k for k, v in LANGUAGES.items()}
+
+    # Native language assumed for generated content when a caller doesn't
+    # specify one (TASK-519). Deliberately ONE declared knob rather than an
+    # 'en' literal defaulted into generator signatures — that is how the v1
+    # corpus silently became English-only. Generation code must read this or
+    # take the value from its caller; see tests/test_nl_keyed_content.py.
+    DEFAULT_NATIVE_LANGUAGE = os.getenv('DEFAULT_NATIVE_LANGUAGE', 'en')
 
     # ==========================================================================
     # FEATURE FLAGS
@@ -219,6 +232,16 @@ class Config:
     # dim_test_types.expected_minutes_p50 has not yet accrued ≥30 samples.
     # Mirrors the per-type seed in the SQL helper of the same name in
     # phase13_build_daily_session.sql so the two never drift.
+    # Minutes per budgeted slot, per plannable skill. MUST stay in sync with
+    # the SQL `public.test_time_estimate` CASE — Tier B sizes the week from
+    # this dict, Tier C sizes the day from the SQL function, and a divergence
+    # means the week never fits its own days.
+    #
+    # flashcards / dual_translation are NOT dim_test_types rows (ADR-021); they
+    # are seeded here explicitly because the SQL fallback is a silent ELSE 5.0.
+    # One 'flashcards' slot == one review block of 15 cards (see
+    # routes/study_session.py::_FLASHCARD_CARDS_PER_BLOCK); one
+    # 'dual_translation' slot == one passage.
     TEST_TYPE_MINUTES = {
         'reading':       6,
         'listening':     5,
@@ -226,6 +249,8 @@ class Config:
         'pinyin':        4,
         'classifier_drill': 4,
         'pitch_accent':  4,
+        'flashcards':    7,
+        'dual_translation': 12,
     }
 
     # ==========================================================================

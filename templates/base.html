@@ -249,6 +249,13 @@
 
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
+                        <a href="{{ url_for('study_session_page') }}"
+                           class="nav-link {% if request.endpoint == 'study_session_page' %}active{% endif %}"
+                           data-i18n="common.nav.daily_session">
+                            Daily Session
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ url_for('language_selection') }}"
                            class="nav-link {% if request.endpoint == 'language_selection' %}active{% endif %}"
                            data-i18n="common.nav.language_selection">
@@ -267,6 +274,13 @@
                            class="nav-link {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
                            data-i18n="common.nav.classifier_drill">
                             Measure Words
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('counter_drill_page') }}"
+                           class="nav-link {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
+                           data-i18n="common.nav.counter_drill">
+                            Counters
                         </a>
                     </li>
                     {% if config.LISTENING_LAB_ENABLED %}
@@ -293,6 +307,12 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md" aria-labelledby="mobileNavBtn">
                         <li>
+                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' %}active{% endif %}"
+                               href="{{ url_for('study_session_page') }}" data-i18n="common.nav.daily_session">
+                                Daily Session
+                            </a>
+                        </li>
+                        <li>
                             <a class="dropdown-item {% if request.endpoint == 'language_selection' %}active{% endif %}"
                                href="{{ url_for('language_selection') }}" data-i18n="common.nav.language_selection">
                                 Language Selection
@@ -308,6 +328,12 @@
                             <a class="dropdown-item {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
                                href="{{ url_for('classifier_drill_page') }}" data-i18n="common.nav.classifier_drill">
                                 Measure Words
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
+                               href="{{ url_for('counter_drill_page') }}" data-i18n="common.nav.counter_drill">
+                                Counters
                             </a>
                         </li>
                         {% if config.LISTENING_LAB_ENABLED %}

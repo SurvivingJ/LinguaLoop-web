@@ -1,5 +1,358 @@
 # Activity Log
 
+## [2026-08-16] execute | TASK-718 — cross-model judge A/B; the zh divergence was the judge
+Pages updated: [[evaluations/distractor-judge-language-divergence-2026-08-16]] (new §11),
+[[tasklist/distractor-judge-calibration.tasks]], [[tasklist/master]].
+Judge spend **$1.11** (600 calls, 11 min, `pipeline='diag'`). Files: new
+`scripts/measure_judge_flag_rate.py`, new `migrations/distractor_judge_model_zh_ja_gemini.sql`
+(applied live).
+
+**Verdict: judge-driven, ~100%.** A 2×2×3 factorial over the frozen 150-question sample —
+`{v4, v5} × {qwen3.6-flash, gemini-3.1-flash-lite} × {zh, en, ja}`, identical content in every arm,
+subject line off to match production. Question-level rejects on the live v4 prompt:
+
+| lang | qwen | gemini |
+|------|------|--------|
+| zh | 16/50 (32%) | **1/50 (2%)** |
+| en | 5/50 (10%) | 2/50 (4%) |
+| ja | 4/50 (8%) | 3/50 (6%) |
+
+Read the columns. Under a **common judge** zh is the *cleanest* of the three, not the worst; the
+published 26pp zh–en gap becomes **−2pp**. The mechanism is a qwen×Chinese interaction, not general
+harshness — qwen scores en 10% / ja 8% but zh 32%. Widened past the task's v5-only spec because v5
+is reverted and v4 is live, and to add the crossover cell (qwen on English) the original design
+omitted.
+
+**The decisive number:** of the 25 zh distractors qwen rated 2 (reject), gemini rated **19 a 4 and
+6 a 5** — none in its own reject or review band. Question-level the zh reject sets are **disjoint**
+(both 0, qwen-only 16, gemini-only 1). zh `vocabulary_context`, stuck at 9/16 across all four
+TASK-717 prompt arms, is **1/16** under gemini.
+
+**Applied:** zh + ja → `google/gemini-3.1-flash-lite` (v4 live and v5 retained, so activating v5
+later cannot silently restore qwen). Side effects: a middle band appears in zh (1) and ja (2), so
+`generation_review_queue` is no longer English-only; per-call cost drops **6.7×**. Band 1 fired for
+the first time ever (3 in 1,800 ratings). v5 stays inactive — harmful under *both* models.
+
+**What this does not settle, and it changes the plan:** inter-judge agreement on the reject class is
+~0, so no model's reject signal is validated in absolute terms — the support for "the zh rejects
+were false" remains the manual read in §5. gemini also missed the one zh reject §5 judged
+defensible, so the swap likely trades some recall for precision by an unmeasured amount. **A gold
+set now gates TASK-719/720** (unfiled, needs an ID); TASK-721/722 are unaffected and are the best
+next work. Not Started 10 → **9**.
+
+## [2026-08-16] execute | TASK-717 — judge prompt v5 built, measured, and reverted
+Pages updated: [[evaluations/distractor-judge-language-divergence-2026-08-16]] (new §10),
+[[tasklist/distractor-judge-calibration.tasks]], [[tasklist/master]].
+Suite 1781 → **1792 passed, 3 skipped**. Judge spend $1.48 (600 calls, `pipeline='diag'`).
+
+**The task's own premises did not survive measurement.** Both §4 hypotheses were tested on the
+frozen 150-question sample and both are wrong, so v5 was rolled back the same day it shipped.
+
+Four arms, identical content, models unchanged: **B** v4 baseline · **D** v4 + subject line ·
+**C** v5 rubric only · **A** v5 + subject line. Question-level rejects —
+zh 18/18/17/15, en 2/2/**5**/**4**, ja 6/**8**/4/**11** (published baseline: 15/2/6).
+
+1. **zh `vocabulary_context` was 9/16 in all four arms.** Not reduced, not noisy — identical
+   under every intervention. §4 read this bucket as a rubric mis-specification; it is judge-model
+   behaviour, matching the established fact that `qwen3.6-flash` collapses to {5, 4, 2}. This
+   **promotes TASK-718 to the load-bearing task** and means the bucket is unreachable from the
+   prompt layer.
+2. **The type-conditional rubric backfired in English**: 0 → 5 `vocabulary_context` rejects. The
+   bullet closed with "2 is reserved for an option that is not a possible meaning of the
+   expression at all" — meant to narrow band 2, it instead *named a condition under which band 2
+   applies* to vocab questions, and gemini took it up. Generalisable: stating a reject condition
+   raises its use even inside a sentence restricting it.
+3. **The domain slot works backwards from §4's model.** An authoritative subject line was meant
+   to loosen the off-topic band; "concept + five keywords" is *narrower* than a
+   passage-inferred domain, so it tightened it. ja rose in both arms containing it.
+4. **§8's caveat is also backwards** — passing the `type_code` string moved zh 15 → 18, so the
+   published baseline was not an over-estimate. §1's numbers stand.
+
+Shipped and kept: the caller plumbing (`keywords=` finally reaching prompt slot `{5}`), with a
+mutation-verified regression test — deleting the argument fails the suite. Gated
+`JUDGE_SUBJECT_KEYWORDS`, **default off**, with both branches pinned by tests so the off-state
+stays a documented decision rather than decaying back into the silent dead-parameter bug the task
+existed to fix. v5 rows retained `is_active = false` for TASK-718 to re-test under another model.
+
+## [2026-08-11] execute | Exercise Generation v2 — nine `[~]` rows closed, two latent defects fixed
+TASK-517, 520, 522, 523, 525, 527, 529, 532, 533 → `[x]`. Suite 1634 → **1676 passed, 3 skipped**.
+Exercise Generation v2 In Progress 14 → **5** (515, 521, 526, 530, 531 — all spend- or
+review-gated). Pages updated: [[tasklist/master]], [[tasklist/archive/exercise-generation-v2.tasks]].
+
+**Three of the nine needed no code — only the checkbox was stale.** The "migration not applied
+live" notes on TASK-520/522/527 were false: all sixteen prompt rows were already present. Only
+TASK-525's three `translation_uniqueness_judge` rows were genuinely missing. Lesson for the next
+session: query `prompt_templates` before believing a not-applied note.
+
+Real work: the queue-drain advisory lock + 04:15 cron + `subscribe_topup` (517); the OANC
+collocation list vendored at 73.7k dependency-parsed pairs (523); `dim_character_components`
+populated with 27,131 rows from cjk-decomp (Apache-2.0) + Unihan, after rejecting cjkvi-ids as
+GPLv2 (529); the `cloze_typed` IME renderer with grading moved server-side (532); and the
+speed-round bonus block appended outside the planner per ADR-021 (533).
+
+**Two latent defects, both found by doing the work rather than by looking for them:**
+`deterministic._load_builders()` guarded on `if _REGISTRY:`, so importing any single builder
+module disabled the other six — and TASK-532's own `routes/practice.py` import was exactly that
+trigger. `BundledCollocationList.load()` treated *any* row starting `head` as the header,
+discarding every collocation headed by the noun *head*. Both fixed and pinned by tests.
+
+Also closed two repo-record gaps (`migrations/CLAUDE.md`): `dim_character_components` and the
+three `dim_counter_*` tables were live with no migration file at all.
+
+TASK-530 advanced but still `[~]`: `get_counter_drill_session` applied live and verified over the
+full corpus (0 bad distractor counts, 0 answer/foil overlap, 7 multi-acceptable nouns), and
+`build_counter_dictionary.py` seeded 54 counters / 173 pairs. Route, template, LLM curation pass
+and the ladder round-trip remain.
+
+## [2026-08-11] execute | TASK-537–540 — ladder numeric-key contract shipped & applied live
+All four tasks done; 16/16 prompt rows live on project `kpfqrjtfxmujzolwsvdq`. Suite 1609 → **1634
+passed, 3 skipped** (25 new tests; the two ladder test files went 56 → 81).
+
+**537 — schema layer.** `_shared.py` now owns the contract: `OPTIONS_KEY='0'`,
+`ERROR_ESCAPE_KEY='9'`, `OPT_TEXT/IS_CORRECT/EXPLANATION/PART_OF_SPEECH = 0/1/2/3`,
+`OPTION_KEY_LEGEND`, plus `read_index` (accepts `'0'` **and** `0`, since JSON gives strings but
+fixtures give ints), `error_escape`, `validate_escape`, and `labelled()`. Matched P1's *mechanism*
+rather than inventing one — numeric string keys, a `KEY_MAP` in `vocabulary_ladder/config.py`, and
+the existing `remap_keys()` — but used the spec's 0-based numbering. **P2's `OPTION_KEY_MAP` is
+1-based and was left alone**: it is live, its stored assets are bound to that numbering, and
+aligning it would mean re-authoring P2 for no gain, so a new `LADDER_OPTION_KEY_MAP` sits beside
+it with a comment explaining why the two differ. Error strings name field *and* index
+(`base_form (key 1): missing non-empty string`), which retires the one real argument the
+`ladder_l4_morphology.py` docstring made against numeric keys — that docstring now records why the
+reasoning was superseded instead of contradicting the code.
+
+**538 — 16 prompt bodies.** Every row declares its legend in its own language before the rules.
+Rewrote the ZH L4 row too, though it is inert (`morphology_slot` lang 1 is `is_enabled = FALSE`):
+an inert row left on the old contract is the one most likely to be enabled later by someone who
+does not know it was skipped. Two things the numeric legend *forced*, both easy to miss: the
+`relation` value and the particle `error_tags` values must stay ASCII enums, so each ZH/JA prompt
+now says so explicitly — a legend reading "1：关系类型" otherwise invites a translated `"近义词"`
+that fails `ladder_typed.RELATIONS`. Row 9 (JA `syn_ant`) gained the worked polysemy example it
+lacked — 甘い taught as *taste* must not take 厳しい, the antonym of the *lenient* sense — and the
+JA relation judge, which stated the same rule abstractly, now names the same pair.
+
+**539 — consumers + provider-enforced JSON.** `options_to_content` is the boundary: indices stop
+there and `word_assets.content` still receives descriptive keys, pinned by a test. The escape (key
+9) routes to the **clean-skip** branch (`{}`), not the failure branch, and is not retried. Seven
+logical ladder call sites moved to `response_format='json_object'` — implemented in three code
+locations (`_split_base` serves all five generators, plus the two judge modules). Per fact 4 the
+judges were **not** re-polarised; instead a parametrised test asserts both give the same verdict at
+every rating 1–5, and a second asserts they share one `likert_to_verdict` object.
+
+**540 — live apply.** The 6 EN rows needed `UPDATE`: all three migration files carried
+`ON CONFLICT … DO NOTHING`, which made a corrected re-run a silent no-op, so every row is now
+`DO UPDATE` and the files are re-runnable *and* corrective. Verified live: 16 rows `is_active`,
+legend present, no `"options"`/`"rating"`/`"is_correct"` surviving, and each row's
+`md5(template_text)` hash-matched against the `$PROMPT$` body in its migration file (16/16) — the
+bodies were transcribed into MCP calls, so the hash check is what makes "the DB has what the repo
+says" a fact rather than an assumption. Step 7 (the `vocab_prompt3_transforms` narrowing note),
+held back on 2026-08-10, applied to the three active rows; the one inactive lang-2 row is untouched,
+as its `WHERE is_active = true` intends.
+
+**Two corrections to the task file itself**, both recorded there: its verification query used
+`task_name LIKE 'ladder_%'`, which also matches 12 rows owned by other tasks
+(`ladder_collocation_judge`, `ladder_p1_sentence_judge`, `ladder_sentence_validity_judge`,
+`ladder_l1_distractor_judge` × 3) — the count reads 28, not 16, so it is now scoped by the eight
+task_names. And the L8 schema no longer validates a `sentence_index`: the spec table omits it and
+the generator supplies its own verified index, so a model-nominated one could only disagree with
+the sentence the model was shown.
+
+## [2026-08-10] plan | TASK-537–540 filed — ladder prompt numeric-key output contract
+User review of the 16 ladder prompts produced four requirements: numeric JSON keys with the
+legend declared in-prompt (so English field names stop contaminating ZH/JA generation), a worked
+example in every rule that needs one, provider-enforced JSON, and judge-polarity parity.
+Decomposed into TASK-537 (schema layer) → 538 (16 prompt bodies) / 539 (generators, judges,
+`json_object`) → 540 (tests + live apply). Filed as `tasklist/ladder-numeric-keys.tasks.md`;
+4 rows added to master.
+
+Three findings recorded in that file so a cold session need not re-derive them:
+(a) the numeric-key convention already exists in `prompt1_core.py:94,368` — match it, and fix the
+`ladder_l4_morphology.py` docstring that argues against it; (b) `prompt_version` stays at 1
+because `word_assets` holds **0** `llm_types%` rows, so nothing is bound to the v1 shape;
+(c) the 6 live EN rows need `UPDATE`, since `ON CONFLICT DO NOTHING` makes a corrected re-run a
+silent no-op.
+**Corrected a claim from earlier in this session:** the particle and relation judges are already
+polarity-aligned — same `likert_to_verdict`, same direction, no per-judge threshold. There is no
+inversion bug; the only work is a regression test pinning the shared polarity.
+
+## [2026-08-10] task | TASK-520/522 English prompt rows applied live
+Applied 6 English `prompt_templates` rows to project `kpfqrjtfxmujzolwsvdq` after user review:
+`ladder_l4_morphology_generation` (sonnet-4-6), `ladder_l8_collocation_repair_generation`
+(gemini-3.5-flash), `ladder_syn_ant_generation` + `ladder_word_family_generation` (sonnet-4-6),
+`ladder_relation_judge` + `ladder_word_family_judge` (gemini-2.5-flash-lite). All lang 2, v1,
+`is_active = true`, verified by `SELECT` on the six task_names.
+**Deliberately NOT applied:** the zh/ja rows in the same two migration files, and all of
+`particle_selection_prompts.sql` (JA-only). Reason: every row carries
+`ON CONFLICT ... DO NOTHING`, so seeding before review would make a corrected re-run a silent
+no-op. Also held: step 7 of `ladder_prompt_split_l4_l8.sql` (the description annotation on the
+surviving `vocab_prompt3_transforms` rows), so the remainder still applies as one unit.
+EN `word_family` is now fully live — that generator is English-only by design.
+
+## [2026-08-10] lint | Reconciled 9 stale task headers in exercise-generation-v2.tasks.md
+The per-task `**Status:**` headers for TASK-515, 516, 517, 518, 521, 528, 529, 530 and 532
+still read `[ ] Not Started` for work that shipped on 2026-08-08. The session-status summary
+table at the foot of the same file and `tasklist/master.md` already agreed with each other and
+with the code; only the headers had drifted. Rewrote all nine to match, carrying the summary
+table's "what is outstanding" note into each status line so the header alone now says why a
+task is `[~]` rather than `[x]`. No status was *changed* — 516/518/528 → `[x]`,
+515/517/521/529/530/532 → `[~]`. The file now contains zero `[ ] Not Started` rows, which
+matches the true 5xx picture: 19 done, 14 in progress, 3 blocked on post-launch data.
+Second time this file has misled a session; see memory `tasklist-status-drifts-from-code`.
+
+## [2026-08-08] task | TASK-510/512/519 done, TASK-514 partial — Exercise Generation v2 pre-batch hardening
+Four rows attempted from Exercise Generation v2; three closed, one deliberately left `[~]`.
+One migration applied live to `kpfqrjtfxmujzolwsvdq` and verified. Full Python suite
+**1,342 passed / 3 skipped** (the skips are self-guarding — see TASK-514). 26 files touched.
+
+**TASK-510 — slug health cron + fail-closed batch judges.** Two past outages came from
+delisted model slugs: the model lives in `prompt_templates`, not code, so a delisting is
+invisible to review, and judges fell open and shipped unjudged content. Detection half:
+`services/model_health.py` probes every DISTINCT active slug against the provider's
+`/models`, memoised 15 min. Only `provider='openrouter'` rows are probed — an ollama slug
+missing from OpenRouter is not rot, so those report under `skipped`. Routing suffixes
+(`:free`, `@preset/…`) resolve against the bare id. A probe failure sets `error` and leaves
+`ok` True: a flaky network must not manufacture a false "everything is dead" banner.
+Prevention half: `judges/base.py` gains `batch_mode()` — a **thread-local** flag, so a batch
+in an APScheduler thread cannot flip the contract for a request thread in the same process —
+plus `JudgeUnavailable` and `guard_fail_open()`. Every judge already funnelled errors through
+`safe_accept()`, so one chokepoint converts them all.
+
+*Judgement call:* `safe_accept` (judge **outage**) now raises in batch mode, but a new
+`accept_item()` handles **per-item** gaps (one unparseable rating in a healthy response) and
+never raises. Killing a 3,000-sense batch over a single malformed entry would be worse than
+shipping that item, and the v3 Likert contract already forbids manufacturing a rejection from
+a missing verdict. Migrated call sites: `p1_sentences.py` ×2, `sentence_validity.py` ×2, and
+collocation's "nothing to judge" early return.
+
+Cron `slug_health_nightly` @ 04:10 UTC; advisory lock key 1298417772 ('MdHl'), distinct from
+IRT and the Study-Plan pacer's 1467840848. `migrations/task510_model_health_advisory_lock.sql`
+**applied live 2026-08-08** — verified 2 functions present, acquire→true, release→true, 0
+locks left. Admin banner + manual re-check endpoint. `tests/test_model_health.py` (18).
+
+**TASK-519 — nl-keyed content maps.** New `services/exercise_generation/schemas/` package:
+TL-facing content stays flat and nl-free, nl-facing text lives under `content.nl.<code>`.
+Reading is tolerant (`validate_envelope` no-ops below `schema_version 2`, so the v1 corpus is
+not retroactively invalidated); writing is strict. `ExerciseValidator` runs the envelope check
+first and returns immediately on violation — otherwise every nl field reports "missing" and
+buries the real cause — then validates v2 through a flattened view so per-type checkers keep
+their expected field names. Serve side: `exercise-renderers.js` flattens once in `dispatch()`,
+leaving all ~16 renderers untouched.
+
+*The lint tests earned their keep immediately*, finding two real offenders:
+`ExerciseGenerationOrchestrator.__init__(nl_language_code='en')` — the literal that actually
+made the corpus English-only, now `Config.DEFAULT_NATIVE_LANGUAGE`, one declared
+env-overridable knob; and `generators/style.py`, **not fixed by design** since TASK-512
+freezes that path, recorded in `_FROZEN_LEGACY` so the exemption is visible and reviewable.
+`tests/test_nl_keyed_content.py` (22).
+
+**TASK-512 — ladder is the sole vocab generator.** `source_type='vocabulary'` now raises from
+**both** `_get_distribution()` and `_build_generators()`, so there is no path back in via
+either. `VOCABULARY_DISTRIBUTION` deleted. `run_vocabulary_batch()` routes to
+`generate_for_sense()` → `render_all()` and **skips rendering when assets failed** — rendering
+half-built assets is how blank exercises reach learners. Freeze table added to
+[[features/exercises.tech]]. *Not verified:* the AC's live smoke runs for
+grammar/conversation/style need LLM + DB spend and were not run.
+
+**TASK-514 — left `[~]`, and the reason matters.** B1 (non-destructive regen) and B6 (P1
+retry + targeted repair) were found **already implemented**; the `[ ] Not Started` status was
+stale. B5 is half done. Level-gating helpers (`requirements_met`,
+`active_levels_for_context`, `_capability_context`) landed, but the AC — "ZH concrete noun's
+plan contains no `morphology_slot`" — **cannot be met by gating levels**, because TASK-504
+seeded richer L4 rows than the task text assumed: ZH concrete L4 is also served by
+`classifier_match` (TASK-528) and `cloze_typed` (TASK-532), so the level legitimately
+survives. Suppressing the *type* needs per-type gating in `prompt3_transforms.py`. The three
+skipped tests are the guards that surfaced this: they `skip` with a message when a
+non-morphology L4 capability exists rather than passing vacuously.
+`tests/test_matrix_gated_planning.py` (14).
+
+**Still blocked, unchanged:** TASK-515 (top-1,000 × 3-language batch) is a paid multi-night
+run needing operator budget approval — not started. TASK-534/535/536 remain `[?]`, gated on
+post-launch attempt volume that does not exist. Nine tasks (518, 520, 523, 526, 527, 531-533)
+can be coded now but cannot have their acceptance criteria verified until 515 runs.
+
+## [2026-08-07] task | TASK-714/715/716 — plannable surfaces, tier-scaled dictation, local-day boundary
+Closes the last three open rows in Daily Session Hardening; the feature now has no open work.
+All five migrations applied live and verified against `kpfqrjtfxmujzolwsvdq`. Full suite
+1290 passed / 1 skipped; 3 new test files (106 cases).
+
+**TASK-714 (ADR-021, F11).** `flashcards` and `dual_translation` join the weekly budget. They are
+not `dim_test_types` rows and never resolve to an ELO-rated `tests` row, so rather than inventing
+type codes the resolver splits its candidate rows into `kind='test'` vs `kind='surface'`: both are
+budgeted by the same greedy value-per-minute loop and compete for the same minutes, but surfaces
+hydrate from their own pools (`user_flashcards` due today, ≤15 cards per slot; `dt_passage` rows
+`/api/dual-translation/next` can actually serve) and never enter `chosen_tests`, so `test_ids`,
+`daily_test_load_items`, ELO and the retry/replay machinery are untouched. `surface_counts` in
+`daily_session_targets` drives queue composition; new `players/flashcards.js` and
+`players/dual_translation.js` mount off `item.kind`. `record_session_progress` gained
+`p_kind='surface'`, called from `POST /complete-block` with a deterministic uuid5 so retries
+dedupe — without it every completed block would have moved no counter (the F2/TASK-701 shape).
+Verified live: `completed_counts` → `{"flashcards":1,"dual_translation":1}`, second call `false`.
+
+**Budgets do not lengthen the day.** Counting the new surfaces adds real minutes to
+`total_weekly_minutes`, which would have *inflated* `today_budget` — the opposite of the intent.
+`compute_weekly_plan` now clamps the week to `daily_minutes * 7`, so the new surfaces displace
+lower-value test slots instead. That is what ADR-021 means by "DT competes directly with test time".
+
+**TASK-715 (ADR-021, second decision).** The flat 80-word dictation cap became per-tier
+(T1 80 · T2 120 · T3 160 · T4 220 · T5 300 · T6 400) via `public.dictation_max_words(difficulty)`,
+mirrored in `services/dictation/cap.py`. Every value is `>=` 80, so the eligible set only grows and
+no existing test needs regenerating. `test_time_estimate` gained a 2-arg tier-aware overload
+(`2.0 + cap/20`: 6.0 at T1, unchanged from the old scalar, → 22.0 at T6); the resolver prices a
+dictation slot at the learner's *expected* tier when budgeting and the placed test's *actual* tier
+when accounting. Two latent defects surfaced and were fixed: the stored diff was capped at 200
+entries (chosen when passages were ≤80 words — it would have truncated a T6 attempt mid-passage
+with no error), and `get_word_count_range` was feeding the prose prompt
+`dim_complexity_tiers.word_count_max`, which is a **vocabulary size** (up to 25000), not a passage
+length — the generator was literally told to write "600-25000 words" at T6, which is why live EN
+difficulty-9 transcripts average ~777 words. New T5/T6 passages will be materially shorter;
+existing rows are untouched.
+
+**TASK-716 (ADR-022, F15).** "Today" now resolves through `user_study_plans.timezone`. One shared
+helper — `services/day_boundary.py`, with SQL twin `public.plan_local_date` for RPC bodies that
+have no Python caller. It replaced **three** independent derivations, not two: the route, the
+service, and `build_daily_session`'s `date.today()` default (the *process* timezone). A test
+asserts both Python call sites reference the same function object, so a re-inlined
+`datetime.now(utc)` fails the build. Unusable zones fail safe to UTC at every layer (ADR-020);
+route validation now rejects new bad values. **`week_start_date` moved too** — verified that at
+2026-08-09 15:30 UTC a UTC+9 learner is already on Monday 2026-08-10 while UTC says week
+2026-08-03, so leaving it would have credited 9 hours of completions to a week the resolver was no
+longer reading. Backwards timezone moves are handled by the caller's existing-row short-circuit
+(serve as-is, never re-solve). Cutover: no backfill — the zone a historical row was written under
+is recorded nowhere.
+
+**Caught before shipping:** the first draft hydrated DT against `dt_passage.status = 'approved'`,
+a value that does not exist in that table (it is `'active'`), so DT would have hydrated zero slots
+forever while reporting a shortfall. The predicate now mirrors `/next` exactly. Also archived
+`task702_build_daily_session.sql` and `task702_get_recommended_tests_rank_cap.sql`;
+`phase13_build_daily_session.sql` and `phase18_practice_time_seconds.sql` deliberately kept under
+archive rule #4.
+
+## [2026-07-20] task | TASK-707 — Legacy `_compute_daily_load` fallback correctness (type labels + ELO band)
+Closes F9 on the de-facto Monday path. The step-4 last-resort fallback in `services/test_service.py`
+hardcoded `test_type='listening'` (wrong player mounted, wrong skill rated) and computed an ELO band
+from `user_elo_after` — a column the step-1 attempts `select(...)` never fetched, so `user_elo` was
+always 1200 and the band always [1000,1400] (dead). Fix: (1) added `user_elo_after` to the step-1
+`test_attempts` select so the band is live; (2) rewrote step 4 to read `test_skill_ratings` instead of
+the bare `tests` table — `select('test_id, elo_rating, dim_test_types(type_code),
+tests!inner(id, is_active, language_id)')` scoped by `tests.language_id` + `tests.is_active`, with the
+`gte/lte` band centred on the user's most recent `user_elo_after`. Each pick now carries its real
+`type_code` (defaults to `'listening'` only if the type embed is absent). New unit test
+`tests/test_daily_load_fallback_type.py` (4 cases, fake Supabase admin, no live DB): dictation-only
+pool → items labeled `dictation`; fallback queries `test_skill_ratings` not `tests`; default band
+[1000,1400] when unrated; band shifts to [1300,1700] for `user_elo_after=1500` (proves the column is
+now read). `pytest tests/ -k daily_load` → 12 passed. Wiki: TASK-707 → Done in [[tasklist/master]]
+(counts 43→42 / 99→100) + [[tasklist/archive/daily-session-hardening.tasks]]. See
+[[resolver-hydration-skill-gap]].
+
+## [2026-07-20] task | TASK-705 — Make build_daily_session same-day-safe; built + verified live (rollback-only), live apply owed
+Closes F6: the resolver's `ON CONFLICT (user_id,language_id,load_date) DO UPDATE SET completed_test_ids='[]'` plus the unconditional `daily_test_load_items` rebuild-as-`is_completed=false` erased a learner's progress on **any** same-day re-solve (E_NOWEEK lazy-compute retry, manual regenerate, Sunday pacer overlap) — only caller-side "row already exists → skip" checks in `get_or_create_daily_load` masked it. **Folded into `task702_build_daily_session.sql`** (the same file TASK-702/704 own). Before the retry/hydration passes, a new block reads the prior row's `test_ids`+`completed_test_ids` and **carries over every already-completed slot** (element of `test_ids` whose `test_id` ∈ `completed_test_ids`) into `pg_temp.chosen_tests` with its original `slot_type`/`original_percentage` and `is_completed=true`, then **decrements that skill's budgeted `skill_counts`** (same free-a-slot mechanic as the retry pick) so only the still-incomplete portion is re-resolved — retained-completed + fresh ≈ today's budget, `used_minutes` stays sane. New `is_completed boolean` column on `chosen_tests`; the `ON CONFLICT` branch **no longer touches `completed_test_ids` or `completed_blocks`** (completed_blocks was never in the SET list; the wipe was `completed_test_ids` only), and the items-mirror INSERT now carries per-slot `ct.is_completed`, keeping `completed_test_ids ⊆ test_ids`. Added `NOT IN (SELECT test_id FROM chosen_tests)` guards to the retry pick, the `get_recommended_tests` hydration, and the `classifier_drill` sentinel fill so a retained slot is never re-inserted as a duplicate (defensive: real completions are attempts and thus already excluded by `get_recommended_tests`, but a completion that isn't an attempt would otherwise double-insert). Shortfall bookkeeping (`hydrated_counts`/`replay_counts`) gained `AND NOT is_completed` so carried-over slots neither mask nor inflate this call's fresh fill vs `requested_counts`. **Verified live in a rollback-only txn** (`kpfqrjtfxmujzolwsvdq`, 2026-07-20): synthetic plan+week+two never-attempted listening tests for an existing user in `en`; first call → 2 slots; mark test A complete + `completed_blocks=["practice_acq_1"]`; second call → `completed_test_ids` still has A, `completed_blocks` intact, A retained exactly once, incomplete slot B re-resolved, `daily_test_load_items` A `is_completed=true`; all 5 assertions passed, whole txn `ROLLBACK` (nothing persisted). Confirmed a `RAISE EXCEPTION` sanity-check surfaces as an error so "clean run = pass" is trustworthy. **SQL unit test** `tests/sql/test_task705_same_day_safe.sql` (new; self-contained rollback-only double-call, first `.sql` test in the repo — the DB-side counterpart to `tests/test_daily_load_retry_slot.py`). **Live apply OWED:** the `CREATE OR REPLACE` to persist the new function was blocked by the auto-mode classifier; live still runs the TASK-704 (no-705) body — the user must apply `task702_build_daily_session.sql`. See [[resolver-hydration-skill-gap]]. Wiki updated: [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
+## [2026-07-19] task | TASK-704 — Retry slots in the plan path (ADR-006); built, tested, applied live
+Closes F5 and re-lands ADR-006. `build_daily_session` emitted only `slot_type='new'`; the reduced-volatility retry mechanic ([[decisions/ADR-006-retry-slot-reduced-elo]]) ran only in the legacy `_compute_daily_load`. User scoped **"Both A+B now"** because criterion 3 ("ELO uses the ADR-006 damped path") could not be met by the resolver alone — the live `process_test_submission` no longer had any `slot_type`/`elo_reduction_factor` path (phase14/CR-04 drift, see [[process-test-submission-cr04-drift]]), so the damping had to be re-landed. Both applied live (`kpfqrjtfxmujzolwsvdq`) and mirrored in repo. **Part A** `task702_build_daily_session.sql` (folded per the task): before the hydration loop, select the single worst sub-70% latest attempt older than 24h (`DISTINCT ON (test_id)` → worst `percentage`, oldest first), stamp it `slot_type='retry'` with `original_percentage`, and **free one budgeted `new` slot of the same skill** (`skill_counts` decrement + delete-if-zero) so `used_minutes` stays ~constant — additive +1 only when that skill isn't budgeted today. Bypasses the never-attempted filter (`get_recommended_tests` excludes attempted tests); respects the 24h cooldown via `created_at < NOW() - INTERVAL '24 hours'`. `test_ids` elements carry `original_percentage` on retry slots only (conditional `|| jsonb_build_object` so `new`/`replay` shapes are unchanged). **Part B** `task704_process_test_submission_retry_elo.sql` (**new**, now canonical definer of the 8-arg RPC; partG stays canonical for the QAR `response_time_ms` drop): the partG live body verbatim with the repeat-attempt `ELSE` rewritten — reduced-volatility ELO iff the test is in today's `daily_test_loads` with `slot_type='retry'` for this user+lang AND no prior attempt today already carries `elo_reduction_factor` (anti-grind, one reduced repeat/test/day). `factor = LEAST(1, GREATEST(0.20, days_since/60) + (0.25 if current−prev_best ≥ 15))`, applied in the **live inline-ELO style** (logistic expected score; user K = 32·(furigana?0.5:1)·factor, test K = 16·factor), both clamped [400,3000], factor persisted to `test_attempts.elo_reduction_factor` (no longer an orphan column). Off-slot / already-earned repeats keep the status-quo 0-ELO path. Return adds `elo_reduction_factor` + a "reduced-volatility ELO applied" message; `test_elo_change` now reports the delta on damped repeats too. **Verified live in rollback-only txns**: cloned a plan user's 2026-07-06 weekly state into the current week, seeded a 50% attempt 2 days old on one of their active listening tests → `build_daily_session` returned exactly one `retry` slot `{slot_type:'retry', original_percentage:50.0}`, `requested.listening` 2→1, `used=22 < budgeted=26`; the whole txn aborted via `RAISE EXCEPTION` (no persistence). Damping math (2-day gap, no improvement) checked separately: retry-slot detection subquery → true, factor **0.20**, user ELO **+2** (was 0 pre-fix), test ELO **−1**. **Tests** `tests/test_daily_load_retry_slot.py` (3, green — pins the retry `slot_type`/`original_percentage` normalization contract; pytest wrapper is broken in-env so run directly). Archive README: the three archived `process_test_submission*` rows now point to `task704_*` as canonical; orphan-column note updated (column written again). Wiki updated: [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
+## [2026-07-19] task | TASK-703 — Interleave the session queue (round-robin tests + chunked mid-session practice); built + tested
+Closes F4: the daily session ran all tests grouped by type, then two monolithic practice blocks at the tail. **Ordering moved into `routes/study_session.py`** (Python, out of the RPC) as a pure, unit-tested layer. New `build_session_queue(tests, targets, completed_blocks, user_id, load_date)` composes: (1) `_round_robin_tests()` — groups by `test_type`, seeds group order from `_stable_seed(user_id, load_date)` (SHA-256 → 32-bit) and deque round-robins, so no two same-type tests are adjacent while another type still has items (the only same-type run is the unavoidable tail once other types exhaust); (2) `_build_practice_chunks()` + `_chunk_minutes()` — split each base `_PRACTICE_BLOCKS` budget into **≤10-min** chunks with ids `practice_acq_1`, `practice_acq_2`, `practice_maint_1`, … (`completed_blocks` jsonb already stores strings, no schema change); (3) `_interleave_practice()` — inserts the P chunks at `((i+1)·T)//(P+1)` positions so practice lands mid-session (~⅓, ⅔), not only at the end. Determinism is structural (same inputs → same order every GET), so resume is stable and `next_index` still points at the first incomplete item in the new order. `complete-block` now validates `block_id` against `_valid_practice_block_ids(targets)` (recomputed from the persisted `daily_session_targets`) instead of the two legacy base ids. **FE unchanged (verified):** `controller.js` renders dots/progress generically off `q.kind`/`q.is_completed`; `players/practice.js` already forwards `item.minutes` to `/api/practice/session?minutes=`, and `routes/practice.py` validates `minutes` 1..180 so small chunk values are honored. **Tests** `tests/test_study_session_ordering.py` — 20 green (chunk math, adjacency across seeds, mid-session placement, per-user determinism, item-preservation, resume/next_index, completed-chunk flag); `tests/test_daily_load_shortfall.py` still 5 green. Wiki updated: [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
+
 ## [2026-07-19] task | TASK-702 — Surface + reduce daily-session hydration shortfalls; built, tested, applied live
 Closes F3: `build_daily_session` BUDGETS per-skill test slots then HYDRATES them from `get_recommended_tests` (never-attempted, top-3/type); when the pool underfilled a budgeted count the surplus slots silently vanished (the pinyin / pitch_accent / classifier_drill incident class) and `used_minutes` over-reported. **Three coordinated changes, all applied live (`kpfqrjtfxmujzolwsvdq`) and mirrored in repo.** (1) `task702_get_recommended_tests_rank_cap.sql`: `rank_in_type` cap **3→10** so heavy-weekday budgets don't outrun the pool. (2) `get_replay_tests.sql` — **new** shared SRF (also for TASK-704 retry): nearest-ELO **previously-attempted** tests whose last attempt is older than `p_min_age_days` (default **7**), premium-gated like the recommender, with an exclusion set. (3) `task702_build_daily_session.sql`: on shortfall, top up remaining slots from `get_replay_tests` as `slot_type='replay'`; record `requested_counts` (budgeted), `hydrated_counts` (**primary/never-attempted fill ONLY** — a replay-covered slot still reads as a shortfall on purpose), `replay_counts`, plus `used_minutes` (placed slots + practice) and `budgeted_minutes` into the return jsonb AND `daily_session_targets` (no schema change). **Service** `services/test_service.py`: new `TestService._log_hydration_shortfalls` (called from `get_or_create_daily_load` on a successful resolver result) logs a WARNING per skill where `hydrated < requested`, noting whether replay covered the gap or slots were dropped. **Tests** `tests/test_daily_load_shortfall.py` (5, green). **Verified live in rollback-only txns** against an isolated synthetic language: replay-available → `requested={reading:4} hydrated={reading:2} replay={reading:2}`, slots `[new,new,replay,replay]`, used=budgeted=24; replay-empty → `hydrated={reading:2} replay={}`, 2 slots, **used=12 < budgeted=24** (proves used=hydrated). Superseded `add_pitch_accent_to_get_recommended_tests.sql` + `phase13_build_daily_session_classifier_drill.sql` → `archive/` (+README rows); `phase13_build_daily_session.sql` **kept** (still sole record of `test_time_estimate` / `week_start_for`). **Scope caveat:** the AC parenthetical "(ADR-006 ELO damping applies)" is aspirational — the live `process_test_submission` no longer implements the reduced-volatility repeat path (phase14 dropped it; `elo_reduction_factor` is an orphan column, see `migrations/archive/README.md` CR-04 note), so `slot_type='replay'` is emitted but no damping runs today. **This blocks TASK-704**'s "ADR-006 damped path" criterion until the damping is re-landed in `process_test_submission`. Wiki updated: [[features/study-plans.tech]], [[database/rpcs.tech]], [[tasklist/master]], [[tasklist/archive/daily-session-hardening.tasks]].
 
@@ -2892,3 +3245,687 @@ execute_sql, apply_migration); seed is idempotent + guarded, one manual apply. C
 improvement report delivered in-session (headline items: checkpoint per-item usage, JA latency/
 output-token cap, naturalness/range gold coverage, `_fetch_active_scalar` None-caching, highlight↔
 verdict reconciliation).
+
+## 2026-07-20 ship | TASK-706 — advisory lock actually guards the weekly cron
+
+Closes finding **F7** ([[algorithms/daily-session-implementation-analysis]]): the weekly
+study-plan recompute's advisory-lock helpers existed but were never called, referenced a bogus
+`irt_try_lock` RPC, and the lock RPCs they named didn't exist — so every gunicorn worker ran the
+full `_run_weekly_plan_recompute` sweep (idempotent, but N× DB load, and the docstrings lied).
+
+**Files created: 1**
+- `migrations/study_plan_advisory_lock.sql` — `pg_try_advisory_lock_for_study_plan()` /
+  `pg_advisory_unlock_for_study_plan()`, DEFINER wrappers around
+  `pg_try_advisory_lock/unlock(1467840848)` (key `0x577D7950` = ASCII 'StPP', distinct from the
+  IRT job's `8901234567890123`). Applied live to `kpfqrjtfxmujzolwsvdq` 2026-07-20.
+
+**Files modified: 2**
+- `services/study_plan_service.py` — rewrote `_try_advisory_lock` to drop the dead `irt_try_lock`
+  call and mirror the IRT calibrator's shape (list/scalar `resp.data` handling; warn + fall through
+  to `True` when the RPC is unavailable). `_run_weekly_plan_recompute` now acquires the lock and
+  **early-returns `{skipped:True, fired:0,...}`** when another worker holds it, and wraps the paged
+  sweep in `try/finally` to release. Removed the unused, misleading `_ADVISORY_LOCK_KEY` constant
+  (key now lives server-side). `_release_advisory_lock` now logs on failure instead of silent pass.
+- `tests/test_weekly_plan_seeding.py` — new `TestWeeklyRecomputeAdvisoryLock`: the lock-loser skips
+  (no `db.table` paging, no `compute_weekly_plan`, no release), the lock-winner runs then releases.
+
+**Verification:** live probe `SELECT took_lock, held_in_pg_locks, released` →
+`true, 1, true` (correct key held under `pg_locks`); a second concurrent session gets `false` by
+`pg_try_advisory_lock` semantics. `tests/test_weekly_plan_seeding.py` 6/6 green.
+
+Wiki: F7 marked RESOLVED; TASK-706 → Done in the archived tasklist + master (counts 44→43 / 98→99);
+both RPC catalogs (`api/rpcs.tech`, `database/rpcs.tech`) document the new lock pair. Per
+`migrations/CLAUDE.md`, no archive step — the two function names are new, defined nowhere else.
+
+## [2026-07-20] task | TASK-708 /session discoverability (navbar + entry flow) → Done
+Made the daily `/session` runner discoverable. Added `common.nav.daily_session` to all 4 locale
+JSONs (en/es/zh/ja) and a "Daily Session" nav item — placed **first** in both the desktop nav and
+the mobile dropdown of `templates/base.html` — with an active-state highlight on
+`request.endpoint == 'study_session_page'`.
+
+Post-language-selection CTA redesigned (user chose **primary → session, tests secondary**):
+`templates/language_selection.html` primary button relabelled (`lang_select.start_session`) and
+repointed from `tests` to `study_session_page`; a new muted secondary link
+(`lang_select.browse_tests` → `tests`) enables only once a language is chosen. Both paths persist
+`selectedLanguageId` first. New keys `lang_select.start_session` + `lang_select.browse_tests` added
+to all 4 locales. Login-landing criterion satisfied by the navbar entry (surfaces on every
+authenticated page), so no login-page change.
+
+**Files modified: 6** — `templates/base.html`, `templates/language_selection.html`,
+`static/i18n/{en,es,zh,ja}.json`. All 4 JSONs re-validated with `json.load` (green).
+Wiki: TASK-708 → Done in the archived tasklist; master row removed, counts 42→41 Not Started /
+100→101 Done.
+
+## [2026-08-07] task | TASK-710 — consolidate the duplicated greedy pass (F12) + live-land TASK-705
+Merged `build_daily_session`'s two byte-identical greedy loops into one pass. The second loop
+(parallel `v_replay_used`/`v_replay_skills` accumulators, only there to populate
+`pg_temp.skill_counts`) was deleted; `skill_counts` is now created before the single budget loop
+and the `INSERT … ON CONFLICT DO UPDATE` runs inline in the test-kind branch.
+`migrations/task702_build_daily_session.sql` edited in place (header now `TASK-702/704/705/710`) —
+the one final RPC file.
+**Verification:** (AC1) 20-scenario rollback-only fixture matrix on Supabase compared old two-loop
+`g_old()` vs new one-loop `g_new()` across varied budgets, spacing `CONTINUE`s, `pmv` ties and
+interleaved practice slots → **0 mismatches** on used/objective/skills/counts; plus an end-to-end
+rollback smoke call on a cloned current-week plan (5 test_ids, single-pass counts drove hydration +
+shortfall). (AC3) deployed via `apply_migration task710_build_daily_session_single_pass`;
+`pg_get_functiondef` confirms one `FOR v_cand IN` loop and `v_replay_used` gone.
+**F13/AC2 archiving:** nothing archived — `phase13_build_daily_session.sql` is the sole repo record
+of `test_time_estimate`/`week_start_for` (migrations/CLAUDE.md rule #4), so it stays despite its
+stale `build_daily_session`; no new superseded file (edit-in-place).
+**Scope note:** the same apply also landed **TASK-705** (same-day-safe re-entrancy), which was
+built + rollback-verified on 2026-07-20 but its live apply was owed — the repo file bundles it and
+the user chose to land 705+710 together. Live `build_daily_session` was 702+704 before this.
+Wiki: TASK-710 → Done (archived tasklist + master row `[x]`, counts 41→40 Not Started / 101→102
+Done); tech-page finding **F12 → RESOLVED**. Memory `resolver-hydration-skill-gap` updated
+(705 now LIVE; 710 recorded).
+
+## [2026-08-07] task | TASK-709 runner UX/a11y (F14) + TASK-701 live verification + TASK-713 wiki reconciliation (F16)
+Closed every remaining non-blocked item in [[tasklist/archive/daily-session-hardening]].
+
+**TASK-709 (F14) — runner UX/a11y.** Error card gained a Retry button wired to a new
+`retryLoad()` that re-invokes `loadSession()` and re-renders the still-retryable card on a
+second failure. `#sessionProgress` now carries `aria-live="polite"` + `data-i18n-aria`;
+`#sessionDots` is `role="list"` with each dot `role="listitem"` and an `aria-label` of
+`"{type} — {state}"`. `showSummary()` renders per-item rows (icon/title/type/state); skipped
+rows are distinguished by opacity + line-through + amber, i.e. not by colour alone. Added
+`escapeHtml()` — server-supplied titles land in both `innerHTML` and an attribute context.
+**Latent bug found while verifying the i18n gotcha:** all 9 new `session.*` keys were already
+present and localized in all 4 locales, but `itemTypeLabel()` resolves `test_list.<test_type>`
+and **`test_list.pitch_accent` existed in none of them** (only `test_preview.pitch_accent` did) —
+every JA pitch-accent item would have rendered/announced the raw key. Added to en/es/zh/ja reusing
+each locale's existing wording; all four re-validated with `json.load` (542 keys each).
+**Files: 6** — `static/js/session/controller.js`, `templates/study_session.html`,
+`static/i18n/{en,es,zh,ja}.json`.
+
+**TASK-701 tail — live verification (no re-implementation).** No browser session available, so the
+owed eyeball check used the sanctioned rollback-only path. A trap had to be cleared first: there was
+no `weekly_plan_states` row for the current week (`2026-08-03`; latest was `2026-07-06`) and the RPC
+`RETURN true`s without one — a naive probe would have read as a false pass. Inside the txn the row
+was moved to the current week and zeroed, then 24 × `record_session_progress(p_kind =>
+'practice_acq', p_delta_seconds => 25)` — the AC's "10-minute block of 25 s attempts". Result:
+`acq_sec 0 → 600`, `acq_min 0 → 10`, 24 attempts logged, **`practice_completed_acq_min > 0` true**
+(the old `round(ms/60000)` credited 0 per attempt). Rollback proven clean: current-week rows 0,
+original row intact. AC1/AC3 verified by code (`performance.now()` timer at
+`players/practice.js:139/195/175`; `_effective_practice_seconds` clamps >5 min and missing/zero ms
+to the p50 estimate). All 4 ACs checked; **no code changed**.
+
+**TASK-713 (F16) — wiki truth reconciliation.** TASK-201–219 audited against the **live DB**, not
+just the repo — every table, column, seed, RPC, cron and route leg probed on `kpfqrjtfxmujzolwsvdq`
+— and flipped to Done. **One discrepancy recorded rather than papered over:** TASK-210 is titled
+"RPC `compute_weekly_plan`" but no such DB function exists (`pg_proc` → 0 rows); it is
+`StudyPlanService.compute_weekly_plan` over the two real RPCs `compute_weekly_plan_load_signals` +
+`compute_weekly_plan_persist`. An audit note now sits on the task so a future 0-row probe isn't
+misread as a missing object. master.md counts recomputed — the old "Not Started 40" disagreed with
+its own tables; actual **28**, Blocked 5, Done 102 → **104**, plus a new In-Progress row for
+TASK-629. [[pages/pages-overview]] gained `/session` **and** seven other missing live routes;
+`/exercises` and `/vocab-dojo` were still listed as live pages though TASK-220 deleted their routes
+and templates on 2026-07-14 — both now marked RETIRED with their 302 targets. New
+[[pages/study-session]] + [[pages/study-session.tech]] capture the runner design that previously
+lived only in an out-of-repo plan file (queue algorithm, both endpoint contracts, controller state
+machine, the `authFetch` `res.ok` trap, a11y contract, 4 ADR-style decisions). Registered in
+[[index]] (Pages 95 → 97).
+
+**Lint:** 0 remaining `[ ] Not Started` in study-plans.tasks; daily-session-hardening shows 12 Done
+and only TASK-711/712 `[?]`; no page still presents a retired route as live. Findings **F14 and F16
+→ RESOLVED**. **TASK-711 and TASK-712 left [?] Blocked** — both are product decisions put to the
+user rather than guessed.
+
+## [2026-08-07] decision | TASK-711 + TASK-712 unblocked by user → ADR-021, ADR-022; TASK-714/715/716 filed
+Both tasks were `[?]` Blocked on product intent. Options and trade-offs were put to the user and
+**not guessed**; the ADRs were written only after the answers came back.
+
+**TASK-711 (F11) — plannable-surface boundary.** Decision: **`flashcards` and `dual_translation`
+JOIN the planner**; **`listening_lab` and `mystery` stay deliberately outside** (long-form,
+exploratory — a daily minute budget fights their design). Dictation's 80-word transcript cap
+**scales with tier**. Filed [[decisions/ADR-021-plannable-surface-boundary]] (accepted) and mirrored
+the canonical surface × in-planner? × rationale table into [[features/study-plans.tech]].
+Two things worth recording that surfaced while writing it: (1) `listening_lab` and `mystery`
+**already exist as `dim_test_types.type_code` rows**, so they look plannable to anything reading
+that table — documented as a modelling artefact so nobody "fixes" it; (2) `test_time_estimate(
+p_skill text)` COALESCEs `dim_test_types.expected_minutes_p50` — **NULL for all 12 type codes** —
+onto hardcoded constants ending in a catch-all **`ELSE 5.0`**, so a new plannable surface omitted
+from that CASE gets budgeted at 5 min/item **silently**. Same silent-wrong-answer shape as F3.
+(Checked before asserting it: the NULL column is *not* a live defect for existing types, since the
+fallback constants cover all six — the risk is specific to newly added surfaces.)
+
+**TASK-712 (F15) — day boundary.** Decision: **resolve `_today_iso()` through
+`user_study_plans.timezone`** (UTC fallback), rather than keeping UTC or taking the
+configurable-offset middle option. Filed [[decisions/ADR-022-local-day-boundary]] (accepted),
+which records the four consequences that make this the expensive choice: `daily_test_loads`
+uniqueness `(user, language, load_date)` becomes **per-user-derived** (a timezone edit can move
+`load_date` backwards onto an existing row, which TASK-705's same-day-safe path reads as a
+re-invocation); historical rows carry un-reinterpretable UTC semantics; the date is derived
+**independently** in `routes/study_session.py` and `services/test_service.py` today and must
+collapse to one shared helper or the two will yield different "today"s in one request; and
+`weekly_plan_states.week_start_date` is still UTC `date_trunc`, so the week edge needs the same
+treatment or an explicit exemption. Invalid timezone strings must fail safe to UTC (cf. ADR-020).
+
+**No code was changed for either task** — both were decision + documentation only.
+
+**New tasks filed** (the implementation the decisions generated, deliberately *not* folded into the
+closed batch): **TASK-714** flashcards + DT as plannable surfaces (L), **TASK-715** tier-scaled
+dictation cap (M), **TASK-716** local-day boundary (L). Findings **F11 and F15 → RESOLVED**, so all
+of F1–F16 now carry a resolution or an explicit decision.
+
+Wiki: ADR-021 + ADR-022 registered in [[index]] (Pages 97 → 99); daily-session-hardening frontmatter
+`total_tasks` 14 → 17 / `done` 12 → 14; master.md recounted a second time — Blocked 5 → **3**
+(TASK-534/535/536 only), Done 104 → **106**, Not Started 28 → **31**.
+
+## [2026-08-07] lint | Finding-status sweep on daily-session-implementation-analysis.tech
+The TASK-713 lint pass caught a stale-status class the task's own ACs didn't name: **8 of 16
+findings (F1–F6, F9, F10) still read as open** although their remediation tasks (TASK-700–705, 707,
+708) had been Done since 19–20 July — only F7 and F12 had ever been flipped. All 8 now carry
+`✅ RESOLVED (TASK-nnn, date)` with each task's real completion date.
+
+Two were **not** marked resolved, deliberately:
+- **F8 — `daily_test_load_items` is dead dual bookkeeping: STILL OPEN, and no task was ever filed
+  for it.** It is the only F1–F16 finding with no remediation task in the 700–716 range. Flagged to
+  the user rather than silently inventing a task, since removing a table is a decision, not a
+  cleanup.
+- **F13 — migration/live drift risk: MITIGATED, not eliminated.** TASK-710 verified the live body
+  via `pg_get_functiondef` post-apply, but the structural risk (repo file vs live definition can
+  still diverge) is unchanged; `phase13_build_daily_session.sql` remains a stale-but-retained
+  definer per migrations/CLAUDE.md rule #4.
+
+Final state: 14/16 RESOLVED, 1 MITIGATED, 1 OPEN. Regression check after all edits:
+`PYTHONPATH=. pytest -k "daily_load or weekly_plan or study_session"` → **38 passed**; all four
+locale JSONs parse.
+
+## [2026-08-08] implement | Exercise Generation v2 — TASK-513, 514(B5), 524, 525
+
+Asked to execute 21 open rows from [[tasklist/archive/exercise-generation-v2.tasks]].
+**Four landed; the other 17 were not started** — the batch is multi-day work (four L-complexity
+rows, a pgvector migration, two new drill surfaces, frontend players, and a run that needs
+operator budget approval). Pages updated: 3. Suite: 1,362 → **1,457 passed**, 3 skipped.
+
+**TASK-514/B5 — per-type L4 gating.** The half-done bug. Level gating could not fix it because
+TASK-504 seeded ZH `concrete` with `classifier_match` + `cloze_typed` at L4, so the level
+legitimately survives and P3 kept asking Sonnet for Chinese morphology — which it invented.
+New `PROMPT3_TYPE_FOR_LEVEL` / `type_is_available` / `prompt3_levels_for_context` gate per
+*type*. Gated on both sides: generation (P3 omits the level, and skips the LLM call entirely
+when the set empties) and rendering (a stale `level_4` blob of invented ZH plurals cannot
+reach the corpus). `validate_prompt3` is held to the gated list so a correct suppression is
+not read back as "Missing level_4".
+
+**TASK-524 — sentence-tier hard gate.** New `tier_gate.py`, thresholds in config, running
+*before* the paid P1 judge. Two thresholds rather than one: a soft floor with a budget catches
+the C2 sentence, a hard floor catches a single very rare word that a budget would let through.
+Calibrated empirically — an ordinary A1/A2 sentence scores 0–1 out-of-band, the eval's
+coffee-corpus C2 sentence scores 6 (zh) / 8 (ja) / 10 (en). Uses `wordfreq.tokenize`, not
+`LanguageProcessor`: the frequency tables were built with it, and it needs no spaCy/fugashi
+model — the JA spaCy model is in fact absent from this environment.
+
+**TASK-513 — transcript mining.** Replaced a blind 50-transcript lemma scan with the
+`tests_containing_sense` RPC + `vocab_token_map`, so mining is sense-aware. `sentence_source`
+is derived by matching against the seed, not taken from the model. **Finding:** ZH recall was
+zero on obvious cases — jieba merges 喝+咖啡, so the whole-word check that correctly rejects
+咖啡 inside 咖啡馆 also rejected it inside 喝咖啡. Told apart by position (Chinese compounding
+is head-final); the suffix case is accepted as a mining-only fallback, not folded into the
+shared validator.
+
+**TASK-525 — tl_nl uniqueness judge.** `[~]`, not done: the en/zh/ja prompt migration is
+written but **not applied live**, and the judge fails open without it. The load-bearing detail
+is rating orientation — the Likert scale runs in the *keep* direction (5 = ideal distractor,
+1 = also-correct), because the intuitive phrasing would keep exactly what the judge exists to
+remove while the item still looked well-formed. Asserted in tests, flagged DO-NOT-INVERT in
+the migration. The TASK-519 AST lint caught an `nl_language_code=''` default on the first
+pass, which is what it is for.
+
+Not verified anywhere: nothing was run against live LLMs or the live DB. TASK-514's regen
+smoke, TASK-525's 10-sense ZH sample, and the prompt seeding all still need operator spend.
+
+## [2026-08-08] build | TASK-515/516/517/518/521/528 + partial 529/530/532
+
+Batch-execution session over the exercise-generation-v2 tail. Six tasks landed, four
+partially, six untouched — see wiki/tasklist/archive/exercise-generation-v2.tasks.md for
+per-task status.
+
+**The deterministic package** (TASK-516) is the structural change. `LadderExerciseRenderer`
+dispatched one renderer per *ladder level*, which the capability matrix had already
+outgrown: ZH L1 is four types, and ZH concrete L4 is classifier_match + cloze_typed where
+EN L4 is morphology_slot. Generators now register against a **type_code** and the renderer
+walks the matrix rows for the (language, semantic_class) at hand. Adding a type is now a
+module plus a matrix row, with no renderer surgery.
+
+New: `services/vocabulary_ladder/deterministic/` — registry, `phonology` (pinyin/kana
+confusion sets), `lexicon` (per-language in-memory corpus index, one load instead of ~9,000
+round trips per batch), `dictionaries` (shared ZH-classifier / JA-counter index), and
+builders for definition_match, hanzi_to_pinyin, pinyin_to_hanzi, kanji_to_reading,
+reading_to_kanji, tone_id_word, jumbled_sentence, classifier_match, counter_match,
+cloze_typed. `utils/answer_normalization.py` for typed grading.
+
+**Two findings worth recording, both of which would have shipped silently:**
+
+1. `dim_vocabulary.frequency_rank` is a **Zipf score** (range 0.25–6.56, higher = more
+   common), not a rank. TASK-515 says "top 1,000 by frequency_rank"; sorting ascending — the
+   obvious reading — selects the thousand *rarest* words. The dry run confirms DESC gives
+   将/能/国家/大 rather than 酸丁二酯/嗜热菌群. `select_senses` is the only place that decides.
+2. The corpus carries non-word lemmas ("1", "₂", "啄む ます た" — a verb glued to two of its
+   own conjugation suffixes). Each would have cost three LLM calls to produce an asset that
+   fails validation. The hygiene filter is language-aware: internal spaces are legitimate in
+   English ("be on time") and are evidence of mis-segmentation in ZH/JA.
+
+Live DB: `dim_word_senses.embedding` + HNSW + `nearest_senses()`; `dim_character_components`;
+`dim_counters` / `dim_counter_noun_pairs` / `dim_counter_distractor_groups`;
+`v_sense_family_coverage`; `__counter_drill_ja` ELO sentinel. The coverage view immediately
+reported 9 of the 10 existing generated senses as having family gaps, which is the point of it.
+
+Tests: `tests/test_deterministic_generators.py` (31). The distractor assertions are the
+substance — "produces four options" passes for a generator padding with random words. Two
+real defects surfaced: kana vowel-length picked the wrong mora (がっこう → がっこうう instead
+of がっこ), and the frequency-band filler gave up instead of widening when a word sat at the
+edge of the range, dropping the exercise entirely. `test_p3_type_gating` needed one
+assertion tightened — it asserted ZH concrete renders *no* L4 row, true only while that cell
+had no generator; it now asserts no L4 row comes from the P3 morphology path.
+
+Full ladder suite: 161 passed.
+
+**Not verified:** no live LLM batch was run — TASK-515's ≥90% acceptance criterion, the
+per-chunk judge reject rates and the cost ceiling are all unexercised until an operator
+spends on a real chunk. The embedding backfill, the character-component import (needs a
+licensed source), and the counter dictionary curation are likewise operator-gated.
+
+## [2026-08-09] build | TASK-520, 522, 523, 526, 527, 531, 533
+
+Seven Exercise-Generation-v2 tasks, all `[ ]` → `[~]`. 1609 tests pass, 3 skipped.
+
+**TASK-520 — L4/L8 out of the P3 monolith.** The audit's B3.2/B3.4 finding was that the
+two failure-prone levels shared a `task_name` with the cheap one, and therefore shared a
+model, a retry and a JSON parse. Now `ladder_l4_morphology_generation` and
+`ladder_l8_collocation_repair_generation` each own a prompt, a model tier (EN L4 stays on
+Sonnet, EN L8 drops to flash — a saving that was simply not expressible before) and an
+isolated retry.
+
+The part worth remembering is the **schema gate**. The old remaps carried four speculative
+branches each — a bare list, an `options` key, a `"1"` key, `"0".."3"` keys — because
+nothing validated the response, so a shape drift surfaced weeks later as an empty
+exercise. The new gate is keyed by `(type_code, prompt_version)` and **raises** on an
+unregistered version rather than falling back. Re-authoring a prompt at v2 without adding
+2 to its `PROMPT_VERSIONS` now fails loudly, which is the whole point. All four
+speculative branches are deleted, not merely unused, and a test asserts the methods are
+gone.
+
+**TASK-522 / TASK-527 — three new exercise types, one new layer.** `syn_ant`,
+`word_family` and `particle_selection` are language- or class-specific, so folding them
+into a shared prompt would have recreated exactly the coupling 520 spent its budget
+undoing. Instead `asset_generators/typed_llm.py` mirrors the deterministic registry:
+generators register against a `type_code`, the renderer walks the capability matrix. Each
+has a judge whose question is chosen to catch its own also-correct failure:
+
+- syn/ant → *is this foil in the relation to any OTHER sense?* (the "shore"/"bank" trap);
+- word_family → *is this "invented" derivation actually a real word?*;
+- particles → *does this particle ALSO yield a natural sentence?* (the に/へ trap — asking
+  "is it plausible?" gets a yes for all three, which is useless).
+
+Both planted-defect tests the tasks asked for are green. The JA blank is cut only at a
+spaCy-confirmed particle span: `str.replace` would blank the に inside にんじん.
+
+**TASK-523 — collocate grounding.** P1 asserts a `primary_collocate` for every sense and
+never declines; *advertising* shipped as the collocate of **personalize**. The grounder
+grades the assertion and tags it, and the L5 gate now reads that tag instead of running a
+second `corpus_collocations` query with its own copy of the PMI threshold. The tag has
+three values, not two: `no_source` (Japanese, deliberately) is not `llm_asserted` —
+collapsing them would report JA as 0% validated rather than as unmeasured.
+
+**TASK-526 — Traditional serve toggle.** Pure field selection over the TASK-509 mirror.
+No OpenCC on the request path, because 發/髮 are both 发 and disambiguating them needs
+phrase context only the generation-time converter had. A test parses the module to prove
+no converter is imported, so the property survives a future "just this one field" edit.
+
+**TASK-533 — speed round.** Mastered-only, and every other filter exists to keep that
+honest. Results feed FSRS but never family confidence: a slow-but-correct answer under a
+clock is not evidence that a mastered word has decayed. The tests assert on the *queries*,
+not only the output — a composer that filtered nothing would pass an output-only test
+given clean fixtures.
+
+**Not verified / operator-gated.** Four prompt migrations are written but **not applied
+live** (`ladder_prompt_split_l4_l8`, `syn_ant_word_family_prompts`,
+`particle_selection_prompts`). The English collocation list is **not vendored** — OANC is
+documented as the source in `data/collocations/README.md`, and until it is installed EN
+grounding falls through to `corpus_collocations` alone. The audio backfill spends Azure
+quota and has not been run, so its 95% coverage criterion is unmeasured. The syn/ant
+embedding band is inert until TASK-521's backfill runs. Nothing yet schedules a speed
+round, so the route and player are live but unreachable from the session runner.
+
+## [2026-08-10] reconcile | TASK-638/642/645/647/648 — Evidence-First hardening batch closed
+
+**Operation.** Asked to *execute* the five open Evidence-First Grading rows. Read each task spec,
+then checked the source before writing anything — and found all five already implemented,
+committed (`git status` on `services/dual_translation/` clean), and covered by tests. This was a
+status reconciliation, not an implementation session. No code was changed.
+
+**Evidence, per task** (verified against the source, not just test names):
+
+- **TASK-638** — `render_explanation._generic()` branches on empty `corrected_form` →
+  `_GENERIC_ADDITION_EXPLANATION_TEMPLATE` (`"remove: {learner_form}"`). Beyond spec: an *authored*
+  template quoting `{corrected_form}` when none exists also falls back, so a seeded taxonomy
+  template can't reintroduce the dangling quotation. Drop gate untouched, still AND.
+  Pinned by `test_render_explanation_addition_with_empty_correction_omits_correction`.
+- **TASK-642** — `grader_cascade._cfg_cache` keyed `'rubric'`/`'taxonomy'` + `clear_caches()`
+  mirroring `router.py`. `_fetch_active_config` **raises rather than caching a miss**, so a
+  transient outage can't pin a bad read for the process lifetime.
+- **TASK-645** — `_resolves_full_marks` is one line; `_normalization_class_equal` deleted, grep
+  confirms no callers. The dead code's reasoning survives as the docstring, including the TASK-623
+  warning about keying on opcode class rather than `accuracy` (fuzzy tolerance inflates accuracy to
+  1.0 on a `replace`).
+- **TASK-647** — `_grade_once` under `@retry(stop_after_attempt(3),
+  wait_exponential(1, 2, 10), retry_if_exception(_is_transient), reraise=True)`. `reraise=True`
+  matters: without it `_grade_with_retry`'s classifier would see `RetryError` and mislabel every
+  exhausted item non-transient. Tests patch `runner._grade_once.retry.sleep`, not `time.sleep`.
+- **TASK-648** — all three cleanups landed (comment, required `reproduction`/`reference` +
+  `if not text:` bypass removed, `cap` parameter gone). Surviving global/local mentions in
+  `prompts.py:260` / `eval_metrics.py:47,285` / `synthesis.py:31` are deliberate historical
+  references, not stale claims.
+
+**Verification.** `pytest -k "dual_translation or dt_"` → **600 passed**. The four test files named
+by the tasks → 113 passed.
+
+**Owed.** TASK-642's Verification also named a live/staging smoke proving one rubric+taxonomy fetch
+per activated version rather than per submission. Not run — flagged on the task and in `master.md`
+rather than absorbed silently into the Done count.
+
+**Counts.** Evidence-First Grading Not Started 5 → 0 (only TASK-629 `[~]` remains, live rubric-v6
+apply owed). Master totals: Not Started 14 → 9, Done 115 → 120. Tasks-file frontmatter corrected
+`done: 19` → `28` (was stale by nine).
+
+**Recurrence note.** Third instance of the same drift class — shipped work whose checkboxes were
+never flipped (cf. the 2026-07-13 Practice Engine / Study Plans audit, and TASK-609). The tasklist
+is not a reliable read of what exists; check the source first.
+
+## [2026-08-10] migration | TASK-629 — rubric v6 APPLIED LIVE (Supabase MCP)
+
+**Operation.** Applied `migrations/dt_rubric_v6_seed.sql` to project `kpfqrjtfxmujzolwsvdq` via
+Supabase MCP `apply_migration`, closing the live-apply carry that TASK-629 had held since
+2026-07-19 (that session's permission classifier denied every DB-write wire). Live grading now
+serves the v3 band descriptors instead of v5.
+
+**Pre-state.** v1/v2/v4 inactive, **v5 active** (7 config keys), no v6 row, no v7+. Guard 1
+(anti-downgrade) therefore passed cleanly — this was a straight v5→v6 bump, not a re-apply.
+
+**How it was applied.** The file's outer `BEGIN;`/`COMMIT;` were stripped: `apply_migration`
+supplies its own transaction, and a nested `BEGIN` would either warn or commit early. Both
+`DO $guard$` blocks were kept and still abort the whole thing atomically inside the wrapping
+transaction. Nothing else was altered.
+
+**Verification (the file's own Verification block).** `active_count=1`, `active_version=6`;
+`band_descriptors` **differs** from v5 while `weights`, `exemplars`, `acceptable_variation`,
+`band_thresholds`, `severity_weights` and `understandability_weights` are all **equal** to v5 —
+the descriptors-only contract held. No legacy `content level` suffix survives.
+
+**Transcription check (beyond the file's own verification).** The 46 KB seed had to pass through
+the MCP call as a string, so a typo was a real risk — and the v5-equality checks above prove only
+6 of the 7 top-level keys, since `band_descriptors` is precisely the new content with no v5
+counterpart to diff against. So it was checked independently: every descriptor leaf was extracted
+from the live row (4× lateral `jsonb_each`) and from the repo file, canonicalised the same way, and
+hashed. **336 leaves and md5 `62e6c6c35b9428fd501dd818eecb8166` on both sides** — the live config
+is character-identical to the file. (336 = 6 tiers × 3 langs × 4 bands × dims, with `naturalness`
+correctly absent at tiers 1–2 per ADR-018.)
+
+**Post-apply tests.** `test_dual_translation_rubric_v6.py` + gold-seed helper + scoring →
+**98 passed**.
+
+**Still flagged, unchanged by this apply.** ZH and JA descriptors remain **AI-drafted and awaiting
+native review** (ADR-019 pattern, carried in the seed header and the row description). EN was
+user-approved 2026-07-18. Applying the seed does not discharge that review.
+
+**Counts.** TASK-629 `[~]` → `[x]`. In Progress 9 → 8, Done 120 → 121. **Evidence-First Grading
+(TASK-620–649) is now fully closed.**
+
+## [2026-08-12] execute | Exercise Generation v2 — TASK-521/530/531/534 closed, 526/535/536 deferred, 515 part-run
+
+**Operation.** Asked to execute the remaining exercise-generation-v2 rows plus a GPL cleanup.
+Four of the six code tasks closed, three deferrals recorded with unblock conditions, and
+TASK-515 part-run. Suite **1676 → 1718 passed, 3 skipped** (+42 tests, no regressions).
+
+**The theme of this session was silent inertia.** Four separate features were reported as
+working and were in fact doing nothing. None of them failed; each degraded into a no-op that
+looked, in the logs, exactly like "not run yet". They are listed first because the fixes were
+prerequisites for the tasks that followed.
+
+1. **`llm_calls.cost_usd` was never written.** 12,947 rows, zero populated — `_log_llm_call`
+   simply omitted the key. `run_generation_batch`'s `--ceiling` projects spend from that column,
+   so it computed $0.00 no matter what a batch cost and could never abort; the per-chunk cost
+   line, an explicit TASK-515 acceptance criterion, would have printed `$0.0000` forever.
+   Spending a $10 authorisation behind a cap that reads zero is not a capped run, so this was
+   fixed before any batch spend. `_make_one_call` now sends OpenRouter's usage-accounting flag
+   and threads the returned cost through. Verified live (`cost_usd = 0.001638` on a probe).
+   11 tests, including the `model_extra` path — the OpenAI SDK's Usage model does not declare
+   `cost`, so it arrives in the pydantic extras bag and an attribute-only read returns None
+   against the real provider while passing a naive test.
+
+2. **The embedding band check called an RPC signature that has never existed.**
+   `sense_neighbours` called `nearest_senses(p_sense_id, p_language_id, p_lemmas)` and read
+   `lemma`/`similarity`; the live function takes `(p_sense_id, p_language_id, p_pos, p_k,
+   p_cos_min, p_cos_max)` and returns `out_lemma`/`out_similarity`. Every call raised PGRST202,
+   caught by a bare `except Exception` and logged at **INFO** as "RPC unavailable" — the same
+   line the code emits when the backfill has not run. So TASK-522's band checks were never going
+   to fire even after TASK-521 completed. Fixed with a companion function,
+   `sense_similarity_to_lemmas`, rather than by repointing: `nearest_senses` *searches* for
+   k-nearest, the band check *scores* named candidates, and a foil outside the band must return
+   its similarity rather than be omitted from a k-nearest window. Log level raised to WARNING.
+   **Fourth instance of the ADR-020 class** (late symbolic reference failing into a silent
+   no-op), so the 12 new tests assert the RPC name, its argument keys and its result columns
+   rather than just the happy path.
+
+3. **`word_assets_asset_type_check` rejected every typed-LLM asset.** The CHECK enumerated the
+   seven pre-TASK-520 types; TASK-522 writes `llm_types_A`/`llm_types_B`, so all of them failed
+   with 23514. `_store_asset` catches and logs, so the pipeline reported success per sense while
+   `synonym_antonym_match`, `word_family` and `particle_selection` produced nothing — and the
+   valid-rate report would still have read ~100%, since it measures the P1/P2/P3 assets that did
+   store. The first batch chunk hit it on sense 1 and would have hit all 300 at full LLM cost.
+   Replaced the enumeration with a pattern matching how the code builds the value
+   (`prefix_variant`); the enumeration is precisely what rotted. Confirmed in the live batch:
+   `llm_types_A`/`_B` went 0 → 3 rows each.
+
+4. **The audio backfill read one audio field for all types.** `listening_flashcard` keeps its URL
+   in `front_audio_url`, not `audio_url`, so coverage reported **0/56 (0.0%)** over 56 items that
+   were already fully voiced, and the text extractor listed four field names present in no such
+   row. The write-back used the same wrong key, so any newly synthesised flashcard audio would
+   have gone to R2, been recorded where the renderer never looks, and left the item silent *and*
+   permanently uncovered — re-burning Azure quota every run.
+
+**TASK-521 — sense embeddings. Done.** 22,348 senses embedded (ZH 8,084 / EN 9,472 / JA 4,792),
+**100.00% coverage per language, 0 NULL**, for **$0.0047**. One row failed on the first pass and
+was picked up by a re-run, which is what the idempotence was for. Post-fix spot-check over 3
+lemmas per language is sane and correctly banded: `precision`/`accuracy` 0.79 IN,
+`build`/`construct` 0.88 OUT (near-duplicate), `学习`/`学` 0.95 OUT, `朋友`/`石头` 0.21 OUT,
+`食べる`/`飲む` 0.69 IN. *Noted, not fixed:* `車`/`林檎` scores 0.39, just inside the 0.35 floor —
+the floor may want raising for JA once real reject data exists.
+
+**TASK-531 — audio at scale. Done.** 8 items synthesised, **0 failures**, nothing queued for
+retry. Coverage against the 95% target: ZH `listening_flashcard` **56/56**, ZH
+`phonetic_recognition` **2/2**, EN `phonetic_recognition` **16/16** — 100% on every populated
+type. JA has no audio-bearing items yet because the batch has not reached it. Azure usage was
+8 short utterances, nowhere near the free tier; the per-run cap was set to 50 and never
+approached.
+
+**TASK-534 — exercise-type effectiveness. Done (real-data validation deferred).** The "Part F
+outcome capture" the task depends on **did not exist**: `user_vocabulary_knowledge` holds only
+the current `p_known` and there is no history table, so a per-attempt delta was unrecoverable
+after the fact. The BKT RPC already returned `out_p_known_before`/`out_p_known_after` and the
+service already read them — they were never persisted. Added both columns (nullable;
+pre-2026-08-12 rows cannot be reconstructed and are not fabricated) plus a best-effort capture
+that can never fail a learner's submission. `vw_exercise_type_effectiveness` counts only attempts
+where BKT ran and time is positive, buckets on `p_known_before` (bucketing on *after* would
+manufacture the correlation being measured), and caps per-attempt time at 5 min to match
+`_effective_practice_seconds`. Admin page at `/exercise-type-effectiveness`.
+**Fixture validation: all 8 hand-computed expectations hold** — and the harness earned its keep
+by catching four errors in the *expectations* on first run (a missing 0.200 edge row, a
+"6-minute" fixture that hits the 5-minute clamp, and a mis-added delta).
+
+**TASK-530 — JA counter drill.** Route, service, template, both modes, nav and i18n all landed.
+Two gaps found: there was **no `counter_drill` row in `dim_test_types`**, and
+`get_test_type_id` filters on `is_active`, so every submission would have 500'd — the drill would
+have served items and recorded none. Submission reuses `process_classifier_drill_submission`,
+which is parameterised by test_id/test_type_id and contains nothing classifier-specific.
+Live end-to-end check over a 20-item session: **0 malformed items, 0 answer/distractor overlap,
+group-plausible foils** (鹿→頭 against 匹/羽/尾; テレビ→台 against 両/隻/機). Type mode reuses
+TASK-532's IME handling verbatim (`compositionstart`/`end` **plus** the `keyCode === 229` guard).
+7-test `counter_match` round-trip added, covering the generation→`ladder_record_attempt` join
+that the 2026-08-08 session flagged as untested. All 17 new UI strings are in **all four**
+locales. **The curation pass is authoring-only and merges nothing without human sign-off** — its
+`counts_nouns` gate is already earning its place, declining 方 as counting no showable noun,
+which is the error class flagged from the previous pass.
+
+**TASK-515 — batch run. Still open, and the reason is wall clock, not spend.** After the two
+fixes above, 7 ZH senses ran for **$0.1645** across 65 logged calls — **~$0.024/sense**, so a
+100-sense chunk is ~$2.40 and all three languages ~$7.20, comfortably inside the $10
+authorisation. Throughput is the blocker: **~5.5 min/sense ⇒ ~9 hours per 100-sense chunk**,
+~27 hours for three. The run was stopped rather than left to burn the session; the runner is
+resumable, so the 7 senses are kept. Parallelising the three languages is **not** safe as
+written — `spend_since()` sums *all* `llm_calls` since a chunk began, so concurrent runs trip
+each other's ceilings on each other's spend. Judge rates over the small sample:
+`judge_ladder_p1_sentence` 2 accept / 2 flag / 2 reject (**33% reject**),
+`judge_ladder_sentence_validity` 7 accept / 0 reject. **The ≥90% valid-rate criterion remains
+unmeasured** — 7 senses cannot settle it, and the 33% figure is a signal to watch, not a result.
+One content bug is worth fixing before a long run: the ZH P1 generator returned
+`semantic_class: '功能词'` where the schema requires an English enum value, failing validation
+and costing a retry.
+
+**GPL cleanup (no spend).** `scripts/cleanup_classifier_data.py` was the last first-party
+`zhconv` (GPLv2+) importer; rewritten onto `opencc` (Apache-2.0), matching how
+`utils/answer_normalization.py` and `script_converter.py` construct and cache their converter.
+Equivalence was *proved* rather than assumed: `zhconv.convert(s, 'zh-cn')` and OpenCC `t2s` were
+compared over **3,040 real corpus strings — 0 divergences** — before `zhconv`, `fuzzywuzzy` and
+`python-Levenshtein` were uninstalled (none was in `requirements.txt`; all three were ambient).
+Dry-run output is byte-identical afterwards.
+
+**Repo-record gaps closed (`migrations/CLAUDE.md`).** `dim_word_senses.embedding`, its HNSW index
+and `nearest_senses()` had been live since 2026-08-08 with **no migration file at all**. Now
+recorded, alongside three new ones: the widened `asset_type` CHECK, the TASK-534 view + capture
+columns, and the `counter_drill` test type. All applied live via Supabase MCP.
+
+**Deferrals recorded, with what unblocks each.** **TASK-526** — code and 27 tests done; the live
+發/髮 spot-check needs `content.hant` mirrors to exist, which comes from TASK-509's backfill over
+TASK-515 batch senses; verifying against a hand-inserted mirror would test the fixture, not the
+pipeline. **TASK-535** — deferred entirely including the replay harness, since a replay needs real
+(type, outcome) pairs and capture only began 2026-08-12; unblocked by ~50k attempts plus
+TASK-534 returning non-empty cells. **TASK-536** — both halves kept together, since retirement and
+preference weighting read the same per-item distribution; unblocked by launch-volume distractor
+pick-rates. Retiring items on pre-launch data would deactivate content for having no attempts
+rather than for being bad.
+
+**Counts.** In Progress 8 → **5**, Done 125 → **128**.
+
+## [2026-08-16] query | Why zh/ja distractor generation looks weaker and the judge distributions diverge
+
+Pages consulted: 4. Output filed as [[evaluations/distractor-judge-language-divergence-2026-08-16]]
+plus [[tasklist/distractor-judge-calibration.tasks]] (TASK-717–722). Pages created: 2. Updated: 2
+(index, master).
+
+Question raised from the v4 Likert measurement: all four review-queue flags were English, zh and ja
+produced **zero** 3-ratings across 300 distractors, and zh rejected at 30% vs ja 12% / en 4%. Was zh
+distractor generation materially weaker, or the zh judge harsher?
+
+**The reject rate is mostly a judge artefact.** Three independent causes, separated from the prompt
+text and a re-analysis of the surviving 450-distractor sample:
+
+1. **Not prompt drift.** All three v4 judge templates are faithful translations — same corrective
+   paragraph, anchors, worked example, output contract. The zh and ja prompts each *contain* a
+   worked band-3 example and the model still never emits a 3. `qwen3.6-flash` uses {5,4,2};
+   `gemini-3.1-flash-lite` uses {5,4,3,2}. Band 2 on qwen is a catch-all for "not a clean accept",
+   which is why **100% of zh/ja rejects are a 2 and not one is a 1**.
+2. **The scale conflates two axes.** Bands 5/4/2 measure topical distance from the passage; bands
+   3/1 measure confusability with the answer. Bands 3 and 1 additionally overlap (a near-paraphrase
+   of the answer *is* arguably correct). Even the four English band-3 flags are **not** paraphrases
+   of the correct answer — gemini is using 3 as a generic "unsure" band, so the whole review queue
+   rests on a signal no model applies as written.
+3. **The rubric is ill-posed for half the question types.** "Same subject as the passage" is a
+   category error for `vocabulary_context` (distractors are competing word senses) and for
+   `author_purpose`/`main_idea` (competing intents). zh `vocabulary_context` rejects at **8/16**.
+   Excluding that one type: zh 21%, ja 14%, en 5%.
+
+**Two prompt slots are dead in production.** `keywords` (slot `{5}`, the domain the band-2 test
+depends on) is accepted by `judge_distractor_plausibility` and **never passed** by its only caller,
+`question_generator.py:480`. And slot `{4}` is printed but never acted on, despite
+`distractor_plausibility.py:89-93` claiming the type drives sense-vs-fact handling — the behaviour
+lives in a docstring and was never written into the prompt.
+
+**Most zh rejects are false.** All 7 non-vocab zh rejects were read individually; ~6 are same-subject
+options mislabelled off-topic (推荐回收旧衣服 in a fast-fashion passage; 因为人们不想读书 in a
+printing-press passage). Scoring is not merely harsh but **incoherent** — nearer options scored 2
+while further ones scored 4–5. Only 金属颗粒 (in a plastic/bacteria passage) is defensible.
+
+**One real content defect, unrelated to the judge.** The zh and ja `question_vocabulary_context`
+generator prompts are literal translations that kept the English lexical targets — they teach with
+`'bright'`, `'pick up'`, `'turn a blind eye'` and embed English idioms inside their CJK few-shot
+passages (「共同'pick up the pieces'」; 「事態を収拾し（pick up the pieces）」). A Chinese
+vocabulary-question generator is being few-shotted on English phrasal verbs, a category Chinese
+does not have; 成语/惯用语 and 慣用句/四字熟語 are never mentioned. Same defect class as
+[[tasklist/ladder-numeric-keys.tasks]] one layer up — English *content* rather than English keys.
+Separately, **no generator prompt in any language contains a single line of distractor guidance**:
+the rubric exists only on the judge side, so content is filtered against a spec it was never given.
+
+**Reject routing confirmed** (the question left open by the prior session): rejects do **not**
+queue. `question_generator.py:498-508` drops the question; `orchestrator.py:66` writes
+`generation_review_queue` from `_judge_flags` only. Human review load is **2.7%, not 18%**.
+
+**Caveat recorded:** the measurement harness passed `question_type_id` (a bare integer) into slot
+`{4}` where production sends the `type_code` string, so the measured zh reject rate is likely a
+mild over-estimate. Any re-measurement must pass the string.
+
+Counts. Not Started 5 → **11**.
+
+## [2026-08-17] evaluation | Answer-entailment judge cross-model A/B (7 arms)
+Harness: `scripts/measure_entailment_ab.py`. Sample frozen to
+`data/eval/entailment_sample_150.json` (150 questions, 50/lang, rescued from a
+prior session's scratchpad). 2700 + 450 judge calls, **$1.05 total spend**.
+Filed [[evaluations/entailment-judge-model-ab-2026-08-17]].
+
+**Cost premise refuted.** The expected 5–10× saving does not exist: measured best
+case is **2.74×** (`deepseek-v4-flash`). `seed-2.0-mini` is **1.75× dearer** and
+`gemini-3.7-flash` **2.1× dearer** than their incumbents despite lower list prices.
+Output-token volume, not per-token price, drives this workload. Only measured
+`llm_calls.cost_usd` is a valid cost metric here.
+
+**Cost is not the deciding factor anyway.** Production has run 783 entailment
+calls all-time (150 in 30 days). Best-case saving today is **$0.025/month**.
+Promotions must rest on quality.
+
+**Three models fail in ways no benchmark reveals.** `z-ai/glm-4.7-flash` returned
+empty content on **210/450 (47%)** of calls — each one becomes `safe_accept()`, a
+silent accept-everything no-op. `stepfun/step-3.5-flash` has no JSON mode.
+`qwen/qwen3.5-flash-02-23` returns a bare float. A live pre-flight gate is
+mandatory before spending on any candidate.
+
+**Prior finding corrected.** The `response_format='json_object'` 400 was recorded
+as breaking 100% of zh/ja calls. Measured: it was **latent, not active** — zh runs
+on DeepSeek and ja's `qwen-2.5-72b` upstream does not enforce the rule. It arms
+only on Alibaba-Qwen / ByteDance-Seed routing. Audited all 161 active
+`prompt_templates` rows: only `test_answer_entailment` is exposed — DT rows are
+routing-only (prompt in `services/dual_translation/prompts.py`, sent via
+`call_model_with_usage`, no `response_format`), `prose_generation` is `'text'`.
+`migrations/entailment_json_token_zh_ja.sql` **applied live** (zh id=150 v1→2,
+ja id=151 v1→2; en already compliant); disarm verified — `qwen3.7-flash` now
+passes zh/ja where it 400'd. Applied via service-key client, not the migration
+runner, so migration history does not yet record it.
+
+**Caveats recorded, not buried.** Labels are structural, not human-adjudicated →
+every AUC is a lower bound. Production never sends this judge a distractor, so
+**false-reject maps to production but false-accept is a proxy** for answer
+hallucination; the ja incumbent's 8% false-accept is a valid cross-arm ranking, not
+a production rate.
+
+**Recommendations (none applied — awaiting decision):** en
+`gemini-3.5-flash-lite` → `ling-3.0-flash` (AUC 0.974→0.996, false-rejects
+3/50→0/50, retires a 32% JSON-repair rate); ja `qwen-2.5-72b` → change on a
+structural 4-value score collapse that makes it permanently un-tunable; zh hold
+(saturated at 0.999, no quality case).
+
+## [2026-08-17] design | Judge evaluation campaign system — DEFERRED
+Designed a generalised ~200-model campaign system (frozen 1000-item gold set,
+tiered funnel, self-contained HTML report, explicit + autonomous model selection).
+Filed as [[features/judge-eval-campaign]] / [[features/judge-eval-campaign.tech]],
+status `planned`, three open questions in frontmatter.
+
+Flat sweep is not executable (200k calls ≈ 35 h); the tiered funnel cuts it to
+~35k calls, ~$13, ~4.5 h, sized so n=90 rejects duds and only n=1000 separates
+finalists.
+
+**Deferred for two reasons.** (1) More candidates would not change the answer — zh
+is saturated, top four within 0.01 AUC; the binding constraint is label quality,
+not candidate count. (2) TASK-723's 1–5 Likert migration retires the threshold and
+score-distribution metrics, two of the six proposed modules. Recommended
+sequencing: human-adjudicate ~100 gold items first, build after Likert lands.
+
+Counts. Not Started 11 → 11 (no new tasks filed; deferral recorded as a planned feature).

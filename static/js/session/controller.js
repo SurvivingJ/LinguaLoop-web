@@ -60,7 +60,10 @@ function renderStart() {
   const done = session.queue.filter((q) => q.is_completed).length;
   const remaining = total - done;
   const tests = session.queue.filter((q) => q.kind === 'test').length;
-  const practice = session.queue.filter((q) => q.kind === 'practice').length;
+  // TASK-714: surface blocks (flashcards / dual_translation) count alongside
+  // practice in the "X tests · Y practice" line rather than vanishing from the
+  // summary — the whole point of planning them is that they are visible study.
+  const practice = session.queue.filter((q) => q.kind !== 'test').length;
 
   if (remaining === 0) {
     // already finished today's load
@@ -117,7 +120,7 @@ function runCurrent() {
     item,
     languageId: session.languageId,
     onComplete: (result) => onItemComplete(item, result),
-    onSkip: () => advance(), // advance WITHOUT marking complete (stays in resume)
+    onSkip: () => onItemSkip(item), // advance WITHOUT marking complete (stays in resume)
   });
 
   // Translate the data-i18n markup the player just injected into the stage
@@ -130,6 +133,13 @@ function runCurrent() {
 // Persist one item's completion. Returns true only on an acknowledged 2xx.
 // authFetch resolves (not rejects) on 4xx/5xx, so we must check res.ok —
 // otherwise a server rejection looks identical to success.
+//
+// Test slots go to the daily-load endpoint; EVERY other kind (practice chunks
+// and the TASK-714 surface blocks) goes to complete-block, which is also where
+// surfaces get their weekly counter credited. This branches on
+// `kind === 'test'` rather than enumerating the others so a future queue kind
+// is credited by default instead of silently completing nowhere — the F2 /
+// TASK-701 failure mode.
 async function persistCompletion(item) {
   const [url, payload] =
     item.kind === 'test'
@@ -149,7 +159,10 @@ async function onItemComplete(item, result) {
   if (session._completing) return;
   session._completing = true;
   try {
-    if (item.kind === 'test' || item.kind === 'practice') {
+    // Every queue kind persists — surfaces included. An allow-list here would
+    // have to be widened for each new kind, and forgetting to is invisible:
+    // the item completes on screen and no counter ever moves (F2 / TASK-701).
+    if (item.kind) {
       let ok = false;
       try {
         ok = await persistCompletion(item);
@@ -176,6 +189,14 @@ function advance() {
   runCurrent();
 }
 
+// Learner chose to skip: leave is_completed false (so it re-appears on resume)
+// but flag it so the progress dots and end-of-session summary can show it as
+// skipped rather than merely "not done".
+function onItemSkip(item) {
+  item.skipped = true;
+  advance();
+}
+
 function updateProgressHeader() {
   const total = session.queue.length;
   const done = session.queue.filter((q) => q.is_completed).length;
@@ -183,10 +204,67 @@ function updateProgressHeader() {
   $('sessionProgressFill').style.width = total ? `${(done / total) * 100}%` : '0%';
   $('sessionDots').innerHTML = session.queue
     .map((q, i) => {
-      const cls = q.is_completed ? 'done' : i === session.index ? 'current' : '';
-      return `<span class="session-dot ${cls}" title="${q.kind}"></span>`;
+      let cls = '';
+      if (q.is_completed) cls = 'done';
+      else if (i === session.index) cls = 'current';
+      else if (q.skipped) cls = 'skipped';
+      const type = itemTypeLabel(q);
+      const state = dotStateLabel(q, i);
+      const label = T('session.dot_label', { type, state }, `${type} — ${state}`);
+      return `<span class="session-dot ${cls}" role="listitem" aria-label="${escapeHtml(label)}"></span>`;
     })
     .join('');
+}
+
+// ---- Labels & escaping (shared by dots + summary) ----------------------------
+
+// Human label for an item's type: the localized test type (Listening, Reading…)
+// or "Practice". Falls back to the raw value so an unmapped type still reads.
+// TASK-714: surface kinds carry no test_type, so they must be labelled off
+// `kind`. Without this they fell through to the `|| 'listening'` default and a
+// flashcards block was announced to screen readers as "Listening".
+const KIND_LABELS = {
+  practice: ['session.practice_heading', 'Practice'],
+  flashcards: ['session.flashcards_heading', 'Flashcards'],
+  dual_translation: ['session.dt_heading', 'Dual Translation'],
+  // TASK-533. Omitting this is not cosmetic — an unmapped kind falls through
+  // to the `|| 'listening'` default below and the block is announced as
+  // "Listening", the exact TASK-714 defect this map was created to fix.
+  speed_round: ['session.speed_round_heading', 'Speed Round'],
+};
+
+function itemTypeLabel(item) {
+  const label = KIND_LABELS[item.kind];
+  if (label) return T(label[0], null, label[1]);
+  const tt = item.test_type || 'listening';
+  return T('test_list.' + tt, null, tt);
+}
+
+// Display title for an item: the test's own title (or slug) for tests, the
+// generic practice heading for practice blocks.
+function itemTitle(item) {
+  if (KIND_LABELS[item.kind]) return itemTypeLabel(item);
+  return item.title || item.slug || itemTypeLabel(item);
+}
+
+// State word for a progress dot at position i, given the current cursor.
+function dotStateLabel(item, i) {
+  if (item.is_completed) return T('session.item_done', null, 'Done');
+  if (item.skipped) return T('session.item_skipped', null, 'Skipped');
+  if (i === session.index) return T('session.item_current', null, 'In progress');
+  return T('session.item_pending', null, 'Not started');
+}
+
+// Escape a string for safe interpolation into innerHTML / attribute context.
+// Item titles come from the server, so this guards the summary and dot labels
+// against markup injection.
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function showSummary() {
@@ -195,9 +273,32 @@ function showSummary() {
   $('sessionStage').innerHTML = '';
   const total = session.queue.length;
   const done = session.queue.filter((q) => q.is_completed).length;
+
+  const rows = session.queue
+    .map((q) => {
+      const isDone = !!q.is_completed;
+      const state = isDone
+        ? T('session.item_done', null, 'Done')
+        : T('session.item_skipped', null, 'Skipped');
+      const icon = isDone ? 'fa-circle-check' : 'fa-circle-minus';
+      return (
+        `<li class="${isDone ? 'is-done' : 'is-skipped'}">` +
+        `<span class="ico"><i class="fas ${icon}"></i></span>` +
+        `<span class="meta">` +
+        `<span class="r-title d-block">${escapeHtml(itemTitle(q))}</span>` +
+        `<span class="r-type d-block">${escapeHtml(itemTypeLabel(q))}</span>` +
+        `</span>` +
+        `<span class="r-state">${escapeHtml(state)}</span>` +
+        `</li>`
+      );
+    })
+    .join('');
+
+  const resultsLabel = T('session.results_title', null, 'Your results');
   $('sessionSummaryBody').innerHTML =
     `<p class="lead mb-1">${done} / ${total}</p>` +
-    `<p class="text-muted">${T('session.done_line', null, 'Nice work — you finished today’s load.')}</p>`;
+    `<p class="text-muted">${escapeHtml(T('session.done_line', null, 'Nice work — you finished today’s load.'))}</p>` +
+    `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
   $('sessionSummary').classList.remove('d-none');
 }
 
@@ -214,5 +315,20 @@ function showEmpty() {
 function showError(msg) {
   $('sessionLoading').classList.add('d-none');
   $('sessionErrorMsg').textContent = msg;
+  const retry = $('sessionErrorRetry');
+  if (retry) retry.onclick = retryLoad;
   $('sessionError').classList.remove('d-none');
+}
+
+// Retry from the error card: hide the error, show the spinner, and re-run the
+// session load. Any fresh failure re-renders the (still retryable) error card.
+async function retryLoad() {
+  $('sessionError').classList.add('d-none');
+  $('sessionLoading').classList.remove('d-none');
+  try {
+    await loadSession();
+  } catch (e) {
+    console.error(e);
+    showError(e.message || 'Failed to load session.');
+  }
 }

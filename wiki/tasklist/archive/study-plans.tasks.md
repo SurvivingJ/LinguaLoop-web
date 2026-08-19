@@ -27,7 +27,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-201: Migration — `test_attempts.started_at`, `duration_ms`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** XS
 **Depends On:** none
@@ -47,7 +47,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-202: Migration — `daily_test_loads.daily_session_targets`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** XS
 **Depends On:** none
@@ -66,7 +66,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-203: Migration — `dim_test_types.expected_minutes_p50`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** XS
 **Depends On:** none
@@ -85,7 +85,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-204: Migration — `dim_study_plan_templates` + seed
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** S
 **Depends On:** none
@@ -106,7 +106,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-205: Migration — `dim_study_goals` (empty V2 placeholder)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** XS
 **Depends On:** none
@@ -125,7 +125,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-206: Migration — `user_study_plans`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** S
 **Depends On:** TASK-204, TASK-205
@@ -145,7 +145,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-207: Migration — `weekly_plan_states`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** S
 **Depends On:** TASK-206
@@ -164,7 +164,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-208: RPC `apply_study_plan_template`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** XS
 **Depends On:** TASK-206
@@ -184,7 +184,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-209: Python — weakness signal helpers
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** M
 **Depends On:** TASK-207
@@ -206,7 +206,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-210: RPC `compute_weekly_plan`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** L
 **Depends On:** TASK-209
@@ -226,11 +226,20 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 **Verification:** Replicate the worked example from [[features/study-plans.tech#worked-example]] against a seeded user; assert `target_counts == {"reading":4,"listening":11,"dictation":4,"pinyin":1,"measure_word":1}`.
 
+**Audit note (2026-08-07, TASK-713):** the task *title* says "RPC" but this is **not** a database
+function — `SELECT … FROM pg_proc WHERE proname='compute_weekly_plan'` returns **0 rows** on live
+`kpfqrjtfxmujzolwsvdq`. It is a Python method, `StudyPlanService.compute_weekly_plan`
+(`services/study_plan_service.py:290`), which orchestrates two real RPCs that *do* exist live:
+`compute_weekly_plan_load_signals(p_user_id uuid, p_language_id smallint, p_week_start date)` and
+`compute_weekly_plan_persist(p_user_id uuid, p_language_id smallint, p_week_start date, p_computed jsonb)`.
+This matches the task **Description** (which already said "Implement Python…") — only the title
+misleads. Recorded so a future audit doesn't read the 0-row `pg_proc` probe as a missing object.
+
 ---
 
 ## TASK-211: RPC `record_session_progress`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** S
 **Depends On:** TASK-207
@@ -251,7 +260,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-212: Wire `record_session_progress` into submit paths
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** refactor
 **Complexity:** M
 **Depends On:** TASK-211, TASK-201
@@ -277,7 +286,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-213: RPC `build_daily_session`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** L
 **Depends On:** TASK-210, TASK-202
@@ -302,7 +311,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-214: Wire `build_daily_session` into `get_or_create_daily_load`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** refactor
 **Complexity:** S
 **Depends On:** TASK-213
@@ -324,7 +333,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-215: Cron — `study_plan_weekly_recompute`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** S
 **Depends On:** TASK-210
@@ -346,7 +355,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-216: `/api/study-plan` endpoints
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** S
 **Depends On:** TASK-208, TASK-210
@@ -368,7 +377,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-217: Settings UI — Study Plan tab
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** feature
 **Complexity:** M
 **Depends On:** TASK-216
@@ -392,7 +401,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-218: Wipe user-state tables for launch
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** XS
 **Depends On:** TASK-206, TASK-207
@@ -414,7 +423,7 @@ Implements [[decisions/ADR-008-study-plan-orchestration-layer]] and downstream A
 
 ## TASK-219: Flag flip + monitoring
 
-**Status:** [ ] Not Started
+**Status:** [x] Done — confirmed by audit 2026-07-13, re-verified against live DB 2026-08-07 (TASK-713)
 **Type:** infra
 **Complexity:** M
 **Depends On:** TASK-214, TASK-215, TASK-217, TASK-218

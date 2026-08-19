@@ -9,12 +9,15 @@ Coordinates the test generation workflow:
 5. Extract vocabulary and generate word sense definitions
 """
 
+import os
 import time
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Callable, List, Optional
 from uuid import UUID, uuid4
+
+from postgrest.exceptions import APIError
 
 from .config import get_test_gen_config
 from .database_client import (
@@ -97,6 +100,33 @@ class NoQueueItemsError(Exception):
     pass
 
 
+def _subject_kwargs(topic_concept: str, keywords) -> dict:
+    """Topic data for the distractor judge's subject/domain slot — OFF by default.
+
+    Returns ``{}`` unless ``JUDGE_SUBJECT_KEYWORDS`` is truthy, so the judge
+    keeps inferring the subject from the passage as it always has.
+
+    The off-state is a MEASURED decision, not the TASK-717 bug reappearing.
+    That bug was the argument going missing silently; this is a documented
+    default with a test pinning both branches.
+
+    Supplying an authoritative domain line was expected to LOOSEN the judge's
+    off-topic band (it is a domain-membership test, and the judge had been
+    inventing the boundary). On the frozen 150-question sample it TIGHTENED it:
+    "concept + five keywords" is a narrower membership test than one inferred
+    from a whole passage. ja rejects rose in both arms that included the line —
+    on the v4 rubric 6→8 questions and 7→11 band-2 distractors, on v5 4→11 and
+    4→13 — while zh and en did not move. Re-enable once TASK-718 has settled the
+    judge model and TASK-719 has a rubric that consumes the line correctly.
+
+    See wiki/evaluations/distractor-judge-language-divergence-2026-08-16 §10.
+    """
+    enabled = os.environ.get('JUDGE_SUBJECT_KEYWORDS', '').strip().lower()
+    if enabled not in ('1', 'true', 'yes', 'on'):
+        return {}
+    return {'topic_concept': topic_concept, 'keywords': keywords}
+
+
 class TestGenerationOrchestrator:
     """Coordinates test generation workflow."""
 
@@ -128,6 +158,11 @@ class TestGenerationOrchestrator:
 
         # Metrics tracking
         self.metrics: Optional[TestGenMetrics] = None
+
+        # Tests saved with incomplete vocabulary this run. Vocab failure is
+        # non-fatal by design (see _generate_vocabulary), which means without a
+        # counter a run that enriched nothing reports exactly like a clean one.
+        self.vocab_shortfalls: int = 0
 
         logger.info("TestGenerationOrchestrator initialized")
 
@@ -439,6 +474,10 @@ class TestGenerationOrchestrator:
             model_override=lang_config.question_model,
             language_id=lang_config.id if run_judges else None,
             db=self.db.client if run_judges else None,
+            # Feeds the distractor judge's subject/domain slot (prompt {5}).
+            # The TRANSLATED pair, so a zh/ja judge prompt never gets an
+            # English subject line. See _subject_kwargs for why it is off.
+            **_subject_kwargs(translated_topic, translated_keywords),
         )
 
         # Step 3: Validate questions. generate_questions now runs the validator
@@ -597,8 +636,28 @@ class TestGenerationOrchestrator:
         Step 6: Extract vocabulary, create dim_vocabulary entries,
         generate word sense definitions, and update the test row.
 
-        Non-fatal — vocabulary failure does not fail the test.
+        Non-fatal — vocabulary failure does not fail the test. Prose,
+        questions and audio are already written and paid for by the time this
+        runs, and a test is playable without its vocabulary layer; senses are
+        an enrichment with a dedicated repair path (scripts/backfill_senses.py).
+        Discarding a finished test over a missing enrichment costs more than it
+        saves.
+
+        What is NOT acceptable is a silent shortfall. Every exit path below
+        records the outcome in tests.vocab_sense_stats — including the paths
+        that produce nothing — so an incomplete test is queryable after the
+        fact instead of being indistinguishable from one that never ran, and
+        the run summary counts it.
         """
+        outcome = {
+            'words_attempted': 0,
+            'unique_senses': 0,
+            'senses_failed': 0,
+            'senses_skipped': 0,
+            'both_models_failed': 0,
+            'phrases': 0,
+            'single_words': 0,
+        }
         try:
             # Extract vocabulary with metadata
             vocab_items = self.vocab_pipeline.extract_detailed(
@@ -606,6 +665,9 @@ class TestGenerationOrchestrator:
             )
             if not vocab_items:
                 logger.warning(f"No vocabulary extracted for test {test_id}")
+                self._record_vocab_outcome(
+                    test_id, outcome, reason='no_vocabulary_extracted'
+                )
                 return
 
             db = self.db.client
@@ -639,17 +701,21 @@ class TestGenerationOrchestrator:
                 if sense_id is not None:
                     sense_ids.append(sense_id)
 
-            if sense_ids:
-                vocab_stats = {
-                    'unique_senses': len(sense_ids),
-                    'phrases': sum(
-                        1 for v in vocab_items if v.get('is_phrase')
-                    ),
-                    'single_words': sum(
-                        1 for v in vocab_items if not v.get('is_phrase')
-                    ),
-                }
+            outcome.update({
+                'words_attempted': len(vocab_items),
+                'unique_senses': len(sense_ids),
+                'senses_failed': sense_gen.stats['senses_failed'],
+                'senses_skipped': sense_gen.stats['senses_skipped'],
+                'both_models_failed': sense_gen.stats['both_models_failed'],
+                'phrases': sum(
+                    1 for v in vocab_items if v.get('is_phrase')
+                ),
+                'single_words': sum(
+                    1 for v in vocab_items if not v.get('is_phrase')
+                ),
+            })
 
+            if sense_ids:
                 # Build token map for frontend rendering
                 token_map = self._build_token_map(
                     db, transcript, lang_config.language_code, lang_config.id,
@@ -658,7 +724,6 @@ class TestGenerationOrchestrator:
 
                 db.table('tests').update({
                     'vocab_sense_ids': sense_ids,
-                    'vocab_sense_stats': vocab_stats,
                     'vocab_token_map': token_map,
                 }).eq('id', str(test_id)).execute()
 
@@ -680,18 +745,72 @@ class TestGenerationOrchestrator:
                         .execute()
 
                 logger.info(
-                    f"Vocabulary: {len(sense_ids)} word senses generated "
+                    f"Vocabulary: {len(sense_ids)}/{len(vocab_items)} word senses linked "
                     f"({sense_gen.stats['senses_created']} new, "
-                    f"{sense_gen.stats['senses_reused']} reused), "
+                    f"{sense_gen.stats['senses_reused']} reused, "
+                    f"{outcome['senses_failed']} failed, "
+                    f"{outcome['senses_skipped']} skipped), "
                     f"{len(token_map)} tokens in map, "
                     f"{len(questions.data or [])} questions updated with sense_ids"
                 )
+                self._record_vocab_outcome(test_id, outcome)
             else:
-                logger.warning(f"No word senses generated for test {test_id}")
+                self._record_vocab_outcome(
+                    test_id, outcome, reason='no_senses_generated'
+                )
 
         except Exception as e:
-            # Vocab failure is non-fatal — test is still usable without vocab
+            # Vocab failure is non-fatal — the test is still usable without its
+            # vocabulary layer. Recorded rather than merely logged: a swallowed
+            # exception here is exactly how a whole run of NULL-vocab tests
+            # previously passed unnoticed.
             logger.error(f"Vocabulary generation failed for test {test_id}: {e}")
+            self._record_vocab_outcome(
+                test_id, outcome, reason=f"exception: {type(e).__name__}: {e}"[:300]
+            )
+
+    def _record_vocab_outcome(
+        self, test_id: UUID, outcome: dict, reason: str | None = None
+    ) -> None:
+        """Persist the vocabulary outcome to tests.vocab_sense_stats and count
+        any shortfall against the run.
+
+        A test is `complete` only when every extracted word ended up either
+        linked to a sense or deliberately skipped by the model (proper nouns,
+        numerals, symbols). Anything else — a failed generation, an empty
+        extraction, a swallowed exception — is a shortfall, gets a
+        `shortfall_reason`, and is logged at WARNING so it cannot be read as a
+        pass in the run output.
+        """
+        accounted = outcome['unique_senses'] + outcome['senses_skipped']
+        complete = reason is None and accounted >= outcome['words_attempted']
+
+        stats = dict(outcome)
+        stats['complete'] = complete
+        if not complete:
+            stats['shortfall_reason'] = reason or 'senses_missing'
+
+        try:
+            self.db.client.table('tests').update({
+                'vocab_sense_stats': stats,
+            }).eq('id', str(test_id)).execute()
+        except Exception as e:
+            # Last line of defence: if even the shortfall record cannot be
+            # written, say so loudly rather than returning quietly.
+            logger.error(
+                f"Could not record vocab outcome for test {test_id}: {e}"
+            )
+
+        if not complete:
+            self.vocab_shortfalls += 1
+            logger.warning(
+                f"VOCAB SHORTFALL test={test_id} "
+                f"linked={outcome['unique_senses']}/{outcome['words_attempted']} "
+                f"failed={outcome['senses_failed']} "
+                f"skipped={outcome['senses_skipped']} "
+                f"both_models_failed={outcome['both_models_failed']} "
+                f"reason={stats['shortfall_reason']}"
+            )
 
     def _build_sense_lookup(
         self, db, sense_ids: list[int]
@@ -845,21 +964,40 @@ class TestGenerationOrchestrator:
         if zipf is not None:
             row['frequency_rank'] = zipf
 
-        response = db.table('dim_vocabulary') \
-            .insert(row) \
+        # dim_vocabulary is shared across every run, so after a few hundred
+        # tests most lemmas in a transcript already exist. Look before
+        # inserting: a bare insert raises APIError 23505 on uq_vocab_lemma, and
+        # the caller's `for item in vocab_items` loop has no per-item guard, so
+        # that one exception aborts vocabulary for the *whole test* at its first
+        # already-known word — leaving vocab_sense_ids empty and
+        # vocab_token_map NULL while the run still reports "pass".
+        existing = db.table('dim_vocabulary') \
+            .select('id') \
+            .eq('lemma', lemma) \
+            .eq('language_id', language_id) \
+            .limit(1) \
             .execute()
 
-        if response.data and len(response.data) > 0:
-            vocab_id = response.data[0]['id']
+        if existing.data:
+            vocab_id = existing.data[0]['id']
         else:
-            # Race condition: another process inserted it
-            lookup = db.table('dim_vocabulary') \
-                .select('id') \
-                .eq('lemma', lemma) \
-                .eq('language_id', language_id) \
-                .single() \
-                .execute()
-            vocab_id = lookup.data['id']
+            try:
+                response = db.table('dim_vocabulary') \
+                    .insert(row) \
+                    .execute()
+                vocab_id = response.data[0]['id']
+            except APIError as exc:
+                # Lost the insert race to a concurrent worker between the
+                # select above and this insert — re-read rather than fail.
+                if getattr(exc, 'code', None) != '23505':
+                    raise
+                lookup = db.table('dim_vocabulary') \
+                    .select('id') \
+                    .eq('lemma', lemma) \
+                    .eq('language_id', language_id) \
+                    .single() \
+                    .execute()
+                vocab_id = lookup.data['id']
 
         self._vocab_cache[cache_key] = vocab_id
         return vocab_id
@@ -896,6 +1034,15 @@ class TestGenerationOrchestrator:
         logger.info(f"  Queue Items Processed: {self.metrics.queue_items_processed}")
         logger.info(f"  Tests Generated: {self.metrics.tests_generated}")
         logger.info(f"  Tests Failed: {self.metrics.tests_failed}")
+        if self.vocab_shortfalls:
+            logger.warning(
+                f"  Vocab Shortfalls: {self.vocab_shortfalls} test(s) saved with "
+                f"incomplete vocabulary — query "
+                f"tests.vocab_sense_stats->>'shortfall_reason', repair with "
+                f"scripts/backfill_senses.py"
+            )
+        else:
+            logger.info("  Vocab Shortfalls: 0")
         logger.info(f"  Duration: {self.metrics.execution_time_seconds}s")
         if self.metrics.error_message:
             logger.error(f"  Error: {self.metrics.error_message}")

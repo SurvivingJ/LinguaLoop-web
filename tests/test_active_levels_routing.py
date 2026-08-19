@@ -8,6 +8,13 @@ distinct active-level sets:
   function            -> L1-L3 + L6/L7 only
   proper              -> not subscribed to the ladder (empty)
   NULL / unrecognised -> permissive full ladder (pre-backfill default)
+
+"Full ladder" is language-dependent, because the level set is derived from the
+capability matrix rather than from semantic_class alone. Since 2026-08-14
+(audit B1) L5/L8 are disabled for Chinese and Japanese — neither has a
+collocation grounding source, so the family was unsatisfiable and the coverage
+sweep re-enqueued every affected sense nightly. Those two languages therefore
+route a 7-level ladder; English keeps all nine. See NO_COLLOCATION below.
 """
 
 import pytest
@@ -20,19 +27,23 @@ from services.vocabulary_ladder.config import (
 ZH, EN, JA = 1, 2, 3
 FULL = list(ALL_LEVELS)
 
+# What a content word routes to where collocation has no grounding source
+# (ZH, JA): the nine levels minus L5/L8. See the module docstring.
+NO_COLLOCATION = [lv for lv in ALL_LEVELS if lv not in (5, 8)]
+
 
 @pytest.mark.parametrize("semantic_class,language_id,expected", [
     # concrete: drop collocation levels (5, 8), keep L4
     ('concrete', EN, [1, 2, 3, 4, 6, 7, 9]),
     ('concrete', ZH, [1, 2, 3, 4, 6, 7, 9]),
     ('concrete', JA, [1, 2, 3, 4, 6, 7, 9]),
-    # abstract / action / property: full ladder, every language
+    # abstract / action / property: full ladder in EN, 7 levels in ZH/JA
     ('abstract', EN, FULL),
-    ('abstract', ZH, FULL),
-    ('action',   ZH, FULL),
-    ('action',   JA, FULL),
+    ('abstract', ZH, NO_COLLOCATION),
+    ('action',   ZH, NO_COLLOCATION),
+    ('action',   JA, NO_COLLOCATION),
     ('property', EN, FULL),
-    ('property', JA, FULL),
+    ('property', JA, NO_COLLOCATION),
     # function words: receptive + discrimination only
     ('function', EN, [1, 2, 3, 6, 7]),
     ('function', ZH, [1, 2, 3, 6, 7]),

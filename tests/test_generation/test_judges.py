@@ -13,11 +13,14 @@ All LLM transport is mocked via patch.object on the respective judge module's
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pydantic import ValidationError
 
 from services.exercise_generation.judges import answer_entailment as ae_mod
 from services.exercise_generation.judges import distractor_plausibility as dp_mod
 from services.exercise_generation.judges.base import (
     JudgeOutcome,
+    JudgeUnavailable,
+    batch_mode,
     classify,
     safe_accept,
     THRESHOLD_ACCEPT,
@@ -25,7 +28,11 @@ from services.exercise_generation.judges.base import (
 )
 from services.exercise_generation.judges.answer_entailment import judge_answer_entailment
 from services.exercise_generation.judges.distractor_plausibility import judge_distractor_plausibility
-from services.test_generation.schemas import AnswerEntailmentVerdict, DistractorPlausibilityVerdict
+from services.test_generation.schemas import (
+    AnswerEntailmentVerdict,
+    DistractorPlausibilityVerdict,
+    likert_to_verdict,
+)
 
 # ---------------------------------------------------------------------------
 # Shared fake config
@@ -35,7 +42,10 @@ _AE_CFG = {
     'template': 'passage:{0} question:{1} answer:{2}',
     'model': 'google/gemini-2.5-flash-lite',
     'provider': 'openrouter',
-    'version': 1,
+    # v3 is the first Likert row. answer_entailment refuses to judge on
+    # anything older (see _is_pre_likert), so a v1 here would make every
+    # entailment test below exercise the refusal path instead of the judge.
+    'version': 3,
 }
 _DP_CFG = {
     'template': 'passage:{0} question:{1} answer:{2} distractors:{3}',
@@ -47,9 +57,14 @@ _DP_CFG = {
 
 @pytest.fixture(autouse=True)
 def _seed_caches():
-    """Pre-populate per-module _cfg_cache to skip DB lookups."""
-    ae_mod._cfg_cache[2] = _AE_CFG
-    dp_mod._cfg_cache[2] = _DP_CFG
+    """Pre-populate per-module _cfg_cache to skip DB lookups.
+
+    Copies, not the shared dicts: tests that vary one field (e.g. the template
+    version) would otherwise mutate the module-level constant and leak into
+    every test that ran after them.
+    """
+    ae_mod._cfg_cache[2] = dict(_AE_CFG)
+    dp_mod._cfg_cache[2] = dict(_DP_CFG)
     yield
     ae_mod._cfg_cache.clear()
     dp_mod._cfg_cache.clear()
@@ -98,34 +113,138 @@ class TestSafeAccept:
 # ---------------------------------------------------------------------------
 
 class TestAnswerEntailment:
+    """v2 (TASK-723): the judge reports a 1-5 Likert rating, not a 0-1 float.
 
-    def _verdict(self, confidence: float, reason: str = 'ok') -> AnswerEntailmentVerdict:
-        return AnswerEntailmentVerdict(confidence=confidence, reason=reason)
+    ``confidence`` now carries the rating itself, so these assertions double as
+    the guarantee that ``llm_calls.judge_confidence`` holds one scale for this
+    task_name — see migrations/null_legacy_judge_confidence.sql.
+    """
 
-    def test_accept(self):
+    def _verdict(self, rating, reason: str = 'ok') -> AnswerEntailmentVerdict:
+        return AnswerEntailmentVerdict(rating=rating, reason=reason)
+
+    @pytest.mark.parametrize('rating', [5, 4])
+    def test_accept(self, rating):
         db = MagicMock()
-        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(0.9)):
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(rating)):
             out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
         assert out.verdict == 'accept'
-        assert out.confidence == 0.9
+        assert out.confidence == float(rating)
 
     def test_flag(self):
         db = MagicMock()
-        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(0.7)):
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(3)):
             out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
         assert out.verdict == 'flag'
+        assert out.confidence == 3.0
 
-    def test_reject(self):
+    @pytest.mark.parametrize('rating', [2, 1])
+    def test_reject(self, rating):
         db = MagicMock()
-        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(0.4)):
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(rating)):
             out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
         assert out.verdict == 'reject'
+
+    def test_numeric_key_shape_maps_to_rating(self):
+        """ZH/JA prompts return {"1": rating, "2": reason} — no English keys."""
+        obj = AnswerEntailmentVerdict.model_validate({'1': 4, '2': '第二段に明記'})
+        assert obj.rating == 4
+        assert obj.reason == '第二段に明記'
+
+    def test_out_of_range_rating_rejected(self):
+        with pytest.raises(ValidationError):
+            AnswerEntailmentVerdict(rating=6, reason='ok')
+
+    def test_legacy_float_scale_rejected_loudly(self):
+        """A pre-v2 prompt row against v2 code must fail, never be rescaled.
+
+        The scales overlap at 1 and mean opposite things there, so silently
+        rounding 0.85 would invert the verdict on every call.
+        """
+        with pytest.raises(ValidationError, match='pre-v2'):
+            AnswerEntailmentVerdict(rating=0.85, reason='ok')
+
+    def test_legacy_max_confidence_is_invisible_to_the_schema(self):
+        """Why the version gate exists, pinned as a fact rather than a comment.
+
+        A legacy row's best-case answer is ``1.0`` — 77% of 391 historical
+        responses. It is a structurally valid Likert ``1``, so the schema cannot
+        reject it and the verdict *inverts*: maximum confidence becomes a hard
+        reject. Nothing below the version gate can catch this.
+        """
+        obj = AnswerEntailmentVerdict.model_validate({'1': 1.0, '2': 'clearly stated'})
+        assert obj.rating == 1
+        assert likert_to_verdict(obj.rating) == 'reject'
+
+    def test_pre_likert_row_refuses_before_spending_a_call(self):
+        """v3 code against a v1/v2 row must not judge, and must not pay for it."""
+        db = MagicMock()
+        ae_mod._cfg_cache[2]['version'] = 2
+        with patch.object(ae_mod, 'call_llm',
+                          side_effect=AssertionError('LLM must not be called')) as spy:
+            out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+        spy.assert_not_called()
+        assert out.verdict == 'accept'
+        assert 'entailment_likert_v2.sql' in out.reason
+
+    @pytest.mark.parametrize('version', [1, 2])
+    def test_pre_likert_row_aborts_a_batch(self, version):
+        """A scale mismatch is a judge outage: fail closed inside a batch."""
+        db = MagicMock()
+        ae_mod._cfg_cache[2]['version'] = version
+        with batch_mode():
+            with patch.object(ae_mod, 'call_llm'):
+                with pytest.raises(JudgeUnavailable):
+                    judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+
+    def test_likert_row_is_judged_normally(self):
+        """The gate must not fire on the version it was built for."""
+        db = MagicMock()
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(5)) as spy:
+            out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+        spy.assert_called_once()
+        assert out.verdict == 'accept'
+
+    def test_unusable_version_does_not_block_judging(self):
+        """Only a *known* pre-v3 version blocks; a test double must not."""
+        db = MagicMock()
+        ae_mod._cfg_cache[2]['version'] = None
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(4)):
+            out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+        assert out.verdict == 'accept'
+        assert out.confidence == 4.0
+
+    def test_missing_rating_accepts_without_fabricating_one(self):
+        """No rating is not a weak rating — and must not become a number."""
+        db = MagicMock()
+        with patch.object(ae_mod, 'call_llm',
+                          return_value=self._verdict(None, 'judge said nothing')):
+            out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+        assert out.verdict == 'accept'
+        assert out.confidence is None
+
+    def test_missing_rating_does_not_abort_a_batch(self):
+        """accept_item, not safe_accept: the judge answered, one field was empty."""
+        db = MagicMock()
+        with batch_mode():
+            with patch.object(ae_mod, 'call_llm',
+                              return_value=self._verdict(None, 'no rating')):
+                out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
+        assert out.verdict == 'accept'
 
     def test_llm_error_safe_accepts(self):
         db = MagicMock()
         with patch.object(ae_mod, 'call_llm', side_effect=RuntimeError('boom')):
             out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
         assert out.verdict == 'accept'
+
+    def test_llm_error_aborts_a_batch(self):
+        """Judge outage inside a batch must fail closed (TASK-510 contract)."""
+        db = MagicMock()
+        with batch_mode():
+            with patch.object(ae_mod, 'call_llm', side_effect=RuntimeError('boom')):
+                with pytest.raises(JudgeUnavailable):
+                    judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
 
     def test_template_load_error_safe_accepts(self):
         ae_mod._cfg_cache.clear()
@@ -136,7 +255,7 @@ class TestAnswerEntailment:
 
     def test_reason_propagated(self):
         db = MagicMock()
-        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(0.85, 'clearly stated')):
+        with patch.object(ae_mod, 'call_llm', return_value=self._verdict(5, 'clearly stated')):
             out = judge_answer_entailment(db, 'passage', 'question?', 'answer', 2)
         assert out.reason == 'clearly stated'
 

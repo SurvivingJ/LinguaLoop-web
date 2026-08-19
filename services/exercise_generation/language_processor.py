@@ -464,6 +464,29 @@ class JapaneseProcessor(LanguageProcessor):
         doc = self.nlp(sentence)
         return [tok.text for tok in doc if not tok.is_punct and not tok.is_space]
 
+    #: Dependency labels that make a token a particle even when the tagger
+    #: does not call it ADP — the same test ``chunk_sentence`` uses to close a
+    #: bunsetsu, kept in one place so the two never drift apart.
+    _PARTICLE_DEPS = ('case', 'mark')
+
+    def particle_spans(self, sentence: str) -> list[dict]:
+        """Every particle occurrence, as ``{'particle': str, 'index': int}``.
+
+        ``index`` is the character offset in ``sentence``, which is what makes
+        this usable for cutting a blank: ``str.replace`` would blank the ``に``
+        inside ``にんじん`` (carrot), producing an item with no answer. Used by
+        the JA ``particle_selection`` generator (TASK-527).
+
+        Multiple occurrences of the same particle each get their own entry, in
+        order, so a caller can choose *which* ``を`` to test.
+        """
+        doc = self.nlp(sentence)
+        return [
+            {'particle': token.text, 'index': token.idx}
+            for token in doc
+            if token.pos_ == 'ADP' or token.dep_ in self._PARTICLE_DEPS
+        ]
+
     def chunk_sentence(self, sentence: str) -> list[str]:
         """Bunsetsu-aware chunking. A chunk = content tokens + their closing
         particle (ADP / case / mark). Punctuation and whitespace are dropped

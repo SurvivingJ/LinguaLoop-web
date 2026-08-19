@@ -1,23 +1,41 @@
 # services/vocabulary_ladder/asset_generators/prompt3_transforms.py
 """
-Prompt 3: Grammar & Structure Exercise Generator
+Prompt 3: Spot-Incorrect Sentence Generator (L7)
 
-Calls configurable model (default Claude Sonnet) to generate exercise content
-for levels 4 (morphology slot), 7 (spot incorrect sentence), and 8 (collocation
-repair). Single LLM call for all included levels.
+Once the shared "grammar & structure" prompt for levels 4, 7 and 8. L4
+(morphology) and L8 (collocation repair) moved to their own ``task_name``s in
+TASK-520 — see ``l4_morphology.py`` and ``l8_repair.py`` — leaving this prompt
+with the one level that was never the problem: crafting a single sentence that
+is wrong for a stated reason.
+
+What the split removed from this module
+---------------------------------------
+* The two remap functions that guessed between four possible option-array
+  shapes. Those branches only existed because nothing validated the response;
+  the split levels are schema-gated before remap instead.
+* The L8 input pre-gate (``_can_generate_l8`` / ``_pick_l8_sentence_index``).
+  Scanning for a sentence that attests the collocate is L8's own precondition
+  and now lives with L8, where returning None skips one level rather than
+  editing a shared level list.
+
+What deliberately stayed
+------------------------
+The JSON salvage path. L7 is a single level now, so a malformed response no
+longer risks taking two others down with it — but the salvage is cheap, already
+proven against this model, and still turns "lost the level" into "recovered
+the level" often enough to keep.
 """
 
 import json
 import logging
 import re
 
-from config import Config
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
-    PROMPT3_LEVELS, OPTION_KEY_MAP, DEFAULT_SENTENCE_ASSIGNMENTS,
-    SENTENCE_ASSIGNMENTS_A, L7_CORRECT_INDICES_A,
-    get_sentence_target, remap_keys,
+    PROMPT3_MONOLITH_LEVELS, SENTENCE_ASSIGNMENTS_A, L7_CORRECT_INDICES_A,
+    PROMPT3_TYPE_FOR_LEVEL, prompt3_levels_for_context,
+    get_sentence_target,
 )
 from services.vocabulary_ladder.asset_generators._renderer import render_template
 
@@ -26,15 +44,8 @@ logger = logging.getLogger(__name__)
 TASK_NAME = 'vocab_prompt3_transforms'
 
 
-def _whole_word_match(text: str, word: str) -> bool:
-    """Return True if `word` appears as a whole word in `text` (case-insensitive)."""
-    if not text or not word:
-        return False
-    return re.search(rf'\b{re.escape(word)}\b', text, re.IGNORECASE) is not None
-
-
 class TransformAssetGenerator:
-    """Generates Prompt 3 assets: morphology, spot-incorrect, collocation repair."""
+    """Generates the Prompt 3 asset: the L7 spot-incorrect sentence."""
 
     def __init__(self, db, language_id: int):
         self.db = db
@@ -55,8 +66,10 @@ class TransformAssetGenerator:
         sentence_assignments: dict[int, int] | None = None,
         l7_correct_indices: list[int] | None = None,
         used_distractors: list[str] | None = None,
+        semantic_class: str | None = None,
+        capability_context: dict | None = None,
     ) -> dict | None:
-        """Generate exercise assets for Prompt 3 levels.
+        """Generate exercise assets for the levels this prompt still owns.
 
         Args:
             sense_id: The dim_word_senses ID.
@@ -69,10 +82,15 @@ class TransformAssetGenerator:
             used_distractors: Distractor texts already assigned elsewhere in
                 this item set; passed to the LLM so it doesn't repeat them.
                 Defaults to [].
+            semantic_class: Ratified semantic_class for this word. Supplying
+                it (with `capability_context`) enables per-type gating — see
+                below. Omitting it keeps the pre-TASK-514 level-only behaviour.
+            capability_context: Facts about this word that capability
+                `requires` tokens can test (`morph_forms`, `pronunciation`, …),
+                as built by `VocabAssetPipeline._capability_context`.
 
         Returns:
-            Descriptive-keyed dict with level_4, level_7, level_8 keys,
-            or None on failure.
+            Descriptive-keyed dict with a level_7 key, or None on failure.
         """
         if sentence_assignments is None:
             sentence_assignments = SENTENCE_ASSIGNMENTS_A
@@ -81,33 +99,33 @@ class TransformAssetGenerator:
         if used_distractors is None:
             used_distractors = []
 
-        p3_active = sorted(lv for lv in active_levels if lv in PROMPT3_LEVELS)
+        # Per-type gating (TASK-514/B5). `active_levels` says the *level* is
+        # live; it does not say this prompt owns the capability keeping it
+        # alive. The gate runs over the whole P3 family and is then narrowed to
+        # what this prompt still emits, so the split levels stay governed by
+        # the same rule without this prompt trying to produce them.
+        p3_active = sorted(lv for lv in active_levels if lv in PROMPT3_MONOLITH_LEVELS)
+        if semantic_class is not None:
+            gated = prompt3_levels_for_context(
+                active_levels, semantic_class, self.language_id, capability_context,
+            )
+            dropped = [lv for lv in p3_active if lv not in gated]
+            if dropped:
+                logger.info(
+                    "Sense %s: per-type gate dropped P3 level(s) %s "
+                    "(no enabled %s row for language_id=%s semantic_class=%s)",
+                    sense_id, dropped,
+                    [PROMPT3_TYPE_FOR_LEVEL.get(lv) for lv in dropped],
+                    self.language_id, semantic_class,
+                )
+            p3_active = [lv for lv in p3_active if lv in gated]
+
         if not p3_active:
             logger.warning("No Prompt 3 levels active for sense %s", sense_id)
             return {}
 
-        # If L8 is requested but the primary collocate doesn't appear as a
-        # whole word in the chosen sentence, drop L8 — better than emitting
-        # an exercise we know is broken.
-        if 8 in p3_active and not self._can_generate_l8(core_asset, sentence_assignments):
-            logger.warning(
-                "Skipping L8 for sense %s — primary_collocate not a whole-word "
-                "match in the chosen sentence", sense_id,
-            )
-            p3_active = [lv for lv in p3_active if lv != 8]
-            if not p3_active:
-                return {}
-
-        # Sentence assignment used for the LLM call AND the remap fallback —
-        # if we had to pick a non-default sentence for L8, both sides need
-        # to agree so the rendered exercise points at the correct sentence.
-        effective_assignments = dict(sentence_assignments)
-        l8_idx = self._pick_l8_sentence_index(core_asset, sentence_assignments)
-        if l8_idx is not None:
-            effective_assignments[8] = l8_idx
-
         prompt_text = self._build_prompt(
-            core_asset, p3_active, effective_assignments, l7_correct_indices,
+            core_asset, p3_active, sentence_assignments, l7_correct_indices,
             used_distractors,
         )
         cfg = self._cfg
@@ -116,47 +134,7 @@ class TransformAssetGenerator:
         if raw is None:
             return None
 
-        result = self._remap_output(raw, p3_active, effective_assignments)
-        # L8 correctness is now governed by the collocation judge at render time
-        # (judges/collocation.py judge_collocation_repair), which semantically
-        # supersedes the old string-match retry/drop hack. The structural
-        # _can_generate_l8 pre-gate above still guards inputs before the LLM call.
-        return result
-
-    def _can_generate_l8(
-        self, core_asset: dict, sentence_assignments: dict[int, int],
-    ) -> bool:
-        """Sanity-check inputs needed for L8 before we even call the LLM."""
-        collocate = (core_asset.get('primary_collocate') or '').strip()
-        if not collocate or collocate.lower() == 'null':
-            return False
-        return self._pick_l8_sentence_index(core_asset, sentence_assignments) is not None
-
-    def _pick_l8_sentence_index(
-        self, core_asset: dict, sentence_assignments: dict[int, int],
-    ) -> int | None:
-        """Choose a sentence index for L8 that contains the primary collocate.
-
-        Prefers the variant's assigned index, then scans the rest of the pool.
-        Returns None if no sentence contains the collocate as a whole word.
-        """
-        collocate = (core_asset.get('primary_collocate') or '').strip()
-        if not collocate or collocate.lower() == 'null':
-            return None
-
-        sentences = core_asset.get('sentences', []) or []
-        if not sentences:
-            return None
-
-        preferred = sentence_assignments.get(8, 4)
-        # Try the assigned index first, then the rest in order.
-        order = [preferred] + [i for i in range(len(sentences)) if i != preferred]
-        for idx in order:
-            if 0 <= idx < len(sentences):
-                sent_text = sentences[idx].get('text', '')
-                if _whole_word_match(sent_text, collocate):
-                    return idx
-        return None
+        return self._remap_output(raw, p3_active)
 
     def _call_with_retry(
         self, prompt_text: str, cfg: dict, p3_active: list[int], sense_id: int,
@@ -164,13 +142,11 @@ class TransformAssetGenerator:
         """Single LLM call, retry once if any active level is missing or call fails.
 
         On total JSON-parse failure we make a salvage attempt in 'text' mode and
-        try to extract the top-level level keys ("4"/"7"/"8") independently —
-        Sonnet sometimes drops a comma deep inside the L4/L8 options array,
-        which kills strict JSON parsing for the entire response and would
-        otherwise sink L7 too. Salvage means at worst we lose the broken level,
-        not all three.
+        try to extract the top-level level keys independently — Sonnet
+        sometimes drops a comma deep inside an array, which kills strict JSON
+        parsing for the entire response. Salvage means at worst we lose the
+        broken level, not the whole call.
         """
-        last_parse_error = None
         for attempt in (1, 2):
             try:
                 raw = call_llm(
@@ -182,7 +158,6 @@ class TransformAssetGenerator:
                     response_format='json',
                 )
             except Exception as e:
-                last_parse_error = e
                 logger.warning(
                     "Prompt 3 LLM call attempt %d failed for sense %s: %s",
                     attempt, sense_id, e,
@@ -226,8 +201,7 @@ class TransformAssetGenerator:
 
         Asks the LLM for the same response in plain text mode, then uses
         json.JSONDecoder.raw_decode to peel off each top-level level key
-        independently. A malformed L4 array no longer prevents L7 from
-        being recovered.
+        independently.
         """
         try:
             text = call_llm(
@@ -276,18 +250,17 @@ class TransformAssetGenerator:
             ensure_ascii=False,
         )
 
-        morphological_forms = core_asset.get('morphological_forms', [])
-        morph_json = json.dumps(morphological_forms, ensure_ascii=False)
-
-        # L8 anchors: even when L8 is inactive, the template references these
-        # vars so we must always supply non-empty placeholder strings. The
-        # caller has already ensured sentence_assignments[8] points at a
-        # sentence containing the collocate (when L8 is active).
+        # L4/L8 placeholders are still supplied even though this prompt no
+        # longer asks for those levels: `render_template` raises on any
+        # placeholder the template mentions but the caller omits, and the
+        # currently-seeded template rows predate the split. Extra kwargs are
+        # ignored, so this keeps working against both the old rows and the
+        # narrowed ones the TASK-520 migration installs. `active_levels_json`
+        # is the contract that actually stops L4/L8 being emitted.
         l8_idx = sentence_assignments.get(8, 4)
         l8_sentence_text = ''
         if 0 <= l8_idx < len(sentences):
             l8_sentence_text = sentences[l8_idx].get('text', '')
-        l8_collocate_word = (core_asset.get('primary_collocate') or '').strip() or 'null'
 
         return render_template(
             template,
@@ -299,14 +272,16 @@ class TransformAssetGenerator:
             register=core_asset.get('register') or 'neutral',
             sense_fingerprint=core_asset.get('sense_fingerprint') or '',
             sentences_json=sentences_json,
-            morphological_forms_json=morph_json,
+            morphological_forms_json=json.dumps(
+                core_asset.get('morphological_forms', []), ensure_ascii=False,
+            ),
             active_levels_json=json.dumps([str(lv) for lv in active_levels]),
             used_distractors_json=json.dumps(used_distractors, ensure_ascii=False),
             level_4_sentence_index=sentence_assignments.get(4, 1),
             level_7_correct_indices=json.dumps(l7_correct_indices),
             level_8_sentence_index=l8_idx,
             level_8_sentence_text=l8_sentence_text,
-            level_8_collocate_word=l8_collocate_word,
+            level_8_collocate_word=(core_asset.get('primary_collocate') or '').strip() or 'null',
         )
 
     def _load_template(self) -> str:
@@ -315,72 +290,17 @@ class TransformAssetGenerator:
             self._cfg = get_template_config(self.db, TASK_NAME, self.language_id)
         return self._cfg['template']
 
-    def _remap_output(
-        self, raw: dict, active_levels: list[int],
-        sentence_assignments: dict[int, int],
-    ) -> dict:
+    def _remap_output(self, raw: dict, active_levels: list[int]) -> dict:
         """Transform numeric-keyed LLM output to descriptive level keys."""
         result = {}
-
         for level in active_levels:
             level_key = str(level)
             if level_key not in raw:
                 logger.warning("Prompt 3 missing level %s in output", level)
                 continue
-
-            level_data = raw[level_key]
-
-            if level == 4:
-                result['level_4'] = self._remap_level_4(level_data, sentence_assignments)
-            elif level == 7:
-                result['level_7'] = self._remap_level_7(level_data)
-            elif level == 8:
-                result['level_8'] = self._remap_level_8(level_data, sentence_assignments)
-
+            if level == 7:
+                result['level_7'] = self._remap_level_7(raw[level_key])
         return result
-
-    def _remap_level_4(self, data: dict | list, sentence_assignments: dict[int, int]) -> dict:
-        """Remap Level 4 morphology slot output."""
-        if isinstance(data, list):
-            options = [remap_keys(opt, OPTION_KEY_MAP) for opt in data]
-            correct = [o for o in options if o.get('is_correct')]
-            explanations = {o.get('text', ''): o.get('explanation', '') for o in options}
-
-            return {
-                'options': options,
-                'correct_form': correct[0].get('text', '') if correct else '',
-                'explanations': explanations,
-                'sentence_index': sentence_assignments.get(4, 1),
-                'base_form': data.get('4', '') if isinstance(data, dict) else '',
-                'form_label': data.get('5', '') if isinstance(data, dict) else '',
-            }
-
-        if isinstance(data, dict):
-            # The v2 template puts the options array at sub-key "1" inside the
-            # level dict. Earlier shapes used either an 'options' key or
-            # "0".."3" as separate option dicts; keep all paths working so a
-            # remap fix is robust to any LLM shape drift.
-            options = []
-            if isinstance(data.get('options'), list):
-                options = [remap_keys(o, OPTION_KEY_MAP) for o in data['options']]
-            elif isinstance(data.get('1'), list):
-                options = [remap_keys(o, OPTION_KEY_MAP) for o in data['1']]
-            elif any(isinstance(data.get(str(i)), dict) for i in range(4)):
-                options = [remap_keys(data[str(i)], OPTION_KEY_MAP) for i in range(4) if str(i) in data]
-
-            correct = [o for o in options if o.get('is_correct')]
-            explanations = {o.get('text', ''): o.get('explanation', '') for o in options}
-
-            return {
-                'options': options,
-                'correct_form': correct[0].get('text', '') if correct else '',
-                'base_form': data.get('4', ''),
-                'form_label': data.get('5', ''),
-                'sentence_index': int(data.get('6', sentence_assignments.get(4, 1))),
-                'explanations': explanations,
-            }
-
-        return {}
 
     def _remap_level_7(self, data: dict) -> dict:
         """Remap Level 7 spot-incorrect sentence output."""
@@ -393,41 +313,6 @@ class TransformAssetGenerator:
             'error_description': data.get('3', ''),
             'correct_sentence_indices': data.get('4', [0, 1, 2]),
         }
-
-    def _remap_level_8(self, data: dict | list, sentence_assignments: dict[int, int]) -> dict:
-        """Remap Level 8 collocation repair output."""
-        if isinstance(data, list):
-            options = [remap_keys(opt, OPTION_KEY_MAP) for opt in data]
-            correct = [o for o in options if o.get('is_correct')]
-            explanations = {o.get('text', ''): o.get('explanation', '') for o in options}
-
-            return {
-                'options': options,
-                'correct_collocate': correct[0].get('text', '') if correct else '',
-                'explanations': explanations,
-                'sentence_index': sentence_assignments.get(8, 4),
-            }
-
-        if isinstance(data, dict):
-            # The v2 template puts the options array at sub-key "1" inside the
-            # level dict (mirroring level 4). Keep an 'options' fallback for
-            # older shapes.
-            options = []
-            if isinstance(data.get('options'), list):
-                options = [remap_keys(o, OPTION_KEY_MAP) for o in data['options']]
-            elif isinstance(data.get('1'), list):
-                options = [remap_keys(o, OPTION_KEY_MAP) for o in data['1']]
-
-            correct = [o for o in options if o.get('is_correct')]
-            return {
-                'options': options,
-                'correct_collocate': correct[0].get('text', '') if correct else '',
-                'error_collocate': data.get('5', ''),
-                'sentence_index': int(data.get('4', sentence_assignments.get(8, 4))),
-                'explanations': {o.get('text', ''): o.get('explanation', '') for o in options},
-            }
-
-        return {}
 
     def _extract_lemma(self, core_asset: dict) -> str:
         sentences = core_asset.get('sentences', [])

@@ -6,9 +6,11 @@ Public API is identical so the backward-compat shim in ``cloze_judge.py``
 can re-export without any caller changes.
 
 Key differences from the original:
-- Model is loaded from ``prompt_templates`` via ``get_template_config``
-  (per-language: zh→deepseek-chat, en→gemini-2.5-flash-lite, ja→qwen-72b).
-  No hardcoded ``DEFAULT_JUDGE_MODEL`` constant.
+- Model is loaded from ``prompt_templates`` via ``get_template_config``, and is
+  routed per-language. No hardcoded ``DEFAULT_JUDGE_MODEL`` constant. The slugs
+  are deliberately NOT listed here: they have rotated repeatedly (the gemini arm
+  alone went 2.5-flash-lite -> 3.5-flash-lite on 2026-08-16) and a comment
+  restating them just rots. Query prompt_templates for the live values.
 - Calls ``services.llm_service.call_llm`` (unified service) so cloze judge
   calls appear in ``llm_calls`` with ``pipeline='vocab_ladder'``,
   ``task_name='cloze_distractor_judge'``, and the per-language model.

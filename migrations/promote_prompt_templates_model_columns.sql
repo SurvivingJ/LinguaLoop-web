@@ -42,7 +42,7 @@ WHERE task_name = 'vocab_prompt1_core'
   AND (model IS NULL OR provider IS NULL);
 
 UPDATE public.prompt_templates
-SET model = 'anthropic/claude-sonnet-4-6', provider = 'openrouter'
+SET model = 'anthropic/claude-sonnet-5', provider = 'openrouter'
 WHERE task_name IN ('vocab_prompt2_exercises', 'vocab_prompt3_transforms')
   AND is_active = true
   AND (model IS NULL OR provider IS NULL);
@@ -70,7 +70,7 @@ WHERE task_name IN (
 -- ──────────────────────────────────────────────────────────────────────────
 
 UPDATE public.prompt_templates
-SET model = 'google/gemini-2.0-flash-001', provider = 'openrouter'
+SET model = 'google/gemini-3.7-flash', provider = 'openrouter'
 WHERE task_name IN (
     'conversation_generation',
     'conversation_analysis',
@@ -110,7 +110,7 @@ WHERE task_name IN (
 
 -- Creative-writing tasks → Sonnet
 UPDATE public.prompt_templates
-SET model = 'anthropic/claude-sonnet-4-6', provider = 'openrouter'
+SET model = 'anthropic/claude-sonnet-5', provider = 'openrouter'
 WHERE task_name IN ('mystery_plot', 'mystery_scene')
   AND is_active = true
   AND (model IS NULL OR provider IS NULL);

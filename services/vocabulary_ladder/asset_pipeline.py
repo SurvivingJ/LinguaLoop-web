@@ -13,19 +13,30 @@ Usage:
 """
 
 import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from services.exercise_generation.judges.base import (
+    BatchModeThreadPoolExecutor, JudgeUnavailable,
+)
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
-    compute_active_levels, normalize_semantic_class,
+    compute_active_levels, active_levels_for_context, normalize_semantic_class,
+    prompt3_levels_for_context, capability_context_from_core,
+    SENTENCE_SOURCE_MINED, SPLIT_LEVEL_TASKS,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
     L7_CORRECT_INDICES_A, L7_CORRECT_INDICES_B,
 )
 from services.vocabulary_ladder.asset_generators.prompt1_core import CoreAssetGenerator
 from services.vocabulary_ladder.asset_generators.prompt2_exercises import ExerciseAssetGenerator
 from services.vocabulary_ladder.asset_generators.prompt3_transforms import TransformAssetGenerator
+from services.vocabulary_ladder.asset_generators.l4_morphology import MorphologySlotGenerator
+from services.vocabulary_ladder.asset_generators.l8_repair import CollocationRepairGenerator
+from services.vocabulary_ladder.asset_generators import typed_llm
+from services.vocabulary_ladder.collocation_grounding import (
+    GROUNDING_ASSERTED, GROUNDING_CORPUS, CollocationGrounder, ground_core_asset,
+)
 from services.vocabulary_ladder.validators import VocabAssetValidator
 
 logger = logging.getLogger(__name__)
@@ -104,6 +115,20 @@ class VocabAssetPipeline:
                 "Prompt 1 warnings for sense %s: %s", sense_id, p1_warnings,
             )
 
+        # Sentence-tier hard gate (TASK-524). Deterministic and free, so it
+        # runs *before* the LLM judge: a C2-lexis sentence for an A1 word is
+        # rejected on a frequency table rather than on a judgement call, and
+        # the judge's per-sentence spend is reserved for what only a model can
+        # assess. Rejected sentences get the same in-place repair treatment as
+        # judge rejects — indices are never disturbed.
+        tier_warnings, tier_stats = self._tier_gate_sentences(
+            core_asset, language_id, p1_gen, sense_id,
+        )
+        if tier_warnings:
+            p1_warnings = (p1_warnings or []) + tier_warnings
+            result['warnings'].extend(tier_warnings)
+        result['tier_gate'] = tier_stats
+
         # P1 sentence-corpus judge (Phase 4 / TASK-404). Runs after structural
         # validation and before the P2/P3 fan-out, so off-sense / off-register /
         # not-whole-word sentences are caught before every downstream level
@@ -127,13 +152,49 @@ class VocabAssetPipeline:
                               validation_warnings=p1_warnings or None)
             return result
 
+        # Collocate grounding (TASK-523 / finding G6). P1 asserts a
+        # primary_collocate for every sense and, being a model, never says "no
+        # collocate". Grade the assertion against a frequency source and pin
+        # the verdict onto the asset before it is stored, so L5's gate, L8's
+        # prompt and every rendered exercise's provenance all read the same
+        # tag. Never blocks: an unattested pair is annotated, not deleted.
+        grounding = ground_core_asset(core_asset, language_id, self.db)
+        result['collocate_grounding'] = grounding.to_tag()
+        if grounding.status == GROUNDING_ASSERTED:
+            message = (
+                f"Collocate {core_asset.get('primary_collocate')!r} is "
+                f"llm_asserted — {grounding.reason}"
+            )
+            p1_warnings = (p1_warnings or []) + [message]
+            result['warnings'].append(message)
+
         self._store_asset(sense_id, language_id, 'prompt1_core', core_asset,
                           p1_gen.model, batch_id,
                           validation_warnings=p1_warnings or None)
         self._update_vocabulary_metadata(sense_id, core_asset)
 
         semantic_class = normalize_semantic_class(core_asset.get('semantic_class'))
-        active_levels = compute_active_levels(semantic_class, language_id)
+
+        # Matrix-gated planning (TASK-514/B5). This used to be a bare
+        # compute_active_levels(), so L4 was planned for every word and the
+        # pipeline relied on the model returning null morphology for languages
+        # that have none — which it does not reliably do, yielding invented ZH
+        # "inflections". Narrow the plan by what this word can actually
+        # support: a capability row requiring morph_forms>=2 cannot fire for a
+        # word P1 gave 0 or 1 forms.
+        matrix_levels = compute_active_levels(semantic_class, language_id)
+        capability_context = self._capability_context(core_asset)
+        active_levels = active_levels_for_context(
+            semantic_class, language_id, capability_context,
+        )
+        dropped = [lv for lv in matrix_levels if lv not in active_levels]
+        if dropped:
+            logger.info(
+                "Sense %s: capability requirements dropped level(s) %s "
+                "(semantic_class=%s, morph_forms=%d)",
+                sense_id, dropped, semantic_class,
+                len(core_asset.get('morphological_forms') or []),
+            )
 
         # Aggressively gate L5 (Collocation Gap) on corpus evidence of a fixed
         # collocation. P1 happily returns 'advertising' as a primary_collocate
@@ -149,9 +210,26 @@ class VocabAssetPipeline:
                 sense_id, core_asset.get('primary_collocate'),
             )
 
-        # Step 3: Run Prompts 2A, 2B, 3A, 3B in parallel
+        # Step 3: Run every generation prompt for both variants in parallel
         p2_gen = ExerciseAssetGenerator(self.db, language_id)
         p3_gen = TransformAssetGenerator(self.db, language_id)
+        # TASK-520: L4 and L8 have their own prompts, models and retries. They
+        # are separate futures precisely so a morphology failure costs the
+        # morphology item and nothing else — under the monolith it forced a
+        # retry of spot-incorrect and repair as well.
+        split_gens = {
+            4: MorphologySlotGenerator(self.db, language_id),
+            8: CollocationRepairGenerator(self.db, language_id),
+        }
+
+        # The P3-family levels the generators will actually request, after
+        # per-type gating (TASK-514/B5). The validator must be held to the same
+        # list — otherwise a correctly-suppressed L4 reads back as
+        # "Missing level_4" and marks an otherwise-good asset invalid.
+        p3_expected_levels = prompt3_levels_for_context(
+            active_levels, semantic_class, language_id, capability_context,
+        )
+        split_levels = [lv for lv in p3_expected_levels if lv in SPLIT_LEVEL_TASKS]
 
         variants = {
             'A': {
@@ -165,7 +243,11 @@ class VocabAssetPipeline:
         }
 
         variant_results = {}
-        with ThreadPoolExecutor(max_workers=4) as pool:
+        # BatchModeThreadPoolExecutor, not the bare one: batch mode is
+        # thread-local, so plain pool threads judged fail-*open* for the whole
+        # of P2/P3 and the split/typed levels — only P1, which runs on this
+        # thread, was ever genuinely fail-closed. See judges/base.py.
+        with BatchModeThreadPoolExecutor(max_workers=8) as pool:
             futures = {}
             for variant_key, cfg in variants.items():
                 # Submit P2 variant
@@ -173,17 +255,45 @@ class VocabAssetPipeline:
                     p2_gen.generate, sense_id, core_asset, active_levels,
                     cfg['sentence_assignments'],
                 )] = ('p2', variant_key)
-                # Submit P3 variant
+                # Submit P3 variant. semantic_class + capability_context turn
+                # on per-type gating inside the generator (TASK-514/B5) so P3
+                # only asks for spot-incorrect when an enabled capability row
+                # for that *type* can actually fire.
                 futures[pool.submit(
                     p3_gen.generate, sense_id, core_asset, active_levels,
                     cfg['sentence_assignments'], cfg['l7_correct_indices'],
+                    None, semantic_class, capability_context,
                 )] = ('p3', variant_key)
+                # Submit the split levels. Already gated by p3_expected_levels,
+                # so each generator only has to decide whether *this sense*
+                # gives it a usable sentence.
+                for level in split_levels:
+                    futures[pool.submit(
+                        split_gens[level].generate, sense_id, core_asset,
+                        cfg['sentence_assignments'],
+                    )] = (f'l{level}', variant_key)
+                # Type-registered LLM generators (TASK-522 syn/ant +
+                # word_family, TASK-527 particle_selection). One future per
+                # variant rather than per type: they share a driver that
+                # already walks the capability matrix, and the matrix decides
+                # which of them apply to this word.
+                futures[pool.submit(
+                    typed_llm.generate_all,
+                    self.db, language_id, sense_id, core_asset, semantic_class,
+                    cfg['sentence_assignments'], capability_context,
+                )] = ('typed', variant_key)
 
             for future in as_completed(futures):
                 prompt_type, variant_key = futures[future]
                 try:
                     asset = future.result()
                     variant_results[(prompt_type, variant_key)] = asset
+                except JudgeUnavailable:
+                    # A judge outage during a batch aborts the batch. Letting
+                    # this fall into the generic handler below would downgrade
+                    # a loud stop into "variant failed, carry on" — quieter
+                    # than the fail-open bug it replaced.
+                    raise
                 except Exception as e:
                     logger.error("Variant %s_%s failed for sense %s: %s",
                                  prompt_type, variant_key, sense_id, e)
@@ -205,19 +315,57 @@ class VocabAssetPipeline:
                     result['errors'].extend(
                         [f'[{variant_key}] {e}' for e in p2_errors])
 
-            # P3 variant
-            p3_asset = variant_results.get(('p3', variant_key))
-            asset_type = f'prompt3_transforms_{variant_key}'
-            if p3_asset is None:
-                result['errors'].append(f'Prompt 3 variant {variant_key} generation failed')
-            else:
-                p3_valid, p3_errors = self.validator.validate_prompt3(p3_asset, active_levels)
+            # P3-family variant. The monolith's level_7 and the split levels'
+            # fragments are merged back into ONE prompt3_transforms_X asset:
+            # the renderer and the validator keep reading the pre-split shape,
+            # so the split is invisible downstream (and A/B behaviour is
+            # unchanged). Each contributor reports its own failure, because
+            # "morphology failed" and "spot-incorrect failed" are now genuinely
+            # different events with different fixes.
+            p3_sources = [('P3', variant_results.get(('p3', variant_key)))]
+            for level in split_levels:
+                p3_sources.append(
+                    (f'L{level}', variant_results.get((f'l{level}', variant_key)))
+                )
+
+            p3_asset: dict | None = None
+            for label, fragment in p3_sources:
+                if fragment is None:
+                    result['errors'].append(
+                        f'Prompt 3 ({label}) variant {variant_key} generation failed'
+                    )
+                    continue
+                p3_asset = {**(p3_asset or {}), **fragment}
+
+            if p3_asset is not None:
+                asset_type = f'prompt3_transforms_{variant_key}'
+                p3_valid, p3_errors = self.validator.validate_prompt3(
+                    p3_asset, p3_expected_levels)
                 self._store_asset(sense_id, language_id, asset_type, p3_asset,
                                   p3_gen.model, batch_id, is_valid=p3_valid,
                                   validation_errors=p3_errors if not p3_valid else None)
                 if not p3_valid:
                     result['errors'].extend(
                         [f'[{variant_key}] {e}' for e in p3_errors])
+
+            # Type-registered LLM variant. Stored even when empty so the
+            # renderer can tell "no applicable types for this word" (an empty
+            # asset) from "generation never ran" (no asset at all).
+            typed_result = variant_results.get(('typed', variant_key))
+            if typed_result is None:
+                result['errors'].append(
+                    f'Typed LLM generators variant {variant_key} failed'
+                )
+            else:
+                fragments, typed_failures = typed_result
+                self._store_asset(
+                    sense_id, language_id, f'llm_types_{variant_key}', fragments,
+                    'per-type (see prompt_templates)', batch_id,
+                )
+                for type_code in typed_failures:
+                    result['errors'].append(
+                        f'[{variant_key}] {type_code} generation failed'
+                    )
 
         # Determine final status
         if not result['errors']:
@@ -227,6 +375,16 @@ class VocabAssetPipeline:
             result['status'] = 'partial'
 
         return result
+
+    @staticmethod
+    def _capability_context(core_asset: dict) -> dict:
+        """Facts about this word that capability ``requires`` tokens can test.
+
+        Thin alias for :func:`capability_context_from_core` — the renderer
+        needs the same facts, so the construction lives in config alongside
+        ``requirements_met``.
+        """
+        return capability_context_from_core(core_asset)
 
     def generate_batch(
         self,
@@ -251,6 +409,10 @@ class VocabAssetPipeline:
                 )
                 results.append(result)
                 counts[result['status']] = counts.get(result['status'], 0) + 1
+            except JudgeUnavailable:
+                # Abort the whole batch rather than marking this one sense
+                # failed and generating the remaining senses unjudged.
+                raise
             except Exception as e:
                 logger.error("Pipeline failed for sense %s: %s", sense_id, e)
                 results.append({
@@ -271,6 +433,88 @@ class VocabAssetPipeline:
             **counts,
             'results': results,
         }
+
+    # ------------------------------------------------------------------
+    # Sentence-tier hard gate (TASK-524)
+    # ------------------------------------------------------------------
+
+    def _tier_gate_sentences(
+        self, core_asset: dict, language_id: int, p1_gen, sense_id: int,
+    ) -> tuple[list[str], dict]:
+        """Screen P1's sentences on lexical frequency, repairing the misfits.
+
+        Returns ``(warnings, stats)``. ``stats`` feeds the batch report
+        (TASK-517) with ``{'tier', 'screened', 'rejected', 'repaired',
+        'still_failing'}``.
+
+        Mutates ``core_asset['sentences'][i]['text']`` in place when a repair
+        succeeds and never changes their count or order — downstream levels
+        reference sentence indices positionally.
+
+        Deliberately never blocks the asset. A sentence set that is entirely
+        off-tier is a prompt problem, not a data-integrity problem, and the
+        judge that runs next already owns the block decision
+        (``P1_MIN_ACCEPTABLE_SENTENCES``). Double-blocking on two different
+        criteria would make failures hard to attribute.
+        """
+        from services.vocabulary_ladder.tier_gate import (
+            morph_form_texts, screen_sentences, tier_for_lemma,
+        )
+        from services.vocabulary_ladder.config import get_sentence_target
+
+        sentences = core_asset.get('sentences') or []
+        stats = {'tier': None, 'screened': 0, 'rejected': 0,
+                 'repaired': 0, 'still_failing': 0}
+        if not sentences:
+            return [], stats
+
+        lemma = get_sentence_target(sentences[0])
+        tier = tier_for_lemma(lemma, language_id)
+        exempt = [lemma] + morph_form_texts(core_asset)
+        stats['tier'] = tier
+        stats['screened'] = len(sentences)
+
+        verdicts = screen_sentences(
+            sentences, language_id, tier, target_word=lemma, exempt=exempt,
+        )
+        rejected = [i for i, v in enumerate(verdicts) if not v.passed]
+        stats['rejected'] = len(rejected)
+        if not rejected:
+            return [], stats
+
+        reasons = {i: f'lexically too advanced — {verdicts[i].reason}'
+                   for i in rejected}
+        repaired = p1_gen.repair_sentences(core_asset, rejected, reasons, sense_id)
+        if repaired:
+            for idx, new_text in repaired.items():
+                if 0 <= idx < len(sentences) and isinstance(sentences[idx], dict):
+                    sentences[idx]['text'] = new_text
+            # Re-screen only what changed; a repair that lands another
+            # off-tier sentence must not be recorded as a success.
+            redone = sorted(repaired.keys())
+            re_verdicts = screen_sentences(
+                [sentences[i] for i in redone], language_id, tier,
+                target_word=lemma, exempt=exempt,
+            )
+            for j, idx in enumerate(redone):
+                verdicts[idx] = re_verdicts[j]
+            stats['repaired'] = sum(1 for i in redone if verdicts[i].passed)
+
+        warnings: list[str] = []
+        for i in rejected:
+            if verdicts[i].passed:
+                continue
+            stats['still_failing'] += 1
+            warnings.append(
+                f'Tier gate: sentence[{i}] {verdicts[i].reason}'
+            )
+
+        logger.info(
+            "Sense %s tier gate (%s): %d/%d rejected, %d repaired, %d still failing",
+            sense_id, tier, stats['rejected'], stats['screened'],
+            stats['repaired'], stats['still_failing'],
+        )
+        return warnings, stats
 
     # ------------------------------------------------------------------
     # P1 sentence-corpus judge (Phase 4)
@@ -362,11 +606,165 @@ class VocabAssetPipeline:
     def _fetch_corpus_sentences(
         self, sense_id: int, language_id: int
     ) -> list[dict]:
-        """Pull existing sentences from tests/conversations that contain this word.
+        """Mine transcript sentences that use *this sense* of the word (TASK-513).
 
-        Returns list of dicts with: text, target_word, source, complexity_tier.
+        Replaces a blind scan of 50 arbitrary transcripts plus 30 conversations,
+        matching on the bare lemma. That path was wrong twice over: it had no
+        way to tell one sense of a word from another, and its 50-row window
+        meant a word could be all over the corpus and still be missed.
+
+        The index built for exactly this question is used instead:
+        ``tests.vocab_sense_ids`` (GIN) narrows to transcripts containing the
+        sense, and ``tests.vocab_token_map`` gives the *surface tokens* that
+        realise it — which is how an inflected or segmented occurrence is found
+        without a ``\\b`` regex the CJK languages cannot support.
+
+        Mined sentences are markup-stripped, tier-screened against the sense's
+        own band (TASK-524 — no point seeding P1 with a sentence the gate will
+        reject downstream), deduplicated, and tagged ``sentence_source='mined'``.
+
+        Returns at most ``VOCAB_SENTENCES_PER_WORD`` dicts with keys: text,
+        target_word, source, complexity_tier, sentence_source, test_id.
+        Returns ``[]`` on any failure — P1 then generates the full set, which
+        is the correct degradation.
         """
-        # Get the lemma for this sense
+        from services.exercise_generation.language_processor import LanguageProcessor
+        from services.exercise_generation.transcript_miner import TranscriptMiner
+        from services.vocabulary_ladder.tier_gate import screen_sentence, tier_for_lemma
+
+        lemma = self._lemma_for_sense(sense_id)
+        if not lemma:
+            return []
+
+        try:
+            resp = self.db.rpc('tests_containing_sense', {
+                'p_sense_id': sense_id,
+                'p_language_id': language_id,
+            }).execute()
+            rows = resp.data or []
+        except Exception as e:
+            logger.warning(
+                "Transcript mining RPC failed for sense %s: %s — P1 will "
+                "generate all sentences", sense_id, e,
+            )
+            return []
+
+        if not rows:
+            logger.info("No transcripts contain sense %s — nothing to mine", sense_id)
+            return []
+
+        try:
+            processor = LanguageProcessor.for_language(language_id)
+        except Exception as e:
+            logger.warning("No language processor for %s: %s", language_id, e)
+            return []
+
+        tier = tier_for_lemma(lemma, language_id)
+        limit = Config.VOCAB_SENTENCES_PER_WORD
+        seen: set[str] = set()
+        mined: list[dict] = []
+        screened_out = 0
+
+        for test in rows:
+            transcript = test.get('transcript') or ''
+            if not transcript:
+                continue
+            tokens = self._sense_surface_tokens(test.get('vocab_token_map'), sense_id)
+            if not tokens:
+                # The sense is indexed on the test but the token map has no
+                # surface form for it — fall back to the lemma itself.
+                tokens = [lemma]
+            test_tier = TranscriptMiner._difficulty_to_tier(test.get('difficulty') or 2)
+
+            try:
+                candidates = processor.split_sentences(transcript)
+            except Exception:
+                continue
+
+            for raw_sentence in candidates:
+                text = TranscriptMiner._strip_markup(raw_sentence).strip()
+                if len(text) < 10:
+                    continue
+
+                matched = next(
+                    (tok for tok in tokens
+                     if self._mentions_token(processor, text, tok)), None,
+                )
+                if matched is None:
+                    continue
+
+                key = text.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                if not screen_sentence(
+                    text, language_id, tier, target_word=matched,
+                ).passed:
+                    screened_out += 1
+                    continue
+
+                mined.append({
+                    'text': text,
+                    'target_word': matched,
+                    'source': 'transcript',
+                    'complexity_tier': test_tier,
+                    'sentence_source': SENTENCE_SOURCE_MINED,
+                    'test_id': test.get('id'),
+                })
+                if len(mined) >= limit:
+                    break
+            if len(mined) >= limit:
+                break
+
+        logger.info(
+            "Mined %d sentence(s) for sense %s from %d transcript(s) "
+            "(%d rejected by the tier gate at %s)",
+            len(mined), sense_id, len(rows), screened_out, tier,
+        )
+        return mined
+
+    @staticmethod
+    def _mentions_token(processor, text: str, token: str) -> bool:
+        """Whether ``text`` attests ``token`` as a word, for mining purposes.
+
+        The strict path is ``processor.contains_whole_word`` (audit B4): the
+        token must be an exact contiguous run of segmenter output. That is the
+        right default and it is what rejects 咖啡 inside 咖啡馆 ("cafe") — a
+        different lexeme that happens to start with the target.
+
+        It also, however, rejects 咖啡 inside 喝咖啡, where jieba has merged a
+        verb and its object into one token. The sentence plainly attests the
+        word; refusing to mine it is lost recall, not precision.
+
+        The two cases are told apart by *position*, which in Chinese is
+        linguistically load-bearing: compounding is overwhelmingly head-final,
+        so a target that is a **prefix** of a longer token is usually part of a
+        derived word (咖啡+馆, 电话+亭), while a target that is a **suffix** is
+        usually the object of a merged phrase (喝+咖啡, 看+电视). Suffix
+        position is therefore accepted as a fallback; prefix position is not.
+
+        Deliberately local to mining rather than folded into
+        ``contains_whole_word``: that helper is shared with sentence
+        *validation*, where the strict reading is the correct one.
+        """
+        if not text or not token:
+            return False
+        if processor.contains_whole_word(text, token):
+            return True
+        if token.isascii():
+            # Space-delimited languages have no merge problem to solve, and a
+            # substring fallback there would match "run" inside "running".
+            return False
+        try:
+            merged = [t for t in processor.tokenize(text)
+                      if t != token and t.endswith(token)]
+        except Exception:
+            return False
+        return bool(merged)
+
+    def _lemma_for_sense(self, sense_id: int) -> str:
+        """Lemma text for a sense, or '' if it cannot be resolved."""
         try:
             resp = (
                 self.db.table('dim_word_senses')
@@ -376,171 +774,65 @@ class VocabAssetPipeline:
                 .execute()
             )
             vocab = (resp.data or {}).get('dim_vocabulary') or {}
-            lemma = vocab.get('lemma', '')
-        except Exception:
-            return []
-
-        if not lemma or len(lemma) < 2:
-            return []
-
-        sentences = []
-
-        # Search test transcripts. Neither tests.tier (subscription tier) nor
-        # tests.difficulty (1-9) maps cleanly to the T1/T2/T3 complexity scale
-        # this pipeline uses, so corpus sentences are tagged 'T3' by default.
-        try:
-            test_resp = (
-                self.db.table('tests')
-                .select('transcript')
-                .eq('language_id', language_id)
-                .not_.is_('transcript', 'null')
-                .limit(50)
-                .execute()
-            )
-            for test in (test_resp.data or []):
-                transcript = test.get('transcript', '')
-                if not transcript:
-                    continue
-                found = self._extract_sentences_with_word(
-                    transcript, lemma, 'corpus', 'T3', language_id
-                )
-                sentences.extend(found)
-                if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
-                    break
+            return (vocab.get('lemma') or '').strip()
         except Exception as e:
-            logger.warning("Corpus sentence search in tests failed: %s", e)
+            logger.warning("Lemma lookup failed for sense %s: %s", sense_id, e)
+            return ''
 
-        # Search conversation transcripts if needed. The conversations table
-        # stores dialogue in `turns` (JSONB array of turn dicts) and has no
-        # complexity_tier column.
-        if len(sentences) < Config.VOCAB_SENTENCES_PER_WORD:
-            try:
-                conv_resp = (
-                    self.db.table('conversations')
-                    .select('turns')
-                    .eq('language_id', language_id)
-                    .not_.is_('turns', 'null')
-                    .limit(30)
-                    .execute()
-                )
-                for conv in (conv_resp.data or []):
-                    turns = conv.get('turns')
-                    if not turns:
-                        continue
-                    if isinstance(turns, list):
-                        text = ' '.join(
-                            turn.get('text', '') for turn in turns
-                            if isinstance(turn, dict)
-                        )
-                    elif isinstance(turns, str):
-                        text = turns
-                    else:
-                        continue
-                    found = self._extract_sentences_with_word(
-                        text, lemma, 'corpus', 'T3', language_id
-                    )
-                    sentences.extend(found)
-                    if len(sentences) >= Config.VOCAB_SENTENCES_PER_WORD:
-                        break
-            except Exception as e:
-                logger.warning("Corpus sentence search in conversations failed: %s", e)
+    @staticmethod
+    def _sense_surface_tokens(token_map, sense_id: int) -> list[str]:
+        """Surface forms in ``vocab_token_map`` that resolve to ``sense_id``.
 
-        # Deduplicate and limit
-        seen = set()
-        unique = []
-        for s in sentences:
-            key = s['text'].strip().lower()
-            if key not in seen:
-                seen.add(key)
-                unique.append(s)
-
-        return unique[:Config.VOCAB_SENTENCES_PER_WORD]
-
-    def _extract_sentences_with_word(
-        self, text: str, lemma: str, source: str, tier: str, language_id: int = 2
-    ) -> list[dict]:
-        """Split text into sentences and return those containing the lemma."""
-        import re
-        from services.exercise_generation.language_processor import LanguageProcessor
-
-        processor = LanguageProcessor.for_language(language_id)
-
-        results = []
-        try:
-            sents = processor.split_sentences(text)
-        except Exception:
-            sents = [s.strip() for s in text.split('.') if s.strip()]
-
-        lemma_lower = lemma.lower()
-        for sent in sents:
-            sent = sent.strip()
-            if len(sent) < 10:
-                continue
-            # Tokenizer-based whole-word match (audit B4): CJK-safe, no `\b`
-            # dependency — rejects in-token substring false positives.
-            if not processor.contains_whole_word(sent, lemma_lower):
-                continue
-
-            # Preserve original case for ASCII; use lemma directly for non-ASCII
-            # (CJK characters have no case variation).
-            if lemma_lower.isascii():
-                m = re.search(rf'\b{re.escape(lemma_lower)}\b', sent, re.IGNORECASE)
-                target_word = sent[m.start():m.end()] if m else lemma
-            else:
-                target_word = lemma
-
-            results.append({
-                'text': sent,
-                'target_word': target_word,
-                'source': source,
-                'complexity_tier': tier,
-            })
-
-        return results
+        The column is a JSONB array whose entries pair a token with the sense
+        it was resolved to. Both the legacy pair shape ``["ran", 42]`` and the
+        object shape ``{"token": "ran", "sense_id": 42}`` are accepted, because
+        the map is written by more than one backfill generation.
+        """
+        tokens: list[str] = []
+        for entry in (token_map or []):
+            token = resolved = None
+            if isinstance(entry, dict):
+                token = entry.get('token') or entry.get('text')
+                resolved = entry.get('sense_id')
+            elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
+                token, resolved = entry[0], entry[1]
+            if token and resolved == sense_id and token not in tokens:
+                tokens.append(str(token))
+        return tokens
 
     # ------------------------------------------------------------------
     # L5 collocation gate
     # ------------------------------------------------------------------
 
-    # PMI threshold borrowed from the rest of the corpus pipeline. Pairs
-    # below this score are statistically unremarkable co-occurrences, not
-    # fixed collocations — bad distractor material for L5.
-    L5_PMI_THRESHOLD = 5.0
-
     def _collocation_is_fixed(self, core_asset: dict, language_id: int) -> bool:
         """True if (lemma, primary_collocate) has corpus evidence as a fixed pair.
 
-        Looks up `corpus_collocations` for the (head_word, collocate) tuple in
-        either order (P1 doesn't tell us which side is the head). Requires a
-        `pmi_score` at or above L5_PMI_THRESHOLD. Returns False on any miss
-        or DB error — the caller drops L5 in that case, which is the safe
-        default for a quality-sensitive exercise.
-        """
-        lemma = self._extract_lemma_from_core(core_asset)
-        collocate = (core_asset.get('primary_collocate') or '').strip()
-        if not lemma or not collocate or collocate.lower() == 'null':
-            return False
+        Delegates to the grounding service (TASK-523), which owns the PMI
+        threshold and the bundled-list source. This used to be a second,
+        independent ``corpus_collocations`` query with its own copy of the
+        threshold; one number deciding "is this a fixed pair" in two places
+        was drift waiting to happen, and the grounder also consults the
+        English frequency list this query never saw.
 
-        try:
-            resp = (
-                self.db.table('corpus_collocations')
-                .select('pmi_score, head_word, collocate')
-                .eq('language_id', language_id)
-                .or_(
-                    f'and(head_word.eq.{lemma},collocate.eq.{collocate}),'
-                    f'and(head_word.eq.{collocate},collocate.eq.{lemma})'
-                )
-                .gte('pmi_score', self.L5_PMI_THRESHOLD)
-                .limit(1)
-                .execute()
-            )
-            return bool(resp.data)
-        except Exception as e:
-            logger.warning(
-                "corpus_collocations lookup failed for (%r, %r): %s",
-                lemma, collocate, e,
-            )
-            return False
+        Reads the tag ``ground_core_asset`` already pinned onto the asset
+        rather than re-querying, so the L5 decision and the stored provenance
+        can never disagree about the same pair.
+
+        Unattested drops L5, and so does ``no_source``: this gate protects a
+        quality-sensitive exercise, and "we cannot check" is not a reason to
+        ship a collocation item built on an unverified pair.
+        """
+        tag = (core_asset or {}).get('collocate_grounding')
+        if isinstance(tag, dict):
+            return tag.get('status') == GROUNDING_CORPUS
+
+        # No tag: an asset generated before grounding existed, or a caller
+        # that skipped the annotation step. Grade it now rather than guessing.
+        lemma = self._extract_lemma_from_core(core_asset)
+        collocate = (core_asset or {}).get('primary_collocate') or ''
+        return CollocationGrounder(self.db).validate(
+            lemma, collocate, language_id,
+        ).validated
 
     def _extract_lemma_from_core(self, core_asset: dict) -> str:
         """Pull the lemma off the first sentence's target_word (alias-aware)."""

@@ -190,7 +190,15 @@
       "Bash(cp static/js/session/__TRACKED_VAR__.js /c/tmp/chk.mjs)",
       "Bash(exit 1)",
       "Bash(python c:\\tmp\\apply_dt_taxonomy_seed.py)",
-      "Bash(grep -A 25 \"^### \\\\`dt_error_instance\\\\`\\\\|CREATE TABLE.*dt_error_instance\")"
+      "Bash(grep -A 25 \"^### \\\\`dt_error_instance\\\\`\\\\|CREATE TABLE.*dt_error_instance\")",
+      "Bash(PYTHONPATH=. rtk pytest tests/test_speed_round.py -q)",
+      "Bash(PYTHONPATH=. rtk pytest tests/ -q)",
+      "Bash(node --check static/js/session/players/speed_round.js)",
+      "Bash(node --input-type=module -e \"import\\('./static/js/session/player_registry.js'\\).then\\(\\(\\)=>console.log\\('registry parses'\\)\\).catch\\(e=>console.log\\('ERR',e.message\\)\\)\")",
+      "Bash(node --check static/js/session/player_registry.js)",
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Bash(python -)",
+      "Bash(PYTHONPATH=. python -c ' *)"
     ],
     "additionalDirectories": [
       "\\tmp"
@@ -199,5 +207,8 @@
   "enabledPlugins": {
     "ecc@ecc": true,
     "context-mode@context-mode": true
+  },
+  "env": {
+    "ECC_GATEGUARD": "off"
   }
 }

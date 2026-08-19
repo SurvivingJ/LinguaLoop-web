@@ -47,14 +47,32 @@ def run_grammar_batch(
 def run_vocabulary_batch(
     language_id: int,
     sense_ids: list[int] | None = None,
+    force: bool = False,
 ) -> dict:
     """
     Generate exercises for all dim_word_senses rows of a language,
     or a specific subset if sense_ids is provided.
+
+    TASK-512: routes to the **vocabulary ladder**, not the legacy orchestrator.
+    The ladder is now the sole vocab generator — its items are judge-gated and
+    carry ``word_asset_id``, which legacy vocab exercises never did. Legacy
+    vocab exercises already in the table keep serving until TASK-518
+    deactivates them per sense.
+
+    Two steps per sense, mirroring the admin single-word path:
+      1. ``VocabAssetPipeline.generate_for_sense`` — P1/P2/P3 assets + judges.
+      2. ``LadderExerciseRenderer.render_all``     — assets -> exercise rows.
+
+    A sense whose assets fail outright is *not* rendered: rendering half-built
+    assets is how blank exercises reach learners.
     """
-    db           = get_supabase_admin()
-    synthesizer  = AudioSynthesizer()
-    orchestrator = ExerciseGenerationOrchestrator(db, audio_synthesizer=synthesizer)
+    from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline
+    from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
+
+    db          = get_supabase_admin()
+    synthesizer = AudioSynthesizer()
+    pipeline    = VocabAssetPipeline(db)
+    renderer    = LadderExerciseRenderer(db, audio_synthesizer=synthesizer)
 
     if sense_ids:
         # Direct lookup when specific IDs are provided
@@ -80,11 +98,37 @@ def run_vocabulary_batch(
     results = {}
     for sid in all_sense_ids:
         try:
-            result = orchestrator.run('vocabulary', sid, language_id)
-            results[sid] = result
+            asset_result = pipeline.generate_for_sense(
+                sid, language_id, force=force,
+            )
+            status = asset_result.get('status')
+            if status == 'failed':
+                # Don't render from assets that didn't build — half-built
+                # assets render as blank or single-option exercises.
+                logger.error(
+                    "Sense %d: asset generation failed, not rendering: %s",
+                    sid, asset_result.get('errors'),
+                )
+                results[sid] = {
+                    'status': 'failed',
+                    'exercise_ids': [],
+                    'errors': asset_result.get('errors', []),
+                }
+                continue
+
+            exercise_ids = renderer.render_all(sid, language_id)
+            results[sid] = {
+                'status': status,
+                'exercise_ids': exercise_ids,
+                'errors': asset_result.get('errors', []),
+            }
+            logger.info(
+                "Sense %d: %s, %d exercise(s) rendered",
+                sid, status, len(exercise_ids),
+            )
         except Exception as exc:
             logger.error("Sense %d failed: %s", sid, exc)
-            results[sid] = {'error': str(exc)}
+            results[sid] = {'status': 'failed', 'exercise_ids': [], 'error': str(exc)}
 
     return results
 

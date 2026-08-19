@@ -23,6 +23,65 @@ breaking_change_risk: medium
 
 # Study Plans — Technical Specification
 
+## Plannable-surface boundary
+
+Canonical reference for **which surfaces the planner owns**. Decided in
+[[decisions/ADR-021-plannable-surface-boundary]] (2026-08-07); resolves finding F11 of
+[[algorithms/daily-session-implementation-analysis.tech]].
+
+| Surface | In planner? | Rationale |
+|---|---|---|
+| `listening` | ✅ live | Core test skill; ELO-rated. |
+| `reading` | ✅ live | Core test skill; ELO-rated. |
+| `dictation` | ✅ live | ELO-rated; feeds per-word BKT. Transcript cap scales with tier (TASK-715). |
+| `pinyin` | ✅ live | ZH-only; ELO-rated. |
+| `pitch_accent` | ✅ live | JA-only; ELO-rated. |
+| `classifier_drill` | ✅ live | ZH-only; sentinel-test ELO pattern. |
+| Practice (acq + maint) | ✅ live | The Practice budget; chunked ≤10 min by the runner. |
+| `flashcards` | ✅ live (TASK-714, 2026-08-07) | FSRS reviews are due-driven and inherently daily — the largest source of under-counted study time. Queue `kind='flashcards'`; one slot = one block of 15 due cards @ 7.0 min. |
+| `dual_translation` | ✅ live (TASK-714, 2026-08-07) | Graded production work competing directly with test time; excluding it makes the Tests budget dishonest. Queue `kind='dual_translation'`; one slot = one passage @ 12.0 min. |
+| `listening_lab` | ❌ **deliberately outside** | Long-form, exploratory, self-directed; a daily minute budget fights its design. |
+| `mystery` | ❌ **deliberately outside** | 5-scene gated narrative; session length is set by the story, not the budget. |
+
+> ⚠️ `listening_lab` and `mystery` **do** exist as `dim_test_types.type_code` rows. That is a
+> modelling artefact, **not** an intent to schedule them — no template allocates to either. Do not
+> "fix" their absence from the planner.
+
+> ⚠️ **Adding a surface requires seeding its time estimate.** `test_time_estimate(p_skill text)`
+> COALESCEs `dim_test_types.expected_minutes_p50` (NULL for all 12 type codes as of 2026-08-07)
+> onto hardcoded per-skill constants ending in a catch-all **`ELSE 5.0`**. A new surface omitted
+> from that CASE is budgeted at 5 min/item silently, with no error. Seed it in **both**
+> `Config.TEST_TYPE_MINUTES` (Tier B sizes the week from it) and the SQL CASE (Tier C sizes the
+> day from it) — `tests/test_plannable_surfaces.py` asserts the two agree, because a divergence
+> means the week never fits its own days.
+
+### How a non-test surface is planned (TASK-714)
+
+`flashcards` / `dual_translation` are **not** `dim_test_types` rows and never resolve to an
+ELO-rated `tests` row, so they ride a plannable *kind* rather than a new type code:
+
+1. **Budget.** They are ordinary `weekly_plan_states.target_counts` keys — Tier B does not care
+   what a key means. In `build_daily_session` the candidate rows are tagged
+   `kind='surface'` instead of `kind='test'`; the greedy value-per-minute loop treats both
+   identically, so surfaces **compete for the same minutes** as tests rather than adding to them.
+2. **Hydrate.** Surfaces skip `get_recommended_tests` and clamp to their own pool — due
+   `user_flashcards` (÷15, rounded up) and `dt_passage` rows `/api/dual-translation/next` can
+   actually serve. They never enter `chosen_tests`, so `test_ids`, `daily_test_load_items`, the
+   ELO path and the retry/replay machinery are untouched.
+3. **Report.** Hydrated counts land in `daily_session_targets.surface_counts`, and both
+   requested/hydrated join the TASK-702 shortfall maps, so `_log_hydration_shortfalls` covers
+   them with no change.
+4. **Serve.** `routes/study_session.py` expands `surface_counts` into queue items
+   (`flashcards_1`, `dual_translation_1`, …); `player_registry.js` dispatches on `item.kind`.
+5. **Complete.** `POST /api/study-session/complete-block` calls `record_session_progress` with
+   `p_kind='surface'` and a deterministic uuid5 over (user, language, date, block) — surfaces
+   have no `test_attempts` row, and the uuid5 makes a retried POST dedupe inside the RPC.
+
+> ⚠️ **The weekly total is clamped to `daily_minutes * 7`.** Counting these surfaces adds real
+> minutes to `total_weekly_minutes`, and `today_budget` derives from it — so without the clamp,
+> counting previously-invisible study time would have *lengthened* the learner's day instead of
+> making the existing day honest.
+
 ## Architecture Overview
 
 ```

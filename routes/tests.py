@@ -10,6 +10,7 @@ import logging
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.ai_service import ModerationServiceError
+from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import (
     TestService, DimensionService, get_test_service,
     parse_language_id, VALID_LANGUAGE_IDS
@@ -1268,9 +1269,17 @@ def submit_dictation_attempt(slug):
                     d.sense_id = surface_to_sense.get(d.correct)
 
         diff_payload = result.diff_payload()
-        # Cap stored diff at 200 entries (per plan); but full diff still
-        # returned to client for the current response.
-        diff_payload_stored = diff_payload[:200]
+        # Cap the STORED diff; the full diff is still returned to the client
+        # for the current response.
+        #
+        # TASK-715: this was a flat 200 entries, chosen when every dictation
+        # was capped at 80 words. With the per-tier cap a T6 passage can run to
+        # 400 canonical tokens, so 200 would silently truncate the stored diff
+        # mid-passage and a revisit would show a partial review — a truncation
+        # surprise with no error anywhere. The ceiling now derives from the
+        # largest tier cap, with headroom for 'insert' ops (extra user-side
+        # tokens beyond the canonical count).
+        diff_payload_stored = diff_payload[:MAX_STORED_DIFF_ENTRIES]
 
         rpc_result = _call_dictation_submission_rpc(
             current_app.supabase_service, current_user_id,

@@ -3,7 +3,7 @@
 import uuid
 import logging
 from services.exercise_generation.config import (
-    GRAMMAR_DISTRIBUTION, VOCABULARY_DISTRIBUTION, COLLOCATION_DISTRIBUTION,
+    GRAMMAR_DISTRIBUTION, COLLOCATION_DISTRIBUTION,
     CONVERSATION_DISTRIBUTION, STYLE_DISTRIBUTION, PHASE_MAP,
 )
 from services.exercise_generation.transcript_miner import get_sentence_pool
@@ -27,6 +27,22 @@ from services.exercise_generation.generators.style import (
 
 logger = logging.getLogger(__name__)
 
+# TASK-512: this orchestrator no longer generates vocabulary exercises. The
+# vocabulary ladder (VocabAssetPipeline + LadderExerciseRenderer) is the sole
+# vocab generator — its output is judge-gated and carries word_asset_id, which
+# this pipeline's output never did. Grammar / collocation / conversation /
+# style remain here and are frozen: no new work lands in them.
+_VOCAB_RETIRED_MSG = (
+    "source_type='vocabulary' is retired from the legacy exercise pipeline "
+    "(TASK-512). The vocabulary ladder is the sole vocab generator: call "
+    "services.vocabulary_ladder.asset_pipeline.VocabAssetPipeline."
+    "generate_for_sense(sense_id, language_id) followed by "
+    "services.vocabulary_ladder.exercise_renderer.LadderExerciseRenderer."
+    "render_all(sense_id, language_id), or use "
+    "services.exercise_generation.run_exercise_generation.run_vocabulary_batch, "
+    "which already routes there."
+)
+
 
 class ExerciseGenerationOrchestrator:
     """
@@ -39,10 +55,16 @@ class ExerciseGenerationOrchestrator:
     Phase 5 - Persistence (batch insert to exercises table)
     """
 
-    def __init__(self, db, audio_synthesizer=None, nl_language_code: str = 'en'):
+    def __init__(self, db, audio_synthesizer=None, nl_language_code: str | None = None):
+        # No 'en' literal here by design (TASK-519). The fallback is the single
+        # declared knob Config.DEFAULT_NATIVE_LANGUAGE, so the assumption is
+        # visible and overridable in one place instead of being baked into a
+        # signature — that literal is how the v1 corpus became English-only.
+        from config import Config
+
         self.db                = db
         self.audio_synthesizer = audio_synthesizer
-        self.nl_language_code  = nl_language_code
+        self.nl_language_code  = nl_language_code or Config.DEFAULT_NATIVE_LANGUAGE
 
     def run(
         self,
@@ -168,9 +190,10 @@ class ExerciseGenerationOrchestrator:
         return (row or {}).get('language_code', 'unknown')
 
     def _get_distribution(self, source_type: str) -> dict[str, int]:
+        if source_type == 'vocabulary':
+            raise ValueError(_VOCAB_RETIRED_MSG)
         return {
             'grammar':      GRAMMAR_DISTRIBUTION,
-            'vocabulary':   VOCABULARY_DISTRIBUTION,
             'collocation':  COLLOCATION_DISTRIBUTION,
             'conversation': CONVERSATION_DISTRIBUTION,
             'style':        STYLE_DISTRIBUTION,
@@ -199,15 +222,8 @@ class ExerciseGenerationOrchestrator:
             'timed_speed_round':       TimedSpeedRoundGenerator(**kw),
         }
 
-        vocabulary_generators = {
-            'text_flashcard':          FlashcardGenerator(**kw, mode='text', source_type='vocabulary'),
-            'listening_flashcard':     FlashcardGenerator(**kw, mode='listening', source_type='vocabulary',
-                                           audio_synthesizer=self.audio_synthesizer),
-            'cloze_completion':        ClozeGenerator(**kw, source_type='vocabulary'),
-            'tl_nl_translation':       TlNlTranslationGenerator(**kw, source_type='vocabulary',
-                                           nl_language_code=self.nl_language_code),
-            'semantic_discrimination': SemanticDiscrimGenerator(**kw, source_type='vocabulary'),
-        }
+        # No vocabulary_generators: the vocabulary ladder is the sole vocab
+        # generator (TASK-512). See _VOCAB_RETIRED_MSG.
 
         collocation_generators = {
             'collocation_gap_fill':  CollocationGapFillGenerator(**kw),
@@ -237,9 +253,11 @@ class ExerciseGenerationOrchestrator:
             'style_imitation':           StyleImitationGenerator(**kw),
         }
 
+        if source_type == 'vocabulary':
+            raise ValueError(_VOCAB_RETIRED_MSG)
+
         return {
             'grammar':      grammar_generators,
-            'vocabulary':   vocabulary_generators,
             'collocation':  collocation_generators,
             'conversation': conversation_generators,
             'style':        style_generators,

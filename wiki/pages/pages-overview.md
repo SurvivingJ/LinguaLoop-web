@@ -2,7 +2,7 @@
 title: UI Pages Overview
 type: page
 status: complete
-last_updated: 2026-05-12
+last_updated: 2026-08-07
 open_questions: []
 ---
 
@@ -24,17 +24,25 @@ All public pages are registered in `_register_web_routes()` ([app.py:301](../../
 | `/welcome` | `onboarding.html` | First-time user onboarding | |
 | `/language-selection` | `language_selection.html` | Pick target language | Reads `/api/metadata` |
 | `/tests` | `test_list.html` | Browse ELO-matched test recommendations | Calls `/api/tests/recommended` + `/api/tests/daily-load` |
+| `/session` | `study_session.html` | **Daily Session runner** — one ordered, interleaved queue of test slots + practice chunks on a single page, resumable | Calls `GET /api/study-session` (queue) → per-item players; completion via `POST /api/tests/daily-load/complete` (tests) and `POST /api/study-session/complete-block` (practice chunks). See [[pages/study-session]] |
+| `/study-plan` | `study_plan.html` | Per-language weekly plan settings (template, daily minutes, weekday shape, skill overrides) | Calls `GET/PUT /api/study-plan`, `POST /api/study-plan/recompute`, `GET /api/study-plan/templates` |
 | `/test/<slug>/preview` | `test_preview.html` | Test details before starting (vocab map, etc.) | Calls `/api/tests/test/<slug>` |
 | `/test/<slug>` | `test.html` | Take a comprehension test | Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit` |
 | `/test/<slug>/pinyin` | `test_pinyin.html` | Pinyin tone trainer (Chinese only) | Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit-pinyin` |
+| `/test/<slug>/pitch-accent` | `test_pitch_accent.html` | Japanese pitch-accent trainer (Quick + Contour) | Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit-pitch-accent` |
+| `/test/<slug>/dictation` | `test_dictation.html` | Listen + type the full transcript | Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit-dictation` |
+| `/classifier-drill` | `classifier_drill.html` | Chinese classifier (量词) infinite drill, MC + Typed | Calls `/api/classifier-drill/*` |
+| `/dual-translation` | `dual_translation.html` | L1→L2 back-translation practice + graded feedback | Calls `/api/dual-translation/next` + `/submit` |
+| `/dual-translation/profile` | `dual_translation_profile.html` | Ranked error-profile dashboard | Calls `/api/dual-translation/profile` |
+| `/listening-lab`, `/listening-lab/<slug>` | `listening_lab_list.html`, `listening_lab.html` | Listening Lab (feature-flagged — registered only when enabled) | |
 | `/profile` | `profile.html` | ELO summary, token balance, history | Calls `/api/users/elo` + `/api/users/tokens` + `/api/tests/history` |
 | `/flashcards` | `flashcards.html` | FSRS review session | Calls `/api/flashcards/due` + `/api/flashcards/review` |
-| `/exercises` | `exercises.html` | Daily mixed exercise session | Calls `/api/exercises/session` + `/api/exercises/attempt` |
+| ~~`/exercises`~~ | — | **RETIRED 2026-07-14 (TASK-220)** — route + `exercises.html` deleted; practice now lives in the `/session` runner | `/api/exercises/session` 302s to `/api/practice/session` |
 | `/mysteries` | `mystery_list.html` | Browse available mysteries | Calls `/api/mystery/` + `/api/mystery/recommended` |
 | `/mystery/<slug>` | `mystery.html` | Play a 5-scene mystery | Calls `/api/mystery/<slug>`, `/scene/<n>`, `/scene/<n>/submit`, `/submit` |
 | `/conversations` | `conversation_list.html` | Browse generated conversations | Calls `/api/conversations/` |
 | `/conversation/<id>` | `conversation_reader.html` | Read a single conversation with full turns | Calls `/api/conversations/<id>` |
-| `/vocab-dojo` | `vocab_dojo.html` | Vocab Dojo: ladder, gates, stress test | Calls `/api/vocab-dojo/session`, `/attempt`, `/gate`, `/gate/result`, `/stress-test`, `/stress-test/result` |
+| ~~`/vocab-dojo`~~ | — | **RETIRED 2026-07-14 (TASK-220)** — route + `vocab_dojo.html` deleted; ladder/gates/stress-test are served by the unified Practice player | `/api/vocab-dojo/session` 302s to `/api/practice/session?mode=acquisition` |
 | `/admin/vocab-preview` | `admin_vocab_preview.html` | Per-word exercise spot-check UI | Calls `/api/admin/vocab/word/<sense_id>/preview` |
 | `/logout` | (302 → `/login`) | Frontend clears tokens; server-side just redirects | |
 

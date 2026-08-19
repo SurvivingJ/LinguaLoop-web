@@ -8,7 +8,7 @@ tables that accumulated from the CC-CEDICT import:
   1. Traditional Han characters were imported into dim_classifiers.hanzi,
      dim_classifier_noun_pairs.lemma_text, dim_classifier_example_sentences.*
      when CC-CEDICT entries had no simplified counterpart in the CL: tag.
-     Convert every Han string to its simplified form using zhconv.
+     Convert every Han string to its simplified form using OpenCC ``t2s``.
 
   2. dim_classifiers.pinyin_display still holds the raw numeric pinyin
      (e.g. "han4") for CC-CEDICT-imported rows. Convert each one to the
@@ -32,7 +32,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
-import zhconv
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
 if not SupabaseFactory.is_initialized():
@@ -110,10 +109,25 @@ def to_diacritic(numeric_pinyin: str) -> str:
 # ============================================================================
 # TRAD -> SIMP
 # ============================================================================
+# One OpenCC converter, built once and reused — same construct-and-cache shape
+# as utils/answer_normalization.py and services/vocabulary_ladder/script_converter.py.
+# Unlike the serve path, a missing converter is fatal here: silently skipping the
+# conversion would let the script report "0 rows to fix" on dirty data.
+_t2s_converter = None
+
+
+def _get_t2s():
+    global _t2s_converter
+    if _t2s_converter is None:
+        from opencc import OpenCC
+        _t2s_converter = OpenCC('t2s')
+    return _t2s_converter
+
+
 def to_simp(text: str) -> str:
     if not text:
         return text
-    return zhconv.convert(text, 'zh-cn')
+    return _get_t2s().convert(text)
 
 
 # ============================================================================

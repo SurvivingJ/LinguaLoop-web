@@ -18,6 +18,7 @@ from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
     PROMPT1_KEY_MAP, SENTENCE_KEY_MAP, MORPH_FORM_KEY_MAP,
+    SENTENCE_SOURCE_GENERATED, SENTENCE_SOURCE_MINED,
     get_sentence_target, remap_keys,
 )
 from services.vocabulary_ladder.asset_generators._renderer import render_template
@@ -52,12 +53,18 @@ class CoreAssetGenerator:
 
         Args:
             sense_id: The dim_word_senses ID.
-            corpus_sentences: Pre-existing sentences from tests/conversations.
-                Each dict has keys: text, target_word (alias-aware: legacy
-                rows may have target_substring), source, complexity_tier.
+            corpus_sentences: Seeded candidate sentences mined from transcripts
+                (TASK-513). Each dict has keys: text, target_word (alias-aware:
+                legacy rows may have target_substring), source, complexity_tier.
+                The prompt is told to keep these and write only the remainder,
+                so ``VOCAB_SENTENCES_PER_WORD`` is the total, not the number
+                generated.
 
         Returns:
-            Descriptive-keyed dict ready for word_assets storage, or None on failure.
+            Descriptive-keyed dict ready for word_assets storage, or None on
+            failure. Every sentence carries ``sentence_source`` — ``'mined'``
+            for one that came back unchanged from ``corpus_sentences``,
+            ``'generated'`` otherwise.
         """
         # Load word metadata from DB
         word_data = self._load_word_data(sense_id)
@@ -90,7 +97,41 @@ class CoreAssetGenerator:
             logger.error("Prompt 1 key remapping failed for '%s'", lemma)
             return None
 
+        self._tag_sentence_sources(content, corpus_sentences)
         return content
+
+    @staticmethod
+    def _tag_sentence_sources(content: dict, corpus_sentences: list[dict]) -> None:
+        """Stamp ``sentence_source`` on each returned sentence, in place.
+
+        The prompt asks the model to keep the seeded corpus sentences and add
+        the remainder, but nothing makes it say which is which — and a model
+        that lightly rewrites a mined sentence has, for provenance purposes,
+        generated a new one. So the label is derived, not taken on trust: a
+        sentence counts as ``mined`` only if its text matches a seeded
+        candidate exactly once whitespace and case are normalised.
+
+        Conservative by design. A false ``generated`` costs nothing; a false
+        ``mined`` would claim corpus attestation the sentence does not have.
+        """
+        sentences = (content or {}).get('sentences') or []
+        if not isinstance(sentences, list):
+            return
+
+        def _key(text: str) -> str:
+            return ' '.join((text or '').split()).strip().lower()
+
+        seeded = {_key(s.get('text', '')) for s in (corpus_sentences or [])
+                  if isinstance(s, dict)}
+        seeded.discard('')
+
+        for sentence in sentences:
+            if not isinstance(sentence, dict):
+                continue
+            sentence['sentence_source'] = (
+                SENTENCE_SOURCE_MINED if _key(sentence.get('text', '')) in seeded
+                else SENTENCE_SOURCE_GENERATED
+            )
 
     def _load_word_data(self, sense_id: int) -> dict | None:
         """Fetch lemma, definition, and tier from DB."""

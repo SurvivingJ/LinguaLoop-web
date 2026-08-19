@@ -419,7 +419,7 @@ Random 20 generated ZH exercises each contain `content.hant` with option-count p
 
 ## TASK-510: Model-slug health cron + fail-closed batch judges
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08)
 **Feature:** exercise-generation-v2
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -442,6 +442,40 @@ Two total outages came from delisted model slugs (finding G8). Add a nightly APS
 
 **Verification:**
 Probe with a planted dead slug → banner JSON lists it; batch with a judge row deactivated → aborts.
+
+**Resolution (2026-08-08):** `services/model_health.py` probes every DISTINCT active
+`prompt_templates` model against the provider's `/models` listing, memoised 15 min so
+dashboard polling doesn't hammer OpenRouter. Only `provider='openrouter'` rows are probed —
+ollama slugs live on a host-specific daemon, so their absence is not rot and they are
+reported under `skipped`. Routing suffixes (`:free`, `@preset/…`) resolve against the bare
+listing id. A probe failure reports `error` with `ok` left True: a flaky network must not
+manufacture a false "everything is dead" banner.
+
+Cron `slug_health_nightly` @ 04:10 UTC in [app.py](../../../app.py) (after IRT, honours
+`DISABLE_SCHEDULER`), advisory-locked via new RPCs
+`pg_try_advisory_lock_for_model_health` / `pg_advisory_unlock_for_model_health`
+(`migrations/task510_model_health_advisory_lock.sql`, lock key 1298417772 = 'MdHl',
+distinct from IRT and Study-Plan). **Applied live 2026-08-08**; verified acquire→true,
+release→true, 0 locks left. Manual trigger `POST /admin/api/run/model-slug-health` +
+banner feed `GET /admin/api/model-slug-health` + dashboard banner.
+
+Fail-closed half: `judges/base.py` gains `batch_mode()` (a **thread-local** flag, so a
+batch in an APScheduler thread can never flip the contract for a request thread),
+`JudgeUnavailable`, and `guard_fail_open()`. Because every judge already funnels errors
+through `safe_accept()`, that one chokepoint makes them all fail closed.
+
+**Design decision:** `safe_accept` (judge *outage* — dead slug, missing template, unusable
+response) now raises in batch mode, but a new `accept_item()` was added for *per-item* gaps
+(one unparseable rating in an otherwise healthy response) and never raises. Aborting a
+3,000-sense batch over a single malformed entry would be a worse failure than shipping that
+item, and the v3 Likert contract already says a missing verdict must never manufacture a
+rejection. Per-item call sites in `p1_sentences.py`, `sentence_validity.py`, and
+collocation's "nothing to judge" early return were moved to `accept_item`.
+
+Tests: `tests/test_model_health.py` (18) — dead-slug detection naming every offending row,
+ollama skip, routing-suffix match, probe-failure-isn't-death, memoisation, ERROR log
+content, lock skip, thread-isolation, serve-path fail-open still green, batch abort on
+missing template *and* on LLM failure, and per-item tolerance inside a batch.
 
 ---
 
@@ -479,7 +513,7 @@ queue's `language_id` is producer-supplied (independent of the senses table).
 
 ## TASK-512: Consolidation — ladder pipeline becomes the sole vocab generator
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08)
 **Feature:** exercise-generation-v2
 **Type:** refactor
 **Complexity:** M (3-8h)
@@ -502,11 +536,37 @@ Remove `VOCABULARY_DISTRIBUTION` and the vocabulary source branch from the legac
 **Verification:**
 Admin vocab batch for one EN sense produces ladder-rendered exercises (`word_asset_id IS NOT NULL`); grammar batch unchanged.
 
+**Resolution (2026-08-08):** `ExerciseGenerationOrchestrator` now rejects
+`source_type='vocabulary'` from **both** `_get_distribution()` and `_build_generators()`
+(module-level `_VOCAB_RETIRED_MSG` names the ladder entry points), so there is no path back
+in via either. `VOCABULARY_DISTRIBUTION` deleted from
+`services/exercise_generation/config.py` — the ladder's per-level mix comes from the
+capability matrix in `services/vocabulary_ladder/config.py`, not a flat type→count map.
+
+`run_vocabulary_batch()` (admin action + `--source vocabulary` CLI) routes to
+`VocabAssetPipeline.generate_for_sense()` then `LadderExerciseRenderer.render_all()`, and
+**skips rendering when asset status is `failed`** — rendering half-built assets is how blank
+and single-option exercises reach learners. Per-sense result now carries
+`{status, exercise_ids, errors}`.
+
+Freeze recorded in [[features/exercises.tech]] with a source-type ownership table.
+Grammar / collocation / conversation / style stay on the legacy orchestrator, frozen.
+
+**Known accepted exemption:** `generators/style.py` still writes `grading_notes` outside the
+schema-v2 `content.nl` envelope (TASK-519). Because this task freezes the style path, that
+is recorded as an exemption in `tests/test_nl_keyed_content.py::_FROZEN_LEGACY` rather than
+fixed — deleting its line there is the reminder if style is ever unfrozen.
+
+**Not verified:** the AC's "smoke run each" for grammar / conversation / style batches needs
+live LLM + DB spend and was not run. Code-level verification only: vocabulary raises from
+both entry points, grammar distribution still resolves, `VOCABULARY_DISTRIBUTION` is gone,
+and the full Python suite (1,342 tests) is green.
+
 ---
 
 ## TASK-513: Transcript mining as a P1 sentence source
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08 — code + tests; no live batch run)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -528,11 +588,46 @@ Port the legacy `TranscriptMiner` capability into the ladder pipeline: before P1
 **Verification:**
 Generate a sense whose lemma appears in ≥2 transcripts → P1 asset contains ≥1 `mined` sentence that passed the judge.
 
+**Resolution (2026-08-08).** `_fetch_corpus_sentences` no longer scans 50
+arbitrary transcripts plus 30 conversations substring-matching the bare lemma.
+It now goes through the index built for the question: the
+`tests_containing_sense` RPC over `tests.vocab_sense_ids` (GIN), with
+`tests.vocab_token_map` supplying the surface forms that realise *this* sense.
+Both token-map shapes are read (legacy `["ran", 42]` pairs and
+`{"token":…,"sense_id":…}` objects) because more than one backfill generation
+wrote it. Mined sentences are markup-stripped, deduplicated, screened by the
+TASK-524 tier gate before seeding, and capped at `VOCAB_SENTENCES_PER_WORD`.
+Any failure returns `[]`, so P1 generates the full set — the correct
+degradation. The old `_extract_sentences_with_word` helper is deleted.
+
+P1 already accepted seeded candidates and generated only the remainder, so AC 1
+needed no change. `sentence_source` is now stamped per sentence by
+`CoreAssetGenerator._tag_sentence_sources` and **derived, not trusted**: a
+sentence is `mined` only if it matches a seeded candidate once whitespace and
+case are normalised. A model that lightly rewrites a mined sentence has, for
+provenance purposes, generated a new one — a false `generated` costs nothing, a
+false `mined` claims corpus attestation the sentence does not have. The renderer
+echoes the index-aligned map into `exercises.tags.provenance`.
+
+**One finding worth keeping.** ZH recall was zero on obvious cases because jieba
+merges 喝+咖啡 into one token, so `contains_whole_word` — correct in rejecting
+咖啡 inside 咖啡馆 ("cafe") — also rejected it inside 喝咖啡. The two are told
+apart by position: Chinese compounding is overwhelmingly head-final, so a target
+in **prefix** position is usually part of a derived word while a target in
+**suffix** position is usually the object of a merged phrase. `_mentions_token`
+accepts the suffix case as a mining-only fallback. Deliberately not folded into
+`contains_whole_word`, which is shared with sentence *validation* where the
+strict reading is right.
+
+Tests: `tests/test_transcript_mining.py` (31) — token-map parsing, sense
+discrimination, markup/dedup/tier-screen, the ZH prefix-vs-suffix pair, RPC
+failure degradation, provenance labelling and its echo into tags.
+
 ---
 
 ## TASK-514: Pipeline robustness — non-destructive regen, P1 retry, matrix-gated L4
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08 — B5 closed; regen smoke on a real sense still owed)
 **Feature:** exercise-generation-v2
 **Type:** bug
 **Complexity:** M (3-8h)
@@ -554,11 +649,94 @@ Close the three remaining audit bugs before the big batch: **B1** — regenerati
 **Verification:**
 Three new tests green; regen smoke on a real sense.
 
+**Resolution (2026-08-08) — partial. Read before picking this up.**
+
+**B1 (non-destructive regen) — already done, not by this task.** The staging-list pattern is
+live at [routes/admin_local.py](../../../routes/admin_local.py) in `_do_vocab_regenerate`:
+`renderer.build_rows()` first, bail out with `retained_existing: True` if it yields 0 rows,
+then insert-before-delete so the sense is never momentarily empty. Worst case is duplicates
+(cleaned by the next regen), never data loss. The task's status was stale.
+
+**B6 (P1 retry + targeted repair) — already done, not by this task.**
+`asset_generators/prompt1_core.py` has `_call_with_retry` (2 attempts, retries on exception
+*and* on blank response), `repair()` (targeted validation-error fix) and `repair_sentences()`
+(per-index sentence repair). Mirrors the P2/P3 pattern as the task asked. Also stale.
+
+**B5 (matrix-gated L4) — HALF DONE. The remaining half is real work.**
+
+Added `requirements_met(requires, context)` and `active_levels_for_context(semantic_class,
+language_id, context)` to `services/vocabulary_ladder/config.py`, and wired them into
+`VocabAssetPipeline.generate_for_sense` via a new `_capability_context(core_asset)` that
+reports `morph_forms`, `pronunciation`, `p1_definition`, `p1_sentences`. Unknown requirement
+tokens count as satisfied — planning must not drop a level over something only the renderer
+can see (`tts`, `same_tier_senses`). `compute_active_levels()` is unchanged, so existing
+routing tests are untouched.
+
+**Why the AC is still not met.** The AC says "ZH concrete noun's plan contains no
+`morphology_slot`". That cannot be achieved by gating *levels*, because TASK-504 already
+seeded richer L4 rows than the task text assumed:
+
+| lang | class | L4 capabilities (`requires`) |
+|------|-------|------------------------------|
+| zh | concrete | `cloze_typed` (`cloze_asset`), `classifier_match` (`classifier_dict`) |
+| en | action | `cloze_typed`, `morphology_slot` (`morph_forms>=2`), `word_family` (`morph_forms>=2`) |
+| ja | concrete | `cloze_typed`, `particle_selection`, `counter_match` (`counter_dict`) |
+
+ZH concrete legitimately keeps L4 via `classifier_match` (TASK-528) and `cloze_typed`
+(TASK-532). Level survives; the *type* must be suppressed. So B5 needs **per-type** gating
+inside P3 prompt assembly — `prompt3_transforms.py` must ask for morphology only when a
+morphology-bearing capability row for this (language, semantic_class, word) actually
+qualifies, instead of including L4 in `p3_active` and hoping the model returns null.
+
+Tests: `tests/test_matrix_gated_planning.py` (14) cover the new helpers and document this
+boundary explicitly — `test_a_level_survives_while_any_of_its_capabilities_can_fire` asserts
+the current (correct) level-level behaviour, and the ZH-concrete tests `skip` with a message
+when a non-morphology L4 capability exists rather than passing vacuously.
+
+**Resolution part 2 (2026-08-08) — B5 closed.**
+
+Gating is now per *type*, not per level. `config.py` gains
+`PROMPT3_TYPE_FOR_LEVEL` (4→morphology_slot, 7→spot_incorrect_sentence,
+8→collocation_repair), `type_is_available(type_code, language_id,
+semantic_class, context)` and `prompt3_levels_for_context(...)`. A level stays
+alive on any capability that can fire; the *prompt* only asks for the type it
+owns. ZH concrete therefore keeps L4 (classifier_match, cloze_typed — both
+deterministic) while P3 stops asking Sonnet for Chinese morphology.
+
+Both sides are gated, because assets written before this exist:
+  * **generation** — `TransformAssetGenerator.generate` takes optional
+    `semantic_class` + `capability_context`; supplied by the pipeline, omitted
+    by admin one-off callers so their behaviour is unchanged. When the gate
+    empties the level set the LLM is never called at all.
+  * **rendering** — `build_rows` suppresses a P3-owned level whose type cannot
+    fire, so a stale `level_4` blob of invented ZH plurals cannot reach the
+    corpus. `semantic_class` is normalised for the gate (legacy assets still
+    say `concrete_noun`); `compute_active_levels` is deliberately left on the
+    raw value, since narrowing the level set for legacy assets is a wider
+    behaviour change than this task authorises.
+
+`validate_prompt3` is held to the gated level list, otherwise a correctly
+suppressed L4 reads back as "Missing level_4" and invalidates a good asset.
+`_capability_context` moved to `config.capability_context_from_core` so the
+pipeline and the renderer gate on identical facts.
+
+Permissive in the same two places as the rest of the module: an unrecognised /
+NULL `semantic_class` and a language with no matrix rows both pass, so a
+misconfiguration degrades to the old behaviour rather than generating nothing.
+
+Tests: `tests/test_p3_type_gating.py` (20) — including the AC pair, that a ZH
+concrete noun's P3 *request* omits "4" and its *rendered output* contains no
+`morphology_slot` even from a stale asset carrying one.
+
+**Still owed:** the regen smoke on a real sense (needs live LLM + DB spend).
+
 ---
 
 ## TASK-515: Batch run — top 1,000 senses × EN/ZH/JA
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — two blocking defects fixed 2026-08-12 (cost logging,
+asset_type CHECK); 7 senses run; the full batch is **wall-clock blocked**, not
+spend blocked. See the 2026-08-12 note below.
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -582,9 +760,64 @@ After completion: `SELECT language_id, count(DISTINCT sense_id) FROM exercises W
 
 ---
 
+### 2026-08-12 — two blocking defects fixed; batch is wall-clock bound
+
+**The budget ceiling did not work, and could not have.** `llm_calls` held 12,947
+rows and **not one had `cost_usd` populated** — `_log_llm_call` never set the key.
+So `spend_since()` always returned `$0.00`, `--ceiling` could never fire, and the
+per-chunk cost line in the report (an explicit acceptance criterion here) would
+have read `$0.0000` no matter what the batch spent. Running a $10-capped batch
+behind a cap that reads zero is not a cap. Fixed: `_make_one_call` now requests
+OpenRouter usage accounting (`extra_body={'usage': {'include': True}}`) and
+threads the returned cost through to the log row. Verified live — a probe call
+logged `cost_usd = 0.001638`. 11 tests in `tests/test_llm_call_cost_logging.py`,
+including the `model_extra` path that a naive test would miss (the OpenAI SDK's
+Usage model does not declare `cost`, so it lands in the pydantic extras bag).
+
+**Every typed-LLM asset write was being rejected.** `word_assets_asset_type_check`
+enumerated the seven pre-TASK-520 asset types; TASK-522's generator writes
+`llm_types_A` / `llm_types_B`, so all of them failed with 23514. `_store_asset`
+catches and logs, so the pipeline reported success per sense while
+`synonym_antonym_match`, `word_family` and `particle_selection` produced
+**nothing** — and the valid-rate report would still have read ~100%, because it
+measures the P1/P2/P3 assets that did store. The first chunk hit this on sense 1
+and would have hit it on all 300 at full cost. Fixed by
+`migrations/task522_word_assets_llm_types_check.sql` (applied live), which
+replaces the enumeration with a pattern matching how the code builds the value
+(`prefix_variant`) — the enumeration is precisely what rotted. Confirmed working
+in the live batch: `llm_types_A` and `llm_types_B` went from 0 rows to 3 each.
+
+**Measured, from the 7 senses that ran (ZH):**
+
+| Metric | Value |
+|--------|-------|
+| Cost | **$0.1645** over 65 logged calls |
+| Cost per sense | **~$0.024** → ~$2.40 per 100-sense chunk, ~$7.20 for all three languages |
+| Throughput | **~5.5 min/sense** → **~9 h per 100-sense chunk**, ~27 h for three |
+| `judge_ladder_p1_sentence` | 2 accept / 2 flag / 2 reject → **33% reject** |
+| `judge_ladder_sentence_validity` | 7 accept / 0 reject → 0% reject |
+
+**Why it stopped.** Not spend — $0.1645 of a $10 authorisation. Wall clock: one
+language's chunk needs ~9 hours. The runner is resumable (a sense with a valid
+P1 is skipped), so the 7 completed senses are kept and a re-run continues from
+there. Parallelising the three languages is **not** safe as written:
+`spend_since()` sums *all* `llm_calls` since the chunk began, so three concurrent
+runs trip each other's ceilings on each other's spend.
+
+**Outstanding.** The ≥90% valid-rate criterion is still unmeasured — 7 senses is
+far too small a sample to judge it, and the 33% P1-sentence reject rate above
+should be treated as a signal to watch rather than a result. One content-quality
+issue was visible and is worth pursuing before a long run: the ZH P1 generator
+returned `semantic_class: '功能词'` (the Chinese term) where the schema requires
+one of the English enum values, which fails validation and costs a retry.
+
+---
+
+---
+
 ## TASK-516: Deterministic generators — definition_match, jumbled, readings, tone
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08 — `deterministic/` package + type-keyed renderer pass; 31 fixture tests)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -610,7 +843,7 @@ Run over 50 batch senses per language → expected counts; fixture tests green.
 
 ## TASK-517: Coverage check, batch report, queue drain
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — coverage view + queue drain landed 2026-08-08; cron entry, advisory lock and `subscribe_topup` enqueue still owed
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -638,7 +871,7 @@ Delete one family's exercises for a test sense → view flags it, drain regenera
 
 ## TASK-518: Per-sense legacy exercise dedupe
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08 — coverage-gated, deactivate-never-delete, dry-run verified live)
 **Feature:** exercise-generation-v2
 **Type:** refactor
 **Complexity:** S (1-3h)
@@ -662,7 +895,7 @@ Dry-run count ≈ covered-sense legacy rows; post-run practice session spot-chec
 
 ## TASK-519: Multi-nl content rules (`content.nl` keyed maps)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08)
 **Feature:** exercise-generation-v2
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -684,11 +917,44 @@ Operator decision: nl-keyed maps from the first batch. Define the schema-v2 enve
 **Verification:**
 Generate one ZH tl_nl item → options under TL keys, gloss under `content.nl.en`; lint test green.
 
+**Resolution (2026-08-08):** New package `services/exercise_generation/schemas/`
+(`envelope.py` + re-export `__init__.py`) defines the rule: TL-facing content stays flat and
+nl-free; every nl-bearing field lives under `content.nl.<code>`. `NL_BEARING_FIELDS` maps
+each exercise type to its nl fields; `wrap_nl` builds an envelope (and *accumulates* — a
+second call adds `ja` alongside `en`); `read_nl` resolves one learner's block with
+single-block fallback; `flatten_for_serve` projects back onto v1 keys.
+
+**Reading is tolerant, writing is strict.** `validate_envelope` no-ops below
+`schema_version 2`, so the existing v1 corpus is not retroactively invalidated — the gate
+governs what new generators write. `ExerciseValidator` runs the envelope check *first* and
+returns immediately on violation (otherwise every nl field reports as "missing" and buries
+the real cause), then validates v2 through a flattened view so the per-type checkers keep
+seeing the names they were written for.
+
+tl_nl/nl_tl generators emit the keyed shape; `nl_language_code` is now a **required keyword**
+with no `'en'` default. Serve side: `exercise-renderers.js` flattens once in `dispatch()`,
+so all ~16 renderers stay unchanged.
+
+**The lint tests found two real offenders, which is the point of them:**
+1. `ExerciseGenerationOrchestrator.__init__(nl_language_code='en')` — the actual root cause
+   of the corpus being English-only. Replaced with `Config.DEFAULT_NATIVE_LANGUAGE`: one
+   declared, env-overridable knob instead of a literal buried in a signature. All six
+   construction sites keep working.
+2. `generators/style.py` writes `grading_notes` at the top level. **Not fixed by design** —
+   TASK-512 freezes the style path. Recorded in `_FROZEN_LEGACY` in the test file so the
+   exemption is visible and reviewable; deleting that line is the reminder if style is ever
+   unfrozen.
+
+Tests: `tests/test_nl_keyed_content.py` (22) — envelope gate (top-level nl text rejected,
+incomplete blocks rejected, legacy untouched), construction/reading round-trips,
+generator shape parametrised over zh/en + ja/en + zh/ja, and the two AST lint tests
+(hardcoded nl defaults; nl-bearing keys written outside the envelope).
+
 ---
 
 ## TASK-520: Per-exercise-type prompt split (L4 + L8 first)
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — code + prompts + schema gate landed 2026-08-09; migration not applied live
 **Feature:** exercise-generation-v2
 **Type:** refactor
 **Complexity:** M (3-8h)
@@ -715,7 +981,8 @@ Regenerate 10 senses → L4/L8 render via the new tasks; reject-rate dashboard s
 
 ## TASK-521: Sense embeddings
 
-**Status:** [ ] Not Started
+**Status:** [x] Done 2026-08-12 — backfill run (22,348 senses, 100% coverage,
+$0.0047); also fixed the band-check RPC, which had never worked
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -725,9 +992,9 @@ Regenerate 10 senses → L4/L8 render via the new tasks; reject-rate dashboard s
 Add `dim_word_senses.embedding vector` (pgvector, existing OpenAI embedding service; embed `lemma + definition`). Backfill all senses; embed new senses at creation. Powers distractor nearness windows (mid-cosine band), `definition_match` distractor upgrade, and syn/ant sanity checks.
 
 **Acceptance Criteria:**
-- [ ] Column + vector index; ≥99% senses embedded; idempotent backfill
-- [ ] Helper `nearest_senses(sense_id, lang, pos, k, cos_min, cos_max)` SQL function
-- [ ] Embedding cost logged; new-sense hook in the sense creation path
+- [x] Column + vector index; ≥99% senses embedded; idempotent backfill
+- [x] Helper `nearest_senses(sense_id, lang, pos, k, cos_min, cos_max)` SQL function
+- [x] Embedding cost logged; new-sense hook in the sense creation path
 
 **Files to Create / Modify:**
 - `migrations/dim_word_senses_embedding.sql`
@@ -737,11 +1004,45 @@ Add `dim_word_senses.embedding vector` (pgvector, existing OpenAI embedding serv
 **Verification:**
 `nearest_senses` for "precision" returns accuracy/exactness-class neighbours in the mid band.
 
+**Completed 2026-08-12.** Backfill embedded **22,348 senses — ZH 8,084 / EN 9,472 /
+JA 4,792 — at 100.00% coverage per language, 0 NULL remaining**, for **$0.0047**
+(88 API calls, `text-embedding-3-small`). One row failed on the first pass and
+was picked up by a second run, which is what "idempotent" was for.
+
+**A second defect had to be fixed before the band checks could work.**
+`sense_neighbours.neighbour_similarities` called
+`nearest_senses(p_sense_id, p_language_id, p_lemmas)` — a signature the live
+function has never had — and read `lemma`/`similarity` where it returns
+`out_lemma`/`out_similarity`. Every call raised PGRST202, the bare
+`except Exception` logged it at INFO as "RPC unavailable", and the band check
+returned "no opinion" on every foil. **TASK-522's embedding band checks were
+therefore never going to fire, backfill or no backfill** — a state
+indistinguishable in the logs from the backfill simply not having run.
+
+Fixed by adding `sense_similarity_to_lemmas(p_sense_id, p_language_id, p_lemmas)`
+— a companion to `nearest_senses`, not a replacement: that one *searches* for
+k-nearest, this one *scores* named candidates, and a foil outside the band must
+come back with its similarity rather than be omitted. Log level raised to
+WARNING. `migrations/dim_word_senses_embedding.sql` now records the column, the
+HNSW index, the pre-existing `nearest_senses` (live since 2026-08-08 with **no
+migration file at all**, against `migrations/CLAUDE.md`) and the new function.
+
+**Post-fix spot-check, 3 lemmas per language** — sane and correctly banded:
+`precision`/`accuracy` 0.79 IN · `build`/`construct` 0.88 OUT (near-duplicate,
+likely also-correct) · `学习`/`学` 0.95 OUT · `朋友`/`石头` 0.21 OUT (unrelated) ·
+`朋友`/`同学` 0.46 IN · `食べる`/`飲む` 0.69 IN. Pinned by 12 tests in
+`tests/test_sense_neighbour_band_checks.py`, which assert the RPC *name*,
+argument keys and result columns — this is the fourth instance of the ADR-020
+class (a late symbolic reference failing into a silent no-op).
+
+*Noted, not fixed:* `車`/`林檎` scores 0.39 and lands just inside the 0.35 band
+floor. The floor may want raising for JA once real reject data exists.
+
 ---
 
 ## TASK-522: `synonym_antonym_match` + `word_family` generators
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — generators, relation/word_family judges + band check landed 2026-08-09; migration not applied live
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -768,7 +1069,7 @@ Two new LLM generators with judges (§5 #17, #18). Syn/ant (all langs, `abstract
 
 ## TASK-523: Collocation grounding for L5/L8
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — grounding service, tag plumbing + report script landed 2026-08-09; EN list not vendored
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -793,7 +1094,7 @@ Report: % validated per language; spot-check 20 flagged mismatches.
 
 ## TASK-524: Sentence-tier hard gate
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -814,11 +1115,49 @@ Deterministic frequency-band screen rejecting P1/mined sentences whose lexical p
 **Verification:**
 Fixture tests green; batch report shows tier-gate reject counts.
 
+**Resolution (2026-08-08).** New `services/vocabulary_ladder/tier_gate.py`;
+thresholds in `config.TIER_GATE_PROFILES`. Runs in the pipeline immediately
+before `_judge_p1_sentences` — deterministic and free, so the judge's
+per-sentence LLM spend is reserved for what only a model can assess.
+
+**Two thresholds, not one.** A soft `soft_floor` with a `max_out_of_band`
+budget catches the C2-lexis sentence; a `hard_floor` rejects a single
+sufficiently rare word on its own, because a budget alone lets *bergamot*
+through in an otherwise-plain sentence. `max_unknown` gives OOV tokens (names,
+typos, tokeniser artefacts) their own small allowance — they are not evidence
+of tier fit in either direction, so counting them as violations over-rejects.
+
+**Calibrated, not guessed.** Empirically against the eval fixture in all three
+languages: an ordinary A1/A2 sentence scores 0–1 out-of-band, the coffee-corpus
+C2 sentence scores 6 (zh), 8 (ja), 10 (en). T6 is ungated — at the top tier
+there is no lexis that is too hard.
+
+The sense's tier is derived from the *lemma's own* Zipf
+(`LEMMA_ZIPF_TO_TIER`), which is what "an A1 word" means operationally.
+The target word and its `morphological_forms` are exempt: a rare sense being
+taught cannot also be the reason its own example is rejected.
+
+Tokenisation uses `wordfreq.tokenize`, not `LanguageProcessor` — the frequency
+tables were built with it so lookups are apples-to-apples, and it covers zh/ja/en
+with no spaCy or fugashi model to install (the JA spaCy model is absent from
+this environment, and the gate has to run in CI and in the batch runner alike).
+
+Rejected sentences take the same in-place `repair_sentences` path as judge
+rejects and are re-screened; indices are never disturbed. The gate never
+blocks an asset — the judge that runs next already owns that decision
+(`P1_MIN_ACCEPTABLE_SENTENCES`), and double-blocking on two criteria would make
+failures hard to attribute. Per-sense stats (`tier`, `screened`, `rejected`,
+`repaired`, `still_failing`) land on the pipeline result for TASK-517's report.
+
+Tests: `tests/test_tier_gate.py` (39) — the coffee-corpus fixture rejected and
+its ordinary counterpart passed in en/zh/ja, per-language tokenisation, the
+target/morphology exemptions, fail-open paths, and pipeline repair accounting.
+
 ---
 
 ## TASK-525: tl_nl uniqueness judge
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — code + tests done 2026-08-08; prompt migration NOT applied live
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -840,15 +1179,61 @@ The eval found tl_nl options frequently had >1 acceptable answer (0% accept). Be
 **Verification:**
 Planted-defect test green; 10-sense ZH sample shows reject activity.
 
+**Resolution (2026-08-08) — code complete, live seed outstanding.**
+
+`services/exercise_generation/judges/translation_uniqueness.py` mirrors the
+collocation-judge contract: one prompt over a numbered candidate list, 5-point
+Likert per candidate, `likert_to_verdict` mapping, fail-open outside a batch and
+`guard_fail_open` (raise) inside one.
+
+**Rating orientation is the load-bearing detail.** The scale runs in the
+direction of *keep* — 5 = clearly NOT an acceptable translation (ideal
+distractor), 1 = a fully acceptable rendering (also-correct, must go) — so no
+negation is needed on either side. Written the intuitive way round ("5 = yes,
+also acceptable") the judge would silently keep exactly the distractors it
+exists to remove, **and the item would still look well-formed**. The direction
+is therefore asserted in the tests and flagged in a DO-NOT-INVERT block in the
+migration, not left to the prompt author.
+
+`judge_translation_item` blocks the whole item below
+`MIN_SURVIVING_DISTRACTORS = 2`. Blocking rather than padding is deliberate — a
+padded distractor is how also-correct options got in to begin with.
+`TlNlTranslationGenerator.generate_one` returns None on that verdict and
+attaches a `translation_uniqueness` sidecar to `__judge_metas` otherwise.
+`NlTlTranslationGenerator` is untouched: it is free-input, so there are no
+distractors to disambiguate.
+
+`nl_language_code` is a required argument with no default — the TASK-519 AST
+lint caught the `''` default on the first pass, which is exactly what it is for.
+
+Tests: `tests/test_translation_uniqueness_judge.py` (28) — the full 1-5 scale
+parametrised against keep/drop, the planted also-acceptable distractor, the
+<2-survivor block, every fail-open path, and generator wiring end to end.
+
+**Outstanding:** `migrations/translation_uniqueness_judge_prompts.sql` (en/zh/ja
+rows) is written but **not applied live** — it needs an operator to run it.
+Until it is, the judge fails open on a missing template and ships items
+unjudged outside a batch, so the AC "prompt rows seeded" and the 10-sense ZH
+sample are both still open.
+
 ---
 
 ## TASK-526: Traditional-script serve toggle
 
-**Status:** [ ] Not Started
+**Status:** [?] DEFERRED 2026-08-12 — code + 27 tests done; the live 發/髮 spot-check
+is deferred to a future feature-completion pass
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
 **Depends On:** TASK-509, TASK-515
+
+**DEFERRAL NOTE (2026-08-12).** Unblocked by **`content.hant` mirrors existing over
+real senses**, which comes from TASK-509's backfill running over the TASK-515
+batch senses. The serve path, the `script_variant` preference, the profile toggle
+and i18n in all four locales are all live, and 27 tests pass — but the one
+remaining criterion is a *live payload* spot-check of a 發/髮-class field, and
+there is nothing to spot-check until mirrored senses exist. Verifying against a
+hand-inserted mirror would test the fixture, not the pipeline.
 
 **Description:**
 Surface the dual-stored mirrors: practice session responses select `content.hant` fields when `users.exercise_preferences->>'script_variant'='traditional'` (per-field simplified fallback + flag for overrides review). Settings UI toggle. Typed ZH answers normalised `t2s` before matching. Scope: practice/vocab surfaces only (operator decision); tests/mysteries are a later epic.
@@ -871,7 +1256,7 @@ Toggle on → session payload spot-check shows 發/髮-class fields correct; tog
 
 ## TASK-527: JA `particle_selection` generator + judge
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — generator, particle judge + tokeniser spans landed 2026-08-09; migration not applied live
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -898,7 +1283,7 @@ The L4-JA exercise (§5 #7, prompts drafted in §6.6): blank one particle in a P
 
 ## TASK-528: ZH `classifier_match` as ladder L4
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-08-08 — group distractors, 个 excluded, multi-acceptable answers; attempt round-trip untested end-to-end)
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -923,7 +1308,7 @@ Generate for 50 ZH concrete nouns; dict-missing noun cleanly skips; attempt roun
 
 ## TASK-529: `reading_to_kanji` / `pinyin_to_hanzi` + character-component table
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — generators + `dim_character_components` live 2026-08-08; the licensed component import awaits a source/licence decision
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -948,7 +1333,9 @@ The sound→script direction (§5 #15): show the reading, pick the character/wor
 
 ## TASK-530: JA counter drill (助数詞) + `counter_match`
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — everything shipped and merged 2026-08-12/13; the
+dictionary reached **38 counters at ≥10 nouns against a bar of 40**, so the first
+acceptance criterion is *narrowly* unmet. See the closing note.
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -958,10 +1345,10 @@ The sound→script direction (§5 #15): show the reading, pick the character/wor
 Clone the classifier-drill architecture for Japanese counters (operator-confirmed): curated counter dictionary (本/枚/匹/台/冊/杯 + semantic groups) built by a seed script + the LLM curation pipeline (`services/classifier_curation` pattern), deterministic session RPC with semantic-group distractors, sentinel-test ELO (`__counter_drill_ja`), Choose/Type modes. Then `counter_match` as L4-JA for concrete nouns in the ladder (same pattern as TASK-528).
 
 **Acceptance Criteria:**
-- [ ] Counter dictionary ≥40 counters with ≥10 nouns each for the common set; curation JSON human-reviewed before merge
-- [ ] Drill RPC mirrors `get_classifier_drill_session` semantics (multi-acceptable, always 3 distractors, group-based)
-- [ ] ELO via sentinel test, K=32 first-attempt-only; route rejects non-JA
-- [ ] `counter_match` ladder items for dict-covered concrete nouns; capability fallback to `particle_selection` otherwise (§6.10)
+- [~] Counter dictionary ≥40 counters with ≥10 nouns each for the common set; curation JSON human-reviewed before merge — **38/40**, human review done
+- [x] Drill RPC mirrors `get_classifier_drill_session` semantics (multi-acceptable, always 3 distractors, group-based)
+- [x] ELO via sentinel test, K=32 first-attempt-only; route rejects non-JA
+- [x] `counter_match` ladder items for dict-covered concrete nouns; capability fallback to `particle_selection` otherwise (§6.10)
 
 **Files to Create / Modify:**
 - `scripts/build_counter_dictionary.py`, `scripts/generate_counter_curation.py`
@@ -974,9 +1361,71 @@ Clone the classifier-drill architecture for Japanese counters (operator-confirme
 
 ---
 
+### 2026-08-12/13 — drill shipped, curation merged after sign-off
+
+**Drill (route/template/modes/nav).** `routes/counter_drill.py` +
+`services/counter_drill_service.py` + `templates/counter_drill.html`, cloned from
+the classifier drill so the two stay one pattern. Choose and Type modes; Type
+reuses TASK-532's IME handling verbatim (`compositionstart`/`compositionend`
+**plus** the `keyCode === 229` guard, since some IMEs never fire the events).
+No `auto` mode: the classifier drill's auto routes by per-classifier mastery and
+counters have no equivalent table, so it would have been a third name for `mc`.
+Nav entries added in both the desktop bar and the mobile dropdown; 17 new strings
+in **all four** locales (`en/es/ja/zh`), verified key-by-key.
+
+**Submission reuses `process_classifier_drill_submission`** — it is parameterised
+by test_id/test_type_id and contains nothing classifier-specific (grep for
+`dim_classifier|classifier_mastery` in it returns 0 matches). Cloning it would
+have duplicated the whole ELO block so the copy could drift.
+
+**Blocking gap found: there was no `counter_drill` row in `dim_test_types`.**
+`DimensionService.get_test_type_id` filters on `is_active`, so **every submission
+would have 500'd** — the drill would have served items and recorded none. Added
+as id 15 via `migrations/task530_counter_drill_test_type.sql`; kept distinct from
+`classifier_drill` (id 14) so a learner strong on Mandarin measure words does not
+appear competent at Japanese counters.
+
+**Live verification.** 20-item session through the real RPC: **0 items with the
+wrong distractor count, 0 without a correct answer, 0 answer/distractor overlap**,
+and foils are group-plausible (鹿→頭 against 匹/羽/尾; テレビ→台 against 両/隻/機).
+Page renders 200 with the IME guards present. 7-test `counter_match` round-trip
+added covering the generation→`ladder_record_attempt` join that the 2026-08-08
+session flagged as untested for the Mandarin twin.
+
+**Curation pass.** 43 underserved counters (<10 nouns), qwen3.7-plus via
+OpenRouter, **$0.5818 of a $5 ceiling, 0 failures**. 705 rows generated, 578
+accepted at judge ≥4. The `counts_nouns` gate declined **7** counters that count
+no showable noun — 回, 度, 振り, 方, 番, 遍, 階 — which is the 階 error class from
+the previous pass being caught automatically rather than by eye.
+
+**Human sign-off rejected 6 more.** Five on the judge's own numbers (筋 0/19,
+編 2/20, 項 3/19, 片 7/20, 組 9/20 accepted). The sixth, **列**, is the more
+interesting one and the gate missed it: it counts *rows*, so "nouns that take 列"
+is really "nouns that can be arranged in a row" (車, 学生, 本, 花, 建物 …), none of
+which is taught with 列. It was also the largest single source of
+multi-acceptable pairs (列+台, 列+両, 列+冊 …), each of which would have made an
+ordinary item accept two answers. Excluded from both its own list and other
+counters' alternates, and kept as a foil — same treatment as 階.
+
+**Result: 54 counters, 837 pairs, 582 distinct nouns, 0 audit warnings**
+(from 54 / 173 / 166). 454 primary + 238 secondary pairs merged.
+
+**The ≥40-counters-at-≥10-nouns criterion is NOT met: 38.** Reported rather than
+rounded up. The realistic gap is smaller than it looks — of the near-misses,
+名様 sits at 9, while 回 (8) counts occurrences and 個 (8) / つ (6) are the
+universal counters deliberately excluded from drilling. Closing it needs either a
+second curation pass over counters currently at 5–9 (~$0.05), or accepting one of
+the six sign-off exclusions, which would mean teaching content the judge rejected.
+
+*Note:* 組 retains its 3 hand-curated pairs (トランプ/夫婦/茶碗). The exclusion
+rejects the LLM's proposed list, not pre-existing curated data.
+
+---
+
 ## TASK-531: Audio at scale (L1 + listening variants)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done 2026-08-12 — run complete; 100% coverage on every populated
+type. A per-type audio-field defect had to be fixed first.
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -986,9 +1435,9 @@ Clone the classifier-drill architecture for Japanese counters (operator-confirme
 Synthesise TTS for all batch senses' L1 phonetic items and listening flashcards (Azure, `audio_voice.pick_voice`, deterministic R2 slugs), extending the existing L1 audio backfill tab to the full batch + JA voices. TTS failures ship the text variant and queue a backfill (§6.10).
 
 **Acceptance Criteria:**
-- [ ] ≥95% of batch L1/listening items have `audio_url`; failures queued with reason
-- [ ] JA voices selected from `dim_languages.tts_voice_ids`; spot-listen 10 per language
-- [ ] Cost/quota throttling (configurable per-night cap)
+- [x] ≥95% of batch L1/listening items have `audio_url`; failures queued with reason
+- [x] JA voices selected from `dim_languages.tts_voice_ids`; spot-listen 10 per language
+- [x] Cost/quota throttling (configurable per-night cap)
 
 **Files to Create / Modify:**
 - `scripts/backfill_exercise_audio.py` (extend existing backfill runner)
@@ -996,11 +1445,39 @@ Synthesise TTS for all batch senses' L1 phonetic items and listening flashcards 
 **Verification:**
 Coverage query ≥95%; sampled URLs play.
 
+**Completed 2026-08-12.** 8 items synthesised, **0 failures**, nothing queued for
+retry. Final coverage, against a 95% target:
+
+| Language | Type | Coverage |
+|----------|------|----------|
+| ZH | `listening_flashcard` | **56/56 — 100%** |
+| ZH | `phonetic_recognition` | **2/2 — 100%** |
+| EN | `phonetic_recognition` | **16/16 — 100%** |
+| JA | — | no audio-bearing items generated yet |
+
+Azure usage was 8 short utterances, negligible against the free tier; the per-run
+cap (`--cap`, `$AUDIO_BACKFILL_CAP`) was set to 50 and never approached.
+
+**The first report was wrong, and the fix mattered.** The runner treated
+`content.audio_url` as universal. `listening_flashcard` does not use that key —
+the renderer writes and reads **`front_audio_url`** — so the coverage query
+reported **0/56, 0.0%** over 56 items that were already fully voiced, and the
+speakable-text extractor listed four field names (`audio_text`,
+`highlight_word`, `word`, `front_sentence`) that appear in no
+`listening_flashcard` row, producing 56 × "no speakable text".
+
+Left unfixed, this was worse than a bad number: the write-back also used
+`audio_url`, so any newly synthesised flashcard audio would have been uploaded to
+R2, recorded under a key the renderer never reads, and left the item silent *and*
+permanently counted as uncovered — burning Azure quota on every subsequent run.
+Fixed with an `AUDIO_URL_FIELDS` per-type map used consistently by the pending
+filter, the coverage query and the write-back.
+
 ---
 
 ## TASK-532: `cloze_typed` free-input exercises
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — builder + answer normalisation landed 2026-08-08; typed-input FE component (IME) and attempt-route grading still owed
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -1027,7 +1504,7 @@ Normalisation test matrix green; manual IME smoke (ZH + JA input).
 
 ## TASK-533: `timed_speed_round` serve-time composer
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — composer, route, attempt path + timer player landed 2026-08-09; nothing schedules it yet
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -1049,9 +1526,10 @@ Seeded mastered user gets a battery; non-mastered senses never appear (test).
 
 ---
 
-## TASK-534: Exercise-type effectiveness view *(Phase 4 — data-gated)*
+## TASK-534: Exercise-type effectiveness view *(Phase 4)*
 
-**Status:** [?] Blocked — requires post-launch attempt volume
+**Status:** [x] Done 2026-08-12 — view, outcome capture, admin page and synthetic
+fixtures all landed. Real-data validation deferred (see below).
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -1061,13 +1539,44 @@ Seeded mastered user gets a battery; non-mastered senses never appear (test).
 Per-`(p_known bucket, exercise_type)` Δp_known-per-minute view from `exercise_attempts` (+ Part F outcome capture), powering Phase-4 adaptivity and content QA (which types actually move knowledge at which stage).
 
 **Acceptance Criteria:**
-- [ ] View + admin page; validated against synthetic attempt fixtures
+- [x] View + admin page; validated against synthetic attempt fixtures
+
+**What shipped (2026-08-12):**
+- **Part F outcome capture was missing entirely.** `user_vocabulary_knowledge`
+  holds only the *current* `p_known` and there is no history table, so a
+  per-attempt delta was not recoverable after the fact. The BKT RPC already
+  returned `out_p_known_before` / `out_p_known_after` and the service already
+  read them — they were simply never persisted. Added
+  `exercise_attempts.p_known_before` / `p_known_after` (nullable; pre-existing
+  rows cannot be reconstructed and are not fabricated) and
+  `PracticeSessionService._capture_knowledge_outcome`, which is best-effort so
+  analytics can never fail a learner's submission.
+- `vw_exercise_type_effectiveness` — counts only attempts where BKT ran and
+  `time_taken_ms > 0`, buckets on `p_known_before` (bucketing on *after* would
+  manufacture the correlation being measured), and caps per-attempt time at
+  5 minutes to match `_effective_practice_seconds`.
+- Admin page at `/exercise-type-effectiveness` (bucket × type grid, cells under
+  30 attempts flagged `thin`).
+- `migrations/task534_exercise_type_effectiveness.sql`, applied live.
+
+**Verification run:** `scripts/validate_effectiveness_view.py` inserts 13
+synthetic attempts whose aggregate is hand-computed, checks the view, and
+deletes them. **All 8 expectations hold** — bucket edges on both sides of 0.2
+and 0.8, the 5-minute clamp, exclusion of uncaptured/zero-time rows, and a
+negative delta pulling a rate down rather than being floored at 0. Plus 11 unit
+tests in `tests/test_knowledge_outcome_capture.py`.
+
+**DEFERRED — real-data validation.** Unblocked by post-launch attempt volume:
+the view is correct against fixtures but has never been read against real
+traffic, so nothing yet confirms the buckets are useful cut-points or that
+30 attempts is the right thinness threshold. Every live cell is currently empty,
+because capture only began with this migration.
 
 ---
 
 ## TASK-535: Thompson-sampling type tie-breaker *(Phase 4 — data-gated)*
 
-**Status:** [?] Blocked — requires ~50k attempts
+**Status:** [?] DEFERRED 2026-08-12 — entirely, including the offline replay harness
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -1079,11 +1588,17 @@ Bandit over exercise *type* as a tie-breaker among same-family candidates inside
 **Acceptance Criteria:**
 - [ ] Offline replay evaluation before flag-on; per-arm posteriors inspectable
 
+**DEFERRAL NOTE (2026-08-12).** Unblocked by **~50k real attempts plus TASK-534's
+view returning non-empty cells**. The replay harness is deferred with the rest
+rather than built ahead: a replay needs a log of real (type, outcome) pairs to
+replay, and `exercise_attempts` now captures the required `p_known` deltas only
+from 2026-08-12 onward, so there is nothing to run it over.
+
 ---
 
 ## TASK-536: Per-user format preferences + item retirement *(Phase 4 — data-gated)*
 
-**Status:** [?] Blocked — requires launch data
+**Status:** [?] DEFERRED 2026-08-12 — both halves, not split
 **Feature:** exercise-generation-v2
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -1095,4 +1610,85 @@ Soft per-user format weighting (e.g. audio-first) and an item-retirement policy 
 **Acceptance Criteria:**
 - [ ] Retirement runs as a reviewed batch (flag → human confirm → deactivate); preference weight bounded so it cannot override family targeting
 
+**DEFERRAL NOTE (2026-08-12).** Unblocked by **launch attempt volume giving
+`vw_distractor_error_analysis` real distractor pick-rates**. Kept as one task:
+retirement is driven by the same per-item attempt distribution that the
+preference weighting reads, so splitting it would mean building that read twice.
+Retiring items on pre-launch data would deactivate content for having no
+attempts rather than for being bad.
+
 ---
+
+---
+
+## Session status — 2026-08-11 (operator-gated batch cleared)
+
+Nine rows closed. The table below supersedes the 2026-08-08 one for those tasks;
+rows not listed here are unchanged. Full suite: **1676 passed, 3 skipped**.
+
+| Task | State | What changed | What is still outstanding |
+|------|-------|--------------|---------------------------|
+| 517 | [x] | `run_nightly_drain()` = coverage sweep then drain, behind `pg_try_advisory_lock_for_queue_drain` (key 1363440238; `migrations/task517_queue_drain_advisory_lock.sql`, **applied live**). 04:15 UTC cron registered in `_initialize_scheduler`, last in the 04:xx chain so it runs after the slug-health probe rather than spending the drain budget on a dead model. `subscribe_topup` enqueued from `GET /api/vocab-dojo/word/<id>/exercises` when a learner opens a word with no ladder items — the one moment a missing sense is certain, and the one the coverage sweep cannot infer (it only finds gaps in senses that already have assets). | — |
+| 520 | [x] | **No new work — the checkbox was stale.** All six prompt rows (`ladder_l4_morphology_generation`, `ladder_l8_collocation_repair_generation` × en/zh/ja) and the `vocab_prompt3_transforms` description annotation were verified present live. | Real per-`prompt_version` reject rates still need a batch chunk (TASK-515). |
+| 522 | [x] | **No new work — the checkbox was stale.** All eight rows live (`ladder_syn_ant_generation` ×3, `ladder_relation_judge` ×3, `ladder_word_family_generation`, `ladder_word_family_judge`). | The 20-sense sample run; band checks stay inert until TASK-521's backfill. |
+| 523 | [x] | **The EN list is vendored.** `data/collocations/en_collocations.tsv` — 73,718 pairs from 18.3M words of OANC (public domain), built by `scripts/build_en_collocations.py`. Dependency-parsed rather than bigram-counted, so `relation` is real and function-word pairs never appear. The motivating defect behaves: `personalize`+`advertising` returns no match → `llm_asserted`. **Loader bug fixed**: `load()` skipped any row whose first column was `head`, discarding every collocation headed by the noun *head*. | JA remains deliberately `no_source`. |
+| 525 | [x] | The only migration genuinely missing. **Rewritten to `ON CONFLICT ... DO UPDATE` before applying**: the header claimed "re-runnable" but the bare `INSERT` would abort on `idx_prompt_templates_task_lang_ver` *after* the deactivating `UPDATE` in the same transaction, rolling back to a deactivated judge. Three rows live; all four `{tl_sentence}` / `{correct_translation}` / `{nl_language}` / `{candidates_numbered}` placeholders verified against the judge's `.format()` call. | — |
+| 527 | [x] | **No new work — the checkbox was stale.** `ladder_particle_selection_generation` and `ladder_particle_judge` both live. | The 20-sense JA sample and the dojo round-trip. |
+| 529 | [x] | `dim_character_components` populated: **27,131 rows, 100% radical + stroke coverage**, avg 3.57 components. **Source/licence decision: cjk-decomp (Apache-2.0) for components + Unihan (Unicode License) for radical/strokes.** `cjkvi-ids` was rejected as **GPLv2** — copyleft on a vendored data file follows it to every deployment. KanjiVG rejected as CC BY-SA *and* kanji-only, which would miss simplified-only hanzi. Components appearing in >5% of characters are dropped, or strokes would dominate every similarity score. Verified: 請/晴 share 月青龶. | — |
+| 532 | [x] | FE renderer `renderClozeTyped` with IME composition handling (`compositionstart`/`end` **and** `keyCode === 229`, since some IMEs never fire the events). **Grading moved server-side**: `cloze_typed.grade()` is authoritative and the client's `is_correct` is overwritten, because the comparison is a normalisation rule and two implementations of one rule eventually disagree. 39-case matrix in `tests/test_answer_normalization.py`. | Manual IME smoke on a real ZH/JA keyboard. |
+| 533 | [x] | The session queue emits a `speed_round` block when the learner has ≥`MIN_BATTERY` mastered senses (`has_enough_mastered`, one cheap query). **Deliberately not a `_SURFACE_BLOCKS` member** — ADR-021 puts it outside the planner, so it is appended after the planned queue and credits no weekly counter. `KIND_LABELS` and i18n added in all four locales. | — |
+
+**Two latent defects found and fixed while doing the above:**
+
+1. **`deterministic._load_builders()` guarded on `if _REGISTRY:`.** A non-empty registry only
+   proves *one* builder was imported. `routes/practice.py` now imports `cloze_typed` directly
+   for `grade`, and under the old guard that single import made the loader a no-op — leaving
+   the other six builders unregistered, so every sense would generate one exercise type
+   instead of seven, with no skip reason to explain it. Now a dedicated `_BUILDERS_LOADED`
+   flag; pinned by a regression test.
+2. **`BundledCollocationList.load()` header detection.** See row 523.
+
+**Repo-record gaps closed.** `dim_character_components` and the three `dim_counter_*` tables
+were live with no migration file at all, against `migrations/CLAUDE.md`. Added
+`migrations/dim_character_components.sql` and `migrations/counter_drill.sql`, both
+`IF NOT EXISTS` and matching the live definitions.
+
+**TASK-530 partially advanced (still `[~]`).** `get_counter_drill_session` written and
+**applied live**, mirroring the classifier drill's semantics (one row per noun,
+multi-acceptable answers, always exactly three distractors, group-plausible foils).
+`scripts/build_counter_dictionary.py` seeds **54 counters / 173 pairs / 166 nouns** with 0
+audit warnings. Verified over the full corpus: 0 rows with the wrong distractor count, 0
+without a correct answer, 0 distractor/answer overlap, 7 multi-acceptable nouns
+(兎 → 匹+羽, 魚 → 匹+尾). **Still owed:** the drill route + template,
+`generate_counter_curation.py`, the human-reviewed curation pass, and the `counter_match`
+ladder attempt round-trip.
+
+---
+
+## Session status — 2026-08-08 (TASK-515 tail)
+
+Legend: **[x]** acceptance criteria met · **[~]** code complete, criteria needing a live
+run or an external asset outstanding · **[ ]** not started.
+
+| Task | State | What landed | What is outstanding |
+|------|-------|-------------|---------------------|
+| 515 | [~] | `scripts/run_generation_batch.py` — chunking, resume, `--ceiling` budget abort, per-chunk report (senses/exercises/judge reject-rates/`llm_calls.cost_usd`), failures queued as `regen`, judges fail-closed via `batch_mode()`. Selection verified by dry-run on all three languages. | The batch itself. The ≥90% valid-rate criterion, real judge reject rates and the cost ceiling are unexercised until an operator spends on a chunk. Admin-tab wiring. |
+| 516 | [x] | `services/vocabulary_ladder/deterministic/` package + type-keyed renderer pass; `phonology`, `lexicon`, builders for definition_match / jumbled / readings / tone. 31 fixture tests. | — |
+| 517 | [~] | `v_sense_family_coverage` (live), `services/vocabulary_ladder/queue_drain.py` — enqueue + oldest-first drain with stop checks, status transitions, and a post-drain re-check so a drain cannot report success on a still-missing family. Batch runner calls the coverage check per language. | 04:15 UTC cron entry + advisory lock; `subscribe_topup` enqueue in the dojo ladder-init path. |
+| 518 | [x] | `scripts/dedupe_legacy_vocab_exercises.py` — coverage-gated, deactivate-never-delete, `--reactivate` undo, dry-run verified live. | — |
+| 521 | [~] | `dim_word_senses.embedding` + HNSW + `nearest_senses()` RPC (live); `scripts/backfill_sense_embeddings.py`, dry-run verified over 17.5k senses. | The backfill run (~cents, operator-gated); embed-on-create hook in `services/vocabulary/sense_generator.py`. |
+| 528 | [x] | `deterministic/classifier_match.py` — group distractors, 个 excluded, multi-acceptable answers, `ladder_level=4`. | Attempt round-trip through `ladder_record_attempt` is untested end-to-end. |
+| 529 | [~] | Reverse-direction generators with the homophone > component > frequency priority; `dim_character_components` table (live) with required source/licence columns. | The licensed import itself (kanjivg/hanzipy) — needs a source + licence decision. Until then the generator degrades to homophone + frequency foils, which the live smoke test confirms it does cleanly. |
+| 530 | [~] | `dim_counters` / `dim_counter_noun_pairs` / `dim_counter_distractor_groups` (live), `__counter_drill_ja` ELO sentinel, `deterministic/counter_match.py`. | `get_counter_drill_session` RPC, drill route + template, `build_counter_dictionary.py` / `generate_counter_curation.py`, and the human-reviewed curation pass. |
+| 532 | [~] | `deterministic/cloze_typed.py` + `utils/answer_normalization.py` (NFKC, whitespace, case, quotes, trailing punctuation, ZH t2s); conservative accepted-variant rule. | Frontend typed-input component with IME composition handling; grading in the attempt route; the normalisation test matrix. |
+| 520 | [~] | Split complete: `ladder_l4_morphology_generation` / `ladder_l8_collocation_repair_generation` prompts (en/zh/ja), `asset_generators/_split_base.py` + `l4_morphology.py` + `l8_repair.py`, per-(type, prompt_version) JSON-schema gate in `schemas/` that **refuses** an unregistered version, `prompt3_transforms.py` slimmed to L7 with all four speculative shape branches deleted. Pipeline fans out per level so a morphology failure no longer forces a retry of L7/L8. 31 tests. | `migrations/ladder_prompt_split_l4_l8.sql` not applied live. Real reject rates per new prompt_version need a batch chunk. |
+| 522 | [~] | `synonym_antonym_match` + `word_family` via a new type-registered LLM generator layer (`asset_generators/typed_llm.py`, mirroring the deterministic registry); `judges/relation.py` (both judges, Likert v3, fail-closed in batch); `sense_neighbours.py` mid-band embedding check that stays silent when the backfill has not run. Both planted-defect tests green: a cross-sense foil and a real word posing as an invented derivation are each dropped. | `migrations/syn_ant_word_family_prompts.sql` not applied live. The 20-sense sample run. Band checks are inert until TASK-521's backfill runs. |
+| 523 | [~] | `collocation_grounding.py` — bundled-list → `corpus_collocations` cascade, tagging `corpus_validated` / `llm_asserted` / `no_source`; tag pinned onto the P1 asset, read by the L5 gate (which now has ONE threshold instead of two) and copied into L5/L8 exercise provenance; `scripts/validate_collocates.py` with a one-shot re-prompt and a per-language report. `data/collocations/README.md` documents OANC (public domain) as the source. 20 tests. | **The EN list itself is not vendored** — see the README for the install step. Until it is, EN grounding falls through to `corpus_collocations` alone. JA is deliberately `no_source`. |
+| 526 | [~] | `script_serving.py` — pure field selection over the TASK-509 `content.hant` mirror, shape-matched, with per-field Simplified fallback recorded in `script_fallback_fields`; wired into `get_session`; `script_variant` accepted by `PATCH /api/users/preferences`; profile-page toggle + i18n in all four locales. A test parses the module to prove no converter is imported on the serve path. 27 tests. | Live spot-check of a 發/髮-class payload with the toggle on. Tests/mysteries remain Simplified-only by operator decision. |
+| 527 | [~] | `asset_generators/particle_selection.py` + `judges/particle.py` + `LanguageProcessor.particle_spans` (spaCy `ja_core_news_sm`, character offsets). The blank is cut only at a tokeniser-confirmed span — `str.replace` would blank the に inside にんじん. Planted に/へ also-natural distractor is dropped by the judge (test). | `migrations/particle_selection_prompts.sql` not applied live. The 20-sense JA sample and the dojo round-trip. |
+| 531 | [~] | `scripts/backfill_exercise_audio.py` — deterministic slugs matching the renderer's, per-run cap (`$AUDIO_BACKFILL_CAP`), `--dry-run` / `--report-only`, per-type coverage table against the 95% target, TTS failures queued as `audio_backfill` rather than deleting the item. | The run itself (Azure quota + spend, operator-gated). Coverage numbers are unmeasured until then. |
+| 533 | [~] | `speed_round.py` composer (mastered-only, L1–L3, ≤1 item/sense, 10–20 items), `GET /api/practice/speed-round`, `record_speed_round_attempt` (FSRS only — never family confidence), `players/speed_round.js` with a per-item countdown that submits `timed_out` as incorrect. 18 tests, including query-level assertions that non-mastered senses are never even requested. | No scheduler emits a `speed_round` queue item yet — the player is registered and the route is live, but nothing routes a learner to it. |
+
+**Cross-cutting note.** `dim_vocabulary.frequency_rank` is a Zipf score (0.25–6.56, higher =
+more common), not a rank. Any future task that reads it for ordering must sort DESC; the
+plain-English reading of "frequency rank" inverts the selection silently.

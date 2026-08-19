@@ -27,11 +27,13 @@ from base_generator import BaseTestGenerator
 from services.prompt_service import PromptService
 from utils.question_validator import QuestionValidator
 
-# Language-specific model configuration for OpenRouter
+# Language-specific model configuration for OpenRouter.
+# gemini slug: google/gemini-3.5-flash-lite -- one gemini slug system-wide, see
+# migrations/consolidate_gemini_on_3_5_flash_lite.sql.
 MODEL_CONFIG = {
     'english': {
-        'transcript': 'google/gemini-2.0-flash-001',
-        'questions': 'google/gemini-2.0-flash-001'
+        'transcript': 'google/gemini-3.5-flash-lite',
+        'questions': 'google/gemini-3.5-flash-lite'
     },
     'chinese': {
         'transcript': 'deepseek/deepseek-chat',
@@ -83,7 +85,7 @@ class LocalTestGenerator(BaseTestGenerator):
 
         lang_key = language.lower()
         config = MODEL_CONFIG.get(lang_key, MODEL_CONFIG['english'])
-        return config.get(task, 'google/gemini-2.0-flash-001')
+        return config.get(task, 'google/gemini-3.5-flash-lite')
 
     def generate_test(self, config: Dict) -> bool:
         """Generate a single test and store it"""

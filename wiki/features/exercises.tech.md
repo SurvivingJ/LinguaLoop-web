@@ -63,6 +63,48 @@ Serving (user-facing, via Vocab Dojo or Pack Study):
   /api/exercises/submit → exercise_attempts + BKT + FSRS + ladder update
 ```
 
+## Generator ownership — the legacy pipeline is frozen for vocabulary (TASK-512)
+
+There were two vocabulary generators. There is now one.
+
+| Source type | Owner | Status |
+|-------------|-------|--------|
+| `vocabulary` | **Vocabulary ladder** (`VocabAssetPipeline` + `LadderExerciseRenderer`) | Sole generator |
+| `grammar` | Legacy `ExerciseGenerationOrchestrator` | Frozen — no new work |
+| `collocation` | Legacy `ExerciseGenerationOrchestrator` | Frozen — no new work |
+| `conversation` | Legacy `ExerciseGenerationOrchestrator` | Frozen — no new work |
+| `style` | Legacy `ExerciseGenerationOrchestrator` | Frozen — no new work |
+
+**Why:** the legacy vocabulary branch produced ungated content — no judge layer,
+and `exercises.word_asset_id IS NULL`, so ladder-level credit and family
+tracking could not flow from it. Keeping both meant every vocabulary feature had
+to be built twice, and learners got a mix of judged and unjudged items for the
+same word.
+
+**What changed:**
+
+- `ExerciseGenerationOrchestrator.run(source_type='vocabulary', …)` now raises
+  `ValueError` naming the ladder entry points. `_get_distribution` and
+  `_build_generators` reject it identically, so there is no path back in.
+- `VOCABULARY_DISTRIBUTION` is deleted from
+  `services/exercise_generation/config.py`. The ladder's per-level mix comes
+  from the capability matrix in `services/vocabulary_ladder/config.py`, not a
+  flat type→count map.
+- `run_vocabulary_batch()` (admin "Exercise Generation → vocabulary" and the
+  `--source vocabulary` CLI) routes to `generate_for_sense()` then
+  `render_all()`. A sense whose assets fail is **not** rendered — half-built
+  assets render as blank or single-option exercises.
+
+**Migration state:** legacy vocabulary exercises already in the table
+(`source_type='vocabulary' AND word_asset_id IS NULL`) keep serving. TASK-518
+deactivates them per sense, and only for senses with full family coverage, so no
+learner loses content before the ladder has replaced it.
+
+**Frozen means frozen:** the `style_imitation` generator still writes
+`grading_notes` outside the schema-v2 `content.nl` envelope. That is a known,
+accepted exemption recorded in `tests/test_nl_keyed_content.py::_FROZEN_LEGACY`
+rather than a bug to fix — see [[features/exercise-generation-v2]] TASK-519.
+
 ## Database Impact
 
 **Tables read:** `exercises`, `dim_grammar_patterns`, `dim_word_senses`, `user_vocabulary_knowledge`, `user_flashcards`, `user_exercise_history`

@@ -16,9 +16,9 @@ because they remain the sole repo record of other still-live objects.
 
 | Archived file | Defined object | Now lives in (canonical) | Live marker checked |
 |---|---|---|---|
-| `process_test_submission_v2.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
-| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present |
-| `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `partF_question_attempt_results.sql` | `question_attempt_results` insert present (see CR-04 caveat below) |
+| `process_test_submission_v2.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
+| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
+| `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704; see CR-04 caveat below) |
 | `fix_get_recommended_tests_signature.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
@@ -40,20 +40,47 @@ returns raw `SQLERRM`/`SQLSTATE` in its error envelope. `phase14_test_kfactor_de
 instead carries the **CR-04 hardening** — `jsonb_to_recordset` staging, a typed
 `error_code` envelope, and masked `SQLERRM` — which **was never applied to live**.
 
-The new canonical `partF_question_attempt_results.sql` is therefore based on the
-*live* (non-CR-04) body plus the additive per-question `question_attempt_results`
-capture — a deliberate, strictly-additive choice (Part F decision, 2026-06-06).
-The CR-04 version is preserved **only** in this archived `phase14_*.sql` file: if
-the team wants to land CR-04 on live (the route at `routes/tests.py` and
-`tests/test_submission_rpc_error_envelope.py` already expect the typed envelope),
-re-derive it from there into a new migration on top of the Part F body.
+Canonical for `process_test_submission` moved from `partF`/`partG` to
+`task704_process_test_submission_retry_elo.sql` on 2026-07-19 (TASK-704). That
+file is the *live* (non-CR-04) partG body verbatim, plus the re-landed ADR-006
+reduced-volatility retry-slot ELO path in the repeat-attempt branch. `partG`
+stays canonical for the `question_attempt_results` `response_time_ms` column
+drop (multi-object, not archived); it is simply no longer the newest definer of
+the function. The CR-04 version is still preserved **only** in the archived
+`phase14_*.sql`: if the team wants to land CR-04 on live (the route at
+`routes/tests.py` and `tests/test_submission_rpc_error_envelope.py` already
+expect the typed envelope), re-derive it on top of the TASK-704 body.
 
-## Note: orphan column
+## 2026-08-07 — TASK-714 / TASK-715 / TASK-716
 
-`process_test_submission_reduced_repeats.sql` was the only migration that ran
-`ALTER TABLE public.test_attempts ADD COLUMN elo_reduction_factor`. That column
-**still exists in the live DB** but is no longer written by the live
-`process_test_submission` (phase14 dropped the reduced-volatility repeat path).
-It is an orphan column — recorded here so the history isn't lost. If a future
-cleanup drops it, do so in a new migration; it is not currently in
-`db_schema_live.sql`.
+| Archived file | Object | New canonical file | Marker verified on live |
+|---|---|---|---|
+| `task702_build_daily_session.sql` | `build_daily_session(uuid,smallint,date)` | `task714_build_daily_session_surfaces.sql` | `surface_counts` key in the return jsonb; `pg_temp.surface_budget` in the body |
+| `task702_get_recommended_tests_rank_cap.sql` | `get_recommended_tests(uuid,smallint)` | `task715_get_recommended_tests_tier_cap.sql` | `public.dictation_max_words(t.difficulty)` replaces `v_dictation_max_words CONSTANT` |
+
+Both were single-object files fully superseded by the newer definitions, which
+were applied live and confirmed by round-tripping the resolver (a seeded plan
+returned `surface_counts` for both new kinds) and by
+`public.dictation_max_words(1..9)` returning the per-tier ladder 80→400.
+
+**Not archived, deliberately** (rule #4 — each is still the sole repo record of
+another live object):
+
+- `phase13_build_daily_session.sql` — its `test_time_estimate` body is now
+  superseded by `task715_test_time_estimate_tiered.sql`, but it remains the only
+  file defining `public.week_start_for(date)`.
+- `phase18_practice_time_seconds.sql` — its `record_session_progress` body is
+  now superseded by `task716_local_day_boundary.sql`, but it remains the only
+  file defining the `weekly_plan_states.practice_completed_maint_sec` /
+  `practice_completed_acq_sec` columns. The seconds-ledger behaviour it
+  introduced is carried forward verbatim in the new body.
+
+## Note: elo_reduction_factor column — no longer orphaned
+
+`process_test_submission_reduced_repeats.sql` first added
+`ALTER TABLE public.test_attempts ADD COLUMN elo_reduction_factor`. From
+2026-06-06 to 2026-07-19 that column was an **orphan** (present but unwritten,
+after phase14 dropped the reduced-volatility path). TASK-704
+(`task704_process_test_submission_retry_elo.sql`) **re-lands the ADR-006 path**,
+so the column is written again — the applied factor on an eligible daily-load
+retry-slot repeat, NULL otherwise. It is no longer orphaned; do not drop it.

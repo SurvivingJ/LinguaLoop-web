@@ -36,7 +36,7 @@ class BaseAgent:
         Initialize the agent.
 
         Args:
-            model: Model identifier (e.g., 'google/gemini-2.0-flash-exp')
+            model: Model identifier (e.g., 'google/gemini-3.5-flash-lite')
             api_key: API key for authentication
             base_url: Optional base URL (for OpenRouter, use 'https://openrouter.ai/api/v1')
             name: Agent name for logging

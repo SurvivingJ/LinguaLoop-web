@@ -9,6 +9,8 @@ import hashlib
 import logging
 import traceback
 from datetime import datetime, timezone, date
+
+from services.day_boundary import plan_today, plan_today_iso
 from typing import Optional, Dict, List, Any, Tuple
 from uuid import uuid4
 
@@ -463,9 +465,18 @@ class TestService:
 
         Returns dict with load_date, tests (enriched), and progress.
         """
-        today = datetime.now(timezone.utc).date().isoformat()
+        # ADR-022 / TASK-716: "today" is the learner's LOCAL date, resolved
+        # through user_study_plans.timezone by the one shared helper that
+        # routes/study_session.py also calls. Unset / invalid zones fail safe
+        # to UTC inside the helper, so this never raises.
+        today = plan_today_iso(self.admin, user_id, language_id)
 
-        # Check if today's load already exists
+        # Check if today's load already exists. This short-circuit is also the
+        # timezone-change policy (ADR-022): if a learner edits their timezone
+        # so the local date moves BACKWARDS onto a date that already has a row,
+        # we serve that row verbatim and never re-invoke the resolver — so
+        # TASK-705's same-day-safe path is not exercised and no progress can be
+        # disturbed. A forward move simply starts a new date.
         existing = self.admin.table('daily_test_loads')\
             .select('*')\
             .eq('user_id', user_id)\
@@ -483,7 +494,13 @@ class TestService:
             try:
                 from services.study_plan_service import StudyPlanService, _monday_of
                 svc = StudyPlanService(db=self.admin)
-                resolver_result = svc.build_daily_session(user_id, language_id)
+                # Pass the SAME local date the row lookup above used (ADR-022).
+                # Letting the wrapper default to date.today() would reintroduce
+                # a second, server-local derivation of "today".
+                local_today = date.fromisoformat(today)
+                resolver_result = svc.build_daily_session(
+                    user_id, language_id, local_today,
+                )
 
                 # E_NOWEEK: no weekly_plan_states row exists for the target
                 # week (a freshly-created plan, or the Sunday pacer has not
@@ -497,17 +514,19 @@ class TestService:
                     try:
                         week_start = (
                             date.fromisoformat(raw_week) if raw_week
-                            else _monday_of(date.today())
+                            else _monday_of(local_today)
                         )
                     except (TypeError, ValueError):
-                        week_start = _monday_of(date.today())
+                        week_start = _monday_of(local_today)
                     logger.info(
                         'build_daily_session E_NOWEEK for user=%s lang=%s; '
                         'lazily computing weekly plan for week=%s and retrying',
                         user_id, language_id, week_start,
                     )
                     svc.compute_weekly_plan(user_id, language_id, week_start)
-                    resolver_result = svc.build_daily_session(user_id, language_id)
+                    resolver_result = svc.build_daily_session(
+                        user_id, language_id, local_today,
+                    )
 
                 # Non-error result means the RPC UPSERTed; re-fetch + enrich.
                 if isinstance(resolver_result, dict) and 'error' not in resolver_result:
@@ -633,7 +652,7 @@ class TestService:
         # Step 1: Find retry candidates (poorly performed tests)
         try:
             attempts_result = self.admin.table('test_attempts')\
-                .select('test_id, percentage, test_type_id, created_at')\
+                .select('test_id, percentage, test_type_id, created_at, user_elo_after')\
                 .eq('user_id', user_id)\
                 .eq('language_id', language_id)\
                 .order('created_at', desc=True)\
@@ -717,39 +736,52 @@ class TestService:
             except Exception as e:
                 logger.error(f"Error fetching recommended tests for daily load: {e}")
 
-        # Step 4: If still need more tests, fallback to direct query
+        # Step 4: If still need more tests, fall back to a direct ELO-matched query.
+        # The recommended-tests RPC can under-serve (skill gaps, exhausted pool), so
+        # this last-resort query pulls active tests in the user's ELO band and — the
+        # point of TASK-707 — carries each test's *real* skill type so the runner
+        # mounts the correct player and rates the correct skill (F9). We read from
+        # test_skill_ratings (not `tests`) because both ELO and skill type live there,
+        # one row per (test, skill); the `tests!inner` embed scopes to the language and
+        # active tests.
         if num_new > 0:
             try:
-                # Get user's approximate ELO for this language
+                # Approximate the user's ELO from their most recent attempt in this
+                # language. user_elo_after is per-skill, but the latest value is a
+                # good-enough centre for the band; unrated users default to 1200.
                 user_elo = 1200
                 for a in (attempts_result.data or []):
-                    # First entry is most recent
-                    user_elo = a.get('user_elo_after', 1200) or 1200
+                    # attempts_result is ordered created_at desc — first is most recent
+                    user_elo = a.get('user_elo_after') or 1200
                     break
 
                 elo_min = max(400, user_elo - 200)
                 elo_max = min(3000, user_elo + 200)
 
-                # Query tests in ELO range that user hasn't attempted
-                fallback_query = self.admin.table('tests')\
-                    .select('id, slug')\
-                    .eq('language_id', language_id)\
-                    .eq('is_active', True)\
-                    .limit(num_new + len(selected_test_ids))
+                fallback_result = self.admin.table('test_skill_ratings')\
+                    .select('test_id, elo_rating, dim_test_types(type_code), '
+                            'tests!inner(id, is_active, language_id)')\
+                    .eq('tests.language_id', language_id)\
+                    .eq('tests.is_active', True)\
+                    .gte('elo_rating', elo_min)\
+                    .lte('elo_rating', elo_max)\
+                    .limit(50)\
+                    .execute()
 
-                fallback_result = fallback_query.execute()
-
-                for t in (fallback_result.data or []):
-                    if t['id'] not in selected_test_ids and t['id'] not in latest_by_test:
-                        load_items.append({
-                            'test_id': t['id'],
-                            'slot_type': 'new',
-                            'test_type': 'listening'
-                        })
-                        selected_test_ids.add(t['id'])
-                        num_new -= 1
-                        if num_new <= 0:
-                            break
+                for r in (fallback_result.data or []):
+                    test_id = r['test_id']
+                    if test_id in selected_test_ids or test_id in latest_by_test:
+                        continue
+                    type_code = (r.get('dim_test_types') or {}).get('type_code', 'listening')
+                    load_items.append({
+                        'test_id': test_id,
+                        'slot_type': 'new',
+                        'test_type': type_code
+                    })
+                    selected_test_ids.add(test_id)
+                    num_new -= 1
+                    if num_new <= 0:
+                        break
 
             except Exception as e:
                 logger.error(f"Error in fallback test selection for daily load: {e}")
@@ -849,7 +881,10 @@ class TestService:
 
     def mark_daily_test_complete(self, user_id: str, language_id: int, test_id: str) -> Dict:
         """Mark a specific test as completed in today's daily load."""
-        today = datetime.now(timezone.utc).date().isoformat()
+        # Same local-date derivation as get_or_create_daily_load (ADR-022) —
+        # if these two diverged, a learner could complete a slot against a row
+        # that the GET never showed them.
+        today = plan_today_iso(self.admin, user_id, language_id)
 
         record = self.admin.table('daily_test_loads')\
             .select('id, completed_test_ids, test_ids')\

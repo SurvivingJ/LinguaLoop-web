@@ -1,4 +1,51 @@
--- TASK-702 — build_daily_session: surface & reduce hydration shortfalls
+-- TASK-702 / TASK-704 / TASK-705 / TASK-710 — build_daily_session: hydration
+--   shortfalls, retry slot, same-day re-entrancy, single-pass budgeting
+-- =============================================================================
+-- TASK-710 (consolidate the duplicated greedy pass, folded into this revision):
+--   The resolver previously ran the greedy value-per-minute selection loop TWICE
+--   over the identical ordered candidate set: once to compute the budget totals
+--   (used_minutes, objective, skills_today) and a second time — with a parallel
+--   set of accumulators (v_replay_used / v_replay_skills) — purely to populate
+--   pg_temp.skill_counts. The two walks shared the same ORDER BY, the same
+--   EXIT/CONTINUE gates and the same spacing formula, so the second could never
+--   accept a different set of test candidates than the first; keeping them in
+--   lockstep was a standing hazard (any edit had to touch both or totals would
+--   diverge from hydration — F12). They are now a SINGLE pass that records each
+--   budgeted test slot into skill_counts as it selects. Pure refactor: identical
+--   test_ids + targets. Verified old-vs-new equal on a rollback-only live fixture
+--   diff across seeded users, and the deployed body confirmed via
+--   pg_get_functiondef post-apply (F13).
+-- =============================================================================
+-- TASK-705 (same-day-safe re-invocation, folded into this revision):
+--   A second call for the same (user, language, date) MUST NOT wipe progress.
+--   Previously the ON CONFLICT branch reset completed_test_ids to '[]' and the
+--   items rebuild reset every slot to is_completed=false, so any re-solve of an
+--   already-live day (E_NOWEEK retry, manual regenerate, pacer) erased the
+--   learner's completions — only caller-side "row already exists, skip" checks
+--   prevented it. Now the resolver, before rebuilding, CARRIES OVER every slot
+--   already completed today (test_id in prior completed_test_ids), preserving its
+--   slot_type / original_percentage and decrementing its skill's budgeted count
+--   so only the still-incomplete slots are re-resolved (retained-completed +
+--   fresh == today's budget). The ON CONFLICT branch no longer touches
+--   completed_test_ids or completed_blocks, keeping completed_test_ids subset of
+--   test_ids. get_recommended / classifier_drill hydration and the retry pick all
+--   gained a NOT IN chosen_tests guard so a retained slot is never re-inserted.
+--   Verified against the live DB in a rollback-only transaction (2026-07-20): a
+--   double-call with one completion + one practice block in between preserves
+--   completed_test_ids, completed_blocks, and the items-mirror is_completed, keeps
+--   the completed slot exactly once, and re-resolves only the incomplete slot.
+--   SQL unit test: tests/sql/test_task705_same_day_safe.sql.
+-- =============================================================================
+-- TASK-704 (ADR-006 retry slot, folded into this revision):
+--   build_daily_session now reserves AT MOST ONE slot per day per language for
+--   the learner's worst sub-70% attempt whose latest attempt is older than the
+--   24h cooldown, stamped slot_type='retry' with original_percentage. This
+--   bypasses the never-attempted filter (get_recommended_tests excludes
+--   attempted tests) and displaces one budgeted 'new' slot of the same skill
+--   when that skill is budgeted today, so used_minutes stays ~constant. The
+--   reduced-volatility ELO on submitting a retry slot is applied downstream by
+--   process_test_submission (task704_process_test_submission_retry_elo.sql),
+--   which scans daily_test_loads for slot_type='retry'.
 -- =============================================================================
 -- PROBLEM (F3 shortfall class — three prior prod incidents)
 --   The resolver BUDGETS test slots per skill (pg_temp.skill_counts) then
@@ -161,6 +208,16 @@ BEGIN
         ) / 10
     );
 
+    -- Per-skill BUDGETED test-slot counts (requested_counts) are recorded in the
+    -- SAME greedy pass that computes the budget totals (TASK-710). Created before
+    -- the loop so the selection can populate it inline; the TASK-705 carry-over
+    -- and TASK-704 retry blocks below still consume a fully-populated table.
+    DROP TABLE IF EXISTS pg_temp.skill_counts;
+    CREATE TEMP TABLE pg_temp.skill_counts (
+        skill text PRIMARY KEY,
+        count int NOT NULL
+    ) ON COMMIT DROP;
+
     FOR v_cand IN
         SELECT * FROM pg_temp.candidates
         ORDER BY per_min_value DESC, seq
@@ -186,6 +243,10 @@ BEGIN
             IF NOT (v_cand.skill = ANY(v_skills_today)) THEN
                 v_skills_today := array_append(v_skills_today, v_cand.skill);
             END IF;
+            -- Record the budgeted slot for this skill in-pass (formerly a second,
+            -- byte-identical loop over the same candidate order — F12).
+            INSERT INTO pg_temp.skill_counts (skill, count) VALUES (v_cand.skill, 1)
+            ON CONFLICT (skill) DO UPDATE SET count = pg_temp.skill_counts.count + 1;
         ELSIF v_cand.kind = 'maint' THEN
             v_maint_min := v_maint_min + v_cand.mins::int;
         ELSIF v_cand.kind = 'acq' THEN
@@ -196,56 +257,113 @@ BEGIN
                                     - v_spacing_cost;
     END LOOP;
 
-    -- Per-skill BUDGETED test-slot counts (requested_counts). Re-walks the same
-    -- ordered candidate set with the same spacing/cap gates as the budget loop.
-    DROP TABLE IF EXISTS pg_temp.skill_counts;
-    CREATE TEMP TABLE pg_temp.skill_counts (
-        skill text PRIMARY KEY,
-        count int NOT NULL
-    ) ON COMMIT DROP;
-
-    DECLARE
-        v_replay_used numeric := 0;
-        v_replay_skills text[] := ARRAY[]::text[];
-        v_replay_cost numeric;
-    BEGIN
-        FOR v_cand IN
-            SELECT * FROM pg_temp.candidates
-            ORDER BY per_min_value DESC, seq
-        LOOP
-            EXIT WHEN v_replay_used >= v_today_budget;
-            CONTINUE WHEN v_replay_used + v_cand.mins > v_upper_cap;
-
-            v_replay_cost := 0;
-            IF v_cand.kind = 'test'
-               AND NOT (v_cand.skill = ANY(v_replay_skills)) THEN
-                SELECT c_gamma
-                     * COALESCE((SELECT COUNT(*)::numeric FROM pg_temp.last3_skills
-                                 WHERE skill = v_cand.skill), 0)
-                     / 3.0
-                  INTO v_replay_cost;
-                IF v_replay_cost > (v_cand.per_min_value * v_cand.mins) THEN
-                    CONTINUE;
-                END IF;
-            END IF;
-
-            IF v_cand.kind = 'test' THEN
-                IF NOT (v_cand.skill = ANY(v_replay_skills)) THEN
-                    v_replay_skills := array_append(v_replay_skills, v_cand.skill);
-                END IF;
-                INSERT INTO pg_temp.skill_counts (skill, count) VALUES (v_cand.skill, 1)
-                ON CONFLICT (skill) DO UPDATE SET count = pg_temp.skill_counts.count + 1;
-            END IF;
-            v_replay_used := v_replay_used + v_cand.mins;
-        END LOOP;
-    END;
-
     DROP TABLE IF EXISTS pg_temp.chosen_tests;
     CREATE TEMP TABLE pg_temp.chosen_tests (
-        test_id   uuid NOT NULL,
-        skill     text NOT NULL,
-        slot_type text NOT NULL DEFAULT 'new'
+        test_id             uuid NOT NULL,
+        skill               text NOT NULL,
+        slot_type           text NOT NULL DEFAULT 'new',
+        original_percentage numeric,         -- populated for slot_type='retry' only
+        is_completed        boolean NOT NULL DEFAULT false  -- TASK-705: retained same-day completion
     ) ON COMMIT DROP;
+
+    -- ---------------------------------------------------------------
+    -- TASK-705 — same-day re-entrancy. Before rebuilding today's plan, carry
+    -- over every slot the learner already COMPLETED today: any element of the
+    -- prior row's test_ids whose test_id is present in the prior completed_test_ids.
+    -- Each is re-inserted into chosen_tests with its ORIGINAL slot_type /
+    -- original_percentage and is_completed=true, and its skill's budgeted count is
+    -- decremented so only the still-incomplete slots get re-resolved below
+    -- (retained-completed + fresh == today's budget, so used_minutes stays sane).
+    -- Seeding these first also excludes them from retry/replay selection (both
+    -- guard against chosen_tests) and preserves the completed_test_ids subset test_ids
+    -- invariant, since the ON CONFLICT branch keeps completed_test_ids as-is.
+    -- No-op on the first call of the day (no prior row -> NULL).
+    -- ---------------------------------------------------------------
+    DECLARE
+        v_prior_test_ids  jsonb;
+        v_prior_completed jsonb;
+    BEGIN
+        SELECT dtl.test_ids, dtl.completed_test_ids
+          INTO v_prior_test_ids, v_prior_completed
+        FROM public.daily_test_loads dtl
+        WHERE dtl.user_id = p_user_id
+          AND dtl.language_id = p_language_id
+          AND dtl.load_date = p_date;
+
+        IF v_prior_completed IS NOT NULL
+           AND jsonb_typeof(v_prior_completed) = 'array'
+           AND jsonb_array_length(v_prior_completed) > 0 THEN
+
+            INSERT INTO pg_temp.chosen_tests (test_id, skill, slot_type, original_percentage, is_completed)
+            SELECT (elem->>'test_id')::uuid,
+                   COALESCE(elem->>'test_type', 'listening'),
+                   COALESCE(elem->>'slot_type', 'new'),
+                   NULLIF(elem->>'original_percentage', '')::numeric,
+                   true
+            FROM jsonb_array_elements(COALESCE(v_prior_test_ids, '[]'::jsonb)) AS elem
+            WHERE jsonb_typeof(elem) = 'object'
+              AND elem ? 'test_id'
+              AND v_prior_completed ? (elem->>'test_id');
+
+            -- Free one budgeted 'new' slot per retained completed slot of its skill
+            -- (when that skill is budgeted today), keeping the day at ~budget.
+            UPDATE pg_temp.skill_counts sc
+               SET count = sc.count - retained.n
+            FROM (
+                SELECT skill, COUNT(*) AS n
+                FROM pg_temp.chosen_tests
+                WHERE is_completed
+                GROUP BY skill
+            ) retained
+            WHERE retained.skill = sc.skill;
+            DELETE FROM pg_temp.skill_counts WHERE count <= 0;
+        END IF;
+    END;
+
+    -- ---------------------------------------------------------------
+    -- TASK-704 / ADR-006 retry slot. Reserve AT MOST ONE slot for the worst
+    -- sub-70% latest attempt older than the 24h cooldown. Runs BEFORE hydration
+    -- so decrementing skill_counts frees one budgeted 'new' slot of the retry's
+    -- skill (when that skill is budgeted today), keeping used_minutes ~constant.
+    -- Additive (+1 over budget) only when the skill isn't budgeted today.
+    -- Reduced-volatility ELO on submission is applied downstream by
+    -- process_test_submission scanning slot_type='retry'.
+    -- ---------------------------------------------------------------
+    DECLARE
+        c_poor_threshold  constant numeric := 70;   -- Config.POOR_PERFORMANCE_THRESHOLD
+        v_retry_test_id   uuid;
+        v_retry_skill     text;
+        v_retry_pct       numeric;
+    BEGIN
+        SELECT latest.test_id, dtt.type_code, latest.percentage
+          INTO v_retry_test_id, v_retry_skill, v_retry_pct
+        FROM (
+            SELECT DISTINCT ON (ta.test_id)
+                   ta.test_id, ta.test_type_id, ta.percentage, ta.created_at
+            FROM public.test_attempts ta
+            WHERE ta.user_id = p_user_id
+              AND ta.language_id = p_language_id
+            ORDER BY ta.test_id, ta.created_at DESC
+        ) latest
+        JOIN public.dim_test_types dtt ON dtt.id = latest.test_type_id
+        WHERE latest.percentage IS NOT NULL
+          AND latest.percentage < c_poor_threshold
+          AND latest.created_at < (NOW() - INTERVAL '24 hours')   -- cooldown
+          AND latest.test_id NOT IN (SELECT ct.test_id FROM pg_temp.chosen_tests ct)  -- TASK-705
+        ORDER BY latest.percentage ASC, latest.created_at ASC     -- worst first
+        LIMIT 1;
+
+        IF v_retry_test_id IS NOT NULL THEN
+            -- Free one budgeted 'new' slot of this skill if it is budgeted today.
+            UPDATE pg_temp.skill_counts
+               SET count = count - 1
+             WHERE skill = v_retry_skill AND count > 0;
+            DELETE FROM pg_temp.skill_counts WHERE count <= 0;
+
+            INSERT INTO pg_temp.chosen_tests (test_id, skill, slot_type, original_percentage)
+            VALUES (v_retry_test_id, v_retry_skill, 'retry', ROUND(v_retry_pct, 1));
+        END IF;
+    END;
 
     -- ---------------------------------------------------------------
     -- Hydrate test slots (TASK-702).
@@ -263,6 +381,7 @@ BEGIN
             FROM public.tests t
             WHERE t.language_id = p_language_id
               AND t.slug LIKE '\_\_classifier\_drill\_%'
+              AND t.id NOT IN (SELECT ct.test_id FROM pg_temp.chosen_tests ct)  -- TASK-705: no dup w/ retained
             ORDER BY t.id
             LIMIT v_test.count;
         ELSE
@@ -270,6 +389,7 @@ BEGIN
             SELECT rec.test_id, v_test.skill, 'new'
             FROM public.get_recommended_tests(p_user_id, p_language_id) rec
             WHERE rec.test_type = v_test.skill
+              AND rec.test_id NOT IN (SELECT ct.test_id FROM pg_temp.chosen_tests ct)  -- TASK-705: no dup w/ retained/retry
             ORDER BY ABS(rec.elo_diff)
             LIMIT v_test.count;
 
@@ -300,13 +420,15 @@ BEGIN
 
     -- hydrated_counts = primary (never-attempted / sentinel) fill ONLY, so a
     -- slot covered solely by replay still reads as a shortfall vs requested.
+    -- NOT is_completed: retained same-day completions (TASK-705) are carried over,
+    -- not freshly hydrated, so they must not mask (or inflate) this call's fill.
     SELECT COALESCE(jsonb_object_agg(sc.skill, COALESCE(h.n, 0)), '{}'::jsonb)
       INTO v_hydrated_counts
     FROM pg_temp.skill_counts sc
     LEFT JOIN (
         SELECT skill, COUNT(*) AS n
         FROM pg_temp.chosen_tests
-        WHERE slot_type = 'new'
+        WHERE slot_type = 'new' AND NOT is_completed
         GROUP BY skill
     ) h ON h.skill = sc.skill;
 
@@ -315,7 +437,7 @@ BEGIN
     FROM (
         SELECT skill, COUNT(*) AS n
         FROM pg_temp.chosen_tests
-        WHERE slot_type = 'replay'
+        WHERE slot_type = 'replay' AND NOT is_completed
         GROUP BY skill
     ) rc;
 
@@ -332,6 +454,9 @@ BEGIN
                 'test_type', skill,
                 'slot_type', slot_type
             )
+            || CASE WHEN original_percentage IS NOT NULL
+                    THEN jsonb_build_object('original_percentage', original_percentage)
+                    ELSE '{}'::jsonb END
             ORDER BY skill, slot_type, test_id
         ),
         '[]'::jsonb
@@ -359,15 +484,19 @@ BEGIN
         )
     )
     ON CONFLICT (user_id, language_id, load_date) DO UPDATE
+        -- TASK-705: do NOT reset completed_test_ids / completed_blocks on a same-day
+        -- re-solve. Every completed slot is retained in EXCLUDED.test_ids above, so
+        -- the prior completed_test_ids stays a subset of the rebuilt test_ids.
         SET test_ids              = EXCLUDED.test_ids,
-            completed_test_ids    = '[]'::jsonb,
             daily_session_targets = EXCLUDED.daily_session_targets
     RETURNING id INTO v_load_id;
 
     DELETE FROM public.daily_test_load_items WHERE load_id = v_load_id;
 
+    -- Mirror per-slot completion so the items table matches completed_test_ids
+    -- after a same-day rebuild (TASK-705).
     INSERT INTO public.daily_test_load_items (load_id, test_id, is_completed)
-    SELECT v_load_id, ct.test_id, false
+    SELECT v_load_id, ct.test_id, ct.is_completed
     FROM pg_temp.chosen_tests ct
     ON CONFLICT (load_id, test_id) DO NOTHING;
 
