@@ -23,22 +23,47 @@ Usage::
     # outcomes[i].confidence — per-distractor LLM score 0.0–1.0
     # outcomes[i].reason     — explanation in the target language
 
-The judge prompt asks the LLM to rate ALL distractors in a single call and
-return one 5-point Likert RATING (1-5) per distractor.  The overall verdict for
-the question (used by question_generator.py) is the worst verdict across all
-distractors.
+The judge prompt asks the LLM to rate ALL distractors in a single call.  The
+overall verdict for the question (used by question_generator.py) is the worst
+verdict across all distractors.
 
-Verdict mapping (v4 Likert — see schemas.likert_to_verdict):
-    rating 5 / 4  → accept
-    rating 3      → flag   (weak, keep + surface for review)
-    rating 2 / 1  → reject (drop question; 2 = off-topic, 1 = also-correct/absurd)
-    NO rating     → accept, unjudged (accept_item) — NEVER a flag
+Two axes, not one (v7 — TASK-719)
+---------------------------------
+Through v6 the judge returned ONE 1-5 rating per distractor, and that integer
+was answering two unrelated questions at the same time: *is this option about
+the right subject?* and *would a learner confuse it with the correct answer?*
+Those come apart in both directions — an off-subject option can still be
+tempting, an on-subject one can be so obviously wrong nobody would pick it — so
+a single number could not say which failure it had seen, and neither could the
+review queue.
+
+v7 asks for both ratings and maps the pair in Python.  The band definitions,
+the cut points and the reasoning all live in ``schemas.axes_to_verdict``; do
+not restate them here, they drift.  In summary::
+
+    fit           5/4 accept · 3 unsure → flag · 2/1 reject (wrong subject)
+    confusability 5 reject (also correct) · 4/2 accept · 3 unsure → flag
+                  · 1 flag (inert — no learner would pick it)
+    worst axis wins; NO rating on an axis contributes 'accept'
+    NO rating on BOTH → accept, unjudged (accept_item) — NEVER a flag
 
 The last line is load-bearing. Under the v3 prompt the model frequently
 returned reasons with no numbers at all, and the schema fabricated a 3 for
 each, so 80% of live ratings were 'flag' verdicts nobody had actually made
 and the review queue was unusable. A missing rating is now preserved as None
 end to end and accepted outright, so the queue only ever contains real 3s.
+
+Band 3 is now defined as *judge uncertainty* on whichever axis it appears
+(TASK-720), because that is how the models were already using it: all four
+English flags in the 2026-08-16 baseline were flagged for something other than
+the "paraphrase of the answer" the band actually named.  Each outcome carries
+``flag_axes`` so the queue row records which axis was unsure.
+
+**A v4/v6 prompt row still works.**  Its single rating is read as ``fit``, whose
+bands are identical to v4's, and the absent ``confusability`` contributes
+nothing — so this module returns the same verdicts it did before v7 until the
+v7 rows are activated.  There is no scale inversion here and therefore no
+version gate, unlike the entailment cutover (TASK-723).
 
 The Likert scale replaces the v2 raw 0.0-1.0 float, which a small judge model
 could not emit consistently (the same option scored 0.80 in one question and
@@ -79,8 +104,9 @@ match a rubric bullet literally, so an id integer selects nothing. Extra
 positional ``format`` args are ignored by templates that don't reference them,
 so this stays compatible with older (v2) prompt rows.
 
-The bands and the 1-5 scale are unchanged from v4 and are TASK-719's business.
-See wiki/evaluations/distractor-judge-language-divergence-2026-08-16.
+See wiki/evaluations/distractor-judge-language-divergence-2026-08-16 for the
+analysis that produced the axis split, and
+wiki/evaluations/distractor-judge-two-axis-2026-08-20 for what v7 measured.
 """
 
 from __future__ import annotations
@@ -91,8 +117,10 @@ from services.llm_service import call_llm
 from services.prompt_service import get_template_config
 
 from services.test_generation.schemas import (
+    AXIS_CONFUSABILITY,
+    AXIS_FIT,
     DistractorPlausibilityVerdict,
-    likert_to_verdict,
+    axes_to_verdict,
 )
 from .base import JudgeOutcome, accept_item, safe_accept, log_judge_verdict
 
@@ -120,8 +148,12 @@ def judge_distractor_plausibility(
     """Run the distractor-plausibility judge, one JudgeOutcome per distractor.
 
     Returns a list of ``len(distractors)`` JudgeOutcome objects in the same
-    order as ``distractors``. Each outcome's ``confidence`` carries the raw
-    Likert rating (1.0-5.0); ``verdict`` is derived via ``likert_to_verdict``.
+    order as ``distractors``. ``verdict`` is derived from both axes via
+    ``schemas.axes_to_verdict``; ``axes`` carries the full per-axis rating map
+    and ``flag_axes`` names the axis that produced a flag or reject.
+    ``confidence`` carries the *binding* axis's Likert rating (1.0-5.0) — a
+    single number cannot represent two axes, so read it together with
+    ``verdict``, and read ``axes`` when you need both.
 
     ``type_code`` (the question type, e.g. ``vocabulary_context``) and
     ``keywords`` (the passage's subject/domain) feed prompt placeholders
@@ -180,11 +212,13 @@ def judge_distractor_plausibility(
         )
         return [safe_accept(f'llm call error: {exc}') for _ in distractors]
 
-    ratings = verdict_obj.per_distractor
+    fits = verdict_obj.fit
+    confusabilities = verdict_obj.confusability
     reasons = verdict_obj.reasons
 
-    # Length-mismatch handling. The schema validator keeps per_distractor and
-    # reasons the same length, but that length need not equal n:
+    # Length-mismatch handling. The schema validator keeps fit, confusability
+    # and reasons the same length as each other, but that length need not
+    # equal n:
     #
     # • TOO MANY (len > n): the judge model intermittently HALLUCINATES extra
     #   distractors — it emits the per-distractor numbered shape with more rows
@@ -197,45 +231,71 @@ def judge_distractor_plausibility(
     #   ~14% of ja calls (2026-06-06) — too common to silently bypass the judge.
     #
     # • TOO FEW (len < n): we cannot fabricate the missing judgments — safe-accept.
-    if len(ratings) > n:
+    if len(fits) > n:
         logger.warning(
             "distractor_plausibility: model returned %d ratings for %d "
             "distractors (lang=%d); truncating %d hallucinated extra(s)",
-            len(ratings), n, language_id, len(ratings) - n,
+            len(fits), n, language_id, len(fits) - n,
         )
-        ratings = ratings[:n]
+        fits = fits[:n]
+        confusabilities = confusabilities[:n]
         reasons = reasons[:n]
-    elif len(ratings) < n:
+    elif len(fits) < n:
         logger.warning(
             "distractor_plausibility: length mismatch — got %d confidences for "
             "%d distractors, safe-accept all",
-            len(ratings), n,
+            len(fits), n,
         )
         return [safe_accept('length mismatch in judge response') for _ in distractors]
 
-    # A None rating means the model answered but gave no number for this
-    # distractor. That is not a weak distractor and must not become a 'flag':
-    # flagging it is what filled the review queue with judgments nobody made.
-    # Accept the item outright and log the gap so it stays countable.
-    unrated = sum(1 for r in ratings if r is None)
+    # A None rating means the model answered but gave no number on that axis
+    # for this distractor. That is not a weak distractor and must not become a
+    # 'flag': flagging it is what filled the review queue with judgments nobody
+    # made. A distractor with NO rating on EITHER axis is accepted outright;
+    # one rated on only a single axis is judged on that axis alone, since a
+    # missing rating can never manufacture a verdict.
+    #
+    # Both counts are logged because they mean different things. `unrated` is
+    # the old v3 failure mode — the model answered with prose and no numbers.
+    # `fit_only` is the expected steady state while a v4/v6 prompt row is still
+    # live (it asks for one rating), so it is the metric that tells you whether
+    # the v7 rows have actually taken effect in this language.
+    unrated = sum(1 for f, c in zip(fits, confusabilities)
+                  if f is None and c is None)
+    fit_only = sum(1 for f, c in zip(fits, confusabilities)
+                   if f is not None and c is None)
     if unrated:
         logger.warning(
-            "distractor_plausibility: model returned NO rating for %d/%d "
-            "distractors (lang=%d, model=%s); accepting those unjudged rather "
-            "than flagging them",
+            "distractor_plausibility: model returned NO rating on either axis "
+            "for %d/%d distractors (lang=%d, model=%s); accepting those "
+            "unjudged rather than flagging them",
             unrated, n, language_id, cfg['model'],
         )
-
-    outcomes = [
-        accept_item('judge returned no rating for this distractor')
-        if rating is None else
-        JudgeOutcome(
-            verdict=likert_to_verdict(rating),
-            confidence=float(rating),  # carries the 1-5 Likert rating
-            reason=reasons[i] if i < len(reasons) else '',
+    if fit_only:
+        logger.info(
+            "distractor_plausibility: %d/%d distractors carry a fit rating but "
+            "no confusability rating (lang=%d, template v%s) — expected while a "
+            "pre-v7 single-axis prompt row is active",
+            fit_only, n, language_id, cfg['version'],
         )
-        for i, rating in enumerate(ratings)
-    ]
+
+    outcomes = []
+    for i, (fit, confusability) in enumerate(zip(fits, confusabilities)):
+        if fit is None and confusability is None:
+            outcomes.append(
+                accept_item('judge returned no rating for this distractor'))
+            continue
+        av = axes_to_verdict(fit, confusability)
+        outcomes.append(JudgeOutcome(
+            verdict=av.verdict,
+            # The binding axis's 1-5 rating. Read with `verdict`: a 5 means
+            # "clearly on-subject" when fit binds and "also correct" when
+            # confusability does.
+            confidence=float(av.rating) if av.rating is not None else None,
+            reason=reasons[i] if i < len(reasons) else '',
+            axes={AXIS_FIT: fit, AXIS_CONFUSABILITY: confusability},
+            flag_axes=av.axes,
+        ))
 
     # Log the worst-case verdict for the batch (binding constraint for the
     # question as a whole) so the smoke-test query sees one row per call.

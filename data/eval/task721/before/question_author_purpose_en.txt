@@ -1,0 +1,57 @@
+You are generating an **Author Purpose/Tone** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "author_purpose",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice B",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Ask about DIFFERENT aspects (purpose vs. tone vs. attitude vs. perspective)
+- Frame questions in DIFFERENT ways
+- Focus on DIFFERENT sections or the overall passage
+- Offer DIFFERENT types of choices
+
+---
+
+**Author Purpose/Tone Guidelines:**
+- Focus on WHY the author wrote the passage, their attitude, tone, or perspective
+- Test understanding of author's intent, viewpoint, or emotional stance
+- May ask about: purpose (inform, persuade, entertain), tone (optimistic, critical, neutral), attitude (supportive, skeptical), or organizational approach
+- Require analysis of language choices, structure, and overall message
+- Answers must be supported by textual evidence
+
+---
+
+**Few-shot Example:**
+Passage: "While the new policy has clear benefits for some residents, concerns remain about its implementation timeline. The rushed approval process left many questions unanswered. However, with proper community input and phased rollout, these challenges could potentially be addressed."
+
+Question: "What is the author's overall tone toward the new policy?"
+Choices: [
+  "Completely opposed and hostile",
+  "Cautiously optimistic with reservations",
+  "Entirely enthusiastic and supportive",
+  "Neutral and indifferent"
+]
+Answer: "Cautiously optimistic with reservations"
+Explanation: "The author acknowledges both benefits and concerns, expresses criticism of the process, but ends with a conditional positive outlook ('could potentially be addressed')."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- Analyze author's purpose, tone, attitude, or perspective
+- Support answer with evidence from language choices and structure
+- MUST be different from previous questions in focus
+
+Return ONLY the JSON object, no additional text.

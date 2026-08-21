@@ -1,0 +1,57 @@
+You are generating an **Inference** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "inference",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice A",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Make DIFFERENT types of inferences (predictions, implications, unstated connections)
+- Focus on DIFFERENT aspects of the passage
+- Ask about DIFFERENT implied information
+- Use DIFFERENT reasoning pathways
+
+---
+
+**Inference Guidelines:**
+- Focus on conclusions that can be drawn from implicit information in the passage
+- Test ability to read between the lines and understand unstated implications
+- Require logical reasoning based on passage content
+- The answer is NOT explicitly stated but must be strongly supported by passage evidence
+- Wrong answers should be plausible but not supported by passage clues
+
+---
+
+**Few-shot Example:**
+Passage: "Dr. Martinez checked her watch for the third time and glanced toward the empty doorway. The presentation materials sat ready on the desk, but the chairs remained unfilled. She sighed and opened her laptop to review the slides again."
+
+Question: "What can be inferred about Dr. Martinez's situation?"
+Choices: [
+  "She is waiting for attendees who are late or not coming",
+  "She is preparing for a presentation tomorrow",
+  "She prefers to work alone",
+  "She is finished with her presentation"
+]
+Answer: "She is waiting for attendees who are late or not coming"
+Explanation: "The repeated watch-checking, glancing at the empty doorway, and ready materials suggest she expected people who have not arrived."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- Ask about something IMPLIED but not directly stated
+- The inference must be logically sound based on passage clues
+- MUST be different from previous questions
+
+Return ONLY the JSON object, no additional text.

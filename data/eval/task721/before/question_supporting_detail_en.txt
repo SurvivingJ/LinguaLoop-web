@@ -1,0 +1,56 @@
+You are generating a **Supporting Detail** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "supporting_detail",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice D",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Focus on DIFFERENT supporting details, examples, or evidence
+- Ask about DIFFERENT relationships (cause-effect, examples, reasons, etc.)
+- Use DIFFERENT parts of the passage
+- Frame questions in DIFFERENT ways
+
+---
+
+**Supporting Detail Guidelines:**
+- Focus on specific facts, examples, or reasons that support the main idea or key points
+- Test understanding of how details relate to larger concepts
+- May ask about causes, effects, examples, evidence, or explanations
+- Require comprehension beyond simple fact recall—need to understand relationships
+- Answers are explicitly stated but may be paraphrased
+
+---
+
+**Few-shot Example:**
+Passage: "The company's profits increased by 15% this quarter. This growth resulted from strong online sales and reduced operating costs. The new e-commerce platform contributed to a 25% increase in web traffic."
+
+Question: "According to the passage, what factors contributed to the company's profit increase?"
+Choices: [
+  "Higher prices and new products",
+  "Strong online sales and reduced operating costs",
+  "More employees and bigger offices",
+  "International expansion and partnerships"
+]
+Answer: "Strong online sales and reduced operating costs"
+Explanation: "The passage explicitly states these two factors as reasons for the 15% profit increase."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- Focus on details that SUPPORT or EXPLAIN main points
+- MUST be completely different from previous questions
+
+Return ONLY the JSON object, no additional text.

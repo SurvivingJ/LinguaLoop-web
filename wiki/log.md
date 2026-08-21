@@ -3929,3 +3929,364 @@ score-distribution metrics, two of the six proposed modules. Recommended
 sequencing: human-adjudicate ~100 gold items first, build after Likert lands.
 
 Counts. Not Started 11 → 11 (no new tasks filed; deferral recorded as a planned feature).
+
+## [2026-08-19] task | TASK-723 — entailment Likert v3 rollout verified, ja judge model fixed
+Pages updated: 4 (index, log, tasklist/master, tasklist/distractor-judge-calibration).
+Pages created: 1 ([[evaluations/entailment-likert-v3-rollout-2026-08-19]]).
+Migrations applied live: 1 (`entailment_ja_v3_onto_gemini_3_5_flash_lite.sql`).
+
+**Cutover state.** The tasklist said "staged, NOT activated". It was stale — v3 has been active in
+zh/en/ja since 2026-08-19 10:11:32Z (all six rows share that `updated_at`, so one transaction; who
+ran it is not recorded), and the Likert code is committed, not working-tree-only. The third move,
+the restart that clears the process-lifetime `_cfg_cache`, is **moot rather than skipped**: no app
+process exists (only VS Code isort LSP servers; nothing listening on 3000/5000/5001/8000/8080/8888),
+so no process can be holding a pre-Likert config and `safe_accept`-ing everything. Next start loads
+v3 clean.
+
+**Two premises in the brief were false and are corrected in the wiki.**
+1. "No production telemetry — `llm_calls` has zero rows for `test_answer_entailment`." That is the
+   `prompt_templates` key; the telemetry label is `judge_answer_entailment` (`judge_` prefix, set at
+   `answer_entailment.py:75`). 784 production rows exist. No telemetry gap, no task needed. Recorded
+   as established fact #10 because it reads exactly like a missing-instrumentation defect.
+2. "No gold set exists, so the v3 re-measurement is blocked." Not for entailment — its gold labels
+   are *structural and free* (the correct answer is entailed by construction, its distractors are
+   not), which is what `measure_entailment_ab.py` is built on. The blocker is real only for
+   *distractor plausibility*, where confusability has no structural label. Filed as **TASK-726**
+   with a construction plan (540 items, two-axis labels, native adjudication, published Cohen's κ,
+   disagreement-enriched frame with stored reweighting).
+
+**Prompt-abbreviation risk checked and cleared.** zh/en/ja v3 bodies are 402/1101/494 chars and en
+is 2.7× zh, which looked like an abbreviated paraphrase in two languages. It is not — the gap is CJK
+character density. All three carry the single-axis restriction, five anchored bands, the tie-break
+rule and the JSON contract. `audit_prompt_latin.py` CLEAN for zh/ja v2 and v3; the literal `JSON`
+token survives in both, so the Alibaba/Qwen `json_object` 400 is not reintroduced.
+
+**Measurement (450 + 300 calls, `pipeline='diag'`, $0.2135 of a $3 budget).** All five bands fire in
+all three languages with 0 unparsed responses — a first for this judge family. It works because
+entailment is genuinely one axis; the distractor bands still conflate two, so TASK-717's lesson
+("anchoring bands does not make a model use them") is not contradicted and TASK-719 stands.
+AUC zh 0.990 / en 0.982 / ja 0.870. Best swept threshold is 4.0 for every language and every model
+arm, identical to deployed `LIKERT_ACCEPT` — no retune indicated.
+
+**ja was the model, not the language.** Holding the v3 prompt fixed and varying only the model:
+qwen-2.5-72b 0.870 AUC / 18% false-accept / 24.7% band-3 load, vs `google/gemini-3.5-flash-lite`
+**0.940 / 2% / 2.7%**, vs deepseek-chat 0.798 / 33%. Since zh and en score 0.99/0.98 on the *same*
+prompt and ja audits CLEAN, the deficit is neither prompt nor content — the same conclusion TASK-718
+reached about qwen. This was the one active judge row `consolidate_gemini_on_3_5_flash_lite.sql`
+could not reach, because it swept gemini rows and this one was qwen. Applied live, model column
+only, ja v3 body md5 verified unchanged.
+
+**Still open on TASK-723:** "one verdict mapper, not two". `classify()`/`THRESHOLD_*` survive with
+one caller and cannot retire until `cloze_distractor_judge` converts, which waits on TASK-719.
+
+Suite: 1806 passed, 3 skipped.
+
+## [2026-08-19] task | TASK-723 follow-up — production entailment path smoked on v3
+Pages updated: 1 ([[evaluations/entailment-likert-v3-rollout-2026-08-19]] §0b).
+Scripts created: 1 (`scripts/smoke_entailment_production_path.py`).
+
+**The gap:** `measure_entailment_ab.py` calls `call_llm` directly and bypasses the production
+wrapper — no `_load_cfg`, no `_is_pre_likert`, no `likert_to_verdict`, no `log_judge_verdict`. So
+the day's 750-call measurement validated the prompt and the model but **not the plumbing**, and
+`llm_calls` held zero rows at `template_version = 3`. The wrapper was unit-tested and the prompt was
+measured; the two had never met on the live row.
+
+**Closed. 6/6 pass across zh/en/ja**, calling `judge_answer_entailment` exactly as
+`question_generator.py:500` does. Supported answers rate 5 → accept, unrelated answers rate 1 →
+reject, in every language. Four things are now verified rather than assumed:
+the version gate does **not** fire (so the judge is judging, not `safe_accept`-ing); ja loaded on
+`google/gemini-3.5-flash-lite` through the production loader, confirming the §4 swap; the first
+`template_version = 3` rows landed in `llm_calls`; and **`judge_confidence` carries the Likert
+rating — 5 on accepts, 1 on rejects, no `0.8` probability constant anywhere.** That last one is the
+two-scales-in-one-column collision `null_legacy_judge_confidence.sql` erased 888 rows to clear,
+verified closed on the live path.
+
+The smoke deliberately fails on a *missing* rating even for the accept fixture: a dead judge and a
+healthy accept are otherwise indistinguishable, which is exactly how this class of defect has hidden
+before.
+
+7 calls, $0.00105, logged under `pipeline='test_gen'` (production, not `diag`) — that is what makes
+it a production-path proof, and it is visible in production cost reporting by design.
+
+Incidental: the script needed an explicit UTF-8 stdout reconfigure. A Windows cp1252 console raises
+`UnicodeEncodeError` on the first CJK reason string and kills the run *after* the LLM has been paid
+for. Worth copying into any script that prints zh/ja model output.
+
+## [2026-08-19] task | TASK-726 — distractor gold-set frame built, pre-rated, and weighted
+Pages created: 1 ([[evaluations/distractor-gold-frame-2026-08-19]]).
+Pages updated: 3 (master, distractor-judge-calibration.tasks, index).
+Scripts created: 3 (`distractor_gold.py`, `build_distractor_gold_frame.py`,
+`merge_distractor_gold.py`). Scripts modified: 2 (`measure_judge_flag_rate.py`,
+`generate_question_sample.py`). Tests added: 37. Suite: **1843 passed, 3 skipped** (was 1806).
+Spend: **$0.7266** + ~$0.05 generation, all `pipeline='diag'`.
+
+**Steps 1, 2, 5 and 6 of the construction plan are shipped; step 4 — native-speaker adjudication —
+is the only remaining work and has not started.** The frame is **573 items** (zh 213 / en 180 /
+ja 180 — above the ≥540 / ≥180 floor), pre-rated by both TASK-718 models, post-stratified to the
+production question mix, and split into primary + 60-item overlap labeller sheets.
+
+**Reused rather than regenerated.** `data/eval/task721_before.json` is 179 questions drawn the
+same day by `generate_question_sample.py --templates live`, and the TASK-721 rewrite rows are
+**staged, not active**, so "live" then is live now. Regenerating would have cost ~$0.57 and ~40
+minutes for the same content. One zh cell had failed in that run, leaving zh at 177 items, so a
+12-question top-up was generated the same way; `generate_question_sample.py` gained
+`--exclude-passages` so the top-up drew passages the first run had not used.
+
+**The disjointness is not an artefact of the frozen sample — it is worse on fresh content.**
+Both arms ran the *live* judge prompt for their language (zh v6, en/ja v4) and differed only in
+model. qwen rejects 56/573, gemini 3/573, overlapping on **3**. Per language the Jaccard is
+zh 0.06 / en **0.00** / ja 0.10 — across 180 English items the two models agree on *zero*
+rejects. The band cross-tab shows why no rate could ever have settled it: of the 55 distractors
+qwen puts in band 2 ("off-topic, different subject, reject"), gemini rates **35 of them 5**, its
+top band, and 16 more a 4. On the disputed population the models are opposites, not mis-scaled
+versions of each other.
+
+**Uniform-by-type sampling has been quietly mis-weighting every rate in this workstream.** A
+uniform frame gives `supporting_detail` 16.7% when production gives it ~5.2–5.9%, and
+`vocabulary_context` 16.7% when production gives it 26–30%. Because rejects concentrate in
+`vocabulary_context`, reweighting the live judge to the production mix moves its reject rate
+**0.52% → 0.92% (1.77×)**. **TASK-721's §1 "0.6% on fresh output" therefore understates the
+production reject rate by ~1.8×** — right about direction, wrong as an acceptance threshold. The
+correction is now automatic: `frame_weight` is stored per item and `--gold` applies it to every
+published number.
+
+**A contradiction in the task's own plan, resolved.** §1 sizes the frame at 540 and §2
+force-includes disagreements *out of* it — which only bites when the frame exceeds the
+adjudication budget. Adjudicating all 573 is cheaper in human time *and* removes the enrichment
+bias entirely, so `selection_prob` is 1.0 throughout. The enrichment machinery is built and
+tested anyway (`--adjudicate N`) because a later top-up may want it.
+
+Three design choices worth keeping: **the labeller CSVs deliberately omit the pre-ratings** (a
+gold set anchored to the models it arbitrates is worth nothing); **`confusable = borderline`
+returns neither side** rather than being coerced, because that population is what TASK-720 will
+redesign the review band around; and **`merge_distractor_gold.py` fires a `[BLOCK]` when κ on
+`confusable` lands below 0.60**, naming the label definitions as the defect.
+
+Also landed: `--arms "name=live:model"` resolves the judge prompt version per language, because
+zh is on v6 while en/ja are on v4 and no integer spans a three-language arm.
+
+Plumbing smoked end-to-end with *synthetic* labels in the scratchpad (never written to
+`data/eval/`): merge, κ gate and `--gold` scoring all run clean, and AUC comes out **0.51** on
+random labels — the harness manufactures no signal of its own.
+
+**Blocked on:** adjudication of 573 items plus a 180-item overlap slice, by native speakers, zh
+and ja not from translation. Four of seven acceptance criteria wait on it, including the
+re-scoring that settles which TASK-718 model was right — now **free**, because the frame was
+pre-rated with exactly that pair. TASK-719/720 stay blocked, but the blocker is now one named
+file waiting on one named activity.
+
+---
+
+## [2026-08-20] task | TASK-719 + TASK-720 — the distractor judge splits onto two axes; v7 staged, not activated
+
+Executed both tasks together, because they cannot ship apart: TASK-720 redefines a band that
+TASK-719 puts on two axes, and both live in the same prompt rows.
+
+**Scope call worth recording.** TASK-719 was blocked on the TASK-726 gold set. The operator
+directed the split to proceed and the *scale redesign* to stay parked, and those are separable:
+the blocker protects against **retuning cut points** on an unvalidated signal, not against
+**asking the judge two questions instead of one**. The staging disposition preserves everything
+the blocker was for — the rows are `is_active = false` and nothing changed at runtime.
+
+**What shipped.**
+
+* `schemas.axes_to_verdict(fit, confusability) -> (verdict, axes, rating)`, with `REVIEW_BAND`,
+  `FIT_REJECT_MAX`, `CONFUSABILITY_ALSO_CORRECT` and `CONFUSABILITY_INERT_MAX` as named cut
+  points. `likert_to_verdict` is untouched — seven other judges share it.
+* `DistractorPlausibilityVerdict` gains `fit` and `confusability`; `per_distractor` survives as a
+  read-only alias for `fit` and as an accepted input key, so no caller and no existing test moved.
+* `JudgeOutcome.axes` / `.flag_axes`, both optional, so the eight single-axis judges are unchanged.
+* `orchestrator._flag_reasons` writes `distractor_plausibility:confusability` into
+  `generation_review_queue.flag_reasons`; the full per-axis map rides in `judge_scores`.
+* v7 prompt rows, zh/en/ja, `[fit, confusability, reason]` triples. zh and ja authored natively
+  with `qwen3.8-max` through `rewrite_prompt_native.py`; en written directly.
+* `scripts/apply_distractor_judge_v7.py` — writes the rows and reads them back; `--emit-sql`
+  generates `migrations/distractor_plausibility_prompt_v7_two_axis.sql` from the same source, so
+  the file and the write cannot drift.
+* 26 new tests (`tests/test_distractor_two_axis.py`); suite 1843 → **1869 passed, 3 skipped**.
+
+**The compatibility property is the reason this could ship as code-first.** `fit`'s bands are
+deliberately identical to the v4 single-axis bands, so a v4/v6 row's single rating lands in `fit`,
+`confusability` is `None`, and a `None` axis contributes 'accept'. Verdicts are unchanged until
+someone flips `is_active`. The `live` arm in the measurement reproduces the pre-split numbers,
+which is the empirical proof. This is the *opposite* of the entailment cutover (TASK-723), where
+the two scales inverted at `1`, 77% of historical responses were exactly `1.0`, and the guard had
+to be a version gate.
+
+**Measured** live-vs-v7 on the 179-question TASK-721 sample (537 distractors, zh 59 / en 60 /
+ja 60), same model in every cell (`google/gemini-3.5-flash-lite`), 358 calls, 1.4 min, **$0.2738**.
+
+1. **Every v7 flag is a confusability flag.** zh 31, en 13, ja 17 — and the fit axis produced
+   **zero** in all three languages. The queue no longer says "a judge was unsure", it says "the
+   judge could not tell how tempting this option would be", which is a question a reviewer can
+   answer. Recording the axis paid for itself immediately.
+2. **The fit axis went near-binary.** Zero 3s anywhere; band 4 collapsed (zh 47→2, en 33→10,
+   ja 65→2) into band 5. Splitting made the model *more* decisive about subject membership, not
+   less — coherent, since the single integer had been absorbing hesitation about both questions,
+   but it means fit alone now carries almost no information. Anyone tempted to simplify this judge
+   back to one axis would be keeping the wrong half.
+3. **The also-correct failure is rare, not newly detectable.** Confusability 5 fires **1/537**
+   (0.19%); the old band 1 fired 3/1,800 (0.17%). The same rate. TASK-719's acceptance criterion
+   ("detectable on the confusability axis") is met, and the original premise behind it is wrong —
+   the revised status note's guess that the case "may simply be rare rather than undetectable" is
+   what the data says. **The case for v7 rests on the review signal, not on this catch.**
+4. **Review volume is the number the decision turns on.** Question-level: zh **28/59 (47%)**,
+   en **13/60 (22%)**, ja **17/60 (28%)**, against live 1.7% / 3.3% / 0.0%. Decomposed, ~75% is
+   band-3 uncertainty and ~25% is the new inert rule, which is why `CONFUSABILITY_INERT_MAX` is a
+   constant — that quarter can be dropped by setting it to 0 without touching three prompts.
+5. Rejects moved little and not in one direction (zh 2→7, en 1→3, ja 2→1 questions); on n=60 per
+   language that is not separable from noise.
+
+**Staged rather than activated,** for the same reason TASK-717's v5 and TASK-721's generator spec
+were: nothing here is gold-validated, and a 47% zh review rate could be an honest judge admitting
+it cannot tell or a prompt that made a confident model timid. No measurement without labels can
+separate those. Third build-measure-stage cycle in this workstream. TASK-726 is now the only work
+between v7 and a rollout decision, and the split gave it a sharper question to answer than it had.
+
+**Two smaller findings.**
+
+* `rewrite_prompt_native.py`'s `required_literals` check **caught a real defect three times**:
+  `qwen3.8-max` wrote the ja output-format section in fluent Japanese and rendered `JSON` as
+  ジェイソンオブジェクト. Repaired by substituting the literal back; nothing else touched. Without
+  the check this would have shipped as a quietly degraded judge, not an error —
+  `response_format='json_object'` needs the token.
+* `Spec` gained `render_positional`, because the judge rows use `{0}`-`{5}` and the existing
+  `text.format(**render_args)` smoke check cannot render positional slots. It was passing rows it
+  had not actually rendered.
+
+**Still owed:** `classify()` and `THRESHOLD_ACCEPT`/`THRESHOLD_REJECT` survive with one caller
+(`judges/cloze.py`). TASK-723's last open criterion — "one verdict mapper, not two" — was blocked
+on this task settling the axis split. It is settled; `axes_to_verdict` is the template cloze
+converts onto. That conversion was not in TASK-719/720's scope.
+
+Pages: [[evaluations/distractor-judge-two-axis-2026-08-20]] (new),
+[[tasklist/distractor-judge-calibration]], [[tasklist/master]], [[index]].
+
+
+---
+
+## [2026-08-20] query | Is the v7 unsure band honest, or did the wording make a confident model timid?
+
+Asked directly by the operator after the TASK-719/720 write-up left it open. Answered, and the
+answer is the opposite of the hypothesis.
+
+**Framing correction first.** "The judge is correct" and "the wording made it timid" are not
+mutually exclusive, and the comparison the two-axis report rested on could not separate them
+because **neither arm is a neutral observer**: v4 says "THIS IS THE NORMAL, EXPECTED RATING —
+most good distractors should score 5", v7 says "use 3 whenever you are unsure, do not guess a 4
+or a 2". Each prompt contains an instruction sufficient to produce its own distribution.
+
+**The ablation settles it.** Deletion-only edit of all three v7 bodies removing every directional
+cue from BOTH ends (`scripts/build_distractor_judge_ablation.py`, every removed span asserted to
+appear exactly once and the body asserted to shrink, because a silent no-op would report "the
+wording made no difference" and look like a result). Unsure ratings **41 → 83**; flag rate zh
+19.8 → 29.9%, en 6.1 → 21.7%, ja 6.7 → 18.1%. Replicates independently in three languages.
+The fit axis, which used band 3 **zero** times under v7, starts using it (zh 1, en 7, ja 2) —
+so its total confidence was the anchor, not the axis.
+
+Therefore the "use 3 if unsure" nudge is *more than cancelled* by the confidence anchors v7
+retained. v7's 22-47% review rate is a **floor** on this model's uncertainty. **The anomaly was
+always v4's near-zero rate.**
+
+**Three further findings.**
+
+1. **Temperature 0 is not deterministic on this stack.** v7 measured twice on byte-identical
+   content: ja unsure 14 → 12, flag 9.4% → 6.7% — a 30% swing. Nothing in this workstream had
+   established that. The two-axis page's per-language rates are corrected to carry ~±3pp; the
+   headline 0-3% → 22-47% jump is far larger and survives.
+2. **The nudge does not change how much the judge hedges — it changes what lands there.**
+   Band-3 reasons contain hedging language at 3-20× the rate of band 2 under v7 (zh 29%, en 20%)
+   and barely above their neighbours under ablation (zh 13% vs band-4 12%). Reading them, the
+   ablation's band-3 reasons are frequently confident judgments that restate a *neighbouring
+   band's definition* ("a careful reader could rule it out" — that is band 4; "most learners
+   would rule it out at once" — that is band 2). Without the push the model uses 3 as a
+   **midpoint**, not an abstention. That is TASK-720's real achievement and it is a different
+   claim from the one recorded there.
+3. **The unsure band selects low-surface-overlap items.** Character-bigram similarity to the
+   correct answer: bands 1/2/4 order correctly (0.070 / 0.078 / 0.096) and band 3 sits **below
+   all of them** (0.039). Not "intermediate on temptingness" — the items where the surface gives
+   no signal and the call has to be semantic. The review queue is enriched for exactly the items
+   a human is best placed to judge and a cheap model worst.
+
+**A retraction.** An earlier pass flagged a slot-position gradient in the unsure band as a
+rating-process artefact. The control kills it — the live arm shows the same gradient on its own
+scale. It pre-dates v7 and may not be an artefact at all.
+
+**Defect found and fixed.** `measure_judge_flag_rate.py` parsed the judge's per-distractor reason
+text, used it for nothing and dropped it, so **no measurement run in this workstream could be
+audited after the fact** and no claim about *why* the judge flagged anything was checkable.
+Finding 2 above is the first time it has been looked at and it is the sharpest result here.
+Results now store `reasons` and `distractors`. Also added file-backed arms
+(`--arms "name=@prefix:"`) reading `data/eval/<prefix>_<lang>.txt`, so a throwaway ablation never
+needs a throwaway row in the live `prompt_templates` table — that is how TASK-723 destroyed two
+live rows. The prefix is constrained to a bare filename stem.
+
+**Unchanged:** v7 stays staged. The reason has moved — no longer "we cannot tell whether the
+judge went timid" (answered) but "a 22-47% review rate is a real workload and nothing yet says
+the items in it are the right ones". Only TASK-726's gold set, or per-option learner selection
+data, can close that. Spend $0.2980. Suite 1869 passed.
+
+Pages: [[evaluations/distractor-judge-unsure-band-audit-2026-08-20]] (new),
+[[evaluations/distractor-judge-two-axis-2026-08-20]] (§1 correction), [[index]].
+
+## [2026-08-21] tasks | TASK-727–730 — fail-closed judging wired into test generation, then measured
+
+Filed [[tasklist/test-gen-fail-closed-judging.tasks]] (4 tasks) and executed all four.
+
+**The gap.** `batch_mode()` — the fail-closed judge guard built after two total outages where a
+delisted OpenRouter model slug made every judge `safe_accept()` and a whole batch shipped
+unjudged — was wired into `scripts/run_generation_batch.py`, `judges/particle.py`,
+`judges/relation.py`, `services/model_health.py` and `vocabulary_ladder/asset_pipeline.py`.
+That is exercise generation. **Test generation never entered it**, so a bulk test run with a dead
+slug or a missing prompt row wrote unjudged questions to `questions` with nothing louder than a
+log warning.
+
+**TASK-727 — wiring, two places not four.** `run()` and `run_batch()` now delegate to
+`_run_impl`/`_run_batch_impl` inside `with batch_mode():`, so all four caller modules are covered
+and a fifth cannot forget. The wrapper sits *outside* each implementation's `try` — inside it, the
+outer `except Exception` would swallow the abort before the guard could mean anything.
+`services/ai_service.py` turned out to have no call site at all, only a `# LEGACY:` pointer.
+
+**TASK-728 — the actual work.** `JudgeUnavailable` is an ordinary exception and `orchestrator.py`
+has 15 `except Exception` blocks. Classified all of them: **five are on the judge path** (`run()`
+per-item and outer, `_process_queue_item` per-difficulty, `run_batch()` per-slot and outer) and
+now re-raise; the other ten cannot reach a judge and were left untouched. Without this the abort
+degrades into "that one test quietly failed to generate" — *quieter* than the bug it replaces.
+Also corrected `question_generator._apply_judges`'s docstring, which asserted "this method never
+raises and never blocks the pipeline"; that is now false by design, and the two-contract version
+(fail-open serving, fail-closed in a batch, `accept_item` never aborting either way) replaced it.
+
+**Thread fan-out: audited, nothing to do.** `services/test_generation/` has zero
+`ThreadPoolExecutor`/`concurrent.futures`/`threading` references and `services/vocabulary/
+sense_generator.py` imports no judge, so the thread-local flag has no boundary to cross today.
+Recorded as an assumption, because parallelising the generation loop later would silently revert
+the workers to fail-open — the original outage wearing a different hat.
+
+**TASK-729 — proof, not a happy path.** 14 tests in `tests/test_test_gen_fail_closed.py`. The
+load-bearing ones make an unresolvable judge template abort a real `run_batch()` and assert
+**nothing was written** — no test row, no question rows, no queue items marked complete, no
+generation_run filed. Counter-tests pin what must NOT change: the same outage outside
+`batch_mode()` still fails open and still yields a question, and one unparseable per-distractor
+rating still goes through `accept_item` without aborting. Fixtures use difficulty ≥ 3 deliberately
+— `run_judges = difficulty > 2`, so a d1/d2 fixture never reaches a judge and would pass against
+any amount of broken code. **Both halves of the fix were then reverted to confirm the suite goes
+red**: handlers removed → 3 end-to-end tests fail; `batch_mode` wrap removed → 4 fail. Suite
+1869 → **1883 passed, 3 skipped**.
+
+**TASK-730 — measured.** 20 tests, en, balanced [1,3,6,9], listening, judges live:
+**20/20 generated, 0 failed, 0 vocab shortfalls, $0.175027 ($0.00875/test), 3,532 s
+(2.9 min/test).** Judges are 38.2% of spend and rejected 2 questions in 163 billed calls;
+the *validator* rejected 17. Extrapolates to ~$8.75 and ~49 h per 1,000 tests — **spend is a
+non-issue at any plausible scale; wall clock is the constraint, and 82% of it is vocabulary
+enrichment, which is only 16% of the spend.** A d9 test takes 7.3× as long as a d1.
+
+Two query traps found beyond the documented `judge_<name>` namespace one: **`pipeline='test_gen'`
+is not the whole bill** (sense generation logs under `vocab_senses` — 16% of every test's cost,
+invisible to that filter), and **half the `judge_%` rows are zero-cost verdict-log rows** written
+by `log_judge_verdict`, so `count(*)` overstates judge call volume 2× (162/165 reported vs 81/82
+real). Costs unaffected; call-volume claims were not.
+
+`test_distractor_plausibility` v7 rows left `is_active = false` throughout, as instructed.
+
+Pages: [[evaluations/test-gen-20-run-2026-08-21]] (new),
+[[tasklist/test-gen-fail-closed-judging.tasks]] (new), [[tasklist/master]], [[index]].

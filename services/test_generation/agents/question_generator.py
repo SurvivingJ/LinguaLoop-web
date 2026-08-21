@@ -263,7 +263,11 @@ class QuestionGenerator:
                 q_entry['distractor_types'] = question.distractor_types
 
             # --- Judge gate (only when caller passes db + language_id) ---
-            # Failure mode: safe_accept() — judges never block on internal error.
+            # Failure mode: safe_accept() when serving, so a dead judge never
+            # blocks a learner. Inside batch_mode() the same outage raises
+            # JudgeUnavailable instead — deliberately OUTSIDE the try above, so
+            # the retry loop cannot turn a judge outage into two wasted
+            # regeneration attempts and a quietly missing question.
             if db is not None and language_id is not None:
                 judged_entry, rejection = self._apply_judges(
                     q_entry=q_entry,
@@ -479,8 +483,23 @@ The `distractor_types` array uses null for the correct choice's slot.
         ``last_rejections``. Attaches ``_judge_flags`` to the dict when one or
         more judges flag (but do not reject) the question.
 
-        Judges use safe_accept() on any internal error, so this method never
-        raises and never blocks the pipeline.
+        Failure contract, which depends on where the call came from:
+
+        * **Serving** (the default) — judges return ``safe_accept()`` on any
+          internal error, so this method does not raise and does not block. A
+          learner waiting on a session must never be blocked by a dead judge.
+        * **Inside a generation batch** (``batch_mode()``, entered by
+          ``TestGenerationOrchestrator.run``/``run_batch``) — a judge *outage*
+          raises ``JudgeUnavailable`` **through** this method by design, so the
+          batch aborts rather than writing unjudged questions. Callers must not
+          swallow it; see the orchestrator's ``except JudgeUnavailable: raise``
+          clauses.
+
+        An outage is a template that will not load, an LLM call that fails, or
+        a response unusable as a whole. A single missing or unparseable
+        per-distractor rating is *not* an outage: those go through
+        ``accept_item``, which never raises even in batch mode, because
+        aborting a large batch over one bad rating is the worse failure.
         """
         # Lazy imports avoid a circular dependency:
         #   question_generator → answer_entailment → test_generation.schemas
@@ -532,19 +551,25 @@ The `distractor_types` array uses null for the correct choice's slot.
             key=lambda o: _VERDICT_ORDER.get(o.verdict, 2),
             default=None,
         )
-        # v3 Likert: 'reject' == the worst distractor rated ≤ 2 (off-topic or
-        # also-correct/absurd). Rating 3 maps to 'flag' (kept + surfaced), so
-        # there is no longer a tolerated reject band — a 'reject' verdict is a
-        # genuine hard reject. `confidence` here carries the 1-5 rating.
+        # v7 two-axis (TASK-719): 'reject' == the worst distractor is off the
+        # passage's subject (fit ≤ 2) or is itself arguably correct
+        # (confusability 5). Band 3 on either axis is the judge saying it is not
+        # confident, which maps to 'flag' (kept + surfaced for review), so a
+        # 'reject' verdict is a genuine hard reject. `confidence` carries the
+        # binding axis's 1-5 rating and `flag_axes` names that axis — record it,
+        # because "rejected at 2" means nothing without knowing which axis.
         if worst_dp and worst_dp.verdict == 'reject':
             logger.info(
-                "Judge rejected %s distractors (rating=%.0f): %s",
-                type_code, worst_dp.confidence, worst_dp.reason,
+                "Judge rejected %s distractors (%s=%s): %s",
+                type_code, '+'.join(worst_dp.flag_axes) or 'rating',
+                worst_dp.confidence, worst_dp.reason,
             )
             return None, {
                 'type_code': type_code,
                 'stage': 'distractor_plausibility',
                 'confidence': worst_dp.confidence,
+                'axes': worst_dp.axes,
+                'flag_axes': list(worst_dp.flag_axes),
                 'reason': worst_dp.reason,
             }
 
@@ -560,8 +585,18 @@ The `distractor_types` array uses null for the correct choice's slot.
             if o.verdict == 'flag'
         ]
         if flagged_dp:
+            # `flag_axes` is TASK-720's payload: the review band now means "the
+            # judge is not confident", and a reviewer needs to know which
+            # question it was unsure about — the subject fit or the confusion
+            # with the correct answer. Both axis ratings ride along in `axes`.
             judge_flags['distractor_plausibility'] = [
-                {'distractor': d, 'confidence': o.confidence, 'reason': o.reason}
+                {
+                    'distractor': d,
+                    'confidence': o.confidence,
+                    'axes': o.axes,
+                    'flag_axes': list(o.flag_axes),
+                    'reason': o.reason,
+                }
                 for d, o in flagged_dp
             ]
         if judge_flags:

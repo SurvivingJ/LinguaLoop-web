@@ -40,6 +40,10 @@ from .agents import (
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
 from services.vocabulary.sense_generator import SenseGenerator, find_sentence
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
+# Fail-closed judging (TASK-510/727). Imported at module top rather than lazily
+# because `run`/`run_batch` open the guard before any generation begins — an
+# ImportError here must surface at import, not halfway through a batch.
+from services.exercise_generation.judges.base import JudgeUnavailable, batch_mode
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +52,36 @@ DIFFICULTY_LABELS = {
     4: 'intermediate', 5: 'intermediate', 6: 'upper-int',
     7: 'advanced', 8: 'advanced', 9: 'advanced',
 }
+
+
+def _flag_reasons(flags: dict) -> list:
+    """Judge names for `generation_review_queue.flag_reasons`, axis-qualified.
+
+    TASK-720 redefined the distractor judge's review band as *judge
+    uncertainty* rather than one named defect, which makes the bare judge name
+    useless on its own: "distractor_plausibility" no longer tells a reviewer
+    anything except that a judge was unsure. Each distractor outcome carries
+    `flag_axes` (see `schemas.axes_to_verdict`), so the reason becomes
+    `distractor_plausibility:confusability` — the judge, and which of its two
+    questions it could not answer confidently.
+
+    Single-axis judges keep their bare name; so does a distractor flag from a
+    pre-v7 prompt row, whose outcomes have no axis attribution at all. Both
+    read back as today's values, so existing queue rows stay comparable.
+    """
+    reasons = []
+    for judge, payload in flags.items():
+        axes = sorted({
+            axis
+            for item in (payload if isinstance(payload, list) else [])
+            if isinstance(item, dict)
+            for axis in (item.get('flag_axes') or [])
+        })
+        if axes:
+            reasons.extend(f'{judge}:{axis}' for axis in axes)
+        else:
+            reasons.append(judge)
+    return reasons
 
 
 def _write_review_queue_rows(
@@ -70,7 +104,7 @@ def _write_review_queue_rows(
             rows.append({
                 'artifact_kind': 'test_question',
                 'artifact_id':   str(gq.id),
-                'flag_reasons':  list(flags.keys()),
+                'flag_reasons':  _flag_reasons(flags),
                 'judge_scores':  flags,
                 'status':        'pending',
             })
@@ -167,6 +201,28 @@ class TestGenerationOrchestrator:
         logger.info("TestGenerationOrchestrator initialized")
 
     def run(self) -> TestGenMetrics:
+        """Execute the queue-driven test generation workflow, fail-closed.
+
+        The body lives in ``_run_impl``; this wrapper exists only to open
+        ``batch_mode()`` around it, and must stay outside ``_run_impl``'s own
+        ``try`` — inside it, the outer ``except Exception`` would catch
+        ``JudgeUnavailable`` before the guard could mean anything.
+
+        Inside the block a judge that cannot resolve its template or model
+        raises ``JudgeUnavailable`` and aborts the run instead of returning
+        ``safe_accept()`` for every question. Two total outages came from a
+        delisted model slug doing exactly that silently — see
+        ``services/exercise_generation/judges/base.py`` (TASK-510). Serve-path
+        callers never enter this method, so a learner waiting on a session
+        still gets the fail-open contract.
+
+        Returns:
+            TestGenMetrics: Execution statistics
+        """
+        with batch_mode():
+            return self._run_impl()
+
+    def _run_impl(self) -> TestGenMetrics:
         """
         Execute test generation workflow.
 
@@ -220,6 +276,13 @@ class TestGenerationOrchestrator:
                     self.metrics.queue_items_processed += 1
                     self.metrics.tests_generated += tests_generated
 
+                except JudgeUnavailable:
+                    # A judge outage, not a bad queue item. Marking the item
+                    # failed and moving to the next one would work through the
+                    # whole queue writing unjudged questions — the outage this
+                    # run is wrapped in batch_mode() to prevent. Abort.
+                    raise
+
                 except Exception as e:
                     logger.error(f"Failed to process queue item {item.id}: {e}")
                     self.metrics.tests_failed += 1
@@ -228,6 +291,13 @@ class TestGenerationOrchestrator:
                         self.db.mark_queue_failed(item.id, str(e))
 
             return self._finalize(start_time, dry_run)
+
+        except JudgeUnavailable:
+            # Recorded as an abort, not a completed run: _finalize() would
+            # persist a generation_run row and log "Run Complete", which is how
+            # an unjudged batch previously read as a normal finish.
+            logger.exception("Test generation run ABORTED — judge unavailable")
+            raise
 
         except Exception as e:
             logger.exception(f"Test generation run failed: {e}")
@@ -299,6 +369,12 @@ class TestGenerationOrchestrator:
 
                 if success:
                     tests_generated += 1
+
+            except JudgeUnavailable:
+                # Innermost judge-path handler. "Continue with other
+                # difficulties" past a dead judge is precisely how a whole
+                # topic ships unjudged.
+                raise
 
             except Exception as e:
                 logger.error(
@@ -1091,6 +1167,27 @@ class TestGenerationOrchestrator:
     # ============================================================
 
     def run_batch(self, config: BatchConfig) -> TestGenMetrics:
+        """Generate a fixed number of tests, fail-closed on judge outages.
+
+        Wrapper around ``_run_batch_impl`` that opens ``batch_mode()``; see
+        ``run`` for why the guard sits outside the implementation's ``try``
+        and why the serve path is unaffected.
+
+        Args:
+            config: BatchConfig with language, count, difficulty, etc.
+
+        Returns:
+            TestGenMetrics with per-run statistics.
+
+        Raises:
+            JudgeUnavailable: a judge could not run. The batch is abandoned
+                rather than shipping unjudged questions; queue items are left
+                un-completed so the work can be re-run after the judge is fixed.
+        """
+        with batch_mode():
+            return self._run_batch_impl(config)
+
+    def _run_batch_impl(self, config: BatchConfig) -> TestGenMetrics:
         """
         Generate a fixed number of tests with balanced difficulty distribution.
 
@@ -1208,6 +1305,18 @@ class TestGenerationOrchestrator:
                             config.test_type, diff,
                         )
 
+                except JudgeUnavailable:
+                    # Counting this as one failed slot and continuing would
+                    # spend the rest of the batch writing unjudged questions,
+                    # visible only as a raised error count in the summary
+                    # table. Abort the batch instead.
+                    logger.error(
+                        "[%d/%d] %s | %s | diff=%d | ABORT: judge unavailable",
+                        i + 1, config.count, config.language_code,
+                        config.test_type, diff,
+                    )
+                    raise
+
                 except Exception as e:
                     self.metrics.tests_failed += 1
                     diff_stats[diff]['errors'] += 1
@@ -1243,6 +1352,14 @@ class TestGenerationOrchestrator:
             )
 
             return self._finalize(start_time, config.dry_run)
+
+        except JudgeUnavailable:
+            # Raised past _finalize() deliberately — see `run`. Note this is
+            # also *before* the mark_queue_completed loop above, so the queue
+            # items stay pending and the batch can be re-run once the judge's
+            # prompt_templates row / model slug is fixed.
+            logger.exception("Batch generation ABORTED — judge unavailable")
+            raise
 
         except Exception as e:
             logger.exception(f"Batch generation failed: {e}")

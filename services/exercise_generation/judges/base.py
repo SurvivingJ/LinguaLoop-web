@@ -101,10 +101,23 @@ class JudgeOutcome:
                 judge produced no score for this item at all
                 (``accept_item``); it is never a substitute for a low one.
     reason:     free-text explanation in the target language
+    axes:       for a multi-axis judge, the full per-axis rating map, e.g.
+                ``{'fit': 5, 'confusability': 3}``. ``None`` for the
+                single-axis judges, which is all of them except
+                ``distractor_plausibility`` (TASK-719). ``confidence`` carries
+                only the *binding* axis's rating, so this is the one place the
+                other axis survives.
+    flag_axes:  which axis or axes produced a non-accept verdict, in
+                ``schemas.AXES`` order — empty on an accept and on every
+                single-axis judge. TASK-720: this is what the review queue
+                records so a reviewer knows whether the judge was unsure about
+                the subject or about the confusion with the answer.
     """
     verdict: Verdict
     confidence: float | None
     reason: str
+    axes: dict[str, int | None] | None = None
+    flag_axes: tuple[str, ...] = ()
 
 
 # ---------------------------------------------------------------------------
@@ -126,9 +139,10 @@ def classify(confidence: float) -> Verdict:
     ``judge_answer_entailment`` converted under TASK-723; cloze distractor
     plausibility did not, because it has the same two-axis problem as the
     comprehension distractor judge (topical distance vs confusability with the
-    answer) and cloning today's bands would bake that in. It converts once
-    TASK-719 settles the axis split — at which point this function, and
-    ``THRESHOLD_ACCEPT`` / ``THRESHOLD_REJECT``, can be deleted outright.
+    answer) and cloning today's bands would bake that in. TASK-719 has now
+    settled that split — ``schemas.axes_to_verdict`` and the v7 rubric are the
+    template cloze should be converted onto. Once it is, this function and
+    ``THRESHOLD_ACCEPT`` / ``THRESHOLD_REJECT`` can be deleted outright.
 
     Do not add callers.
 

@@ -1,0 +1,29 @@
+arm before: templates=data/eval/task721/before
+  zh: 10 passages, model=qwen/qwen3.7-plus
+  en: 10 passages, model=google/gemini-3.5-flash-lite
+  ja: 10 passages, model=qwen/qwen3.7-plus
+  [10/180]
+  [20/180]
+  [30/180]
+  [40/180]
+  [50/180]
+  [60/180]
+  [70/180]
+  [fail] literal_detail: ValidationError: 1 validation error for MCQuestion
+  Value error, choices must have exactly 4 items, got 1 [type=value_error, input_value={'question_text': '根据...'从'], 'answer': '从'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/value_error
+  [80/180]
+  [90/180]
+  [100/180]
+  [110/180]
+  [120/180]
+  [130/180]
+  [140/180]
+  [150/180]
+  [160/180]
+  [170/180]
+  [180/180]
+
+generated 179/180 questions {'zh': 59, 'en': 60, 'ja': 60}
+wall clock: 19.0 min -> data/eval/task721_before.json
+[warn] 1 cells failed and are absent from the sample; per-arm denominators differ -- report rates, not counts

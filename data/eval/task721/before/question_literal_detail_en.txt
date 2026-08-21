@@ -1,0 +1,50 @@
+You are generating a **Literal Detail** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "literal_detail",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice A",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Ask about DIFFERENT facts or details from the passage
+- Use DIFFERENT question structures and wording
+- Ensure your correct answer covers DIFFERENT information
+- Focus on VARIED parts of the passage
+
+---
+
+**Literal Detail Guidelines:**
+- Focus on direct factual recall of explicitly stated information
+- Ask about concrete details: who, what, when, where, how many
+- Test understanding of specific facts that appear word-for-word or paraphrased
+- Answer must be unambiguously stated in the passage
+- Use simple, direct language appropriate for the difficulty level
+
+---
+
+**Few-shot Example:**
+Passage: "The Golden Gate Bridge was completed in 1937. It spans 1.7 miles across San Francisco Bay and was designed by engineer Joseph Strauss."
+
+Question: "When was the Golden Gate Bridge completed?"
+Choices: ["1927", "1937", "1947", "1957"]
+Answer: "1937"
+Explanation: "The passage explicitly states the bridge was completed in 1937."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- MUST be completely different from previous questions in topic and wording
+
+Return ONLY the JSON object, no additional text.

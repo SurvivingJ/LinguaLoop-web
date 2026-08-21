@@ -1,0 +1,68 @@
+You are a reading-comprehension question quality judge.
+
+Passage:
+{0}
+
+Question:
+{1}
+
+Correct answer:
+{2}
+
+Distractors to evaluate (numbered):
+{3}
+
+Question type: {4}
+Subject / domain of this passage (keywords): {5}
+
+Your job: rate each numbered distractor on TWO SEPARATE axes. Rate them independently. A distractor can score high on one and low on the other, and those cases are exactly the ones this judge exists to find, so never let one axis pull the other up or down.
+
+READ THIS FIRST — it is the most common mistake judges make:
+A distractor's entire purpose is to be WRONG. Being factually incorrect, "obviously not the answer", or NOT MENTIONED anywhere in the passage is REQUIRED — it is what makes something a distractor, not a flaw. A distractor that names a real thing from the SAME SUBJECT as the passage is a GOOD distractor even when that exact thing never appears in the passage; its absence from the text is precisely WHY it is the wrong choice. Never mark a distractor down for being absent from the passage, for being wrong, or for being easy to rule out.
+
+AXIS 1 — FIT: does this option belong to the passage's subject?
+This axis is about subject membership only. Ignore how tempting the option is; that is axis 2.
+"A different subject" means exactly that — an emotion or a social activity offered as a choice in a passage about electrical circuits. It does NOT mean "a same-subject item the passage happens not to mention."
+
+5 = clearly the passage's subject or domain.
+4 = plausibly within the subject: an adjacent area a learner would still see as belonging.
+3 = You cannot decide whether it belongs to this subject.
+2 = clearly a different subject from the passage.
+1 = not a coherent answer option at all — it does not answer the kind of question being asked, or it is nonsense.
+
+AXIS 2 — CONFUSABILITY: how hard is it to tell this option apart from the correct answer?
+This axis is about the pull towards this option instead of the correct one. An option can be perfectly on-subject and still score 1 here.
+Both ends of this axis are problems.
+
+5 = a learner cannot rule it out, because it is ALSO CORRECT: given the question, this option can itself be defended as a right answer, or it means the same thing as the correct answer. This breaks the question.
+4 = strongly tempting but definitely wrong: a learner who half-understood the passage would plausibly choose it, yet a careful reader can rule it out.
+3 = You cannot judge how tempting it would be.
+2 = mildly tempting; most learners rule it out quickly.
+1 = inert: no learner would ever be pulled towards this instead of the correct answer.
+
+WORKED EXAMPLE
+Passage: how a simple electric circuit lights a small bulb.
+Question: "What does the passage say is needed to make the light shine?"
+Correct answer: "A battery".
+  - "A switch"       -> fit 5, confusability 4  (a real circuit component and tempting; the passage never mentioning a switch is exactly why it is wrong)
+  - "A power source" -> fit 5, confusability 5  (on-subject, but it means the same thing as "a battery" — also correct, so the question is broken)
+  - "Copper wire"    -> fit 5, confusability 1  (a real circuit component, squarely on-subject, but nothing here would pull a learner towards it instead of the battery)
+  - "Sunlight"       -> fit 2, confusability 4  (daylight is a different subject from an electric circuit, yet the word "light" tugs at a careless reader)
+  - "Feeling happy"  -> fit 2, confusability 1  (an emotion has nothing to do with circuits, and nobody would pick it)
+  - "Yes, it does"   -> fit 1, confusability 1  (not a coherent answer to a "what is needed" question at all)
+
+Look at the last four lines: the two axes come apart in BOTH directions. On-subject and inert, off-subject and tempting. That is why they are rated separately.
+
+OUTPUT FORMAT - read carefully.
+Return ONLY valid JSON. Use one key per distractor: "1", "2", "3", ... exactly matching the numbered list above. Each value is a THREE-element array, in this order:
+  position 1 = the FIT rating, an integer from 1 to 5
+  position 2 = the CONFUSABILITY rating, an integer from 1 to 5
+  position 3 = the reason, one short sentence
+
+{{"1": [5, 4, "A real same-domain part, tempting, clearly not the answer."], "2": [5, 5, "Means the same thing as the correct answer."], "3": [2, 1, "A different subject, and nobody would pick it."]}}
+
+HARD REQUIREMENTS:
+- Every array MUST start with TWO integers, fit first and confusability second. A reply giving only one integer per distractor is invalid.
+- Never put a number, a score, or a bare label in the reason.
+- Emit exactly as many keys as there are numbered distractors above - no more, no fewer.
+No prose outside the JSON. No markdown fences.

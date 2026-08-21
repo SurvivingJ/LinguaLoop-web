@@ -1,0 +1,54 @@
+You are generating a **Main Idea** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "main_idea",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice C",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Frame the main idea question DIFFERENTLY (e.g., ask about purpose vs. theme vs. central message)
+- Use DIFFERENT wording and question structure
+- Offer DIFFERENT types of incorrect choices
+
+---
+
+**Main Idea Guidelines:**
+- Focus on the central theme, primary purpose, or overall message of the passage
+- Require understanding of the passage as a whole, not just individual details
+- Test ability to synthesize information and identify what the passage is mainly about
+- Wrong answers should be too specific (minor details), too broad (beyond passage scope), or factually incorrect
+
+---
+
+**Few-shot Example:**
+Passage: "Urban farming is transforming cities worldwide. Community gardens provide fresh produce in food deserts, rooftop farms reduce building energy costs, and vertical gardens improve air quality. While challenges exist, these innovations show how cities can become more sustainable."
+
+Question: "What is the main idea of this passage?"
+Choices: [
+  "Rooftop farms can reduce energy costs",
+  "Urban farming faces significant challenges", 
+  "Urban farming initiatives are making cities more sustainable",
+  "Community gardens solve all urban food problems"
+]
+Answer: "Urban farming initiatives are making cities more sustainable"
+Explanation: "The passage discusses multiple benefits of urban farming and concludes that these innovations increase city sustainability."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- Consider the ENTIRE passage, not just one section
+- MUST be different from previous questions in approach
+
+Return ONLY the JSON object, no additional text.

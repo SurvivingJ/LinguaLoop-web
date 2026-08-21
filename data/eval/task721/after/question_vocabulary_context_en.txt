@@ -1,0 +1,111 @@
+You are generating a **Vocabulary in Context** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "vocabulary_context",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice B",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Ask about a DIFFERENT word, phrase, idiom, or saying
+- Target DIFFERENT parts of the passage
+- Use DIFFERENT question formats
+- Avoid repeating vocabulary already tested
+
+---
+
+**Vocabulary in Context Guidelines:**
+
+**For Lower Levels (1-4):**
+- Focus on common words or simple phrases that might have multiple meanings
+- Test understanding of basic vocabulary in context
+- Example: "What does 'bright' mean in this passage?"
+
+**For Mid Levels (5-6):**
+- Focus on phrasal verbs, common idioms, or less frequent vocabulary
+- Test contextual meaning of expressions
+- Example: "What does 'pick up' mean in this context?"
+
+**For Advanced Levels (7-9):**
+- **MANDATORY:** Focus on idioms, phrases, sayings, or expressions (NOT individual words)
+- Test understanding of figurative language, collocations, or multi-word units
+- Example: "What does the phrase 'turn a blind eye' mean in this passage?"
+
+---
+
+**Few-shot Examples:**
+
+**Mid-level Example:**
+Passage: "After the storm, the community came together to pick up the pieces and rebuild what was lost."
+
+Question: "What does 'pick up the pieces' mean in this context?"
+Choices: ["To collect broken items", "To recover and rebuild after difficulty", "To clean the streets", "To start a new project"]
+Correct Answer: "To recover and rebuild after difficulty"
+Explanation: "The phrase means to recover from a difficult situation, as shown by the context of rebuilding after the storm."
+
+**Advanced Example (C2):**
+Passage: "The CEO turned a blind eye to the accounting irregularities, even though the auditors repeatedly raised concerns."
+
+Question: "What does 'turn a blind eye' mean in this passage?"
+Choices: ["To deliberately ignore something", "To not notice something accidentally", "To review carefully", "To express disagreement"]
+Answer: "To deliberately ignore something"
+Explanation: "The idiom means to intentionally overlook or ignore something, usually something wrong."
+
+---
+
+---
+
+**Building the three wrong choices**
+
+Every wrong choice you write is scored 1-5 after generation, and a choice
+scored 1 or 2 discards the whole question. Build to that scale:
+
+- **Stay inside the passage's own subject.** A wrong choice that names a real
+  thing from the same subject is a GOOD wrong choice *even when the passage
+  never mentions it* — being absent from the text is precisely what makes it
+  wrong. Never avoid an option merely because the passage does not contain it.
+- **Never write a choice that is also arguably correct.** If a careful reader
+  could defend it against your stated answer, the question has two answers and
+  is thrown away. This is the most damaging failure mode.
+- **Never write a choice that paraphrases the correct answer,** or sits so close
+  to it that a learner cannot tell the two apart.
+- **Never reach into a different subject** (an emotion offered as a choice in a
+  passage about electrical circuits), and never write anything absurd.
+- Keep all four choices comparable in length, grammatical shape and level of
+  detail, so the answer is not identifiable by its form alone.
+
+For this question type the wrong choices are competing MEANINGS of the target
+expression, so weigh them against the word itself, not against the passage's
+subject. An option with nothing to do with the passage's topic is NOT off-subject
+here — it is the ordinary case. The strongest ones are: the literal reading of a
+figurative expression; another established sense of a polysemous word; or a
+near-sense that differs in degree, object or register.
+
+Worked example — using the passage above ("The CEO turned a blind eye to the
+accounting irregularities"), for the question "What does 'turn a blind eye'
+mean?" with the answer "To deliberately ignore something":
+  GOOD      — "To lose sight in one eye": the literal reading of the idiom. It
+              has nothing to do with accounting, and for THIS question type that
+              is correct behaviour, not an off-subject error.
+  REJECTED  — "To fail to notice something": a near-sense a reader can defend
+              against the answer — arguably correct.
+  REJECTED  — "To intentionally overlook something": a synonym of the answer.
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- **If difficulty is 7-9, you MUST ask about an idiom, phrase, or multi-word expression, NOT a single word**
+- MUST be completely different from previous questions
+
+Return ONLY the JSON object, no additional text.

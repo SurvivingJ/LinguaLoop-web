@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-08-16
+last_updated: 2026-08-21
 ---
 
 # Master Task List
@@ -19,12 +19,69 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 10 |
-| In Progress (`[~]`) | 6 |
+| Not Started | 8 |
+| In Progress (`[~]`) | 7 |
 | Blocked / Deferred (numbered tasks) | 3 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 128 |
+| Done (cumulative, not listed here) | 134 |
+
+**TASK-719 + TASK-720 done 2026-08-20 — the distractor judge has two axes; rows staged, not
+activated.** The single 1-5 rating split onto **fit** (is this the passage's subject?) and
+**confusability** (would a learner take it for the answer?), with the verdict arithmetic moved into
+`schemas.axes_to_verdict` behind named cut points, and band 3 on both axes redefined as *the judge
+is not confident* with the triggering axis written into `generation_review_queue`. v7 prompt rows
+authored in all three languages (zh/ja natively, qwen3.8-max) and landed **`is_active = false`**.
+Measured live-vs-v7 on the 179-question TASK-721 sample, same model in every cell, 358 calls,
+**$0.2738**. Three findings worth carrying forward:
+
+* **The attribution is unanimous, not merely present.** 100% of v7 flags are *confusability*
+  flags — zh 31, en 13, ja 17 — and the fit axis produced **zero**. The queue now says something
+  specific enough to act on.
+* **The fit axis went near-binary.** Zero 3s anywhere and band 4 nearly gone (zh 47→2, ja 65→2).
+  Splitting made the model *more* decisive about subject membership, so fit alone now carries
+  almost no information — it cannot be kept and confusability dropped.
+* **The also-correct failure is rare, not newly detectable.** 1/537 on the confusability axis vs
+  3/1,800 for the old band 1 — the same rate. TASK-719's acceptance criterion is met, but the case
+  for v7 rests on the review signal, not on catching also-correct distractors.
+
+**Why staged:** question-level review volume goes from 0-3% to **22-47%**, and TASK-726's gold set
+— the only thing that could say whether that is honest uncertainty or a timid prompt — is still
+unadjudicated. Third prompt intervention in this workstream to be built, measured and staged
+(after TASK-717 v5 and TASK-721). The code is live-safe against the current v4/v6 rows, so staging
+costs nothing. Suite 1843 → **1869**. Not Started 10 → **8**.
+See [[evaluations/distractor-judge-two-axis-2026-08-20]].
+
+**TASK-726 machine half done 2026-08-19 — the gold-set frame exists; only adjudication remains.**
+573 items (zh 213 / en 180 / ja 180) drawn from live-stack output, pre-rated by both TASK-718
+models, post-stratified to the production question mix, and split into primary + 60-item overlap
+labeller sheets, with the merge/κ-gate/scoring harness shipped and unit-tested (37 tests; suite
+1806 → **1843**). **Spend $0.73.** Two findings on the way: the **reject-set disjointness
+reproduces on fresh content** and is worse than on the frozen 150 (qwen 56 rejects, gemini 3,
+overlapping on 3; en agrees on **zero** across 180 items; of the 55 items qwen bands "off-topic,
+reject" gemini rates **35 a 5**) — and **uniform-by-type sampling has been mis-weighting every
+rate in this workstream**, so reweighting the live judge to the production mix moves it
+**0.52% → 0.92%** and TASK-721's "0.6% on fresh output" understates production by ~1.8×. What is
+left is human time, not spend: native zh/en/ja adjudication of 573 items plus a 180-item overlap.
+Not Started 11 → **10**, In Progress 6 → **7**.
+See [[evaluations/distractor-gold-frame-2026-08-19]].
+
+**TASK-723 entailment half closed 2026-08-19 — v3 activated, measured, and the ja judge model
+fixed.** The tasklist's "staged, NOT activated" status line was **stale**: v3 has been live in all
+three languages since 2026-08-19 10:11:32Z. The third cutover move (restart) is **moot, not
+skipped** — no app process exists, so no stale `_cfg_cache` can be holding a pre-Likert row.
+Gold re-measurement and post-rollout band usage both ran (450 + 300 calls, **$0.2135**): **all five
+bands fire in all three languages, 0 unparsed**, overall AUC 0.957 — the first time this judge
+family has used its full scale. ja was the outlier (AUC 0.870, 18% false-accept) and it was the
+**model, not the language**: moved `qwen/qwen-2.5-72b-instruct` →
+`google/gemini-3.5-flash-lite` (AUC 0.940, false-accept 18% → 2%, review load 24.7% → 2.7%),
+applied live. Two false premises corrected: the "no production telemetry" finding was a query
+against the wrong namespace (784 rows exist under `judge_answer_entailment`), and the gold set was
+never a blocker for entailment — its labels are structural and free. **New TASK-726** files the
+*distractor* gold set, which is the genuine blocker on TASK-719/720, with a construction plan.
+Only "one verdict mapper, not two" stays open, and it cannot close until cloze converts.
+Not Started 10 → **11** (TASK-726 filed).
+See [[evaluations/entailment-likert-v3-rollout-2026-08-19]].
 
 **TASK-718 done 2026-08-16 — the zh divergence was the judge; model swapped, applied live.**
 A 2×2×3 factorial (v4/v5 × qwen3.6-flash/gemini-3.1-flash-lite × zh/en/ja, 600 calls, **$1.11**)
@@ -525,10 +582,11 @@ TASK-717 is the entry point and is correct regardless of every downstream outcom
 |----|---------|-------|--------|------------|------------|
 | TASK-717 | comprehension-tests | Make the judge's dead prompt slots load-bearing (`keywords`, `type_code`) | [~] | M | — |
 | TASK-718 | comprehension-tests | Cross-model judge A/B — judge harshness vs content quality | [x] Done (2026-08-16) | S | TASK-717 (partial — not blocking) |
-| TASK-719 | comprehension-tests | Split the rating onto two axes (topical fit / confusability) | [ ] | M | gold set (unfiled), was TASK-718 |
-| TASK-720 | comprehension-tests | Redefine the review band as explicit uncertainty | [ ] | S | TASK-719 |
+| TASK-719 | comprehension-tests | Split the rating onto two axes (topical fit / confusability) | [x] Done (2026-08-20) — v7 rows staged, inactive | M | TASK-718 |
+| TASK-720 | comprehension-tests | Redefine the review band as explicit uncertainty | [x] Done (2026-08-20) — shipped with TASK-719 | S | TASK-719 |
 | TASK-721 | comprehension-tests | Give the 18 generator prompts a distractor specification | [ ] | M | TASK-717 |
 | TASK-722 | comprehension-tests | Rewrite the zh/ja `vocabulary_context` prompts natively | [ ] | M | — |
+| TASK-726 | comprehension-tests | Build the distractor-plausibility gold set | [~] | M | none — this is the blocker |
 
 **Sequencing revised 2026-08-16 by the TASK-718 result.** The zh divergence was the judge, not the
 content: swapping zh/ja to `gemini-3.1-flash-lite` takes zh from **32% → 2%**, and under a common
@@ -544,6 +602,55 @@ The middle band is no longer missing: the model swap alone gives zh and ja band-
 `generation_review_queue` is multilingual without a prompt change. Band 1 has now fired three times
 in 1,800 ratings — still rare enough that "the judge does not catch the failure it was built for"
 holds in substance.
+
+**Sequencing revised again 2026-08-20 by TASK-719/720.** The axis split was executed ahead of the
+gold set on an explicit operator decision, on the ground that the blocker applies to *retuning cut
+points* rather than to *asking the judge two questions instead of one*, and the rows are staged so
+nothing changes at runtime. The gold set is still the gate — it is now the gate on **activation**
+rather than on construction, and the question it has to answer is sharper: is a 22-47% review rate
+honest uncertainty or a prompt that made a confident model timid? That question did not exist
+before the split; it is the one thing that makes TASK-726 worth finishing. It also learned that
+"the judge does not catch also-correct distractors" was **the wrong complaint** — the failure is
+simply rare (1/537 on a dedicated axis). TASK-726 remains the best next work, and it is now the
+only work between v7 and a rollout decision.
+
+### Test Generation — Fail-Closed Judging (new 2026-08-21)
+
+Full spec: [[tasklist/test-gen-fail-closed-judging.tasks]]. The `batch_mode()` fail-closed guard
+(`services/exercise_generation/judges/base.py`, TASK-510) is wired into **exercise** generation
+only. Test generation never enters it, so a bulk run with a delisted model slug or a missing
+prompt row writes unjudged questions with nothing louder than a log warning — the exact shape of
+the two outages the guard was built for. Blocks any large test-generation run.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-727 | comprehension-tests | Wrap both test-gen batch entry points in `batch_mode()` | [x] Done (2026-08-21) | S | — |
+| TASK-728 | comprehension-tests | Audit the orchestrator's 15 handlers so `JudgeUnavailable` propagates | [x] Done (2026-08-21) | M | TASK-727 |
+| TASK-729 | comprehension-tests | Prove the guard actually fires (batch aborts, writes nothing) | [x] Done (2026-08-21) | M | TASK-728 |
+| TASK-730 | comprehension-tests | Measure a 20-test run — cost and wall clock | [x] Done (2026-08-21) | S | TASK-729 |
+
+**All four done 2026-08-21 — the guard is live in test generation and the 20-test number is
+measured.** `run()`/`run_batch()` now execute inside `batch_mode()`, five judge-path
+`except Exception` handlers re-raise `JudgeUnavailable`, and 14 tests pin it — including the
+check that the suite goes **red** when either half of the fix is reverted (handlers removed:
+3 end-to-end tests fail; `batch_mode` wrap removed: 4 fail). Thread fan-out: audited, none
+exists in `services/test_generation/`, so no `BatchModeThreadPoolExecutor` was needed — but
+that is now the assumption a future parallelisation would silently break. Suite 1869 →
+**1883 passed, 3 skipped**.
+
+**Measured run: 20/20 tests, $0.175 ($0.00875/test), 3,532 s (2.9 min/test).** Spend is a
+non-issue at any plausible scale (~$8.75 per 1,000 tests); wall clock is the constraint
+(~49 h per 1,000), and **82% of it is vocabulary enrichment for 16% of the spend**. Judges
+are 38.2% of spend and rejected 2 questions in 163 calls. See
+[[evaluations/test-gen-20-run-2026-08-21]].
+
+TASK-728 is the substance, not TASK-727: `JudgeUnavailable` is an ordinary exception and five
+`except Exception` blocks sit on the judge path, where they would degrade a loud abort into "that
+one test quietly failed" — quieter than the bug it replaces. TASK-729 exists because four
+guardrails in this codebase were silently inert for months (the exercise-gen v2 batch: NULL
+`cost_usd` disarming every budget ceiling, a band-check RPC signature that never existed, an
+`asset_type` CHECK rejecting all typed-LLM assets, a per-type audio-field mismatch); a happy-path
+test is not evidence that a guard fires.
 
 ### Language Packs (existing — unchanged)
 
