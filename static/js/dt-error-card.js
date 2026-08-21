@@ -78,9 +78,7 @@ const DTErrorCard = (function () {
   // Quote/bracket characters stripped from the edges before comparing, Latin
   // and CJK alike. Built from code points so this file stays ASCII-safe.
   const LEAD_TRIM = new RegExp('^[\\s"\'“”‘’(（[【「『]+');
-  const TAIL_TRIM = new RegExp(
-    '[\\s"\'“”‘’)）\\]】」』.,!?。，！？…]+$'
-  );
+  const TAIL_TRIM = new RegExp('[\\s"\'“”‘’)）\\]】」』.,!?。，！？…]+$');
 
   /**
    * Loose equality for the objective correctness check: trim, case-fold, drop
