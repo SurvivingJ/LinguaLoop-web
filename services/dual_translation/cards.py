@@ -19,10 +19,13 @@ an already-fetched list — and is shared by the due-queue endpoint and the
 ``GET /next`` interleave.
 """
 
+import logging
 import math
 import os
 import re
 from datetime import date
+
+logger = logging.getLogger(__name__)
 
 CARD_TYPE_CLOZE = "cloze"
 CARD_TYPE_ISOLATE_RETRANSLATE = "isolate_retranslate"
@@ -84,6 +87,36 @@ def _blank(text: str, local_span: list[int], marker: str = CLOZE_BLANK) -> str:
     return (text[:local_span[0]] + marker + text[local_span[1]:]).strip()
 
 
+def _blank_span_for(sentence: str, local_span: list[int], corrected_form: str) -> list[int]:
+    """The span to blank out of ``sentence``.
+
+    Normally ``local_span`` — the grader's span, translated into sentence-local
+    offsets. But the grader does not always keep ``span_reference`` and
+    ``corrected_form`` aligned (TASK-624 tightened span discipline in the prompt
+    and did not eliminate the drift): live data has cards whose span points at
+    one clause while ``corrected_form`` is a different one. Blanking the span
+    then hides an unrelated clause AND leaves the answer sitting in the prompt,
+    which turns a productive-recall card into a copying exercise.
+
+    So when the span does not actually cover ``corrected_form`` but the
+    corrected text occurs verbatim exactly once in the sentence, blank that
+    occurrence instead. Deliberately conservative: ambiguous cases (no match, or
+    more than one) keep the grader's span, which is the pre-existing behaviour.
+    """
+    lo, hi = local_span[0], local_span[1]
+    if sentence[lo:hi] == corrected_form:
+        return local_span
+    if not corrected_form:
+        return local_span
+
+    first = sentence.find(corrected_form)
+    if first == -1:
+        return local_span
+    if sentence.find(corrected_form, first + 1) != -1:
+        return local_span  # ambiguous — do not guess
+    return [first, first + len(corrected_form)]
+
+
 def build_cloze_card(error: dict, gold_l2: str) -> dict:
     """Cloze card payload: the sentence containing the error, with ONLY the
     corrected element blanked (SuperMemo minimum-information principle — one
@@ -93,9 +126,10 @@ def build_cloze_card(error: dict, gold_l2: str) -> dict:
     sent_start, sent_end = _sentence_span(gold_l2, span)
     local_span = [span[0] - sent_start, span[1] - sent_start]
     sentence = gold_l2[sent_start:sent_end]
+    blank_span = _blank_span_for(sentence, local_span, error["corrected_form"])
 
     return {
-        "prompt": _blank(sentence, local_span),
+        "prompt": _blank(sentence, blank_span),
         "answer": error["corrected_form"],
     }
 
@@ -117,23 +151,39 @@ def build_isolate_retranslate_card(error: dict, gold_l2: str, l1_text: str) -> d
 
 
 def build_cards(error: dict, gold_l2: str, l1_text: str) -> list[dict]:
-    """Build both ``dt_card``-insert-ready dicts (minus FK ids) for one error.
+    """Build the ``dt_card``-insert-ready dicts (minus FK ids) for one error.
+
+    Normally both card types. The cloze card is DROPPED when its prompt would
+    still contain the answer — a card that shows what it is asking for tests
+    nothing, and misaligned grader spans do produce them (see
+    ``_blank_span_for``). The isolate-retranslate card still covers the subtype
+    in that case, so the cluster is not left unremediated.
 
     Caller (the DB wiring below) attaches ``user_id``, ``profile_entry_id``,
     and ``origin_error_id`` before inserting into ``dt_card``.
     """
-    return [
-        {
+    built = []
+
+    cloze = build_cloze_card(error, gold_l2)
+    if cloze["answer"] and cloze["answer"] in cloze["prompt"]:
+        logger.warning(
+            "Dropping cloze card for subtype=%s: prompt still contains the answer "
+            "(span_reference %s does not align with corrected_form).",
+            error.get("subtype"), error.get("span_reference"),
+        )
+    else:
+        built.append({
             "card_type": CARD_TYPE_CLOZE,
             "subtype": error["subtype"],
-            "prompt_payload": build_cloze_card(error, gold_l2),
-        },
-        {
-            "card_type": CARD_TYPE_ISOLATE_RETRANSLATE,
-            "subtype": error["subtype"],
-            "prompt_payload": build_isolate_retranslate_card(error, gold_l2, l1_text),
-        },
-    ]
+            "prompt_payload": cloze,
+        })
+
+    built.append({
+        "card_type": CARD_TYPE_ISOLATE_RETRANSLATE,
+        "subtype": error["subtype"],
+        "prompt_payload": build_isolate_retranslate_card(error, gold_l2, l1_text),
+    })
+    return built
 
 
 def interleave_by_subtype(due_cards: list[dict]) -> list[dict]:

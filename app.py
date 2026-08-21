@@ -362,6 +362,34 @@ def _initialize_scheduler(app):
         replace_existing=True,
     )
 
+    # TASK-731 — nightly Dual Translation error synthesis. Scheduled at 03:50,
+    # AHEAD of the 04:00-04:15 chain: it promotes recurring error clusters to
+    # `queued`, and the card materialisation those promotions drive happens
+    # lazily on the next GET /next / /cards/due, so it wants to land before the
+    # morning traffic rather than compete with the 04:xx sweeps. Serialised
+    # across gunicorn workers by a Postgres advisory lock inside the runner
+    # (key 'DTSy' — migrations/dt_synthesis_advisory_lock.sql).
+    def _run_dt_error_synthesis():
+        try:
+            from scripts.dt_nightly_synthesis import run_nightly_synthesis
+            summary = run_nightly_synthesis()
+            if summary.get('skipped'):
+                app.logger.info("DT error synthesis: skipped (%s)",
+                                summary.get('reason'))
+            else:
+                app.logger.info("DT error synthesis: %s", summary)
+        except Exception as exc:
+            app.logger.exception("DT error synthesis crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_dt_error_synthesis,
+        trigger=CronTrigger(hour=3, minute=50),
+        id='dt_error_synthesis_nightly',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
     # TASK-517 — nightly coverage sweep + generation-queue drain. Last of the
     # 04:xx chain on purpose: it regenerates content, so it runs after the
     # slug-health probe has had its chance to flag a dead model rather than
@@ -391,6 +419,7 @@ def _initialize_scheduler(app):
     app.scheduler = scheduler
     app.logger.info(
         "APScheduler started — jobs: "
+        "dt_error_synthesis_nightly @ 03:50 UTC, "
         "irt_calibration_nightly @ 04:00 UTC, "
         "exercise_time_estimate_refresh @ 04:05 UTC, "
         "slug_health_nightly @ 04:10 UTC, "

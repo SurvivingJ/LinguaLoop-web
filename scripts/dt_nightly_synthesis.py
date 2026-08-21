@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
-from services.supabase_factory import get_supabase_admin
+from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.dual_translation import synthesis
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -189,6 +189,98 @@ def run(db, *, window_days: int, threshold: int, user_id: str | None, dry_run: b
     return rows
 
 
+# ============================================================================
+# APScheduler entry point (TASK-731) — cross-worker safe.
+#
+# APScheduler runs inside every gunicorn worker (Procfile: --workers 2), so the
+# nightly sweep serialises itself on a Postgres advisory lock exactly like the
+# weekly Study-Plan recompute and the nightly IRT calibrator. Without it both
+# workers synthesize() the same window and race on the
+# (user_id, l1_language_id, l2_language_id, subtype) upsert.
+# ============================================================================
+
+def _get_db():
+    """The admin client, initialising the factory first if nobody has.
+
+    Inside the Flask app ``_initialize_services`` has already run by the time
+    the scheduler fires, so this is a no-op there. Standalone (the CLI in
+    ``main`` below) nothing has initialised it — before TASK-731 that path
+    raised ``SupabaseFactory not initialized``, which is why this script had
+    never actually been run end to end against live data.
+    """
+    try:
+        return get_supabase_admin()
+    except RuntimeError:
+        SupabaseFactory.initialize()
+        return get_supabase_admin()
+
+
+def _try_advisory_lock(db) -> bool:
+    """Take the DT-synthesis advisory lock (key 'DTSy', see
+    migrations/dt_synthesis_advisory_lock.sql). Same shape as the study-plan
+    and IRT helpers. Falls through to True if the RPC is unavailable (e.g. not
+    yet deployed) so a misconfigured environment still runs — the upsert is
+    idempotent, the only cost is ~2x compute and a possible lost status update.
+    """
+    try:
+        resp = db.rpc('pg_try_advisory_lock_for_dt_synthesis', {}).execute()
+        data = resp.data
+        if isinstance(data, list) and data:
+            return bool(data[0])
+        if data is not None:
+            return bool(data)
+    except Exception as exc:
+        logger.warning(
+            'DT-synthesis advisory lock unavailable (%s) — running unguarded.', exc,
+        )
+    return True
+
+
+def _release_advisory_lock(db) -> None:
+    try:
+        db.rpc('pg_advisory_unlock_for_dt_synthesis', {}).execute()
+    except Exception as exc:
+        logger.warning('DT-synthesis advisory unlock failed: %s', exc)
+
+
+def run_nightly_synthesis() -> dict:
+    """APScheduler entry point — fired nightly at 03:50 UTC.
+
+    Deliberately ahead of the 04:00-04:15 chain (IRT -> time-estimate ->
+    slug-health -> queue-drain) and after the day's grading has settled, so a
+    promoted cluster is carded by the time the morning's first GET /next runs.
+
+    Returns a summary dict for the scheduler log. Never raises: the caller in
+    app.py wraps this too, but a crash here must not take out the scheduler.
+    """
+    db = _get_db()
+
+    if not _try_advisory_lock(db):
+        logger.info('DT synthesis: another worker holds the lock — skipping.')
+        return {'skipped': True, 'reason': 'lock_held'}
+
+    try:
+        rows = run(
+            db,
+            window_days=DEFAULT_WINDOW_DAYS,
+            threshold=DEFAULT_THRESHOLD,
+            user_id=None,
+            dry_run=False,
+        )
+        promoted = sum(
+            1 for r in rows if r['remediation_status'] == synthesis.STATUS_QUEUED
+        )
+        return {
+            'skipped': False,
+            'profile_rows': len(rows),
+            'queued': promoted,
+            'window_days': DEFAULT_WINDOW_DAYS,
+            'threshold': DEFAULT_THRESHOLD,
+        }
+    finally:
+        _release_advisory_lock(db)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--window-days', type=int, default=DEFAULT_WINDOW_DAYS,
@@ -201,7 +293,7 @@ def main() -> int:
                         help='Compute + report, but write nothing.')
     args = parser.parse_args()
 
-    db = get_supabase_admin()
+    db = _get_db()
     run(
         db,
         window_days=args.window_days,

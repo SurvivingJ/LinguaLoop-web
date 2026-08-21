@@ -117,6 +117,9 @@
     // TASK-631: the reproduction the learner just submitted, kept so highlight
     // spans (char offsets into this string) can slice out their evidence text.
     reproduction: '',
+    // TASK-731: handle to a mounted DT error card, torn down before the next
+    // one mounts so a stale card's callbacks can't fire into a new item.
+    errorCard: null,
   };
 
   const el = {};
@@ -187,6 +190,7 @@
     [
       'dtLoading',
       'dtError',
+      'dtErrorCard',
       'dtReproduce',
       'dtReference',
       'dtRubricList',
@@ -216,6 +220,7 @@
   function showPhase(phase) {
     el.loading.style.display = phase === 'loading' ? 'block' : 'none';
     el.error.style.display = phase === 'error' ? 'block' : 'none';
+    el.errorCard.style.display = phase === 'errorCard' ? 'block' : 'none';
     el.reproduce.style.display = phase === 'reproduce' ? 'block' : 'none';
     el.result.style.display = phase === 'result' ? 'block' : 'none';
   }
@@ -238,6 +243,14 @@
     }
     const data = await resp.json();
 
+    // TASK-731: GET /next interleaves due error-remediation cards into the
+    // passage stream (~1 call in DT_ERROR_CARD_INTERLEAVE_EVERY). Render it with
+    // the shared window.DTErrorCard; it grades itself to
+    // POST /cards/<id>/review, then we pull the next item.
+    if (data.type === 'error_card') {
+      return showErrorCard(data);
+    }
+
     // TASK-617: the server assigns the correction-style A/B arm per user and
     // returns it here; it overrides the static `.dt-wrap` dataset default (which
     // stays as a safe fallback when the field is absent, e.g. an older backend).
@@ -254,6 +267,23 @@
     renderRubric(data.rubric_descriptors || {});
     showPhase('reproduce');
     el.reproduction.focus();
+  }
+
+  // Mount one due error card into the dedicated phase container. If the shared
+  // renderer global is missing (script tag dropped), fall back to the generic
+  // load error rather than a blank page.
+  function showErrorCard(card) {
+    if (!window.DTErrorCard) {
+      console.error('dual_translation: DTErrorCard global not loaded');
+      return showError(tr('dual_translation.error_load'));
+    }
+    if (state.errorCard) state.errorCard.destroy();
+    showPhase('errorCard');
+    state.errorCard = window.DTErrorCard.mount(el.errorCard, card, {
+      onDone: function () {
+        loadNext();
+      },
+    });
   }
 
   function resetReproduceUI() {

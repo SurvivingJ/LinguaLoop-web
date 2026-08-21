@@ -26,6 +26,30 @@ below.
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 134 |
 
+**TASK-731 done 2026-08-21 — DT spaced remediation is live for the first time; four `[x]` rows
+above were wrong.** `migrations/dt_cards.sql` was written 2026-07-14 and **never applied**:
+`dt_card` and `dt_card_review` did not exist in the live project (the only 2 missing of 30
+migration-defined tables checked). Nothing scheduled `scripts/dt_nightly_synthesis.py` either —
+`app.py::_initialize_scheduler` registered 5 jobs and that was not one of them — so
+`dt_error_profile_entry` sat at **0 rows against 16 `dt_error_instance` rows**, and no frontend
+rendered a `cloze`/`isolate_retranslate` card on any of the three surfaces. The feature was dead
+three ways and none of it showed, because `cards.py` early-returns before touching `dt_card` when
+a user has no `queued` entries. Fixed in dependency order (migration → scheduler → renderer);
+verified live end to end: 4 profile rows (2 promoted), 4 cards materialised, `GET /next` serves an
+`error_card` 200 and `POST /cards/<id>/review` advances FSRS. Three findings worth carrying:
+
+* **A `[x]` that claims a live migration is unverified until the live schema says otherwise.**
+  This is the second such reconciliation (see the 2026-07-13 audit note above). Four tasks were
+  marked Done on a migration that never ran.
+* **The nightly runner had never been executed even once.** `main()` called `get_supabase_admin()`
+  without `SupabaseFactory.initialize()`, so the CLI path raised on line 1. Only the in-app
+  scheduler path (where `_initialize_services` runs first) would ever have worked.
+* **Grader spans and `corrected_form` drift apart, and it produces broken cards.** 1 of the 2 live
+  cloze cards blanked an unrelated clause and left its own answer in the prompt. `build_cloze_card`
+  now realigns to a unique verbatim occurrence of `corrected_form`, and `build_cards` drops a cloze
+  that would still leak. The underlying span-discipline defect (TASK-624's remit) is **not fixed** —
+  see `wiki/log.md` 2026-08-21.
+
 **TASK-719 + TASK-720 done 2026-08-20 — the distractor judge has two axes; rows staged, not
 activated.** The single 1-5 rating split onto **fit** (is this the passage's subject?) and
 **confusability** (would a learner take it for the answer?), with the verdict arithmetic moved into
@@ -519,10 +543,11 @@ Full spec: [[tasklist/archive/dual-translation.tasks]]. Implements [[features/du
 | TASK-601 | dual-translation | Budget guardrail + cost dashboard hooks | [x] | S | TASK-600 (done) |
 | TASK-610 | dual-translation | Mistake gate + deterministic subtype clustering + promotion | [x] | L | TASK-609 (done) |
 | TASK-611 | dual-translation | Error-profile dashboard endpoint + UI | [x] Done (2026-07-14) | M | TASK-610 (done) |
-| TASK-612 | dual-translation | Migration — `dt_card`, `dt_card_review` | [x] | S | TASK-609 (done) |
-| TASK-614 | dual-translation | FSRS scheduling (reuse) + interleaving + review endpoints | [x] Done (2026-07-14) | M | TASK-613 (done) |
-| TASK-615 | dual-translation | Recurrence-reduction instrumentation | [x] Done (2026-07-14) | S | TASK-614 (done) |
-| TASK-618 | dual-translation | Inject error exercises into Practice Engine sessions (non-sense-linked) | [x] Done (2026-07-14) | M | TASK-614 (done) |
+| TASK-612 | dual-translation | Migration — `dt_card`, `dt_card_review` | [x] Written 2026-07-14, **APPLIED LIVE 2026-08-21** (TASK-731) | S | TASK-609 (done) |
+| TASK-614 | dual-translation | FSRS scheduling (reuse) + interleaving + review endpoints | [x] Backend 2026-07-14; **latent until 2026-08-21** — target tables did not exist | M | TASK-613 (done) |
+| TASK-615 | dual-translation | Recurrence-reduction instrumentation | [x] Code 2026-07-14; **first real input 2026-08-21** — `dt_card_review` did not exist before | S | TASK-614 (done) |
+| TASK-618 | dual-translation | Inject error exercises into Practice Engine sessions (non-sense-linked) | [x] Backend 2026-07-14; **renderer landed 2026-08-21** (TASK-731) | M | TASK-614 (done) |
+| TASK-731 | dual-translation | DT remediation infrastructure — apply migration, schedule synthesis, build card renderer | [x] Done (2026-08-21) | L | TASK-612/614/618 |
 
 ### Evidence-First Grading (Dual Translation v2)
 Full spec: [[tasklist/archive/evidence-first-grading.tasks]]. Implements [[algorithms/evidence-first-grading.tech]] per [[decisions/ADR-019-evidence-first-scoring]]. TASK-633–649 are a code-review hardening batch (filed 2026-07-13) on the TASK-624/625/626 work — recommended **before** TASK-627 continues, since TASK-640/641 fix integrity bugs in the TASK-622 regression gate itself. Both are now done (2026-07-16); TASK-641 leaves a hand-off note on TASK-627 pinning the rubric-v5 scoring key names + values. **The whole batch is closed as of 2026-08-10** — the last five rows (638/642/645/647/648) were a status reconciliation, not new code. TASK-629's owed live apply also landed that day, so the feature has **no open rows**.

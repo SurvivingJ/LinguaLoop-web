@@ -6,6 +6,14 @@
 // records attempts via /api/practice/attempt with session_mode so the weekly
 // counters advance. Gate / stress-test marker items are skipped in this v1
 // (they require the separate /api/vocab-dojo battery endpoints).
+//
+// Injected DT error-remediation cards (TASK-618) ARE rendered, by the shared
+// global window.DTErrorCard (static/js/dt-error-card.js) — TASK-731. They are
+// deliberately NOT routed through ER.dispatch or submitAttempt: FSRS state for
+// an error card lives on dt_card and is graded at
+// POST /api/dual-translation/cards/<id>/review. Sending one to
+// /api/practice/attempt would write it into the sense-keyed practice system and
+// silently corrupt the recurrence metric the feature exists to measure.
 
 const T = (key, params, fallback) =>
   window.LinguaI18n && typeof LinguaI18n.t === 'function'
@@ -34,6 +42,8 @@ export function mount(container, ctx) {
     // rendered, so we can measure render→submit elapsed and credit real
     // practice minutes server-side.
     renderedAt: 0,
+    // Handle to a mounted DT error card, so a re-render can tear it down.
+    errorCard: null,
   };
 
   const q = (id) => container.querySelector('#' + id);
@@ -78,13 +88,20 @@ export function mount(container, ctx) {
         `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}`
       );
       const data = await res.json();
-      // Skip gate / stress markers, and injected DT error-remediation cards
-      // (TASK-618) — this v1 player has no renderer for them yet; wiring the
-      // error-card UI is the tracked follow-up. They still ride in the payload
-      // so that follow-up (and API-level verification) sees them.
+      // Skip gate / stress markers (they need the separate /api/vocab-dojo
+      // battery endpoints). Injected DT error-remediation cards are kept and
+      // rendered by renderErrorCard below (TASK-731). If the shared renderer
+      // global is missing, drop them rather than showing a broken item.
+      const canRenderErrorCards = !!window.DTErrorCard;
       const items = (data.items || data.exercises || []).filter(
-        (it) => !it.is_gate_marker && !it.is_stress_test_marker && !it.is_error_exercise
+        (it) =>
+          !it.is_gate_marker &&
+          !it.is_stress_test_marker &&
+          (canRenderErrorCards || !it.is_error_exercise)
       );
+      if (!canRenderErrorCards) {
+        console.error('practice: DTErrorCard global not loaded — error cards dropped');
+      }
 
       if (!res.ok || items.length === 0) {
         q('exerciseCard').innerHTML =
@@ -119,6 +136,14 @@ export function mount(container, ctx) {
     }
 
     const ex = state.exercises[state.currentIndex];
+
+    // DT error cards bypass ER.dispatch entirely — different renderer,
+    // different grade endpoint, no sense linkage.
+    if (ex.is_error_exercise) {
+      renderErrorCard(ex);
+      return;
+    }
+
     const c = ex.content || {};
 
     let ribbon = '';
@@ -146,6 +171,26 @@ export function mount(container, ctx) {
         w +
         `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`;
     }
+  }
+
+  // Render one injected DT error card. Grading happens inside DTErrorCard
+  // (POST /api/dual-translation/cards/<id>/review); we only count it toward
+  // the session tallies and advance. `was_correct` is null for
+  // isolate_retranslate cards — there we fall back to the FSRS rating, matching
+  // the server's own default.
+  function renderErrorCard(ex) {
+    state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
+    state.errorCard = window.DTErrorCard.mount(q('exerciseCard'), ex, {
+      onDone: (result) => {
+        state.totalAnswered++;
+        const ok =
+          result.was_correct === null || result.was_correct === undefined
+            ? result.rating !== window.DTErrorCard.RATING_AGAIN
+            : result.was_correct;
+        if (ok) state.correctCount++;
+        nextExercise();
+      },
+    });
   }
 
   function showFeedback(ok, expl) {
@@ -216,6 +261,10 @@ export function mount(container, ctx) {
   }
 
   function nextExercise() {
+    if (state.errorCard) {
+      state.errorCard.destroy();
+      state.errorCard = null;
+    }
     state.currentIndex++;
     renderExercise();
   }

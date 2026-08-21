@@ -4290,3 +4290,83 @@ real). Costs unaffected; call-volume claims were not.
 
 Pages: [[evaluations/test-gen-20-run-2026-08-21]] (new),
 [[tasklist/test-gen-fail-closed-judging.tasks]] (new), [[tasklist/master]], [[index]].
+
+## [2026-08-21] tasks | TASK-731 — DT spaced remediation, dead three ways, now live
+
+Dual Translation's Feature 2 (error synthesis + spaced remediation) had never once run end to
+end. Three independent breaks, fixed in the only safe order.
+
+**1. The migration was never applied.** `migrations/dt_cards.sql` (TASK-612, dated 2026-07-14)
+created `dt_card` and `dt_card_review`; neither table existed in project `kpfqrjtfxmujzolwsvdq`.
+Applied 2026-08-21 and verified against the migration's own trailer: **16 columns on `dt_card`,
+5 on `dt_card_review`, 3 FKs + 1 FK, 6 indexes**, RLS off matching its siblings.
+
+Order mattered. `services/dual_translation/cards.py:267` early-returns before touching `dt_card`
+when a user has no `queued` profile entries — the sole reason a missing table was latent rather
+than a live 500. Scheduling synthesis *first* would have promoted clusters, ended the
+early-return, and armed `GET /next` to fail on ~25% of calls and `/cards/due` on every one, with
+the Practice Engine swallowing it as a `logger.warning`.
+
+**2. Nothing scheduled the synthesis.** `app.py::_initialize_scheduler` registered 5 jobs; the
+nightly runner was not among them, though `routes/dual_translation.py:215` documents it as "the
+nightly job". Ruled out an external scheduler before writing anything: `Procfile` declares only
+`web:`, there is no `app.json`, the one GitHub workflow has no `schedule:`, and **`pg_cron` is
+not installed** on the live project. The gap was real.
+
+Added `dt_error_synthesis_nightly` at **03:50 UTC** — ahead of the 04:00–04:15 chain so a
+promotion is carded before the morning's first `GET /next`. APScheduler runs in both gunicorn
+workers, so the job takes a Postgres advisory lock, key **1146377081** (`0x44545379` = `DTSy`),
+distinct from Study-Plan `1467840848` and IRT `8901234567890123`
+(`migrations/dt_synthesis_advisory_lock.sql`, applied live).
+
+**3. No frontend renderer, on any of the three surfaces.** New shared global
+`static/js/dt-error-card.js` (`window.DTErrorCard`), following the `ExRenderers` pattern because
+the standalone page is a classic `<script>` IIFE while the two session players are ES modules.
+Consumed by the daily-session DT player (its `MAX_ERROR_CARD_RETRIES` workaround and stale
+comment removed), the standalone page (new `errorCard` phase), and the practice player (which
+now keeps `is_error_exercise` items instead of filtering them out). Grading goes to
+`POST /api/dual-translation/cards/<id>/review`, never `/api/practice/attempt`. 17 new keys in all
+four `static/i18n/*.json`.
+
+### Three findings
+
+* **A `[x]` claiming a live migration is worth nothing without the live schema.** 30
+  migration-defined tables checked; `dt_card` and `dt_card_review` were the only two missing — an
+  isolated miss, not systemic drift, but it silently invalidated TASK-612/614/615/618.
+* **The nightly runner had never been executed even once, by anyone.** `main()` called
+  `get_supabase_admin()` without `SupabaseFactory.initialize()` — every other script in
+  `scripts/` does. The CLI path raised `SupabaseFactory not initialized` immediately. Only the
+  in-app scheduler path (where `_initialize_services` runs first) would ever have worked. Fixed
+  with a shared `_get_db()`.
+* **Grader `span_reference` and `corrected_form` drift apart, and it produces broken cards.**
+  Live card 3 blanked `很贵的牌子，` while its answer was `也不是最新款式的` — a different clause —
+  so the prompt *contained its own answer*: a copying exercise, not productive recall. 1 of 2 live
+  cloze cards affected. `build_cloze_card` now realigns to a unique verbatim occurrence of
+  `corrected_form` (conservative: ambiguous or absent → keep the grader's span), and `build_cards`
+  drops a cloze that would still leak, leaving the isolate card to cover the subtype. **The
+  underlying span-discipline defect is NOT fixed** — that is TASK-624's remit and an LLM-output
+  quality problem, not a rendering one. Worth a follow-up task.
+
+### Verification
+
+Suite **1883 → 1904 passed, 3 skipped, 0 failed** (+21); vitest **66 → 90** (+24).
+Revert-checks, per the TASK-729 convention that a happy path is not evidence a guard fires:
+unregister the scheduler job → **2 fail**; remove the advisory-lock guard → **1 fail**; invert the
+answer target to `learner_form` → **1 fail**; point grading at `/api/practice/attempt` →
+**4 fail**; disable span realignment + leak guard → **2 fail**. All restored to green.
+
+Live, against real data on the developer's own account: synthesis loaded all 16
+`dt_error_instance` rows and wrote **4 `dt_error_profile_entry` rows (2 promoted to `queued`)**;
+materialisation produced **4 `dt_card` rows** and was idempotent on re-run (0 carded);
+`GET /next` returned **200 `type=error_card`**, `/cards/due` **200 with 4**, and
+`POST /cards/<id>/review` **200**, advancing FSRS to `state=review, stability=2.4,
+next_due=2026-08-23`. Rating `9` correctly rejected **400**; the passage branch still returns
+`type=passage`. The synthetic review was then deleted and the 4 cards reset to `new` so nothing
+pollutes the recurrence metric.
+
+**Caveat on the default window.** With the default `DT_SYNTHESIS_WINDOW_DAYS=30` the sweep writes
+**nothing**: every live error is from 2026-07-02, ~50 days old. The 4 rows above required
+`--window-days 60`. Not a bug — the counting window is doing its job — but it means the nightly
+job will legitimately no-op until fresh DT grading traffic exists.
+
+Pages: [[tasklist/master]], [[log]].

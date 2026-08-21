@@ -219,6 +219,11 @@
 
     <div id="dtError" class="dt-card" style="display:none; text-align:center; color:var(--text-secondary);"></div>
 
+    <!-- ===== PHASE 0b: Error-remediation card (TASK-731) =====
+         GET /next interleaves due dt_card rows into the passage stream; the
+         shared window.DTErrorCard renderer fills this container. -->
+    <div id="dtErrorCard" class="dt-card" style="display:none;"></div>
+
     <!-- ===== PHASE 1: Reproduction (feed-up) ===== -->
     <div id="dtReproduce" style="display:none;">
         <div class="dt-card">
@@ -309,5 +314,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/dt-error-card.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dual_translation.js') }}"></script>
 {% endblock %}

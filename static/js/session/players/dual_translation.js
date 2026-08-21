@@ -10,12 +10,12 @@
 //                                                |  {type:'error_card', ...}
 //   POST /api/dual-translation/<id>/submit       -> grade envelope
 //
-// error_card items are NOT rendered here. The backend already interleaves due
-// remediation cards into /next, but no cloze/isolate renderer exists on any
-// surface yet — the same gap the standalone page and the practice player have.
-// Rather than show a broken card we re-request once for a passage, then fall
-// back to a skip affordance. Wiring the error-card UI is the tracked follow-up
-// and this player will pick it up when it lands.
+// error_card items ARE rendered here (TASK-731) via the shared global
+// window.DTErrorCard (static/js/dt-error-card.js, loaded by study_session.html),
+// the same renderer the standalone page and the practice player use. The card
+// grades itself to POST /api/dual-translation/cards/<id>/review — NOT to the
+// submit endpoint above — because FSRS state for error cards lives on dt_card.
+// One served card satisfies the queue item, exactly as one passage does.
 
 const T = (key, params, fallback) =>
   window.LinguaI18n && typeof LinguaI18n.t === 'function'
@@ -28,12 +28,8 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// How many times to re-request /next when it serves an error_card we cannot
-// render. Bounded so a learner whose queue is all error cards still advances.
-const MAX_ERROR_CARD_RETRIES = 2;
-
 export function mount(container, ctx) {
-  const state = { submissionId: null, submitting: false, destroyed: false };
+  const state = { submissionId: null, submitting: false, destroyed: false, card: null };
 
   container.innerHTML = `
     <div class="session-card"><div class="card"><div class="card-body p-4">
@@ -44,15 +40,16 @@ export function mount(container, ctx) {
 
   const body = () => container.querySelector('#dtBody');
 
-  load(0);
+  load();
 
   return {
     destroy() {
       state.destroyed = true;
+      if (state.card) state.card.destroy();
     },
   };
 
-  async function load(attempt) {
+  async function load() {
     let data;
     try {
       const res = await window.authFetch('/api/dual-translation/next');
@@ -69,22 +66,31 @@ export function mount(container, ctx) {
     if (state.destroyed) return;
 
     if (data.type === 'error_card') {
-      if (attempt < MAX_ERROR_CARD_RETRIES) {
-        load(attempt + 1);
-        return;
-      }
-      renderUnavailable(
-        T(
-          'session.dt_error_card_pending',
-          null,
-          'Your next item is a review card, which isn’t playable here yet.'
-        )
-      );
+      renderErrorCard(data);
       return;
     }
 
     state.submissionId = data.submission_id;
     renderPassage(data);
+  }
+
+  function renderErrorCard(card) {
+    if (state.destroyed) return;
+    // The shared renderer is a plain global; if the script tag is missing we
+    // degrade to the skip affordance rather than trapping the learner.
+    if (!window.DTErrorCard) {
+      console.error('dual_translation: DTErrorCard global not loaded');
+      renderUnavailable(
+        T('session.dt_unavailable', null, 'Couldn’t load a translation passage right now.')
+      );
+      return;
+    }
+    state.card = window.DTErrorCard.mount(body(), card, {
+      onDone: () => {
+        if (state.destroyed) return;
+        if (ctx.onComplete) ctx.onComplete({ card_id: card.card_id });
+      },
+    });
   }
 
   function renderUnavailable(message) {

@@ -27,3 +27,6 @@ function loadBrowserScript(relPath) {
 // Order matters: exercise-renderers.js delegates to window.LinguaUtils.escapeHtml
 loadBrowserScript('static/js/utils.js');
 loadBrowserScript('static/js/exercise-renderers.js');
+// dt-error-card.js is standalone (no LinguaUtils dependency) but loaded here
+// so the shared DT error-card renderer is available to unit tests too.
+loadBrowserScript('static/js/dt-error-card.js');
