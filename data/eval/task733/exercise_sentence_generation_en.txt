@@ -1,0 +1,7 @@
+Generate {count} natural {complexity_tier}-level sentences in the target language that demonstrate the following:
+Pattern: {pattern_code}
+Description: {description}
+Example: {example_sentence}
+
+Return a JSON array of objects: [{{"sentence": "...", "complexity_tier": "{complexity_tier}"}}]
+Do not include translations. Sentences must be grammatically correct and contextually natural.

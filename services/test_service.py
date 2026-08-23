@@ -137,10 +137,13 @@ class TestService:
 
             t = t_res.data[0]
 
-            # Fetch questions
+            # Fetch questions. Ordered by question_id ("<slug>-qN", written in
+            # creation order) to match the positional furigana payload — see the
+            # equivalent fetch in routes/tests.py.
             q_res = self.client.table('questions')\
                 .select('*')\
                 .eq('test_id', t['id'])\
+                .order('question_id')\
                 .execute()
 
             q_rows = q_res.data or []

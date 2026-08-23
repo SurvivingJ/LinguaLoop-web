@@ -13,8 +13,12 @@ class ClozeGenerator(ExerciseGenerator):
     """
     Generates cloze_completion exercises.
     Per sentence: identifies the target word/phrase, blanks it, calls LLM for
-    tagged distractors (semantic, form_error, learner_error), then routes them
-    through cloze_judge.
+    tagged distractors, then routes them through cloze_judge. Tags come from the
+    five-dimension closed taxonomy — semantic, collocational, aspectual,
+    register, valency — which all three cloze_distractor_generation prompt rows
+    share as of TASK-733 (zh/ja previously emitted a divergent
+    semantic/form_error/learner_error set). Tags are stored for analytics and
+    are not validated against the enum in code.
 
     Over-generate / replace (eval HIGH #5): candidates from up to two generation
     batches are POOLED and judged; only judge-accepted distractors are kept, and

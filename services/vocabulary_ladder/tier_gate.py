@@ -117,6 +117,20 @@ def _profile(tier: str) -> dict:
     return TIER_GATE_PROFILES.get(tier) or TIER_GATE_PROFILES[TIER_GATE_DEFAULT_TIER]
 
 
+def profile_for_tier(tier: str) -> dict:
+    """Public accessor for a tier's threshold dict.
+
+    ``screen_sentence`` is the only consumer this module was written for, so
+    the thresholds were kept behind ``_profile``. A caller that isn't
+    screening a sentence — e.g. the ja mora-trie L1 lookup filtering
+    single-word distractor candidates by register — needs the raw
+    ``hard_floor``/``soft_floor`` values directly rather than a pass/fail
+    verdict, hence this thin public wrapper instead of reaching into the
+    private function.
+    """
+    return _profile(tier)
+
+
 def tokenize(text: str, language_id: int) -> list[str]:
     """Frequency-table-aligned tokens for a sentence.
 

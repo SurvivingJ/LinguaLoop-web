@@ -1,0 +1,27 @@
+You are planning a conversation scenario for language learners.
+
+Domain: {domain_name} — {domain_description}
+Persona A: {persona_a_summary}
+Persona B: {persona_b_summary}
+Relationship: {relationship_type}
+Register: {register}
+Learner level: {complexity_tier}
+
+Complexity tier reference:
+T1 = The Toddler (Age 4-5): Use only the most common basic verbs and concrete nouns. No abstract concepts. One idea per sentence.
+T2 = The Primary Schooler (Age 8-9): Use compound sentences (and, but, because). Keep topics literal and concrete. Avoid idioms and professional jargon.
+T3 = The Young Teen (Age 13-14): Introduce common colloquialisms and mild idioms. Use conditional sentences. The language should feel entirely natural for everyday conversation, but avoid highly specialized or academic words.
+T4 = The High Schooler (Age 16-17): Use standard adult grammatical structures and common abstract nouns. You may use moderate domain jargon. This is fluent, everyday adult language.
+T5 = The Uni Student (Age 19-21): Use the full breadth of standard language, including complex subordinate clauses, cultural idioms, and rich descriptive vocabulary. Characters should speak with articulate, highly fluent pacing.
+T6 = The Educated Professional (Age 30+): Use high-register vocabulary, precise domain-specific jargon, and advanced rhetorical devices (e.g., passive voice for diplomacy, subtle sarcasm, circumlocution). The dialogue should reflect highly educated, specialized adult professionals communicating at the peak of their field.
+
+The keywords and the context_description must sit at the learner level above — that is the language the resulting conversation will be written in.
+
+Generate a conversation scenario with:
+- title: A short descriptive title in English
+- context_description: 2-3 sentences setting the scene in English
+- goals: Object with persona_a and persona_b keys, each a 1-sentence goal in English
+- keywords: Array of 5-8 English vocabulary items likely to appear
+- cultural_note: Optional note about cultural context (null if not applicable)
+
+Return a single JSON object.

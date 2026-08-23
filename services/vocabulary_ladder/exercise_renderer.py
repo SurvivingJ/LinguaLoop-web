@@ -472,39 +472,65 @@ class LadderExerciseRenderer:
 
         Content matches MCQ format: word, pronunciation, 4 options, plus an
         audio_url of the spoken target so the frontend can play it.
+
+        Candidate sourcing has two paths. For a language with a built
+        phonetic trie (ja today — see services/vocabulary_ladder/l1_lookup.py
+        and .claude/reviews/l1-phonetic-trie-architecture.md), distractors
+        come from a deterministic dictionary lookup instead of the LLM's
+        ``level_1`` block: existence and the accent-only collision that
+        TASK-735 kept fighting are structurally impossible from that path,
+        so they're not asked of the model at all. Every other language
+        falls back to the original LLM-generated ``level_1`` asset,
+        unchanged. Either way, the candidates still go through the same
+        ``ladder_l1_distractor_judge`` afterwards — the trie replaces
+        existence/accent verification, not the judge's other job
+        (synonymy, register fit).
         """
         from services.exercise_generation.judges.l1_distractor import filter_l1_distractors
+        from services.vocabulary_ladder import l1_lookup
 
-        level_data = p2.get('level_1', {})
-        if not level_data:
-            return None
+        source = 'llm'
+        target_word = self._lemma(core, sense_id)
+        trie_result = l1_lookup.build_candidates(
+            target_word, core.get('pronunciation', ''), language_id,
+            definition=core.get('definition'),
+        )
+        if trie_result is not None:
+            source = 'phonetic_trie'
+            correct_answer = trie_result['correct_answer']
+            raw_distractors = trie_result['candidates']
+            explanations = trie_result['explanations']
+        else:
+            level_data = p2.get('level_1', {})
+            if not level_data:
+                return None
 
-        options = level_data.get('options', [])
-        if len(options) < 4:
-            return None
+            options = level_data.get('options', [])
+            if len(options) < 4:
+                return None
 
-        correct = [o.get('text', '') for o in options if o.get('is_correct')]
-        correct_answer = correct[0] if correct else ''
-        if not correct_answer:
-            return None
+            correct = [o.get('text', '') for o in options if o.get('is_correct')]
+            correct_answer = correct[0] if correct else ''
+            if not correct_answer:
+                return None
 
-        explanations = level_data.get('explanations', {})
+            explanations = level_data.get('explanations', {})
+            raw_distractors = [
+                o.get('text', '') for o in options
+                if not o.get('is_correct') and o.get('text')
+            ]
 
         # L1 is a listening exercise — route distractors through the L1 judge to
         # drop real-word synonyms and spelling-only look-alikes that aren't
         # audio-confusable. Skip the variant if fewer than 3 clean distractors
         # survive (same contract as the L3 cloze path).
-        raw_distractors = [
-            o.get('text', '') for o in options
-            if not o.get('is_correct') and o.get('text')
-        ]
         kept, judge_meta = filter_l1_distractors(
             self.db, correct_answer, raw_distractors, language_id,
         )
         if len(kept) < 3:
             logger.info(
-                "L1 l1_distractor_judge kept %d/%d distractors for sense %s; skipping variant",
-                len(kept), len(raw_distractors), sense_id,
+                "L1 l1_distractor_judge (source=%s) kept %d/%d distractors for sense %s; skipping variant",
+                source, len(kept), len(raw_distractors), sense_id,
             )
             return None
 
@@ -526,6 +552,7 @@ class LadderExerciseRenderer:
             'distractor_explanations': {
                 text: explanations.get(text, '') for text in kept
             },
+            'distractor_source': source,
             '__judge_metas': {'l1_distractor': judge_meta},
         }
 

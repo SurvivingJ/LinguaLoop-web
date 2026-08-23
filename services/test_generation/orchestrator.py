@@ -12,6 +12,8 @@ Coordinates the test generation workflow:
 import os
 import time
 import logging
+import threading
+from concurrent.futures import as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Callable, List, Optional
@@ -38,12 +40,17 @@ from .agents import (
     AudioSynthesizer
 )
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
-from services.vocabulary.sense_generator import SenseGenerator, find_sentence
+from services.vocabulary.sense_generator import (
+    SenseGenerator, find_sentence, retry_transient_db_call,
+)
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
 # Fail-closed judging (TASK-510/727). Imported at module top rather than lazily
 # because `run`/`run_batch` open the guard before any generation begins — an
 # ImportError here must surface at import, not halfway through a batch.
-from services.exercise_generation.judges.base import JudgeUnavailable, batch_mode
+from services.exercise_generation.judges.base import (
+    JudgeUnavailable, batch_mode, BatchModeThreadPoolExecutor,
+)
+from services.timing import stage
 
 logger = logging.getLogger(__name__)
 
@@ -187,8 +194,12 @@ class TestGenerationOrchestrator:
             db_client=self.db,
         )
 
-        # Vocab cache: (lemma, language_id) → vocab_id
+        # Vocab cache: (lemma, language_id) → vocab_id. Guarded by
+        # _vocab_cache_lock — TASK-737: _generate_vocabulary now fans its
+        # per-word loop out across a thread pool, and this cache (plus the
+        # select-then-insert it guards) is shared across those threads.
         self._vocab_cache: dict[tuple[str, int], int] = {}
+        self._vocab_cache_lock = threading.Lock()
 
         # Metrics tracking
         self.metrics: Optional[TestGenMetrics] = None
@@ -417,6 +428,12 @@ class TestGenerationOrchestrator:
         """
         logger.info(f"Generating test: difficulty={difficulty}, type={test_type}")
 
+        # TASK-737: per-stage wall clock for this test, logged at the end and
+        # threaded into _generate_vocabulary — the only way to see where the
+        # ~2.9 min/test baseline (services/test_generation economics) was
+        # actually going before picking what to parallelize.
+        stage_seconds: dict[str, float] = {}
+
         # Get tier config
         cefr_config = self.db.get_cefr_config(difficulty)
         word_min, word_max = self.db.get_word_count_range(difficulty)
@@ -442,12 +459,13 @@ class TestGenerationOrchestrator:
 
         # Step 0: Translate topic to target language (skip for English)
         if self.topic_translator.should_translate(lang_config.language_code):
-            translated_topic, translated_keywords = self.topic_translator.translate(
-                topic_concept=topic.concept_english,
-                keywords=topic.keywords,
-                target_language=lang_config.language_name,
-                model_override=lang_config.prose_model
-            )
+            with stage('translate', stage_seconds):
+                translated_topic, translated_keywords = self.topic_translator.translate(
+                    topic_concept=topic.concept_english,
+                    keywords=topic.keywords,
+                    target_language=lang_config.language_name,
+                    model_override=lang_config.prose_model
+                )
             logger.info(f"Translated topic to {lang_config.language_name}")
         else:
             translated_topic = topic.concept_english
@@ -459,18 +477,19 @@ class TestGenerationOrchestrator:
             lang_config.id  # Use language_id, not language_code
         )
 
-        prose = self.prose_writer.generate_prose(
-            topic_concept=translated_topic,  # Use translated topic
-            language_name=lang_config.language_name,
-            language_code=lang_config.language_code,
-            difficulty=difficulty,
-            word_count_min=word_min,
-            word_count_max=word_max,
-            keywords=translated_keywords,  # Use translated keywords
-            complexity_tier=complexity_tier,
-            prompt_template=prose_template,
-            model_override=lang_config.prose_model
-        )
+        with stage('prose', stage_seconds):
+            prose = self.prose_writer.generate_prose(
+                topic_concept=translated_topic,  # Use translated topic
+                language_name=lang_config.language_name,
+                language_code=lang_config.language_code,
+                difficulty=difficulty,
+                word_count_min=word_min,
+                word_count_max=word_max,
+                keywords=translated_keywords,  # Use translated keywords
+                complexity_tier=complexity_tier,
+                prompt_template=prose_template,
+                model_override=lang_config.prose_model
+            )
 
         logger.debug(f"Generated prose: {len(prose.split())} words")
 
@@ -483,12 +502,13 @@ class TestGenerationOrchestrator:
         # tier midpoint and warn.
         try:
             from services.test_generation.difficulty_scorer import seed_test_elo
-            seeded_elo, _sig = seed_test_elo(
-                prose=prose,
-                language_code=lang_config.language_code,
-                target_difficulty=difficulty,
-                tier_initial_elo=tier_initial_elo,
-            )
+            with stage('difficulty_scorer', stage_seconds):
+                seeded_elo, _sig = seed_test_elo(
+                    prose=prose,
+                    language_code=lang_config.language_code,
+                    target_difficulty=difficulty,
+                    tier_initial_elo=tier_initial_elo,
+                )
             initial_elo = seeded_elo
             logger.info(
                 f"Seeded ELO {seeded_elo} (tier midpoint {tier_initial_elo}, "
@@ -509,16 +529,17 @@ class TestGenerationOrchestrator:
 
         title = None
         try:
-            title = self.title_generator.generate_title(
-                prose=prose,
-                topic_concept=translated_topic,
-                difficulty=difficulty,
-                complexity_tier=complexity_tier,
-                language_name=lang_config.language_name,
-                language_code=lang_config.language_code,
-                prompt_template=title_template,
-                model_override=lang_config.question_model
-            )
+            with stage('title', stage_seconds):
+                title = self.title_generator.generate_title(
+                    prose=prose,
+                    topic_concept=translated_topic,
+                    difficulty=difficulty,
+                    complexity_tier=complexity_tier,
+                    language_name=lang_config.language_name,
+                    language_code=lang_config.language_code,
+                    prompt_template=title_template,
+                    model_override=lang_config.question_model
+                )
             logger.info(f"Generated title: {title[:50]}...")
         except Exception as e:
             logger.warning(f"Title generation failed, continuing with NULL title: {e}")
@@ -541,20 +562,21 @@ class TestGenerationOrchestrator:
         # d>=3, where distractor richness is a meaningful quality signal. The
         # judges run only when both db and language_id are passed.
         run_judges = difficulty > 2
-        questions = self.question_generator.generate_questions(
-            prose=prose,
-            language_name=lang_config.language_name,
-            question_type_codes=question_types,
-            difficulty=difficulty,  # Pass difficulty for templates
-            prompt_templates=question_templates,
-            model_override=lang_config.question_model,
-            language_id=lang_config.id if run_judges else None,
-            db=self.db.client if run_judges else None,
-            # Feeds the distractor judge's subject/domain slot (prompt {5}).
-            # The TRANSLATED pair, so a zh/ja judge prompt never gets an
-            # English subject line. See _subject_kwargs for why it is off.
-            **_subject_kwargs(translated_topic, translated_keywords),
-        )
+        with stage('questions', stage_seconds):
+            questions = self.question_generator.generate_questions(
+                prose=prose,
+                language_name=lang_config.language_name,
+                question_type_codes=question_types,
+                difficulty=difficulty,  # Pass difficulty for templates
+                prompt_templates=question_templates,
+                model_override=lang_config.question_model,
+                language_id=lang_config.id if run_judges else None,
+                db=self.db.client if run_judges else None,
+                # Feeds the distractor judge's subject/domain slot (prompt {5}).
+                # The TRANSLATED pair, so a zh/ja judge prompt never gets an
+                # English subject line. See _subject_kwargs for why it is off.
+                **_subject_kwargs(translated_topic, translated_keywords),
+            )
 
         # Step 3: Validate questions. generate_questions now runs the validator
         # in-loop per type (regenerating on rejection), so every returned
@@ -614,12 +636,13 @@ class TestGenerationOrchestrator:
             )
 
             if not dry_run:
-                audio_url = self.audio_synthesizer.generate_and_upload(
-                    text=prose,
-                    file_id=str(test_id),
-                    voice=voice,
-                    speed=lang_config.tts_speed
-                )
+                with stage('audio', stage_seconds):
+                    audio_url = self.audio_synthesizer.generate_and_upload(
+                        text=prose,
+                        file_id=str(test_id),
+                        voice=voice,
+                        speed=lang_config.tts_speed
+                    )
             else:
                 logger.info(f"[DRY RUN] Would generate audio: {test_id}.mp3")
         else:
@@ -689,6 +712,51 @@ class TestGenerationOrchestrator:
                 except Exception as e:
                     logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
 
+            # Japanese script payloads — the counterpart to the zh branch above.
+            # This path had no ja equivalent, so every test generated by the
+            # batch runner shipped with furigana_payload NULL (all 83 live ja
+            # tests, as of 2026-08-22) and relied on
+            # scripts/batch_generate_pitch_accent.py to fill pitch after the
+            # fact. services/test_service.py (the single-test UI path) has
+            # always written both here; this brings the batch path in line.
+            #
+            # Both are non-fatal for the same reason the rest of this step is:
+            # the prose, questions and audio are already written and paid for,
+            # and both payloads have standalone backfill scripts
+            # (batch_generate_furigana.py, batch_generate_pitch_accent.py).
+            if lang_config.language_code == 'ja' and prose:
+                try:
+                    from services.pitch_accent_service import (
+                        process_passage as process_pitch_passage,
+                    )
+                    self.db.client.table('tests').update({
+                        'pitch_payload': process_pitch_passage(prose)
+                    }).eq('id', str(test_id)).execute()
+                    logger.info(f"Pitch accent payload generated for {slug}")
+                except Exception as e:
+                    logger.warning(
+                        f"Pitch accent payload generation failed (non-fatal): {e}"
+                    )
+
+                try:
+                    from services.furigana_service import process_test_payload
+                    # valid_questions is the SAME list, in the SAME order, that
+                    # built db_questions above with question_id "<slug>-qN" —
+                    # so payload index i corresponds to question N=i+1. The
+                    # frontend looks questions up positionally
+                    # (furiganaPayload.questions[index]), which is only sound
+                    # because the read paths sort by question_id.
+                    self.db.client.table('tests').update({
+                        'furigana_payload': process_test_payload(
+                            prose, valid_questions
+                        )
+                    }).eq('id', str(test_id)).execute()
+                    logger.info(f"Furigana payload generated for {slug}")
+                except Exception as e:
+                    logger.warning(
+                        f"Furigana payload generation failed (non-fatal): {e}"
+                    )
+
             logger.info(f"Test saved: {slug}")
 
             # Step 6: Extract vocabulary and generate word senses
@@ -696,10 +764,16 @@ class TestGenerationOrchestrator:
                 test_id=test_id,
                 transcript=prose,
                 lang_config=lang_config,
+                stage_seconds=stage_seconds,
             )
         else:
             logger.info(f"[DRY RUN] Would save test: {slug}")
 
+        logger.info(
+            "Stage timing for %s: %s (total %.1fs)",
+            slug, {k: round(v, 1) for k, v in stage_seconds.items()},
+            sum(stage_seconds.values()),
+        )
         return True
 
     def _generate_vocabulary(
@@ -707,10 +781,15 @@ class TestGenerationOrchestrator:
         test_id: UUID,
         transcript: str,
         lang_config: LanguageConfig,
+        stage_seconds: dict[str, float] | None = None,
     ):
         """
         Step 6: Extract vocabulary, create dim_vocabulary entries,
         generate word sense definitions, and update the test row.
+
+        ``stage_seconds`` is the same per-test timing bucket _generate_test
+        builds up (TASK-737); a fresh dict is used when called standalone
+        (e.g. from a backfill script) so this method never requires it.
 
         Non-fatal — vocabulary failure does not fail the test. Prose,
         questions and audio are already written and paid for by the time this
@@ -725,6 +804,7 @@ class TestGenerationOrchestrator:
         fact instead of being indistinguishable from one that never ran, and
         the run summary counts it.
         """
+        stage_seconds = {} if stage_seconds is None else stage_seconds
         outcome = {
             'words_attempted': 0,
             'unique_senses': 0,
@@ -736,9 +816,10 @@ class TestGenerationOrchestrator:
         }
         try:
             # Extract vocabulary with metadata
-            vocab_items = self.vocab_pipeline.extract_detailed(
-                transcript, lang_config.language_code
-            )
+            with stage('vocab_extract', stage_seconds):
+                vocab_items = self.vocab_pipeline.extract_detailed(
+                    transcript, lang_config.language_code
+                )
             if not vocab_items:
                 logger.warning(f"No vocabulary extracted for test {test_id}")
                 self._record_vocab_outcome(
@@ -761,21 +842,61 @@ class TestGenerationOrchestrator:
                 prefer_existing=True,
             )
 
-            sense_ids = []
-            for item in vocab_items:
+            # TASK-737: this loop was the dominant cost of test generation
+            # (~82% of per-test wall clock per the batch economics) precisely
+            # because it called out to the LLM once per extracted word, one
+            # at a time. Each word is independent — no cross-word dependency
+            # — so it fans out across a thread pool instead.
+            # BatchModeThreadPoolExecutor (not a bare ThreadPoolExecutor) so
+            # the fail-closed judge contract from run()/run_batch()'s
+            # batch_mode() carries into the workers if a judge is ever added
+            # to this path (see judges/base.py).
+            #
+            # A per-item exception is now caught and skipped rather than
+            # aborting every remaining word in the transcript — the loop-level
+            # try/except this call sits inside already treats the whole
+            # vocabulary step as non-fatal to the test, so narrowing that to
+            # per-word is a strict improvement, not a behaviour change in
+            # what "non-fatal" means here.
+            def _sense_for_item(item: dict) -> int | None:
                 vocab_id = self._get_or_create_vocab_id(
                     db, item, lang_config.id, lang_config.language_code
                 )
                 sentence = find_sentence(transcript, item['lemma'])
-                sense_id = sense_gen.generate_sense(
+                return sense_gen.generate_sense(
                     vocab_id=vocab_id,
                     lemma=item['lemma'],
                     phrase_type=item.get('phrase_type'),
                     sentence=sentence,
                     transcript=transcript,
                 )
-                if sense_id is not None:
-                    sense_ids.append(sense_id)
+
+            sense_ids = []
+            workers = max(1, min(
+                get_test_gen_config().vocab_sense_workers, len(vocab_items),
+            ))
+            with stage('vocab_senses_llm', stage_seconds):
+                with BatchModeThreadPoolExecutor(max_workers=workers) as pool:
+                    futures = {
+                        pool.submit(_sense_for_item, item): item
+                        for item in vocab_items
+                    }
+                    for future in as_completed(futures):
+                        item = futures[future]
+                        try:
+                            sense_id = future.result()
+                        except JudgeUnavailable:
+                            # A judge outage during a batch aborts the batch —
+                            # see the module-level contract in judges/base.py.
+                            raise
+                        except Exception as exc:
+                            logger.error(
+                                "Sense generation raised for lemma %r "
+                                "(test %s): %s", item.get('lemma'), test_id, exc,
+                            )
+                            continue
+                        if sense_id is not None:
+                            sense_ids.append(sense_id)
 
             outcome.update({
                 'words_attempted': len(vocab_items),
@@ -1004,6 +1125,7 @@ class TestGenerationOrchestrator:
 
         return token_map
 
+    @retry_transient_db_call
     def _get_or_create_vocab_id(
         self, db, item: dict, language_id: int, language_code: str
     ) -> int:
@@ -1021,62 +1143,71 @@ class TestGenerationOrchestrator:
         lemma = item['lemma']
         cache_key = (lemma, language_id)
 
-        if cache_key in self._vocab_cache:
-            return self._vocab_cache[cache_key]
+        # Whole method under one lock (TASK-737): _generate_vocabulary now
+        # calls this from a thread pool, one thread per extracted vocab word.
+        # The DB round-trips here are cheap relative to the LLM call the
+        # caller makes next, so serializing them fully is the simplest safe
+        # option — it turns the in-process race on a brand-new lemma (two
+        # threads both cache-miss, both insert) into a queue instead of
+        # relying solely on the cross-process 23505 handler below.
+        with self._vocab_cache_lock:
+            if cache_key in self._vocab_cache:
+                return self._vocab_cache[cache_key]
 
-        # Insert new vocab entry
-        row = {
-            'lemma': lemma,
-            'language_id': language_id,
-            'part_of_speech': item.get('pos'),
-        }
+            # Insert new vocab entry
+            row = {
+                'lemma': lemma,
+                'language_id': language_id,
+                'part_of_speech': item.get('pos'),
+            }
 
-        if item.get('phrase_type'):
-            row['phrase_type'] = item['phrase_type']
-        if item.get('components'):
-            row['component_lemmas'] = item['components']
+            if item.get('phrase_type'):
+                row['phrase_type'] = item['phrase_type']
+            if item.get('components'):
+                row['component_lemmas'] = item['components']
 
-        zipf = compute_zipf_for_vocab_item(item, language_code)
-        if zipf is not None:
-            row['frequency_rank'] = zipf
+            zipf = compute_zipf_for_vocab_item(item, language_code)
+            if zipf is not None:
+                row['frequency_rank'] = zipf
 
-        # dim_vocabulary is shared across every run, so after a few hundred
-        # tests most lemmas in a transcript already exist. Look before
-        # inserting: a bare insert raises APIError 23505 on uq_vocab_lemma, and
-        # the caller's `for item in vocab_items` loop has no per-item guard, so
-        # that one exception aborts vocabulary for the *whole test* at its first
-        # already-known word — leaving vocab_sense_ids empty and
-        # vocab_token_map NULL while the run still reports "pass".
-        existing = db.table('dim_vocabulary') \
-            .select('id') \
-            .eq('lemma', lemma) \
-            .eq('language_id', language_id) \
-            .limit(1) \
-            .execute()
+            # dim_vocabulary is shared across every run, so after a few hundred
+            # tests most lemmas in a transcript already exist. Look before
+            # inserting: a bare insert raises APIError 23505 on uq_vocab_lemma, and
+            # the caller's `for item in vocab_items` loop has no per-item guard, so
+            # that one exception aborts vocabulary for the *whole test* at its first
+            # already-known word — leaving vocab_sense_ids empty and
+            # vocab_token_map NULL while the run still reports "pass".
+            existing = db.table('dim_vocabulary') \
+                .select('id') \
+                .eq('lemma', lemma) \
+                .eq('language_id', language_id) \
+                .limit(1) \
+                .execute()
 
-        if existing.data:
-            vocab_id = existing.data[0]['id']
-        else:
-            try:
-                response = db.table('dim_vocabulary') \
-                    .insert(row) \
-                    .execute()
-                vocab_id = response.data[0]['id']
-            except APIError as exc:
-                # Lost the insert race to a concurrent worker between the
-                # select above and this insert — re-read rather than fail.
-                if getattr(exc, 'code', None) != '23505':
-                    raise
-                lookup = db.table('dim_vocabulary') \
-                    .select('id') \
-                    .eq('lemma', lemma) \
-                    .eq('language_id', language_id) \
-                    .single() \
-                    .execute()
-                vocab_id = lookup.data['id']
+            if existing.data:
+                vocab_id = existing.data[0]['id']
+            else:
+                try:
+                    response = db.table('dim_vocabulary') \
+                        .insert(row) \
+                        .execute()
+                    vocab_id = response.data[0]['id']
+                except APIError as exc:
+                    # Lost the insert race to a concurrent worker (another
+                    # process, or another orchestrator run) between the select
+                    # above and this insert — re-read rather than fail.
+                    if getattr(exc, 'code', None) != '23505':
+                        raise
+                    lookup = db.table('dim_vocabulary') \
+                        .select('id') \
+                        .eq('lemma', lemma) \
+                        .eq('language_id', language_id) \
+                        .single() \
+                        .execute()
+                    vocab_id = lookup.data['id']
 
-        self._vocab_cache[cache_key] = vocab_id
-        return vocab_id
+            self._vocab_cache[cache_key] = vocab_id
+            return vocab_id
 
     def _finalize(self, start_time: float, dry_run: bool) -> TestGenMetrics:
         """
@@ -1255,29 +1386,40 @@ class TestGenerationOrchestrator:
             # Track tests generated per queue item (items are cycled when count > len(queue_items))
             per_item_counts: dict[str, int] = {qi['id']: 0 for qi in queue_items}
 
-            # Main generation loop
-            for i, diff in enumerate(difficulty_schedule):
-                if i < config.start_index:
-                    continue
-
-                # Stop check
-                if config.stop_check and config.stop_check():
-                    logger.info("Stop requested — aborting at [%d/%d]", i + 1, config.count)
-                    break
-
-                # Pick queue item (cycle if fewer items than count)
+            # TASK-737: this loop used to generate one test at a time — the
+            # single biggest lever for batch-scale throughput, since each test
+            # is already a long serial chain of LLM calls internally (Phase 1
+            # further parallelized the vocab/question sub-chains, but that
+            # only compresses *inside* one test; running N tests at once
+            # divides the total wall clock by N directly).
+            #
+            # BatchModeThreadPoolExecutor so JudgeUnavailable propagates
+            # fail-closed from a worker thread — see judges/base.py. All
+            # per-slot outcome bookkeeping (metrics, diff_stats,
+            # per_item_counts) is collected from the worker's return value and
+            # applied only on this thread after future.result(), never
+            # mutated inside the worker — the same collect-then-merge shape
+            # used by scripts/run_content_build.py's phase_ladder.
+            def _generate_one(i: int, diff: int) -> dict:
                 qi_idx = i % len(queue_items)
                 qi_row = queue_items[qi_idx]
 
                 topic = self.db.get_topic(UUID(qi_row['topic_id']))
                 if not topic:
-                    logger.warning("[%d/%d] Topic not found: %s — skipping",
-                                   i + 1, config.count, qi_row['topic_id'])
-                    diff_stats[diff]['skipped'] += 1
-                    continue
+                    return {
+                        'outcome': 'topic_missing', 'qi_id': qi_row['id'],
+                        'topic_id': qi_row['topic_id'],
+                    }
 
                 category_name = self.db.get_category_name(topic.category_id)
 
+                # Rate limiting: paces THIS worker's own call rate, after the
+                # call like the original serial loop did (never on a
+                # JudgeUnavailable abort — that still propagates immediately,
+                # matching the old control flow). With batch_test_workers > 1
+                # the aggregate submission rate is now workers/delay rather
+                # than 1/delay — a deliberate consequence of adding
+                # concurrency, not a silent drop of the --delay flag's effect.
                 try:
                     success = self._generate_test(
                         topic=topic,
@@ -1287,48 +1429,90 @@ class TestGenerationOrchestrator:
                         test_type=config.test_type,
                         dry_run=config.dry_run,
                     )
-                    if success:
+                except JudgeUnavailable:
+                    raise
+                except Exception:
+                    if config.delay_ms > 0:
+                        time.sleep(config.delay_ms / 1000.0)
+                    raise
+
+                if config.delay_ms > 0:
+                    time.sleep(config.delay_ms / 1000.0)
+                return {
+                    'outcome': 'pass' if success else 'skip',
+                    'qi_id': qi_row['id'],
+                }
+
+            workers = max(1, min(
+                get_test_gen_config().batch_test_workers, len(difficulty_schedule),
+            ))
+            with BatchModeThreadPoolExecutor(max_workers=workers) as pool:
+                futures = {}
+                for i, diff in enumerate(difficulty_schedule):
+                    if i < config.start_index:
+                        continue
+                    # Stop check gates further SUBMISSION only — futures
+                    # already in flight are allowed to finish rather than
+                    # being force-cancelled mid-call.
+                    if config.stop_check and config.stop_check():
+                        logger.info(
+                            "Stop requested — no further tests submitted "
+                            "after [%d/%d]", i, config.count,
+                        )
+                        break
+                    futures[pool.submit(_generate_one, i, diff)] = (i, diff)
+
+                for future in as_completed(futures):
+                    i, diff = futures[future]
+                    try:
+                        result = future.result()
+                    except JudgeUnavailable:
+                        # Counting this as one failed slot and continuing
+                        # would spend the rest of the batch writing unjudged
+                        # questions, visible only as a raised error count in
+                        # the summary table. Abort the batch instead — the
+                        # `with` block above still waits for already-running
+                        # futures to finish before this propagates.
+                        logger.error(
+                            "[%d/%d] %s | %s | diff=%d | ABORT: judge unavailable",
+                            i + 1, config.count, config.language_code,
+                            config.test_type, diff,
+                        )
+                        raise
+                    except Exception as e:
+                        self.metrics.tests_failed += 1
+                        diff_stats[diff]['errors'] += 1
+                        logger.error(
+                            "[%d/%d] %s | %s | diff=%d | ERROR: %s",
+                            i + 1, config.count, config.language_code,
+                            config.test_type, diff, str(e),
+                        )
+                        continue
+
+                    outcome = result['outcome']
+                    if outcome == 'topic_missing':
+                        logger.warning(
+                            "[%d/%d] Topic not found: %s — skipping",
+                            i + 1, config.count, result['topic_id'],
+                        )
+                        diff_stats[diff]['skipped'] += 1
+                    elif outcome == 'pass':
                         self.metrics.tests_generated += 1
                         diff_stats[diff]['generated'] += 1
-                        per_item_counts[qi_row['id']] += 1
+                        per_item_counts[result['qi_id']] += 1
                         logger.info(
                             "[%d/%d] %s | %s | diff=%d (%s) | pass",
                             i + 1, config.count, config.language_code,
                             config.test_type, diff,
                             DIFFICULTY_LABELS.get(diff, '?'),
                         )
-                    else:
+                    else:  # 'skip'
                         diff_stats[diff]['skipped'] += 1
                         logger.info(
                             "[%d/%d] %s | %s | diff=%d | skip",
                             i + 1, config.count, config.language_code,
                             config.test_type, diff,
                         )
-
-                except JudgeUnavailable:
-                    # Counting this as one failed slot and continuing would
-                    # spend the rest of the batch writing unjudged questions,
-                    # visible only as a raised error count in the summary
-                    # table. Abort the batch instead.
-                    logger.error(
-                        "[%d/%d] %s | %s | diff=%d | ABORT: judge unavailable",
-                        i + 1, config.count, config.language_code,
-                        config.test_type, diff,
-                    )
-                    raise
-
-                except Exception as e:
-                    self.metrics.tests_failed += 1
-                    diff_stats[diff]['errors'] += 1
-                    logger.error(
-                        "[%d/%d] %s | %s | diff=%d | ERROR: %s",
-                        i + 1, config.count, config.language_code,
-                        config.test_type, diff, str(e),
-                    )
-
-                # Rate limiting
-                if config.delay_ms > 0:
-                    time.sleep(config.delay_ms / 1000.0)
 
             # Mark processed queue items complete, using per-item counts so that
             # cycled batches (count > len(queue_items)) record accurate per-item totals.

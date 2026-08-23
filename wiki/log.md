@@ -4370,3 +4370,138 @@ pollutes the recurrence metric.
 job will legitimately no-op until fresh DT grading traffic exists.
 
 Pages: [[tasklist/master]], [[log]].
+
+## [2026-08-21] tasks | DT span↔form invariant — grader cleared, 16 rows backfilled, tripwire filed
+
+Follow-up to TASK-731's third finding. That entry closed with "**The underlying span-discipline
+defect is NOT fixed** — that is TASK-624's remit and an LLM-output quality problem, not a
+rendering one." **That conclusion was wrong, and this entry corrects it.** There is no
+prompt-quality defect. There never was one after 2026-07-19.
+
+### The decisive check, which TASK-731 never ran
+
+Fed the exact inputs behind the leaking card (`dt_error_instance` id 5 — `span_reference`
+`[23, 29]` slicing `很贵的牌子，` while `corrected_form` was `也不是最新款式的`) through the
+*current* `_reconcile_span_form`. It relocates to **`[29, 37]`** — precisely where the corrected
+form sits — and repairs the reproduction span `[21, 28] → [23, 31]` as well. The grader is clean.
+
+The timeline explains everything: `git log -S_reconcile_span_form` puts its introduction in
+**7e46e4ae, 2026-07-19**. Every live `dt_error_instance` row was written **2026-07-02**. The 16
+rows predate the fix by 17 days; they went through the un-reconciled decoder and were never
+revisited. TASK-731 diagnosed live data as live behaviour.
+
+### Repair at the source
+
+`scripts/dt_backfill_error_spans.py` (new) re-runs the current reconciler over persisted rows and
+rewrites `span_reference`/`span_reproduction` in place (and the form, where a normalization-folded
+match changes it). Dry-run by default; `--apply` writes; idempotent.
+
+Applied live: **16 rows | ok=1 repaired=15 unrepairable=0**. Post-check in SQL:
+`ref_aligned = 16/16`, `repro_aligned = 16/16`. Every corrected form was present verbatim in its
+own text, so nothing needed quarantining — the script still classifies and flags an unrepairable
+row rather than half-writing it, since the current grader would have dropped such an error
+outright.
+
+Downstream artefacts were then checked rather than assumed: all **4 live `dt_card` rows rebuild
+byte-identical** from the repaired sources, and neither cloze now trips the leak guard. No card
+regeneration required.
+
+### The actual gap: a tripwire, not repair logic
+
+`_reconcile_span_form` *establishes* the invariant `reference[span_reference] == corrected_form`
+(and the reproduction-side equivalent) but nothing anywhere **asserted** it had been established.
+That absence is what let 15 misaligned rows sit for seven weeks and surface only as a broken card.
+
+`tests/test_dt_error_span_invariant.py` (new, 18 tests) is that assertion, at two levels: over
+`_decode_error`/`_decode_errors` output across a 10-case adversarial matrix (off-by-one at either
+end, drift to a different clause, repeated token, out-of-bounds, malformed end, full-width fold,
+casefold, two zero-width omission points), and over the rows that actually reach the
+`dt_error_instance` insert via `_persist_grade` — the "every persisted row" form. Each matrix case
+is pinned to **survive** decode, so the invariant can never be satisfied vacuously by dropping,
+and a counter-test pins that an unlocatable form is still dropped rather than written misaligned.
+
+**Revert-check.** Replacing `_reconcile_span_form` with the pre-TASK-624 pass-through takes the
+file from **18 passed → 13 failed, 5 passed**. One test bakes that in permanently: it neuters the
+reconciler via monkeypatch and asserts the invariant raises. Suite **1904 → 1922 passed,
+3 skipped, 0 failed** (+18).
+
+### The card-level guard is demoted, not removed
+
+`_blank_span_for` and the drop-if-leaking check in `build_cards` stay, but their docstrings no
+longer claim the grader "does not always keep `span_reference` and `corrected_form` aligned" —
+that is now false. They are documented as **belt-and-braces**: cheap insurance against a
+disproportionate failure (a cloze card showing its own answer tests nothing), explicitly not the
+primary remedy. The leak WARNING is now re-framed as a regression signal — if it ever fires, the
+upstream invariant has broken.
+
+### Finding
+
+**A guard written against live data is only as good as the dating of that data.** TASK-731 saw a
+real broken card, correctly localised it, and then generalised from 16 rows to the live grader
+without checking when those rows were written or feeding them back through the current code. The
+one-line check — run the repaired function over the input that broke — was never run, and it
+inverts the conclusion.
+
+Pages: [[log]].
+
+---
+
+## [2026-08-22] fix | TASK-735: ja L1 fabrication, judge strictness, and the P1 write-off
+
+Three defects from the `ja-20260822-232552` canary. Six `judge_ladder_l1_distractor` calls,
+18 distractors, **17 rejected** — and because `_render_phonetic` drops the whole variant below
+3 surviving distractors, ja produced **zero** L1 exercises rather than weakened ones.
+
+### The generator was inventing words, and the mechanism was orthographic
+
+Sense 34997 (昔) variant B emitted `向こうし` and `無蚊地`; the model's own explanation asserted
+無蚊地 was "an existing word (a place name etc.)". Variant A, which answered in kana, invented
+nothing. The prompt said nothing about how to **write** an option, so having committed to a kanji
+surface the model composed kanji until the reading fitted. `vocab_prompt2_exercises` [ja] v1 → v4
+adds an attestation gate, an orthography rule, a one-mora contrast rule, and a mora-substitution
+search procedure. Measured: fabrication 2-of-6 → **0-of-7**.
+
+### The generator and the judge disagreed about pitch accent — the judge was right
+
+The generator *preferred* accent-only homophones (`はし(箸)`/`はし(橋)`); the judge rejected them as
+`完全同音で区別不能`. L1 audio is a single TTS rendering, so an accent-only contrast is undecidable
+for the learner. Both rows now forbid it.
+
+### The judge's keep-list was closed where en's is open
+
+`ladder_l1_distractor_judge` [ja] v2 admitted exactly four contrast types, none of which is the
+ordinary one-mora minimal pair — so むかし/むかえ died with `最小対立の条件を満たさず`, correctly by
+its own rules. The en row (id 173) never had this bug. v3 restores the general case. Controlled
+A/B on the recorded sets, same model, temp 0: **v2 kept 0/12, v3 kept 5/12, zero false keeps**.
+With the judge fixed but the generator untouched, 0 of 4 variants still rendered — confirming the
+brief's ordering.
+
+### Exactly-3 distractors demanded a 100% hit rate
+
+L1 now over-generates (4–6 options; the learner still sees 4). This needed `validators.py` to stop
+pinning every option level at 4 — the renderer reads only `is_valid=True` assets, so an
+over-generated L1 would have taken L3/L5/L6 down with it. `OPTION_COUNTS` relaxes **L1 only**,
+because L1's distractors are the only ones individually judged before rendering.
+
+### The P1 threshold was not the problem
+
+`P1_MIN_ACCEPTABLE_SENTENCES = 6` did not misfire. Sense 34999 (一/いち) was blocked because all ten
+sentences rated 2 with `対象語が全単語で現れない` / `接頭辞として使用` — 一 is a bound numeral that
+never stands alone. Loosening the threshold would admit sentences where the target is a character
+fragment, poisoning every level L3–L9 that inherits them. The real defect is upstream: bound
+morphemes (一, 様, 度 — ~15% of the pool) sit in the ja sense pool, and `phase_select` ranks by test
+frequency, which puts them at the **top** of the selection. `part_of_speech` cannot gate it — 一, 度
+and 人 are all `名詞`. Left open as a sense-pool decision.
+
+### Finding
+
+**A closed enumeration in a judge prompt is a silent allow-list.** The ja judge's four contrast
+types read as guidance but functioned as an exhaustive list, and the model obeyed the list over the
+concept — rejecting the textbook case the level exists to teach. The en row survived only because
+its taxonomy was phrased openly. Where two prompts rule on the same artefact, the second failure
+mode is worse: the ja generator and judge disagreed about pitch accent for a day of real running,
+and the disagreement was invisible because each was internally consistent.
+
+Full suite: 1965 passed, 2 skipped. Review: `.claude/reviews/task735-ja-l1-fixes.md`.
+
+Pages: [[log]].

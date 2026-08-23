@@ -199,6 +199,18 @@ class VocabAssetValidator:
     # Per-level validators
     # ------------------------------------------------------------------
 
+    # L1 alone may over-generate. It is the only option level whose distractors
+    # are individually vetted by a judge before rendering, and
+    # ``exercise_renderer._render_phonetic`` drops the WHOLE variant when fewer
+    # than 3 survive — so with exactly 3 distractors the generator has to bat
+    # 1.000 or the item is lost. The 2026-08-22 ja canary lost every L1 variant
+    # that way. Extra candidates give the judge slack; the renderer still keeps
+    # only ``kept[:3]``, so the learner sees 4 options either way. Levels whose
+    # distractors are NOT individually filtered stay pinned at exactly 4, where
+    # a fifth option would reach the learner as a fifth option.
+    OPTION_COUNTS = {1: (4, 8)}
+    DEFAULT_OPTION_COUNT = (4, 4)
+
     def _validate_option_level(self, level: int, data: dict, errors: list[str]):
         """Validate a standard MCQ level (L1, L3, L5, L8)."""
         options = data.get('options', [])
@@ -206,8 +218,11 @@ class VocabAssetValidator:
             errors.append(f"Level {level}: 'options' must be a list")
             return
 
-        if len(options) != 4:
-            errors.append(f"Level {level}: expected 4 options, got {len(options)}")
+        low, high = self.OPTION_COUNTS.get(level, self.DEFAULT_OPTION_COUNT)
+        if not low <= len(options) <= high:
+            expected = str(low) if low == high else f'{low}-{high}'
+            errors.append(
+                f"Level {level}: expected {expected} options, got {len(options)}")
             return
 
         correct_count = sum(1 for o in options if o.get('is_correct'))

@@ -1,0 +1,418 @@
+[
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "仅输出文章正文",
+    "problem": "前文要求生成的是段落，此处用“文章”可能误导模型输出整篇文章而非段落。",
+    "replacement": "仅输出段落正文",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "low",
+    "quote": "工程化约束条件",
+    "problem": "“工程化约束条件”搭配生硬，教学提示中更自然的是“硬性约束条件”。",
+    "replacement": "硬性约束条件",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "low",
+    "quote": "**对标标准:**",
+    "problem": "“对标标准”偏商业/产品语境，教育语境中“参照标准”更自然。",
+    "replacement": "**参照标准:**",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "刚开始学汉语的入门者",
+    "problem": "“入门者”不自然，且与“刚开始”语义重复。",
+    "replacement": "刚开始学习汉语的初学者",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "禁止抽象概念。",
+    "problem": "此处是词汇限制，“禁止抽象概念”表述不够准确，应说明禁止抽象词汇。",
+    "replacement": "禁止使用抽象词汇。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "核心规则 (降维描述)",
+    "problem": "“降维描述”是技术/网络用语，不是母语教育者常用术语；括号也宜用全角。",
+    "replacement": "核心规则（具体化描述）",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "严格仅使用基础的日常词汇。",
+    "problem": "“严格仅使用”累赘，“基础的日常词汇”也不够自然。",
+    "replacement": "只使用基础日常词汇。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "high",
+    "quote": "轻度成语",
+    "problem": "“轻度成语”搭配不自然，母语教育者通常说“浅显成语”或“简单成语”。",
+    "replacement": "浅显成语",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "随后必须立即用简单的句子解释它。",
+    "problem": "“随后”和“立即”语义累赘，代词“它”也多余。",
+    "replacement": "必须立即用简单的句子解释。",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "可以使用适度的领域术语。",
+    "problem": "“适度的领域术语”搭配不自然，应说“适当使用领域术语”。",
+    "replacement": "可以适当使用领域术语。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "多层复句",
+    "problem": "汉语语法教学更常用“多重复句”，“多层复句”不够规范。",
+    "replacement": "多重复句",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "词汇量约15000词以上。",
+    "problem": "“约”和“以上”同时使用造成范围表达不清。",
+    "replacement": "词汇量15000词以上。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "词汇量约25000词以上。",
+    "problem": "“约”和“以上”同时使用造成范围表达不清。",
+    "replacement": "词汇量25000词以上。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "高语体词汇",
+    "problem": "“高语体词汇”术语生硬，教学提示中可写“高级书面词汇”。",
+    "replacement": "高级书面词汇",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "low",
+    "quote": "专业人士（30+岁）",
+    "problem": "“30+岁”偏口语/混排符号，正式提示中可写“30岁以上”。",
+    "replacement": "专业人士（30岁以上）",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "low",
+    "quote": "复杂的从句结构",
+    "problem": "“从句结构”偏翻译腔，汉语教学更常说“复句结构”。",
+    "replacement": "复杂的复句结构",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "medium",
+    "quote": "转化为“人”或“物”的具体动作",
+    "problem": "表达不完整，容易误解为把概念直接变成“人”或“物”；应说明是由其执行的动作。",
+    "replacement": "转化为由“人”或“物”执行的具体动作",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_zh",
+    "severity": "low",
+    "quote": "以支持5个阅读问题",
+    "problem": "“支持问题”搭配不自然，教学语境中“支撑阅读理解问题”更自然。",
+    "replacement": "以支撑5个阅读理解问题",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "high",
+    "quote": "日本の小学校低学年（8〜9歳）",
+    "problem": "8〜9歳は通常「低学年」ではなく「中学年」であり、年齢と区分が一致していない。",
+    "replacement": "日本の小学校中学年（8〜9歳）",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "medium",
+    "quote": "体のどちらか一貫させる。",
+    "problem": "「どちらか一貫させる」は助詞が足りず不自然。",
+    "replacement": "体のどちらかで統一する。",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "medium",
+    "quote": "高レジスターの語彙",
+    "problem": "「高レジスター」は日本語教育の指示文として一般的でなく不自然。",
+    "replacement": "フォーマルな語彙",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "medium",
+    "quote": "あついところ",
+    "problem": "「あつい」は熱い/暑いと紛らわしく、パンが膨らむ説明には「あたたかい」が自然。",
+    "replacement": "あたたかいところ",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "low",
+    "quote": "受動態、使役、多層的な複文も可。",
+    "problem": "「受動態」は前段の「受身」と不統一で、「多層的」もやや不自然。",
+    "replacement": "受身、使役、複雑な複文も可。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "prose_generation_ja",
+    "severity": "low",
+    "quote": "複雑な従属節、受動態、使役受身、抽象的な表現。",
+    "problem": "「受動態」は前段の「受身」と不統一。",
+    "replacement": "複雑な従属節、受身、使役受身、抽象的な表現。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "medium",
+    "quote": "听力理解文章",
+    "problem": "“听力理解文章”搭配不自然；母语教师更常说“听力材料”或“听力文本”。",
+    "replacement": "听力材料",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "medium",
+    "quote": "富有信息性",
+    "problem": "“富有信息性”是英语 informative 的直译，中文不够自然。",
+    "replacement": "信息丰富",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "medium",
+    "quote": "适度描述性",
+    "problem": "“适度描述性”不符合中文表达习惯，像是英文 moderately descriptive 的直译。",
+    "replacement": "描述适度",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "low",
+    "quote": "捕捉文章的主要主题或内容",
+    "problem": "“捕捉”用于标题生成略显生硬，“主要主题”也有赘余感。",
+    "replacement": "体现文章的主题或主要内容",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "low",
+    "quote": "上面的“复杂度等级”是长度和词汇的唯一依据。",
+    "problem": "“长度和词汇”指代不够明确，建议明确为标题长度和用词。",
+    "replacement": "上方的“复杂度等级”是标题长度和用词的唯一依据。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "title_generation_zh",
+    "severity": "low",
+    "quote": "不要包含引号、格式或额外的评论",
+    "problem": "“格式”和“评论”表述略含糊；输出指令中“格式标记”“额外说明”更自然。",
+    "replacement": "不要包含引号、格式标记或额外说明",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "medium",
+    "quote": "このリスニング理解の文章のための簡潔で魅力的なタイトルを生成してください。",
+    "problem": "「リスニング理解の文章」 is translationese; native language-learning material would usually say 「リスニング用テキスト」.",
+    "replacement": "このリスニング用テキストに適した、簡潔で魅力的なタイトルを生成してください。",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "low",
+    "quote": "タイトルは{language}のみで書いてください",
+    "problem": "Slightly unnatural; 「には…のみを使用」 is clearer for a language-only constraint.",
+    "replacement": "タイトルには{language}のみを使用してください",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "medium",
+    "quote": "上記の「複雑度レベル」が長さと語彙の唯一の基準です。",
+    "problem": "「長さ」 lacks an explicit target; add 「タイトルの」 to avoid ambiguity.",
+    "replacement": "上記の「複雑度レベル」が、タイトルの長さと語彙の唯一の基準です。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "medium",
+    "quote": "両者が食い違って見える場合は、必ずレベルに従ってください。",
+    "problem": "「食い違って見える」 is unnatural, and 「レベル」 is ambiguous; specify that the complexity level takes precedence.",
+    "replacement": "両者が一致しない場合は、必ず複雑度レベルを優先してください。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "low",
+    "quote": "複雑度レベルに応じてタイトルの長さと複雑さを調整：",
+    "problem": "The line is a truncated noun stop; a finite request is more natural and clearer.",
+    "replacement": "複雑度レベルに応じて、タイトルの長さと複雑さを調整してください：",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "low",
+    "quote": "文章の主なテーマまたは主題を捉える",
+    "problem": "「テーマまたは主題」 is redundant.",
+    "replacement": "文章の主なテーマを捉える",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "title_generation_ja",
+    "severity": "medium",
+    "quote": "引用符、書式設定、または追加のコメントを含めないでください",
+    "problem": "「書式設定」 sounds like configuration/settings; for output constraints, 「装飾」 is more natural.",
+    "replacement": "引用符、装飾、追加のコメントを含めないでください",
+    "_class": "PRE-EXISTING"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "medium",
+    "quote": "每个干扰项填入空格后必须语法成立。",
+    "problem": "“语法成立”搭配不自然，汉语通常说“在语法上成立”或“符合语法”。",
+    "replacement": "每个干扰项填入空格后必须在语法上成立。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "medium",
+    "quote": "(a) 失误维度 —— 从下列各项中恰好指定一个它在此处失效的原因：",
+    "problem": "句子缺少明确对象，“失效的原因”也不够自然，容易让模型不确定要指定的是维度还是原因。",
+    "replacement": "(a) 失误维度 —— 为每个干扰项从下列各项中恰好指定一个失误维度：",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "low",
+    "quote": "设想正确答案的一个常见近义词，在心里把它替换进句子。",
+    "problem": "“在心里”口语化且不够指令化，_native_ 技术提示中通常直接说“并将其替换进句子”。",
+    "replacement": "设想正确答案的一个常见近义词，并将其替换进句子。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "medium",
+    "quote": "如果在该近义词之下你的干扰项会变成成立的选项，就否决这个干扰项，另选一个。",
+    "problem": "“在该近义词之下”和“成立的选项”表达生硬，模型可能不清楚“成立”指语法成立还是语义可接受。",
+    "replacement": "如果替换为该近义词后，你的干扰项会变成可接受的选项，就否决这个干扰项，另选一个。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "low",
+    "quote": "干扰项必须在近义词替换之后，对这个句子仍然是错的。",
+    "problem": "“对这个句子”不够自然，应说“在该句子中”。",
+    "replacement": "干扰项必须在近义词替换之后，在该句子中仍然是错误的。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "medium",
+    "quote": "不允许全部雷同、\"错得很像\"的一组。",
+    "problem": "句法不完整，且顿号连接“全部雷同”和“错得很像”不自然。",
+    "replacement": "不允许出现全部雷同或“错得很像”的一组干扰项。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "high",
+    "quote": "最后把每个干扰项放回空格重读一遍。如果读起来自然，就在输出前替换掉它。",
+    "problem": "“读起来自然”有歧义：干扰项本来应语法成立，可能读起来自然但仍语境错误；模型可能误删合格干扰项。",
+    "replacement": "最后把每个干扰项放回空格重读一遍。如果它在该语境中读起来正确或可接受，就在输出前替换掉它。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_zh",
+    "severity": "medium",
+    "quote": "把正确答案放在任何选项列表的第一位 —— 不要打乱顺序。",
+    "problem": "前文规定的 JSON 输出只包含干扰项，没有选项列表；此处容易让模型额外生成选项列表或混淆输出格式。",
+    "replacement": "如果另外生成选项列表，把正确答案放在第一位 —— 不要打乱顺序。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "high",
+    "quote": "(b) 置き換え検査 —— 正解の一般的な類義語を1つ思い浮かべ、頭の中で空欄に置き換えてみる。その類義語のもとであなたのディストラクターが正答になってしまうなら、それを却下して別のものを選ぶ。類義語に置き換えても、この文では誤りであり続けること。",
+    "problem": "What is replaced and what makes the distractor invalid is ambiguous; \"その類義語のもとで\" is unnatural.",
+    "replacement": "(b) 置き換え検査 —— 正解の一般的な類義語を1つ思い浮かべ、正解の代わりにその類義語を空欄に入れた文を想像する。その文脈でも候補ディストラクターが正答として成立してしまうなら、それを却下して別のものを選ぶ。ディストラクターは、正解を類義語に置き換えても、この文では誤りであり続けること。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "high",
+    "quote": "最後に、各ディストラクターを空欄に入れて文を読み返す。自然に読めるものがあれば、出力前に差し替えること。",
+    "problem": "\"自然に読める\" is too broad and can conflict with the requirement that distractors be grammatically acceptable; it should mean natural as the correct answer in context.",
+    "replacement": "最後に、各ディストラクターを空欄に入れて文を読み返す。文脈上で正解として自然に読めるものがあれば、出力前に差し替えること。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "high",
+    "quote": "選択肢リストでは正解を最初に置くこと —— シャッフルしないこと。",
+    "problem": "The specified JSON output contains only distractors and no options list, so this instruction is inconsistent.",
+    "replacement": "なお、選択肢リストを別途作る場合は、正解を最初に置くこと —— シャッフルしないこと。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "medium",
+    "quote": "ディストラクターは正解の同音語・類音語・活用形や表記違い・正解の部分文字列であってはならない。",
+    "problem": "\"部分文字列\" is programming-like and unnatural here; the list particle \"や\" also makes the enumeration uneven.",
+    "replacement": "ディストラクターは、正解の同音語・類音語・活用形・表記違い・正解の一部だけを使った語であってはならない。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "low",
+    "quote": "(a) 誤りの次元 —— ここで不適切となる理由を、次の中からちょうど1つ指定する：",
+    "problem": "\"ここで\" is vague; it should explicitly refer to the distractor.",
+    "replacement": "(a) 誤りの次元 —— そのディストラクターが不適切となる理由を、次の中からちょうど1つ指定する：",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "low",
+    "quote": "各ディストラクターは空欄に入れたとき文法的に成立すること。",
+    "problem": "Missing \"に\" after \"とき\"; the phrasing is slightly stiff.",
+    "replacement": "各ディストラクターは空欄に入れたときに文法的に成立すること。",
+    "_class": "IN-SCOPE"
+  },
+  {
+    "file": "cloze_distractor_generation_ja",
+    "severity": "low",
+    "quote": "3つのディストラクター全体で、少なくとも2つの異なる誤りの次元が現れること —— 似たような「惜しい誤答」ばかりを並べないこと。",
+    "problem": "\"次元が現れる\" is less natural than \"次元を含む\" for a set of distractors.",
+    "replacement": "3つのディストラクター全体で、少なくとも2つの異なる誤りの次元を含むこと —— 似たような「惜しい誤答」ばかりを並べないこと。",
+    "_class": "IN-SCOPE"
+  }
+]

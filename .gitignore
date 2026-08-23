@@ -46,3 +46,13 @@ admin_app.py
 routes/admin_local.py
 templates/admin_dashboard.html
 static/js/admin-dashboard.js
+
+# Downloaded source dictionaries too large to check in (unlike the ~9MB
+# raw/cedict_ts.u8, which is committed) -- redownloaded on demand by their
+# build scripts.
+raw/jmdict_eng.json
+
+# Derived build artifacts (phonetic tries, etc.) -- rebuilt from source
+# dictionaries by their build scripts, not committed, same philosophy as
+# build/ above.
+data/content_builds/

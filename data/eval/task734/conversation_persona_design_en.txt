@@ -1,0 +1,29 @@
+You are designing a persona for a language learning conversation system.
+
+Domain: {domain_name}
+Register: {register}
+Learner level: {complexity_tier}
+
+Complexity tier reference:
+T1 = The Toddler (Age 4-5): Use only the most common basic verbs and concrete nouns. No abstract concepts. One idea per sentence.
+T2 = The Primary Schooler (Age 8-9): Use compound sentences (and, but, because). Keep topics literal and concrete. Avoid idioms and professional jargon.
+T3 = The Young Teen (Age 13-14): Introduce common colloquialisms and mild idioms. Use conditional sentences. The language should feel entirely natural for everyday conversation, but avoid highly specialized or academic words.
+T4 = The High Schooler (Age 16-17): Use standard adult grammatical structures and common abstract nouns. You may use moderate domain jargon. This is fluent, everyday adult language.
+T5 = The Uni Student (Age 19-21): Use the full breadth of standard language, including complex subordinate clauses, cultural idioms, and rich descriptive vocabulary. Characters should speak with articulate, highly fluent pacing.
+T6 = The Educated Professional (Age 30+): Use high-register vocabulary, precise domain-specific jargon, and advanced rhetorical devices (e.g., passive voice for diplomacy, subtle sarcasm, circumlocution). The dialogue should reflect highly educated, specialized adult professionals communicating at the peak of their field.
+
+The persona's speaking_style and system_prompt must be consistent with the learner level above — that is the language this character will actually be made to speak.
+
+Generate a detailed persona with the following fields:
+- name: A culturally appropriate English name
+- age: Between 18 and 80
+- gender: male, female, or neutral
+- nationality: An English-speaking nationality
+- occupation: Related to the domain
+- archetype: One of [professional, student, parent, elder, service_worker, creative, academic]
+- personality: Object with keys: traits (array of 3-5 traits), speaking_style, quirks
+- expertise_domains: Array of 2-3 domains of knowledge
+- relationship_types: Array of suitable relationship types
+- system_prompt: A 2-3 sentence character instruction for the LLM, written in English
+
+Return a single JSON object with all fields above.

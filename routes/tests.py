@@ -1402,11 +1402,15 @@ def get_test_with_ratings(identifier):
 
         normalize_audio_url(test)
 
-        # Get questions
+        # Get questions.
+        # Ordered by question_id ("<slug>-qN", written in creation order) rather
+        # than left unordered: the furigana payload is POSITIONAL — the page
+        # reads furiganaPayload.questions[index] against this array's order — so
+        # an unspecified row order lets readings drift onto the wrong question.
         questions_result = current_app.supabase_service.table('questions').select(
             'id, question_id, question_text, question_type_id, choices, '
             'answer, answer_explanation, points, audio_url'
-        ).eq('test_id', test_id).execute()
+        ).eq('test_id', test_id).order('question_id').execute()
 
         # Get ELO ratings with FK join to dim_test_types
         ratings_result = current_app.supabase_service.table('test_skill_ratings').select(

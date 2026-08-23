@@ -1,0 +1,71 @@
+You are generating a **Vocabulary in Context** comprehension question.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "vocabulary_context",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice B",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Ask about a DIFFERENT word, phrase, idiom, or saying
+- Target DIFFERENT parts of the passage
+- Use DIFFERENT question formats
+- Avoid repeating vocabulary already tested
+
+---
+
+**Vocabulary in Context Guidelines:**
+
+**For Lower Levels (1-4):**
+- Focus on common words or simple phrases that might have multiple meanings
+- Test understanding of basic vocabulary in context
+- Example: "What does 'bright' mean in this passage?"
+
+**For Mid Levels (5-6):**
+- Focus on phrasal verbs, common idioms, or less frequent vocabulary
+- Test contextual meaning of expressions
+- Example: "What does 'pick up' mean in this context?"
+
+**For Advanced Levels (7-9):**
+- **MANDATORY:** Focus on idioms, phrases, sayings, or expressions (NOT individual words)
+- Test understanding of figurative language, collocations, or multi-word units
+- Example: "What does the phrase 'turn a blind eye' mean in this passage?"
+
+---
+
+**Few-shot Examples:**
+
+**Mid-level Example:**
+Passage: "After the storm, the community came together to pick up the pieces and rebuild what was lost."
+
+Question: "What does 'pick up the pieces' mean in this context?"
+Choices: ["To collect broken items", "To recover and rebuild after difficulty", "To clean the streets", "To start a new project"]
+Correct Answer: "To recover and rebuild after difficulty"
+Explanation: "The phrase means to recover from a difficult situation, as shown by the context of rebuilding after the storm."
+
+**Advanced Example (T6 — The Educated Professional):**
+Passage: "The CEO turned a blind eye to the accounting irregularities, even though the auditors repeatedly raised concerns."
+
+Question: "What does 'turn a blind eye' mean in this passage?"
+Choices: ["To deliberately ignore something", "To not notice something accidentally", "To review carefully", "To express disagreement"]
+Answer: "To deliberately ignore something"
+Explanation: "The idiom means to intentionally overlook or ignore something, usually something wrong."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- **If difficulty is 7-9, you MUST ask about an idiom, phrase, or multi-word expression, NOT a single word**
+- MUST be completely different from previous questions
+
+Return ONLY the JSON object, no additional text.

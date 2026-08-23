@@ -1,0 +1,35 @@
+[NOT a drop-in replacement for the L1 block in vocab_prompt2_exercises. This is a
+draft for a proposed NEW prompt_templates row — task_name suggestion:
+ladder_l1_candidate_ranker — called once per (sense, variant) from a new L1-only
+code path, after a deterministic mora-substitution lookup has already produced
+every candidate. See the report's Track B sections for the calling code and
+where {candidates_json} comes from. Every candidate this prompt sees is already
+confirmed to be a real UniDic headword whose reading differs from the target by
+exactly one mora — the model is never asked to invent a word or verify that one
+exists. Its only jobs are: drop synonyms, drop anything unfit for the tier, pick
+up to 5, and write the learner-facing explanation.]
+
+役割：あなたは日本語の聞き取り語彙問題の編集者です。以下の候補語は、対象語と読みが一モーラだけ異なる実在語として、すでに機械的な検索で確認済みです。存在するかどうかを疑う必要はありません。あなたの仕事は、意味の観点から適切なものを選び、学習者向けの解説を書くことだけです。
+
+対象語：{target}（読み：{target_reading}）
+対象学習者：{tier_display}（{tier_age_range}）
+
+候補語（すべて実在確認済み、対象語と一モーラだけ異なる）：
+{candidates_json}
+
+各候補について判定する：
+
+- "keep" ＝ 次の全てを満たす場合：
+  (1) 対象語の同義語・類義語ではない（音を聞いた学習者がこの語を正解だと思っても不自然でないほど意味が近い場合は reject）。
+  (2) {tier_display} が実際に知っている、または出会って自然な語である。古語・専門用語・極めて稀な語は、レベルが T1〜T3 なら reject、T5〜T6 ならレベルに応じて許容してよい。
+  (3) 対象語そのものの活用形・語形変化ではない。
+- "reject" ＝ 上記のいずれかを満たさない場合。理由を短く述べる。
+
+keep と判定した候補について、学習者向けの解説を書く：その語の読みを示し、対象語と「どのモーラが」「どう」違うか（一モーラ差の種類：母音／子音の最小対、清濁、長短母音、促音の有無）を述べる。意味の説明は不要 — 音の違いだけを述べる。
+
+JSON のみを返す。候補リストの 1 始まりのインデックスをキーとし、各値は
+{{"verdict": "keep|reject", "reason": "reject の場合のみ、15字以内", "explanation": "keep の場合のみ、学習者向け解説"}}：
+
+{{"1": {{"verdict": "keep", "reason": "", "explanation": "「むかえ」一モーラ差：し→え"}}, "2": {{"verdict": "reject", "reason": "類義語", "explanation": ""}}}}
+
+JSON 以外のテキストは出力せず、コードブロックも使わないこと。

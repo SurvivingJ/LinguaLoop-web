@@ -30,6 +30,11 @@ Prompt templates (prompt_templates table, numeric-key, per language incl. ja):
 import re
 import json
 import logging
+import threading
+import time
+from functools import wraps
+
+import httpx
 
 from services.llm_service import (
     call_llm as llm_call,
@@ -39,6 +44,41 @@ from services.llm_service import (
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
+
+# TASK-737: transient network faults on the shared Supabase client. Plain
+# SELECT/INSERT calls here had no retry at all — harmless under the old
+# serial per-word loop, but parallelizing generate_sense() across a worker
+# pool puts far more concurrent load on that ONE shared client (and its
+# connection pool) than a single request at a time ever did, and
+# "Server disconnected" (httpx.RemoteProtocolError) started reaching callers
+# as an outright failure instead of a retried blip. Mirrors llm_service.py's
+# _RETRYABLE for the same class of fault, on the DB client instead of the
+# LLM client.
+_DB_RETRYABLE = (
+    httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError,
+    httpx.WriteError,
+)
+
+
+def retry_transient_db_call(fn):
+    """Retry a Supabase call up to 3x (0.5s/1s backoff) on a transient
+    connection fault. Reused by orchestrator.py's _get_or_create_vocab_id."""
+    @wraps(fn)
+    def _wrapped(*args, **kwargs):
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                return fn(*args, **kwargs)
+            except _DB_RETRYABLE as exc:
+                last_exc = exc
+                if attempt < 2:
+                    logger.warning(
+                        "%s: transient DB error (attempt %d/3): %s — retrying",
+                        fn.__name__, attempt + 1, exc,
+                    )
+                    time.sleep(0.5 * (2 ** attempt))
+        raise last_exc
+    return _wrapped
 
 # Prompt template version these call-sites are written against (source_ref tag).
 SENSE_PROMPT_VERSION = 2
@@ -154,8 +194,13 @@ class SenseGenerator:
         self._pos_legend = POS_LEGENDS.get(language_code, POS_LEGENDS["en"])
         self._simple_register = self._load_simple_register()
 
-        # Cache: vocab_id -> list of existing STANDARD sense dicts
+        # Cache: vocab_id -> list of existing STANDARD sense dicts.
+        # Guarded by _lock — TASK-737: the inline test-gen path now fans
+        # generate_sense() out across a thread pool (one call per extracted
+        # vocab word), so this cache and self.stats below are shared mutable
+        # state accessed concurrently for the first time.
         self._sense_cache: dict[int, list[dict]] = {}
+        self._lock = threading.Lock()
 
         # Stats
         self.stats = {
@@ -176,6 +221,18 @@ class SenseGenerator:
             'embeddings_written': 0,
             'embeddings_failed': 0,
         }
+
+    def _bump(self, key: str, n: int = 1) -> None:
+        """Thread-safe ``self.stats[key] += n``.
+
+        Plain ``self.stats[key] += n`` is a load-add-store across three
+        bytecodes — safe under a single caller, but generate_sense() is now
+        called concurrently (one thread per extracted vocab word), so two
+        threads incrementing the same counter can lose an update without a
+        lock around it.
+        """
+        with self._lock:
+            self.stats[key] = self.stats.get(key, 0) + n
 
     # ------------------------------------------------------------------ setup
 
@@ -232,25 +289,37 @@ class SenseGenerator:
                 max_tokens=max_tokens, response_format='json_object',
                 pipeline='vocab_senses', task_name=f"{task_name}__fallback",
             )
-            self.stats['fallback_used'] += 1
+            self._bump('fallback_used')
             return result
         except Exception as e:
             logger.error(
                 f"Both sense models failed for {task_name} "
                 f"({self._model} then {self._fallback_model}): {e}"
             )
-            self.stats['both_models_failed'] += 1
+            self._bump('both_models_failed')
             return None
 
     # ------------------------------------------------------------ DB helpers
 
+    @retry_transient_db_call
     def _get_existing_senses(self, vocab_id: int) -> list[dict]:
-        """Fetch existing STANDARD-level senses for a vocab_id (ordered by rank)."""
-        if vocab_id in self._sense_cache:
-            return self._sense_cache[vocab_id]
+        """Fetch existing STANDARD-level senses for a vocab_id (ordered by rank).
+
+        The dict read/write is locked; the DB round-trip below deliberately
+        is not, so a cache miss never blocks other threads on I/O. Two
+        threads missing the cache for the same vocab_id at once both hit the
+        DB and both write the same (idempotent) result — wasted work, not a
+        correctness bug, and rare since a test's vocab_items are distinct
+        lemmas.
+        """
+        with self._lock:
+            cached = self._sense_cache.get(vocab_id)
+        if cached is not None:
+            return cached
 
         if vocab_id < 0:  # dry-run fake id
-            self._sense_cache[vocab_id] = []
+            with self._lock:
+                self._sense_cache[vocab_id] = []
             return []
 
         response = self._db.table('dim_word_senses') \
@@ -262,7 +331,8 @@ class SenseGenerator:
             .execute()
 
         senses = response.data or []
-        self._sense_cache[vocab_id] = senses
+        with self._lock:
+            self._sense_cache[vocab_id] = senses
         return senses
 
     def _has_simple_level(self, vocab_id: int) -> bool:
@@ -376,8 +446,8 @@ class SenseGenerator:
                 f"      standard: {fields['standard'][:80]}\n"
                 f"      example:  {example[:80]}"
             )
-            self.stats['senses_created'] += 1
-            self.stats['rows_written'] += 2
+            self._bump('senses_created')
+            self._bump('rows_written', 2)
             return -1
 
         rows = [
@@ -401,12 +471,12 @@ class SenseGenerator:
                 .execute()
         except Exception as e:
             logger.error(f"Failed to upsert senses for {lemma}: {e}")
-            self.stats['senses_failed'] += 1
+            self._bump('senses_failed')
             return None
 
         written = response.data or []
-        self.stats['senses_created'] += 1
-        self.stats['rows_written'] += len(written)
+        self._bump('senses_created')
+        self._bump('rows_written', len(written))
         self._maybe_set_pos(vocab_id, fields['pos_code'])
         self._sense_cache.pop(vocab_id, None)  # invalidate
 
@@ -465,21 +535,21 @@ class SenseGenerator:
             vectors = EmbeddingService().embed_batch([text for _, text in rows])
         except Exception as exc:
             logger.warning("  %s: embed-on-create failed: %s", lemma, exc)
-            self.stats['embeddings_failed'] += len(rows)
+            self._bump('embeddings_failed', len(rows))
             return
 
         for (sense_id, _), vector in zip(rows, vectors):
             if not vector:
-                self.stats['embeddings_failed'] += 1
+                self._bump('embeddings_failed')
                 continue
             try:
                 self._db.table('dim_word_senses').update(
                     {'embedding': vector}).eq('id', sense_id).execute()
-                self.stats['embeddings_written'] += 1
+                self._bump('embeddings_written')
             except Exception as exc:
                 logger.warning("  %s: could not store embedding for sense %s: %s",
                                lemma, sense_id, exc)
-                self.stats['embeddings_failed'] += 1
+                self._bump('embeddings_failed')
 
     def _lookup_standard_id(self, vocab_id: int, sense_rank: int) -> int | None:
         resp = self._db.table('dim_word_senses') \
@@ -497,10 +567,10 @@ class SenseGenerator:
         """Generate a brand-new two-level sense at the next free rank."""
         fields = self._generate_payload(lemma, sentence)
         if not fields:
-            self.stats['senses_failed'] += 1
+            self._bump('senses_failed')
             return None
         if fields['skip']:
-            self.stats['senses_skipped'] += 1
+            self._bump('senses_skipped')
             logger.debug(f"  {lemma}: skipped (proper noun, number, symbol, etc.)")
             return None
         next_rank = (max((s.get('sense_rank') or 0 for s in existing), default=0) + 1)
@@ -515,7 +585,7 @@ class SenseGenerator:
         )
         if not template:
             # No selection prompt — fall back to reusing the primary sense.
-            self.stats['senses_reused'] += 1
+            self._bump('senses_reused')
             return existing[0]['id']
 
         definitions_list = "\n".join(
@@ -529,7 +599,7 @@ class SenseGenerator:
             )
         except KeyError as e:
             logger.error(f"Sense selection template missing variable: {e}")
-            self.stats['senses_reused'] += 1
+            self._bump('senses_reused')
             return existing[0]['id']
 
         data = self._call_llm(prompt, task_name='vocab_sense_selection', max_tokens=60)
@@ -541,7 +611,7 @@ class SenseGenerator:
                 selected = 0
 
         if selected > 0 and selected <= len(existing):
-            self.stats['senses_reused'] += 1
+            self._bump('senses_reused')
             logger.debug(f"  {lemma}: reused existing sense #{selected}")
             return existing[selected - 1]['id']
 
@@ -564,7 +634,7 @@ class SenseGenerator:
 
         if existing:
             if self._prefer_existing:
-                self.stats['senses_reused'] += 1
+                self._bump('senses_reused')
                 return existing[0]['id']
             return self._select_sense(vocab_id, lemma, sentence, existing)
         return self._generate_new(vocab_id, lemma, sentence, existing)
@@ -582,20 +652,20 @@ class SenseGenerator:
         existing = self._get_existing_senses(vocab_id)
 
         if self._prefer_existing and self._has_simple_level(vocab_id):
-            self.stats['senses_reused'] += 1
+            self._bump('senses_reused')
             return existing[0]['id'] if existing else None
 
         if any(s.get('source') == 'manual' for s in existing):
             logger.debug(f"  {lemma}: has manual sense, skipping backfill")
-            self.stats['senses_skipped'] += 1
+            self._bump('senses_skipped')
             return existing[0]['id'] if existing else None
 
         fields = self._generate_payload(lemma, sentence)
         if not fields:
-            self.stats['senses_failed'] += 1
+            self._bump('senses_failed')
             return None
         if fields['skip']:
-            self.stats['senses_skipped'] += 1
+            self._bump('senses_skipped')
             logger.debug(f"  {lemma}: skipped (proper noun, number, symbol, etc.)")
             return None
 

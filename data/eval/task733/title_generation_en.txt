@@ -1,0 +1,25 @@
+Generate a concise, engaging title for this listening comprehension passage.
+
+PASSAGE:
+{prose}
+
+TOPIC: {topic_concept}
+DIFFICULTY: {difficulty}/9
+COMPLEXITY TIER: {complexity_tier}
+TARGET LANGUAGE: {language}
+
+Requirements:
+- Write the title ONLY in {language}
+- The COMPLEXITY TIER above is authoritative for length and vocabulary. DIFFICULTY is context only; if the two ever seem to disagree, follow the tier.
+- Adapt the title length and complexity to match the tier:
+  * T1 (The Toddler, age 4-5): Very simple, 3-6 words, basic vocabulary
+  * T2 (The Primary Schooler, age 8-9): Simple, 4-8 words, straightforward language
+  * T3 (The Young Teen, age 13-14): Clear, 5-10 words, everyday vocabulary
+  * T4 (The High Schooler, age 16-17): Moderately descriptive, 6-12 words, varied vocabulary
+  * T5 (The Uni Student, age 19-21): Sophisticated, 8-15 words, nuanced expressions
+  * T6 (The Educated Professional, age 30+): Complex, 10-18 words, advanced vocabulary and structures
+- Capture the main theme or subject of the passage
+- Make it engaging and informative
+- Do NOT include quotation marks, formatting, or extra commentary
+
+Return ONLY the title text in {language}, nothing else.

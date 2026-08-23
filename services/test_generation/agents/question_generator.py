@@ -6,11 +6,14 @@ Supports 6 semantic question types.
 """
 
 import logging
+import threading
+from concurrent.futures import as_completed
 from typing import List, Dict, Optional, Sequence, Tuple
 
 from pydantic import ValidationError
 
 from services.llm_service import call_llm
+from services.exercise_generation.judges.base import BatchModeThreadPoolExecutor
 
 from ..config import get_test_gen_config
 from ..schemas import MCQuestion
@@ -113,7 +116,33 @@ class QuestionGenerator:
         # feedback on any rejection. The orchestrator's post-hoc
         # validate_all_questions then acts as a cheap idempotent safety net.
         self._validator = QuestionValidator()
+        # Thread-local backing for `last_rejections` (see the property below).
+        # TASK-737: the orchestrator owns ONE QuestionGenerator for the whole
+        # batch run, and generate_questions() can now be called concurrently
+        # for different tests (batch_test_workers > 1) on that same shared
+        # instance — a plain `self.last_rejections` would let one test's
+        # funnel-diagnostic overwrite another's mid-flight.
+        self._thread_local = threading.local()
         logger.info(f"QuestionGenerator initialized with model: {self.model}")
+
+    def _tl(self) -> threading.local:
+        """Lazily-created thread-local store, tolerant of test doubles built
+        via ``object.__new__(QuestionGenerator)`` (see
+        tests/test_test_gen_fail_closed.py's ``_generator()``), which never
+        run ``__init__`` and so never set ``self._thread_local``."""
+        tl = self.__dict__.get('_thread_local')
+        if tl is None:
+            tl = threading.local()
+            self.__dict__['_thread_local'] = tl
+        return tl
+
+    @property
+    def last_rejections(self) -> List[Dict]:
+        return getattr(self._tl(), 'last_rejections', [])
+
+    @last_rejections.setter
+    def last_rejections(self, value: List[Dict]) -> None:
+        self._tl().last_rejections = value
 
     def generate_questions(
         self,
@@ -154,36 +183,82 @@ class QuestionGenerator:
         # Per-question rejection reasons for THIS run (judge hard-rejects AND
         # validator failures across all regen attempts), surfaced to the
         # orchestrator for funnel diagnostics. Reset on every call.
-        self.last_rejections: List[Dict] = []
+        self.last_rejections = []
 
-        for type_code in question_type_codes:
-            q_entry, attempt_rejections = self._generate_validated_question(
-                prose=prose,
-                language_name=language_name,
-                question_type_code=type_code,
-                difficulty=difficulty,
-                kept_questions=kept_texts,
-                prompt_template=prompt_templates.get(type_code) if prompt_templates else None,
-                model_override=model_override,
-                seed=seed,
-                template_version=template_version,
-                language_id=language_id,
-                db=db,
-                max_attempts=max_attempts,
-                subject_keywords=subject_keywords,
-            )
+        # TASK-737: question types are otherwise independent — they only
+        # share the soft "avoid repeating a kept question" signal
+        # (kept_texts) — so they fan out in waves instead of one type at a
+        # time, each wave seeing everything every earlier wave kept.
+        # WAVE_SIZE is capped at 2 rather than splitting into 2 waves of
+        # ceil(n/2): a live diagnostic batch (5 question types, first
+        # implementation used waves of 3+2) showed a real, structural increase
+        # in "too similar" validator rejections — 3 types generated blind to
+        # each other collide more than 2 do, and every within-wave collision
+        # is now caught only by the (non-LLM) similarity check post hoc
+        # instead of being avoided up front via kept_texts. Capping at 2
+        # trades a little throughput for keeping that collision surface no
+        # worse than the minimum any parallelism implies.
+        # BatchModeThreadPoolExecutor, not a bare ThreadPoolExecutor:
+        # _generate_validated_question's judge gate can raise
+        # JudgeUnavailable, which must reach the caller from whatever thread
+        # runs it (see judges/base.py).
+        WAVE_SIZE = 2
+        waves = [
+            question_type_codes[i:i + WAVE_SIZE]
+            for i in range(0, len(question_type_codes), WAVE_SIZE)
+        ]
 
-            # Record every rejected attempt for the funnel diagnostic (these are
-            # the original/per-attempt rejects, kept even when a later attempt of
-            # the same type ultimately succeeds).
-            if attempt_rejections:
-                self.last_rejections.extend(attempt_rejections)
-
-            if q_entry is None:
+        for wave in waves:
+            if not wave:
                 continue
+            kept_snapshot = list(kept_texts)  # frozen for this wave's parallel calls
+            with BatchModeThreadPoolExecutor(max_workers=len(wave)) as pool:
+                futures = {
+                    pool.submit(
+                        self._generate_validated_question,
+                        prose=prose,
+                        language_name=language_name,
+                        question_type_code=type_code,
+                        difficulty=difficulty,
+                        kept_questions=kept_snapshot,
+                        prompt_template=(
+                            prompt_templates.get(type_code) if prompt_templates else None
+                        ),
+                        model_override=model_override,
+                        seed=seed,
+                        template_version=template_version,
+                        language_id=language_id,
+                        db=db,
+                        max_attempts=max_attempts,
+                        subject_keywords=subject_keywords,
+                    ): type_code
+                    for type_code in wave
+                }
+                wave_results: Dict[str, Tuple] = {}
+                for future in as_completed(futures):
+                    type_code = futures[future]
+                    # JudgeUnavailable propagates through result() to the
+                    # caller — a wave must abort the batch the same way the
+                    # old serial loop did, not swallow it into a missing type.
+                    wave_results[type_code] = future.result()
 
-            questions.append(q_entry)
-            kept_texts.append(q_entry['question'])
+            # Apply in the wave's original order, not completion order, so
+            # kept_texts (and thus wave 2's context) is deterministic given
+            # the same inputs.
+            for type_code in wave:
+                q_entry, attempt_rejections = wave_results[type_code]
+
+                # Record every rejected attempt for the funnel diagnostic
+                # (these are the original/per-attempt rejects, kept even when
+                # a later attempt of the same type ultimately succeeds).
+                if attempt_rejections:
+                    self.last_rejections = self.last_rejections + attempt_rejections
+
+                if q_entry is None:
+                    continue
+
+                questions.append(q_entry)
+                kept_texts.append(q_entry['question'])
 
         logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
         return questions

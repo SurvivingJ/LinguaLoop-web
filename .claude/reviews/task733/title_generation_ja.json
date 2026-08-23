@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "severity": "medium",
+      "quote": "このリスニング理解の文章のための簡潔で魅力的なタイトルを生成してください。",
+      "problem": "「リスニング理解の文章」 is translationese; native language-learning material would usually say 「リスニング用テキスト」.",
+      "replacement": "このリスニング用テキストに適した、簡潔で魅力的なタイトルを生成してください。"
+    },
+    {
+      "severity": "low",
+      "quote": "タイトルは{language}のみで書いてください",
+      "problem": "Slightly unnatural; 「には…のみを使用」 is clearer for a language-only constraint.",
+      "replacement": "タイトルには{language}のみを使用してください"
+    },
+    {
+      "severity": "medium",
+      "quote": "上記の「複雑度レベル」が長さと語彙の唯一の基準です。",
+      "problem": "「長さ」 lacks an explicit target; add 「タイトルの」 to avoid ambiguity.",
+      "replacement": "上記の「複雑度レベル」が、タイトルの長さと語彙の唯一の基準です。"
+    },
+    {
+      "severity": "medium",
+      "quote": "両者が食い違って見える場合は、必ずレベルに従ってください。",
+      "problem": "「食い違って見える」 is unnatural, and 「レベル」 is ambiguous; specify that the complexity level takes precedence.",
+      "replacement": "両者が一致しない場合は、必ず複雑度レベルを優先してください。"
+    },
+    {
+      "severity": "low",
+      "quote": "複雑度レベルに応じてタイトルの長さと複雑さを調整：",
+      "problem": "The line is a truncated noun stop; a finite request is more natural and clearer.",
+      "replacement": "複雑度レベルに応じて、タイトルの長さと複雑さを調整してください："
+    },
+    {
+      "severity": "low",
+      "quote": "文章の主なテーマまたは主題を捉える",
+      "problem": "「テーマまたは主題」 is redundant.",
+      "replacement": "文章の主なテーマを捉える"
+    },
+    {
+      "severity": "medium",
+      "quote": "引用符、書式設定、または追加のコメントを含めないでください",
+      "problem": "「書式設定」 sounds like configuration/settings; for output constraints, 「装飾」 is more natural.",
+      "replacement": "引用符、装飾、追加のコメントを含めないでください"
+    }
+  ]
+}

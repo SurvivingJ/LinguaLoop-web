@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "severity": "high",
+      "quote": "(b) 置き換え検査 —— 正解の一般的な類義語を1つ思い浮かべ、頭の中で空欄に置き換えてみる。その類義語のもとであなたのディストラクターが正答になってしまうなら、それを却下して別のものを選ぶ。類義語に置き換えても、この文では誤りであり続けること。",
+      "problem": "What is replaced and what makes the distractor invalid is ambiguous; \"その類義語のもとで\" is unnatural.",
+      "replacement": "(b) 置き換え検査 —— 正解の一般的な類義語を1つ思い浮かべ、正解の代わりにその類義語を空欄に入れた文を想像する。その文脈でも候補ディストラクターが正答として成立してしまうなら、それを却下して別のものを選ぶ。ディストラクターは、正解を類義語に置き換えても、この文では誤りであり続けること。"
+    },
+    {
+      "severity": "high",
+      "quote": "最後に、各ディストラクターを空欄に入れて文を読み返す。自然に読めるものがあれば、出力前に差し替えること。",
+      "problem": "\"自然に読める\" is too broad and can conflict with the requirement that distractors be grammatically acceptable; it should mean natural as the correct answer in context.",
+      "replacement": "最後に、各ディストラクターを空欄に入れて文を読み返す。文脈上で正解として自然に読めるものがあれば、出力前に差し替えること。"
+    },
+    {
+      "severity": "high",
+      "quote": "選択肢リストでは正解を最初に置くこと —— シャッフルしないこと。",
+      "problem": "The specified JSON output contains only distractors and no options list, so this instruction is inconsistent.",
+      "replacement": "なお、選択肢リストを別途作る場合は、正解を最初に置くこと —— シャッフルしないこと。"
+    },
+    {
+      "severity": "medium",
+      "quote": "ディストラクターは正解の同音語・類音語・活用形や表記違い・正解の部分文字列であってはならない。",
+      "problem": "\"部分文字列\" is programming-like and unnatural here; the list particle \"や\" also makes the enumeration uneven.",
+      "replacement": "ディストラクターは、正解の同音語・類音語・活用形・表記違い・正解の一部だけを使った語であってはならない。"
+    },
+    {
+      "severity": "low",
+      "quote": "(a) 誤りの次元 —— ここで不適切となる理由を、次の中からちょうど1つ指定する：",
+      "problem": "\"ここで\" is vague; it should explicitly refer to the distractor.",
+      "replacement": "(a) 誤りの次元 —— そのディストラクターが不適切となる理由を、次の中からちょうど1つ指定する："
+    },
+    {
+      "severity": "low",
+      "quote": "各ディストラクターは空欄に入れたとき文法的に成立すること。",
+      "problem": "Missing \"に\" after \"とき\"; the phrasing is slightly stiff.",
+      "replacement": "各ディストラクターは空欄に入れたときに文法的に成立すること。"
+    },
+    {
+      "severity": "low",
+      "quote": "3つのディストラクター全体で、少なくとも2つの異なる誤りの次元が現れること —— 似たような「惜しい誤答」ばかりを並べないこと。",
+      "problem": "\"次元が現れる\" is less natural than \"次元を含む\" for a set of distractors.",
+      "replacement": "3つのディストラクター全体で、少なくとも2つの異なる誤りの次元を含むこと —— 似たような「惜しい誤答」ばかりを並べないこと。"
+    }
+  ]
+}

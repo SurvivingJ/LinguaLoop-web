@@ -42,7 +42,7 @@ from ._shared import (
 SCHEMA_VERSION = 1
 TYPE_CODE = 'collocation_repair'
 
-PROMPT_VERSIONS: frozenset[int] = frozenset({1})
+PROMPT_VERSIONS: frozenset[int] = frozenset({1, 2})
 
 OPTION_COUNT = 4
 

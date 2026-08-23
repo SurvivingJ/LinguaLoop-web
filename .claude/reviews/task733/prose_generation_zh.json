@@ -1,0 +1,112 @@
+{
+  "findings": [
+    {
+      "severity": "medium",
+      "quote": "仅输出文章正文",
+      "problem": "前文要求生成的是段落，此处用“文章”可能误导模型输出整篇文章而非段落。",
+      "replacement": "仅输出段落正文"
+    },
+    {
+      "severity": "low",
+      "quote": "工程化约束条件",
+      "problem": "“工程化约束条件”搭配生硬，教学提示中更自然的是“硬性约束条件”。",
+      "replacement": "硬性约束条件"
+    },
+    {
+      "severity": "low",
+      "quote": "**对标标准:**",
+      "problem": "“对标标准”偏商业/产品语境，教育语境中“参照标准”更自然。",
+      "replacement": "**参照标准:**"
+    },
+    {
+      "severity": "medium",
+      "quote": "刚开始学汉语的入门者",
+      "problem": "“入门者”不自然，且与“刚开始”语义重复。",
+      "replacement": "刚开始学习汉语的初学者"
+    },
+    {
+      "severity": "medium",
+      "quote": "禁止抽象概念。",
+      "problem": "此处是词汇限制，“禁止抽象概念”表述不够准确，应说明禁止抽象词汇。",
+      "replacement": "禁止使用抽象词汇。"
+    },
+    {
+      "severity": "medium",
+      "quote": "核心规则 (降维描述)",
+      "problem": "“降维描述”是技术/网络用语，不是母语教育者常用术语；括号也宜用全角。",
+      "replacement": "核心规则（具体化描述）"
+    },
+    {
+      "severity": "medium",
+      "quote": "严格仅使用基础的日常词汇。",
+      "problem": "“严格仅使用”累赘，“基础的日常词汇”也不够自然。",
+      "replacement": "只使用基础日常词汇。"
+    },
+    {
+      "severity": "high",
+      "quote": "轻度成语",
+      "problem": "“轻度成语”搭配不自然，母语教育者通常说“浅显成语”或“简单成语”。",
+      "replacement": "浅显成语"
+    },
+    {
+      "severity": "medium",
+      "quote": "随后必须立即用简单的句子解释它。",
+      "problem": "“随后”和“立即”语义累赘，代词“它”也多余。",
+      "replacement": "必须立即用简单的句子解释。"
+    },
+    {
+      "severity": "medium",
+      "quote": "可以使用适度的领域术语。",
+      "problem": "“适度的领域术语”搭配不自然，应说“适当使用领域术语”。",
+      "replacement": "可以适当使用领域术语。"
+    },
+    {
+      "severity": "medium",
+      "quote": "多层复句",
+      "problem": "汉语语法教学更常用“多重复句”，“多层复句”不够规范。",
+      "replacement": "多重复句"
+    },
+    {
+      "severity": "medium",
+      "quote": "词汇量约15000词以上。",
+      "problem": "“约”和“以上”同时使用造成范围表达不清。",
+      "replacement": "词汇量15000词以上。"
+    },
+    {
+      "severity": "medium",
+      "quote": "词汇量约25000词以上。",
+      "problem": "“约”和“以上”同时使用造成范围表达不清。",
+      "replacement": "词汇量25000词以上。"
+    },
+    {
+      "severity": "medium",
+      "quote": "高语体词汇",
+      "problem": "“高语体词汇”术语生硬，教学提示中可写“高级书面词汇”。",
+      "replacement": "高级书面词汇"
+    },
+    {
+      "severity": "low",
+      "quote": "专业人士（30+岁）",
+      "problem": "“30+岁”偏口语/混排符号，正式提示中可写“30岁以上”。",
+      "replacement": "专业人士（30岁以上）"
+    },
+    {
+      "severity": "low",
+      "quote": "复杂的从句结构",
+      "problem": "“从句结构”偏翻译腔，汉语教学更常说“复句结构”。",
+      "replacement": "复杂的复句结构"
+    },
+    {
+      "severity": "medium",
+      "quote": "转化为“人”或“物”的具体动作",
+      "problem": "表达不完整，容易误解为把概念直接变成“人”或“物”；应说明是由其执行的动作。",
+      "replacement": "转化为由“人”或“物”执行的具体动作"
+    },
+    {
+      "severity": "low",
+      "quote": "以支持5个阅读问题",
+      "problem": "“支持问题”搭配不自然，教学语境中“支撑阅读理解问题”更自然。",
+      "replacement": "以支撑5个阅读理解问题"
+    }
+  ]
+}

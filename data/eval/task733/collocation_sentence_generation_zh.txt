@@ -1,0 +1,7 @@
+在目标语言中生成 {count} 个自然的句子，自然地使用以下搭配：
+搭配：{collocation_text}
+词性模式：{pos_pattern}
+
+
+返回一个 JSON 对象数组：[{{"sentence": "..."}}]
+每个句子必须包含搭配"{collocation_text}"。不要包含翻译。句子必须语法正确、语境自然。

@@ -1,0 +1,7 @@
+在目标语言中生成 {count} 个自然的 {complexity_tier} 级句子，自然地使用以下词语：
+词语：{word}
+定义：{definition}
+
+
+返回一个 JSON 对象数组：[{{"sentence": "...", "complexity_tier": "{complexity_tier}"}}]
+每个句子必须在语境中使用"{word}"。不要包含翻译。句子必须语法正确、语境自然。

@@ -92,7 +92,8 @@ class TestWindowSentences:
 class TestDifficultyToAgeTier:
 
     @pytest.mark.parametrize('difficulty,expected', [
-        (1, 1), (2, 1), (3, 2), (4, 3), (5, 3), (6, 4), (7, 5), (8, 6), (9, 6),
+        # Bands mirror dim_complexity_tiers (see DIFFICULTY_TO_TIER): d4 is T2.
+        (1, 1), (2, 1), (3, 2), (4, 2), (5, 3), (6, 4), (7, 5), (8, 6), (9, 6),
     ])
     def test_mapping(self, difficulty, expected):
         assert pb.difficulty_to_age_tier(difficulty) == expected

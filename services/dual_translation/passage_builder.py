@@ -93,7 +93,7 @@ _WHITESPACE_RE = re.compile(r'\s+')
 def difficulty_to_age_tier(difficulty: int) -> int:
     """Fold a test's `difficulty` (1-9) to the dt age tier int (1-6).
 
-    Reuses DIFFICULTY_TO_TIER (1-2->T1, 3->T2, 4-5->T3, 6->T4, 7->T5, 8-9->T6),
+    Reuses DIFFICULTY_TO_TIER (1-2->T1, 3-4->T2, 5->T3, 6->T4, 7->T5, 8-9->T6),
     the repo's single difficulty->tier map. Unknown/None difficulty falls back
     to T3 (the same default mystery generation uses), keeping the result inside
     the CHECK (1-6) range.

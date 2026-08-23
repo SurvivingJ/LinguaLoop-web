@@ -35,6 +35,7 @@ import os
 import time
 from typing import Optional
 
+import httpx
 from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
 from pydantic import BaseModel, ValidationError
 from tenacity import (
@@ -217,7 +218,24 @@ def _log_llm_call(
 # Retryable errors
 # ---------------------------------------------------------------------------
 
-_RETRYABLE = (APIConnectionError, RateLimitError, APITimeoutError, ConnectionError, TimeoutError)
+_RETRYABLE = (
+    APIConnectionError, RateLimitError, APITimeoutError, ConnectionError,
+    TimeoutError,
+    # TASK-737: raised bare as "Server disconnected" — not wrapped into
+    # APIConnectionError by the SDK on every code path. Went unnoticed while
+    # every call to this client was serial (one request at a time never
+    # stresses a keep-alive connection pool); making the vocab-sense and
+    # test-gen loops concurrent (all sharing get_client()'s cached per-process
+    # OpenAI client) surfaced it as a real, non-retried failure — a shared
+    # keep-alive connection recycled/closed by the server right as a
+    # concurrent request reused it. Transient by nature: retrying the request
+    # opens a fresh connection.
+    httpx.RemoteProtocolError,
+    # Same family of transient network fault, same fix.
+    httpx.ConnectError,
+    httpx.ReadError,
+    httpx.WriteError,
+)
 
 
 # ---------------------------------------------------------------------------

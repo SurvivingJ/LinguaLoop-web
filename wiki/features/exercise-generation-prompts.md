@@ -567,7 +567,7 @@ Hard rules:
 4. Distractors must NOT be homophones, near-homophones, inflected variants of the correct answer, or substrings of it.
 
 Mandatory per-distractor self-check before emitting each one:
-(a) Failure dimension — assign exactly one reason it fails here, from:
+(a) Failure dimension — for that distractor, assign exactly one reason it is wrong in THIS sentence, from:
     - "semantic"      : wrong referent class / wrong concept
     - "collocational" : does not co-occur naturally with the surrounding lexis
     - "aspectual"     : wrong lexical aspect / event structure
@@ -575,13 +575,13 @@ Mandatory per-distractor self-check before emitting each one:
     - "valency"       : wrong argument structure / wrong complement
 (b) Substitution audit — consider one common synonym of the correct answer and silently swap it in. If your distractor would become a valid completion under that synonym, REJECT the distractor and pick a different one.
 
-Across the 3 distractors, at least TWO distinct failure dimensions must appear.
-Re-read the sentence with each distractor in the blank as a final check. If any reads naturally, replace it before emitting.
+Across the 3 distractors, at least TWO distinct failure dimensions must appear — do not emit three near-identical near-misses.
+Re-read the sentence with each distractor in the blank as a final check. Reading smoothly is EXPECTED — rule 2 makes every distractor grammatical. Replace a distractor only if it reads as a correct or acceptable answer in this context, never merely because it sounds fluent.
 
 Return JSON:
 {"distractors": ["word1","word2","word3"], "distractor_tags": {"word1":"semantic","word2":"collocational","word3":"valency"}, "explanation": "Brief explanation of why the correct answer is right."}
 
-Put the correct answer first in any option lists — do NOT shuffle.
+If you produce an option list separately, put the correct answer first — do NOT shuffle.
 ```
 
 ---

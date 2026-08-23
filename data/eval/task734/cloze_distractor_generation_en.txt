@@ -1,0 +1,31 @@
+Sentence: {original_sentence}
+Blank: {sentence_with_blank}
+Correct answer: {correct_answer}
+Learner level: {complexity_tier}, on this scale:
+T1 = The Toddler (Age 4-5); T2 = The Primary Schooler (Age 8-9); T3 = The Young Teen (Age 13-14); T4 = The High Schooler (Age 16-17); T5 = The Uni Student (Age 19-21); T6 = The Educated Professional (Age 30+)
+
+Generate exactly 3 distractors that are wrong completions of this sentence.
+Every distractor must sit at that learner's vocabulary level — a word they plausibly already know, not a harder one.
+
+Hard rules:
+1. Each distractor must be the same part of speech as the correct answer.
+2. Each distractor must be grammatically valid in the blank slot.
+3. Each distractor must be contextually WRONG in this specific sentence.
+4. Distractors must NOT be homophones, near-homophones, inflected variants of the correct answer, or substrings of it.
+
+Mandatory per-distractor self-check before emitting each one:
+(a) Failure dimension — for that distractor, assign exactly one reason it is wrong in THIS sentence, from:
+    - "semantic"      : wrong referent class / wrong concept
+    - "collocational" : does not co-occur naturally with the surrounding lexis
+    - "aspectual"     : wrong lexical aspect / event structure
+    - "register"      : wrong formality / domain / social fit
+    - "valency"       : wrong argument structure / wrong complement
+(b) Substitution audit — think of one common synonym of the correct answer and picture the sentence with that synonym in the blank instead. If your candidate distractor would count as a valid answer in that version too, REJECT it and pick a different one. A distractor must stay wrong for THIS sentence even when the correct answer is swapped for a near-synonym.
+
+Across the 3 distractors, at least TWO distinct failure dimensions must appear — do not emit three near-identical near-misses.
+Re-read the sentence with each distractor in the blank as a final check. Reading smoothly is EXPECTED — rule 2 makes every distractor grammatical. Replace a distractor only if it reads as a correct or acceptable answer in this context, never merely because it sounds fluent.
+
+Return JSON:
+{{"distractors": ["word1","word2","word3"], "distractor_tags": {{"word1":"semantic","word2":"collocational","word3":"valency"}}, "explanation": "Brief explanation of why the correct answer is right."}}
+
+If you produce an option list separately, put the correct answer first — do NOT shuffle.

@@ -21,6 +21,7 @@ from services.exercise_generation.judges.base import (
     BatchModeThreadPoolExecutor, JudgeUnavailable,
 )
 from services.supabase_factory import get_supabase_admin
+from services.timing import stage
 from services.vocabulary_ladder.config import (
     compute_active_levels, active_levels_for_context, normalize_semantic_class,
     prompt3_levels_for_context, capability_context_from_core,
@@ -73,6 +74,11 @@ class VocabAssetPipeline:
         """
         result = {'sense_id': sense_id, 'status': 'failed', 'errors': [], 'warnings': []}
         batch_id = batch_id or str(uuid4())
+        # TASK-737: per-stage wall clock for this sense, folded into `result`
+        # so run_content_build.py's canary/ladder phases can report where the
+        # ~5.5 min/sense baseline actually goes instead of only the total.
+        stage_seconds: dict[str, float] = {}
+        result['stage_seconds'] = stage_seconds
 
         # Check existing assets
         if not force and self._assets_exist(sense_id):
@@ -80,11 +86,13 @@ class VocabAssetPipeline:
             return result
 
         # Step 1: Fetch corpus sentences (reuse existing content)
-        corpus_sentences = self._fetch_corpus_sentences(sense_id, language_id)
+        with stage('fetch_corpus', stage_seconds):
+            corpus_sentences = self._fetch_corpus_sentences(sense_id, language_id)
 
         # Step 2: Run Prompt 1 — Core classification + 10 sentences
         p1_gen = CoreAssetGenerator(self.db, language_id)
-        core_asset = p1_gen.generate(sense_id, corpus_sentences)
+        with stage('p1_generate', stage_seconds):
+            core_asset = p1_gen.generate(sense_id, corpus_sentences)
 
         if core_asset is None:
             result['errors'].append('Prompt 1 generation failed')
@@ -94,7 +102,8 @@ class VocabAssetPipeline:
             core_asset, language_id,
         )
         if not p1_valid:
-            repaired = p1_gen.repair(core_asset, p1_errors, sense_id)
+            with stage('p1_repair', stage_seconds):
+                repaired = p1_gen.repair(core_asset, p1_errors, sense_id)
             if repaired:
                 p1_valid, p1_errors, p1_warnings = self.validator.validate_prompt1(
                     repaired, language_id,
@@ -121,9 +130,10 @@ class VocabAssetPipeline:
         # the judge's per-sentence spend is reserved for what only a model can
         # assess. Rejected sentences get the same in-place repair treatment as
         # judge rejects — indices are never disturbed.
-        tier_warnings, tier_stats = self._tier_gate_sentences(
-            core_asset, language_id, p1_gen, sense_id,
-        )
+        with stage('tier_gate', stage_seconds):
+            tier_warnings, tier_stats = self._tier_gate_sentences(
+                core_asset, language_id, p1_gen, sense_id,
+            )
         if tier_warnings:
             p1_warnings = (p1_warnings or []) + tier_warnings
             result['warnings'].extend(tier_warnings)
@@ -136,9 +146,10 @@ class VocabAssetPipeline:
         # are never deleted or reordered — rejected ones get one targeted repair
         # attempt, the final per-sentence verdicts are recorded as warnings, and
         # the asset is blocked only if too few acceptable sentences remain.
-        judge_warnings, p1_blocked = self._judge_p1_sentences(
-            core_asset, language_id, p1_gen, sense_id,
-        )
+        with stage('p1_judge', stage_seconds):
+            judge_warnings, p1_blocked = self._judge_p1_sentences(
+                core_asset, language_id, p1_gen, sense_id,
+            )
         if judge_warnings:
             p1_warnings = (p1_warnings or []) + judge_warnings
             result['warnings'].extend(judge_warnings)
@@ -158,7 +169,8 @@ class VocabAssetPipeline:
         # the verdict onto the asset before it is stored, so L5's gate, L8's
         # prompt and every rendered exercise's provenance all read the same
         # tag. Never blocks: an unattested pair is annotated, not deleted.
-        grounding = ground_core_asset(core_asset, language_id, self.db)
+        with stage('collocate_grounding', stage_seconds):
+            grounding = ground_core_asset(core_asset, language_id, self.db)
         result['collocate_grounding'] = grounding.to_tag()
         if grounding.status == GROUNDING_ASSERTED:
             message = (
@@ -247,7 +259,14 @@ class VocabAssetPipeline:
         # thread-local, so plain pool threads judged fail-*open* for the whole
         # of P2/P3 and the split/typed levels — only P1, which runs on this
         # thread, was ever genuinely fail-closed. See judges/base.py.
-        with BatchModeThreadPoolExecutor(max_workers=8) as pool:
+        #
+        # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
+        # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
+        # of those queued behind the rest every sense — a small but free
+        # latency win to remove, since each future is independently CPU/IO
+        # light on this thread (the wait is all downstream LLM latency).
+        with stage('fan_out', stage_seconds), \
+                BatchModeThreadPoolExecutor(max_workers=12) as pool:
             futures = {}
             for variant_key, cfg in variants.items():
                 # Submit P2 variant

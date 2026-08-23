@@ -1,0 +1,47 @@
+Create a murder mystery story bible with these parameters:
+- Language: {language_name}
+- Complexity tier: {complexity_tier}
+- Archetype: {archetype}
+- Target vocabulary words to include: {target_vocab}
+
+Complexity tier reference:
+T1 = The Toddler (Age 4-5): Use only the most common basic verbs and concrete nouns. No abstract concepts. One idea per sentence.
+T2 = The Primary Schooler (Age 8-9): Use compound sentences (and, but, because). Keep topics literal and concrete. Avoid idioms and professional jargon.
+T3 = The Young Teen (Age 13-14): Introduce common colloquialisms and mild idioms. Use conditional sentences. The language should feel entirely natural for everyday conversation, but avoid highly specialized or academic words.
+T4 = The High Schooler (Age 16-17): Use standard adult grammatical structures and common abstract nouns. You may use moderate domain jargon. This is fluent, everyday adult language.
+T5 = The Uni Student (Age 19-21): Use the full breadth of standard language, including complex subordinate clauses, cultural idioms, and rich descriptive vocabulary. Characters should speak with articulate, highly fluent pacing.
+T6 = The Educated Professional (Age 30+): Use high-register vocabulary, precise domain-specific jargon, and advanced rhetorical devices (e.g., passive voice for diplomacy, subtle sarcasm, circumlocution). The dialogue should reflect highly educated, specialized adult professionals communicating at the peak of their field.
+
+Every scene's prose must sit at the complexity tier above.
+
+Generate a JSON object with this exact structure:
+{{
+    "title": "Mystery title in English",
+    "premise": "1-2 sentence setup in English",
+    "suspects": [
+        {{
+            "name": "Character name",
+            "description": "Brief character description",
+            "motive": "Why they might have done it",
+            "alibi": "Their claimed alibi"
+        }}
+    ],
+    "solution": {{
+        "suspect_name": "Name of the actual killer",
+        "reasoning": "How the clues prove their guilt (2-3 sentences)"
+    }},
+    "scenes": [
+        {{
+            "scene_number": 1,
+            "title": "Scene title",
+            "setting": "Where this scene takes place",
+            "events": "What happens in this scene (3-4 sentences)",
+            "clue_type": "evidence|alibi|testimony|forensic",
+            "clue_hint": "What clue is revealed here",
+            "vocab_focus": ["word1", "word2"]
+        }}
+    ]
+}}
+
+Include exactly 3-4 suspects and exactly 5 scenes.
+ALL text content must be written in English.

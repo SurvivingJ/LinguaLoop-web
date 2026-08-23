@@ -91,12 +91,22 @@ def _blank_span_for(sentence: str, local_span: list[int], corrected_form: str) -
     """The span to blank out of ``sentence``.
 
     Normally ``local_span`` — the grader's span, translated into sentence-local
-    offsets. But the grader does not always keep ``span_reference`` and
-    ``corrected_form`` aligned (TASK-624 tightened span discipline in the prompt
-    and did not eliminate the drift): live data has cards whose span points at
-    one clause while ``corrected_form`` is a different one. Blanking the span
-    then hides an unrelated clause AND leaves the answer sitting in the prompt,
-    which turns a productive-recall card into a copying exercise.
+    offsets — because ``span_reference`` is guaranteed to cover ``corrected_form``:
+    ``_reconcile_span_form`` establishes that at decode time and
+    ``tests/test_dt_error_span_invariant.py`` asserts it on every persisted row.
+
+    **This is belt-and-braces, not the fix.** It was written against 15 live rows
+    whose spans pointed at one clause while ``corrected_form`` named a different
+    one — but those rows were all written before the reconciler landed on
+    2026-07-19, and have since been realigned at the source by
+    ``scripts/dt_backfill_error_spans.py``. The upstream defect is closed; nothing
+    is expected to reach here misaligned any more.
+
+    It is kept anyway because the failure it prevents is disproportionate to its
+    cost: blanking a drifted span hides an unrelated clause AND leaves the answer
+    sitting in the prompt, turning productive recall into copying — a card that
+    silently tests nothing. Two layers is cheap insurance against one atom of
+    untrusted model output.
 
     So when the span does not actually cover ``corrected_form`` but the
     corrected text occurs verbatim exactly once in the sentence, blank that
@@ -155,9 +165,13 @@ def build_cards(error: dict, gold_l2: str, l1_text: str) -> list[dict]:
 
     Normally both card types. The cloze card is DROPPED when its prompt would
     still contain the answer — a card that shows what it is asking for tests
-    nothing, and misaligned grader spans do produce them (see
-    ``_blank_span_for``). The isolate-retranslate card still covers the subtype
-    in that case, so the cluster is not left unremediated.
+    nothing. This is the second half of the belt-and-braces described in
+    ``_blank_span_for``: the span↔form invariant is enforced upstream at decode
+    time, so with the pre-2026-07-19 rows now backfilled this drop is not
+    expected to fire. If it ever does, the WARNING is the signal that the
+    upstream invariant has regressed — treat it as a bug report, not as routine.
+    The isolate-retranslate card still covers the subtype in that case, so the
+    cluster is not left unremediated.
 
     Caller (the DB wiring below) attaches ``user_id``, ``profile_entry_id``,
     and ``origin_error_id`` before inserting into ``dt_card``.

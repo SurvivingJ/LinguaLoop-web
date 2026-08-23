@@ -74,7 +74,10 @@ class MysteryGenerationOrchestrator:
 
         language_name = lang_config.get('language_name', 'English')
         language_code = lang_config.get('language_code', 'en')
-        complexity_tier = mystery_gen_config.difficulty_to_tier.get(difficulty, 'B1')
+        # Default is a T-code, not a CEFR band: difficulty_to_tier yields T1-T6
+        # and mystery_plot's legend can only resolve T-codes. 'T3' matches every
+        # other caller's default (test_generation/orchestrator.py:424).
+        complexity_tier = mystery_gen_config.difficulty_to_tier.get(difficulty, 'T3')
 
         # Per-task model lookups — single source of truth on prompt_templates.
         # Plot + scene get the strong creative-writing model; question, clue,

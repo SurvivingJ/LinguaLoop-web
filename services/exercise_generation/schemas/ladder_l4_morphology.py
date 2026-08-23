@@ -51,7 +51,7 @@ TYPE_CODE = 'morphology_slot'
 
 # Prompt template versions this schema governs. A version outside this set is
 # an ungated prompt — see ``schemas.validate_ladder_output``.
-PROMPT_VERSIONS: frozenset[int] = frozenset({1})
+PROMPT_VERSIONS: frozenset[int] = frozenset({1, 2})
 
 OPTION_COUNT = 4
 
