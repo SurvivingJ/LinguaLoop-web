@@ -321,7 +321,7 @@
 
         let data;
         try {
-            const resp = await window.authedFetch(
+            const resp = await window.authFetch(
                 `/api/counter-drill/session?language_id=${TARGET_LANGUAGE}&count=${BATCH_SIZE}`);
             data = await resp.json();
         } catch (err) {
@@ -516,7 +516,7 @@
         el.results.style.display = '';
 
         try {
-            const resp = await window.authedFetch('/api/counter-drill/submit', {
+            const resp = await window.authFetch('/api/counter-drill/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

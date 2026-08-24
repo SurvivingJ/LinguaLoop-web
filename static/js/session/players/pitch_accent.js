@@ -95,6 +95,17 @@ export function mount(container, ctx) {
   const qs = (sel) => container.querySelector(sel);
   const qsa = (sel) => container.querySelectorAll(sel);
 
+  // static/css/styles.css scopes every pitch-accent rule (.pa-header,
+  // .passage-grid, .word-token, .controls-hint, .scratchpad, ...) under
+  // body.pitch-accent-page — the class templates/test_pitch_accent.html sets
+  // via its body_class block. The daily-session runner's body carries
+  // study-session-page instead, so without this the whole player mounts
+  // completely unstyled (no layout, no colors, no progress bar). Standalone
+  // page sets the class for its own lifetime; here we set/clear it around
+  // this player's mount/destroy so it never leaks onto other players sharing
+  // the same session body.
+  document.body.classList.add('pitch-accent-page');
+
   container.innerHTML = MARKUP;
   init();
 
@@ -104,6 +115,7 @@ export function mount(container, ctx) {
         clearInterval(state.timerInterval);
         state.timerInterval = null;
       }
+      document.body.classList.remove('pitch-accent-page');
       cleanup.forEach((fn) => {
         try {
           fn();

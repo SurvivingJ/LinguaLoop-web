@@ -47,6 +47,20 @@ export function mount(container, ctx) {
   };
   const q = (id) => container.querySelector('#' + id);
 
+  // static/css/styles.css scopes every reading/listening rule (.test-header,
+  // .transcript-card, .audio-player-card, .question-card, .answer-option,
+  // .word-popover, ...) under body.test-page — the class templates/test.html
+  // sets via its body_class block. The daily-session runner's body carries
+  // study-session-page instead, so without this the whole player mounts
+  // completely unstyled: MARKUP is in the DOM (title, furigana checkbox,
+  // etc. still show since those come from global/Bootstrap rules) but the
+  // transcript, audio player and questions have no layout/background/borders
+  // and effectively read as a blank page. Standalone page sets the class for
+  // its own lifetime; here we set/clear it around this player's mount/destroy
+  // so it never leaks onto other players sharing the same session body.
+  // Mirrors the identical fix in players/pitch_accent.js.
+  document.body.classList.add('test-page');
+
   container.innerHTML = MARKUP;
 
   init();
@@ -62,6 +76,7 @@ export function mount(container, ctx) {
           state.audioElement.pause();
         } catch (_) {}
       }
+      document.body.classList.remove('test-page');
       cleanup.forEach((fn) => {
         try {
           fn();
@@ -862,15 +877,22 @@ export function mount(container, ctx) {
   }
 
   function showError(message) {
+    // errorState lives INSIDE testContainer (see MARKUP), so hiding
+    // testContainer must not happen before errorState is unhidden — doing it
+    // in the other order (or hiding the shared parent at all) hides the error
+    // message along with everything else, which is exactly what made a
+    // failed load look like a blank page instead of an error.
+    const tc = q('testContainer');
     const err = q('errorState');
     if (err) {
-      err.style.display = 'block';
       q('errorMessage').textContent = message;
+      err.style.display = 'block';
     }
-    const tc = q('testContainer');
-    if (tc) tc.style.display = 'none';
-    const ta = q('testActions');
-    if (ta) ta.style.display = 'none';
+    if (tc) {
+      Array.from(tc.children).forEach((child) => {
+        if (child !== err) child.style.display = 'none';
+      });
+    }
   }
 
   function startTimer() {
