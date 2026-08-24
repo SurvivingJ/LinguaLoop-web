@@ -21,7 +21,7 @@ from services.exercise_generation.judges.base import (
     BatchModeThreadPoolExecutor, JudgeUnavailable,
 )
 from services.supabase_factory import get_supabase_admin
-from services.timing import stage
+from services.timing import stage, log_stage_seconds
 from services.vocabulary_ladder.config import (
     compute_active_levels, active_levels_for_context, normalize_semantic_class,
     prompt3_levels_for_context, capability_context_from_core,
@@ -42,6 +42,10 @@ from services.vocabulary_ladder.validators import VocabAssetValidator
 
 logger = logging.getLogger(__name__)
 
+# language_id → llm_calls/generation_stage_timings.language_code. Same
+# hardcoded map used by the asset_generators — see prompt1_core.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 
 class VocabAssetPipeline:
     """Orchestrates the three-prompt asset generation for vocabulary words."""
@@ -59,6 +63,33 @@ class VocabAssetPipeline:
     ) -> dict:
         """Generate all assets for a single word sense.
 
+        Thin wrapper around ``_generate_for_sense_impl`` that persists the
+        stage-timing bucket exactly once regardless of which of the impl's
+        several early-return paths fired — mirrors the run()/_run_impl split
+        in test_generation.orchestrator. ``batch_id`` doubles as
+        generation_stage_timings.run_id, so a whole ladder batch's wall clock
+        can be summed by run_id without a time-window guess.
+        """
+        batch_id = batch_id or str(uuid4())
+        result = self._generate_for_sense_impl(sense_id, language_id, force, batch_id)
+        log_stage_seconds(
+            result.get('stage_seconds') or {},
+            pipeline='vocab_ladder',
+            language_code=_LANG_ID_TO_CODE.get(language_id),
+            artifact_id=str(sense_id),
+            run_id=batch_id,
+        )
+        return result
+
+    def _generate_for_sense_impl(
+        self,
+        sense_id: int,
+        language_id: int,
+        force: bool,
+        batch_id: str,
+    ) -> dict:
+        """Generate all assets for a single word sense.
+
         Runs Prompt 1 once (10 sentences), then Prompts 2 and 3 twice each
         (variants A and B) using different sentence assignments. Variants
         run in parallel for latency parity with the old single-variant path.
@@ -67,16 +98,18 @@ class VocabAssetPipeline:
             sense_id: The dim_word_senses ID.
             language_id: Language ID (2 = English).
             force: If True, regenerate even if assets exist.
-            batch_id: Optional batch UUID for tracking.
+            batch_id: Batch UUID (str) for tracking — always set by the
+                ``generate_for_sense`` wrapper before this runs.
 
         Returns:
             {'sense_id': int, 'status': 'success'|'partial'|'failed', 'errors': [...]}
         """
         result = {'sense_id': sense_id, 'status': 'failed', 'errors': [], 'warnings': []}
-        batch_id = batch_id or str(uuid4())
         # TASK-737: per-stage wall clock for this sense, folded into `result`
         # so run_content_build.py's canary/ladder phases can report where the
         # ~5.5 min/sense baseline actually goes instead of only the total.
+        # Persisted to generation_stage_timings by the generate_for_sense
+        # wrapper once this returns, on every path (TASK-758).
         stage_seconds: dict[str, float] = {}
         result['stage_seconds'] = stage_seconds
 

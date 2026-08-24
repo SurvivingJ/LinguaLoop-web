@@ -860,9 +860,13 @@ def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
             current_app.logger.warning("BKT: No sense_ids on questions — run backfill_question_sense_ids.py")
             return None
 
+        from services.vocabulary.gloss_lookup import get_user_definition_language_id
+        preferred_def_lang_id = get_user_definition_language_id(knowledge_svc.db, user_id)
+
         quiz_candidates = knowledge_svc.build_quiz_with_distractors(
             user_id=user_id, sense_ids=list(all_sense_ids),
             language_id=language_id, max_words=5,
+            preferred_definition_language_id=preferred_def_lang_id,
         )
         current_app.logger.info(f"BKT: {len(quiz_candidates)} quiz candidates with distractors")
 
@@ -1440,14 +1444,45 @@ def get_test_with_ratings(identifier):
             sense_ids = list(set(s for _, s in token_map if s))
             if sense_ids:
                 senses_result = current_app.supabase_service.table('dim_word_senses').select(
-                    'id, definition, pronunciation, '
-                    'dim_vocabulary(lemma, part_of_speech)'
+                    'id, vocab_id, definition, pronunciation, sense_rank, definition_level, '
+                    'dim_vocabulary(lemma, part_of_speech, language_id)'
                 ).in_('id', sense_ids).execute()
-                for sense in (senses_result.data or []):
+
+                # This route is deliberately reachable without auth (public
+                # preview/taking) -- personalize the definition language only
+                # when a valid token happens to be present.
+                from middleware.auth import get_optional_user_id
+                from services.vocabulary.gloss_lookup import (
+                    apply_definition_language_preference, get_user_definition_language_id,
+                )
+                optional_user_id = get_optional_user_id(request)
+                preferred_def_lang_id = (
+                    get_user_definition_language_id(current_app.supabase_service, optional_user_id)
+                    if optional_user_id else None
+                )
+
+                sense_rows = senses_result.data or []
+                gloss_rows = []
+                for sense in sense_rows:
+                    vocab = sense.get('dim_vocabulary') or {}
+                    gloss_rows.append({
+                        'vocab_id': sense.get('vocab_id'),
+                        'sense_rank': sense.get('sense_rank'),
+                        'definition_level': sense.get('definition_level'),
+                        'definition': sense.get('definition', ''),
+                        'language_id': vocab.get('language_id'),
+                    })
+                apply_definition_language_preference(
+                    current_app.supabase_service, gloss_rows, preferred_def_lang_id,
+                )
+
+                for sense, gloss_row in zip(sense_rows, gloss_rows):
                     vocab = sense.get('dim_vocabulary') or {}
                     definitions[str(sense['id'])] = {
                         'word': vocab.get('lemma', ''),
-                        'definition': sense.get('definition', ''),
+                        'definition': gloss_row['definition'],
+                        'definition_language_id': gloss_row['definition_language_id'],
+                        'definition_is_gloss': gloss_row['definition_is_gloss'],
                         'part_of_speech': vocab.get('part_of_speech', ''),
                         'reading': sense.get('pronunciation')
                     }

@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-08-21
+last_updated: 2026-08-24
 ---
 
 # Master Task List
@@ -24,7 +24,33 @@ below.
 | Blocked / Deferred (numbered tasks) | 3 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 134 |
+| Done (cumulative, not listed here) | 135 |
+
+**TASK-732 done 2026-08-24 — `build_daily_session` now guarantees a practice
+(ladder Acquisition/Maintenance) slice of every day instead of a slice of zero.**
+A live-account audit (both language plans, every `daily_test_loads` row back to
+2026-05-22) found `practice_acquisition_min` / `practice_maintenance_min` were
+**0 on every single row** — the ladder had never once been scheduled into
+`/session`. Root cause: the resolver's single greedy loop ranked test/surface
+candidates and 10-min practice chunks in one shared pool by a per-minute value
+score; test candidates score ~0.06-0.15/min (`skill_value / test_time_estimate`)
+against practice's flat `alpha_m/alpha_a × share` (0.006-0.014/min) — 5-15×
+lower by construction — so practice, sorted last, was never reached once
+remaining weekly test-slot counts alone could fill the day (which they always
+could, since `target_counts` and `practice_target_minutes` are sized
+independently against the same weekly ceiling in
+`services/study_plan_service.py:472-489` and never reconciled against each
+other — a separate, still-open sizing issue this task did not touch). Fix:
+`migrations/task732_build_daily_session_split_budget.sql` splits today's
+budget into `v_test_budget` / `v_practice_budget` *before* ranking,
+proportional to each side's still-outstanding weekly minutes, then runs the
+existing value-density ranking as two independent loops, one per side. Applied
+live and verified by round-tripping the resolver: the test account's zh and ja
+plans both went from `practice_acquisition_min: 0` to `10` on the first
+post-migration call. `task714_build_daily_session_surfaces.sql` archived
+(superseded). See [[algorithms/study-plan-adaptation.tech]] and
+[[pages/study-session.tech]] (both docs' Tier C section predates this split
+and should be read with that in mind until they're rewritten).
 
 **TASK-731 done 2026-08-21 — DT spaced remediation is live for the first time; four `[x]` rows
 above were wrong.** `migrations/dt_cards.sql` was written 2026-07-14 and **never applied**:

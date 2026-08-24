@@ -59,6 +59,11 @@ _cfg_cache: dict[int, dict] = {}                 # language_id -> cfg dict
 
 _KEEP_RATING = 5.0
 
+# language_id → llm_calls.language_code — see answer_entailment.py. This is
+# the study/target language (language_id), not nl_language_code (the
+# learner's native language, used only for a prompt placeholder below).
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 # An MCQ wants three wrong answers, but a translation item with two plausible
 # distractors is still a usable question; below that the learner is choosing
 # from a pair and the item is noise. Blocking rather than padding is
@@ -201,6 +206,7 @@ def _judge_candidates(
             pipeline=_PIPELINE,
             task_name=_TASK_NAME,
             template_version=version,
+            language_code=_LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning("translation_uniqueness: LLM call failed, fail-open: %s", exc)

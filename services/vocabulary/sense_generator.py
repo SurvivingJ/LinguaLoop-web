@@ -273,6 +273,7 @@ class SenseGenerator:
                 prompt, model=self._model, temperature=0.0,
                 max_tokens=max_tokens, response_format='json_object',
                 pipeline='vocab_senses', task_name=task_name,
+                language_code=self._language_code,
             )
         except Exception as e:
             kind = ('invalid JSON'
@@ -288,6 +289,7 @@ class SenseGenerator:
                 prompt, model=self._fallback_model, temperature=0.0,
                 max_tokens=max_tokens, response_format='json_object',
                 pipeline='vocab_senses', task_name=f"{task_name}__fallback",
+                language_code=self._language_code,
             )
             self._bump('fallback_used')
             return result

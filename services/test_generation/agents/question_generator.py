@@ -158,6 +158,7 @@ class QuestionGenerator:
         db=None,
         topic_concept: Optional[str] = None,
         keywords: Optional[Sequence[str]] = None,
+        language_code: Optional[str] = None,
     ) -> List[Dict]:
         """Generate multiple questions for prose content.
 
@@ -170,6 +171,12 @@ class QuestionGenerator:
         slot, so its off-topic band tests membership of a KNOWN domain instead
         of one the judge has to guess. Both optional — omitted, the judge falls
         back to inferring the subject from the passage.
+
+        ``language_code`` (ISO code, e.g. 'zh') is an llm_calls observability
+        tag, threaded straight to ``_generate_single_question``. Distinct from
+        ``language_id`` above, which gates the judges and is only ever passed
+        at difficulty > 2 — ``language_code`` is unconditional so low-difficulty
+        question generation is still tagged.
         """
         logger.info(f"Generating {len(question_type_codes)} questions for {language_name} (diff={difficulty})")
 
@@ -231,6 +238,7 @@ class QuestionGenerator:
                         db=db,
                         max_attempts=max_attempts,
                         subject_keywords=subject_keywords,
+                        language_code=language_code,
                     ): type_code
                     for type_code in wave
                 }
@@ -278,6 +286,7 @@ class QuestionGenerator:
         db=None,
         max_attempts: int = 2,
         subject_keywords: str = '',
+        language_code: Optional[str] = None,
     ) -> Tuple[Optional[Dict], List[Dict]]:
         """Generate one question of a type, retrying with feedback on rejection.
 
@@ -315,6 +324,7 @@ class QuestionGenerator:
                     seed=seed,
                     template_version=template_version,
                     avoid_context=avoid_context,
+                    language_code=language_code,
                 )
             except Exception as e:
                 # call_llm already retries transient API errors via tenacity, so
@@ -417,6 +427,7 @@ class QuestionGenerator:
         seed: Optional[int] = None,
         template_version: Optional[int] = None,
         avoid_context: str = "",
+        language_code: Optional[str] = None,
     ) -> MCQuestion:
         """Generate a single question of specified type.
 
@@ -471,6 +482,7 @@ class QuestionGenerator:
                 pipeline='test_gen',
                 task_name=f'question_{question_type_code}',
                 template_version=template_version,
+                language_code=language_code,
             )
         except ValidationError as e:
             logger.error(

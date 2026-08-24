@@ -56,6 +56,9 @@ _cfg_cache: dict[int, dict] = {}
 
 _KEEP_RATING = 5.0
 
+# language_id → llm_calls.language_code — see answer_entailment.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 
 def filter_particle_foils(
     db,
@@ -157,6 +160,7 @@ def _judge_candidates(
             pipeline=_PIPELINE,
             task_name=_TASK_NAME,
             template_version=version,
+            language_code=_LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning('particle_judge: LLM call failed, fail-open: %s', exc)

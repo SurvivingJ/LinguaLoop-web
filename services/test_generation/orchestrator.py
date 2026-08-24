@@ -50,7 +50,7 @@ from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
 from services.exercise_generation.judges.base import (
     JudgeUnavailable, batch_mode, BatchModeThreadPoolExecutor,
 )
-from services.timing import stage
+from services.timing import stage, log_stage_seconds
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +209,13 @@ class TestGenerationOrchestrator:
         # counter a run that enriched nothing reports exactly like a clean one.
         self.vocab_shortfalls: int = 0
 
+        # Groups every generation_stage_timings row from one run() / run_batch()
+        # / run_single() call so a whole run's wall clock can be summed by
+        # run_id instead of guessing a time window. Set at the top of each of
+        # those three entry points; None only if _generate_test is somehow
+        # called before any of them (shouldn't happen in practice).
+        self._run_id: Optional[UUID] = None
+
         logger.info("TestGenerationOrchestrator initialized")
 
     def run(self) -> TestGenMetrics:
@@ -260,6 +267,7 @@ class TestGenerationOrchestrator:
 
         # Initialize metrics
         self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
+        self._run_id = uuid4()
 
         try:
             logger.info("=" * 60)
@@ -464,7 +472,8 @@ class TestGenerationOrchestrator:
                     topic_concept=topic.concept_english,
                     keywords=topic.keywords,
                     target_language=lang_config.language_name,
-                    model_override=lang_config.prose_model
+                    model_override=lang_config.prose_model,
+                    language_code=lang_config.language_code,
                 )
             logger.info(f"Translated topic to {lang_config.language_name}")
         else:
@@ -576,6 +585,7 @@ class TestGenerationOrchestrator:
                 # The TRANSLATED pair, so a zh/ja judge prompt never gets an
                 # English subject line. See _subject_kwargs for why it is off.
                 **_subject_kwargs(translated_topic, translated_keywords),
+                language_code=lang_config.language_code,
             )
 
         # Step 3: Validate questions. generate_questions now runs the validator
@@ -773,6 +783,13 @@ class TestGenerationOrchestrator:
             "Stage timing for %s: %s (total %.1fs)",
             slug, {k: round(v, 1) for k, v in stage_seconds.items()},
             sum(stage_seconds.values()),
+        )
+        log_stage_seconds(
+            stage_seconds,
+            pipeline='test_gen',
+            language_code=lang_config.language_code,
+            artifact_id=str(test_id),
+            run_id=str(self._run_id) if self._run_id else None,
         )
         return True
 
@@ -1290,6 +1307,7 @@ class TestGenerationOrchestrator:
             error_log=row.get('error_log')
         )
 
+        self._run_id = uuid4()
         dry_run = get_test_gen_config().dry_run
         return self._process_queue_item(item, dry_run)
 
@@ -1335,6 +1353,7 @@ class TestGenerationOrchestrator:
         start_time = time.time()
 
         self.metrics = TestGenMetrics(run_date=datetime.now(timezone.utc))
+        self._run_id = uuid4()
 
         try:
             # Resolve language

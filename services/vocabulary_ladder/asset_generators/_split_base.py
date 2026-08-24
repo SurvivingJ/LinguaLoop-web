@@ -58,6 +58,12 @@ logger = logging.getLogger(__name__)
 # a second retry would just pay twice for a prompt that is misbehaving.
 _MAX_ATTEMPTS = 2
 
+# language_id → llm_calls.language_code. Same hardcoded map used by
+# services/exercise_generation/judges/answer_entailment.py — see there for
+# why this isn't DimensionService (needs an app-startup init this offline
+# pipeline doesn't do).
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 
 class SplitLevelGenerator:
     """Base for a prompt that produces exactly one ladder level."""
@@ -181,6 +187,7 @@ class SplitLevelGenerator:
                     pipeline='vocab_ladder',
                     task_name=self.TASK_NAME,
                     template_version=cfg['version'],
+                    language_code=_LANG_ID_TO_CODE.get(self.language_id),
                 )
             except Exception as exc:
                 last_errors = [f'LLM call failed: {exc}']

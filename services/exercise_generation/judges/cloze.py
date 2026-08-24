@@ -33,6 +33,9 @@ _PIPELINE  = 'vocab_ladder'
 # Simple in-process cache: (task_name, language_id) → cfg dict
 _cfg_cache: dict[tuple[str, int], dict] = {}
 
+# language_id → llm_calls.language_code — see answer_entailment.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 
 def judge_distractors(
     db,
@@ -87,6 +90,7 @@ def judge_distractors(
             pipeline=_PIPELINE,
             task_name=_TASK_NAME,
             template_version=judge_version,
+            language_code=_LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning("cloze_judge: LLM call failed, keeping all: %s", exc)

@@ -137,7 +137,7 @@ def run_validation(language_code: str, limit: int = 0, fix: bool = False,
 
     # Fetch all senses for this language
     query = db.table('dim_word_senses') \
-        .select('id, vocab_id, definition, example_sentence, sense_rank, '
+        .select('id, vocab_id, definition, example_sentence, sense_rank, source, '
                 'dim_vocabulary(lemma, language_id)') \
         .order('id')
 
@@ -147,10 +147,16 @@ def run_validation(language_code: str, limit: int = 0, fix: bool = False,
     response = query.execute()
     all_senses = response.data or []
 
-    # Filter to senses whose vocab belongs to this language
+    # Filter to senses whose vocab belongs to this language. Gloss rows
+    # (source='llm_gloss') are deliberately cross-language -- an English
+    # gloss row lives on a Japanese vocab_id but is written in English on
+    # purpose. Without this exclusion this script would flag every gloss as
+    # a "bad" (wrong-language) definition and --fix would translate it right
+    # back into the word's own language, destroying it.
     senses = [
         s for s in all_senses
         if s.get('dim_vocabulary', {}).get('language_id') == language_id
+        and s.get('source') != 'llm_gloss'
     ]
 
     logger.info(f"Found {len(senses)} senses for language {language_code}")

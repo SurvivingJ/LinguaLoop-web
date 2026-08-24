@@ -72,6 +72,9 @@ _FAMILY_PT = 'ladder_word_family_judge'
 # (prompt template name, language_id) -> cfg
 _cfg_cache: dict[tuple[str, int], dict] = {}
 
+# language_id → llm_calls.language_code — see answer_entailment.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 # Rating used when the judge is unreachable, or an entry is missing. Keeps the
 # candidate — a parse glitch must never manufacture a rejection (v3 contract).
 _KEEP_RATING = 5.0
@@ -257,6 +260,7 @@ def _judge(
             pipeline=_PIPELINE,
             task_name=task_name,
             template_version=version,
+            language_code=_LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning('%s: LLM call failed, fail-open: %s', pt_name, exc)

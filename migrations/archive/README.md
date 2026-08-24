@@ -23,8 +23,10 @@ because they remain the sole repo record of other still-live objects.
 | `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `add_pitch_accent_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present (TASK-702) |
-| `get_distractors_drop_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
-| `restore_get_distractors_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_standard_level.sql` | standard-level filter + `auth.uid` present |
+| `get_distractors_drop_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_gloss_language.sql` | standard-level filter + `auth.uid` present |
+| `restore_get_distractors_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_gloss_language.sql` | standard-level filter + `auth.uid` present |
+| `get_distractors_filter_standard_level.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_definition_language_param.sql` | `dws.definition_language_id = p_language_id` predicate present (gloss-row exclusion, 2026-08-23) |
+| `get_distractors_filter_gloss_language.sql` | `get_distractors(integer,smallint,integer,smallint)` | `get_distractors_definition_language_param.sql` | `p_definition_language_id` 4th param + `v_def_lang` present (2026-08-24) |
 | `phase13_build_daily_session_test_objs.sql` | `build_daily_session(uuid,smallint,date)` | `task702_build_daily_session.sql` | `requested_counts` / `slot_type='replay'` present |
 | `phase13_build_daily_session_classifier_drill.sql` | `build_daily_session(uuid,smallint,date)` | `task702_build_daily_session.sql` | `requested_counts` / `slot_type='replay'` present (TASK-702) |
 | `phase12_deprecation_wrappers.sql` | `get_exercise_session(...)`, `get_ladder_session(...)` | *(dropped — no canonical)* | both `DROP`ped by `phase17_drop_deprecation_wrappers.sql` (TASK-220) |
@@ -62,6 +64,19 @@ Both were single-object files fully superseded by the newer definitions, which
 were applied live and confirmed by round-tripping the resolver (a seeded plan
 returned `surface_counts` for both new kinds) and by
 `public.dictation_max_words(1..9)` returning the per-tier ladder 80→400.
+
+## 2026-08-24 — TASK-732
+
+| Archived file | Object | New canonical file | Marker verified on live |
+|---|---|---|---|
+| `task714_build_daily_session_surfaces.sql` | `build_daily_session(uuid,smallint,date)` | `task732_build_daily_session_split_budget.sql` | `v_test_budget`/`v_practice_budget` present; body has two `FOR v_cand IN ... WHERE kind IN (...)` loops instead of one combined loop |
+
+Single-object file fully superseded by the newer definition, applied live and
+confirmed by round-tripping the resolver for a real account: practice
+(`practice_acquisition_min`) went from 0 on every prior `daily_test_loads` row
+(back to 2026-05-22) to a nonzero value on the first post-migration call, for
+both of that account's language plans, with `test_budget_minutes` /
+`practice_budget_minutes` visible in the returned jsonb confirming the split.
 
 **Not archived, deliberately** (rule #4 — each is still the sole repo record of
 another live object):

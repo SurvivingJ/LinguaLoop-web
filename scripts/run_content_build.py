@@ -252,14 +252,38 @@ def phase_preflight(db, state: dict) -> list[str]:
     pool: set[int] = set()
     for r in existing:
         pool.update(r.get('vocab_sense_ids') or [])
-    if not pool:
-        problems.append(f'no existing {lang} test carries vocab_sense_ids — '
-                        f'cannot pick a canary sense')
-    else:
+    if pool:
         free = senses_without_assets(db, sorted(pool))
         print(f'  OK    canary pool: {len(free)} {lang} senses without assets '
               f'(of {len(pool)} referenced)')
         state['canary_pool'] = free[:50]
+    else:
+        # No existing test carries vocab_sense_ids (e.g. the tests table for
+        # this language was emptied out from under us — seen 2026-08-24, ja
+        # went from 2139 referenced senses to 0 test rows overnight with no
+        # matching change in word_assets/exercises). The canary only needs
+        # *some* valid senses for this language to prove the ladder path
+        # works, not ones a test happens to reference, so fall back to the
+        # vocabulary dimension directly.
+        vocab_ids = [r['id'] for r in (
+            db.table('dim_vocabulary').select('id')
+              .eq('language_id', lid).limit(2000).execute().data or [])]
+        sense_ids: list[int] = []
+        for i in range(0, len(vocab_ids), 300):
+            chunk = vocab_ids[i:i + 300]
+            rows = (db.table('dim_word_senses').select('id')
+                      .in_('vocab_id', chunk).execute().data or [])
+            sense_ids.extend(r['id'] for r in rows)
+        if not sense_ids:
+            problems.append(f'no existing {lang} test carries vocab_sense_ids, '
+                            f'and dim_vocabulary/dim_word_senses has no {lang} '
+                            f'senses either — cannot pick a canary sense')
+        else:
+            free = senses_without_assets(db, sorted(sense_ids))
+            print(f'  WARN  no existing {lang} test carries vocab_sense_ids — '
+                  f'canary pool seeded from dim_vocabulary instead: '
+                  f'{len(free)} senses without assets (of {len(sense_ids)} total)')
+            state['canary_pool'] = free[:50]
 
     # 4. Credentials the long phases assume.
     if not os.getenv('OPENROUTER_API_KEY'):

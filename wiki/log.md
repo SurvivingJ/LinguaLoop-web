@@ -4505,3 +4505,62 @@ and the disagreement was invisible because each was internally consistent.
 Full suite: 1965 passed, 2 skipped. Review: `.claude/reviews/task735-ja-l1-fixes.md`.
 
 Pages: [[log]].
+
+## [2026-08-24] fix | TASK-732: build_daily_session was never scheduling the ladder
+
+### Trigger
+
+User query: "Word exercises (like the ladder) do not appear interleaved in the session. Will
+they?" followed by "can you check my profile's study plan and see if there will be exercises in
+the future?"
+
+### What was found
+
+Checked the live account (Supabase project `kpfqrjtfxmujzolwsvdq`) across both its language plans
+(zh, ja). `weekly_plan_states.practice_target_minutes` was real and nonzero (~100 min/week each),
+but every `daily_test_loads` row ever written for the account — 6 sampled, back to 2026-05-22, the
+account's first daily load — had `practice_acquisition_min = 0` and `practice_maintenance_min = 0`.
+100% of sampled days. The ladder had never once been scheduled into `/session`.
+
+### Root cause
+
+`build_daily_session` (live, `pg_get_functiondef`-verified against
+`task714_build_daily_session_surfaces.sql`) ran a single greedy loop over ALL candidates — test/
+surface slots and 10-min practice chunks alike — ranked by a shared `per_min_value`, and stopped
+once `v_today_budget` was spent. Test/surface value is `skill_value / test_time_estimate(skill)`
+(~0.06-0.15/min); practice value is a flat `alpha_m/alpha_a × share` (0.006-0.014/min) — 5-15×
+lower by construction. Practice candidates sorted last and were never reached, because remaining
+weekly test-slot counts alone routinely exceeded a day's budget.
+
+A second contributing issue, not fixed here: `services/study_plan_service.py:472-489` sizes
+`target_counts` (test minutes) and `practice_target_minutes` independently, each clamped to the
+same `weekly_ceiling = daily_minutes × 7`, but never reconciled against each other — so both sides
+routinely claim the entire week on their own, and it fell to the daily resolver to arbitrate a pool
+that was oversubscribed on both sides.
+
+### Fix
+
+Presented 3 options (enforce a `m+a>0` floor / reweight the value constants / split into two
+independent sub-budgets); user chose the split. `migrations/task732_build_daily_session_split_budget.sql`
+computes `v_test_minutes_total` (mirroring `study_plan_service.py`'s own test-minutes sum) and
+`v_practice_minutes_total` (outstanding `practice_target_minutes`), splits `v_today_budget`
+proportionally into `v_test_budget` / `v_practice_budget` *before* ranking, and runs the existing
+value-density loop as two independent passes, each capped at its own budget (and its own 1.5× soft
+ceiling). Within each side, ranking and spacing-cost logic are unchanged. A day with nothing left
+to acquire/maintain this week still gives 100% to tests.
+
+Applied live via `apply_migration`. Verified by calling `build_daily_session` directly for the
+account: zh went from `practice_acquisition_min: 0` → `10` (`test_budget≈13.2min`,
+`practice_budget≈6.8min`), ja `0` → `10` (`test_budget≈18.4min`, `practice_budget≈11.6min`), both on
+the first post-migration call. `task714_build_daily_session_surfaces.sql` archived (superseded);
+see `migrations/archive/README.md` 2026-08-24 entry.
+
+**Not done:** the Tier B sizing reconciliation noted above (test_minutes/practice_minutes both
+independently oversized against the weekly ceiling) remains open — it doesn't block this fix, since
+the daily split works off freshly-summed `target_counts` rather than the stored (already-mis-clamped)
+`total_weekly_minutes` field, but it means both sides still overpromise relative to what a week can
+actually deliver.
+
+Pages: [[algorithms/study-plan-adaptation.tech]], [[pages/study-session.tech]], [[tasklist/master]].
+Both tech pages' Tier C sections still document the single-loop algorithm and should be read with
+this fix in mind until rewritten.

@@ -113,11 +113,18 @@ def _parse_tone(raw_pinyin: str) -> tuple[int, str]:
     """Extract tone number and clean pinyin text from a TONE3-style string.
 
     Examples: 'ni3' -> (3, 'ni'), 'ma5' -> (5, 'ma'), 'a' -> (5, 'a')
+
+    Only ASCII digits 1-5 are treated as tone markers -- pypinyin's TONE3
+    style never emits anything else. pypinyin passes non-Chinese characters
+    through unchanged, so a stray Unicode digit variant (e.g. a subscript
+    '₄' in a chemical formula) can reach here; str.isdigit() is True for
+    those too but int() can't parse them, so checking membership in "12345"
+    instead of isdigit() avoids crashing the whole pipeline on such input.
     """
     if not raw_pinyin:
         return 5, ""
 
-    if raw_pinyin[-1].isdigit():
+    if raw_pinyin[-1] in "12345":
         return int(raw_pinyin[-1]), raw_pinyin[:-1]
 
     return 5, raw_pinyin
@@ -126,19 +133,53 @@ def _parse_tone(raw_pinyin: str) -> tuple[int, str]:
 def _apply_sandhi(tokens: list[dict]) -> list[dict]:
     """Apply deterministic tone sandhi rules to the token list.
 
+    Punctuation is a hard boundary for sandhi: rules must never treat the
+    last character before a comma/full stop (or any other punctuation mark)
+    as adjacent to the first character after it. The token stream is split
+    into punctuation-delimited chunks and each chunk gets sandhi applied
+    independently.
+    """
+    for chunk in _split_into_chunks(tokens):
+        _apply_sandhi_to_chunk(chunk)
+
+    return tokens
+
+
+def _split_into_chunks(tokens: list[dict]) -> list[list[dict]]:
+    """Split tokens into runs of consecutive non-punctuation tokens.
+
+    Each returned chunk holds references to the original token dicts, so
+    mutating them in place (as sandhi rules do) still updates `tokens`.
+    """
+    chunks: list[list[dict]] = []
+    current: list[dict] = []
+
+    for token in tokens:
+        if token["is_punctuation"]:
+            if current:
+                chunks.append(current)
+                current = []
+        else:
+            current.append(token)
+
+    if current:
+        chunks.append(current)
+
+    return chunks
+
+
+def _apply_sandhi_to_chunk(chunk: list[dict]) -> None:
+    """Apply deterministic tone sandhi rules within a single chunk.
+
     Rules applied in order:
     1. Third tone sandhi (two consecutive 3rd tones)
     2. 一 (yī) sandhi rules
     3. 不 (bù) sandhi rules
     """
-    playable = [(i, t) for i, t in enumerate(tokens) if not t["is_punctuation"]]
-
-    for pos in range(len(playable)):
-        idx, token = playable[pos]
-
-        # Find next playable token
-        next_token = playable[pos + 1][1] if pos + 1 < len(playable) else None
-        prev_token = playable[pos - 1][1] if pos > 0 else None
+    for pos, token in enumerate(chunk):
+        # Find next/previous token within this chunk only
+        next_token = chunk[pos + 1] if pos + 1 < len(chunk) else None
+        prev_token = chunk[pos - 1] if pos > 0 else None
 
         # --- Rule 1: Third tone sandhi ---
         # When two 3rd tones are consecutive, the first becomes 2nd
@@ -185,8 +226,6 @@ def _apply_sandhi(tokens: list[dict]) -> list[dict]:
                     token["context_tone"] = 2
                     token["is_sandhi"] = True
                     token["sandhi_rule"] = "'不' changes to 2nd tone when preceding a 4th tone."
-
-    return tokens
 
 
 def _flag_polyphones(tokens: list[dict], words: list[str]) -> None:

@@ -189,19 +189,28 @@ class VocabularyKnowledgeService:
             return []
 
     def get_distractors(
-        self, sense_id: int, language_id: int, count: int = 3
+        self, sense_id: int, language_id: int, count: int = 3,
+        definition_language_id: int | None = None,
     ) -> list[str]:
         """
         Get distractor definitions for a word quiz MCQ.
 
+        definition_language_id, when it differs from language_id, restricts
+        the distractor pool to OTHER words that have an 'llm_gloss' row in
+        that language (see migrations/get_distractors_definition_language_param.sql)
+        -- so options never mix languages within one quiz question.
+
         Returns list of wrong-answer definition strings.
         """
         try:
-            response = self.db.rpc('get_distractors', {
+            params = {
                 'p_sense_id': sense_id,
                 'p_language_id': language_id,
                 'p_count': count,
-            }).execute()
+            }
+            if definition_language_id:
+                params['p_definition_language_id'] = definition_language_id
+            response = self.db.rpc('get_distractors', params).execute()
 
             return [row['out_definition'] for row in (response.data or [])]
 
@@ -210,27 +219,86 @@ class VocabularyKnowledgeService:
             return []
 
     def build_quiz_with_distractors(
-        self, user_id: str, sense_ids: list[int], language_id: int, max_words: int = 5
+        self, user_id: str, sense_ids: list[int], language_id: int, max_words: int = 5,
+        preferred_definition_language_id: int | None = None,
     ) -> list[dict]:
         """
         Get quiz candidates with shuffled answer options (1 correct + 3 distractors).
 
+        preferred_definition_language_id: the learner's chosen definition
+        language (users.native_language_id via
+        services.vocabulary.gloss_lookup). When it differs from the word's own
+        language, both the correct definition and every distractor are served
+        as gloss text in that language instead -- so the whole MCQ stays in
+        one consistent language. Candidate SELECTION (which words/how many)
+        is unaffected; only the displayed definition text changes, and only
+        for words that actually have a gloss.
+
         Returns ready-to-render quiz data for the frontend.
         """
         import random
+        from services.vocabulary.gloss_lookup import apply_definition_language_preference
 
         candidates = self.get_word_quiz_candidates(
             user_id, sense_ids, language_id, max_words
         )
+        if not candidates:
+            return []
+
+        # Resolve the correct-definition gloss for every candidate in one
+        # batched lookup rather than per-candidate.
+        correct_defs: dict[int, str] = {}
+        if preferred_definition_language_id and preferred_definition_language_id != language_id:
+            cand_sense_ids = [c.get('out_sense_id') or c.get('sense_id') for c in candidates]
+            cand_sense_ids = [sid for sid in cand_sense_ids if sid]
+            meta_resp = self.db.table('dim_word_senses') \
+                .select('id, vocab_id, sense_rank, definition_level, dim_vocabulary(language_id)') \
+                .in_('id', cand_sense_ids) \
+                .execute()
+            gloss_rows = []
+            row_by_sense_id = {}
+            for row in (meta_resp.data or []):
+                vocab = row.get('dim_vocabulary') or {}
+                gr = {
+                    'vocab_id': row.get('vocab_id'),
+                    'sense_rank': row.get('sense_rank'),
+                    'definition_level': row.get('definition_level'),
+                    'definition': '',  # filled from candidate below
+                    'language_id': vocab.get('language_id'),
+                }
+                gloss_rows.append(gr)
+                row_by_sense_id[row['id']] = gr
+            for c in candidates:
+                sid = c.get('out_sense_id') or c.get('sense_id')
+                gr = row_by_sense_id.get(sid)
+                if gr:
+                    gr['definition'] = c.get('out_definition') or c.get('definition', '')
+            apply_definition_language_preference(self.db, gloss_rows, preferred_definition_language_id)
+            for sid, gr in row_by_sense_id.items():
+                if gr['definition_is_gloss']:
+                    correct_defs[sid] = gr['definition']
 
         quiz_items = []
         for c in candidates:
             sid = c.get('out_sense_id') or c.get('sense_id')
-            correct_def = c.get('out_definition') or c.get('definition', '')
-            distractors = self.get_distractors(sid, language_id)
+            native_def = c.get('out_definition') or c.get('definition', '')
+            correct_def = correct_defs.get(sid, native_def)
+            is_gloss = sid in correct_defs
+            distractors = self.get_distractors(
+                sid, language_id,
+                definition_language_id=(preferred_definition_language_id if is_gloss else None),
+            )
 
             if len(distractors) < 2:
-                continue  # Not enough distractors — skip this word
+                # If gloss distractors came up short (few other glossed
+                # words yet), fall back to a same-language native quiz for
+                # this word rather than showing a half-empty question.
+                if is_gloss:
+                    correct_def = native_def
+                    is_gloss = False
+                    distractors = self.get_distractors(sid, language_id)
+                if len(distractors) < 2:
+                    continue  # Still not enough distractors — skip this word
 
             options = [correct_def] + distractors
             random.shuffle(options)
@@ -240,6 +308,7 @@ class VocabularyKnowledgeService:
                 'lemma': c.get('out_lemma') or c.get('lemma', ''),
                 'pronunciation': c.get('out_pronunciation') or c.get('pronunciation', ''),
                 'correct_definition': correct_def,
+                'definition_is_gloss': is_gloss,
                 'options': options,
                 'p_known': float(c.get('out_p_known') or c.get('p_known', 0)),
             })

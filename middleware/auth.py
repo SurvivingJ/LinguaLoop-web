@@ -103,6 +103,22 @@ def _set_user_context(claims):
         g.current_user = claims['user']
 
 
+def get_optional_user_id(req) -> str | None:
+    """Best-effort caller identity for endpoints that must stay reachable
+    anonymously (e.g. public test preview/taking) but can personalize when a
+    valid token happens to be present. Never raises, never blocks the
+    request -- any missing/invalid/expired token just yields None, same as
+    no Authorization header at all.
+    """
+    token = _extract_token(req)
+    if not token:
+        return None
+    claims, err = _authenticate(token)
+    if err or not claims:
+        return None
+    return claims.get('sub')
+
+
 def _user_has_tier(user_id, allowed):
     """True iff the user's subscription_tier is in ``allowed``."""
     result = _get_supabase_admin().table('users')\

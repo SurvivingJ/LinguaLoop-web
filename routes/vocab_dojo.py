@@ -133,15 +133,31 @@ def get_word_exercises(sense_id: int) -> ApiResponse:
         # Fetch word metadata
         sense_resp = (
             db.table('dim_word_senses')
-            .select('id, definition, pronunciation, ipa_pronunciation, '
-                    'morphological_forms, dim_vocabulary(lemma, semantic_class, '
-                    'part_of_speech)')
+            .select('id, vocab_id, definition, pronunciation, ipa_pronunciation, '
+                    'morphological_forms, sense_rank, definition_level, '
+                    'dim_vocabulary(lemma, semantic_class, part_of_speech, language_id)')
             .eq('id', sense_id)
             .single()
             .execute()
         )
         sense_data = sense_resp.data or {}
         vocab = sense_data.get('dim_vocabulary') or {}
+
+        # Swap in the learner's preferred-language gloss, if they've set one
+        # (users.native_language_id) and one exists for this word.
+        from services.vocabulary.gloss_lookup import (
+            apply_definition_language_preference, get_user_definition_language_id,
+        )
+        gloss_row = {
+            'vocab_id': sense_data.get('vocab_id'),
+            'sense_rank': sense_data.get('sense_rank'),
+            'definition_level': sense_data.get('definition_level'),
+            'definition': sense_data.get('definition', ''),
+            'language_id': vocab.get('language_id'),
+        }
+        preferred_lang_id = get_user_definition_language_id(db, g.current_user_id)
+        apply_definition_language_preference(db, [gloss_row], preferred_lang_id)
+        sense_data['definition'] = gloss_row['definition']
 
         # Fetch word assets
         assets_resp = (
@@ -176,6 +192,8 @@ def get_word_exercises(sense_id: int) -> ApiResponse:
                 'pos': vocab.get('part_of_speech', ''),
                 'semantic_class': vocab.get('semantic_class', ''),
                 'definition': sense_data.get('definition', ''),
+                'definition_language_id': gloss_row['definition_language_id'],
+                'definition_is_gloss': gloss_row['definition_is_gloss'],
                 'pronunciation': sense_data.get('pronunciation', ''),
                 'ipa': sense_data.get('ipa_pronunciation', ''),
                 'morphological_forms': sense_data.get('morphological_forms'),

@@ -35,6 +35,9 @@ _PIPELINE  = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}            # language_id -> cfg dict
 
+# language_id → llm_calls.language_code — see answer_entailment.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
 
 def judge_l1_distractors(
     db,
@@ -80,6 +83,7 @@ def judge_l1_distractors(
             pipeline=_PIPELINE,
             task_name=_TASK_NAME,
             template_version=judge_version,
+            language_code=_LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning("l1_distractor_judge: LLM call failed, keep all: %s", exc)

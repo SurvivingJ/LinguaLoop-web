@@ -198,6 +198,17 @@ def compute_weekly_plan(user_id, language_id, week_start):
 
 ## Tier C — Daily Resolver
 
+> **STALE as of 2026-08-24 (TASK-732).** The single combined greedy loop
+> described below let test/surface candidates (value ~0.06-0.15/min) starve
+> out practice candidates (flat `alpha×share`, ~0.006-0.014/min) — practice
+> was budgeted `0` minutes on 100% of a live account's sampled days, back to
+> account creation. The live resolver now splits `today_budget` into
+> `v_test_budget`/`v_practice_budget` *before* ranking, proportional to each
+> side's outstanding weekly minutes, then runs the loop below as two
+> independent passes (one per side). See `migrations/task732_build_daily_session_split_budget.sql`
+> and `wiki/log.md` 2026-08-24 for the fix; this section is not yet rewritten
+> to match.
+
 ### Inputs
 
 | Variable | Source |

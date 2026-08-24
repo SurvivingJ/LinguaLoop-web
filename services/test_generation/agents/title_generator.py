@@ -84,6 +84,7 @@ class TitleGenerator:
                 pipeline='test_gen',
                 task_name='title_generation',
                 template_version=template_version,
+                language_code=language_code,
             )
         except Exception as e:
             logger.error(f"Title generation failed: {e}")

@@ -70,10 +70,31 @@ def get_exercises() -> ApiResponse:
         if sense_ids:
             unique_ids = list(set(sense_ids))
             sense_resp = db.table('dim_word_senses') \
-                .select('id, definition, dim_vocabulary(lemma)') \
+                .select('id, vocab_id, definition, sense_rank, definition_level, '
+                        'dim_vocabulary(lemma, language_id)') \
                 .in_('id', unique_ids) \
                 .execute()
             sense_lookup = {row['id']: row for row in (sense_resp.data or [])}
+
+            # Swap in the learner's preferred-language gloss (users.native_language_id)
+            # for whichever of these fallback definitions get used below.
+            from services.vocabulary.gloss_lookup import (
+                apply_definition_language_preference, get_user_definition_language_id,
+            )
+            gloss_by_id = {}
+            for sid, row in sense_lookup.items():
+                vocab = row.get('dim_vocabulary') or {}
+                gloss_by_id[sid] = {
+                    'vocab_id': row.get('vocab_id'),
+                    'sense_rank': row.get('sense_rank'),
+                    'definition_level': row.get('definition_level'),
+                    'definition': row.get('definition', ''),
+                    'language_id': vocab.get('language_id'),
+                }
+            preferred_lang_id = get_user_definition_language_id(db, g.current_user_id)
+            apply_definition_language_preference(db, list(gloss_by_id.values()), preferred_lang_id)
+            for sid, gloss_row in gloss_by_id.items():
+                sense_lookup[sid]['definition'] = gloss_row['definition']
 
         # Transform jumbled_sentence content at serve-time
         from services.exercise_generation.language_processor import prepare_jumbled_content

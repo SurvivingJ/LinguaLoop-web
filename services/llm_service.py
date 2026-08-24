@@ -179,6 +179,7 @@ def _log_llm_call(
     latency_ms: int | None,
     artifact_id: str | None,
     cost_usd: float | None = None,
+    language_code: str | None = None,
 ) -> None:
     """Insert one row into llm_calls. Best-effort; never raises."""
     try:
@@ -207,6 +208,7 @@ def _log_llm_call(
             'latency_ms': latency_ms,
             'artifact_id': artifact_id,
             'cost_usd': cost_usd,
+            'language_code': language_code,
         }
         client.table('llm_calls').insert(row).execute()
     except Exception as exc:
@@ -266,6 +268,7 @@ def call_llm(
     task_name: str | None = None,
     template_version: int | None = None,
     artifact_id: str | None = None,
+    language_code: str | None = None,
 ) -> dict | list | str | BaseModel:
     """Universal LLM call. Returns parsed JSON dict/list, raw text, or a
     validated Pydantic model instance.
@@ -302,6 +305,11 @@ def call_llm(
         template_version: prompt_templates.version when applicable.
         artifact_id:     Optional UUID of the artifact produced by this call
                          (exercise_id, test_id, etc.) for trace-back.
+        language_code:   Study-language code (zh | en | ja) for the llm_calls
+                         log row, when the caller knows it. Purely an
+                         observability tag — does not affect model
+                         resolution (that's `language`/`model_override`).
+                         Optional; NULL when omitted.
 
     Returns:
         - schema given + validation passes → schema instance (BaseModel).
@@ -369,6 +377,7 @@ def call_llm(
             template_version=template_version,
             artifact_id=artifact_id,
             prompt_hash=prompt_hash,
+            language_code=language_code,
         )
 
     # Text path — short-circuit before any schema work.
@@ -380,6 +389,7 @@ def call_llm(
             raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
             judge_verdict=None, judge_confidence=None,
             latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+            language_code=language_code,
         )
         return parsed  # raw text
 
@@ -394,6 +404,7 @@ def call_llm(
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=True,
                 judge_verdict=None, judge_confidence=None,
                 latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+                language_code=language_code,
             )
             return validated
         except ValidationError as exc:
@@ -405,6 +416,7 @@ def call_llm(
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=False,
                 judge_verdict=None, judge_confidence=None,
                 latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+                language_code=language_code,
             )
             return _repair_and_retry(
                 client=client,
@@ -422,6 +434,7 @@ def call_llm(
                 template_version=template_version,
                 artifact_id=artifact_id,
                 prompt_hash=prompt_hash,
+                language_code=language_code,
             )
 
     # JSON path, no schema — log and return.
@@ -432,6 +445,7 @@ def call_llm(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        language_code=language_code,
     )
     return parsed
 
@@ -557,6 +571,7 @@ def _repair_and_retry(
     template_version: int | None,
     artifact_id: str | None,
     prompt_hash: bytes,
+    language_code: str | None = None,
 ) -> BaseModel:
     """Single deterministic repair turn at temperature 0.0.
 
@@ -604,6 +619,7 @@ def _repair_and_retry(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        language_code=language_code,
     )
 
     if err is not None:
@@ -628,6 +644,7 @@ def _repair_malformed_json(
     template_version: int | None,
     artifact_id: str | None,
     prompt_hash: bytes,
+    language_code: str | None = None,
 ) -> dict | list | BaseModel:
     """Single deterministic repair turn for a malformed-JSON / empty response.
 
@@ -669,6 +686,7 @@ def _repair_malformed_json(
             raw_response=None, parsed_ok=False, schema_ok=None,
             judge_verdict=None, judge_confidence=None,
             latency_ms=None, artifact_id=artifact_id,
+            language_code=language_code,
         )
         raise error
 
@@ -690,6 +708,7 @@ def _repair_malformed_json(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        language_code=language_code,
     )
 
     if schema_err is not None:

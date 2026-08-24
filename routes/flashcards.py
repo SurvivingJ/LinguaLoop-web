@@ -47,7 +47,8 @@ def get_due_cards() -> ApiResponse:
             .select(
                 'id, sense_id, stability, difficulty, due_date, last_review, '
                 'reps, lapses, state, example_sentence, audio_url, '
-                'dim_word_senses(id, definition, pronunciation, example_sentence, '
+                'dim_word_senses(id, vocab_id, definition, pronunciation, '
+                '  example_sentence, sense_rank, definition_level, '
                 '  dim_vocabulary(lemma, language_id, frequency_rank))'
             ) \
             .eq('user_id', current_user_id) \
@@ -56,15 +57,38 @@ def get_due_cards() -> ApiResponse:
             .order('due_date') \
             .execute()
 
+        rows = response.data or []
+
+        # Swap in the learner's preferred-language gloss (users.native_language_id),
+        # batched across every due card in one query rather than per-card.
+        from services.vocabulary.gloss_lookup import (
+            apply_definition_language_preference, get_user_definition_language_id,
+        )
+        gloss_rows = []
+        for row in rows:
+            sense = row.get('dim_word_senses') or {}
+            vocab = sense.get('dim_vocabulary') or {}
+            gloss_rows.append({
+                'vocab_id': sense.get('vocab_id'),
+                'sense_rank': sense.get('sense_rank'),
+                'definition_level': sense.get('definition_level'),
+                'definition': sense.get('definition', ''),
+                'language_id': vocab.get('language_id'),
+            })
+        preferred_lang_id = get_user_definition_language_id(db, current_user_id)
+        apply_definition_language_preference(db, gloss_rows, preferred_lang_id)
+
         cards = []
-        for row in (response.data or []):
+        for row, gloss_row in zip(rows, gloss_rows):
             sense = row.get('dim_word_senses') or {}
             vocab = sense.get('dim_vocabulary') or {}
             cards.append({
                 'card_id': row['id'],
                 'sense_id': row['sense_id'],
                 'lemma': vocab.get('lemma', ''),
-                'definition': sense.get('definition', ''),
+                'definition': gloss_row['definition'],
+                'definition_language_id': gloss_row['definition_language_id'],
+                'definition_is_gloss': gloss_row['definition_is_gloss'],
                 'pronunciation': sense.get('pronunciation', ''),
                 'example_sentence': row.get('example_sentence') or sense.get('example_sentence', ''),
                 'audio_url': row.get('audio_url'),

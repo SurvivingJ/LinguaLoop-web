@@ -42,6 +42,10 @@ from services.vocabulary_ladder.asset_generators._renderer import render_templat
 logger = logging.getLogger(__name__)
 
 TASK_NAME = 'vocab_prompt3_transforms'
+_PIPELINE = 'vocab_ladder'
+
+# language_id → llm_calls.language_code — see prompt1_core.py.
+_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 
 
 class TransformAssetGenerator:
@@ -156,6 +160,10 @@ class TransformAssetGenerator:
                     temperature=0.4,
                     max_tokens=8192,
                     response_format='json',
+                    pipeline=_PIPELINE,
+                    task_name=TASK_NAME,
+                    template_version=cfg.get('version'),
+                    language_code=_LANG_ID_TO_CODE.get(self.language_id),
                 )
             except Exception as e:
                 logger.warning(
@@ -211,6 +219,10 @@ class TransformAssetGenerator:
                 temperature=0.4,
                 max_tokens=8192,
                 response_format='text',
+                pipeline=_PIPELINE,
+                task_name=f'{TASK_NAME}_salvage',
+                template_version=cfg.get('version'),
+                language_code=_LANG_ID_TO_CODE.get(self.language_id),
             )
         except Exception as e:
             logger.error("Prompt 3 salvage call failed for sense %s: %s", sense_id, e)

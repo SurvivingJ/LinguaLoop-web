@@ -42,6 +42,7 @@ class TopicTranslator:
         target_language: str,
         model_override: Optional[str] = None,
         seed: Optional[int] = None,
+        language_code: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         """Translate topic and keywords to target language.
 
@@ -50,6 +51,10 @@ class TopicTranslator:
         logs a warning — translation is best-effort; the downstream prose
         generator can still work in the target language because the prompt
         templates carry full target-language instructions.
+
+        ``language_code`` (ISO code, e.g. 'zh') is purely an llm_calls
+        observability tag — distinct from ``target_language`` (the display
+        name used in the prompt itself).
         """
         model = model_override or self.model
         keywords_str = ', '.join(keywords) if keywords else ''
@@ -81,6 +86,7 @@ Return ONLY valid JSON in this exact format:
                 timeout=30,
                 pipeline='test_gen',
                 task_name='topic_translation',
+                language_code=language_code,
             )
         except (ValidationError, json.JSONDecodeError, RuntimeError) as e:
             # call_llm documents three LLM-output failure modes that survive its
