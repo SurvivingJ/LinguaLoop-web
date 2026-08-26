@@ -11,17 +11,40 @@ const T = (key, params, fallback) =>
     ? window.LinguaI18n.t(key, params)
     : fallback || key;
 
+// Looks up a dim_languages language_code (e.g. 'zh', 'ja') from a numeric
+// language_id, using the metadata LinguaMetadata.load() already cached
+// during init(). Returns '' (never a stale/wrong code) if metadata hasn't
+// loaded or the id isn't found, so the [lang] attribute is simply absent
+// rather than misleading.
+function resolveLanguageCode(languageId) {
+  const cache = window.LinguaMetadata && LinguaMetadata._cache;
+  if (!cache || !Array.isArray(cache.languages)) return '';
+  const lang = cache.languages.find((l) => l.id === languageId);
+  return (lang && lang.language_code) || '';
+}
+
 const session = {
   languageId: null,
   queue: [], // [{ kind:'test'|'practice', id, slug?, test_type?, mode?, is_completed }]
   index: 0,
   player: null, // { destroy() } handle for the currently-mounted player
   _completing: false, // re-entrancy latch for onItemComplete (M3)
+  // Practice-only mode (`/session?mode=practice`, nav "Practice" link): the
+  // queue is the same daily-session queue, just with every `kind:'test'` item
+  // dropped client-side before it ever renders. This needs no server change —
+  // completion still POSTs per-item exactly as it does today — but it does
+  // mean next_index (computed server-side over the FULL queue) can't be
+  // trusted once we've filtered; see loadSession().
+  practiceOnly: false,
 };
 
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+  const params = new URLSearchParams(window.location.search);
+  session.practiceOnly = params.get('mode') === 'practice';
+  applyModeLabels();
+
   session.languageId = parseInt(localStorage.getItem('selectedLanguageId') || '0', 10);
   if (!session.languageId) {
     window.location.href = '/language-selection';
@@ -38,14 +61,70 @@ async function init() {
   }
 }
 
+// Swap the page's static "Daily Session" copy for practice-mode copy. Called
+// once, before the queue is fetched, so it doesn't depend on session data —
+// only on the `mode` query param. No-op outside practice mode, leaving the
+// template's default (i18n-applied) text untouched.
+//
+// i18n-manager.js loads translations asynchronously and, once loaded, calls
+// applyToDOM() — which re-derives every [data-i18n] element's textContent
+// from ITS OWN attribute value, discarding whatever we set here. Setting
+// textContent alone would get silently overwritten the moment translations
+// finish loading (or on any later language switch). Repointing the
+// `data-i18n` attribute itself is what makes the override stick.
+function applyModeLabels() {
+  if (!session.practiceOnly) return;
+
+  const header = $('sessionHeaderLabel');
+  if (header) {
+    header.setAttribute('data-i18n', 'session.header_practice');
+    header.textContent = T('session.header_practice', null, 'Practice');
+  }
+
+  const title = $('sessionStartTitle');
+  if (title) {
+    title.setAttribute('data-i18n', 'session.start_title_practice');
+    title.textContent = T('session.start_title_practice', null, "Today's Practice");
+  }
+
+  const browseLink = $('sessionBrowseInsteadLink');
+  if (browseLink) {
+    browseLink.setAttribute('data-i18n', 'session.browse_instead_practice');
+    browseLink.textContent = T('session.browse_instead_practice', null, 'Back to daily session');
+    browseLink.setAttribute('href', '/session');
+  }
+
+  const doneLink = $('sessionDoneBrowseLink');
+  if (doneLink) {
+    doneLink.setAttribute('data-i18n', 'session.done_browse_practice');
+    doneLink.textContent = T('session.done_browse_practice', null, 'Back to daily session');
+    doneLink.setAttribute('href', '/session');
+  }
+
+  document.title = `${T('session.header_practice', null, 'Practice')} | LinguaDojo`;
+}
+
 async function loadSession() {
   const res = await window.authFetch(`/api/study-session?language_id=${session.languageId}`);
   if (!res.ok) throw new Error(`Session load failed (${res.status})`);
   const body = await res.json();
   const data = body.data || body;
 
-  session.queue = data.queue || [];
-  session.index = typeof data.next_index === 'number' ? data.next_index : 0;
+  let queue = data.queue || [];
+  if (session.practiceOnly) {
+    queue = queue.filter((q) => q.kind !== 'test');
+  }
+  session.queue = queue;
+
+  if (session.practiceOnly) {
+    // Server's next_index indexes the FULL queue (tests included), which no
+    // longer lines up once test items are filtered out — recompute it over
+    // what's actually left.
+    const firstIncomplete = queue.findIndex((q) => !q.is_completed);
+    session.index = firstIncomplete === -1 ? queue.length : firstIncomplete;
+  } else {
+    session.index = typeof data.next_index === 'number' ? data.next_index : 0;
+  }
   $('sessionLoading').classList.add('d-none');
 
   if (session.queue.length === 0) {
@@ -71,11 +150,17 @@ function renderStart() {
     return;
   }
 
-  $('sessionStartSummary').textContent = T(
-    'session.summary_line',
-    { tests, practice, remaining },
-    `${tests} tests · ${practice} practice · ${remaining} left today`
-  );
+  $('sessionStartSummary').textContent = session.practiceOnly
+    ? T(
+        'session.summary_line_practice',
+        { practice, remaining },
+        `${practice} practice · ${remaining} left today`
+      )
+    : T(
+        'session.summary_line',
+        { tests, practice, remaining },
+        `${tests} tests · ${practice} practice · ${remaining} left today`
+      );
   const resuming = done > 0;
   $('sessionStartBtnLabel').textContent = resuming
     ? T('session.resume_button', null, 'Resume session')
@@ -113,6 +198,11 @@ function runCurrent() {
   }
   const stage = $('sessionStage');
   stage.innerHTML = '';
+  // Tag the stage with the item's study-language code so styles.css can
+  // pick CJK-correct fonts per :lang() scope (see the per-language font
+  // override block there) — without this, Chinese and Japanese text share
+  // one font stack and one of them always renders in the other's glyphs.
+  stage.lang = resolveLanguageCode(item.language_id || session.languageId) || '';
   window.scrollTo({ top: 0, behavior: 'auto' });
 
   const player = getPlayer(item);
@@ -304,11 +394,13 @@ function showSummary() {
 
 function showEmpty() {
   $('sessionStart').classList.remove('d-none');
-  $('sessionStartSummary').textContent = T(
-    'session.empty',
-    null,
-    'No session items for today. Check your Study Plan or browse tests.'
-  );
+  $('sessionStartSummary').textContent = session.practiceOnly
+    ? T('session.empty_practice_page', null, 'No practice due right now.')
+    : T(
+        'session.empty',
+        null,
+        'No session items for today. Check your Study Plan or browse tests.'
+      );
   $('sessionStartBtn').classList.add('d-none');
 }
 

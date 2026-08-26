@@ -146,6 +146,30 @@
 }
 
 /* ============================================
+   Per-language CJK font overrides
+   --------------------------------------------
+   Chinese and Japanese share Unicode code points for most Han
+   characters (Han unification), so a single shared --font-sans stack
+   can only ever prioritize one language's glyph shapes over the
+   other's — whichever font wins the fallback race renders BOTH
+   languages' text, wrong for one of them. Redefining --font-sans
+   inside a :lang() scope instead of reordering the base stack means
+   every rule that already reads var(--font-sans) picks up the right
+   fonts automatically, without a specificity fight against
+   component-level font-family declarations.
+
+   The exercise content container gets its lang attribute set at
+   mount time by static/js/session/controller.js, based on the
+   language of the item being studied — see runCurrent().
+   ============================================ */
+:lang(zh) {
+  --font-sans: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', 'Inter', system-ui, sans-serif;
+}
+:lang(ja) {
+  --font-sans: 'Hiragino Sans', 'Yu Gothic UI', meiryo, 'Noto Sans JP', 'Inter', system-ui, sans-serif;
+}
+
+/* ============================================
    Responsive breakpoints — canonical scale
    --------------------------------------------
    Single source of truth for media-query widths. Aligned to the
@@ -2272,6 +2296,10 @@ footer,
     font-weight: 400;
   }
 
+  .scratch-mora-row .particle.phantom {
+    font-style: italic;
+  }
+
   .scratch-svg {
     pointer-events: none;
     position: absolute;
@@ -2308,6 +2336,19 @@ footer,
   }
 
   /* Bottom controls */
+  /* Swipe-to-answer overlay for Quick mode on touch devices — mirrors the
+     pinyin trainer's touch-area (templates/test_pinyin.html). Sits above the
+     passage but below the sticky header (z-index 100) and controls-hint
+     (z-index 50) so those stay tappable. Hidden outright in Contour mode,
+     where taps must reach the scratchpad's mora cells underneath. */
+  .touch-area {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    touch-action: none;
+    -webkit-touch-callout: none;
+  }
+
   .controls-hint {
     position: fixed;
     bottom: 0;

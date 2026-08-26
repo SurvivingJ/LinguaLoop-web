@@ -497,13 +497,22 @@ class PracticeSessionService:
             current_ring=1, family_confidence all 0.10.
           - If no selected packs: return [] (RPC will return no_content).
         """
-        # Eligible ladder count
+        # Eligible ladder count, scoped to this language. user_word_ladder has
+        # no language_id column of its own (a learner studying two languages
+        # would otherwise get cold-start suppressed for a brand-new language
+        # by an eligible word left over in another) — go through the embedded
+        # dim_word_senses -> dim_vocabulary join instead, same pattern as
+        # vocabulary_ladder.speed_round.mastered_sense_ids.
         existing = (
             self.db.table('user_word_ladder')
-            .select('sense_id', count='exact')
+            .select(
+                'sense_id, '
+                'dim_word_senses!inner(dim_vocabulary!inner(language_id))',
+                count='exact',
+            )
             .eq('user_id', user_id)
-            .eq('language_id', language_id)
             .in_('word_state', ['new', 'active', 'gated', 'pre_mastery', 'relearning'])
+            .eq('dim_word_senses.dim_vocabulary.language_id', language_id)
             .limit(1)
             .execute()
         )
@@ -578,11 +587,14 @@ class PracticeSessionService:
         if not fresh:
             return []
 
-        # Seed ladder rows
+        # Seed ladder rows. user_word_ladder has no language_id or created_at
+        # column (see the eligibility query above) — including either here
+        # makes the whole insert fail against PostgREST's schema cache, which
+        # was silently swallowed by the except below and defeated cold-start
+        # auto-subscription entirely.
         rows = [
             {
                 'user_id':           user_id,
-                'language_id':       language_id,
                 'sense_id':          sid,
                 'word_state':        'new',
                 'current_ring':      1,
@@ -596,7 +608,6 @@ class PracticeSessionService:
                 },
                 'gates_passed':      {'gate_a': False, 'gate_b': False},
                 'review_due_at':     datetime.now(timezone.utc).isoformat(),
-                'created_at':        datetime.now(timezone.utc).isoformat(),
             }
             for sid in fresh
         ]

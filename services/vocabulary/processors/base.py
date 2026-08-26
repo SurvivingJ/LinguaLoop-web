@@ -26,6 +26,7 @@ class LemmaToken:
     pos: str
     is_stop: bool
     is_content: bool
+    reading: str = ''
 
 
 class BaseLanguageProcessor(ABC):
@@ -55,7 +56,7 @@ class BaseLanguageProcessor(ABC):
         ...
 
     @abstractmethod
-    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool, str]]:
         """
         Full tokenization for building vocab token maps.
 
@@ -67,8 +68,17 @@ class BaseLanguageProcessor(ABC):
             text: Raw input text
 
         Returns:
-            List of (display_text, lemma, is_content) tuples.
+            List of (display_text, lemma, is_content, reading) tuples.
             display_text includes trailing whitespace where applicable.
+            reading is the token's dictionary-form reading in hiragana where
+            the processor can supply one (currently Japanese only — see
+            JapaneseProcessor), and '' otherwise. It must come from the
+            token's own in-context analysis, not be re-derived later from
+            the resolved lemma string alone: some lemmas (為る is a
+            documented case — see japanese.py) carry a different reading
+            depending on whether they were reached via a conjugated surface
+            or read as literal kanji, so re-deriving in isolation can silently
+            pick the wrong one.
         """
         ...
 

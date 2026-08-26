@@ -150,8 +150,14 @@ class AuthService:
         This method retrieves that data and adds the token balance.
         """
         try:
-            # Query user data from users table
-            result = self.supabase.table('users')\
+            # Query user data from users table. Must use the admin client: this
+            # service holds one process-wide anon client that never carries a
+            # per-request user JWT (auth.uid() is NULL on it), so the RLS
+            # policy "auth.uid() = id" silently returns zero rows for every
+            # user, every time — sending _get_user_data down the "user not
+            # found" fallback below on every login and hard-coding
+            # has_seen_welcome back to False regardless of the real value.
+            result = self.supabase_admin.table('users')\
                 .select('*')\
                 .eq('id', user_id)\
                 .execute()
@@ -227,7 +233,10 @@ class AuthService:
     def mark_welcome_seen(self, user_id: str) -> Dict:
         """Flip has_seen_welcome to true. Idempotent — re-calling is a no-op."""
         try:
-            self.supabase.table('users').update({
+            # Admin client: self.supabase has no per-request user JWT, so the
+            # RLS "auth.uid() = id" policy silently matches zero rows and this
+            # write was a no-op — the flag never actually persisted from here.
+            self.supabase_admin.table('users').update({
                 'has_seen_welcome': True
             }).eq('id', user_id).execute()
             return {'success': True}
@@ -241,8 +250,8 @@ class AuthService:
             # Sign out from Supabase
             self.supabase.auth.sign_out()
             
-            # Update last activity
-            self.supabase.table('users').update({
+            # Update last activity. Admin client — same RLS footgun as above.
+            self.supabase_admin.table('users').update({
                 'last_activity_at': datetime.now(timezone.utc).isoformat()
             }).eq('id', user_id).execute()
             
@@ -330,17 +339,18 @@ class AuthService:
     def get_user_profile(self, user_id: str) -> Dict:
         """Get user profile with token balance"""
         try:
-            # Get user data (RLS will filter automatically)
-            user_result = self.supabase.table('users')\
+            # Admin client: same reason as _get_user_data above — self.supabase
+            # never carries the caller's JWT, so RLS silently zeroes this out.
+            user_result = self.supabase_admin.table('users')\
                 .select('*')\
                 .eq('id', user_id)\
                 .execute()
-            
+
             if not user_result.data:
                 return {'success': False, 'error': 'User not found'}
-            
+
             # Get token balance
-            token_balance = self.supabase.rpc('get_token_balance', {
+            token_balance = self.supabase_admin.rpc('get_token_balance', {
                 'p_user_id': user_id
             })
             

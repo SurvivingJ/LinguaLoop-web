@@ -164,7 +164,8 @@ class SenseGenerator:
     def __init__(self, openai_client, db, db_client, language_code: str,
                  language_id: int, model: str | None = None,
                  fallback_model: str | None = None,
-                 prefer_existing: bool = False, dry_run: bool = False):
+                 prefer_existing: bool = False, dry_run: bool = False,
+                 generation_max_tokens: int = 600):
         """
         Args:
             openai_client: OpenAI client instance (unused by call_llm but kept for
@@ -179,6 +180,17 @@ class SenseGenerator:
             prefer_existing: When True, words that already have a sense are reused
                 without any LLM call (resumable backfill / throughput).
             dry_run: If True, log but don't write to DB.
+            generation_max_tokens: max_tokens for the two-level generation call
+                (_generate_payload / _generate_new). 600 is enough for a plain
+                chat model, but a *reasoning* model (observed: qwen/qwen3.7-flash,
+                qwen/qwen3.6-flash under OpenRouter) spends this budget entirely on
+                hidden reasoning tokens before ever emitting the JSON answer —
+                finish_reason='length', content=None, surfacing here as "LLM
+                returned empty content" on BOTH primary and fallback. Verified
+                qwen3.7-flash needs ~2200 reasoning tokens for a single word sense;
+                callers that pass a reasoning-model slug must raise this
+                accordingly (confirmed working at 4000). Selection calls
+                (_select_sense) are unaffected — they pass their own max_tokens.
         """
         self._client = openai_client
         self._db = db
@@ -189,6 +201,7 @@ class SenseGenerator:
         self._fallback_model = fallback_model or SENSE_MODEL_FALLBACK
         self._prefer_existing = prefer_existing
         self._dry_run = dry_run
+        self._generation_max_tokens = generation_max_tokens
         self._language_name = LANGUAGE_NAMES.get(language_code, language_code)
         self._linguistic_notes = LINGUISTIC_NOTES.get(language_code, "")
         self._pos_legend = POS_LEGENDS.get(language_code, POS_LEGENDS["en"])
@@ -417,7 +430,10 @@ class SenseGenerator:
             logger.error(f"Definition generation template missing variable: {e}")
             return None
 
-        data = self._call_llm(prompt, task_name='vocab_definition_generation')
+        data = self._call_llm(
+            prompt, task_name='vocab_definition_generation',
+            max_tokens=self._generation_max_tokens,
+        )
         if not data:
             return None
         return self._parse_generation(data)

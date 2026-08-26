@@ -301,7 +301,7 @@ function renderJpText(plainText, tokens) {
     return escapeHtmlForFurigana(plainText);
 }
 
-// Show/hide the furigana toggle, restore the user's last preference, and rerun
+// Show/hide the furigana toggle (always starting unselected) and rerun
 // renders when it's flipped. Sticky `furiganaUsedThisAttempt` ensures the ELO
 // dampener still fires even if the learner toggles off after peeking.
 async function setupFuriganaToggle() {
@@ -316,18 +316,14 @@ async function setupFuriganaToggle() {
     }
     wrap.classList.add('visible');
 
-    // Load initial value from user preferences.
-    try {
-        const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
-        if (resp && resp.ok) {
-            const body = await resp.json();
-            const prefs = (body && (body.data || body).exercise_preferences) || {};
-            testState.furiganaEnabled = !!prefs.furigana_enabled;
-        }
-    } catch (_) { /* non-fatal; default off */ }
-
-    cb.checked = testState.furiganaEnabled;
-    if (testState.furiganaEnabled) testState.furiganaUsedThisAttempt = true;
+    // Always start unselected. Furigana is a per-attempt opt-in (it halves
+    // the ELO change), so a prior test's choice must never carry over —
+    // restoring it from the stored preference here previously left the
+    // checkbox showing checked without the transcript actually rendering
+    // furigana (the initial render already ran before the async prefs
+    // fetch resolved), which was worse than just not restoring it at all.
+    testState.furiganaEnabled = false;
+    cb.checked = false;
 
     cb.addEventListener('change', () => {
         testState.furiganaEnabled = cb.checked;

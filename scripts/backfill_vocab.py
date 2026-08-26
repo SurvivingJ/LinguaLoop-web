@@ -272,7 +272,7 @@ class VocabBackfillRunner:
         # Strategy 2: Collect vocab_ids for cache-based lookup
         vocab_ids_needed = set()
         token_vocab_ids = []
-        for display_text, lemma, is_content in tokens:
+        for display_text, lemma, is_content, _reading in tokens:
             vid = self._vocab_cache.get((lemma, self.language_id)) if is_content else None
             token_vocab_ids.append(vid)
             if vid:

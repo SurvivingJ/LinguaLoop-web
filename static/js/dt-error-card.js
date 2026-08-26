@@ -13,8 +13,14 @@
  * shape both can consume. Host pages load it with a <script> tag.
  *
  * Card payload shapes (built by services/dual_translation/cards.py):
- *   cloze                -> { prompt, answer }
+ *   cloze                -> { prompt, answer, l1_context }
  *   isolate_retranslate  -> { l1_context, target_sentence, answer }
+ *
+ * `l1_context` on a cloze card is the L1 reference sentence for the blank --
+ * without it a blanked L2 sentence under-determines the answer whenever more
+ * than one plausible word fits the gap (word-choice errors chief among them).
+ * It may be `""` on cards built before this field existed; render it only
+ * when present so those older cards still degrade to the prompt alone.
  *
  * INVARIANT - the answer is ALWAYS prompt_payload.answer, which the backend
  * builds from `corrected_form`. `learner_form` is never present in the payload
@@ -145,11 +151,24 @@ const DTErrorCard = (function () {
 
     // cloze (also the fallback for an unknown card_type: showing the prompt
     // with the blank is the safe degradation, and never leaks the answer).
+    // The L1 reference is what makes the blank solvable rather than a guess
+    // (e.g. a word-choice error usually has more than one word that fits the
+    // blank's shape) -- shown only when present, for older cards built before
+    // this field existed.
+    const referenceHTML = p.l1_context
+      ? '<div class="dtec-label small fw-semibold mb-1">' +
+        esc(t('dt_card.reference_label', 'Reference (in your language)')) +
+        '</div>' +
+        '<blockquote class="dtec-prompt border-start border-3 ps-3 mb-3">' +
+        esc(p.l1_context) +
+        '</blockquote>'
+      : '';
     return (
       badge +
       '<p class="dtec-instructions text-muted small mb-3">' +
       esc(t('dt_card.cloze_instructions', 'Fill in the missing part.')) +
       '</p>' +
+      referenceHTML +
       '<blockquote class="dtec-prompt border-start border-3 ps-3 mb-3">' +
       esc(p.prompt || '') +
       '</blockquote>'

@@ -54,6 +54,9 @@ class VocabularyKnowledgeService:
             # Auto-create flashcards for words entering the learning zone
             self._auto_create_flashcards(user_id, language_id, results)
 
+            # Seed the Acquisition ladder for words newly met in this test
+            self._seed_ladder_for_new_words(user_id, language_id, results)
+
             # Frequency inference: boost common words when rare words are mastered
             self._trigger_frequency_inference(user_id, language_id, results)
 
@@ -150,6 +153,7 @@ class VocabularyKnowledgeService:
             # Fire downstream services ONCE over the batch result, not N
             # times. Both already operate set-based internally.
             self._auto_create_flashcards(user_id, language_id, rows)
+            self._seed_ladder_for_new_words(user_id, language_id, rows)
             self._trigger_frequency_inference(user_id, language_id, rows)
 
             return rows
@@ -504,6 +508,62 @@ class VocabularyKnowledgeService:
 
         except Exception as e:
             logger.error(f"Failed to auto-create flashcards: {e}")
+
+    def _seed_ladder_for_new_words(
+        self, user_id: str, language_id: int, bkt_results: list[dict]
+    ):
+        """Seed a user_word_ladder row for words newly entering encountered/
+        learning status, so Acquisition-mode Practice picks them up.
+
+        Without this, test-sourced vocabulary reached BKT tracking and FSRS
+        review (via _auto_create_flashcards) but never the ladder, so it
+        never appeared in Acquisition drilling — see [[resolver-hydration-
+        skill-gap]] / practice-engine investigation, 2026-08-25.
+
+        Same eligibility filter as _auto_create_flashcards, plus an
+        existing-row guard: init_ladder() upserts on (user_id, sense_id) and
+        would stomp a word's current ring/word_state if called again on a
+        word that's already progressing, so only genuinely new senses are
+        initialized here.
+        """
+        from services.vocabulary_ladder.ladder_service import LadderService
+
+        eligible_statuses = {'encountered', 'learning'}
+        eligible = [
+            r for r in bkt_results
+            if (r.get('out_status') or r.get('status', '')) in eligible_statuses
+        ]
+        if not eligible:
+            return
+
+        sense_ids = [r.get('out_sense_id') or r.get('sense_id') for r in eligible]
+
+        try:
+            existing = self.db.table('user_word_ladder') \
+                .select('sense_id') \
+                .eq('user_id', user_id) \
+                .in_('sense_id', sense_ids) \
+                .execute()
+            existing_ids = {r['sense_id'] for r in (existing.data or [])}
+        except Exception as e:
+            logger.error(f"Failed to check existing ladder rows: {e}")
+            return
+
+        new_sense_ids = [sid for sid in sense_ids if sid not in existing_ids]
+        if not new_sense_ids:
+            return
+
+        ladder_service = LadderService(self.db)
+        seeded = 0
+        for sid in new_sense_ids:
+            try:
+                ladder_service.init_ladder(user_id, sid, language_id)
+                seeded += 1
+            except Exception as e:
+                logger.error(f"Failed to init ladder for sense {sid}: {e}")
+
+        if seeded:
+            logger.info(f"Seeded {seeded} new ladder word(s) for user {user_id}")
 
     def _trigger_frequency_inference(
         self, user_id: str, language_id: int, bkt_results: list[dict]

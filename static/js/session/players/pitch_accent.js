@@ -153,6 +153,7 @@ export function mount(container, ctx) {
       q('paHeader').style.display = 'block';
       q('passageContainer').style.display = 'block';
       q('controlsHint').style.display = 'block';
+      updateTouchAreaVisibility();
 
       qsa('#modeToggle button').forEach((btn) =>
         btn.classList.toggle('active', btn.dataset.mode === state.mode)
@@ -342,7 +343,15 @@ export function mount(container, ctx) {
       state.contourCursor = 0;
       return;
     }
-    state.contourInput = new Array(token.mora_count).fill(null);
+    // +1 slot for the pitch immediately after the word ends (on the
+    // trailing particle if the passage has one there, or the phantom
+    // word-boundary otherwise). Odaka's drop nucleus sits exactly there —
+    // the word's own morae are pitch-identical to heiban's (see
+    // _derive_contour in pitch_accent_service.py) — so without this slot
+    // Contour mode could never score an odaka word correct no matter what
+    // the learner entered: analyzeContour could only derive a drop inside
+    // [0, mora_count - 1].
+    state.contourInput = new Array(token.mora_count + 1).fill(null);
     state.contourCursor = 0;
   }
 
@@ -360,34 +369,37 @@ export function mount(container, ctx) {
       return;
     }
     const moraCount = token.mora_count;
-    const hasParticle = !!token.trailing_particle;
-    const cols = moraCount + (hasParticle ? 1 : 0);
+    // Boundary column (post-word pitch) is always present and always
+    // selectable — see resetContourInput for why it can't be reference-only.
+    const cols = moraCount + 1;
     const colTemplate = `60px repeat(${cols}, 1fr)`;
+    const isPhantomParticle = !token.trailing_particle;
 
     let highRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};"><div class="scratch-row-label">HIGH</div>`;
-    for (let i = 0; i < moraCount; i++) {
+    for (let i = 0; i <= moraCount; i++) {
       const sel = state.contourInput[i] === 'H' ? 'selected row-high' : '';
       const cur = i === state.contourCursor ? 'current' : '';
       highRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="H"><span class="scratch-dot"></span></div>`;
     }
-    if (hasParticle)
-      highRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
     highRow += `</div>`;
 
     let lowRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};"><div class="scratch-row-label">LOW</div>`;
-    for (let i = 0; i < moraCount; i++) {
+    for (let i = 0; i <= moraCount; i++) {
       const sel = state.contourInput[i] === 'L' ? 'selected row-low' : '';
       const cur = i === state.contourCursor ? 'current' : '';
       lowRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="L"><span class="scratch-dot"></span></div>`;
     }
-    if (hasParticle)
-      lowRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
     lowRow += `</div>`;
 
     let moraRow = `<div class="scratch-row scratch-mora-row" style="grid-template-columns: ${colTemplate};"><div></div>`;
     for (let i = 0; i < moraCount; i++) moraRow += `<div>${escapeHtml(token.mora[i] || '')}</div>`;
-    if (hasParticle)
-      moraRow += `<div class="particle">${escapeHtml(token.trailing_particle)}</div>`;
+    // Label the boundary column with the real trailing particle when the
+    // passage actually has one there; otherwise a neutral glyph — never a
+    // fabricated が, which would claim a particle exists that isn't in the
+    // text (this is what the learner previously saw as an unexplained
+    // "third mora").
+    const boundaryLabel = token.trailing_particle || '›';
+    moraRow += `<div class="particle${isPhantomParticle ? ' phantom' : ''}">${escapeHtml(boundaryLabel)}</div>`;
     moraRow += `</div>`;
 
     const ready = state.contourInput.every((v) => v !== null);
@@ -446,7 +458,11 @@ export function mount(container, ctx) {
 
   function analyzeContour(contour) {
     if (contour.length === 0) return { valid: false, reason: 'empty' };
-    if (contour.length >= 2 && contour[0] === contour[1])
+    // contour's last slot is the post-word boundary pitch, not a word-
+    // internal mora — the "mora 1 vs mora 2 differ" rule is about the
+    // word's own morae only, so it's scoped to everything but that slot.
+    const wordLen = contour.length - 1;
+    if (wordLen >= 2 && contour[0] === contour[1])
       return { valid: false, reason: 'mora1_eq_mora2' };
     let drops = 0,
       dropAt = 0,
@@ -462,6 +478,8 @@ export function mount(container, ctx) {
     }
     if (drops > 1) return { valid: false, reason: 'multiple_drops' };
     if (rises > 0) return { valid: false, reason: 'rise_after_drop' };
+    // dropAt landing on the boundary slot (index === mora_count) is exactly
+    // odaka: the word's own morae never drop, only the pitch right after it.
     const accent = drops === 0 ? 0 : dropAt;
     return { valid: true, derivedAccent: accent };
   }
@@ -524,7 +542,11 @@ export function mount(container, ctx) {
       moraLabels += `<text x="${stepX * i + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-primary)">${escapeHtml(token.mora[i] || '')}</text>`;
     }
     if (showParticleSlot) {
-      const particleLabel = token.trailing_particle || '+が';
+      // Only label this slot with a real kana particle when the passage
+      // actually has one there; a fabricated が would claim a specific
+      // particle exists when it doesn't (e.g. the word is sentence-final
+      // or followed by punctuation).
+      const particleLabel = token.trailing_particle || '›';
       const labelFill = isPhantomParticle ? 'var(--text-muted)' : 'var(--text-secondary)';
       const labelStyle = isPhantomParticle ? 'font-style: italic;' : '';
       moraLabels += `<text x="${stepX * wordCount + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="${labelFill}" style="${labelStyle}">${escapeHtml(particleLabel)}</text>`;
@@ -653,6 +675,57 @@ export function mount(container, ctx) {
         }
       }
     });
+
+    // Swipe-to-answer (Quick mode only — the overlay is hidden in Contour
+    // mode so these listeners simply never fire there). Mirrors
+    // static/js/session/players/pinyin.js: direction maps onto the same
+    // class each arrow key already selects. Unlike pinyin's tones there's
+    // no 5th "neutral" class, so a short in-place tap is just ignored
+    // rather than guessing an answer.
+    const touchArea = q('touchArea');
+    let touchStartX, touchStartY, touchStartTime;
+    on(
+      touchArea,
+      'touchstart',
+      (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+      },
+      { passive: true }
+    );
+    on(
+      touchArea,
+      'touchend',
+      (e) => {
+        if (touchStartX === undefined) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+        const elapsed = Date.now() - touchStartTime;
+        const threshold = 30;
+        touchStartX = touchStartY = undefined;
+        if (absDx < threshold && absDy < threshold && elapsed < 300) return;
+        if (absDx > absDy) handleClassInput(dx > 0 ? 'nakadaka' : 'heiban');
+        else handleClassInput(dy < 0 ? 'atamadaka' : 'odaka');
+      },
+      { passive: true }
+    );
+    on(
+      touchArea,
+      'touchmove',
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+  }
+
+  function updateTouchAreaVisibility() {
+    const ta = q('touchArea');
+    if (!ta) return;
+    ta.style.display = state.mode === 'quick' && !state.isComplete ? 'block' : 'none';
   }
 
   async function setupFuriganaToggle() {
@@ -664,16 +737,13 @@ export function mount(container, ctx) {
       return;
     }
     wrap.classList.add('visible');
-    try {
-      const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
-      if (resp && resp.ok) {
-        const body = await resp.json();
-        const prefs = (body && (body.data || body).exercise_preferences) || {};
-        state.furiganaEnabled = !!prefs.furigana_enabled;
-      }
-    } catch (_) {}
-    cb.checked = state.furiganaEnabled;
-    if (state.furiganaEnabled) state.furiganaUsedThisAttempt = true;
+    // Always start unselected. Furigana is a per-attempt opt-in (it halves
+    // the ELO change), so a prior test's choice must never carry over —
+    // restoring it from the stored preference here previously left the
+    // checkbox showing checked without furigana actually rendering (the
+    // initial render already ran before this async fetch resolved).
+    state.furiganaEnabled = false;
+    cb.checked = false;
     on(cb, 'change', () => {
       state.furiganaEnabled = cb.checked;
       if (cb.checked) state.furiganaUsedThisAttempt = true;
@@ -708,6 +778,7 @@ export function mount(container, ctx) {
           b.classList.toggle('active', b.dataset.mode === newMode)
         );
         renderControls();
+        updateTouchAreaVisibility();
         if (state.mode === 'contour') {
           resetContourInput();
           renderScratchpad();
@@ -739,6 +810,7 @@ export function mount(container, ctx) {
     state.isComplete = true;
     clearInterval(state.timerInterval);
     q('controlsHint').style.display = 'none';
+    updateTouchAreaVisibility();
     clearScratchpad();
     const total = state.playableTokens.length;
     const accuracy = total > 0 ? (Math.max(0, total - state.errorCount) / total) * 100 : 0;
@@ -846,7 +918,7 @@ export function mount(container, ctx) {
       err.style.display = 'block';
       q('errorMessage').textContent = msg;
     }
-    ['paHeader', 'passageContainer', 'controlsHint'].forEach((id) => {
+    ['paHeader', 'passageContainer', 'controlsHint', 'touchArea'].forEach((id) => {
       const el = q(id);
       if (el) el.style.display = 'none';
     });
@@ -889,6 +961,9 @@ const MARKUP = `
     </div>
     <div class="pa-progress-bar"><div class="pa-progress-fill" id="progressFill" style="width:0%"></div></div>
 </div>
+
+<!-- Swipe-to-answer overlay (Quick mode, touch devices) -->
+<div class="touch-area" id="touchArea" style="display:none;"></div>
 
 <div class="passage-container" id="passageContainer" style="display:none;">
     <div class="passage-grid" id="passageGrid"></div>

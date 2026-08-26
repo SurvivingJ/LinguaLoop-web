@@ -331,7 +331,7 @@
 
                         <!-- Stats Row (if available) -->
                         <div class="mt-3 text-slate-500" id="statsRow" style="font-size: 14px; display: none;">
-                            <span id="attemptsText"></span> • <span id="volatilityText"></span>
+                            <span id="attemptsText"></span><span id="volatilitySep"> • </span><span id="volatilityText"></span>
                         </div>
                     </div>
                 </div>
@@ -584,8 +584,19 @@
             statsRow.style.display = 'block';
             document.getElementById('attemptsText').textContent =
                 LinguaI18n.t('test_preview.your_attempts', {count: rating.total_attempts});
-            document.getElementById('volatilityText').textContent =
-                LinguaI18n.t('test_preview.volatility', {value: rating.volatility.toFixed(2)});
+            // The API doesn't currently return a `volatility` field on skill
+            // ratings, so guard against it being missing/non-numeric instead
+            // of crashing the whole page init on `.toFixed()`.
+            const volatilityEl = document.getElementById('volatilityText');
+            const volatilitySepEl = document.getElementById('volatilitySep');
+            if (typeof rating.volatility === 'number') {
+                volatilityEl.textContent =
+                    LinguaI18n.t('test_preview.volatility', {value: rating.volatility.toFixed(2)});
+                volatilitySepEl.style.display = '';
+            } else {
+                volatilityEl.textContent = '';
+                volatilitySepEl.style.display = 'none';
+            }
         } else {
             document.getElementById('statsRow').style.display = 'none';
         }

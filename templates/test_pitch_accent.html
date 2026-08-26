@@ -59,6 +59,9 @@
     </div>
 </div>
 
+<!-- Swipe-to-answer overlay (Quick mode, touch devices) -->
+<div class="touch-area" id="touchArea" style="display: none;"></div>
+
 <div class="passage-container" id="passageContainer" style="display: none;">
     <div class="passage-grid" id="passageGrid"></div>
     <div id="scratchpadContainer"></div>
@@ -188,6 +191,7 @@
             document.getElementById('paHeader').style.display = 'block';
             document.getElementById('passageContainer').style.display = 'block';
             document.getElementById('controlsHint').style.display = 'block';
+            updateTouchAreaVisibility();
 
             // Sync toggle UI to state.mode
             document.querySelectorAll('#modeToggle button').forEach(btn => {
@@ -424,7 +428,15 @@
     function resetContourInput() {
         const token = state.playableTokens[state.currentIndex];
         if (!token) { state.contourInput = []; state.contourCursor = 0; return; }
-        state.contourInput = new Array(token.mora_count).fill(null);
+        // +1 slot for the pitch immediately after the word ends (on the
+        // trailing particle if the passage has one there, or the phantom
+        // word-boundary otherwise). Odaka's drop nucleus sits exactly there —
+        // the word's own morae are pitch-identical to heiban's (see
+        // _derive_contour in pitch_accent_service.py) — so without this slot
+        // Contour mode could never score an odaka word correct no matter
+        // what the learner entered: analyzeContour could only derive a drop
+        // inside [0, mora_count - 1].
+        state.contourInput = new Array(token.mora_count + 1).fill(null);
         state.contourCursor = 0;
     }
 
@@ -440,34 +452,29 @@
         if (!token) { wrap.innerHTML = ''; return; }
 
         const moraCount = token.mora_count;
-        const hasParticle = !!token.trailing_particle;
-        const cols = moraCount + (hasParticle ? 1 : 0);
+        // Boundary column (post-word pitch) is always present and always
+        // selectable — see resetContourInput for why it can't be reference-only.
+        const cols = moraCount + 1;
 
-        // grid-template-columns: [label] [mora x N] [optional particle]
+        // grid-template-columns: [label] [mora x N] [boundary]
         const colTemplate = `60px repeat(${cols}, 1fr)`;
+        const isPhantomParticle = !token.trailing_particle;
 
         let highRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};">`;
         highRow += `<div class="scratch-row-label">HIGH</div>`;
-        for (let i = 0; i < moraCount; i++) {
+        for (let i = 0; i <= moraCount; i++) {
             const sel = state.contourInput[i] === 'H' ? 'selected row-high' : '';
             const cur = i === state.contourCursor ? 'current' : '';
             highRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="H"><span class="scratch-dot"></span></div>`;
-        }
-        if (hasParticle) {
-            // Particle dots are reference-only, not selectable; show '·' to indicate.
-            highRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
         }
         highRow += `</div>`;
 
         let lowRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};">`;
         lowRow += `<div class="scratch-row-label">LOW</div>`;
-        for (let i = 0; i < moraCount; i++) {
+        for (let i = 0; i <= moraCount; i++) {
             const sel = state.contourInput[i] === 'L' ? 'selected row-low' : '';
             const cur = i === state.contourCursor ? 'current' : '';
             lowRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="L"><span class="scratch-dot"></span></div>`;
-        }
-        if (hasParticle) {
-            lowRow += `<div class="scratch-cell" style="opacity:0.4; cursor:default;"></div>`;
         }
         lowRow += `</div>`;
 
@@ -476,9 +483,13 @@
         for (let i = 0; i < moraCount; i++) {
             moraRow += `<div>${escapeHtml(token.mora[i] || '')}</div>`;
         }
-        if (hasParticle) {
-            moraRow += `<div class="particle">${escapeHtml(token.trailing_particle)}</div>`;
-        }
+        // Label the boundary column with the real trailing particle when the
+        // passage actually has one there; otherwise a neutral glyph — never
+        // a fabricated が, which would claim a particle exists that isn't in
+        // the text (this is what the learner previously saw as an
+        // unexplained "third mora").
+        const boundaryLabel = token.trailing_particle || '›';
+        moraRow += `<div class="particle${isPhantomParticle ? ' phantom' : ''}">${escapeHtml(boundaryLabel)}</div>`;
         moraRow += `</div>`;
 
         const ready = state.contourInput.every(v => v !== null);
@@ -545,9 +556,19 @@
     // Returns { valid, derivedAccent, reason }
     // valid = obeys the two universal rules: mora1 != mora2, at most one H→L drop.
     // derivedAccent = mora-after-drop, or 0 if heiban.
+    //
+    // contour's last slot is the post-word boundary pitch (on the trailing
+    // particle if the passage has one, or the phantom word-boundary
+    // otherwise) — see resetContourInput. It IS scanned for H→L/L→H
+    // transitions like any other slot, which is what lets odaka (whose
+    // drop only exists at that boundary — the word's own morae are
+    // pitch-identical to heiban's) derive correctly as accent === mora_count.
+    // It is excluded only from the "mora 1 vs mora 2" rule, which is about
+    // the word's own first two morae.
     function analyzeContour(contour) {
         if (contour.length === 0) return { valid: false, reason: 'empty' };
-        if (contour.length >= 2 && contour[0] === contour[1]) {
+        const wordLen = contour.length - 1;
+        if (wordLen >= 2 && contour[0] === contour[1]) {
             return { valid: false, reason: 'mora1_eq_mora2' };
         }
         let drops = 0;
@@ -562,14 +583,6 @@
         }
         if (drops > 1) return { valid: false, reason: 'multiple_drops' };
         if (rises > 0) return { valid: false, reason: 'rise_after_drop' };
-
-        // Special: atamadaka pattern HLLL... — drop after mora 1.
-        // dropAt is the index where pitch first becomes L; accent = dropAt (1-indexed).
-        // For heiban (drops=0, contour all-H after initial L), accent = 0.
-        // For odaka, drop is at contour.length, but contour can't express that — we treat
-        // "ends on H with no internal drop" as either heiban (if mora1=L) or undefined.
-        // To match pyopenjtalk's accent convention with the trailing-particle visible
-        // only as reference, our derivedAccent stays in [0, mora_count].
 
         const accent = drops === 0 ? 0 : dropAt;
         return { valid: true, derivedAccent: accent };
@@ -647,7 +660,11 @@
             moraLabels += `<text x="${stepX * i + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="var(--text-primary)">${escapeHtml(token.mora[i] || '')}</text>`;
         }
         if (showParticleSlot) {
-            const particleLabel = token.trailing_particle || '+が';
+            // Only label this slot with a real kana particle when the passage
+            // actually has one there; a fabricated が would claim a specific
+            // particle exists when it doesn't (e.g. the word is sentence-final
+            // or followed by punctuation).
+            const particleLabel = token.trailing_particle || '›';
             const labelFill = isPhantomParticle ? 'var(--text-muted)' : 'var(--text-secondary)';
             const labelStyle = isPhantomParticle ? 'font-style: italic;' : '';
             moraLabels += `<text x="${stepX * wordCount + stepX / 2}" y="${svgH - 6}" text-anchor="middle" font-size="14" fill="${labelFill}" style="${labelStyle}">${escapeHtml(particleLabel)}</text>`;
@@ -766,6 +783,42 @@
                 if (e.key === 'Enter')      { e.preventDefault(); submitContour(); return; }
             }
         });
+
+        // Swipe-to-answer (Quick mode only — the overlay is hidden in
+        // Contour mode so these listeners simply never fire there). Mirrors
+        // templates/test_pinyin.html's touch-area: direction maps onto the
+        // same class each arrow key already selects. Unlike pinyin's tones
+        // there's no 5th "neutral" class, so a short in-place tap is just
+        // ignored rather than guessing an answer.
+        const touchArea = document.getElementById('touchArea');
+        let touchStartX, touchStartY, touchStartTime;
+        touchArea.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        touchArea.addEventListener('touchend', (e) => {
+            if (touchStartX === undefined) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            const elapsed = Date.now() - touchStartTime;
+            const threshold = 30;
+            touchStartX = touchStartY = undefined;
+            if (absDx < threshold && absDy < threshold && elapsed < 300) return;
+            if (absDx > absDy) handleClassInput(dx > 0 ? 'nakadaka' : 'heiban');
+            else handleClassInput(dy < 0 ? 'atamadaka' : 'odaka');
+        }, { passive: true });
+        touchArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    }
+
+    function updateTouchAreaVisibility() {
+        const ta = document.getElementById('touchArea');
+        if (!ta) return;
+        ta.style.display = (state.mode === 'quick' && !state.isComplete) ? 'block' : 'none';
     }
 
     async function setupFuriganaToggle() {
@@ -779,17 +832,14 @@
         }
         wrap.classList.add('visible');
 
-        try {
-            const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
-            if (resp && resp.ok) {
-                const body = await resp.json();
-                const prefs = (body && (body.data || body).exercise_preferences) || {};
-                state.furiganaEnabled = !!prefs.furigana_enabled;
-            }
-        } catch (_) { /* non-fatal */ }
-
-        cb.checked = state.furiganaEnabled;
-        if (state.furiganaEnabled) state.furiganaUsedThisAttempt = true;
+        // Always start unselected. Furigana is a per-attempt opt-in (it
+        // halves the ELO change), so a prior test's choice must never carry
+        // over — restoring it from the stored preference here previously
+        // left the checkbox showing checked without furigana actually
+        // rendering (the initial render already ran before the async prefs
+        // fetch resolved).
+        state.furiganaEnabled = false;
+        cb.checked = false;
 
         cb.addEventListener('change', () => {
             state.furiganaEnabled = cb.checked;
@@ -825,6 +875,7 @@
                     b.classList.toggle('active', b.dataset.mode === newMode);
                 });
                 renderControls();
+                updateTouchAreaVisibility();
                 if (state.mode === 'contour') {
                     resetContourInput();
                     renderScratchpad();
@@ -877,6 +928,7 @@
         state.isComplete = true;
         clearInterval(state.timerInterval);
         document.getElementById('controlsHint').style.display = 'none';
+        updateTouchAreaVisibility();
         clearScratchpad();
 
         const total = state.playableTokens.length;
@@ -995,7 +1047,7 @@
     function showError(msg) {
         document.getElementById('errorState').style.display = 'block';
         document.getElementById('errorMessage').textContent = msg;
-        const ids = ['paHeader', 'passageContainer', 'controlsHint'];
+        const ids = ['paHeader', 'passageContainer', 'controlsHint', 'touchArea'];
         ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     }
     function escapeHtml(str) {

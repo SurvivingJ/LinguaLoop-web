@@ -100,7 +100,21 @@ class TokenMapBackfillRunner:
                 db_client=db_client,
                 language_code=self.language_code,
                 language_id=self.language_id,
-                model=lang_config.prose_model,
+                # Explicit model per user request (2026-08-25): qwen3.7-flash.
+                # Previously this passed lang_config.prose_model
+                # (qwen/qwen3.7-plus, a heavier reasoning model) — under this
+                # call's fixed max_tokens=600 that spent its whole budget on
+                # hidden reasoning and returned empty content, failing both
+                # the primary and fallback call for nearly every word.
+                #
+                # qwen3.7-flash (and the SENSE_MODEL_FALLBACK default,
+                # qwen3.6-flash) turned out to be reasoning models too —
+                # verified via a raw OpenRouter call: finish_reason='length',
+                # content=None, reasoning_tokens=600/600 at the old budget.
+                # 6000 gives headroom over the ~2200 reasoning tokens observed
+                # for a single word (confirmed working at 4000).
+                model='qwen/qwen3.7-flash',
+                generation_max_tokens=6000,
             )
         else:
             openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', 'dummy'))
@@ -116,13 +130,27 @@ class TokenMapBackfillRunner:
     def _preload_caches(self):
         """Load all vocab and sense data for this language into memory."""
         # Load vocab: (lemma, language_id) → vocab_id
-        response = self.db.table('dim_vocabulary') \
-            .select('id, lemma') \
-            .eq('language_id', self.language_id) \
-            .execute()
-
-        for row in (response.data or []):
-            self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
+        #
+        # Paginated: an unpaginated select silently truncates at PostgREST's
+        # default 1000-row cap. With this table past 1000 rows, that meant
+        # already-created words fell out of the cache, so _create_vocab_and_sense
+        # tried to re-insert them and hit uq_vocab_lemma's 23505 — that word's
+        # sense generation never even ran (observed: 52 skipped this way in one
+        # run) even though a real definition may already exist.
+        page_size = 1000
+        offset = 0
+        while True:
+            response = self.db.table('dim_vocabulary') \
+                .select('id, lemma') \
+                .eq('language_id', self.language_id) \
+                .range(offset, offset + page_size - 1) \
+                .execute()
+            rows = response.data or []
+            for row in rows:
+                self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
+            if len(rows) < page_size:
+                break
+            offset += page_size
 
         logger.info(f"Loaded {len(self._vocab_cache)} vocab entries")
 
@@ -274,7 +302,7 @@ class TokenMapBackfillRunner:
         token_map = []
         unmatched = []
 
-        for i, (display_text, lemma, is_content) in enumerate(tokens):
+        for i, (display_text, lemma, is_content, _reading) in enumerate(tokens):
             sense_id = 0
             if is_content and lemma:
                 # Strategy 1: reverse lookup from test's vocab_sense_ids

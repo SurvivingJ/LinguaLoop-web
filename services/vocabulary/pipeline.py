@@ -69,6 +69,29 @@ class VocabularyExtractionPipeline:
             self._processors[language_code] = cls()
         return self._processors[language_code]
 
+    def kana_reading(self, text: str, language_code: str) -> str:
+        """Dictionary-form reading (hiragana) for ``text``, or '' if the
+        processor for ``language_code`` doesn't expose one.
+
+        Currently only ``JapaneseProcessor`` implements ``reading_for`` —
+        this is the homophone-family lookup key used to catch a kana-derived
+        lemma colliding with an unrelated word (see japanese.py docstring).
+        Chinese/English have no analogous ambiguity in this pipeline, so the
+        dispatch is a plain ``hasattr`` rather than adding a no-op method to
+        every processor.
+        """
+        if not text:
+            return ''
+        processor = self._get_processor(language_code)
+        reading_fn = getattr(processor, "reading_for", None)
+        if reading_fn is None:
+            return ''
+        try:
+            return reading_fn(text)
+        except Exception as e:
+            logger.warning("kana_reading failed for %r (%s): %s", text, language_code, e)
+            return ''
+
     def extract(self, text: str, language_code: str) -> list[str]:
         """
         Extract vocabulary from text.
@@ -239,9 +262,15 @@ class VocabularyExtractionPipeline:
         # Build lookup maps for metadata
         # lemma → dominant POS (first occurrence wins)
         lemma_pos: dict[str, str] = {}
+        # lemma → its reading at first occurrence. Only meaningful for
+        # Japanese today (see JapaneseProcessor.tokenize_full); other
+        # processors leave LemmaToken.reading at its '' default.
+        lemma_reading: dict[str, str] = {}
         for t in lemma_tokens:
             if t.lemma not in lemma_pos and t.is_content:
                 lemma_pos[t.lemma] = t.pos
+            if t.lemma not in lemma_reading and t.reading:
+                lemma_reading[t.lemma] = t.reading
 
         # phrase string → phrase dict (for phrase_type and components)
         phrase_map: dict[str, dict] = {}
@@ -280,11 +309,12 @@ class VocabularyExtractionPipeline:
                 "is_phrase": is_phrase,
                 "phrase_type": p_info.get("phrase_type") if is_phrase else None,
                 "components": p_info.get("components") if is_phrase else None,
+                "reading": lemma_reading.get(v) or '',
             })
 
         return result
 
-    def tokenize_full(self, text: str, language_code: str) -> list[tuple[str, str, bool]]:
+    def tokenize_full(self, text: str, language_code: str) -> list[tuple[str, str, bool, str]]:
         """
         Full tokenization for building vocab token maps.
 
@@ -296,7 +326,8 @@ class VocabularyExtractionPipeline:
             language_code: ISO 639-1, e.g., 'en', 'zh', 'ja'
 
         Returns:
-            List of (display_text, lemma, is_content) tuples
+            List of (display_text, lemma, is_content, reading) tuples —
+            see BaseLanguageProcessor.tokenize_full for what `reading` is.
         """
         processor = self._get_processor(language_code)
         return processor.tokenize_full(text)

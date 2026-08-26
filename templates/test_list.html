@@ -633,7 +633,13 @@
     }
 
     function goToTestPreviewRecommended(testId, testType) {
-        window.location.href = `/test/${testId}?type=${testType}`;
+        // Must go through /preview (test_preview.html), same as goToTestPreview
+        // above — it's the only place that dispatches pitch_accent/pinyin/
+        // dictation to their dedicated trainer routes. Without /preview this
+        // hits the generic /test/<slug> route (test.html), which only knows
+        // 'reading'/'listening'/'dictation' and silently renders a pitch_accent
+        // test as a multiple-choice quiz.
+        window.location.href = `/test/${testId}/preview?type=${testType}`;
     }
 
     function showRecommendedEmpty() {

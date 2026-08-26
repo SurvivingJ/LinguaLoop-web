@@ -124,10 +124,65 @@ def test_isolate_retranslate_card_scopes_to_containing_sentence_only():
     span = [start, start + len("the mat")]
     error = err(span_reference=span, corrected_form="a mat", learner_form="the mat")
 
+    # l1_text has 1 sentence against gold_l2's 3 -- counts don't match, so
+    # l1_context can't be narrowed and falls back to the whole thing (the
+    # pre-existing, always-safe behaviour).
     card = cards.build_isolate_retranslate_card(error, gold_l2, l1_text="从前有一只狐狸。")
 
     assert card["target_sentence"] == "The fox sat on the mat."
     assert card["l1_context"] == "从前有一只狐狸。"
+
+
+def test_isolate_retranslate_narrows_l1_context_to_matching_sentence():
+    """Regression for the reported bug: a card instructed "Translate this
+    into the language you are studying" but showed the whole 2-4 sentence
+    passage as the reference while only ONE sentence was ever graded
+    (target_sentence/answer). When l1_text's sentence count matches gold_l2's,
+    l1_context must narrow to the one L1 sentence corresponding to
+    target_sentence, not the whole passage.
+    """
+    gold_l2 = "Once upon a time there was a fox. The fox sat on the mat. It was sleepy."
+    l1_text = "从前有一只狐狸。狐狸坐在垫子上。它很困。"
+    start = gold_l2.index("the mat")
+    span = [start, start + len("the mat")]
+    error = err(span_reference=span, corrected_form="a mat", learner_form="the mat")
+
+    card = cards.build_isolate_retranslate_card(error, gold_l2, l1_text)
+
+    assert card["target_sentence"] == "The fox sat on the mat."
+    assert card["l1_context"] == "狐狸坐在垫子上。"
+    assert card["l1_context"] != l1_text
+
+
+def test_cloze_card_includes_l1_context_for_the_containing_sentence():
+    """Regression for the reported bug: a "word choice" cloze card correctly
+    blanked the L2 element but gave no English reference, so the learner had
+    no way to know which word was meant. The cloze payload must carry
+    l1_context (scoped to the one corresponding L1 sentence), same as
+    isolate_retranslate already does."""
+    gold_l2 = "Once upon a time there was a fox. The fox sat on the mat. It was sleepy."
+    l1_text = "从前有一只狐狸。狐狸坐在垫子上。它很困。"
+    start = gold_l2.index("the mat")
+    span = [start, start + len("the mat")]
+    error = err(
+        span_reference=span, corrected_form="a mat", learner_form="the mat",
+        subtype="word_choice",
+    )
+
+    card = cards.build_cloze_card(error, gold_l2, l1_text)
+
+    assert card["l1_context"] == "狐狸坐在垫子上。"
+
+
+def test_cloze_card_l1_context_defaults_to_empty_string_when_omitted():
+    """Callers that only have gold_l2 (no l1_text) still work -- l1_context
+    degrades to "" rather than raising or carrying the whole gold_l2 text."""
+    gold_l2 = "The cat sat on the mat. It was sleepy."
+    error = err(span_reference=[4, 7], corrected_form="the cat", learner_form="cat")
+
+    card = cards.build_cloze_card(error, gold_l2)
+
+    assert card["l1_context"] == ""
 
 
 def test_cjk_sentence_terminators_are_recognised():

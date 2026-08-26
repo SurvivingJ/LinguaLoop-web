@@ -44,6 +44,7 @@ from services.vocabulary.sense_generator import (
     SenseGenerator, find_sentence, retry_transient_db_call,
 )
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
+from services.vocabulary.kana_homophone_judge import pick_homophone_sense
 # Fail-closed judging (TASK-510/727). Imported at module top rather than lazily
 # because `run`/`run_batch` open the guard before any generation begins — an
 # ImportError here must surface at import, not halfway through a batch.
@@ -1109,7 +1110,7 @@ class TestGenerationOrchestrator:
         # Strategy 2: Collect vocab_ids for cache-based lookup
         vocab_ids_needed = set()
         token_vocab_ids = []
-        for display_text, lemma, is_content in tokens:
+        for display_text, lemma, is_content, reading in tokens:
             vid = self._vocab_cache.get((lemma, language_id)) if is_content else None
             token_vocab_ids.append(vid)
             if vid:
@@ -1128,12 +1129,28 @@ class TestGenerationOrchestrator:
                 if vid not in sense_map:
                     sense_map[vid] = row['id']
 
+        # Strategy 1.5 (Japanese only): homophone-family resolution for
+        # tokens Strategy 1 missed. A kana-derived lemma's identity can be
+        # genuinely ambiguous — dim_vocabulary.lemma is a flat text key, and
+        # Japanese has real homophones (see japanese.py /
+        # kana_homophone_judge.py module docstrings). Before falling
+        # through to the *exact-lemma-text* cache lookup below (Strategy 2,
+        # which cannot tell homophones apart at all), check whether
+        # anything else in dim_vocabulary shares this token's reading and,
+        # if more than one candidate does, ask a cheap judge which one (if
+        # any) the sentence actually means.
+        homophone_sid = self._resolve_kana_homophones(
+            db, transcript, tokens, sense_lookup, language_id, language_code,
+        )
+
         token_map = []
-        for i, (display_text, lemma, is_content) in enumerate(tokens):
+        for i, (display_text, lemma, is_content, reading) in enumerate(tokens):
             sid = 0
             if is_content and lemma:
                 # Try reverse lookup first
                 sid = sense_lookup.get(lemma, 0)
+                if not sid:
+                    sid = homophone_sid.get(i, 0)
                 if not sid:
                     # Fall back to cache-based lookup
                     vid = token_vocab_ids[i]
@@ -1141,6 +1158,114 @@ class TestGenerationOrchestrator:
             token_map.append([display_text, sid])
 
         return token_map
+
+    def _resolve_kana_homophones(
+        self, db, transcript: str, tokens: list, sense_lookup: dict,
+        language_id: int, language_code: str,
+    ) -> dict[int, int]:
+        """Japanese-only: {token_index: sense_id} for tokens whose reading
+        is shared by >= 2 existing dim_vocabulary rows, decided by a cheap
+        judge given the sentence context (see kana_homophone_judge.py).
+
+        Returns {} immediately for non-Japanese and whenever nothing is
+        ambiguous — this must stay cheap on the overwhelmingly common case
+        where every token's reading has 0 or 1 dim_vocabulary match, which
+        needs no judge call at all.
+        """
+        if language_code != 'ja':
+            return {}
+
+        candidates_by_index: dict[int, str] = {}  # index -> reading
+        readings_needed: set[str] = set()
+        for i, (display_text, lemma, is_content, reading) in enumerate(tokens):
+            if is_content and lemma and reading and not sense_lookup.get(lemma):
+                candidates_by_index[i] = reading
+                readings_needed.add(reading)
+
+        if not readings_needed:
+            return {}
+
+        try:
+            vocab_resp = db.table('dim_vocabulary') \
+                .select('id, lemma, part_of_speech, reading') \
+                .eq('language_id', language_id) \
+                .in_('reading', list(readings_needed)) \
+                .execute()
+        except Exception as e:
+            logger.warning("Homophone-family lookup failed, skipping: %s", e)
+            return {}
+
+        vocab_rows = vocab_resp.data or []
+        if not vocab_rows:
+            return {}
+
+        vocab_ids = [row['id'] for row in vocab_rows]
+        sense_resp = db.table('dim_word_senses') \
+            .select('id, vocab_id, sense_rank, definition') \
+            .in_('vocab_id', vocab_ids) \
+            .order('sense_rank') \
+            .execute()
+        top_sense: dict[int, dict] = {}
+        for row in (sense_resp.data or []):
+            vid = row['vocab_id']
+            if vid not in top_sense:  # first = lowest rank = best
+                top_sense[vid] = row
+
+        by_reading: dict[str, list[dict]] = {}
+        for row in vocab_rows:
+            sense = top_sense.get(row['id'])
+            by_reading.setdefault(row['reading'], []).append({
+                'vocab_id': row['id'],
+                'lemma': row['lemma'],
+                'pos': row.get('part_of_speech'),
+                'definition': (sense or {}).get('definition') or '',
+                'sense_id': (sense or {}).get('id') or 0,
+            })
+
+        result: dict[int, int] = {}
+        # One judge call per distinct ambiguous reading, reused across every
+        # occurrence of that reading in this transcript — cheap, and the
+        # rare within-transcript polysemy case (same reading, two different
+        # intended words) is a known simplification, not silent breakage:
+        # it degrades to "one occurrence gets the other's answer", not to
+        # the pre-existing unconditional cross-word collision this replaces.
+        judged_cache: dict[str, int | None] = {}
+        for i, reading in candidates_by_index.items():
+            family = by_reading.get(reading) or []
+            if len(family) == 0:
+                continue
+            if len(family) == 1:
+                sid = family[0]['sense_id']
+                if sid:
+                    result[i] = sid
+                continue
+
+            if reading not in judged_cache:
+                try:
+                    judged_cache[reading] = pick_homophone_sense(
+                        db,
+                        surface=tokens[i][0],
+                        sentence=transcript,
+                        reading=reading,
+                        candidates=[
+                            {k: v for k, v in c.items() if k != 'sense_id'}
+                            for c in family
+                        ],
+                        language_id=language_id,
+                    )
+                except Exception as e:
+                    logger.warning(
+                        "Kana-homophone judge failed for reading %r: %s", reading, e,
+                    )
+                    judged_cache[reading] = None
+
+            chosen_vocab_id = judged_cache[reading]
+            if chosen_vocab_id:
+                match = next((c for c in family if c['vocab_id'] == chosen_vocab_id), None)
+                if match and match['sense_id']:
+                    result[i] = match['sense_id']
+
+        return result
 
     @retry_transient_db_call
     def _get_or_create_vocab_id(
@@ -1182,6 +1307,12 @@ class TestGenerationOrchestrator:
                 row['phrase_type'] = item['phrase_type']
             if item.get('components'):
                 row['component_lemmas'] = item['components']
+            if item.get('reading'):
+                # Populated for Japanese only (see extract_detailed /
+                # LemmaToken.reading) — the homophone-family lookup key in
+                # _resolve_kana_homophones. Stored at creation time so new
+                # rows don't depend on the backfill script ever running.
+                row['reading'] = item['reading']
 
             zipf = compute_zipf_for_vocab_item(item, language_code)
             if zipf is not None:

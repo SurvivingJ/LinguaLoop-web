@@ -9,7 +9,14 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Inter/Sora/JetBrains Mono cover UI chrome. Noto Sans SC/JP are the
+         guaranteed-render fallback for CJK exercise text (see styles.css
+         :lang(zh)/:lang(ja)) — Microsoft YaHei/PingFang SC/Hiragino Sans
+         etc. only exist if the OS shipped them (Windows/macOS/iOS do;
+         Android and most Linux don't), so these webfonts are what makes
+         Chinese/Japanese text render correctly on every platform rather
+         than only the ones with the right system font installed. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -250,9 +257,16 @@
                 <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
                     <li class="nav-item">
                         <a href="{{ url_for('study_session_page') }}"
-                           class="nav-link {% if request.endpoint == 'study_session_page' %}active{% endif %}"
+                           class="nav-link {% if request.endpoint == 'study_session_page' and request.args.get('mode') != 'practice' %}active{% endif %}"
                            data-i18n="common.nav.daily_session">
                             Daily Session
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('study_session_page', mode='practice') }}"
+                           class="nav-link {% if request.endpoint == 'study_session_page' and request.args.get('mode') == 'practice' %}active{% endif %}"
+                           data-i18n="common.nav.practice">
+                            Practice
                         </a>
                     </li>
                     <li class="nav-item">
@@ -269,14 +283,14 @@
                             Browse Tests
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item lang-gate d-none" data-lang-gate="zh">
                         <a href="{{ url_for('classifier_drill_page') }}"
                            class="nav-link {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
                            data-i18n="common.nav.classifier_drill">
                             Measure Words
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item lang-gate d-none" data-lang-gate="ja">
                         <a href="{{ url_for('counter_drill_page') }}"
                            class="nav-link {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
                            data-i18n="common.nav.counter_drill">
@@ -307,9 +321,15 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md" aria-labelledby="mobileNavBtn">
                         <li>
-                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' %}active{% endif %}"
+                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' and request.args.get('mode') != 'practice' %}active{% endif %}"
                                href="{{ url_for('study_session_page') }}" data-i18n="common.nav.daily_session">
                                 Daily Session
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' and request.args.get('mode') == 'practice' %}active{% endif %}"
+                               href="{{ url_for('study_session_page', mode='practice') }}" data-i18n="common.nav.practice">
+                                Practice
                             </a>
                         </li>
                         <li>
@@ -324,13 +344,13 @@
                                 Browse Tests
                             </a>
                         </li>
-                        <li>
+                        <li class="lang-gate d-none" data-lang-gate="zh">
                             <a class="dropdown-item {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
                                href="{{ url_for('classifier_drill_page') }}" data-i18n="common.nav.classifier_drill">
                                 Measure Words
                             </a>
                         </li>
-                        <li>
+                        <li class="lang-gate d-none" data-lang-gate="ja">
                             <a class="dropdown-item {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
                                href="{{ url_for('counter_drill_page') }}" data-i18n="common.nav.counter_drill">
                                 Counters
@@ -652,8 +672,36 @@
             }
         }
 
+        /**
+         * Show/hide language-specific nav items (Measure Words / Counters)
+         * based on the study language chosen on the language-selection page.
+         * Elements are marked up with class="lang-gate" data-lang-gate="<code>"
+         * and start hidden (d-none) so there's no flash of an irrelevant tool
+         * before metadata resolves the id -> language_code.
+         */
+        function applyLanguageGating() {
+            const gated = document.querySelectorAll('.lang-gate');
+            if (!gated.length) return;
+
+            const languageId = parseInt(localStorage.getItem('selectedLanguageId'), 10);
+            if (!languageId) return; // no language selected yet — stay hidden
+
+            LinguaMetadata.load().then(function(meta) {
+                const lang = (meta && meta.languages || []).find(function(l) {
+                    return l.id === languageId;
+                });
+                const code = lang && lang.language_code;
+                if (!code) return;
+
+                gated.forEach(function(el) {
+                    el.classList.toggle('d-none', el.dataset.langGate !== code);
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             updateLanguageIndicator();
+            applyLanguageGating();
 
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {

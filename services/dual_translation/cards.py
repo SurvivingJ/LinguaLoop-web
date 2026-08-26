@@ -80,6 +80,30 @@ def _sentence_span(text: str, span: list[int]) -> tuple[int, int]:
     return 0, len(text)
 
 
+def _sentence_index(text: str, span: list[int]) -> int:
+    """The ordinal (0-based) index, among the sentences ``_SENTENCE_END``
+    finds in ``text``, of the sentence containing ``span`` -- or ``-1`` if
+    none fully contains it (mirrors ``_sentence_span``'s primary-loop
+    condition; deliberately does NOT mirror its whole-text fallback, since a
+    caller using this to pick a corresponding sentence on the OTHER side of a
+    translation has no safe guess to make there either)."""
+    lo, hi = span[0], span[1]
+    start = 0
+    for i, match in enumerate(_SENTENCE_END.finditer(text)):
+        end = match.end()
+        if start <= lo and hi <= end:
+            return i
+        start = end
+    return -1
+
+
+def _split_sentences(text: str) -> list[str]:
+    """``text`` split into trimmed sentences via ``_SENTENCE_END`` (a
+    terminator-less trailing fragment, if any, is dropped -- same boundary
+    the regex draws everywhere else in this module)."""
+    return [match.group().strip() for match in _SENTENCE_END.finditer(text)]
+
+
 def _blank(text: str, local_span: list[int], marker: str = CLOZE_BLANK) -> str:
     """``text`` with ``local_span`` replaced by ``marker``. Works identically
     for a deletion span and a zero-width insertion-point span (an omission
@@ -127,10 +151,47 @@ def _blank_span_for(sentence: str, local_span: list[int], corrected_form: str) -
     return [first, first + len(corrected_form)]
 
 
-def build_cloze_card(error: dict, gold_l2: str) -> dict:
+def _l1_context_for(gold_l2: str, l1_text: str, span: list[int]) -> str:
+    """The L1 reference text to show alongside an L2 card built around
+    ``span``, scoped to the ONE L1 sentence corresponding to that span's
+    sentence when that correspondence can be trusted, not the whole
+    ``l1_text`` passage.
+
+    ``l1_text`` is a holistic LLM translation of the whole passage
+    (``passage_builder.generate_l1_reference``), not sentence-aligned by
+    construction, so there is no ground truth for "sentence N on the L1 side
+    is sentence N on the L2 side." Matching sentence COUNTS on both sides is
+    used as the only available signal that the correspondence is likely
+    1:1 -- when it holds, index into ``l1_text``'s sentences positionally.
+    Any mismatch (or an unmatched span, e.g. a terminator-less trailing
+    fragment) falls back to the whole ``l1_text``: a wider context is always
+    safe, just less tightly scoped -- the same tradeoff ``_sentence_span``
+    makes for the L2 side.
+    """
+    l1_context = l1_text
+    index = _sentence_index(gold_l2, span)
+    if index != -1:
+        l2_sentences = _split_sentences(gold_l2)
+        l1_sentences = _split_sentences(l1_text)
+        if len(l1_sentences) == len(l2_sentences) and index < len(l1_sentences):
+            l1_context = l1_sentences[index]
+    return l1_context
+
+
+def build_cloze_card(error: dict, gold_l2: str, l1_text: str = "") -> dict:
     """Cloze card payload: the sentence containing the error, with ONLY the
     corrected element blanked (SuperMemo minimum-information principle — one
-    atom per card). Answer target is always ``corrected_form``.
+    atom per card), plus the L1 reference sentence so the learner knows what
+    meaning the blank is supposed to express. Answer target is always
+    ``corrected_form``.
+
+    ``l1_context`` is what makes the blank solvable rather than a guessing
+    game: a blanked L2 sentence alone under-determines the answer whenever
+    more than one plausible word could fill the gap (near-synonyms, word-choice
+    errors chief among them) -- the learner needs to know what was MEANT, not
+    just what shape fits. See ``_l1_context_for`` for how it is scoped to the
+    one corresponding L1 sentence. Defaults to ``""`` (degrading to no L1
+    context) so existing callers that only have ``gold_l2`` still work.
     """
     span = error["span_reference"]
     sent_start, sent_end = _sentence_span(gold_l2, span)
@@ -141,6 +202,7 @@ def build_cloze_card(error: dict, gold_l2: str) -> dict:
     return {
         "prompt": _blank(sentence, blank_span),
         "answer": error["corrected_form"],
+        "l1_context": _l1_context_for(gold_l2, l1_text, span) if l1_text else "",
     }
 
 
@@ -148,13 +210,22 @@ def build_isolate_retranslate_card(error: dict, gold_l2: str, l1_text: str) -> d
     """Isolate-and-re-translate card payload: the L1 reference as context plus
     the ONE gold L2 sentence the learner must reproduce, for back-translation
     after a spaced delay. Answer target is always ``corrected_form``.
+
+    ``l1_context`` is scoped to the ONE L1 sentence corresponding to
+    ``target_sentence`` when that correspondence can be trusted, not the whole
+    ``l1_text`` passage (see ``_l1_context_for``). The FE's fixed instruction
+    copy is "Translate this into the language you are studying" pointing
+    straight at ``l1_context`` -- if that is the whole 2-4 sentence passage
+    while only one sentence is ever graded (``answer``/``target_sentence`` are
+    always scoped to one sentence), the card asks for one thing and grades
+    another.
     """
     span = error["span_reference"]
     sent_start, sent_end = _sentence_span(gold_l2, span)
     target_sentence = gold_l2[sent_start:sent_end].strip()
 
     return {
-        "l1_context": l1_text,
+        "l1_context": _l1_context_for(gold_l2, l1_text, span),
         "target_sentence": target_sentence,
         "answer": error["corrected_form"],
     }
@@ -178,7 +249,7 @@ def build_cards(error: dict, gold_l2: str, l1_text: str) -> list[dict]:
     """
     built = []
 
-    cloze = build_cloze_card(error, gold_l2)
+    cloze = build_cloze_card(error, gold_l2, l1_text)
     if cloze["answer"] and cloze["answer"] in cloze["prompt"]:
         logger.warning(
             "Dropping cloze card for subtype=%s: prompt still contains the answer "

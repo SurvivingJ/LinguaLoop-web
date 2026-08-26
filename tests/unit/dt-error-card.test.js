@@ -225,6 +225,23 @@ describe('payload rendering', () => {
     expect(D().revealHTML(nasty, null)).not.toContain('<b>bold</b>');
   });
 
+  it('renders l1_context as the reference for a cloze card when present', () => {
+    // Regression: a "word choice" cloze card blanked the L2 element but gave
+    // no English/L1 reference, so the learner couldn't know what was meant.
+    const clozeWithReference = {
+      ...CLOZE,
+      prompt_payload: { ...CLOZE.prompt_payload, l1_context: 'The dog sat on the mat.' },
+    };
+    const html = D().promptHTML(clozeWithReference);
+    expect(html).toContain('The dog sat on the mat.');
+    expect(html).toContain('The ____ sat on the mat.');
+  });
+
+  it('omits the reference block for a cloze card with no l1_context (older cards)', () => {
+    const html = D().promptHTML(CLOZE);
+    expect(html).not.toContain('Reference (in your language)');
+  });
+
   it('falls back to the cloze shape for an unknown card_type without leaking the answer', () => {
     const unknown = { ...CLOZE, card_type: 'something_new' };
     const html = D().promptHTML(unknown);

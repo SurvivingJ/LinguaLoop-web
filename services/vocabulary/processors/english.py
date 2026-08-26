@@ -59,7 +59,7 @@ class EnglishProcessor(BaseLanguageProcessor):
 
         return tokens
 
-    def tokenize_full(self, text: str) -> list[tuple[str, str, bool]]:
+    def tokenize_full(self, text: str) -> list[tuple[str, str, bool, str]]:
         nlp = self._get_nlp()
         doc = nlp(text)
         result = []
@@ -70,7 +70,7 @@ class EnglishProcessor(BaseLanguageProcessor):
                 else token.lemma_
             )
             is_content = token.pos_ in _CONTENT_POS and not token.is_stop
-            result.append((token.text_with_ws, lemma.lower().strip(), is_content))
+            result.append((token.text_with_ws, lemma.lower().strip(), is_content, ''))
         return result
 
     def is_ready(self) -> bool:

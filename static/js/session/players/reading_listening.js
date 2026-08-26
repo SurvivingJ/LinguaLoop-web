@@ -65,25 +65,19 @@ export function mount(container, ctx) {
 
   init();
 
-  return {
-    destroy() {
-      if (state._timer) {
-        clearInterval(state._timer);
-        state._timer = null;
-      }
-      if (state.audioElement) {
-        try {
-          state.audioElement.pause();
-        } catch (_) {}
-      }
-      document.body.classList.remove('test-page');
-      cleanup.forEach((fn) => {
-        try {
-          fn();
-        } catch (_) {}
-      });
-    },
-  };
+  // NOTE: the object returned by mount() must be built at the END of this
+  // function body, not here. `return` halts execution of the enclosing
+  // function immediately — any `const`/`function` declared textually AFTER
+  // an early return in the same scope never runs. wordPopover and wordQuiz
+  // below are exactly that: both are declared further down as `const`, so
+  // an early return here left them permanently in the temporal dead zone.
+  // init() resumes asynchronously (after its first `await`), by which time
+  // mount()'s synchronous body — everything up to the real return at the
+  // bottom — has already finished running, so wordPopover.init() and
+  // wordQuiz.show() see fully-initialized objects instead of throwing
+  // "Cannot access 'wordPopover' before initialization". This silently
+  // killed every word-definition popover and vocab quiz in this player
+  // (init() caught the throw and rendered the generic error state instead).
 
   // ====================================================================
   // INIT
@@ -180,19 +174,14 @@ export function mount(container, ctx) {
     }
     wrap.classList.add('visible');
 
-    try {
-      const resp = await window.authFetch('/api/users/preferences', { method: 'GET' });
-      if (resp && resp.ok) {
-        const body = await resp.json();
-        const prefs = (body && (body.data || body).exercise_preferences) || {};
-        state.furiganaEnabled = !!prefs.furigana_enabled;
-      }
-    } catch (_) {
-      /* default off */
-    }
-
-    cb.checked = state.furiganaEnabled;
-    if (state.furiganaEnabled) state.furiganaUsedThisAttempt = true;
+    // Always start unselected. Furigana is a per-attempt opt-in (it halves
+    // the ELO change), so a prior test's choice must never carry over —
+    // restoring it from the stored preference here previously left the
+    // checkbox showing checked without the transcript actually rendering
+    // furigana (the initial render already ran before this async fetch
+    // resolved), which was worse than just not restoring it at all.
+    state.furiganaEnabled = false;
+    cb.checked = false;
 
     on(cb, 'change', () => {
       state.furiganaEnabled = cb.checked;
@@ -907,6 +896,26 @@ export function mount(container, ctx) {
       }
     }, 1000);
   }
+
+  return {
+    destroy() {
+      if (state._timer) {
+        clearInterval(state._timer);
+        state._timer = null;
+      }
+      if (state.audioElement) {
+        try {
+          state.audioElement.pause();
+        } catch (_) {}
+      }
+      document.body.classList.remove('test-page');
+      cleanup.forEach((fn) => {
+        try {
+          fn();
+        } catch (_) {}
+      });
+    },
+  };
 }
 
 // ========================================================================
