@@ -83,6 +83,22 @@ const ExRenderers = (function () {
       'exercises.instruction.odd_collocation_out': `Which collocation with "${(v && v.word) || ''}" does not fit?`,
       'exercises.type_placeholder': 'Type your answer...',
       'exercises.hint': `Hint: ${(v && v.hint) || ''}`,
+      'exercises.instruction.hanzi_to_pinyin': 'Choose the correct pinyin:',
+      'exercises.instruction.pinyin_to_hanzi': 'Choose the characters for this pinyin:',
+      'exercises.instruction.kanji_to_reading': 'Choose the correct reading:',
+      'exercises.instruction.reading_to_kanji': 'Choose the written form for this reading:',
+      'exercises.instruction.tone_id_word': 'Which tone pattern does this word have?',
+      'exercises.instruction.classifier_match': 'Choose the correct measure word:',
+      'exercises.instruction.counter_match': 'Choose the correct counter:',
+      'exercises.instruction.synonym': 'Which word means the same?',
+      'exercises.instruction.antonym': 'Which word means the opposite?',
+      'exercises.instruction.word_family': 'Choose the correct form of the word:',
+      'exercises.instruction.particle_selection': 'Choose the correct particle:',
+      'exercises.in_context': 'In this sentence:',
+      'exercises.tone_id_answer': `Full pinyin: ${(v && v.pinyin) || ''}`,
+      'exercises.measure_word_group': `Group: ${(v && v.label) || ''}`,
+      'exercises.word_family_stem': `Stem: ${(v && v.stem) || ''}`,
+      'exercises.word_family_pos': `Needs a ${(v && v.pos) || ''}`,
     };
     return map[key] || key;
   }
@@ -97,7 +113,24 @@ const ExRenderers = (function () {
 
   // ── MCQ shared builder ──
 
-  function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML) {
+  /**
+   * @param {Object} [extra] Optional per-item behaviour:
+   *   - `labels`    {value: displayText} — show something other than the
+   *     option's own value. `tone_id_word` needs this: its options are tone
+   *     digits ("1", "4"), which are the submitted value but not readable text.
+   *   - `sublabels` {value: secondLine} — a muted second line under an option
+   *     (classifier/counter readings: 家 / jiā).
+   *   - `accepted`  [value] — every value graded correct. Measure-word items
+   *     are genuinely multi-answer (书 takes 本 *and* 册), and this path grades
+   *     client-side, so equality against a single key would mark a right
+   *     answer wrong.
+   */
+  function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML, extra) {
+    extra = extra || {};
+    const labels = extra.labels || null;
+    const sublabels = extra.sublabels || null;
+    const accepted =
+      Array.isArray(extra.accepted) && extra.accepted.length ? extra.accepted : [correct];
     const shuffled = shuffleArr(opts);
     let h =
       (wordHTML || '') +
@@ -107,7 +140,12 @@ const ExRenderers = (function () {
       `<div class="exercise-options" id="optionsList">`;
     shuffled.forEach((o, i) => {
       const v = typeof o === 'object' ? o.text : o;
-      h += `<div class="exercise-option" data-value="${escHtml(v)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(v)}</span></div>`;
+      const label = (labels && labels[v]) || v;
+      const sub =
+        sublabels && sublabels[v]
+          ? `<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:2px">${escHtml(sublabels[v])}</span>`
+          : '';
+      h += `<div class="exercise-option" data-value="${escHtml(v)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(label)}${sub}</span></div>`;
     });
     h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
     _card.innerHTML = h;
@@ -118,10 +156,10 @@ const ExRenderers = (function () {
       if (!opt) return;
       _setAnswered(true);
       const sel = opt.dataset.value;
-      const ok = sel === correct;
+      const ok = accepted.indexOf(sel) !== -1;
       document.querySelectorAll('#optionsList .exercise-option').forEach((o) => {
         o.classList.add('disabled');
-        if (o.dataset.value === correct) o.classList.add('correct');
+        if (accepted.indexOf(o.dataset.value) !== -1) o.classList.add('correct');
       });
       if (!ok) opt.classList.add('incorrect');
       _showFeedback(ok, expl);
@@ -827,6 +865,209 @@ const ExRenderers = (function () {
     );
   }
 
+  // ── Ladder script/sound, measure-word and relation renderers ──
+
+  const BLANK_SPAN = '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+
+  function withBlank(text) {
+    return escHtml(text || '').replace('___', BLANK_SPAN);
+  }
+
+  /** A muted note under the prompt — stem, required form, distractor group. */
+  function noteHTML(parts) {
+    const kept = parts.filter(Boolean);
+    if (!kept.length) return '';
+    return `<div style="font-size:14px;color:var(--text-secondary);margin-top:10px">${kept.join(' &mdash; ')}</div>`;
+  }
+
+  /**
+   * The disambiguating sentence carried by polyphone items.
+   *
+   * `reveal` is the direction-dependent half. Script→sound already shows the
+   * word as the prompt, so the sentence can show it too, emphasised. Sound→
+   * script must NOT: the key *is* the written form, and printing it in the
+   * context sentence hands over the answer. There the target is blanked, and
+   * when it has no literal match in the sentence (an inflected JA form) the
+   * whole sentence is dropped rather than shown intact — a hard item beats a
+   * free one.
+   */
+  function contextHTML(sentence, target, reveal, key) {
+    if (!sentence) return '';
+    let body;
+    if (reveal) {
+      body = target
+        ? escHtml(sentence)
+            .split(escHtml(target))
+            .join(`<strong>${escHtml(target)}</strong>`)
+        : escHtml(sentence);
+    } else {
+      if (!target || sentence.indexOf(target) === -1) return '';
+      body = escHtml(sentence).split(escHtml(target)).join(BLANK_SPAN);
+      // Belt and braces: today `context_target` is the key in every stored
+      // row, but they are separate fields and a future row could differ.
+      if (key) body = body.split(escHtml(key)).join(BLANK_SPAN);
+    }
+    return (
+      `<div style="font-size:15px;color:var(--text-secondary);margin-top:12px">` +
+      `<div style="font-size:13px;color:var(--text-muted);margin-bottom:4px">${i18n('exercises.in_context')}</div>` +
+      `${body}</div>`
+    );
+  }
+
+  // Types whose prompt is the script and whose answer is the pronunciation.
+  const SCRIPT_TO_SOUND = { hanzi_to_pinyin: true, kanji_to_reading: true };
+
+  /**
+   * hanzi_to_pinyin / pinyin_to_hanzi / kanji_to_reading / reading_to_kanji.
+   *
+   * One renderer for four types: the stored item is the same shape in every
+   * direction (`prompt`, `options`, `correct_answer`), and only the wording of
+   * the instruction differs. What is not shared is how the context sentence is
+   * treated — see contextHTML.
+   */
+  function renderScriptSound(ex, c, w) {
+    const type = ex.exercise_type;
+    const prompt =
+      `<div style="font-size:32px;font-weight:700;color:var(--text-primary)">${escHtml(c.prompt || c.word || '')}</div>` +
+      contextHTML(c.context_sentence, c.context_target, !!SCRIPT_TO_SOUND[type], c.correct_answer);
+    mcq(
+      fmtType(type),
+      ex.cefr_level,
+      i18n('exercises.instruction.' + type),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.explanation || '',
+      w
+    );
+  }
+
+  /**
+   * tone_id_word — pick the tone contour, not the whole pronunciation.
+   *
+   * The options are contour strings ("1", "24"); `option_labels` carries the
+   * readable form ("rising (2) + falling (4)"). The value is what gets
+   * submitted, so it stays as the option's data-value and only the display
+   * text is swapped. The pinyin shown in the prompt is deliberately the
+   * toneless one — the marked pinyin would print the answer.
+   */
+  function renderToneId(ex, c, w) {
+    const prompt =
+      `<div style="font-size:34px;font-weight:700;color:var(--text-primary)">${escHtml(c.word || ex.lemma || '')}</div>` +
+      (c.toneless_pinyin
+        ? `<div style="font-size:18px;color:var(--text-secondary);margin-top:6px;letter-spacing:1px">${escHtml(c.toneless_pinyin)}</div>`
+        : '');
+    mcq(
+      fmtType('tone_id_word'),
+      ex.cefr_level,
+      i18n('exercises.instruction.tone_id_word'),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.full_pinyin ? i18n('exercises.tone_id_answer', { pinyin: escHtml(c.full_pinyin) }) : '',
+      w,
+      { labels: c.option_labels || null }
+    );
+  }
+
+  /**
+   * classifier_match (zh) / counter_match (ja) — the same item in two languages.
+   *
+   * Both are multi-answer by nature, so `accepted_answers` drives grading;
+   * `option_readings` rides along because a JA counter fuses with the numeral
+   * (一本 = いっぽん) and the form alone does not say how the phrase sounds.
+   */
+  function renderMeasureWord(ex, c, w) {
+    const type = ex.exercise_type;
+    const prompt =
+      `<div style="font-size:28px;font-weight:700;color:var(--text-primary)">${withBlank(c.stem)}</div>` +
+      (c.pronunciation
+        ? `<div style="font-size:15px;color:var(--text-secondary);margin-top:6px">${escHtml(c.pronunciation)}</div>`
+        : '');
+    mcq(
+      fmtType(type),
+      ex.cefr_level,
+      i18n('exercises.instruction.' + type),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.semantic_label
+        ? i18n('exercises.measure_word_group', { label: escHtml(c.semantic_label) })
+        : '',
+      w,
+      {
+        sublabels: c.option_readings || null,
+        accepted: c.accepted_answers || null,
+      }
+    );
+  }
+
+  /**
+   * synonym_antonym_match — the relation is the question, so it drives the
+   * instruction rather than sitting in the prompt as a label.
+   */
+  function renderSynAnt(ex, c, w) {
+    const relation = c.relation === 'antonym' ? 'antonym' : 'synonym';
+    const prompt =
+      `<div style="font-size:28px;font-weight:700;color:var(--primary)">${escHtml(c.word || ex.lemma || '')}</div>` +
+      (c.word_definition
+        ? `<div style="font-size:14px;color:var(--text-secondary);margin-top:8px;font-style:italic">${escHtml(c.word_definition)}</div>`
+        : '');
+    mcq(
+      fmtType('synonym_antonym_match'),
+      ex.cefr_level,
+      i18n('exercises.instruction.' + relation),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.explanation || '',
+      w
+    );
+  }
+
+  /**
+   * word_family — fill the slot with the right derivation of a stem.
+   *
+   * `required_pos` is shown because the slot is defined by it: without it
+   * "decide / decision / decisive" are three defensible fills of one blank.
+   */
+  function renderWordFamily(ex, c, w) {
+    const prompt =
+      `<div>${withBlank(c.sentence_with_blank)}</div>` +
+      noteHTML([
+        c.stem ? i18n('exercises.word_family_stem', { stem: escHtml(c.stem) }) : '',
+        c.required_pos ? i18n('exercises.word_family_pos', { pos: escHtml(c.required_pos) }) : '',
+      ]);
+    mcq(
+      fmtType('word_family'),
+      ex.cefr_level,
+      i18n('exercises.instruction.word_family'),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.explanation || '',
+      w
+    );
+  }
+
+  /**
+   * particle_selection — the JA L4. `error_tags` is not rendered: it is a
+   * confusion-class enum the practice engine aggregates on, not learner text.
+   */
+  function renderParticleSelection(ex, c, w) {
+    const prompt = `<div style="font-size:24px;font-weight:600;line-height:1.7">${withBlank(c.sentence_with_blank)}</div>`;
+    mcq(
+      fmtType('particle_selection'),
+      ex.cefr_level,
+      i18n('exercises.instruction.particle_selection'),
+      prompt,
+      c.options || [],
+      c.correct_answer || '',
+      c.explanation || '',
+      w
+    );
+  }
+
   // ── Schema-v2 nl envelope (TASK-519) ──
 
   /**
@@ -893,6 +1134,16 @@ const ExRenderers = (function () {
       phonetic_recognition: renderPhonetic,
       definition_match: renderDefinitionMatch,
       morphology_slot: renderMorphologySlot,
+      hanzi_to_pinyin: renderScriptSound,
+      pinyin_to_hanzi: renderScriptSound,
+      kanji_to_reading: renderScriptSound,
+      reading_to_kanji: renderScriptSound,
+      tone_id_word: renderToneId,
+      classifier_match: renderMeasureWord,
+      counter_match: renderMeasureWord,
+      synonym_antonym_match: renderSynAnt,
+      word_family: renderWordFamily,
+      particle_selection: renderParticleSelection,
     };
     const fn = map[type] || renderGeneric;
     fn(ex, c, w);

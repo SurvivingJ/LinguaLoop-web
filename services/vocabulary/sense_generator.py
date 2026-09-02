@@ -28,6 +28,7 @@ Prompt templates (prompt_templates table, numeric-key, per language incl. ja):
 """
 
 import re
+import os
 import json
 import logging
 import threading
@@ -85,6 +86,12 @@ SENSE_PROMPT_VERSION = 2
 
 # Confidence at/above which a generated sense is treated as validated.
 VALIDATION_CONFIDENCE_THRESHOLD = 0.7
+
+# Output ceiling for a batched generation call. Below the 64k that current
+# frontier models allow, with headroom: a batch that runs out of output tokens
+# is truncated mid-JSON rather than erroring, so the cost of guessing high is a
+# silently short response.
+_BATCH_MAX_OUTPUT_TOKENS = int(os.getenv('SENSE_BATCH_MAX_OUTPUT_TOKENS', '32000'))
 
 # Language-specific notes (kept for callers/logging; prompts are now self-contained).
 LINGUISTIC_NOTES = {
@@ -412,8 +419,12 @@ class SenseGenerator:
             'pos_code': pos_code, 'confidence': confidence, 'skip': skip,
         }
 
-    def _generate_payload(self, lemma: str, sentence: str) -> dict | None:
-        """Run the single two-level generation call and return parsed fields."""
+    def _render_generation_prompt(self, lemma: str, sentence: str) -> str | None:
+        """Render the per-word generation prompt from prompt_templates.
+
+        Shared by the single-word and batched paths so batching cannot fork the
+        prompt corpus into a second copy that drifts from the DB.
+        """
         template = self._db_client.get_prompt_template(
             'vocab_definition_generation', self._language_id, required=False
         )
@@ -421,13 +432,19 @@ class SenseGenerator:
             logger.warning(f"No vocab_definition_generation prompt for language_id={self._language_id}")
             return None
         try:
-            prompt = template.format(
+            return template.format(
                 lemma=lemma,
                 sentence=sentence or '',
                 simple_register=self._simple_register,
             )
         except KeyError as e:
             logger.error(f"Definition generation template missing variable: {e}")
+            return None
+
+    def _generate_payload(self, lemma: str, sentence: str) -> dict | None:
+        """Run the single two-level generation call and return parsed fields."""
+        prompt = self._render_generation_prompt(lemma, sentence)
+        if not prompt:
             return None
 
         data = self._call_llm(
@@ -691,3 +708,98 @@ class SenseGenerator:
         # and add simple alongside it); rank 1 for a brand-new word.
         rank = existing[0]['sense_rank'] if existing else 1
         return self._write_two_levels(vocab_id, lemma, fields, rank)
+
+    # ------------------------------------------------------- batched backfill
+
+    def _batch_skip_reason(self, vocab_id: int) -> str | None:
+        """Why this word needs no LLM call, or None if it does.
+
+        The same two guards ``seed_word`` applies, hoisted so a batch can drop
+        skippable words *before* they consume a slot in a prompt.
+        """
+        if self._prefer_existing and self._has_simple_level(vocab_id):
+            return 'senses_reused'
+        if any(s.get('source') == 'manual' for s in self._get_existing_senses(vocab_id)):
+            return 'senses_skipped'
+        return None
+
+    def seed_words_batch(
+        self,
+        words: list[tuple[int, str]],
+        batch_size: int = 100,
+        sentences: dict[int, str] | None = None,
+    ) -> dict[int, int | None]:
+        """Seed many words using multi-item prompts instead of one call per word.
+
+        Same semantics as calling :meth:`seed_word` for each entry — the same
+        resume guards, the same template, the same write path — but N words share
+        one LLM turn. That matters most under the headless Claude Code transport,
+        where each call is a process spawn against a subscription rate limit
+        rather than a metered HTTP request.
+
+        Words whose batch response is missing or malformed are automatically
+        retried in progressively smaller batches (see services/batch_prompting.py),
+        so one bad item costs a few extra small calls rather than the batch.
+
+        Args:
+            words:      [(vocab_id, lemma), …]
+            batch_size: Words per LLM call. 1 falls back to the unbatched path.
+            sentences:  Optional vocab_id -> example sentence for context.
+
+        Returns:
+            vocab_id -> standard sense_id (or None where nothing was written).
+        """
+        from services.batch_prompting import run_batched
+
+        sentences = sentences or {}
+        out: dict[int, int | None] = {}
+
+        # Drop the skippable words first so they never occupy a batch slot.
+        pending: list[tuple[int, str]] = []
+        for vocab_id, lemma in words:
+            reason = self._batch_skip_reason(vocab_id)
+            if reason:
+                self._bump(reason)
+                existing = self._get_existing_senses(vocab_id)
+                out[vocab_id] = existing[0]['id'] if existing else None
+            else:
+                pending.append((vocab_id, lemma))
+
+        if not pending:
+            return out
+
+        payloads = run_batched(
+            pending,
+            render=lambda w: self._render_generation_prompt(w[1], sentences.get(w[0], '')),
+            call=lambda prompt: self._call_llm(
+                prompt,
+                task_name='vocab_definition_generation',
+                # One item's budget times the batch — clamped, because asking for
+                # more than the model can emit does not raise. The response is
+                # silently truncated mid-JSON, which surfaces as "the last 40
+                # items are missing" rather than as an error.
+                max_tokens=min(
+                    self._generation_max_tokens * max(1, batch_size),
+                    _BATCH_MAX_OUTPUT_TOKENS,
+                ),
+            ),
+            batch_size=batch_size,
+            validate=self._parse_generation,
+        )
+
+        for position, (vocab_id, lemma) in enumerate(pending):
+            fields = payloads.get(position)
+            if not fields:
+                self._bump('senses_failed')
+                out[vocab_id] = None
+                continue
+            if fields['skip']:
+                self._bump('senses_skipped')
+                logger.debug(f"  {lemma}: skipped (proper noun, number, symbol, etc.)")
+                out[vocab_id] = None
+                continue
+            existing = self._get_existing_senses(vocab_id)
+            rank = existing[0]['sense_rank'] if existing else 1
+            out[vocab_id] = self._write_two_levels(vocab_id, lemma, fields, rank)
+
+        return out

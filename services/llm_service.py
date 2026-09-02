@@ -61,6 +61,12 @@ OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', os.getenv('CONV_GEN_OLLAMA_URL', 
 OLLAMA_DEFAULT_MODEL = os.getenv('OLLAMA_DEFAULT_MODEL', os.getenv('CONV_GEN_OLLAMA_MODEL', 'qwen2.5:7b-instruct-q4_K_M'))
 
 LLM_DEFAULT_PROVIDER = os.getenv('LLM_DEFAULT_PROVIDER', 'openrouter')
+
+# Headless Claude Code transport (subscription-billed, not per-token).
+# Sentinel rather than a real URL — see services/claude_cli_client.py. Declared
+# here rather than imported so provider resolution stays import-cheap for the
+# majority of callers that never use it.
+CLAUDE_CLI_BASE_URL = 'claude-cli://local'
 # Last-resort fallback: used by _resolve_model only when the caller supplies
 # neither an explicit model nor a language. google/gemini-3.5-flash-lite since
 # 2026-08-16 -- one gemini slug system-wide, per
@@ -89,7 +95,8 @@ OLLAMA_MODELS: dict[str, str] = {
 # Client pool  — singleton OpenAI instances keyed by (base_url, api_key)
 # ---------------------------------------------------------------------------
 
-_clients: dict[tuple[str, str], OpenAI] = {}
+# Values are OpenAI clients, or a ClaudeCliClient for the headless transport.
+_clients: dict[tuple[str, str], object] = {}
 
 
 def _resolve_provider(provider: str | None) -> tuple[str, str]:
@@ -100,8 +107,36 @@ def _resolve_provider(provider: str | None) -> tuple[str, str]:
         return (OPENROUTER_BASE_URL, OPENROUTER_API_KEY)
     elif provider == 'ollama':
         return (OLLAMA_BASE_URL, 'ollama')
+    elif provider == 'claude_cli':
+        # Not an HTTP endpoint — a sentinel that routes get_client to the
+        # headless `claude -p` subprocess transport. Keyed like any other
+        # provider so the client pool, and every caller that resolves a client
+        # by base_url, works unchanged.
+        return (CLAUDE_CLI_BASE_URL, 'subscription')
     else:
-        raise ValueError(f"Unknown LLM provider: {provider!r}. Use 'openrouter' or 'ollama'.")
+        raise ValueError(
+            f"Unknown LLM provider: {provider!r}. "
+            "Use 'openrouter', 'ollama' or 'claude_cli'."
+        )
+
+
+def set_default_provider(provider: str) -> None:
+    """Switch the process-wide default LLM provider at runtime.
+
+    Backfill CLIs use this to route a whole run to the headless Claude Code
+    transport with one flag. Both the module global and the environment variable
+    are set: ``_resolve_provider`` reads the global, while
+    ``exercise_generation.llm_client`` reads the env var to size its timeout.
+
+    Raises:
+        ValueError: on an unknown provider — fails before the run starts rather
+            than on the first LLM call, hours in.
+    """
+    global LLM_DEFAULT_PROVIDER
+    _resolve_provider(provider)  # validate; raises on an unknown name
+    LLM_DEFAULT_PROVIDER = provider
+    os.environ['LLM_DEFAULT_PROVIDER'] = provider
+    logger.info("Default LLM provider set to %r for this process", provider)
 
 
 def get_client(
@@ -109,11 +144,15 @@ def get_client(
     *,
     base_url: str | None = None,
     api_key: str | None = None,
-) -> OpenAI:
-    """Get or create a singleton OpenAI client.
+):
+    """Get or create a singleton client.
 
-    Either pass a provider name ('openrouter'/'ollama') or explicit
+    Either pass a provider name ('openrouter'/'ollama'/'claude_cli') or explicit
     base_url + api_key for custom endpoints.
+
+    Returns an ``OpenAI`` instance for HTTP providers, or a ``ClaudeCliClient``
+    for the headless Claude Code transport. Both expose the same
+    ``chat.completions.create`` surface, so callers do not branch.
     """
     if base_url and api_key:
         key = (base_url, api_key)
@@ -121,8 +160,16 @@ def get_client(
         key = _resolve_provider(provider)
 
     if key not in _clients:
-        _clients[key] = OpenAI(api_key=key[1], base_url=key[0])
-        logger.debug("Created LLM client for %s", key[0])
+        if key[0] == CLAUDE_CLI_BASE_URL:
+            # Imported lazily: the module shells out and probes the filesystem
+            # for the CLI, which should not happen at import time for the many
+            # callers that never touch this provider.
+            from services.claude_cli_client import ClaudeCliClient
+            _clients[key] = ClaudeCliClient()
+            logger.info("Created Claude Code headless client (subscription auth)")
+        else:
+            _clients[key] = OpenAI(api_key=key[1], base_url=key[0])
+            logger.debug("Created LLM client for %s", key[0])
 
     return _clients[key]
 
@@ -135,10 +182,26 @@ def _resolve_model(
     """Resolve which model to use.
 
     Priority:
-    1. Explicit model param
-    2. Language-based lookup (OpenRouter → Config.AI_MODELS, Ollama → OLLAMA_MODELS)
-    3. Provider default
+    1. claude_cli → always the Claude model the CLI actually serves
+    2. Explicit model param
+    3. Language-based lookup (OpenRouter → Config.AI_MODELS, Ollama → OLLAMA_MODELS)
+    4. Provider default
     """
+    if (provider or LLM_DEFAULT_PROVIDER) == 'claude_cli':
+        # The CLI serves Claude models only, so the OpenRouter slug named by
+        # prompt_templates (qwen/…, google/…, deepseek/…) cannot be honoured and
+        # becomes advisory. Returning the real model — rather than echoing the
+        # requested slug — keeps llm_calls.model honest: otherwise every eval,
+        # judge-flag-rate run and A/B in scripts/measure_*.py would pool Claude
+        # output under a qwen or gemini label and compare two models as one.
+        from services.claude_cli_client import CLAUDE_CLI_MODEL
+        if model:
+            logger.debug(
+                "claude_cli provider: ignoring requested model %r, serving %r",
+                model, CLAUDE_CLI_MODEL,
+            )
+        return f'claude-cli:{CLAUDE_CLI_MODEL}'
+
     if model:
         return model
 
@@ -240,6 +303,21 @@ _RETRYABLE = (
 )
 
 
+def _retryable_types() -> tuple:
+    """Retryable exceptions, including the headless CLI's failure type.
+
+    ClaudeCliError covers a subprocess timeout, a non-zero exit and a transient
+    API error surfaced through the envelope — all of which are worth one more
+    roll, exactly like the HTTP providers' transient faults. Resolved lazily so
+    importing llm_service never pulls in the subprocess module.
+    """
+    try:
+        from services.claude_cli_client import ClaudeCliError
+        return _RETRYABLE + (ClaudeCliError,)
+    except Exception:  # pragma: no cover - defensive
+        return _RETRYABLE
+
+
 # ---------------------------------------------------------------------------
 # Core call_llm
 # ---------------------------------------------------------------------------
@@ -247,7 +325,7 @@ _RETRYABLE = (
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(_RETRYABLE),
+    retry=retry_if_exception_type(_retryable_types()),
     before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,
 )

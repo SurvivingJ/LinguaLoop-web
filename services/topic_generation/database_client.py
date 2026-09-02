@@ -82,6 +82,9 @@ class GenerationMetrics:
     topics_generated: int = 0
     topics_rejected_similarity: int = 0
     topics_rejected_gatekeeper: int = 0
+    # T3.1 — candidates whose distinctive_vocabulary the tier-fit judge found
+    # unreachable for the tier they were ideated at.
+    topics_rejected_tier_fit: int = 0
     candidates_proposed: int = 0
     api_calls_llm: int = 0
     api_calls_embedding: int = 0
@@ -419,28 +422,44 @@ class TopicDatabaseClient:
         self,
         category_id: int,
         embedding: List[float],
-        threshold: float = 0.85
+        threshold: float = 0.85,
+        scope: str = 'category'
     ) -> List[Dict]:
         """
-        Vector similarity search within a category.
+        Vector similarity search for near-duplicate topics.
 
         Args:
-            category_id: Category to search within
+            category_id: Category to search within (ignored when scope='global';
+                topics has no language_id column, so 'global' is a straight
+                category-filter removal, not a language-scoped variant)
             embedding: 1536-dimensional vector
             threshold: Cosine similarity threshold (default 0.85)
+            scope: 'category' (default) scans only within category_id via
+                match_topics; 'global' scans ALL categories via
+                match_topics_global (TASK-740 finding #1: a near-duplicate
+                topic can otherwise sail through under a different category,
+                e.g. the recurring "cat t-shirt" topic).
 
         Returns:
             List of dicts with keys: id, concept_english, similarity
+            (global scope also returns category_id)
         """
-        response = self.client.rpc('match_topics', {
-            'query_category': category_id,
-            'query_embedding': embedding,
-            'match_threshold': threshold,
-            'match_count': 5
-        }).execute()
+        if scope == 'global':
+            response = self.client.rpc('match_topics_global', {
+                'query_embedding': embedding,
+                'match_threshold': threshold,
+                'match_count': 5
+            }).execute()
+        else:
+            response = self.client.rpc('match_topics', {
+                'query_category': category_id,
+                'query_embedding': embedding,
+                'match_threshold': threshold,
+                'match_count': 5
+            }).execute()
 
         if response.data:
-            logger.debug(f"Found {len(response.data)} similar topics")
+            logger.debug(f"Found {len(response.data)} similar topics (scope={scope})")
 
         return response.data or []
 

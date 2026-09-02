@@ -45,8 +45,18 @@ class BaseAgent:
         self.name = name
         self.api_call_count = 0
 
-        # Use shared client pool instead of creating a new OpenAI instance
-        if base_url:
+        # Use shared client pool instead of creating a new OpenAI instance.
+        #
+        # The explicit base_url below bypasses provider resolution, so unlike
+        # every other pipeline this one would NOT follow LLM_DEFAULT_PROVIDER.
+        # Check it first, otherwise `--provider claude-cli` silently keeps
+        # billing OpenRouter for topic generation while the other three
+        # pipelines switch over.
+        from services.llm_service import LLM_DEFAULT_PROVIDER
+        if LLM_DEFAULT_PROVIDER == 'claude_cli':
+            self.client = get_client('claude_cli')
+            logger.info("%s routed to the headless Claude Code transport", name)
+        elif base_url:
             self.client = get_client(base_url=base_url, api_key=api_key)
         else:
             self.client = get_client(base_url='https://api.openai.com/v1', api_key=api_key)

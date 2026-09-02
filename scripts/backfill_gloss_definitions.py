@@ -1,34 +1,24 @@
 #!/usr/bin/env python3
 """
-Cross-language gloss backfill.
+RETIRED -- cross-language gloss backfill (hosted LLM path).
 
-For every existing dim_word_senses definition in --source-language, writes an
-additional dim_word_senses row per --gloss-language: same vocab_id/sense_rank/
-definition_level, but definition_language_id set to the gloss language and
-definition = an LLM translation of the source definition (services/vocabulary/
-gloss_generator.py). source='llm_gloss' on every row written here.
+This script drove services/vocabulary/gloss_generator.py's "translate this
+definition" prompt across every source definition in a language. That prompt
+produced sentence-length prose for what should be a short equivalent set (see
+gloss_generator.py's module docstring for the full account), so it is
+disabled: calling into gloss_generator.translate_definition now raises
+NotImplementedError immediately, before any LLM call.
 
-This is additive only -- it never updates or deletes an existing sense_id, so
-nothing that already references a sense (word_assets, exercises,
-user_word_ladder, ...) is touched.
+Cross-language gloss definitions are now written by Claude Code in-session:
+    .claude/skills/cross-language-glosses/SKILL.md
+    scripts/export_gloss_worklist.py   (stage 1: export)
+    scripts/upload_glosses.py          (stage 3: write)
 
-Resumable: (vocab_id, sense_rank, definition_level) pairs that already have a
-gloss row for a given target language are skipped without an LLM call.
+This file is kept only as a pointer -- running it fails fast with the message
+below rather than spinning up a thread pool that fails on its first task.
 
-Usage:
+Former usage (no longer supported):
     python scripts/backfill_gloss_definitions.py --source-language ja --gloss-languages en,zh --dry-run
-    python scripts/backfill_gloss_definitions.py --source-language ja --gloss-languages en,zh --limit 50
-    python scripts/backfill_gloss_definitions.py --source-language ja --gloss-languages en,zh --concurrency 8
-
-Options:
-    --source-language CODE   Required. Word's own language: zh | en | ja
-    --gloss-languages LIST   Comma-separated target languages (default: en,zh)
-    --levels LIST            Comma-separated definition_level values to cover
-                              (default: simple,standard)
-    --model NAME             OpenRouter model slug (default: openrouter/auto-beta)
-    --limit N                Cap source rows processed, before language fan-out (0 = all)
-    --concurrency N          In-flight LLM calls (default: 5)
-    --dry-run                Translate + log, write nothing
 """
 
 import os
@@ -128,6 +118,12 @@ def _load_existing_glosses(db, gloss_language_id: int) -> set[tuple[int, int, st
 
 def run(source_language: str, gloss_languages: list[str], levels: list[str],
         model: str, limit: int, concurrency: int, dry_run: bool):
+    raise RuntimeError(
+        "backfill_gloss_definitions.py is retired -- see this file's module "
+        "docstring and services/vocabulary/gloss_generator.py. Use the "
+        "cross-language-glosses skill instead "
+        "(.claude/skills/cross-language-glosses/SKILL.md)."
+    )
     source_id = Config.LANGUAGE_CODE_TO_ID.get(source_language)
     if not source_id:
         raise ValueError(f"Unknown source language: {source_language!r}")

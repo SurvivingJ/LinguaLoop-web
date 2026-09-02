@@ -2,15 +2,15 @@
 """
 Batch Test Generation CLI
 
-Generates comprehension tests with balanced difficulty distribution.
+Generates comprehension tests balanced across complexity tiers.
 Produces prose, questions, audio, and saves to database.
 
 Usage:
-    # Default: 20 tests, balanced across difficulties [1,3,6,9]
+    # Default: 20 tests, balanced across tiers [1-6]
     python -m scripts.run_test_generation_cli --language cn
 
-    # All 10 at difficulty 5
-    python -m scripts.run_test_generation_cli --language en --count 10 --difficulty 5
+    # All 10 at tier 3
+    python -m scripts.run_test_generation_cli --language en --count 10 --tier 3
 
     # Reading-only (no audio), dry run
     python -m scripts.run_test_generation_cli --language jp --type reading --dry-run
@@ -52,7 +52,7 @@ def setup_logging():
 def main():
     """Run batch test generation."""
     parser = argparse.ArgumentParser(
-        description='Batch test generation with balanced difficulty distribution',
+        description='Batch test generation balanced across complexity tiers',
     )
     parser.add_argument(
         '--language', required=True, choices=['zh', 'en', 'ja'],
@@ -60,16 +60,17 @@ def main():
     )
     parser.add_argument(
         '--count', type=int, default=20,
-        help='Tests to generate (default: 20, evenly spread across difficulties)',
+        help='Tests to generate (default: 20, evenly spread across tiers)',
     )
     parser.add_argument(
         '--type', default='listening', choices=['listening', 'reading'],
         help='Test type (default: listening)',
     )
     parser.add_argument(
-        '--difficulty', type=int, choices=range(1, 10), default=None,
-        metavar='1-9',
-        help='Fix ALL tests at this difficulty. Default: balanced across [1,3,6,9]',
+        '--tier', type=int, choices=range(1, 7), default=None,
+        metavar='1-6',
+        help='Fix ALL tests at this complexity tier (dim_complexity_tiers.id). '
+             'Default: balanced across [1-6]',
     )
     parser.add_argument(
         '--dry-run', action='store_true',
@@ -83,10 +84,16 @@ def main():
         '--delay', type=int, default=0,
         help='Delay in milliseconds between tests (default: 0)',
     )
+    from scripts.provider_arg import add_provider_arg, apply_provider
+    add_provider_arg(parser)
     args = parser.parse_args()
 
     setup_logging()
     logger = logging.getLogger(__name__)
+
+    # Before any orchestrator is constructed: agents cache an LLM client at
+    # __init__, so a later switch would leave them pointed at the old provider.
+    apply_provider(args.provider)
 
     language_names = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
 
@@ -98,7 +105,7 @@ def main():
     logger.info('  Language: %s (%s)', language_names[args.language], args.language)
     logger.info('  Count: %d', args.count)
     logger.info('  Type: %s', args.type)
-    logger.info('  Difficulty: %s', args.difficulty or 'balanced [1,3,6,9]')
+    logger.info('  Tier: %s', args.tier or 'balanced [1-6]')
     logger.info('  Dry Run: %s', args.dry_run)
     if args.start_index > 0:
         logger.info('  Start Index: %d', args.start_index)
@@ -122,7 +129,7 @@ def main():
             language_code=args.language,
             count=args.count,
             test_type=args.type,
-            difficulty=args.difficulty,
+            tier_id=args.tier,
             dry_run=args.dry_run,
             start_index=args.start_index,
             delay_ms=args.delay,

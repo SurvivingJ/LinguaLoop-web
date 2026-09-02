@@ -68,6 +68,70 @@ class TestGenConfig:
         default_factory=lambda: int(os.getenv('TEST_GEN_BATCH_TEST_WORKERS', '2'))
     )
 
+    # TASK-744 (plan §2, T2.3) — cap how much vocabulary is enriched *inline*.
+    #
+    # Concurrency is not the lever (see the note above: 5x3 workers made
+    # Supabase and Cloudflare reject requests outright), so the remaining way
+    # to cut enrichment wall clock is to do less of it synchronously. Measured
+    # senses per test, live 2026-08-31:
+    #
+    #     tier   avg    p90    max
+    #     T1      19     31     43
+    #     T2      32     48     64
+    #     T4      73    135    154
+    #     T6     177    333    382
+    #
+    # 80 is chosen against that distribution, not picked round: it leaves T1
+    # and T2 completely untouched, trims only T4's tail, and roughly halves the
+    # worst tier. A cap of 40 (the plan's opening suggestion) would have bitten
+    # T4's median as well.
+    #
+    # The tail is deferred, not dropped. Every deferred word still gets its
+    # dim_vocabulary row — that costs no LLM call — which is exactly what
+    # scripts/backfill_senses.py selects on, and the lemmas are recorded in
+    # tests.vocab_sense_stats.deferred_lemmas so
+    # scripts/relink_deferred_vocab.py can attach the senses to the test once
+    # the backfill has produced them.
+    #
+    # 0 disables the cap (enrich everything inline, the pre-TASK-744 behaviour).
+    inline_enrichment_cap: int = field(
+        default_factory=lambda: int(
+            os.getenv('TEST_GEN_INLINE_ENRICHMENT_CAP', '80')
+        )
+    )
+
+    # TASK-740 Phase 4: bounded, spaced test fan-out per topic (finding #2,
+    # 2026-08-29 review — a topic re-entering the queue could otherwise
+    # generate an unbounded number of near-duplicate tests over time, since
+    # each pass produces exactly one test at the topic's mandatory tier with
+    # no cap or recency check). max_tests_per_topic is deliberately small:
+    # a topic only has one tier now (no difficulty fan-out), so a second or
+    # third test at the same tier is already a near-duplicate; a handful is
+    # enough headroom for legitimate re-runs (a failed generation retried,
+    # or an operator wanting a couple of variants) without letting a topic
+    # that keeps re-entering the queue run away. topic_recency_window_days
+    # bounds how far back the count looks — old tests don't count against a
+    # topic that hasn't been touched in a long time.
+    max_tests_per_topic: int = field(
+        default_factory=lambda: int(os.getenv('TEST_GEN_MAX_TESTS_PER_TOPIC', '3'))
+    )
+    topic_recency_window_days: int = field(
+        default_factory=lambda: int(os.getenv('TEST_GEN_TOPIC_RECENCY_WINDOW_DAYS', '30'))
+    )
+
+    # TASK-740 Phase 5 (finding #3): near-duplicate passage detection,
+    # scoped to (topic_id, target_age_tier). Cosine similarity above this
+    # threshold is treated as a near-duplicate of an existing passage at the
+    # same topic+tier and triggers the retry-then-skip path in
+    # services/test_generation/dedup.py. 0.92 was picked as "clearly the
+    # same passage reworded", not "same topic in general" — two independent
+    # passages about the same narrow topic still commonly land ~0.80-0.88.
+    passage_dedup_similarity_threshold: float = field(
+        default_factory=lambda: float(
+            os.getenv('TEST_GEN_PASSAGE_DEDUP_THRESHOLD', '0.92')
+        )
+    )
+
     # LLM Configuration (via OpenRouter)
     default_prose_model: str = field(
         default_factory=lambda: os.getenv('TEST_GEN_PROSE_MODEL', 'google/gemini-3.5-flash-lite')
@@ -157,6 +221,14 @@ class TestGenConfig:
             errors.append("TEST_GEN_VOCAB_SENSE_WORKERS must be >= 1")
         if self.batch_test_workers < 1:
             errors.append("TEST_GEN_BATCH_TEST_WORKERS must be >= 1")
+        if self.inline_enrichment_cap < 0:
+            errors.append(
+                "TEST_GEN_INLINE_ENRICHMENT_CAP must be >= 0 (0 = no cap)"
+            )
+        if self.max_tests_per_topic < 1:
+            errors.append("TEST_GEN_MAX_TESTS_PER_TOPIC must be >= 1")
+        if self.topic_recency_window_days < 1:
+            errors.append("TEST_GEN_TOPIC_RECENCY_WINDOW_DAYS must be >= 1")
         if not self.target_difficulties:
             errors.append("target_difficulties must not be empty")
         for d in self.target_difficulties:

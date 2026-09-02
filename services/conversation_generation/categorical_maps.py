@@ -261,9 +261,12 @@ TIER_TO_PHASE: Dict[str, str] = {
 # Difficulty integer → tier (replaces difficulty_to_cefr mappings)
 #
 # MIRRORS `dim_complexity_tiers.difficulty_min/difficulty_max`, which is the
-# source of truth: test generation resolves the tier from that table via
-# TestGenDatabaseClient.get_cefr_config(), and word-count range and seed ELO
-# come off the same row. This map used to put difficulty 4 in T3 while the
+# source of truth. TASK-740: test generation itself no longer resolves a
+# tier from a difficulty via this kind of range scan — target_age_tier is
+# the sole level axis there (TestGenDatabaseClient.get_tier_config(tier_id)
+# is a direct id lookup). This map stays live for the legacy readers still
+# keyed off tests.difficulty (dual translation / model arena / mystery
+# generation). This map used to put difficulty 4 in T3 while the
 # table put it in T2, so a d4 item was T2 to test-gen and T3 to dual
 # translation / model arena / mystery generation. Keep the two in step —
 # tests/test_difficulty_to_tier_matches_db.py pins it.

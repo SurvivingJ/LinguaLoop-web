@@ -110,15 +110,60 @@ class ExerciseValidator:
         if not sentence or len(sentence.strip()) < 3:
             errors.append("jumbled_sentence requires a non-empty original_sentence")
 
+    @staticmethod
+    def _check_is_correct_flags(
+        sentences: list, label: str, errors: list[str]
+    ) -> None:
+        """Every sentence must carry an explicit boolean ``is_correct``.
+
+        Live content was found carrying hallucinated key names in place of
+        ``is_correct`` — ``is_context``, ``is_equal``, ``is_logger`` and even
+        ``is游戏副本`` — all in the zh ``hant`` variant, i.e. something in the
+        traditional-Chinese conversion path rewrites JSON *keys*, not just
+        values. Five live semantic_discrimination rows were affected.
+
+        Those rows reached the database because _check_semantic_discrimination
+        read ``s.get('is_correct')`` — a missing key is falsy, i.e. "this is a
+        distractor", which is exactly what the mangled sentences happened to
+        be, so the count of correct sentences still came to 1 and nothing
+        complained. The sibling check read ``s.get('is_correct', True)``,
+        defaulting the other way. Neither default is right, and the
+        disagreement meant no single rule described the content.
+
+        The residual risk is at serve/grade time rather than here: any consumer
+        that defaults a missing flag to True renders a mangled distractor as a
+        correct option. Requiring the key explicitly removes the default from
+        both paths, so key drift fails closed at generation time instead of
+        being stored and inherited by whatever reads it later.
+        """
+        for i, s in enumerate(sentences):
+            if not isinstance(s, dict):
+                errors.append(f"{label} sentence[{i}] must be an object")
+                continue
+            if 'is_correct' not in s:
+                stray = [k for k in s if k != 'text' and k.startswith('is')]
+                errors.append(
+                    f"{label} sentence[{i}] missing 'is_correct'"
+                    + (f" (found stray key(s): {stray})" if stray else "")
+                )
+            elif not isinstance(s['is_correct'], bool):
+                errors.append(
+                    f"{label} sentence[{i}] 'is_correct' must be a bool, "
+                    f"got {type(s['is_correct']).__name__}"
+                )
+
     def _check_spot_incorrect_sentence(self, content: dict, errors: list[str]) -> None:
         sentences = content.get('sentences', [])
-        incorrect = [s for s in sentences if not s.get('is_correct', True)]
-        correct   = [s for s in sentences if s.get('is_correct', True)]
+        self._check_is_correct_flags(sentences, 'spot_incorrect_sentence', errors)
+        # No default: a sentence whose flag failed the check above must not be
+        # silently counted as correct (see _check_is_correct_flags).
+        incorrect = [s for s in sentences if s.get('is_correct') is False]
+        correct   = [s for s in sentences if s.get('is_correct') is True]
         if len(incorrect) != 1:
             errors.append(f"spot_incorrect_sentence must have exactly 1 incorrect sentence, found {len(incorrect)}")
         if len(correct) < 3:
             errors.append(f"spot_incorrect_sentence must have at least 3 correct sentences, found {len(correct)}")
-        if len(sentences) == 4 and sentences[3].get('is_correct', True):
+        if len(sentences) == 4 and sentences[3].get('is_correct') is not False:
             errors.append("V3 rule: incorrect sentence must be sentences[3]")
 
     def _check_spot_incorrect_part(self, content: dict, errors: list[str]) -> None:
@@ -151,7 +196,8 @@ class ExerciseValidator:
 
     def _check_semantic_discrimination(self, content: dict, errors: list[str]) -> None:
         sentences    = content.get('sentences', [])
-        correct_cnt  = sum(1 for s in sentences if s.get('is_correct'))
+        self._check_is_correct_flags(sentences, 'semantic_discrimination', errors)
+        correct_cnt  = sum(1 for s in sentences if s.get('is_correct') is True)
         if correct_cnt != 1:
             errors.append(f"semantic_discrimination must have exactly 1 correct sentence, found {correct_cnt}")
         if len(sentences) < 4:

@@ -90,6 +90,15 @@ another live object):
   `practice_completed_acq_sec` columns. The seconds-ledger behaviour it
   introduced is carried forward verbatim in the new body.
 
+## task715_get_recommended_tests_tier_cap.sql — superseded 2026-08-30
+
+`public.get_recommended_tests(uuid, smallint)` is now canonically defined by
+`migrations/task740_phase5b_topic_recency_exclusion.sql` (TASK-740 Phase 5b,
+ADR-023), which adds a third, DEFAULT-valued `p_topic_recency_days`
+parameter and a topic-recency exclusion clause. Verified against the live
+`pg_get_functiondef` for the new signature and the `NOT EXISTS ... t2.topic_id
+= t.topic_id` marker before archiving.
+
 ## Note: elo_reduction_factor column — no longer orphaned
 
 `process_test_submission_reduced_repeats.sql` first added

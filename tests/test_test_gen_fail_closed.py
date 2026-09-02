@@ -313,7 +313,7 @@ def _orchestrator(question_generator=None):
     )
     topic = SimpleNamespace(
         id=uuid4(), category_id=7, concept_english='Harbour seals',
-        keywords=['seals', 'bay'], target_age_tier=None,
+        keywords=['seals', 'bay'], target_age_tier=4,
     )
 
     db = MagicMock()
@@ -321,21 +321,34 @@ def _orchestrator(question_generator=None):
     db.get_language_config.return_value = lang
     db.get_topic.return_value = topic
     db.get_category_name.return_value = 'Nature'
-    db.get_cefr_config.return_value = SimpleNamespace(tier_code='T3')
-    db.get_word_count_range.return_value = (80, 120)
-    db.get_initial_elo.return_value = 1200
+    db.get_tier_config.return_value = SimpleNamespace(
+        tier_code='T4', difficulty_min=6,
+    )
+    db.get_tier_word_count_range.return_value = (80, 120)
+    db.get_tier_initial_elo.return_value = 1200
     # Four types, because `_generate_test` enforces a survival floor of
-    # max(3, requested - 1) at d>=3 and would abort a healthy fixture on
+    # max(3, requested - 1) at tier>=2 and would abort a healthy fixture on
     # "Too few valid questions" before proving anything about judging.
-    db.get_question_distribution.return_value = [
+    db.get_tier_question_distribution.return_value = [
         'literal_detail', 'main_idea', 'inference', 'vocabulary_context',
     ]
     db.get_prompt_template.return_value = 'question template'
+    db.count_recent_tests_for_topic.return_value = 0
     db.generate_test_slug.return_value = 'en-6-harbour-seals'
     db._get_status_id.return_value = 1
     db.client.table.return_value.select.return_value.eq.return_value \
         .eq.return_value.limit.return_value.execute.return_value = \
         SimpleNamespace(data=[{'id': str(uuid4()), 'topic_id': str(topic.id)}])
+    # TASK-740 Phase 5: dedup's exact-duplicate check
+    # (select().eq(topic_id).eq(target_age_tier).eq(passage_hash).limit(1))
+    # is a 3-eq chain, distinct from the 2-eq chain configured above — stub
+    # it to "no match" so these judge-outage tests aren't derailed by an
+    # unconfigured MagicMock read as a false-positive duplicate.
+    db.client.table.return_value.select.return_value.eq.return_value \
+        .eq.return_value.eq.return_value.limit.return_value.execute.return_value = \
+        SimpleNamespace(data=[])
+    # And the near-dup RPC: no match either.
+    db.client.rpc.return_value.execute.return_value = SimpleNamespace(data=[])
 
     orch = object.__new__(TestGenerationOrchestrator)
     orch.db = db
@@ -358,6 +371,7 @@ def _orchestrator(question_generator=None):
     )
     orch.audio_synthesizer = MagicMock()
     orch.vocab_pipeline = MagicMock()
+    orch._run_id = None
     return orch
 
 
@@ -371,7 +385,7 @@ def test_run_batch_aborts_and_writes_nothing_on_a_judge_outage():
          patch.object(ae_mod, '_load_cfg', _dead_template):
         with pytest.raises(JudgeUnavailable):
             orch.run_batch(BatchConfig(
-                language_code='en', count=4, difficulty=6,
+                language_code='en', count=4, tier_id=4,
                 test_type='reading',
             ))
 
@@ -396,7 +410,7 @@ def test_run_batch_aborts_on_the_distractor_judge_too():
          patch.object(dp_mod, '_load_cfg', _dead_template):
         with pytest.raises(JudgeUnavailable):
             orch.run_batch(BatchConfig(
-                language_code='en', count=4, difficulty=6,
+                language_code='en', count=4, tier_id=4,
                 test_type='reading',
             ))
 
@@ -421,6 +435,7 @@ def test_run_aborts_on_a_judge_outage_too():
         cfg.return_value = SimpleNamespace(
             dry_run=False, batch_size=5, target_difficulties=[6],
             question_regen_attempts=2, system_user_id='sys',
+            max_tests_per_topic=3, topic_recency_window_days=30,
         )
         with pytest.raises(JudgeUnavailable):
             orch.run()
@@ -452,7 +467,7 @@ def test_batch_mode_is_active_inside_the_generation_loop():
          patch.object(dp_mod, '_load_cfg', _healthy_dp_cfg), \
          patch.object(dp_mod, 'call_llm', _dp_accepts):
         orch.run_batch(BatchConfig(
-            language_code='en', count=1, difficulty=6,
+            language_code='en', count=1, tier_id=4,
             test_type='reading', dry_run=True,
         ))
 
@@ -479,7 +494,7 @@ def test_serve_shaped_call_is_not_in_batch_mode():
         orch._generate_test(
             topic=orch.db.get_topic.return_value,
             lang_config=orch.db.get_language_config_by_code.return_value,
-            category_name='Nature', difficulty=6,
+            category_name='Nature', tier_id=4,
             test_type='reading', dry_run=True,
         )
 

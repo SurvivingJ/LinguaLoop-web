@@ -13,7 +13,7 @@ Signal:
   * type_token_ratio     — unique tokens / total tokens
 
 Output: integer ELO in [400, 3000], anchored on the tier's midpoint and
-adjusted by deviation from per-difficulty reference points.
+adjusted by deviation from per-tier reference points.
 
 Calibration status:
   Initial coefficients (W_ZIPF, W_LEN, W_TTR) are a-priori — no fit yet
@@ -60,19 +60,22 @@ _LANG_MAP: dict[str, str] = {
 # the unknown_word_pct signal. zipf_frequency returns 0.0 for OOV words.
 _UNKNOWN_ZIPF_CEIL = 1.0
 
-# Per-difficulty reference points for an "average" passage at that level.
-# Derived from informal samples of training-set tests, not fitted.
+# Per-tier reference points for an "average" passage at that level, keyed by
+# dim_complexity_tiers.id (1-6). TASK-740 collapsed the previous 9
+# difficulty-keyed bands into one point per tier (plan decision #2) — each
+# entry below is the average of the old difficulty-level values that fell
+# within that tier's difficulty_min..max band (T1={1,2}, T2={3,4}, T3={5},
+# T4={6}, T5={7}, T6={8,9}; see services.dictation.cap.DIFFICULTY_TO_TIER).
 # Lower Zipf = rarer vocabulary; longer sentence = harder; higher TTR =
 # more lexical variety.
 _REF_ZIPF: dict[int, float] = {
-    1: 6.5, 2: 6.0, 3: 5.5, 4: 5.0, 5: 4.5, 6: 4.2, 7: 3.8, 8: 3.5, 9: 3.0,
+    1: 6.25, 2: 5.25, 3: 4.5, 4: 4.2, 5: 3.8, 6: 3.25,
 }
 _REF_SENT_LEN: dict[int, float] = {
-    1: 7,   2: 9,   3: 11,  4: 13,  5: 15,  6: 18,  7: 22,  8: 26,  9: 30,
+    1: 8, 2: 12, 3: 15, 4: 18, 5: 22, 6: 28,
 }
 _REF_TTR: dict[int, float] = {
-    1: 0.35, 2: 0.40, 3: 0.45, 4: 0.50, 5: 0.55,
-    6: 0.60, 7: 0.62, 8: 0.65, 9: 0.70,
+    1: 0.375, 2: 0.475, 3: 0.55, 4: 0.60, 5: 0.62, 6: 0.675,
 }
 
 # Coefficients: how many ELO points per unit deviation from reference.
@@ -146,33 +149,50 @@ def score_passage(prose: str, language_code: str) -> TestDifficultySignal:
     )
 
 
+def is_elo_in_tier_band(
+    elo: int,
+    tier_id: int,
+    tier_initial_elo: int,
+    band_width: float = 300.0,
+) -> bool:
+    """Sanity check: is a seeded ELO plausibly still within its tier?
+
+    The precise band boundaries live in dim_complexity_tiers (DB), not here,
+    so this is a generic symmetric-width check around the tier's own
+    midpoint rather than a lookup against neighbouring tiers' ranges. It
+    exists so ``seed_test_elo`` can flag an out-of-band result (finding #5)
+    instead of silently clamping it away.
+    """
+    return abs(elo - tier_initial_elo) <= band_width
+
+
 def seed_test_elo(
     prose: str,
     language_code: str,
-    target_difficulty: int,
+    tier_id: int,
     tier_initial_elo: int,
 ) -> tuple[int, TestDifficultySignal]:
     """Compute seed ELO + the signal that produced it.
 
     Returns (elo, signal). ELO is clamped to [400, 3000].
 
-    target_difficulty is the operator-chosen tier (1..9); tier_initial_elo
-    is the midpoint ELO for that tier (from dim_complexity_tiers). The scorer
+    tier_id is the topic's mandatory age tier (dim_complexity_tiers.id,
+    1-6); tier_initial_elo is the midpoint ELO for that tier. The scorer
     nudges that midpoint up or down based on how the prose's lexical
-    complexity compares to the reference points for the target difficulty.
+    complexity compares to the reference points for the tier.
     """
     sig = score_passage(prose, language_code)
 
     if sig.n_tokens == 0:
         # No content — no adjustment.
         logger.warning(
-            "seed_test_elo: empty signal for language=%s difficulty=%d; "
+            "seed_test_elo: empty signal for language=%s tier=%d; "
             "falling back to tier midpoint %d",
-            language_code, target_difficulty, tier_initial_elo,
+            language_code, tier_id, tier_initial_elo,
         )
         return (max(400, min(3000, int(tier_initial_elo))), sig)
 
-    d = _clamp_difficulty(target_difficulty)
+    d = _clamp_tier(tier_id)
     ref_zipf = _REF_ZIPF[d]
     ref_len = _REF_SENT_LEN[d]
     ref_ttr = _REF_TTR[d]
@@ -188,6 +208,13 @@ def seed_test_elo(
     adjustment = _W_ZIPF * delta_zipf + _W_LEN * delta_len + _W_TTR * delta_ttr
     elo = int(round(tier_initial_elo + adjustment))
     elo = max(400, min(3000, elo))
+
+    if not is_elo_in_tier_band(elo, d, tier_initial_elo):
+        logger.warning(
+            "seed_test_elo: elo=%d for tier=%d falls outside the expected "
+            "band around midpoint %d (not clamped — flagging only)",
+            elo, d, tier_initial_elo,
+        )
 
     logger.debug(
         "seed_test_elo: base=%d adj=%+.0f -> %d "
@@ -271,7 +298,7 @@ def _tokenize_ja(text: str) -> list[str]:
         return [c for c in text if c.strip()]
 
 
-def _clamp_difficulty(d: Optional[int]) -> int:
+def _clamp_tier(d: Optional[int]) -> int:
     if d is None:
-        return 5
-    return max(1, min(9, int(d)))
+        return 3
+    return max(1, min(6, int(d)))

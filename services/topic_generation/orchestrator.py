@@ -5,7 +5,7 @@ Coordinates the daily topic generation workflow:
 1. Select next category for rotation
 2. Generate topic candidates via Explorer
 3. Check novelty via Archivist
-4. Validate cultural fit via Gatekeeper
+4. Validate cultural fit via Gatekeeper and tier fit via TierFitJudge
 5. Queue approved topics for content generation
 """
 
@@ -28,7 +28,8 @@ from .agents import (
     EmbeddingService,
     ExplorerAgent,
     ArchivistAgent,
-    GatekeeperAgent
+    GatekeeperAgent,
+    TierFitJudge
 )
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,10 @@ class TopicGenerationOrchestrator:
         self.explorer = ExplorerAgent()
         self.archivist = ArchivistAgent(self.db, self.embedder)
         self.gatekeeper = GatekeeperAgent()
+        # T3.1 — validates a candidate's distinctive_vocabulary against the
+        # tier it was ideated for. Fails open, so a judge outage costs
+        # precision here, never a topic.
+        self.tier_fit_judge = TierFitJudge()
 
         # Metrics tracking
         self.metrics: Optional[GenerationMetrics] = None
@@ -176,15 +181,37 @@ class TopicGenerationOrchestrator:
                         candidate.keywords
                     )
 
+                    # T3.2: the threshold scales with tier — stricter where the
+                    # concept space is small (T1) than where it is wide (T6).
                     is_novel, rejection_reason, embedding = self.archivist.check_novelty(
                         category.id,
                         signature,
-                        topic_gen_config.similarity_threshold
+                        topic_gen_config.threshold_for_tier(tier),
+                        scope='global'
                     )
 
                     if not is_novel:
                         self.metrics.topics_rejected_similarity += 1
                         logger.debug(f"Rejected (similarity): {candidate.concept[:40]}...")
+                        continue
+
+                    # T3.1 — tier-fit gate. The Explorer ideates per tier, but
+                    # nothing checked that the vocabulary it came back with is
+                    # actually reachable at that tier; "we get difficult
+                    # vocabulary" is the symptom this targets. One call, about
+                    # this tier only — never a menu of six for the model to
+                    # fill in (see the judge's module docstring).
+                    fit = self.tier_fit_judge.judge(
+                        concept=candidate.concept,
+                        distinctive_vocabulary=candidate.distinctive_vocabulary,
+                        tier=candidate.target_age_tier or tier,
+                    )
+                    if not fit.fits:
+                        self.metrics.topics_rejected_tier_fit += 1
+                        logger.info(
+                            "Rejected (tier fit, T%s): %s... — %s",
+                            tier, candidate.concept[:40], fit.reason,
+                        )
                         continue
 
                     # Topic is novel - save it (even if dry run, for testing)

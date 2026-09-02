@@ -129,3 +129,23 @@ def passage_word_range(difficulty: Optional[int]) -> tuple:
     if tier is None:
         return DEFAULT_PASSAGE_WORD_RANGE
     return PASSAGE_WORD_RANGE.get(tier, DEFAULT_PASSAGE_WORD_RANGE)
+
+
+# ---------------------------------------------------------------------------
+# TASK-740: tier-native entry points. target_age_tier (dim_complexity_tiers.id
+# / tier_code) is now the sole level axis for test generation — these read
+# PASSAGE_WORD_RANGE / DICTATION_MAX_WORDS directly by tier_code, with no
+# difficulty->tier range scan in between. The difficulty-keyed entry points
+# above (tier_for_difficulty, max_words_for_difficulty, passage_word_range)
+# are kept unchanged for legacy readers that still key off tests.difficulty
+# (get_recommended_tests, the dictation_max_words() SQL twin).
+# ---------------------------------------------------------------------------
+
+def passage_word_range_for_tier(tier_code: Optional[str]) -> tuple:
+    """``(min_words, max_words)`` to generate a passage for this tier.
+
+    Tier-native counterpart of ``passage_word_range``. Never raises.
+    """
+    if not tier_code:
+        return DEFAULT_PASSAGE_WORD_RANGE
+    return PASSAGE_WORD_RANGE.get(str(tier_code).upper(), DEFAULT_PASSAGE_WORD_RANGE)

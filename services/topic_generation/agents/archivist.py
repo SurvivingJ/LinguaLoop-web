@@ -85,17 +85,27 @@ class ArchivistAgent:
 
     def check_novelty(
         self,
-        category_id: int,
+        category_id: Optional[int],
         semantic_signature: str,
-        threshold: float = None
+        threshold: float = None,
+        scope: str = 'category'
     ) -> Tuple[bool, Optional[str], List[float]]:
         """
-        Check if a topic is semantically novel within its category.
+        Check if a topic is semantically novel.
 
         Args:
-            category_id: Category FK to search within
+            category_id: Category FK. Required when scope='category' (the
+                search is scoped to it); optional under scope='global' — kept
+                only for logging/diagnostics there, since match_topics_global
+                searches across ALL categories (topics has no language_id
+                column, so there is no language-scoped variant to worry about).
             semantic_signature: Formatted topic signature
             threshold: Cosine similarity threshold (defaults to config)
+            scope: 'category' (default, unchanged behavior) or 'global' —
+                see TASK-740 finding #1: a near-duplicate topic can sail
+                through as "novel" under category scope if it was previously
+                filed under a different category (e.g. the recurring
+                "cat t-shirt" topic).
 
         Returns:
             Tuple of:
@@ -105,18 +115,21 @@ class ArchivistAgent:
 
         Process:
             1. Generate embedding for signature
-            2. Query database for similar topics in category
+            2. Query database for similar topics (category-scoped or global)
             3. If max similarity > threshold, reject
 
         Example:
             is_novel, reason, embedding = archivist.check_novelty(
-                1, "Horses: Farrier [Historical]..."
+                1, "Horses: Farrier [Historical]...", scope='global'
             )
             if not is_novel:
                 print(f"Rejected: {reason}")
         """
         if threshold is None:
             threshold = topic_gen_config.similarity_threshold
+
+        if scope == 'category' and category_id is None:
+            raise ValueError("category_id is required when scope='category'")
 
         # Generate embedding for the signature
         embedding = self.embedder.embed_single(semantic_signature)
@@ -125,11 +138,13 @@ class ArchivistAgent:
             logger.error("Failed to generate embedding for signature")
             return (False, "Embedding generation failed", [])
 
-        # Query for similar topics
+        # Query for similar topics (category_id is diagnostics-only under
+        # scope='global' — the RPC itself ignores it)
         similar_topics = self.db.find_similar_topics(
             category_id=category_id,
             embedding=embedding,
-            threshold=threshold
+            threshold=threshold,
+            scope=scope
         )
 
         if similar_topics:
@@ -137,14 +152,18 @@ class ArchivistAgent:
             most_similar = similar_topics[0]
             similarity = most_similar.get('similarity', 0)
             existing_concept = most_similar.get('concept_english', 'unknown')
+            existing_category = most_similar.get('category_id')
 
             reason = (
                 f"Too similar to existing topic "
                 f"(similarity: {similarity:.2%}): '{existing_concept[:50]}...'"
             )
+            if scope == 'global' and existing_category is not None:
+                reason += f" [category_id={existing_category}]"
 
             logger.info(
-                f"Topic rejected (duplicate): {semantic_signature[:40]}... "
+                f"Topic rejected (duplicate, scope={scope}, category_id={category_id}): "
+                f"{semantic_signature[:40]}... "
                 f"-> similar to: {existing_concept[:40]}... ({similarity:.2%})"
             )
 

@@ -443,6 +443,7 @@
             if (window.LinguaI18n && window.LinguaI18n.init) {
                 await window.LinguaI18n.init();
             }
+            if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'classifier_drill' });
             applyModeToToggle();
             bindModeToggle();
             bindFeedback();

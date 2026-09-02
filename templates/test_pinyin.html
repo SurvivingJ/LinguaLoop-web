@@ -595,6 +595,8 @@
 
             if (!state.slug) throw new Error('No test slug in URL');
 
+            if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'pinyin' });
+
             await LinguaMetadata.load();
             if (window.LinguaI18n && window.LinguaI18n.init) {
                 await window.LinguaI18n.init();

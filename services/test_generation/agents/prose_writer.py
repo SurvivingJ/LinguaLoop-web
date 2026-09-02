@@ -60,6 +60,7 @@ class ProseWriter:
         model_override: Optional[str] = None,
         seed: Optional[int] = None,
         template_version: Optional[int] = None,
+        extra_instruction: Optional[str] = None,
     ) -> str:
         """Generate prose content for a test.
 
@@ -96,6 +97,11 @@ class ProseWriter:
                 word_count_min,
                 word_count_max,
             )
+
+        # TASK-740 Phase 5: dedup retry nudge, appended plain-text rather
+        # than templated — see services/test_generation/dedup.py:DEDUP_RETRY_NUDGE.
+        if extra_instruction:
+            prompt = f"{prompt}{extra_instruction}"
 
         try:
             content = call_llm(

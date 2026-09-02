@@ -130,7 +130,7 @@ def new_state(args) -> dict:
         'started': datetime.now(timezone.utc).isoformat(),
         'config': {
             'tests': args.tests, 'test_type': args.test_type,
-            'difficulty': args.difficulty, 'max_senses': args.max_senses,
+            'tier_id': args.tier, 'max_senses': args.max_senses,
             'sense_workers': args.sense_workers,
             'canary_senses': args.canary_senses,
         },
@@ -405,7 +405,7 @@ def phase_tests(db, state: dict) -> None:
         language_code=lang,
         count=cfg['tests'],
         test_type=cfg['test_type'],
-        difficulty=cfg['difficulty'],
+        tier_id=cfg['tier_id'],
     ))
 
     after = {r['id'] for r in (db.table('tests').select('id')
@@ -553,8 +553,9 @@ def main() -> int:
     ap.add_argument('--tests', type=int, default=100)
     ap.add_argument('--test-type', default='listening',
                     choices=['listening', 'reading'])
-    ap.add_argument('--difficulty', type=int, default=None,
-                    help='fix all tests at 1-9 (default: balanced [1,3,6,9])')
+    ap.add_argument('--tier', type=int, default=None,
+                    help='fix all tests at complexity tier 1-6 '
+                         '(dim_complexity_tiers.id; default: balanced [1-6])')
     ap.add_argument('--max-senses', type=int, default=150,
                     help='cap on senses given assets + ladder exercises')
     ap.add_argument('--sense-workers', type=int, default=3,
@@ -567,6 +568,8 @@ def main() -> int:
                     help='continue a previous run from its state file')
     ap.add_argument('--yes', action='store_true',
                     help='skip the confirmation before the long phases')
+    from scripts.provider_arg import add_provider_arg, apply_provider, clamp_concurrency
+    add_provider_arg(ap)
     args = ap.parse_args()
 
     logging.basicConfig(
@@ -578,6 +581,11 @@ def main() -> int:
 
     if not args.resume and not args.language:
         ap.error('--language is required unless --resume is given')
+
+    # Ahead of the canary, so the canary measures the transport that the main
+    # run will actually use — its whole purpose is an observed ETA.
+    apply_provider(args.provider)
+    args.sense_workers = clamp_concurrency(args.provider, args.sense_workers)
 
     from services.supabase_factory import SupabaseFactory, get_supabase_admin
     SupabaseFactory.initialize()

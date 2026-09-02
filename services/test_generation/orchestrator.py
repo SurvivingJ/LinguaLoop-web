@@ -3,7 +3,9 @@ Test Generation Orchestrator
 
 Coordinates the test generation workflow:
 1. Fetch pending items from production_queue
-2. For each queue item, generate tests at multiple difficulty levels
+2. For each queue item, generate one test at the topic's mandatory age tier
+   (TASK-740: target_age_tier is the sole level axis — no per-difficulty
+   fan-out)
 3. Generate prose, questions, and audio for each test
 4. Save to database and update queue status
 5. Extract vocabulary and generate word sense definitions
@@ -22,6 +24,11 @@ from uuid import UUID, uuid4
 from postgrest.exceptions import APIError
 
 from .config import get_test_gen_config
+from .question_mix import report_question_mix
+from .enrichment_metrics import (
+    format_summary, log_enrichment_hit_rate, split_inline_enrichment,
+    summarise_batch,
+)
 from .database_client import (
     TestDatabaseClient,
     QueueItem,
@@ -55,10 +62,9 @@ from services.timing import stage, log_stage_seconds
 
 logger = logging.getLogger(__name__)
 
-DIFFICULTY_LABELS = {
-    1: 'beginner', 2: 'beginner', 3: 'elementary',
-    4: 'intermediate', 5: 'intermediate', 6: 'upper-int',
-    7: 'advanced', 8: 'advanced', 9: 'advanced',
+TIER_LABELS = {
+    1: 'beginner', 2: 'elementary', 3: 'intermediate',
+    4: 'upper-int', 5: 'advanced', 6: 'advanced',
 }
 
 
@@ -129,7 +135,7 @@ class BatchConfig:
     language_code: str                                # ISO 639-1: 'zh', 'en', 'ja'
     count: int = 20                                   # tests to generate
     test_type: str = 'listening'                      # 'listening' | 'reading'
-    difficulty: Optional[int] = None                  # 1-9 or None (balanced)
+    tier_id: Optional[int] = None                     # dim_complexity_tiers.id 1-6, or None (balanced)
     topic_source: str = 'queue'                       # 'queue'
     dry_run: bool = False
     start_index: int = 0                              # resume from index
@@ -209,6 +215,8 @@ class TestGenerationOrchestrator:
         # non-fatal by design (see _generate_vocabulary), which means without a
         # counter a run that enriched nothing reports exactly like a clean one.
         self.vocab_shortfalls: int = 0
+        # T2.1 — per-test vocab outcomes, for the batch enrichment summary.
+        self._vocab_outcomes: list[dict] = []
 
         # Groups every generation_stage_timings row from one run() / run_batch()
         # / run_single() call so a whole run's wall clock can be summed by
@@ -252,7 +260,7 @@ class TestGenerationOrchestrator:
             1. Fetch pending queue items (up to batch_size)
             2. For each queue item:
                 a. Get topic and language config
-                b. For each target difficulty:
+                b. Resolve the topic's mandatory target_age_tier
                     i. Get tier config (word counts, ELO)
                     ii. Generate prose
                     iii. Generate questions
@@ -275,7 +283,6 @@ class TestGenerationOrchestrator:
             logger.info("Starting Test Generation Run")
             logger.info("=" * 60)
             logger.info(f"Batch size: {cfg.batch_size}")
-            logger.info(f"Target difficulties: {cfg.target_difficulties}")
             logger.info(f"Dry run: {dry_run}")
 
             # Step 1: Fetch pending queue items
@@ -362,53 +369,71 @@ class TestGenerationOrchestrator:
 
         tests_generated = 0
 
-        # Constrain the difficulty range to the topic's age tier (ADR-003) when
-        # set: a T2 topic only yields tests within its difficulty_min..max, not
-        # the full 1-9 span. Legacy/untiered topics (target_age_tier is None)
-        # fall back to the configured schedule -> no regression.
-        target_difficulties = get_test_gen_config().target_difficulties
-        if topic.target_age_tier is not None:
-            tier_difficulties = self.db.get_tier_difficulties(topic.target_age_tier)
-            if tier_difficulties:
-                target_difficulties = tier_difficulties
-                logger.info(
-                    "Topic tier T%s -> difficulties %s",
-                    topic.target_age_tier, tier_difficulties,
-                )
+        # TASK-740: target_age_tier is now the topic's single, mandatory
+        # level — there is no difficulty-rung fan-out and no fallback to a
+        # full schedule. A topic with no resolvable tier is a data-integrity
+        # bug in the topic itself, not something generation can guess past;
+        # reject the queue item with a clear error instead of silently
+        # falling back (finding #4) or crashing the whole batch.
+        if topic.target_age_tier is None:
+            raise ValueError(
+                f"Topic {topic.id} has no target_age_tier set — cannot "
+                "generate a test without a mandatory age tier (TASK-740)."
+            )
 
-        # Generate tests for each target difficulty
-        for difficulty in target_difficulties:
-            try:
-                success = self._generate_test(
-                    topic=topic,
-                    lang_config=lang_config,
-                    category_name=category_name,
-                    difficulty=difficulty,
-                    dry_run=dry_run,
-                )
+        tier_id = topic.target_age_tier
 
-                if success:
-                    tests_generated += 1
+        # TASK-740 Phase 4 (finding #2): a topic can re-enter the queue
+        # (re-selected by topic generation, a retried failure, ...) with
+        # nothing previously stopping it from accumulating an unbounded
+        # number of near-duplicate tests over time — the topic now has a
+        # single mandatory tier, so a repeat test is a near-duplicate, not
+        # a new difficulty rung. Skip generation once the topic is at/over
+        # its cap for the recency window, rather than generating anyway and
+        # relying on downstream novelty checks to notice.
+        gen_config = get_test_gen_config()
+        recent_count = self.db.count_recent_tests_for_topic(
+            topic.id, gen_config.topic_recency_window_days
+        )
+        if recent_count >= gen_config.max_tests_per_topic:
+            logger.info(
+                f"Skipping topic {topic.id}: {recent_count}/"
+                f"{gen_config.max_tests_per_topic} tests already generated "
+                f"in the last {gen_config.topic_recency_window_days} days "
+                "(TASK-740 per-topic cap)."
+            )
+            if not dry_run:
+                self.db.mark_queue_completed(item.id, tests_generated)
+            return tests_generated
 
-            except JudgeUnavailable:
-                # Innermost judge-path handler. "Continue with other
-                # difficulties" past a dead judge is precisely how a whole
-                # topic ships unjudged.
-                raise
+        try:
+            success = self._generate_test(
+                topic=topic,
+                lang_config=lang_config,
+                category_name=category_name,
+                tier_id=tier_id,
+                dry_run=dry_run,
+            )
 
-            except Exception as e:
-                logger.error(
-                    f"Failed to generate test at difficulty {difficulty}: {e}"
-                )
-                # Continue with other difficulties
+            if success:
+                tests_generated += 1
+
+        except JudgeUnavailable:
+            # A judge outage, not a bad topic — propagate so the whole run
+            # aborts instead of shipping this test unjudged.
+            raise
+
+        except Exception as e:
+            logger.error(
+                f"Failed to generate test at tier {tier_id}: {e}"
+            )
 
         # Mark queue item complete
         if not dry_run:
             self.db.mark_queue_completed(item.id, tests_generated)
 
         logger.info(
-            f"Queue item {item.id} complete: "
-            f"{tests_generated}/{len(target_difficulties)} tests"
+            f"Queue item {item.id} complete: {tests_generated}/1 tests"
         )
 
         return tests_generated
@@ -418,24 +443,25 @@ class TestGenerationOrchestrator:
         topic: Topic,
         lang_config: LanguageConfig,
         category_name: str,
-        difficulty: int,
+        tier_id: int,
         test_type: str = 'listening',
         dry_run: bool = False,
     ) -> bool:
         """
-        Generate a single test at specified difficulty.
+        Generate a single test at the specified complexity tier.
 
         Args:
             topic: Topic details
             lang_config: Language configuration
             category_name: Category name
-            difficulty: Difficulty level 1-9
+            tier_id: dim_complexity_tiers.id (1-6) — the topic's mandatory
+                age tier, sole level axis (TASK-740).
             test_type: 'listening' or 'reading'
 
         Returns:
             bool: True if successful
         """
-        logger.info(f"Generating test: difficulty={difficulty}, type={test_type}")
+        logger.info(f"Generating test: tier_id={tier_id}, type={test_type}")
 
         # TASK-737: per-stage wall clock for this test, logged at the end and
         # threaded into _generate_vocabulary — the only way to see where the
@@ -443,11 +469,20 @@ class TestGenerationOrchestrator:
         # actually going before picking what to parallelize.
         stage_seconds: dict[str, float] = {}
 
-        # Get tier config
-        cefr_config = self.db.get_cefr_config(difficulty)
-        word_min, word_max = self.db.get_word_count_range(difficulty)
-        tier_initial_elo = self.db.get_initial_elo(difficulty)
-        complexity_tier = cefr_config.tier_code if cefr_config else 'T3'
+        # Get tier config — raises if tier_id is unknown (no silent fallback,
+        # finding #4).
+        tier_config = self.db.get_tier_config(tier_id)
+        word_min, word_max = self.db.get_tier_word_count_range(tier_id)
+        tier_initial_elo = self.db.get_tier_initial_elo(tier_id)
+        complexity_tier = tier_config.tier_code
+
+        # Legacy numeric difficulty (tests.difficulty, 1-9): kept only as a
+        # representative label for prompt templates that still interpolate
+        # {difficulty}, the slug, and the legacy column consumed by readers
+        # out of scope for this pass (get_recommended_tests, dictation cap).
+        # It is derived one-way FROM the tier — nothing here resolves
+        # anything by looking difficulty back up.
+        legacy_difficulty = tier_config.difficulty_min
 
         # Tier midpoint is the prior; difficulty_scorer refines this with
         # passage-derived lexical complexity once prose is generated below.
@@ -455,12 +490,12 @@ class TestGenerationOrchestrator:
         seeded_elo: Optional[int] = None
 
         # Get question distribution
-        question_types = self.db.get_question_distribution(difficulty)
+        question_types = self.db.get_tier_question_distribution(tier_id)
 
         # Generate slug
         slug = self.db.generate_test_slug(
             lang_config.language_code,
-            difficulty,
+            legacy_difficulty,
             topic.concept_english
         )
 
@@ -492,7 +527,7 @@ class TestGenerationOrchestrator:
                 topic_concept=translated_topic,  # Use translated topic
                 language_name=lang_config.language_name,
                 language_code=lang_config.language_code,
-                difficulty=difficulty,
+                difficulty=legacy_difficulty,
                 word_count_min=word_min,
                 word_count_max=word_max,
                 keywords=translated_keywords,  # Use translated keywords
@@ -507,6 +542,62 @@ class TestGenerationOrchestrator:
         if not prose or len(prose.strip()) < 50:
             raise ValueError(f"Prose too short: {len(prose.strip()) if prose else 0} chars (min 50)")
 
+        # TASK-740 Phase 5 (finding #3): reject a passage that duplicates or
+        # near-duplicates an existing test at this same topic+tier. One
+        # retry with a "be more different" nudge, then skip+log rather than
+        # ship a near-copy or abort the whole queue item.
+        from services.test_generation.dedup import (
+            PassageDedupChecker, DEDUP_RETRY_NUDGE,
+        )
+        dedup_checker = PassageDedupChecker(self.db)
+        with stage('dedup_check', stage_seconds):
+            dedup_result, passage_hash, passage_embedding = (
+                dedup_checker.check_duplicate(topic.id, tier_id, prose)
+            )
+
+        if dedup_result.is_duplicate:
+            logger.warning(
+                f"Duplicate passage detected (topic={topic.id}, tier={tier_id}, "
+                f"reason={dedup_result.reason}, similarity={dedup_result.similarity}, "
+                f"matched_test={dedup_result.matched_test_id}); retrying prose "
+                "generation once with a distinctiveness nudge."
+            )
+            with stage('prose_retry', stage_seconds):
+                prose = self.prose_writer.generate_prose(
+                    topic_concept=translated_topic,
+                    language_name=lang_config.language_name,
+                    language_code=lang_config.language_code,
+                    difficulty=legacy_difficulty,
+                    word_count_min=word_min,
+                    word_count_max=word_max,
+                    keywords=translated_keywords,
+                    complexity_tier=complexity_tier,
+                    prompt_template=prose_template,
+                    model_override=lang_config.prose_model,
+                    extra_instruction=DEDUP_RETRY_NUDGE,
+                )
+
+            if not prose or len(prose.strip()) < 50:
+                raise ValueError(
+                    f"Prose too short on dedup retry: "
+                    f"{len(prose.strip()) if prose else 0} chars (min 50)"
+                )
+
+            with stage('dedup_check_retry', stage_seconds):
+                dedup_result, passage_hash, passage_embedding = (
+                    dedup_checker.check_duplicate(topic.id, tier_id, prose)
+                )
+
+            if dedup_result.is_duplicate:
+                logger.warning(
+                    f"Still a duplicate after retry (topic={topic.id}, "
+                    f"tier={tier_id}, reason={dedup_result.reason}, "
+                    f"similarity={dedup_result.similarity}, "
+                    f"matched_test={dedup_result.matched_test_id}); skipping "
+                    "test generation for this queue item."
+                )
+                return False
+
         # Difficulty scorer: refine tier midpoint with passage-derived lexical
         # complexity. Failure here must not block the test — fall back to the
         # tier midpoint and warn.
@@ -516,7 +607,7 @@ class TestGenerationOrchestrator:
                 seeded_elo, _sig = seed_test_elo(
                     prose=prose,
                     language_code=lang_config.language_code,
-                    target_difficulty=difficulty,
+                    tier_id=tier_id,
                     tier_initial_elo=tier_initial_elo,
                 )
             initial_elo = seeded_elo
@@ -543,7 +634,7 @@ class TestGenerationOrchestrator:
                 title = self.title_generator.generate_title(
                     prose=prose,
                     topic_concept=translated_topic,
-                    difficulty=difficulty,
+                    difficulty=legacy_difficulty,
                     complexity_tier=complexity_tier,
                     language_name=lang_config.language_name,
                     language_code=lang_config.language_code,
@@ -565,19 +656,19 @@ class TestGenerationOrchestrator:
             )
 
         # Skip the LLM judges (answer-entailment + distractor-plausibility) at
-        # low difficulty. T1/T2 toddler passages are deliberately simple and
+        # the lowest tier. T1 toddler passages are deliberately simple and
         # explicit ("The car is red"), so their answers are legitimately obvious
         # and the distractor-plausibility judge rejects nearly every question —
-        # a category error that was zeroing out d1/d2 tests. Judges still run at
-        # d>=3, where distractor richness is a meaningful quality signal. The
-        # judges run only when both db and language_id are passed.
-        run_judges = difficulty > 2
+        # a category error that was zeroing out T1 tests. Judges still run at
+        # tier >= 2, where distractor richness is a meaningful quality signal.
+        # The judges run only when both db and language_id are passed.
+        run_judges = tier_id > 1
         with stage('questions', stage_seconds):
             questions = self.question_generator.generate_questions(
                 prose=prose,
                 language_name=lang_config.language_name,
                 question_type_codes=question_types,
-                difficulty=difficulty,  # Pass difficulty for templates
+                difficulty=legacy_difficulty,  # Pass difficulty for templates
                 prompt_templates=question_templates,
                 model_override=lang_config.question_model,
                 language_id=lang_config.id if run_judges else None,
@@ -587,6 +678,14 @@ class TestGenerationOrchestrator:
                 # English subject line. See _subject_kwargs for why it is off.
                 **_subject_kwargs(translated_topic, translated_keywords),
                 language_code=lang_config.language_code,
+                # T1.1 — deterministic stem rotation for the topic-independent
+                # question types. The test row does not exist yet, so the
+                # rotation key is the (topic, tier) pair that identifies it.
+                rotation_key=f'{topic.id}:{tier_id}',
+                # T1.2 — recent stems for this language, as a do-not-reuse list.
+                recent_stems_by_type=self.db.get_recent_question_stems(
+                    lang_config.id, question_types,
+                ),
             )
 
         # Step 3: Validate questions. generate_questions now runs the validator
@@ -602,28 +701,28 @@ class TestGenerationOrchestrator:
                 logger.warning(f"Question validation: {error}")
 
         cfg = get_test_gen_config()
-        # Survival floor. At low difficulty (T1/T2 toddler passages, ~74 words)
+        # Survival floor. At the lowest tier (T1 toddler passages, ~74 words)
         # a 5-question set cannot reliably survive validation: vocabulary_context
         # rejects ~30% of the time at this level and 3 literal_detail questions
         # collide on the Jaccard-overlap check, so the old 4-of-5 floor produced
         # intermittent "Too few valid questions: 0/5" aborts. Accept 3-of-5 at
-        # d1/d2 (margin of 2); keep the standard "tolerate losing one" elsewhere.
+        # T1 (margin of 2); keep the standard "tolerate losing one" elsewhere.
         requested = len(question_types)
-        min_questions = 3 if difficulty <= 2 else max(3, requested - 1)
+        min_questions = 3 if tier_id <= 1 else max(3, requested - 1)
         if len(valid_questions) < min_questions:
             # Funnel diagnostics: decompose where questions were lost so the
-            # survival floor / judge strictness can be tuned per difficulty.
+            # survival floor / judge strictness can be tuned per tier.
             # requested -> generated (post-judge) -> valid (post-validator).
             generated = len(questions)
             judge_rejections = getattr(
                 self.question_generator, 'last_rejections', []
             )
             logger.warning(
-                "Question funnel starved (diff=%s, lang=%s): "
+                "Question funnel starved (tier=%s, lang=%s): "
                 "requested=%d generated=%d valid=%d (floor=%d) | "
                 "lost_to_generation_or_judges=%d lost_to_validation=%d | "
                 "judge_rejections=%s | validation_errors=%s",
-                difficulty, lang_config.language_code,
+                tier_id, lang_config.language_code,
                 requested, generated, len(valid_questions), min_questions,
                 requested - generated, generated - len(valid_questions),
                 judge_rejections, errors,
@@ -634,6 +733,26 @@ class TestGenerationOrchestrator:
                 f"{len(judge_rejections)} judge-rejected, "
                 f"{generated - len(valid_questions)} validator-rejected)"
             )
+
+        # T1.3 — assert the realised question mix against the tier table.
+        #
+        # Every test in the corpus predates `question_type_distributions_by_tier`
+        # (created 2026-08-29), so at the time this was written *zero* tests had
+        # run through the tier-keyed loader. The legacy T6 content shows
+        # supporting_detail at 0 and author_purpose at twice its intended rate,
+        # which is exactly what a silently-wrong distribution looks like. The
+        # loader reads correct, but "reads correct" is not evidence.
+        #
+        # A shortfall here is not necessarily a bug — the survival floor above
+        # deliberately tolerates losing a question to the judges or the
+        # validator — so this warns and carries on rather than raising. What it
+        # must never do is stay silent about a mix that never matched.
+        report_question_mix(
+            requested=question_types,
+            realised=[q.get('type_code') for q in valid_questions],
+            tier_id=tier_id,
+            language_code=lang_config.language_code,
+        )
 
         # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
         test_id = uuid4()
@@ -669,13 +788,16 @@ class TestGenerationOrchestrator:
                 language_name=lang_config.language_name,
                 topic_id=topic.id,
                 topic_name=topic.concept_english,
-                difficulty=difficulty,
+                difficulty=legacy_difficulty,
                 transcript=prose,
                 gen_user=cfg.system_user_id,
                 initial_elo=initial_elo,
                 audio_url=audio_url,
                 title=title,
                 seeded_elo=seeded_elo,
+                target_age_tier=tier_id,
+                passage_hash=passage_hash,
+                passage_embedding=passage_embedding,
             )
             self.db.insert_test(test)
 
@@ -831,6 +953,17 @@ class TestGenerationOrchestrator:
             'both_models_failed': 0,
             'phrases': 0,
             'single_words': 0,
+            # T2.1 — the prefer_existing hit rate. Persisted, not merely
+            # logged, because the question it answers ("is the fix pre-seeding
+            # or batching?") is a question about a whole batch, and a batch is
+            # only reconstructable after the fact from stored rows.
+            'senses_created': 0,
+            'senses_reused': 0,
+            # T2.3 — words held back from inline enrichment. A deliberate
+            # deferral, so it counts as accounted-for in _record_vocab_outcome
+            # and does NOT register as a vocab shortfall.
+            'senses_deferred': 0,
+            'deferred_lemmas': [],
         }
         try:
             # Extract vocabulary with metadata
@@ -889,15 +1022,50 @@ class TestGenerationOrchestrator:
                     transcript=transcript,
                 )
 
+            # T2.3 — enrich the most frequent words inline; defer the tail.
+            # Frequency-ranked because the head is both what a learner most
+            # needs linked and what is most likely to be reusable next time,
+            # so deferring the tail costs the least on both counts.
+            inline_items, deferred_items = split_inline_enrichment(
+                vocab_items,
+                lang_config.language_code,
+                get_test_gen_config().inline_enrichment_cap,
+            )
+            if deferred_items:
+                # The vocab row is created regardless — it costs no LLM call
+                # and it is what scripts/backfill_senses.py selects on, so a
+                # deferred word is queued for the async path rather than lost.
+                for item in deferred_items:
+                    try:
+                        self._get_or_create_vocab_id(
+                            db, item, lang_config.id, lang_config.language_code
+                        )
+                    except Exception as exc:
+                        logger.warning(
+                            "Could not create vocab row for deferred lemma %r "
+                            "(test %s): %s", item.get('lemma'), test_id, exc,
+                        )
+                outcome['senses_deferred'] = len(deferred_items)
+                outcome['deferred_lemmas'] = [
+                    item['lemma'] for item in deferred_items
+                ]
+                logger.info(
+                    "Deferred %d of %d word(s) for test %s to async backfill "
+                    "(inline cap %d); relink with "
+                    "scripts/relink_deferred_vocab.py once seeded",
+                    len(deferred_items), len(vocab_items), test_id,
+                    get_test_gen_config().inline_enrichment_cap,
+                )
+
             sense_ids = []
             workers = max(1, min(
-                get_test_gen_config().vocab_sense_workers, len(vocab_items),
-            ))
+                get_test_gen_config().vocab_sense_workers, len(inline_items),
+            )) if inline_items else 1
             with stage('vocab_senses_llm', stage_seconds):
                 with BatchModeThreadPoolExecutor(max_workers=workers) as pool:
                     futures = {
                         pool.submit(_sense_for_item, item): item
-                        for item in vocab_items
+                        for item in inline_items
                     }
                     for future in as_completed(futures):
                         item = futures[future]
@@ -922,6 +1090,8 @@ class TestGenerationOrchestrator:
                 'senses_failed': sense_gen.stats['senses_failed'],
                 'senses_skipped': sense_gen.stats['senses_skipped'],
                 'both_models_failed': sense_gen.stats['both_models_failed'],
+                'senses_created': sense_gen.stats['senses_created'],
+                'senses_reused': sense_gen.stats['senses_reused'],
                 'phrases': sum(
                     1 for v in vocab_items if v.get('is_phrase')
                 ),
@@ -929,6 +1099,22 @@ class TestGenerationOrchestrator:
                     1 for v in vocab_items if not v.get('is_phrase')
                 ),
             })
+
+            # T2.1 — the enrichment hit rate, reported for every test whether
+            # or not any sense linked. Enrichment is ~82% of per-test wall
+            # clock and makes one LLM call per *new* word; a high reuse rate
+            # means the lever is pre-seeding a shared sense bank (T2.4), and a
+            # low one means the lever is batching the calls (T2.2). Logging it
+            # only on the success path would have hidden exactly the runs where
+            # the answer differs.
+            log_enrichment_hit_rate(
+                created=outcome['senses_created'],
+                reused=outcome['senses_reused'],
+                words_attempted=len(inline_items),
+                seconds=stage_seconds.get('vocab_senses_llm'),
+                test_id=test_id,
+                language_code=lang_config.language_code,
+            )
 
             if sense_ids:
                 # Build token map for frontend rendering
@@ -997,13 +1183,31 @@ class TestGenerationOrchestrator:
         `shortfall_reason`, and is logged at WARNING so it cannot be read as a
         pass in the run output.
         """
-        accounted = outcome['unique_senses'] + outcome['senses_skipped']
+        # A deliberately deferred word is accounted for: it has a vocab row, it
+        # is queued for the async backfill, and calling it a shortfall would
+        # make every capped test look like a failure (T2.3).
+        accounted = (
+            outcome['unique_senses']
+            + outcome['senses_skipped']
+            + outcome.get('senses_deferred', 0)
+        )
         complete = reason is None and accounted >= outcome['words_attempted']
 
         stats = dict(outcome)
         stats['complete'] = complete
         if not complete:
             stats['shortfall_reason'] = reason or 'senses_missing'
+
+        # T2.1 — every vocab outcome, success or not, feeds the batch-level
+        # prefer_existing hit rate. Collected here because this method is the
+        # single funnel through which all of them pass; a list append is
+        # atomic, so the batch's worker threads need no lock. Created on
+        # demand rather than assumed: several tests build this class through
+        # __new__ and never run __init__, and instrumentation must not be the
+        # thing that decides whether a test's vocabulary gets recorded.
+        if not hasattr(self, '_vocab_outcomes'):
+            self._vocab_outcomes = []
+        self._vocab_outcomes.append(stats)
 
         try:
             self.db.client.table('tests').update({
@@ -1443,7 +1647,7 @@ class TestGenerationOrchestrator:
         return self._process_queue_item(item, dry_run)
 
     # ============================================================
-    # BATCH GENERATION (count-based, balanced difficulty)
+    # BATCH GENERATION (count-based, balanced across complexity tiers)
     # ============================================================
 
     def run_batch(self, config: BatchConfig) -> TestGenMetrics:
@@ -1454,7 +1658,7 @@ class TestGenerationOrchestrator:
         and why the serve path is unaffected.
 
         Args:
-            config: BatchConfig with language, count, difficulty, etc.
+            config: BatchConfig with language, count, tier_id, etc.
 
         Returns:
             TestGenMetrics with per-run statistics.
@@ -1469,14 +1673,14 @@ class TestGenerationOrchestrator:
 
     def _run_batch_impl(self, config: BatchConfig) -> TestGenMetrics:
         """
-        Generate a fixed number of tests with balanced difficulty distribution.
+        Generate a fixed number of tests balanced across complexity tiers.
 
-        When config.difficulty is None, tests are spread evenly across
-        target_difficulties (default [1,3,6,9]).  When set, all tests
-        use that single difficulty level.
+        When config.tier_id is None, tests are spread evenly across all 6
+        complexity tiers (TASK-740: dim_complexity_tiers.id 1-6). When set,
+        all tests use that single tier.
 
         Args:
-            config: BatchConfig with language, count, difficulty, etc.
+            config: BatchConfig with language, count, tier_id, etc.
 
         Returns:
             TestGenMetrics with per-run statistics.
@@ -1492,9 +1696,9 @@ class TestGenerationOrchestrator:
             if not lang_config:
                 raise ValueError(f"Unknown language code: {config.language_code}")
 
-            # Build difficulty schedule
-            difficulty_schedule = self._build_difficulty_schedule(
-                config.count, config.difficulty
+            # Build tier schedule
+            tier_schedule = self._build_tier_schedule(
+                config.count, config.tier_id
             )
 
             logger.info("=" * 60)
@@ -1504,13 +1708,13 @@ class TestGenerationOrchestrator:
                 f"Language: {lang_config.language_name} | "
                 f"Type: {config.test_type} | Count: {config.count}"
             )
-            if config.difficulty:
-                logger.info(f"Fixed difficulty: {config.difficulty}")
+            if config.tier_id:
+                logger.info(f"Fixed tier: {config.tier_id}")
             else:
-                diff_counts = {}
-                for d in difficulty_schedule:
-                    diff_counts[d] = diff_counts.get(d, 0) + 1
-                logger.info(f"Balanced distribution: {diff_counts}")
+                tier_counts = {}
+                for t in tier_schedule:
+                    tier_counts[t] = tier_counts.get(t, 0) + 1
+                logger.info(f"Balanced distribution: {tier_counts}")
             logger.info(f"Dry run: {config.dry_run}")
             logger.info("=" * 60)
 
@@ -1528,10 +1732,10 @@ class TestGenerationOrchestrator:
                 logger.warning("No pending queue items for %s", config.language_code)
                 return self._finalize(start_time)
 
-            # Track per-difficulty results for summary
-            diff_stats: dict[int, dict[str, int]] = {}
-            for d in set(difficulty_schedule):
-                diff_stats[d] = {'generated': 0, 'skipped': 0, 'errors': 0}
+            # Track per-tier results for summary
+            tier_stats: dict[int, dict[str, int]] = {}
+            for t in set(tier_schedule):
+                tier_stats[t] = {'generated': 0, 'skipped': 0, 'errors': 0}
 
             # Track tests generated per queue item (items are cycled when count > len(queue_items))
             per_item_counts: dict[str, int] = {qi['id']: 0 for qi in queue_items}
@@ -1545,12 +1749,12 @@ class TestGenerationOrchestrator:
             #
             # BatchModeThreadPoolExecutor so JudgeUnavailable propagates
             # fail-closed from a worker thread — see judges/base.py. All
-            # per-slot outcome bookkeeping (metrics, diff_stats,
+            # per-slot outcome bookkeeping (metrics, tier_stats,
             # per_item_counts) is collected from the worker's return value and
             # applied only on this thread after future.result(), never
             # mutated inside the worker — the same collect-then-merge shape
             # used by scripts/run_content_build.py's phase_ladder.
-            def _generate_one(i: int, diff: int) -> dict:
+            def _generate_one(i: int, tier: int) -> dict:
                 qi_idx = i % len(queue_items)
                 qi_row = queue_items[qi_idx]
 
@@ -1575,7 +1779,7 @@ class TestGenerationOrchestrator:
                         topic=topic,
                         lang_config=lang_config,
                         category_name=category_name,
-                        difficulty=diff,
+                        tier_id=tier,
                         test_type=config.test_type,
                         dry_run=config.dry_run,
                     )
@@ -1594,11 +1798,11 @@ class TestGenerationOrchestrator:
                 }
 
             workers = max(1, min(
-                get_test_gen_config().batch_test_workers, len(difficulty_schedule),
+                get_test_gen_config().batch_test_workers, len(tier_schedule),
             ))
             with BatchModeThreadPoolExecutor(max_workers=workers) as pool:
                 futures = {}
-                for i, diff in enumerate(difficulty_schedule):
+                for i, tier in enumerate(tier_schedule):
                     if i < config.start_index:
                         continue
                     # Stop check gates further SUBMISSION only — futures
@@ -1610,10 +1814,10 @@ class TestGenerationOrchestrator:
                             "after [%d/%d]", i, config.count,
                         )
                         break
-                    futures[pool.submit(_generate_one, i, diff)] = (i, diff)
+                    futures[pool.submit(_generate_one, i, tier)] = (i, tier)
 
                 for future in as_completed(futures):
-                    i, diff = futures[future]
+                    i, tier = futures[future]
                     try:
                         result = future.result()
                     except JudgeUnavailable:
@@ -1624,18 +1828,18 @@ class TestGenerationOrchestrator:
                         # `with` block above still waits for already-running
                         # futures to finish before this propagates.
                         logger.error(
-                            "[%d/%d] %s | %s | diff=%d | ABORT: judge unavailable",
+                            "[%d/%d] %s | %s | tier=%d | ABORT: judge unavailable",
                             i + 1, config.count, config.language_code,
-                            config.test_type, diff,
+                            config.test_type, tier,
                         )
                         raise
                     except Exception as e:
                         self.metrics.tests_failed += 1
-                        diff_stats[diff]['errors'] += 1
+                        tier_stats[tier]['errors'] += 1
                         logger.error(
-                            "[%d/%d] %s | %s | diff=%d | ERROR: %s",
+                            "[%d/%d] %s | %s | tier=%d | ERROR: %s",
                             i + 1, config.count, config.language_code,
-                            config.test_type, diff, str(e),
+                            config.test_type, tier, str(e),
                         )
                         continue
 
@@ -1645,23 +1849,23 @@ class TestGenerationOrchestrator:
                             "[%d/%d] Topic not found: %s — skipping",
                             i + 1, config.count, result['topic_id'],
                         )
-                        diff_stats[diff]['skipped'] += 1
+                        tier_stats[tier]['skipped'] += 1
                     elif outcome == 'pass':
                         self.metrics.tests_generated += 1
-                        diff_stats[diff]['generated'] += 1
+                        tier_stats[tier]['generated'] += 1
                         per_item_counts[result['qi_id']] += 1
                         logger.info(
-                            "[%d/%d] %s | %s | diff=%d (%s) | pass",
+                            "[%d/%d] %s | %s | tier=%d (%s) | pass",
                             i + 1, config.count, config.language_code,
-                            config.test_type, diff,
-                            DIFFICULTY_LABELS.get(diff, '?'),
+                            config.test_type, tier,
+                            TIER_LABELS.get(tier, '?'),
                         )
                     else:  # 'skip'
-                        diff_stats[diff]['skipped'] += 1
+                        tier_stats[tier]['skipped'] += 1
                         logger.info(
-                            "[%d/%d] %s | %s | diff=%d | skip",
+                            "[%d/%d] %s | %s | tier=%d | skip",
                             i + 1, config.count, config.language_code,
-                            config.test_type, diff,
+                            config.test_type, tier,
                         )
 
             # Mark processed queue items complete, using per-item counts so that
@@ -1682,8 +1886,9 @@ class TestGenerationOrchestrator:
 
             # Log summary table
             self._log_batch_summary(
-                lang_config.language_name, config.test_type, diff_stats
+                lang_config.language_name, config.test_type, tier_stats
             )
+            self._log_enrichment_summary()
 
             return self._finalize(start_time, config.dry_run)
 
@@ -1702,47 +1907,63 @@ class TestGenerationOrchestrator:
             return self._finalize(start_time, config.dry_run)
 
     @staticmethod
-    def _build_difficulty_schedule(
-        count: int, fixed_difficulty: Optional[int] = None,
+    def _build_tier_schedule(
+        count: int, fixed_tier: Optional[int] = None,
     ) -> list[int]:
-        """Build an ordered list of difficulty levels for the batch.
+        """Build an ordered list of complexity tiers for the batch.
 
-        When *fixed_difficulty* is set every slot uses that value.
-        Otherwise slots are distributed evenly across target_difficulties,
-        with remainder going to the middle levels.
+        When *fixed_tier* is set every slot uses that value. Otherwise slots
+        are distributed evenly across all 6 dim_complexity_tiers ids, with
+        remainder going to the middle tiers.
         """
-        if fixed_difficulty is not None:
-            return [fixed_difficulty] * count
+        if fixed_tier is not None:
+            return [fixed_tier] * count
 
-        difficulties = list(get_test_gen_config().target_difficulties)
-        if not difficulties:
-            difficulties = [1, 3, 6, 9]
+        tiers = [1, 2, 3, 4, 5, 6]
 
-        per_level = count // len(difficulties)
-        remainder = count % len(difficulties)
+        per_level = count // len(tiers)
+        remainder = count % len(tiers)
 
-        # Distribute remainder to middle difficulties first
-        mid = len(difficulties) // 2
+        # Distribute remainder to middle tiers first
+        mid = len(tiers) // 2
         schedule: list[int] = []
-        for d in difficulties:
-            schedule.extend([d] * per_level)
+        for t in tiers:
+            schedule.extend([t] * per_level)
 
         # Distribute remainder round-robin starting from middle
         remainder_indices = sorted(
-            range(len(difficulties)),
+            range(len(tiers)),
             key=lambda i: abs(i - mid),
         )
         for r in range(remainder):
-            d = difficulties[remainder_indices[r % len(remainder_indices)]]
-            schedule.append(d)
+            t = tiers[remainder_indices[r % len(remainder_indices)]]
+            schedule.append(t)
 
         return schedule
 
     @staticmethod
+    def _log_enrichment_summary(self) -> None:
+        """Report the batch's prefer_existing hit rate (T2.1).
+
+        The one number that decides whether the throughput fix is pre-seeding
+        (T2.4) or batching (T2.2/T2.3) — see enrichment_metrics for why the two
+        point in opposite directions. Emitted next to the tier table so it lands
+        in the same place anyone reading a batch report is already looking.
+        """
+        if not self._vocab_outcomes:
+            return
+        try:
+            summary = summarise_batch(self._vocab_outcomes)
+        except Exception as e:
+            logger.warning('could not summarise batch enrichment: %s', e)
+            return
+        for line in format_summary(summary).splitlines():
+            logger.info(line)
+
     def _log_batch_summary(
         language_name: str,
         test_type: str,
-        diff_stats: dict[int, dict[str, int]],
+        tier_stats: dict[int, dict[str, int]],
     ) -> None:
         """Log a formatted summary table of batch results."""
         logger.info("")
@@ -1750,16 +1971,16 @@ class TestGenerationOrchestrator:
         logger.info("  Batch Complete")
         logger.info("=" * 50)
         logger.info(f"  Language: {language_name} | Type: {test_type}")
-        logger.info("  %-12s %-10s %-8s %-6s", "Difficulty", "Generated", "Skipped", "Errors")
+        logger.info("  %-12s %-10s %-8s %-6s", "Tier", "Generated", "Skipped", "Errors")
         logger.info("  " + "-" * 40)
 
         total_gen = total_skip = total_err = 0
-        for diff in sorted(diff_stats.keys()):
-            s = diff_stats[diff]
-            label = DIFFICULTY_LABELS.get(diff, '?')
+        for tier in sorted(tier_stats.keys()):
+            s = tier_stats[tier]
+            label = TIER_LABELS.get(tier, '?')
             logger.info(
                 "  %-12s %-10d %-8d %-6d",
-                f"{diff} ({label})", s['generated'], s['skipped'], s['errors'],
+                f"{tier} ({label})", s['generated'], s['skipped'], s['errors'],
             )
             total_gen += s['generated']
             total_skip += s['skipped']

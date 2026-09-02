@@ -8,13 +8,13 @@ Uses the existing SupabaseFactory for client management.
 import json
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
 from dataclasses import dataclass, field
 
 from ..supabase_factory import get_supabase_admin
-from ..dictation.cap import passage_word_range
+from ..dictation.cap import passage_word_range_for_tier
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +105,13 @@ class GeneratedTest:
     audio_url: str
     title: Optional[str] = None
     seeded_elo: Optional[int] = None  # lexical-complexity-derived seed, see difficulty_scorer
+    # dim_complexity_tiers.id (1-6) — sole level axis going forward, TASK-740.
+    # difficulty above is kept only for legacy readers; new inserts always set
+    # this from the topic's mandatory target_age_tier.
+    target_age_tier: Optional[int] = None
+    # TASK-740 Phase 5: dedup fields, see services/test_generation/dedup.py.
+    passage_hash: Optional[str] = None
+    passage_embedding: Optional[List[float]] = None
 
 
 @dataclass
@@ -148,9 +155,9 @@ class TestDatabaseClient:
 
         # Caches
         self._language_cache: Optional[Dict[int, LanguageConfig]] = None
-        self._cefr_cache: Optional[Dict[int, TierConfig]] = None
+        self._tier_cache: Optional[Dict[int, TierConfig]] = None
         self._question_type_cache: Optional[Dict[str, QuestionType]] = None
-        self._distribution_cache: Optional[Dict[int, List[str]]] = None
+        self._tier_distribution_cache: Optional[Dict[int, List[str]]] = None
         self._status_cache: Optional[Dict[str, int]] = None
         self._config_cache: Optional[Dict[str, str]] = None
 
@@ -315,6 +322,32 @@ class TestDatabaseClient:
 
         return response.data.get('name', 'Unknown') if response.data else 'Unknown'
 
+    def count_recent_tests_for_topic(self, topic_id: UUID, window_days: int) -> int:
+        """
+        Count tests generated for a topic within the last `window_days` days.
+
+        TASK-740 Phase 4 (finding #2): backs the per-topic generation cap —
+        callers compare this against config.max_tests_per_topic before
+        generating another test for the same topic. Uses `count='exact',
+        head=True` so this is a count-only query with no row payload.
+
+        Args:
+            topic_id: Topic UUID
+            window_days: How many days back to look (from now)
+
+        Returns:
+            int: Number of tests for this topic created within the window
+        """
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=window_days)).isoformat()
+
+        response = self.client.table('tests') \
+            .select('id', count='exact', head=True) \
+            .eq('topic_id', str(topic_id)) \
+            .gte('created_at', cutoff) \
+            .execute()
+
+        return response.count or 0
+
     # ============================================================
     # LANGUAGE CONFIGURATION
     # ============================================================
@@ -438,34 +471,43 @@ class TestDatabaseClient:
     # TIER CONFIGURATION
     # ============================================================
 
-    def get_cefr_config(self, difficulty: int) -> Optional[TierConfig]:
-        """
-        Get tier configuration for a difficulty level.
+    def get_tier_config(self, tier_id: int) -> TierConfig:
+        """Get complexity tier configuration by ``dim_complexity_tiers.id``.
+
+        TASK-740: target_age_tier is the sole level axis for test generation
+        now — this is a direct id lookup, not a difficulty->tier range scan.
+        A miss raises rather than silently degrading (finding #4): a topic
+        pointing at an unknown tier is a data-integrity bug, not something to
+        paper over with a guessed config.
 
         Args:
-            difficulty: Difficulty level 1-9
+            tier_id: dim_complexity_tiers.id (1-6)
 
         Returns:
-            TierConfig object or None
+            TierConfig object.
+
+        Raises:
+            KeyError: no dim_complexity_tiers row for tier_id.
         """
-        if self._cefr_cache is None:
-            self._load_cefr_cache()
+        if self._tier_cache is None:
+            self._load_tier_cache()
 
-        # Find matching tier
-        for tier in self._cefr_cache.values():
-            if tier.difficulty_min <= difficulty <= tier.difficulty_max:
-                return tier
+        tier = self._tier_cache.get(tier_id)
+        if tier is None:
+            raise KeyError(
+                f"No dim_complexity_tiers row for tier_id={tier_id!r}. "
+                "target_age_tier is the sole level axis now — a lookup miss "
+                "must raise, not fall back to a guessed config."
+            )
+        return tier
 
-        logger.warning(f"No tier config found for difficulty {difficulty}")
-        return None
-
-    def _load_cefr_cache(self) -> None:
-        """Load all complexity tiers into cache."""
+    def _load_tier_cache(self) -> None:
+        """Load all complexity tiers into cache, keyed by id."""
         response = self.client.table('dim_complexity_tiers') \
             .select('*') \
             .execute()
 
-        self._cefr_cache = {}
+        self._tier_cache = {}
         if response.data:
             for row in response.data:
                 tier = TierConfig(
@@ -477,42 +519,29 @@ class TestDatabaseClient:
                     word_count_max=row['word_count_max'],
                     initial_elo=row['initial_elo']
                 )
-                self._cefr_cache[tier.id] = tier
+                self._tier_cache[tier.id] = tier
 
-        logger.info(f"Loaded {len(self._cefr_cache)} complexity tiers")
+        logger.info(f"Loaded {len(self._tier_cache)} complexity tiers")
 
-    def get_tier_difficulties(self, tier_id: int) -> Optional[List[int]]:
-        """Difficulty levels covered by an ADR-003 age tier.
+    def get_tier_word_count_range(self, tier_id: int) -> tuple:
+        """Passage length range (min_words, max_words) for a tier.
 
-        Args:
-            tier_id: dim_complexity_tiers.id (1-6)
+        Reads from ``services.dictation.cap.passage_word_range_for_tier``,
+        whose upper bound is that tier's dictation cap — see the module
+        docstring there for why word_count_max on dim_complexity_tiers itself
+        (a vocabulary size, not a passage length) is not usable here.
 
-        Returns:
-            Inclusive difficulty_min..difficulty_max list for the tier, or None
-            when the tier id is unknown (caller falls back to the full schedule).
+        Raises:
+            KeyError: no dim_complexity_tiers row for tier_id (via
+                get_tier_config).
         """
-        if self._cefr_cache is None:
-            self._load_cefr_cache()
+        tier = self.get_tier_config(tier_id)
+        return passage_word_range_for_tier(tier.tier_code)
 
-        tier = self._cefr_cache.get(tier_id)
-        if not tier:
-            logger.warning(f"Unknown age tier id: {tier_id}")
-            return None
-        return list(range(tier.difficulty_min, tier.difficulty_max + 1))
-
-    def get_initial_elo(self, difficulty: int) -> int:
-        """Get initial ELO rating for a difficulty level."""
-        cefr = self.get_cefr_config(difficulty)
-        if cefr:
-            return cefr.initial_elo
-
-        # Fallback to hardcoded values
-        difficulty_to_elo = {
-            1: 800, 2: 950, 3: 1100,
-            4: 1250, 5: 1400, 6: 1550,
-            7: 1700, 8: 1850, 9: 2000
-        }
-        return difficulty_to_elo.get(difficulty, 1400)
+    def get_tier_initial_elo(self, tier_id: int) -> int:
+        """Get initial ELO rating for a tier. Raises on an unknown tier_id —
+        no hardcoded difficulty->ELO fallback (finding #4)."""
+        return self.get_tier_config(tier_id).initial_elo
 
     def get_active_test_types(self) -> List[dict]:
         """
@@ -527,27 +556,6 @@ class TestDatabaseClient:
             .execute()
 
         return response.data if response.data else []
-
-    def get_word_count_range(self, difficulty: int) -> tuple:
-        """Passage length range (min_words, max_words) for a difficulty level.
-
-        TASK-715: this used to return
-        ``(dim_complexity_tiers.word_count_min, .word_count_max)``, but
-        ``word_count_max`` in that table is a VOCABULARY SIZE (500 / 2000 /
-        5000 / 10000 / 15000 / 25000), not a passage length — so the prose
-        prompt was literally being told to write "600-25000 words" at T6.
-        That is why live English difficulty-9 transcripts average ~777 words.
-
-        The range now comes from ``services.dictation.cap``, whose upper bound
-        IS that tier's dictation cap, so every generated test is
-        dictation-eligible at its own difficulty. Dictation has no content of
-        its own — it reuses these same ``tests`` rows — so "generation respects
-        the cap" can only mean this.
-
-        Consequence: new T5/T6 passages are materially shorter than the ones
-        already in the corpus. Existing tests are untouched.
-        """
-        return passage_word_range(difficulty)
 
     # ============================================================
     # QUESTION TYPE DISTRIBUTION
@@ -579,45 +587,105 @@ class TestDatabaseClient:
         logger.info(f"Loaded {len(self._question_type_cache)} question types")
         return self._question_type_cache
 
-    def get_question_distribution(self, difficulty: int) -> List[str]:
+    def get_tier_question_distribution(self, tier_id: int) -> List[str]:
         """
-        Get question type distribution for a difficulty level.
+        Get question type distribution for a complexity tier.
+
+        Reads ``question_type_distributions_by_tier`` (TASK-740 Phase 1) — one
+        fixed mix per tier, seeded from the legacy difficulty-keyed table so
+        day-1 behavior is unchanged.
 
         Args:
-            difficulty: Difficulty level 1-9
+            tier_id: dim_complexity_tiers.id (1-6)
 
         Returns:
             List of question type codes (e.g., ['literal_detail', 'main_idea', ...])
         """
-        if self._distribution_cache is None:
-            self._load_distribution_cache()
+        if self._tier_distribution_cache is None:
+            self._load_tier_distribution_cache()
 
-        if difficulty in self._distribution_cache:
-            return self._distribution_cache[difficulty]
+        if tier_id in self._tier_distribution_cache:
+            return self._tier_distribution_cache[tier_id]
 
-        # Fallback to default distribution
-        logger.warning(f"No distribution found for difficulty {difficulty}, using default")
+        # Fallback to default distribution — the tier itself is real (callers
+        # already validated tier_id via get_tier_config); a missing
+        # distribution row is a seed-data gap, not a reason to raise.
+        logger.warning(f"No question distribution found for tier {tier_id}, using default")
         return ['literal_detail', 'literal_detail', 'main_idea', 'main_idea', 'inference']
 
-    def _load_distribution_cache(self) -> None:
-        """Load question type distributions into cache."""
-        response = self.client.table('question_type_distributions') \
+    def _load_tier_distribution_cache(self) -> None:
+        """Load tier-keyed question type distributions into cache."""
+        response = self.client.table('question_type_distributions_by_tier') \
             .select('*') \
             .execute()
 
-        self._distribution_cache = {}
+        self._tier_distribution_cache = {}
         if response.data:
             for row in response.data:
-                difficulty = row['difficulty']
+                tier_id = row['tier_id']
                 types = []
                 for i in range(1, 6):
                     type_code = row.get(f'question_type_{i}')
                     if type_code:
                         types.append(type_code)
                 if types:
-                    self._distribution_cache[difficulty] = types
+                    self._tier_distribution_cache[tier_id] = types
 
-        logger.info(f"Loaded distributions for {len(self._distribution_cache)} difficulty levels")
+        logger.info(f"Loaded distributions for {len(self._tier_distribution_cache)} tiers")
+
+    def get_recent_question_stems(
+        self,
+        language_id: int,
+        type_codes: List[str],
+        limit_per_type: int = 8,
+    ) -> Dict[str, List[str]]:
+        """Recently written question stems per type, newest first (T1.2).
+
+        Fed to the question prompt as a do-not-reuse list. A stem-rotation pool
+        of six still repeats every sixth test; this is what stops a learner
+        meeting the same phrasing twice in a row.
+
+        Scoped by language because the stems ARE the language. Returns ``{}``
+        on any failure — a missing recency list degrades variety, and refusing
+        to generate a test over it would be a much worse trade.
+        """
+        if not type_codes:
+            return {}
+
+        type_ids = {}
+        for code in set(type_codes):
+            type_id = self.get_question_type_id(code)
+            if type_id is not None:
+                type_ids[type_id] = code
+        if not type_ids:
+            return {}
+
+        try:
+            response = (
+                self.client.table('questions')
+                .select('question_text, question_type_id, tests!inner(language_id)')
+                .in_('question_type_id', list(type_ids))
+                .eq('tests.language_id', language_id)
+                .order('created_at', desc=True)
+                # Over-fetch: the rows come back interleaved across types, so
+                # a per-type limit is not expressible in one PostgREST call.
+                .limit(limit_per_type * len(type_ids) * 6)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(f"Could not read recent question stems: {e}")
+            return {}
+
+        out: Dict[str, List[str]] = {code: [] for code in type_ids.values()}
+        for row in (response.data or []):
+            code = type_ids.get(row.get('question_type_id'))
+            text = (row.get('question_text') or '').strip()
+            if not code or not text:
+                continue
+            bucket = out[code]
+            if len(bucket) < limit_per_type and text not in bucket:
+                bucket.append(text)
+        return {code: stems for code, stems in out.items() if stems}
 
     def get_question_type_id(self, type_code: str) -> Optional[int]:
         """Get question type ID by code."""
@@ -723,12 +791,21 @@ class TestDatabaseClient:
             'audio_url': test.audio_url
         }
 
+        if test.target_age_tier is not None:
+            data['target_age_tier'] = test.target_age_tier
+
         # Add title if provided (NULL if not generated)
         if test.title:
             data['title'] = test.title
 
         if test.seeded_elo is not None:
             data['seeded_elo'] = test.seeded_elo
+
+        if test.passage_hash is not None:
+            data['passage_hash'] = test.passage_hash
+
+        if test.passage_embedding is not None:
+            data['passage_embedding'] = test.passage_embedding
 
         self.client.table('tests') \
             .insert(data) \
@@ -903,9 +980,9 @@ class TestDatabaseClient:
     def clear_caches(self) -> None:
         """Clear all cached data."""
         self._language_cache = None
-        self._cefr_cache = None
+        self._tier_cache = None
         self._question_type_cache = None
-        self._distribution_cache = None
+        self._tier_distribution_cache = None
         self._status_cache = None
         self._config_cache = None
         logger.debug("Cleared database caches")

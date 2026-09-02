@@ -160,7 +160,8 @@ def run_language(code: str, types: list[str], verbose: bool) -> dict:
     # test is dictation-eligible at its own difficulty, and deliberately made
     # new T5/T6 passages shorter than the existing corpus. Hardcoding a range
     # here would measure the script's parameters rather than the pipeline's.
-    word_min, word_max = db_client.get_word_count_range(DIFFICULTY)
+    from services.dictation.cap import passage_word_range
+    word_min, word_max = passage_word_range(DIFFICULTY)
 
     prose = ''
     try:

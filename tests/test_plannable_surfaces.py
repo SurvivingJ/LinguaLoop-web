@@ -39,7 +39,7 @@ TIME_ESTIMATE_SQL = (
     REPO / 'migrations' / 'task715_test_time_estimate_tiered.sql'
 ).read_text(encoding='utf-8')
 RESOLVER_SQL = (
-    REPO / 'migrations' / 'task714_build_daily_session_surfaces.sql'
+    REPO / 'migrations' / 'archive' / 'task714_build_daily_session_surfaces.sql'
 ).read_text(encoding='utf-8')
 TEMPLATE_SEED_SQL = (
     REPO / 'migrations' / 'task714_seed_surface_budgets.sql'

@@ -171,6 +171,8 @@
             state.slug = parts[testIdx + 1];
             if (!state.slug) throw new Error('No test slug in URL');
 
+            if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'pitch_accent' });
+
             if (window.LinguaMetadata) await LinguaMetadata.load();
             if (window.LinguaI18n && window.LinguaI18n.init) await window.LinguaI18n.init();
 

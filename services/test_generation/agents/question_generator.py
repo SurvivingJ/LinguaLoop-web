@@ -17,6 +17,7 @@ from services.exercise_generation.judges.base import BatchModeThreadPoolExecutor
 
 from ..config import get_test_gen_config
 from ..schemas import MCQuestion
+from .. import stem_rotation
 from .question_validator import QuestionValidator
 
 # Verdict ordering used to find worst distractor outcome.
@@ -159,6 +160,8 @@ class QuestionGenerator:
         topic_concept: Optional[str] = None,
         keywords: Optional[Sequence[str]] = None,
         language_code: Optional[str] = None,
+        rotation_key: Optional[str] = None,
+        recent_stems_by_type: Optional[Dict[str, Sequence[str]]] = None,
     ) -> List[Dict]:
         """Generate multiple questions for prose content.
 
@@ -177,6 +180,17 @@ class QuestionGenerator:
         ``language_id`` above, which gates the judges and is only ever passed
         at difficulty > 2 — ``language_code`` is unconditional so low-difficulty
         question generation is still tagged.
+
+        ``rotation_key`` (T1.1) is any stable identifier for the test being
+        written — the orchestrator passes ``f'{topic_id}:{tier_id}'``, since
+        the test row does not exist yet at this point. It selects one stem from
+        each topic-independent type's phrasing pool, deterministically, so the
+        same test regenerates to the same stem. Omitted, no stem is imposed.
+
+        ``recent_stems_by_type`` (T1.2) maps question_type -> recently used
+        stems for this language, passed to the prompt as a do-not-reuse list.
+        A pool of six still repeats every sixth test; the recency list is what
+        stops a learner meeting the same phrasing twice in a row.
         """
         logger.info(f"Generating {len(question_type_codes)} questions for {language_name} (diff={difficulty})")
 
@@ -209,6 +223,19 @@ class QuestionGenerator:
         # _generate_validated_question's judge gate can raise
         # JudgeUnavailable, which must reach the caller from whatever thread
         # runs it (see judges/base.py).
+        # T1.1/T1.2 — one directive per type, computed once. Both halves are
+        # no-ops when their input is absent, so a caller that passes neither
+        # gets exactly the previous prompt.
+        stem_directives = {
+            type_code: stem_rotation.build_directive(
+                language_code,
+                type_code,
+                rotation_key or '',
+                (recent_stems_by_type or {}).get(type_code),
+            ) if rotation_key else ''
+            for type_code in set(question_type_codes)
+        }
+
         WAVE_SIZE = 2
         waves = [
             question_type_codes[i:i + WAVE_SIZE]
@@ -239,6 +266,7 @@ class QuestionGenerator:
                         max_attempts=max_attempts,
                         subject_keywords=subject_keywords,
                         language_code=language_code,
+                        stem_directive=stem_directives.get(type_code, ''),
                     ): type_code
                     for type_code in wave
                 }
@@ -287,6 +315,7 @@ class QuestionGenerator:
         max_attempts: int = 2,
         subject_keywords: str = '',
         language_code: Optional[str] = None,
+        stem_directive: str = '',
     ) -> Tuple[Optional[Dict], List[Dict]]:
         """Generate one question of a type, retrying with feedback on rejection.
 
@@ -325,6 +354,7 @@ class QuestionGenerator:
                     template_version=template_version,
                     avoid_context=avoid_context,
                     language_code=language_code,
+                    stem_directive=stem_directive,
                 )
             except Exception as e:
                 # call_llm already retries transient API errors via tenacity, so
@@ -428,6 +458,7 @@ class QuestionGenerator:
         template_version: Optional[int] = None,
         avoid_context: str = "",
         language_code: Optional[str] = None,
+        stem_directive: str = "",
     ) -> MCQuestion:
         """Generate a single question of specified type.
 

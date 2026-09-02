@@ -10,13 +10,24 @@ For each test in a given language:
 5. Write stats to tests.vocab_sense_stats
 
 Usage:
-    python scripts/backfill_vocab.py --language cn [--dry-run] [--limit 10] [--delay 0.5]
+    python scripts/backfill_vocab.py --language zh [--dry-run] [--limit 10] [--delay 0.5]
+
+    # Under a Claude subscription rather than per-token OpenRouter billing:
+    python scripts/backfill_vocab.py --language zh --provider claude-cli
 
 Options:
-    --language CODE   Required. Language code: cn, en, jp
+    --language CODE   Required. Language code: zh, en, ja
     --dry-run         Preview changes without writing to DB
     --limit N         Process at most N tests (default: all)
     --delay SECS      Delay between tests for LLM rate limiting (default: 0.5)
+    --select-senses   Ask the LLM which existing sense fits each occurrence
+                      (default: link the primary sense, no call)
+    --provider NAME   openrouter (default, per-token) | claude-cli (subscription)
+
+Note on scope: this script extracts and seeds vocabulary inline, one test at a
+time, via a hosted model. To seed the dictionary in bulk with definitions written
+in a Claude Code session instead, see
+.claude/skills/batch-sense-generation/SKILL.md.
 """
 
 import sys
@@ -35,6 +46,8 @@ from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.sense_generator import SenseGenerator, find_sentence
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
+from scripts.sense_linking_common import build_token_map_with_fallback, lemma_sense_lookup
+from scripts.provider_arg import add_provider_arg, apply_provider
 
 # Setup logging
 logging.basicConfig(
@@ -46,11 +59,13 @@ logger = logging.getLogger(__name__)
 
 class VocabBackfillRunner:
     def __init__(self, language_code: str, dry_run: bool = False,
-                 limit: int = 0, delay: float = 0.5):
+                 limit: int = 0, delay: float = 0.5,
+                 select_senses: bool = False):
         self.language_code = language_code
         self.dry_run = dry_run
         self.limit = limit
         self.delay = delay
+        self.select_senses = select_senses
 
         self.db = get_supabase_admin()
         self.language_id = Config.LANGUAGE_CODE_TO_ID.get(language_code)
@@ -107,10 +122,16 @@ class VocabBackfillRunner:
             db_client=db_client,
             language_code=self.language_code,
             language_id=self.language_id,
-            # None -> SENSE_MODEL_DEFAULT (cheap hosted sense model); prefer_existing
-            # skips words already seeded by backfill_senses.py.
+            # None -> SENSE_MODEL_DEFAULT (cheap hosted sense model).
+            #
+            # prefer_existing=True short-circuits generate_sense() to the word's
+            # PRIMARY sense without an LLM call — fast and cheap, but it means no
+            # sense is ever chosen for the context it appears in. On a dictionary
+            # this well seeded that is the branch nearly every known word takes,
+            # so the selection step was effectively off. --select-senses turns it
+            # back on at the cost of one call per already-known lemma.
             model=None,
-            prefer_existing=True,
+            prefer_existing=not self.select_senses,
             dry_run=self.dry_run,
         )
 
@@ -137,25 +158,38 @@ class VocabBackfillRunner:
         logger.info(f"Pre-loaded {len(self._vocab_cache)} existing vocab entries for {self.language_code}")
 
     def _get_tests_to_process(self) -> list[dict]:
-        """Fetch tests that need vocab backfill."""
-        query_with_vocab = self.db.table('tests') \
-            .select('id, slug, transcript, difficulty, vocab_sense_ids') \
-            .eq('language_id', self.language_id) \
-            .eq('is_active', True) \
-            .order('created_at')
+        """Fetch tests that need vocab backfill, newest-linked-last.
 
-        if self.limit:
-            query_with_vocab = query_with_vocab.limit(self.limit * 2)
+        Pages through the whole language and applies --limit to the *filtered*
+        result. The previous version fetched `limit * 2` rows and filtered those,
+        so `--limit 1` against a corpus whose two oldest tests were already linked
+        reported "Found 0 tests needing vocab backfill" while 27 were waiting —
+        a limit that silently means "look at 2N rows and hope".
 
-        response = query_with_vocab.execute()
+        PostgREST caps a page at 1000 rows, hence the explicit paging.
+        """
+        PAGE_SIZE = 1000
+        tests: list[dict] = []
+        offset = 0
 
-        tests = []
-        for row in (response.data or []):
-            vocab_ids = row.get('vocab_sense_ids')
-            if not vocab_ids or len(vocab_ids) == 0:
-                tests.append(row)
-                if self.limit and len(tests) >= self.limit:
-                    break
+        while True:
+            rows = (self.db.table('tests')
+                    .select('id, slug, transcript, difficulty, vocab_sense_ids')
+                    .eq('language_id', self.language_id)
+                    .eq('is_active', True)
+                    .order('created_at')
+                    .range(offset, offset + PAGE_SIZE - 1)
+                    .execute()).data or []
+
+            for row in rows:
+                if not (row.get('vocab_sense_ids') or []):
+                    tests.append(row)
+                    if self.limit and len(tests) >= self.limit:
+                        return tests
+
+            if len(rows) < PAGE_SIZE:
+                break
+            offset += PAGE_SIZE
 
         return tests
 
@@ -222,89 +256,30 @@ class VocabBackfillRunner:
         self.stats['vocab_created'] += 1
         return vocab_id
 
-    def _build_sense_lookup(self, sense_ids: list[int]) -> dict[str, int]:
-        """Reverse-lookup: sense_ids → vocab_id → lemma → {lemma: sense_id}."""
-        if not sense_ids:
-            return {}
-
-        sense_to_vocab: dict[int, int] = {}
-        for i in range(0, len(sense_ids), 500):
-            chunk = sense_ids[i:i + 500]
-            result = self.db.table('dim_word_senses') \
-                .select('id, vocab_id') \
-                .in_('id', chunk) \
-                .execute()
-            for row in (result.data or []):
-                sense_to_vocab[row['id']] = row['vocab_id']
-
-        vocab_ids = list(set(sense_to_vocab.values()))
-        vocab_to_lemma: dict[int, str] = {}
-        for i in range(0, len(vocab_ids), 500):
-            chunk = vocab_ids[i:i + 500]
-            result = self.db.table('dim_vocabulary') \
-                .select('id, lemma') \
-                .in_('id', chunk) \
-                .execute()
-            for row in (result.data or []):
-                vocab_to_lemma[row['id']] = row['lemma']
-
-        lemma_to_sense: dict[str, int] = {}
-        for sense_id, vocab_id in sense_to_vocab.items():
-            lemma = vocab_to_lemma.get(vocab_id)
-            if lemma and lemma not in lemma_to_sense:
-                lemma_to_sense[lemma] = sense_id
-
-        return lemma_to_sense
-
-    def _build_token_map(self, transcript: str, sense_ids: list[int] | None = None) -> list:
+    def _build_token_map(self, transcript: str, sense_ids: list[int] | None = None):
         """
         Build vocab token map: [[display_text, sense_id_or_0], ...].
 
-        Uses two strategies:
-        1. Reverse-lookup from sense_ids (if provided)
-        2. Global vocab cache → DB sense lookup
+        Two strategies, both now living in scripts/sense_linking_common.py:
+        1. Reverse-lookup from the sense_ids this run just linked
+        2. Fall back to each remaining content lemma's best existing sense
+
+        Delegated rather than hand-rolled. The private copy this replaced had
+        drifted from backfill_token_maps.py far enough to unpack tokenize_full's
+        4-tuple into three names, which raised for every single test — inside
+        _process_test's except, so the run reported "Failed to process" after
+        the vocab rows and senses had already been created and paid for. It also
+        filtered neither definition_level nor definition_language, so its
+        fallback could link a `simple` row and render a child-register gloss
+        where the standard definition belonged.
+
+        Returns (token_map, unmatched_lemmas).
         """
-        tokens = self.pipeline.tokenize_full(transcript, self.language_code)
-
-        # Strategy 1: Reverse-lookup from just-generated sense_ids
-        sense_lookup = self._build_sense_lookup(sense_ids or [])
-
-        # Strategy 2: Collect vocab_ids for cache-based lookup
-        vocab_ids_needed = set()
-        token_vocab_ids = []
-        for display_text, lemma, is_content, _reading in tokens:
-            vid = self._vocab_cache.get((lemma, self.language_id)) if is_content else None
-            token_vocab_ids.append(vid)
-            if vid:
-                vocab_ids_needed.add(vid)
-
-        # Batch-fetch best sense for each vocab_id (lowest sense_rank)
-        sense_map = {}
-        if vocab_ids_needed:
-            result = self.db.table('dim_word_senses') \
-                .select('id, vocab_id, sense_rank') \
-                .in_('vocab_id', list(vocab_ids_needed)) \
-                .order('sense_rank') \
-                .execute()
-            for row in (result.data or []):
-                vid = row['vocab_id']
-                if vid not in sense_map:  # First = lowest rank = best
-                    sense_map[vid] = row['id']
-
-        # Build the map
-        token_map = []
-        for i, (display_text, lemma, is_content) in enumerate(tokens):
-            sid = 0
-            if is_content and lemma:
-                # Try reverse lookup first
-                sid = sense_lookup.get(lemma, 0)
-                if not sid:
-                    # Fall back to cache-based lookup
-                    vid = token_vocab_ids[i]
-                    sid = sense_map.get(vid, 0) if vid else 0
-            token_map.append([display_text, sid])
-
-        return token_map
+        return build_token_map_with_fallback(
+            self.db, self.language_code, self.language_id, transcript,
+            lemma_sense_lookup(self.db, sense_ids or []),
+            resolve_vocab_id=lambda lemma: self._vocab_cache.get((lemma, self.language_id)),
+        )
 
     def _process_test(self, test: dict):
         """Process a single test: extract vocab, upsert, generate senses, update test row."""
@@ -329,6 +304,7 @@ class VocabBackfillRunner:
             # Get or create vocab IDs and generate word senses
             # vocab_sense_ids stores dim_word_senses.id (NOT dim_vocabulary.id)
             sense_ids = []
+            linked_vocab_ids = []
             for item in vocab_items:
                 vid = self._get_or_create_vocab_id(item)
 
@@ -346,29 +322,32 @@ class VocabBackfillRunner:
 
                 if sense_id is not None:
                     sense_ids.append(sense_id)
+                    linked_vocab_ids.append(vid)
 
             if not sense_ids:
                 logger.warning(f"Skipping {slug}: no word senses generated")
                 self.stats['tests_skipped'] += 1
                 return
 
-            # Build stats
+            # Build stats. unique_vocab counts distinct dim_vocabulary ids — it
+            # previously de-duplicated sense_ids and called the result vocab,
+            # which made it a copy of unique_senses that could never disagree.
             vocab_stats = {
-                'unique_senses': len(sense_ids),
-                'unique_vocab': len(set(vid for vid in sense_ids)),
+                'unique_senses': len(set(sense_ids)),
+                'unique_vocab': len(set(linked_vocab_ids)),
                 'phrases': sum(1 for v in vocab_items if v.get('is_phrase')),
                 'single_words': sum(1 for v in vocab_items if not v.get('is_phrase')),
             }
 
             # Build token map (full transcript tokenization with sense IDs)
-            token_map = self._build_token_map(transcript, sense_ids)
+            token_map, unmatched = self._build_token_map(transcript, sense_ids)
 
             if self.dry_run:
                 lemma_list = [v['lemma'] for v in vocab_items]
                 logger.info(
                     f"[DRY RUN] {slug}: {len(sense_ids)} senses from "
                     f"{len(vocab_items)} vocab items, "
-                    f"{len(token_map)} tokens in map — "
+                    f"{len(token_map)} tokens in map, {len(unmatched)} lemmas unmatched — "
                     f"{lemma_list[:10]}{'...' if len(lemma_list) > 10 else ''}"
                 )
             else:
@@ -382,12 +361,21 @@ class VocabBackfillRunner:
                     .eq('id', test_id) \
                     .execute()
 
-                logger.info(f"Updated {slug}: {len(sense_ids)} word senses, {len(token_map)} tokens")
+                linked = sum(1 for t in token_map if t[1])
+                logger.info(
+                    f"Updated {slug}: {len(sense_ids)} word senses, "
+                    f"{linked}/{len(token_map)} tokens linked, "
+                    f"{len(unmatched)} lemmas unmatched"
+                )
 
             self.stats['tests_processed'] += 1
 
         except Exception as e:
-            logger.error(f"Failed to process {slug}: {e}")
+            # exception(), not error(): this handler is broad enough to swallow a
+            # programming error, and it did — for months it reported a TypeError
+            # in the token-map builder as an ordinary per-test failure with no
+            # traceback to identify it by.
+            logger.exception(f"Failed to process {slug}: {e}")
             self.stats['tests_failed'] += 1
 
     def run(self):
@@ -443,8 +431,18 @@ def main():
                         help='Max number of tests to process (0=all)')
     parser.add_argument('--delay', type=float, default=0.5,
                         help='Delay in seconds between tests (rate limiting)')
+    parser.add_argument('--select-senses', action='store_true',
+                        help=(
+                            'Run the vocab_sense_selection call for words that '
+                            'already have senses, choosing the one that fits the '
+                            'sentence. Off by default: it costs one extra LLM '
+                            'call per known lemma. Leaving it off links each '
+                            "word's primary sense regardless of context."
+                        ))
+    add_provider_arg(parser)
 
     args = parser.parse_args()
+    apply_provider(args.provider)
 
     if args.dry_run:
         logger.info("Running in DRY RUN mode — no changes will be made")
@@ -457,6 +455,7 @@ def main():
         dry_run=args.dry_run,
         limit=args.limit,
         delay=args.delay,
+        select_senses=args.select_senses,
     )
 
     success = runner.run()

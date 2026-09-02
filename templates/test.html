@@ -382,6 +382,10 @@ async function initializeTest() {
             throw new Error('No test slug provided');
         }
 
+        if (window.LinguaTestIntro) {
+            window.LinguaTestIntro.init({ testType: testState.testType });
+        }
+
         // Show loading
         showLoading(true);
         

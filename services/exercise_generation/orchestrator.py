@@ -7,6 +7,9 @@ from services.exercise_generation.config import (
     CONVERSATION_DISTRIBUTION, STYLE_DISTRIBUTION, PHASE_MAP,
 )
 from services.exercise_generation.transcript_miner import get_sentence_pool
+from services.vocabulary_ladder.exercise_caps import (
+    apply_caps, cap_key, count_existing, log_dropped,
+)
 from services.exercise_generation.generators.cloze             import ClozeGenerator
 from services.exercise_generation.generators.jumbled_sentence  import JumbledSentenceGenerator
 from services.exercise_generation.generators.translation       import TlNlTranslationGenerator, NlTlTranslationGenerator
@@ -266,18 +269,63 @@ class ExerciseGenerationOrchestrator:
     def _batch_insert(self, rows: list[dict]) -> None:
         if not rows:
             return
+        # TASK-743 (T3d.2): context-free types get at most N variants per
+        # (sense, type, context anchor). This path appends to whatever a sense
+        # already has, so the existing rows have to be counted first — unlike
+        # the ladder renderer, which assembles a whole sense in one go.
+        rows, dropped = apply_caps(rows, self._existing_cap_counts(rows))
+        log_dropped(dropped, 'exercise-generation batch')
+        if not rows:
+            return
         try:
             self.db.table('exercises').insert(rows).execute()
             logger.info("Inserted %d exercise rows", len(rows))
         except Exception as exc:
             logger.error("Batch insert failed: %s", exc)
 
+    def _existing_cap_counts(self, rows: list[dict]) -> dict[tuple, int]:
+        """Cap-bucket counts for content already stored against these senses.
+
+        Fails **open** — a lookup failure lets the batch through uncapped
+        rather than dropping generated work. The partial unique index in
+        task743 is the backstop that makes that safe.
+        """
+        sense_ids = sorted({
+            r['word_sense_id'] for r in rows
+            if r.get('word_sense_id') is not None
+            and cap_key(r) is not None
+        })
+        if not sense_ids:
+            return {}
+        try:
+            resp = (
+                self.db.table('exercises')
+                .select('word_sense_id, exercise_type, content')
+                .in_('word_sense_id', sense_ids)
+                .eq('is_active', True)
+                .execute()
+            )
+        except Exception as exc:
+            logger.warning(
+                "Could not read existing exercises for the context-free cap; "
+                "inserting uncapped (the unique index still guards): %s", exc,
+            )
+            return {}
+        return count_existing(resp.data or [])
+
     @staticmethod
-    def _call_llm_with_model(model: str):
-        """Return a partial callable with the model pre-bound for sentence generation."""
+    def _call_llm_with_model(model: str, provider: str | None = None):
+        """Return a partial callable with the model pre-bound for sentence generation.
+
+        ``provider`` is threaded through so a batch can be routed to the headless
+        Claude Code transport; None keeps LLM_DEFAULT_PROVIDER (openrouter).
+        """
         from services.exercise_generation.llm_client import call_llm
         def _call(prompt: str, response_format: str = 'json', **kwargs):
-            return call_llm(prompt, model=model, response_format=response_format)
+            return call_llm(
+                prompt, model=model, response_format=response_format,
+                provider=provider,
+            )
         return _call
 
     @staticmethod

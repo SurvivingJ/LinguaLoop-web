@@ -368,6 +368,108 @@ EXERCISE_TYPE_FAMILY: dict[str, str] = {
     'timed_speed_round':       'fluency',
 }
 
+# ----------------------------------------------------------------------
+# TASK-743 (plan §3d, T3d.1) — context class per exercise type.
+#
+# Mirror of dim_exercise_types.context_class. Exercise types split cleanly in
+# two, and the split decides how many variants of a type per word are worth
+# storing:
+#
+#   context-bearing — the item is anchored to a sentence, so every variant is
+#     a genuinely different question. Supply-limited, never capped: each is
+#     mined from a different source passage.
+#   context-free — the item is a property of the *word itself*, so there is
+#     essentially one meaningful question per word. A word has one tone; the
+#     four pinyin options are the same four every time and only their order
+#     differs, which is a render-time concern.
+#
+# Measured against live content: 做 (zuò) carried 33 active exercises across
+# 12 types, of which the context-free duplicates — tone_id_word x2
+# (byte-identical), hanzi_to_pinyin x2 and pinyin_to_hanzi x2 (same options,
+# shuffled) — were pure waste. They arise because build_rows renders the
+# deterministic types once per A/B variant, and A and B pick the same word.
+#
+# NOT a cap of N-per-word: capping per *word* would delete whole skill types.
+# The cap is per (word_sense_id, exercise_type, context anchor); see
+# CONTEXT_FREE_TYPE_CAPS.
+CONTEXT_BEARING = 'context_bearing'
+CONTEXT_FREE = 'context_free'
+NOT_SENSE_ANCHORED = 'not_sense_anchored'
+
+EXERCISE_TYPE_CONTEXT_CLASS: dict[str, str] = {
+    # -- context-free: a property of the word --
+    'tone_id_word':            CONTEXT_FREE,
+    'hanzi_to_pinyin':         CONTEXT_FREE,
+    'pinyin_to_hanzi':         CONTEXT_FREE,
+    'kanji_to_reading':        CONTEXT_FREE,
+    'reading_to_kanji':        CONTEXT_FREE,
+    'phonetic_recognition':    CONTEXT_FREE,
+    'classifier_match':        CONTEXT_FREE,
+    'counter_match':           CONTEXT_FREE,
+    # Context-free with respect to the target word, but the *distractors* are
+    # drawn from other words, so a second variant asks a real second question.
+    # See CONTEXT_FREE_TYPE_CAPS.
+    'definition_match':        CONTEXT_FREE,
+    'synonym_antonym_match':   CONTEXT_FREE,
+
+    # -- context-bearing: anchored to a sentence --
+    'cloze_completion':        CONTEXT_BEARING,
+    'cloze_typed':             CONTEXT_BEARING,
+    'text_flashcard':          CONTEXT_BEARING,
+    'listening_flashcard':     CONTEXT_BEARING,
+    'tl_nl_translation':       CONTEXT_BEARING,
+    'nl_tl_translation':       CONTEXT_BEARING,
+    'jumbled_sentence':        CONTEXT_BEARING,
+    'semantic_discrimination': CONTEXT_BEARING,
+    'spot_incorrect_sentence': CONTEXT_BEARING,
+    'spot_incorrect_part':     CONTEXT_BEARING,   # legacy comprehension variant
+    'collocation_gap_fill':    CONTEXT_BEARING,
+    'collocation_repair':      CONTEXT_BEARING,
+    'morphology_slot':         CONTEXT_BEARING,
+    'particle_selection':      CONTEXT_BEARING,
+    'word_family':             CONTEXT_BEARING,
+
+    # -- not anchored to one sense at all --
+    'timed_speed_round':       NOT_SENSE_ANCHORED,
+}
+
+# How many variants of a context-free type may exist per
+# (word_sense_id, exercise_type, context anchor). Anything not listed defaults
+# to CONTEXT_FREE_DEFAULT_CAP.
+#
+# definition_match and synonym_antonym_match get 2 rather than 1 because their
+# variants differ in the *distractors* they draw from other words, so a second
+# item is a second question rather than a reshuffle. A third adds little.
+CONTEXT_FREE_DEFAULT_CAP = 1
+CONTEXT_FREE_TYPE_CAPS: dict[str, int] = {
+    'definition_match': 2,
+    'synonym_antonym_match': 2,
+}
+
+# The content key that distinguishes two otherwise-identical context-free items
+# from each other. hanzi_to_pinyin / kanji_to_reading (and their reverses)
+# store a `context_sentence` for polyphonic words, where the reading genuinely
+# depends on the sentence — two such items are two different questions and must
+# both survive the cap. Every other context-free type leaves it absent, so all
+# its items share the empty anchor and collapse to the cap.
+CONTEXT_FREE_ANCHOR_KEY = 'context_sentence'
+
+
+def context_class(type_code: str) -> str:
+    """Context class for ``type_code``; context-bearing when unknown.
+
+    Unknown defaults to context-bearing so a type added without touching this
+    map is left alone rather than silently capped to one item per word.
+    """
+    return EXERCISE_TYPE_CONTEXT_CLASS.get(type_code, CONTEXT_BEARING)
+
+
+def context_free_cap(type_code: str) -> int | None:
+    """Max variants per (sense, type, anchor), or None when uncapped."""
+    if context_class(type_code) != CONTEXT_FREE:
+        return None
+    return CONTEXT_FREE_TYPE_CAPS.get(type_code, CONTEXT_FREE_DEFAULT_CAP)
+
 # Compact spec: (type_code, language_ids, pos_classes, ladder_level, generator,
 # requires, judge_key, is_enabled). Expanded to one row per language below.
 _CAPABILITY_SPEC: list[tuple] = [

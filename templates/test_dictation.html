@@ -406,6 +406,8 @@
 
             if (!state.slug) throw new Error('No test slug in URL');
 
+            if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'dictation' });
+
             state.idempotencyKey = (crypto && crypto.randomUUID)
                 ? crypto.randomUUID()
                 : ('' + Date.now() + '-' + Math.random().toString(16).slice(2));

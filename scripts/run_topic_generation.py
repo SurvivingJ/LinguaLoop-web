@@ -9,6 +9,13 @@ Environment variables:
     TOPIC_SIMILARITY_THRESHOLD: Cosine similarity threshold (default: 0.85)
     TOPIC_DRY_RUN: Set to 'true' to test without saving (default: false)
     TOPIC_LOG_LEVEL: Logging level (default: INFO)
+    LLM_DEFAULT_PROVIDER: 'openrouter' (default, pay-per-token) or 'claude_cli'
+        to route generation through Claude Code headless mode under a Claude
+        subscription. This entry point is a cron job with no argparse surface,
+        so the switch is an env var rather than the --provider flag the
+        interactive backfills carry. Note that under 'claude_cli' the model in
+        prompt_templates is ignored and llm_calls.model records
+        'claude-cli:<model>'.
 
 Exit codes:
     0: Success - all topics generated

@@ -265,10 +265,17 @@ class TopicImportOrchestrator:
                 keywords=candidate.keywords
             )
 
+            # Flat threshold on purpose: the import path carries no tier (an
+            # imported entry has no target_age_tier, which is where the 43
+            # untiered live topics came from — see T3.4), so there is nothing
+            # to scale by. threshold_for_tier(None) returns this same value;
+            # spelling it out keeps the asymmetry with the Explorer path from
+            # reading as an oversight.
             is_novel, rejection_reason, embedding = self.archivist.check_novelty(
                 category_id=category.id,
                 semantic_signature=signature,
-                threshold=topic_gen_config.similarity_threshold
+                threshold=topic_gen_config.threshold_for_tier(None),
+                scope='global'
             )
 
             if not is_novel:

@@ -21,13 +21,26 @@ Usage:
     python scripts/backfill_senses.py --language ja --limit 100 --dry-run
     python scripts/backfill_senses.py --language en --model deepseek/deepseek-v4-flash --concurrency 8
 
+    # Under a Claude subscription: 200 words per prompt, 2 calls in flight.
+    python scripts/backfill_senses.py --language ja --provider claude-cli --batch-size 200
+
 Options:
     --language CODE    Required. zh | en | ja
     --model NAME       Sense model override (default: SENSE_MODEL_DEFAULT, DeepSeek V4 Flash)
     --limit N          Process at most N lemmas (0 = all)
     --concurrency N    In-flight LLM calls (default: 5)
+    --batch-size N     Words folded into each call (default: 1 = one call per word)
     --delay SECS       Per-word delay inside each worker (default: 0.0)
     --dry-run          Generate + log, write nothing
+    --provider NAME    openrouter (default, per-token) | claude-cli (subscription)
+
+Batching vs concurrency
+-----------------------
+They multiply: --concurrency 2 --batch-size 200 means 2 in-flight calls of 200
+words each, i.e. 400 words in flight but only 2 requests. Under the claude-cli
+transport concurrency is clamped low on purpose (each call is a process spawn
+against a subscription rate limit), so batch size is the dial that actually buys
+throughput there.
 """
 
 import os
@@ -47,6 +60,7 @@ from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.llm_service import SENSE_MODEL_DEFAULT
 from services.vocabulary.sense_generator import SenseGenerator
+from scripts.provider_arg import add_provider_arg, apply_provider, clamp_concurrency
 
 if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
@@ -128,7 +142,7 @@ class _GeneratorPool:
 
 
 def run(language_code: str, model: str, limit: int, concurrency: int,
-        delay: float, dry_run: bool):
+        delay: float, dry_run: bool, batch_size: int = 1):
     language_id = Config.LANGUAGE_CODE_TO_ID.get(language_code)
     if not language_id:
         raise ValueError(f"Unknown language code: {language_code!r} (use zh, en, ja)")
@@ -143,7 +157,7 @@ def run(language_code: str, model: str, limit: int, concurrency: int,
     logger.info(
         f"{language_code}: {len(worklist)} lemmas to seed "
         f"({already} already have a simple level) | model={model} | "
-        f"concurrency={concurrency} | dry_run={dry_run}"
+        f"concurrency={concurrency} | batch_size={batch_size} | dry_run={dry_run}"
     )
     if not worklist:
         logger.info("Nothing to do.")
@@ -153,26 +167,47 @@ def run(language_code: str, model: str, limit: int, concurrency: int,
     done = 0
     failed = 0
 
-    def work(item):
-        vocab_id, lemma = item
+    # One work unit is either a single word (batch_size=1, the historical path)
+    # or a chunk of words sharing one prompt. Chunking here rather than inside
+    # the generator keeps the existing thread pool, progress counter and stats
+    # aggregation working unchanged: N workers each own one in-flight call,
+    # whatever a call happens to contain.
+    if batch_size > 1:
+        units = [
+            worklist[i:i + batch_size]
+            for i in range(0, len(worklist), batch_size)
+        ]
+        logger.info(
+            f"  {len(units)} LLM call(s) of up to {batch_size} words each "
+            f"(was {len(worklist)} calls unbatched)"
+        )
+    else:
+        units = [[item] for item in worklist]
+
+    def work(unit):
         if delay:
             time.sleep(delay)
         gen = pool.get()
         try:
-            gen.seed_word(vocab_id=vocab_id, lemma=lemma, sentence="")
-            return True
+            if len(unit) == 1 and batch_size == 1:
+                vocab_id, lemma = unit[0]
+                gen.seed_word(vocab_id=vocab_id, lemma=lemma, sentence="")
+            else:
+                gen.seed_words_batch(unit, batch_size=batch_size)
+            return len(unit)
         except Exception as e:
-            logger.error(f"  {lemma} (vocab {vocab_id}) failed: {e}")
-            return False
+            preview = ', '.join(lemma for _, lemma in unit[:5])
+            logger.error(f"  unit [{preview}…] ({len(unit)} words) failed: {e}")
+            return 0
 
     with ThreadPoolExecutor(max_workers=max(1, concurrency)) as ex:
-        futures = [ex.submit(work, item) for item in worklist]
+        futures = [ex.submit(work, unit) for unit in units]
         for fut in as_completed(futures):
-            done += 1
-            if not fut.result():
+            processed = fut.result()
+            done += processed or 0
+            if not processed:
                 failed += 1
-            if done % 100 == 0:
-                logger.info(f"  ...{done}/{len(worklist)} processed")
+            logger.info(f"  ...{done}/{len(worklist)} words processed")
 
     stats = pool.aggregate_stats()
     logger.info(
@@ -196,5 +231,17 @@ if __name__ == '__main__':
     parser.add_argument('--concurrency', type=int, default=5, help='In-flight LLM calls')
     parser.add_argument('--delay', type=float, default=0.0, help='Per-word delay (s)')
     parser.add_argument('--dry-run', action='store_true', help='Generate + log, write nothing')
+    parser.add_argument(
+        '--batch-size', type=int, default=1,
+        help=(
+            'Words per LLM call (default 1 = one call per word). Higher values '
+            'fold many words into one prompt, which is what keeps a Claude '
+            'subscription within its rate limits; 100-200 is a reasonable start.'
+        ),
+    )
+    add_provider_arg(parser)
     args = parser.parse_args()
-    run(args.language, args.model, args.limit, args.concurrency, args.delay, args.dry_run)
+    apply_provider(args.provider)
+    concurrency = clamp_concurrency(args.provider, args.concurrency)
+    run(args.language, args.model, args.limit, concurrency, args.delay,
+        args.dry_run, args.batch_size)

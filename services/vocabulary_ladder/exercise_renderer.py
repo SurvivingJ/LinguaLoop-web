@@ -15,6 +15,7 @@ import random
 from uuid import uuid4
 
 from services.supabase_factory import get_supabase_admin
+from services.vocabulary_ladder.exercise_caps import apply_caps, log_dropped
 from services.vocabulary_ladder.config import (
     COLLOCATION_LEVELS, LADDER_LEVELS, compute_active_levels,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
@@ -261,6 +262,15 @@ class LadderExerciseRenderer:
                 '; '.join(f'{s.type_code}: {s.reason}' for s in deterministic_skips),
             )
         self.last_skips = deterministic_skips
+
+        # TASK-743 (T3d.2): the deterministic and typed-LLM blocks above run
+        # once per A/B asset variant, and both variants resolve to the same
+        # word, so every context-free type came out doubled — a word has one
+        # tone, and two tone_id_word rows are byte-identical. Cap here, at the
+        # single point where the whole render is assembled, rather than in each
+        # renderer. Order is preserved, so variant A wins.
+        rows, dropped = apply_caps(rows)
+        log_dropped(dropped, f'sense {sense_id}')
 
         return rows
 

@@ -35,7 +35,7 @@ CAP_SQL = (
     REPO / 'migrations' / 'task715_test_time_estimate_tiered.sql'
 ).read_text(encoding='utf-8')
 RECOMMENDED_SQL = (
-    REPO / 'migrations' / 'task715_get_recommended_tests_tier_cap.sql'
+    REPO / 'migrations' / 'archive' / 'task715_get_recommended_tests_tier_cap.sql'
 ).read_text(encoding='utf-8')
 
 TIERS = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6']
@@ -180,7 +180,7 @@ def test_resolver_prices_dictation_by_tier_at_both_ends():
     the test actually placed. Both must be tier-aware or the honest-minutes
     claim is false at one end."""
     resolver = (
-        REPO / 'migrations' / 'task714_build_daily_session_surfaces.sql'
+        REPO / 'migrations' / 'archive' / 'task714_build_daily_session_surfaces.sql'
     ).read_text(encoding='utf-8')
     assert "CASE WHEN skill_key = 'dictation' THEN v_dict_difficulty END" in resolver
     assert "CASE WHEN ct.skill = 'dictation' THEN t.difficulty END" in resolver
@@ -251,9 +251,14 @@ def test_generation_range_survives_an_unknown_difficulty():
 def test_database_client_sources_the_range_from_the_cap_module():
     """It used to return dim_complexity_tiers.word_count_max, which is a
     VOCABULARY size (up to 25000), not a passage length — the prose prompt was
-    being told to write "600-25000 words" at T6."""
+    being told to write "600-25000 words" at T6.
+
+    TASK-740: test generation is tier-native now — get_tier_word_count_range
+    reads passage_word_range_for_tier(tier_code) from the cap module, not a
+    difficulty-keyed lookup.
+    """
     src = (
         REPO / 'services' / 'test_generation' / 'database_client.py'
     ).read_text(encoding='utf-8')
-    assert 'return passage_word_range(difficulty)' in src
+    assert 'return passage_word_range_for_tier(tier.tier_code)' in src
     assert 'return (cefr.word_count_min, cefr.word_count_max)' not in src

@@ -12,6 +12,42 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+# Default novelty thresholds per ADR-003 age tier. Stricter where the concept
+# space is small, looser where it is wide. See the field comment on
+# TopicGenConfig.similarity_threshold_by_tier for the measurement behind these.
+DEFAULT_TIER_SIMILARITY_THRESHOLDS: dict = {
+    1: 0.82,
+    2: 0.84,
+    3: 0.86,
+    4: 0.87,
+    5: 0.89,
+    6: 0.90,
+}
+
+
+def _parse_tier_thresholds(raw: str) -> dict:
+    """Parse ``'1:0.80,6:0.92'`` into ``{1: 0.80, 6: 0.92}``.
+
+    An empty or unparseable value yields the defaults rather than an empty map:
+    silently disabling tier scaling because someone fat-fingered an env var is
+    the failure mode this whole task exists to remove.
+    """
+    if not raw.strip():
+        return dict(DEFAULT_TIER_SIMILARITY_THRESHOLDS)
+    parsed = dict(DEFAULT_TIER_SIMILARITY_THRESHOLDS)
+    for pair in raw.split(','):
+        if not pair.strip():
+            continue
+        tier, _, value = pair.partition(':')
+        try:
+            parsed[int(tier.strip())] = float(value.strip())
+        except ValueError:
+            logger.warning(
+                'TOPIC_SIMILARITY_THRESHOLDS_BY_TIER: ignoring unparseable '
+                'entry %r; keeping the default for that tier', pair,
+            )
+    return parsed
+
 
 @dataclass
 class TopicGenConfig:
@@ -23,6 +59,25 @@ class TopicGenConfig:
     )
     similarity_threshold: float = field(
         default_factory=lambda: float(os.getenv('TOPIC_SIMILARITY_THRESHOLD', '0.85'))
+    )
+    # TASK-742 (plan §3, T3.2) — the novelty threshold scales with tier.
+    #
+    # A single global threshold under-rejects at low tiers. The legitimate
+    # concept space for a five-year-old is small and its vocabulary is
+    # constrained, so three genuinely near-identical T1 topics ("a child
+    # building a block tower" / "...a toy castle with blocks" / "...with
+    # colorful blocks") all sit below 0.85 and were all accepted, while only
+    # one topic pair in the whole corpus exceeded 0.90. At T6 the space is
+    # wide enough that two topics scoring 0.88 really are different articles,
+    # and rejecting them costs coverage the corpus cannot spare.
+    #
+    # Set TOPIC_SIMILARITY_THRESHOLDS_BY_TIER to a comma-separated
+    # tier:threshold list to override; an unlisted tier (or an untiered
+    # candidate) falls back to `similarity_threshold`.
+    similarity_threshold_by_tier: dict = field(
+        default_factory=lambda: _parse_tier_thresholds(
+            os.getenv('TOPIC_SIMILARITY_THRESHOLDS_BY_TIER', '')
+        )
     )
     max_candidates_per_run: int = field(
         default_factory=lambda: int(os.getenv('TOPIC_MAX_CANDIDATES', '10'))
@@ -116,6 +171,19 @@ class TopicGenConfig:
             getattr(logging, self.log_level.upper(), logging.INFO)
         )
 
+    def threshold_for_tier(self, tier: Optional[int]) -> float:
+        """The novelty threshold to apply to a candidate at ``tier``.
+
+        Falls back to the flat ``similarity_threshold`` for an untiered
+        candidate — 43 live topics carry no target_age_tier, and an unknown
+        tier is not a reason to stop deduplicating them.
+        """
+        if tier is None:
+            return self.similarity_threshold
+        return self.similarity_threshold_by_tier.get(
+            int(tier), self.similarity_threshold
+        )
+
     def validate(self) -> bool:
         """Check if all required configuration is present."""
         errors = []
@@ -128,6 +196,12 @@ class TopicGenConfig:
             errors.append("TOPIC_DAILY_QUOTA must be >= 1")
         if not 0.5 <= self.similarity_threshold <= 1.0:
             errors.append("TOPIC_SIMILARITY_THRESHOLD must be between 0.5 and 1.0")
+        for tier, value in sorted(self.similarity_threshold_by_tier.items()):
+            if not 0.5 <= value <= 1.0:
+                errors.append(
+                    f"TOPIC_SIMILARITY_THRESHOLDS_BY_TIER: tier {tier} "
+                    f"threshold {value} must be between 0.5 and 1.0"
+                )
 
         if errors:
             for error in errors:

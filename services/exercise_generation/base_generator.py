@@ -140,6 +140,7 @@ class ExerciseGenerator(ABC):
             response_format=response_format,
             task_name=task_name or f'{self.exercise_type}_generation',
             pipeline='exercise_gen',
+            provider=getattr(self, 'provider', None),
         )
 
     def load_prompt_template(self, task_name: str) -> str:
