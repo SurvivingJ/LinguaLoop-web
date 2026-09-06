@@ -314,7 +314,7 @@
                             <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
                             </svg>
-                            <span>${escapeHtml(LinguaMetadata.getNativeName(test.language) || test.language?.toUpperCase() || 'N/A')}</span>
+                            <span>${escapeHtml(LinguaMetadata.getNativeNameById(test.language_id) || 'N/A')}</span>
                         </div>
                         
                         <div class="test-meta-item">

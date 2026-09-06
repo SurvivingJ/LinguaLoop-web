@@ -1821,6 +1821,14 @@ footer,
     background: rgb(15 23 42 / 50%);
     z-index: 1060;
     animation: backdrop-fade-in 0.15s ease;
+    /* Visual dimming only. This quiz is a skippable, low-stakes vocab check
+       shown alongside the post-submit reading passage/questions, not a true
+       gate -- it must never silently swallow clicks meant for that content
+       (e.g. "tap any word for its definition"). Nothing in wordQuiz's JS
+       relies on the backdrop itself receiving clicks (dismiss is only via
+       the Skip/Next buttons on .word-quiz-modal, a separate element), so
+       this is safe. */
+    pointer-events: none;
   }
 
   .word-quiz-modal {
