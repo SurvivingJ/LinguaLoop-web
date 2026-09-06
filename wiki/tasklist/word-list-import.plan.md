@@ -1,113 +1,164 @@
-# Word List → Topics → Tests → Exercises — Implementation Plan (v2: similarity-routed)
+# Word List Upload → Ladder Exposure + Matched Test Queueing — Implementation Plan (v3)
 
-Feature: user submits a list of target words; system finds existing topics
-whose vocabulary is already lexically/semantically close to those words and
-reuses them for fresh test generation, falling back to pattern-guided new
-topic generation only when no close existing neighbor exists. Exercises are
-then generated from the resulting tests via the existing pipeline.
+**STATUS (2026-08-31): Implemented.** Steps 1-8 built and tested (each with its
+own TDD pass + full-suite regression check); Step 9 (dedicated end-to-end
+integration pass) was deliberately skipped as redundant given per-step
+coverage. One follow-up fix landed beyond the original scope: the watchlist
+API now resolves and returns `lemma` text (was returning only `sense_id`,
+which would have rendered as "Sense #142" in the UI).
 
-**v1 rejected**: directly clustering submitted words via LLM and instructing
-prose generation to force-include them produces unnatural, keyword-stuffed
-text. v2 instead finds where similar vocabulary already lives naturally and
-either reuses that context or uses it as a style anchor.
+**Manual follow-up required before this is live:**
+1. Apply the three migrations (written file-only, per instruction, never
+   applied this session): `migrations/user_word_watchlist_schema.sql`,
+   `migrations/word_upload_sweep_advisory_lock.sql`,
+   `migrations/word_upload_slot_scheduling.sql`.
+2. `word_upload_slot_scheduling.sql` archives and replaces
+   `task732_build_daily_session_split_budget.sql` — a live, traffic-serving
+   function. Its body was carried forward verbatim from that file (not
+   reconstructed), but this was **not** verified against the live DB's actual
+   current `pg_get_functiondef` output (no DB access was available this
+   session) — do that check before applying.
+3. Known minor gap: re-uploading a word already on a user's active watchlist
+   silently skips re-insertion under the new `upload_batch_id` (cosmetic —
+   affects batch-count display only, not matching/ladder correctness).
 
-Reuses: [services/topic_generation/import_orchestrator.py](../../services/topic_generation/import_orchestrator.py),
-[services/test_generation/orchestrator.py](../../services/test_generation/orchestrator.py),
-[services/exercise_generation/orchestrator.py](../../services/exercise_generation/orchestrator.py),
-existing sense embeddings ([dim_word_senses_embedding](../../migrations/dim_word_senses_embedding.sql)).
+Files touched, by step: 1 → `migrations/user_word_watchlist_schema.sql`.
+2 → `services/vocabulary/word_resolver.py` (+ `pipeline.py` accessor,
+`orchestrator.py` delegation). 3 → `services/word_list_import/upload_handler.py`.
+4 → `services/word_list_import/match_sweep.py`. 5 →
+`services/word_list_import/sweep_cron.py` +
+`migrations/word_upload_sweep_advisory_lock.sql`. 6 →
+`migrations/word_upload_slot_scheduling.sql`. 7 →
+`routes/word_list_import.py` + `app.py` (blueprint + scheduler job). 8 →
+`templates/word_list.html`, `static/js/word_list.js`, `base.html` nav,
+all four `static/i18n/*.json`. Every step has a matching `tests/test_*.py` file.
 
-Out of scope: changing the daily automated topic-generation rotation
-(ExplorerAgent/ArchivistAgent/GatekeeperAgent flow for organic topics) —
-this feature adds a parallel word-seeded path, it does not alter the
-existing one.
 
-Open questions (not blocking, flagged for calibration once real data exists):
-- Exact K for top-K neighbor lookup (default guess: 5, tune empirically).
-- Whether `topic_vocabulary` (topic_id → vocab lemmas used) needs a
-  materialized view for performance at scale, or a live join suffices at
-  current data volumes.
+Feature: user uploads a list of words. The system (1) guarantees the user
+sees those words regularly via the vocabulary ladder, and (2) opportunistically
+surfaces any existing or future-generated test that naturally uses those
+words, at a level appropriate to the user, by boosting it into their normal
+daily recommendation flow.
+
+**Why not v1/v2 (forced-word generation / similarity-routed topic generation):**
+v1 forced LLM prose to include specific words → unnatural text. v2 tried to
+solve that by routing to *similar* existing topics via Jaccard/embedding
+matching, but that whole apparatus exists to work around a problem this
+shape doesn't have:
+- Ladder exercises are inherently word-anchored — no "forcing a word into
+  natural prose" problem exists there at all.
+- Matching to reading/listening tests can be an **exact** match against
+  `tests.vocab_sense_ids` (which words a test actually, organically, used),
+  not fuzzy similarity — because we are retrieving already-natural existing
+  content, never generating new content under a word constraint.
+
+Net effect: no new topic-generation or synthesizer code is needed. The two
+existing pipelines this reuses are already-built:
+- [services/vocabulary_ladder/asset_pipeline.py](../../services/vocabulary_ladder/asset_pipeline.py)
+  `VocabAssetPipeline.generate_for_sense()` +
+  [services/vocabulary_ladder/exercise_renderer.py](../../services/vocabulary_ladder/exercise_renderer.py)
+  `LadderExerciseRenderer` — the sole vocab-exercise generator (TASK-512),
+  already exposed via the `batch-exercise-generation` skill.
+- The sense-linking resolve-or-create logic (word → `dim_vocabulary` /
+  `dim_word_senses`, generating a new sense when none exists) already built
+  for test transcripts (`test-sense-linking` skill / `batch-sense-generation`
+  skill) — this plan extracts a shared resolver so raw uploaded words can
+  use the same "resolve existing or generate new" logic without duplicating it.
+
+Decisions locked in this round:
+- A word with no existing `dim_word_senses` entry gets one generated inline
+  as part of upload (reusing the batch-sense-generation path), so upload
+  always succeeds.
+- A word with zero currently-matching tests is **not** a failure — ladder
+  coverage is the guaranteed floor. It stays on an active watchlist and is
+  rechecked as new tests get generated by the normal daily rotation.
+- Matched tests are boosted into the user's *existing* recommendation/
+  scheduling flow (new `slot_type`, mirroring the existing 'retry'/'replay'
+  pattern from TASK-704/705), not a separate UI surface.
+
+Open question (flagged, not blocking — confirm or correct):
+- Watchlist entries assumed to stay **active indefinitely**, re-boosting on
+  every new qualifying match, rather than retiring after the first hit.
+- "Reasonably similar level" for a match — assumed to mean within a small
+  tier window of the user's current assessed `target_age_tier` (TASK-740 is
+  now the sole level axis); exact window size (±1 tier?) needs calibration.
+
+Out of scope: changing the daily automated topic-generation rotation itself
+— this feature only reads its output (newly generated tests), never feeds
+words into it.
 
 ---
 
-## Step 1 — Schema: word-match tracking
+## Step 1 — Schema: word watchlist
 
-**Intent:** Add persistence for tracking each submitted word's match outcome:
-which existing word(s)/topic(s) it matched via similarity, whether it was
-routed as reuse or generate-fallback, and whether it was later found (soft
-coverage) in the resulting generated text. Migration only, additive.
+**Intent:** Add `user_word_watchlist` (user_id, sense_id FK, language_id,
+upload_batch_id, created_at, ladder_exercises_generated boolean,
+last_matched_test_id nullable FK to tests, last_matched_at nullable,
+active boolean default true) plus indexes needed for the sweep query
+(by sense_id, by active). Migration only, additive.
 
-## Step 2 — SimilarityMatcher service (dual backend)
+## Step 2 — Extract shared word→sense resolver
 
-**Intent:** Build `services/topic_generation/similarity_matcher.py` exposing
-one interface with two backends: character n-gram Jaccard for zh/ja (no
-embedding dependency) and embedding cosine for en (reusing existing sense
-embeddings). Given a word and language, returns ranked nearest existing
-`dim_vocabulary` entries, then resolves those to candidate topics via a
-`tests.topic_id → tests.vocab_sense_ids → dim_vocabulary` join.
+**Intent:** Factor the "resolve existing dim_word_senses entry or generate a
+new one" logic already used by the test-sense-linking workflow into a
+callable shared function, so it can be invoked directly against a raw
+uploaded word (no transcript to extract from) as well as its existing
+transcript-extraction callers. No behavior change for existing callers.
 
-## Step 3 — Batch clustering via SimilarityMatcher
+## Step 3 — Upload handler: resolve + ladder generation
 
-**Intent:** Cluster the submitted word list into scenario-sized groups using
-the same per-language similarity backend from Step 2 (word-to-word, not
-word-to-corpus), replacing the earlier plan's LLM-based clustering step.
+**Intent:** For each uploaded word: resolve to a sense via Step 2's shared
+resolver (generating one if missing), insert a `user_word_watchlist` row,
+and trigger `VocabAssetPipeline.generate_for_sense()` +
+`LadderExerciseRenderer` for that sense if it has no ladder exercises yet.
+This alone satisfies "the user sees the word regularly in the ladder."
 
-## Step 4 — Reuse path
+## Step 4 — Immediate match sweep at upload time
 
-**Intent:** For clusters whose top-K corpus lookup returns at least one
-nonzero-similarity candidate topic, skip topic authoring entirely and queue
-a fresh test generation against that existing topic (via the existing
-`production_queue` mechanism), tagging the queue entry and the Step 1
-tracking rows with `match_mode='reuse'`, `source_batch_id`, and the neighbor
-word(s)/topic(s) that produced the match.
+**Intent:** For the newly resolved senses, query existing `tests` where
+`vocab_sense_ids` overlaps the sense IDs and `target_age_tier` is within a
+reasonable window of the user's current level; for each match, boost that
+test into the user's recommendation flow (Step 6) and update the
+watchlist row's `last_matched_test_id`/`last_matched_at`.
 
-## Step 5 — Generate-fallback path
+## Step 5 — Recurring sweep cron
 
-**Intent:** For clusters whose top-K lookup comes back empty or near-zero
-(cold start / genuinely novel vocabulary), build a synthesizer
-(`services/topic_generation/agents/word_topic_synthesizer.py`) that takes
-the best available neighbor topics (even weak ones) as few-shot style/theme
-anchors and drafts a new `TopicCandidate` in that register — critically,
-without instructing the LLM to force-include the literal submitted word.
-Runs through the existing `TopicImportOrchestrator` novelty/quality gates
-unchanged.
+**Intent:** A scheduled job (mirroring the existing weekly-recompute cron's
+advisory-lock pattern) that, since its last run, scans newly created tests
+across all languages, checks their `vocab_sense_ids` against every *active*
+`user_word_watchlist` row, applies the same level-window filter as Step 4
+per matched user, and boosts matches — so a word with zero matches at
+upload time still surfaces a test the day one gets generated for it.
 
-## Step 6 — Post-hoc coverage check
+## Step 6 — Scheduling integration: boosted-word slot type
 
-**Intent:** After test generation completes (either path), scan the
-generated prose for each cluster's submitted words (substring/tokenizer
-check per language) and update the Step 1 tracking table's coverage fields.
-This is reporting only — it must never feed back into generation as a
-constraint.
+**Intent:** Add a new slot type (e.g. `word_upload`) to
+`get_recommended_tests` / `build_daily_session`, following the existing
+`retry`/`replay` slot pattern (cap of ≤1/day/language, same damping
+consideration as ADR-006 if relevant), so boosted tests surface in the
+user's normal daily session rather than a separate page.
 
-## Step 7 — Batch coordinator script
+## Step 7 — API routes
 
-**Intent:** Add `scripts/run_word_list_import.py` that runs: clustering
-(Step 3) → per-cluster similarity lookup (Step 2) → branch into reuse
-(Step 4) or generate-fallback (Step 5) → `TestGenerationOrchestrator` →
-`exercise_generation` orchestrator → coverage check (Step 6), all scoped to
-one `source_batch_id`, printing a final per-word report (matched topic,
-reuse vs. generated, covered vs. not).
+**Intent:** `POST /api/word-list/submit` (validates words + language,
+runs Step 3 synchronously or as a background job, returns per-word
+resolution result) and `GET /api/word-list/watchlist` (lists the user's
+active/matched watchlist words with ladder-generated and match status),
+following `routes/test_intros.py` conventions.
 
-## Step 8 — API route for submission and status
+## Step 8 — Frontend UI
 
-**Intent:** Add `routes/word_list_import.py` with `POST /api/word-list/submit`
-(enqueues Step 7's script as a background job) and
-`GET /api/word-list/status/<batch_id>` (returns stage progress plus, per
-word: match mode, matched topic(s), and coverage), following the pattern in
-`routes/test_intros.py`.
+**Intent:** Upload UI (textarea + language picker + submit) plus a
+watchlist view showing per-word status (ladder generated / matched test(s)
+found, if any), using the existing i18n key pattern across all
+`static/i18n/*.json` files.
 
-## Step 9 — Frontend submission UI
+## Step 9 — Test coverage
 
-**Intent:** Add a minimal page/modal (textarea for words, language picker,
-submit button, polling status table showing per-word match mode and
-coverage) calling the new API routes, using the i18n key pattern already
-established in `static/i18n/en.json` etc.
-
-## Step 10 — End-to-end test coverage
-
-**Intent:** Integration tests covering: SimilarityMatcher output for both
-backends (zh/ja n-gram, en embedding), the reuse path end-to-end, the
-generate-fallback path end-to-end (simulated cold start with no matching
-existing vocabulary), the coverage check, and the new API routes, following
-fixture patterns in `tests/test_topic_novelty_global_scope.py` and
+**Intent:** Unit tests for the shared resolver (Step 2) with both
+existing-sense and generate-new-sense cases; integration tests for the
+upload handler (ladder generation triggered, watchlist row created),
+the immediate sweep (Step 4) and recurring sweep (Step 5) matching logic
+including the level-window filter, and the new API routes — following
+fixture patterns in `tests/test_ladder_validation_profiles.py` and
 `tests/test_test_gen_fail_closed.py`.

@@ -352,10 +352,10 @@ class AuthService:
             # Get token balance
             token_balance = self.supabase_admin.rpc('get_token_balance', {
                 'p_user_id': user_id
-            })
-            
+            }).execute()
+
             user_data = user_result.data[0]
-            user_data['token_balance'] = token_balance
+            user_data['token_balance'] = token_balance.data if token_balance.data else 0
             
             return {'success': True, 'user': user_data}
             

@@ -99,6 +99,23 @@ parameter and a topic-recency exclusion clause. Verified against the live
 `pg_get_functiondef` for the new signature and the `NOT EXISTS ... t2.topic_id
 = t.topic_id` marker before archiving.
 
+## 2026-09-05 — word-list-import Step 6 (word_upload slot)
+
+| Archived file | Object | New canonical file | Marker verified on live |
+|---|---|---|---|
+| `task732_build_daily_session_split_budget.sql` | `build_daily_session(uuid,smallint,date)` | `word_upload_slot_scheduling.sql` | `slot_type = 'word_upload'` INSERT into `pg_temp.chosen_tests`; DECLARE block joining `public.user_word_watchlist` present, immediately after the TASK-704 retry block |
+
+Single-object file fully superseded by the newer definition. **Not verified
+against a live `pg_get_functiondef` probe** — this migration was authored and
+reviewed file-only per explicit task constraints (no database connection was
+made in this session); the marker above is the one to check before treating
+`word_upload_slot_scheduling.sql` as applied. `task740_phase5b_topic_recency_exclusion.sql`
+remains the separate, untouched canonical definition of `get_recommended_tests`
+— this change does not read or write through it; the word_upload candidate is
+resolved directly from `user_word_watchlist.last_matched_test_id` joined to
+`test_skill_ratings`, mirroring get_recommended_tests' own ELO-diff/premium-
+gating logic rather than calling it.
+
 ## Note: elo_reduction_factor column — no longer orphaned
 
 `process_test_submission_reduced_repeats.sql` first added

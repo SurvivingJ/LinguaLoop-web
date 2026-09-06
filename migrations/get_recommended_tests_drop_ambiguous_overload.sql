@@ -1,0 +1,26 @@
+-- get_recommended_tests: drop the superseded 2-arg overload.
+--
+-- task740_phase5b_topic_recency_exclusion.sql added a 3rd parameter via
+-- `CREATE OR REPLACE FUNCTION public.get_recommended_tests(p_user_id,
+-- p_language_id, p_topic_recency_days DEFAULT 14)`, intending to extend the
+-- existing 2-arg function.
+--
+-- CREATE OR REPLACE does not do that across a signature change: Postgres
+-- functions are identified by (name, argument types), so a different arg
+-- count creates a second overload rather than replacing the first. The old
+-- 2-arg get_recommended_tests(uuid, smallint) was never dropped and has
+-- coexisted with the 3-arg one ever since.
+--
+-- routes/tests.py::get_recommended_tests calls with a dict of exactly two
+-- named params (p_user_id, p_language_id) -- a valid match for the 3-arg
+-- function's own DEFAULT 14 on p_topic_recency_days -- so PostgREST cannot
+-- tell which of the two overloads the caller means, and every call to
+-- GET /api/tests/recommended fails and is swallowed into a generic 500
+-- ("Failed to fetch recommended tests").
+--
+-- The 3-arg function is a strict superset of the 2-arg one (it adds one more
+-- NOT EXISTS filter, gated by the same DEFAULT 14 the 2-arg caller was
+-- already implicitly relying on), so dropping the 2-arg overload changes
+-- nothing observable for any caller -- it just removes the ambiguity.
+
+DROP FUNCTION IF EXISTS public.get_recommended_tests(uuid, smallint);

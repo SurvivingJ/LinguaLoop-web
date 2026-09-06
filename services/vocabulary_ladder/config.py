@@ -806,6 +806,19 @@ _POS_ZH: frozenset[str] = frozenset({
     '量词', '助词', '叹词', '方向补语', '结果补语', '情态动词',
 })
 
+# Japanese uses the UniDic-style tagset the corpus is already tagged with:
+# 3,323 dim_vocabulary rows carry 名詞/動詞/形容詞/形状詞/副詞 against 6 written
+# by the ladder itself. Declaring it matters because `vocab_prompt1_core` (ja)
+# left key "1" as a bare 品詞（文字列） with no enum, so the model free-formed
+# it — qwen landed on Simplified Chinese (名词), which the merged default set
+# happened to accept. The prompt now enumerates these tokens; this set is the
+# gate that keeps it honest. Note 形状詞 (UniDic's na-adjective class), which
+# has no EN or ZH counterpart.
+_POS_JA: frozenset[str] = frozenset({
+    '名詞', '動詞', '形容詞', '形状詞', '副詞', '助詞', '助動詞',
+    '接続詞', '代名詞', '連体詞', '感動詞', '接頭辞', '接尾辞',
+})
+
 # Ratified semantic_class controlled vocabulary (plan §4). Language-neutral:
 # the same six values key every language's validation profile and the
 # capability matrix (TASK-504). Enforced as a CHECK constraint on
@@ -888,10 +901,10 @@ LANGUAGE_VALIDATION_PROFILES: dict[int, LanguageValidationProfile] = {
     ),
     3: LanguageValidationProfile(  # Japanese
         language_id=3,
-        min_morphological_forms=0,
-        ipa_required=False,
-        pos_set=DEFAULT_POS_SET,
-        semantic_class_set=DEFAULT_SEMANTIC_CLASS_SET,
+        min_morphological_forms=0,   # agglutinating, but P1 forms are optional
+        ipa_required=False,          # carries kana readings, not IPA
+        pos_set=_POS_JA,
+        semantic_class_set=SEMANTIC_CLASSES,
     ),
 }
 

@@ -198,13 +198,20 @@ def validate(glosses: list[dict], batch: dict) -> tuple[list[dict], list[dict], 
             # identical (or overlapping) string in the gloss is often the
             # objectively correct answer, not laziness -- a Japanese "十" and
             # its Chinese gloss are the same character, and always will be.
-            # Arabic numerals are shared even more widely -- "10" belongs in
-            # an English gloss of the lemma "10" exactly as written. Only
-            # check word-leak where neither of those applies, i.e. where a
+            # Arabic numerals and Latin letters are shared even more widely --
+            # "10" belongs in an English gloss of the lemma "10" exactly as
+            # written, and "D" the letter is "D" in every one of these
+            # languages. (isascii(), not isalnum() alone: Python's isalnum()
+            # is true for kanji too, which would swallow the real check.)
+            # Only check word-leak where none of that applies, i.e. where a
             # verbatim survival of the source word is a real signal something
             # didn't get translated.
             lemma = item['lemma']
-            shares_script = {source_lang, lang} <= {'zh', 'ja'} or lemma.strip().isdigit()
+            stripped = lemma.strip()
+            shares_script = (
+                {source_lang, lang} <= {'zh', 'ja'}
+                or (stripped.isascii() and stripped.isalnum())
+            )
             if lemma and not shares_script and (lemma in simple or lemma in standard):
                 item_errors.append(
                     f"{label} [{lang}]: gloss contains the source word {lemma!r} itself")

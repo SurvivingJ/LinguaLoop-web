@@ -1,0 +1,206 @@
+- generic [ref=f3e1]:
+  - link "Skip to main content" [ref=f3e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f3e3]:
+    - navigation [ref=f3e4]:
+      - generic [ref=f3e6]:
+        - link "LinguaDojo" [ref=f3e7] [cursor=pointer]:
+          - /url: /
+        - list [ref=f3e8]:
+          - listitem [ref=f3e9]:
+            - link "Daily Session" [ref=f3e10] [cursor=pointer]:
+              - /url: /session
+          - listitem [ref=f3e11]:
+            - link "Practice" [ref=f3e12] [cursor=pointer]:
+              - /url: /session?mode=practice
+          - listitem [ref=f3e13]:
+            - link "Language Selection" [ref=f3e14] [cursor=pointer]:
+              - /url: /language-selection
+          - listitem [ref=f3e15]:
+            - link "Browse Tests" [ref=f3e16] [cursor=pointer]:
+              - /url: /tests
+          - listitem [ref=f3e43]:
+            - link "Counters" [ref=f3e44] [cursor=pointer]:
+              - /url: /counter-drill
+          - listitem [ref=f3e17]:
+            - link " Report" [ref=f3e18] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f3e19]: 
+              - text: Report
+        - generic [ref=f3e20]:
+          - text:  
+          - button "Switch language" [ref=f3e45] [cursor=pointer]:
+            - generic [ref=f3e23]: 🇺🇸
+          - generic [ref=f3e24]:
+            - button "Switch theme" [ref=f3e46] [cursor=pointer]:
+              - generic [ref=f3e26]: 
+            - text:     
+          - generic [ref=f3e27]:
+            - button "User menu" [ref=f3e28] [cursor=pointer]
+            - text: 
+  - main [ref=f3e31]:
+    - text:   
+    - group "Session progress" [ref=f3e57]:
+      - generic [ref=f3e58]:
+        - generic [ref=f3e59]:
+          - generic [ref=f3e60]: 
+          - text: Daily Session
+        - generic [ref=f3e61]: 0/3
+      - list [ref=f3e63]:
+        - listitem "Listening — In progress" [ref=f3e64]
+        - listitem "Pitch Accent — Not started" [ref=f3e65]
+        - listitem "Pitch Accent — Not started" [ref=f3e66]
+    - generic [ref=f3e35]:
+      - paragraph [ref=f3e219]: Loading test...
+      - generic [ref=f3e69]:
+        - generic [ref=f3e70]:
+          - heading " からだにぴったりのくすり" [level=1] [ref=f3e72]:
+            - generic [ref=f3e73]: 
+            - text: からだにぴったりのくすり
+          - generic [ref=f3e74]:
+            - generic [ref=f3e75]: 日本語
+            - generic [ref=f3e76]: Level 1
+            - generic [ref=f3e77]: Listening
+            - generic "Furigana over kanji (halves ELO change)" [ref=f3e78] [cursor=pointer]:
+              - checkbox "ふりがな" [ref=f3e79]
+              - generic [ref=f3e80]: ふりがな
+        - generic [ref=f3e83]:
+          - generic [ref=f3e84]: 4 of 4 answered
+          - generic [ref=f3e85]:
+            - generic [ref=f3e86]: 
+            - text: 00:51
+      - text: 
+      - generic [ref=f3e88]:
+        - text:   
+        - generic [ref=f3e89]:
+          - heading " Audio" [level=2] [ref=f3e90]:
+            - generic [ref=f3e91]: 
+            - text: Audio
+          - generic [ref=f3e92]:
+            - button "" [ref=f3e93] [cursor=pointer]
+            - generic [ref=f3e95]:
+              - generic [ref=f3e96] [cursor=pointer]
+              - generic [ref=f3e98]:
+                - generic [ref=f3e99]: 0:00
+                - generic [ref=f3e100]: 0:15
+            - button "1.0x" [ref=f3e101] [cursor=pointer]
+        - generic [ref=f3e103]:
+          - heading "Questions" [level=2] [ref=f3e104]
+          - generic [ref=f3e105]:
+            - button "1" [ref=f3e210] [cursor=pointer]
+            - button "2" [ref=f3e211] [cursor=pointer]
+            - button "3" [ref=f3e212] [cursor=pointer]
+            - button "4" [ref=f3e213] [cursor=pointer]
+        - generic [ref=f3e110]:
+          - generic [ref=f3e111]:
+            - generic [ref=f3e112]: Question 1 of 4
+            - heading "昔の病院での薬の選び方はどうでしたか？" [level=3] [ref=f3e114]
+            - generic [ref=f3e115]:
+              - generic [ref=f3e116] [cursor=pointer]:
+                - radio "A. 一人一人の体に合う薬" [checked] [ref=f3e117]
+                - generic [ref=f3e118]:
+                  - strong [ref=f3e119]: A.
+                  - text: 一人一人の体に合う薬
+              - generic [ref=f3e120] [cursor=pointer]:
+                - radio "B. みんな同じ薬" [ref=f3e121]
+                - generic [ref=f3e122]:
+                  - strong [ref=f3e123]: B.
+                  - text: みんな同じ薬
+              - generic [ref=f3e124] [cursor=pointer]:
+                - radio "C. 医者が体を調べて決める薬" [ref=f3e125]
+                - generic [ref=f3e126]:
+                  - strong [ref=f3e127]: C.
+                  - text: 医者が体を調べて決める薬
+              - generic [ref=f3e128] [cursor=pointer]:
+                - radio "D. 薬を使わない" [ref=f3e129]
+                - generic [ref=f3e130]:
+                  - strong [ref=f3e131]: D.
+                  - text: 薬を使わない
+          - generic [ref=f3e132]:
+            - generic [ref=f3e133]: Question 2 of 4
+            - heading "今の病院では、医者は何をして薬を決めますか？" [level=3] [ref=f3e135]
+            - generic [ref=f3e136]:
+              - generic [ref=f3e137] [cursor=pointer]:
+                - radio "A. 体を調べる" [checked] [ref=f3e138]
+                - generic [ref=f3e139]:
+                  - strong [ref=f3e140]: A.
+                  - text: 体を調べる
+              - generic [ref=f3e141] [cursor=pointer]:
+                - radio "B. 血を調べる" [ref=f3e142]
+                - generic [ref=f3e143]:
+                  - strong [ref=f3e144]: B.
+                  - text: 血を調べる
+              - generic [ref=f3e145] [cursor=pointer]:
+                - radio "C. 目を調べる" [ref=f3e146]
+                - generic [ref=f3e147]:
+                  - strong [ref=f3e148]: C.
+                  - text: 目を調べる
+              - generic [ref=f3e149] [cursor=pointer]:
+                - radio "D. 声を調べる" [ref=f3e150]
+                - generic [ref=f3e151]:
+                  - strong [ref=f3e152]: D.
+                  - text: 声を調べる
+          - generic [ref=f3e153]:
+            - generic [ref=f3e154]: Question 3 of 4
+            - heading "文中の（合う）の意味として最も適切なものを選んでください。" [level=3] [ref=f3e156]
+            - generic [ref=f3e157]:
+              - generic [ref=f3e158] [cursor=pointer]:
+                - radio "A. 二人の意見が同じになる" [ref=f3e159]
+                - generic [ref=f3e160]:
+                  - strong [ref=f3e161]: A.
+                  - text: 二人の意見が同じになる
+              - generic [ref=f3e162] [cursor=pointer]:
+                - radio "B. 衣服のサイズがちょうどよい" [ref=f3e163]
+                - generic [ref=f3e164]:
+                  - strong [ref=f3e165]: B.
+                  - text: 衣服のサイズがちょうどよい
+              - generic [ref=f3e166] [cursor=pointer]:
+                - radio "C. その人の体質に適している" [checked] [ref=f3e167]
+                - generic [ref=f3e168]:
+                  - strong [ref=f3e169]: C.
+                  - text: その人の体質に適している
+              - generic [ref=f3e170] [cursor=pointer]:
+                - radio "D. 予定と予定が重なる" [ref=f3e171]
+                - generic [ref=f3e172]:
+                  - strong [ref=f3e173]: D.
+                  - text: 予定と予定が重なる
+          - generic [ref=f3e174]:
+            - generic [ref=f3e175]: Question 4 of 4
+            - heading "文中の（調べて）の意味として最も適切なものを選んでください。" [level=3] [ref=f3e177]
+            - generic [ref=f3e178]:
+              - generic [ref=f3e179] [cursor=pointer]:
+                - radio "A. 診断するために体の状態を詳しく見る" [checked] [ref=f3e180]
+                - generic [ref=f3e181]:
+                  - strong [ref=f3e182]: A.
+                  - text: 診断するために体の状態を詳しく見る
+              - generic [ref=f3e183] [cursor=pointer]:
+                - radio "B. 分からないことを文献や資料で調べる" [ref=f3e184]
+                - generic [ref=f3e185]:
+                  - strong [ref=f3e186]: B.
+                  - text: 分からないことを文献や資料で調べる
+              - generic [ref=f3e187] [cursor=pointer]:
+                - radio "C. 体の表面をきれいに洗って清潔にする" [ref=f3e188]
+                - generic [ref=f3e189]:
+                  - strong [ref=f3e190]: C.
+                  - text: 体の表面をきれいに洗って清潔にする
+              - generic [ref=f3e191] [cursor=pointer]:
+                - radio "D. 体の調子が良いかどうか人に尋ねる" [ref=f3e192]
+                - generic [ref=f3e193]:
+                  - strong [ref=f3e194]: D.
+                  - text: 体の調子が良いかどうか人に尋ねる
+        - text: 
+      - text:  
+      - generic [ref=f3e195]:
+        - generic:  
+        - generic [ref=f3e196]:
+          - text: 4/4 answered
+          - button " Submit Test" [active] [ref=f3e214] [cursor=pointer]:
+            - generic [ref=f3e215]: 
+            - text: Submit Test
+  - contentinfo [ref=f3e36]:
+    - generic [ref=f3e38]:
+      - generic [ref=f3e39]:
+        - text: LinguaDojo
+        - paragraph [ref=f3e40]: Master any language with active practice
+      - generic [ref=f3e41]: © 2025 LinguaDojo. All rights reserved.
+  - text:   

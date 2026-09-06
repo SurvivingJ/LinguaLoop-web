@@ -146,6 +146,27 @@ class LadderExerciseRenderer:
 
         rows = []
         deterministic_skips: list = []
+        # A level whose renderer draws only on `core` (lemma, pronunciation) and
+        # not on the variant's sentence_assignments produces byte-identical
+        # content across variant A and B — ja's phonetic-trie L1 is the case in
+        # production today (services/vocabulary_ladder/l1_lookup.py). The DB
+        # already refuses a second identical row via the partial unique index
+        # ``uq_exercises_context_free_variant`` (migrations/exercises_context_free_variant_uniqueness.sql),
+        # scoped to exactly the exercise_types below — NOT every context-free
+        # type (definition_match, for instance, legitimately has several rows
+        # per sense with no context_sentence). Deduping here, before the
+        # insert, avoids relying on the DB to reject the second attempt one row
+        # at a time — which either surfaces as a swallowed exception or, per
+        # client, can fail the whole multi-row insert for the sense.
+        #
+        # This set MUST mirror the index's exercise_type array exactly; a type
+        # added to one and not the other silently reopens this bug for it.
+        _CONTEXT_FREE_UNIQUE_TYPES = frozenset({
+            'tone_id_word', 'hanzi_to_pinyin', 'pinyin_to_hanzi',
+            'kanji_to_reading', 'reading_to_kanji', 'phonetic_recognition',
+            'classifier_match', 'counter_match',
+        })
+        seen_context_free_types: set[str] = set()
         for variant in variant_configs:
             p2 = variant['p2']
             p3 = variant['p3']
@@ -175,6 +196,26 @@ class LadderExerciseRenderer:
                     self._render_hant_mirror(content, language_id)
 
                     exercise_type = LADDER_LEVELS[level]['exercise_type']
+
+                    # Context-free dedup, keyed exactly like
+                    # uq_exercises_context_free_variant (word_sense_id,
+                    # exercise_type, md5(context_sentence or '')), restricted to
+                    # the same exercise_types that index covers: a second
+                    # variant with no context_sentence and one of those types
+                    # is, by that constraint's own definition, the same row
+                    # again. Types outside this set may legitimately repeat.
+                    if (exercise_type in _CONTEXT_FREE_UNIQUE_TYPES
+                            and not content.get('context_sentence')):
+                        if exercise_type in seen_context_free_types:
+                            logger.info(
+                                "Sense %s: skipping duplicate context-free %s "
+                                "from variant %s (already produced by an "
+                                "earlier variant)",
+                                sense_id, exercise_type, variant['key'],
+                            )
+                            continue
+                        seen_context_free_types.add(exercise_type)
+
                     tags = {
                         'ladder_level': level,
                         'semantic_class': semantic_class,

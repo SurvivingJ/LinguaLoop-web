@@ -1,0 +1,108 @@
+- generic [ref=f10e1]:
+  - link "Skip to main content" [ref=f10e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f10e3]:
+    - navigation [ref=f10e4]:
+      - generic [ref=f10e6]:
+        - link "LinguaDojo" [ref=f10e7] [cursor=pointer]:
+          - /url: /
+        - list [ref=f10e8]:
+          - listitem [ref=f10e9]:
+            - link "Daily Session" [ref=f10e10] [cursor=pointer]:
+              - /url: /session
+          - listitem [ref=f10e11]:
+            - link "Practice" [ref=f10e12] [cursor=pointer]:
+              - /url: /session?mode=practice
+          - listitem [ref=f10e13]:
+            - link "Language Selection" [ref=f10e14] [cursor=pointer]:
+              - /url: /language-selection
+          - listitem [ref=f10e15]:
+            - link "Browse Tests" [ref=f10e16] [cursor=pointer]:
+              - /url: /tests
+          - listitem [ref=f10e40]:
+            - link "Counters" [ref=f10e41] [cursor=pointer]:
+              - /url: /counter-drill
+          - listitem [ref=f10e17]:
+            - link " Report" [ref=f10e18] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f10e19]: 
+              - text: Report
+        - generic [ref=f10e20]:
+          - text:  
+          - button "Switch language" [ref=f10e42] [cursor=pointer]:
+            - generic [ref=f10e23]: 🇺🇸
+          - generic [ref=f10e24]:
+            - button "Switch theme" [ref=f10e43] [cursor=pointer]:
+              - generic [ref=f10e26]: 
+            - text:     
+          - generic [ref=f10e27]:
+            - button "User menu" [ref=f10e28] [cursor=pointer]
+            - text: 
+  - main [ref=f10e31]:
+    - generic [ref=f10e44]:
+      - generic [ref=f10e45]:
+        - link "Home" [ref=f10e46] [cursor=pointer]:
+          - /url: /tests
+          - text: ←
+        - heading "Counters" [level=1] [ref=f10e47]
+      - generic [ref=f10e48]: 0 / 20
+      - generic [ref=f10e51]:
+        - button "Choose" [ref=f10e52] [cursor=pointer]
+        - button "Type" [ref=f10e53] [cursor=pointer]
+    - generic [ref=f10e55]:
+      - generic [ref=f10e56]:
+        - generic [ref=f10e57]: ヒマワリ
+        - generic [ref=f10e58]: を
+        - generic [ref=f10e59]: 一
+        - generic [ref=f10e60]: _
+      - generic [ref=f10e61]:
+        - button "点 てん" [ref=f10e62] [cursor=pointer]:
+          - generic [ref=f10e63]: 点
+          - generic [ref=f10e64]: てん
+        - button "足 そく" [ref=f10e65] [cursor=pointer]:
+          - generic [ref=f10e66]: 足
+          - generic [ref=f10e67]: そく
+        - button "着 ちゃく" [ref=f10e68] [cursor=pointer]:
+          - generic [ref=f10e69]: 着
+          - generic [ref=f10e70]: ちゃく
+        - button "枝 し" [ref=f10e71] [cursor=pointer]:
+          - generic [ref=f10e72]: 枝
+          - generic [ref=f10e73]: し
+  - contentinfo [ref=f10e33]:
+    - generic [ref=f10e35]:
+      - generic [ref=f10e36]:
+        - text: LinguaDojo
+        - paragraph [ref=f10e37]: Master any language with active practice
+      - generic [ref=f10e38]: © 2025 LinguaDojo. All rights reserved.
+  - dialog [active] [ref=f10e91]:
+    - generic [ref=f10e92]:
+      - generic [ref=f10e93]:
+        - heading " Report Issue" [level=5] [ref=f10e94]:
+          - generic [ref=f10e95]: 
+          - text: Report Issue
+        - button [ref=f10e96] [cursor=pointer]
+      - generic [ref=f10e97]:
+        - generic [ref=f10e98]:
+          - generic [ref=f10e99]:
+            - generic [ref=f10e100]: Issue Type
+            - combobox [ref=f10e101]:
+              - option "Select" [selected]
+              - option "Test answer incorrect"
+              - option "Test won't load"
+              - option "Website crashed"
+              - option "Improvement idea"
+              - option "Audio quality poor"
+              - option "Other"
+          - generic [ref=f10e102]:
+            - generic [ref=f10e103]: Description
+            - textbox "Describe the issue..." [ref=f10e104]
+            - generic [ref=f10e105]: Min 10 characters
+        - text: 
+      - generic [ref=f10e106]:
+        - button "Cancel" [ref=f10e107] [cursor=pointer]
+        - button " Submit" [ref=f10e108] [cursor=pointer]:
+          - generic [ref=f10e109]: 
+          - text: Submit
+  - button "About this test" [ref=f10e74] [cursor=pointer]:
+    - generic [aria-hidden] [ref=f10e75]: 
+  - text: 

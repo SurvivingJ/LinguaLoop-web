@@ -1,0 +1,6 @@
+[     823ms] [INFO] Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495' violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken. @ https://linguadojo.com/tests:0
+[    4019ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://linguadojo.com/api/tests/recommended?language_id=3:0
+[    4019ms] [ERROR] Error loading recommended tests: Error: HTTP error! status: 500
+    at loadRecommendedTests (https://linguadojo.com/tests:1354:23) @ https://linguadojo.com/tests:1366
+[  117599ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://linguadojo.com/api/tests?language_id=3:0
+[  126264ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://linguadojo.com/api/tests?language_id=3:0

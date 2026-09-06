@@ -69,6 +69,18 @@ class VocabularyExtractionPipeline:
             self._processors[language_code] = cls()
         return self._processors[language_code]
 
+    def get_processor(self, language_code: str) -> BaseLanguageProcessor:
+        """Public accessor for the per-language processor (lazily created,
+        cached per pipeline instance).
+
+        For callers that need raw tokenization without running this
+        pipeline's phrase-detection stage — e.g.
+        services/vocabulary/word_resolver.py resolving a single
+        user-submitted word/phrase, where there is no surrounding
+        transcript to mine for phrases.
+        """
+        return self._get_processor(language_code)
+
     def kana_reading(self, text: str, language_code: str) -> str:
         """Dictionary-form reading (hiragana) for ``text``, or '' if the
         processor for ``language_code`` doesn't expose one.

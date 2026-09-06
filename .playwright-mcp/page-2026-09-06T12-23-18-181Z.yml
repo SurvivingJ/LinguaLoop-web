@@ -1,0 +1,82 @@
+- generic [active] [ref=f4e1]:
+  - link "Skip to main content" [ref=f4e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f4e3]:
+    - navigation [ref=f4e4]:
+      - generic [ref=f4e6]:
+        - link "LinguaDojo" [ref=f4e7] [cursor=pointer]:
+          - /url: /
+        - list [ref=f4e8]:
+          - listitem [ref=f4e9]:
+            - link "Daily Session" [ref=f4e10] [cursor=pointer]:
+              - /url: /session
+          - listitem [ref=f4e11]:
+            - link "Practice" [ref=f4e12] [cursor=pointer]:
+              - /url: /session?mode=practice
+          - listitem [ref=f4e13]:
+            - link "Language Selection" [ref=f4e14] [cursor=pointer]:
+              - /url: /language-selection
+          - listitem [ref=f4e15]:
+            - link "Browse Tests" [ref=f4e16] [cursor=pointer]:
+              - /url: /tests
+          - listitem [ref=f4e17]:
+            - link " Report" [ref=f4e18] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f4e19]: 
+              - text: Report
+        - generic [ref=f4e20]:
+          - text:  
+          - button "🇺🇸" [ref=f4e22] [cursor=pointer]
+          - generic [ref=f4e24]:
+            - button "" [ref=f4e25] [cursor=pointer]
+            - text:     
+          - generic [ref=f4e27]:
+            - button "User menu" [ref=f4e28] [cursor=pointer]
+            - text: 
+  - main [ref=f4e31]:
+    - generic [ref=f4e32]:
+      - generic [ref=f4e33]:
+        - generic [ref=f4e34]:
+          - heading "Browse Tests" [level=1] [ref=f4e35]
+          - paragraph [ref=f4e36]: Select a test to practice and improve your language skills
+        - link " Start today's session" [ref=f4e37] [cursor=pointer]:
+          - /url: /session
+          - generic [ref=f4e38]: 
+          - text: Start today's session
+      - text: 
+      - generic [ref=f4e39]:
+        - heading "Recommended for You" [level=2] [ref=f4e41]
+        - button "Surprise Me! Get a random test at your level" [ref=f4e59] [cursor=pointer]:
+          - generic [ref=f4e63]: Surprise Me!
+          - generic [ref=f4e64]: Get a random test at your level
+      - generic [ref=f4e65]:
+        - heading "Filter Tests" [level=2] [ref=f4e66]
+        - generic [ref=f4e67]:
+          - generic [ref=f4e68]:
+            - generic [ref=f4e69]: Test Type
+            - combobox "Test Type" [ref=f4e70]:
+              - option "All Types" [selected]
+              - option "📖 Reading"
+              - option "🎧 Listening"
+              - option "⌨️ Dictation"
+          - generic [ref=f4e71]:
+            - generic [ref=f4e72]: Difficulty
+            - combobox "Difficulty" [ref=f4e73]:
+              - option "All Levels" [selected]
+              - option "Level 1 - Beginner (0-1200)"
+              - option "Level 2 - Elementary (1200-1300)"
+              - option "Level 3 - Intermediate- (1300-1400)"
+              - option "Level 4 - Intermediate (1400-1500)"
+              - option "Level 5 - Intermediate+ (1500-1600)"
+              - option "Level 6 - Advanced- (1600-1700)"
+              - option "Level 7 - Advanced (1700-1800)"
+              - option "Level 8 - Advanced+ (1800-1900)"
+              - option "Level 9 - Expert (1900+)"
+          - button "Reset" [ref=f4e75] [cursor=pointer]
+  - contentinfo [ref=f4e76]:
+    - generic [ref=f4e78]:
+      - generic [ref=f4e79]:
+        - text: LinguaDojo
+        - paragraph [ref=f4e80]: Master any language with active practice
+      - generic [ref=f4e81]: © 2025 LinguaDojo. All rights reserved.
+  - text:   

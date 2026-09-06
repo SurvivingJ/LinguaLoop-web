@@ -1,0 +1,28 @@
+-- get_distractors: drop the superseded 3-arg overload.
+--
+-- get_distractors_definition_language_param.sql (applied live 2026-08-24)
+-- added a 4th parameter via `CREATE OR REPLACE FUNCTION public.get_distractors(
+-- p_sense_id, p_language_id, p_count, p_definition_language_id DEFAULT NULL)`,
+-- with the stated intent "so every existing caller is unaffected" -- i.e. it
+-- meant to replace the 3-arg function.
+--
+-- CREATE OR REPLACE does not do that across a signature change: Postgres
+-- functions are identified by (name, argument types), so a different arg
+-- count creates a second overload rather than replacing the first. The old
+-- 3-arg get_distractors(integer, smallint, integer) was never dropped and
+-- has coexisted with the 4-arg one ever since.
+--
+-- The two calling conventions in services/vocabulary/knowledge_service.py
+-- (dict of named params, 3 or 4 keys depending on whether
+-- definition_language_id is set) are each a valid match for the 4-arg
+-- function's own DEFAULT NULL -- so PostgREST cannot tell which of the two
+-- overloads the caller means, and every call fails PGRST203 ("Could not
+-- choose the best candidate function"). This fired on every L2
+-- (definition_match) render in the 2026-09-06 ja exercise batch.
+--
+-- The 4-arg function is a strict superset of the 3-arg one (its body
+-- COALESCEs p_definition_language_id to p_language_id, exactly the 3-arg
+-- behaviour), so dropping the 3-arg overload changes nothing observable for
+-- any caller -- it just removes the ambiguity.
+
+DROP FUNCTION IF EXISTS public.get_distractors(integer, smallint, integer);

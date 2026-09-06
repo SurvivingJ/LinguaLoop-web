@@ -122,6 +122,25 @@ def test_identical_kanji_hanzi_is_not_a_word_leak_ja_to_zh():
     assert len(writable) == 1
 
 
+def test_bare_latin_letter_lemma_is_not_a_word_leak_in_any_target():
+    # "D" the letter is shared notation across ja/zh/en, exactly like a digit.
+    batch = _batch('ja', ['zh', 'en'], [
+        {'vocab_id': 4, 'sense_rank': 1, 'lemma': 'D', 'target_languages': ['zh', 'en']},
+    ])
+    glosses = [
+        {'vocab_id': 4, 'sense_rank': 1, 'glosses': {
+            # zh's `simple` still needs actual Chinese content alongside the
+            # bare letter -- the language-heuristic check has no special case
+            # for "this text is legitimately just a letter".
+            'zh': {'simple': '字母D', 'standard': '字母D；英文字母表第四个字母'},
+            'en': {'simple': 'D', 'standard': 'D; the fourth letter of the alphabet'},
+        }},
+    ]
+    writable, skipped, errors = validate(glosses, batch)
+    assert errors == []
+    assert len(writable) == 1
+
+
 def test_source_word_left_untranslated_into_english_is_still_a_leak():
     # Crossing into en is a real script boundary -- the ja lemma surviving
     # verbatim there means it didn't get translated.

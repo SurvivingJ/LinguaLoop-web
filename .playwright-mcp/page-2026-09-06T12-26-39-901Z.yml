@@ -1,0 +1,47 @@
+- generic [active] [ref=f7e1]:
+  - link "Skip to main content" [ref=f7e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f7e3]:
+    - navigation [ref=f7e4]:
+      - generic [ref=f7e6]:
+        - link "LinguaDojo" [ref=f7e7] [cursor=pointer]:
+          - /url: /
+        - list [ref=f7e8]:
+          - listitem [ref=f7e9]:
+            - link "Daily Session" [ref=f7e10] [cursor=pointer]:
+              - /url: /session
+          - listitem [ref=f7e11]:
+            - link "Practice" [ref=f7e12] [cursor=pointer]:
+              - /url: /session?mode=practice
+          - listitem [ref=f7e13]:
+            - link "Language Selection" [ref=f7e14] [cursor=pointer]:
+              - /url: /language-selection
+          - listitem [ref=f7e15]:
+            - link "Browse Tests" [ref=f7e16] [cursor=pointer]:
+              - /url: /tests
+          - listitem [ref=f7e17]:
+            - link " Report" [ref=f7e18] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f7e19]: 
+              - text: Report
+        - generic [ref=f7e20]:
+          - text:  
+          - button "🇺🇸" [ref=f7e22] [cursor=pointer]
+          - generic [ref=f7e24]:
+            - button "" [ref=f7e25] [cursor=pointer]
+            - text:     
+          - generic [ref=f7e27]:
+            - button "User menu" [ref=f7e28] [cursor=pointer]
+            - text: 
+  - main [ref=f7e31]:
+    - generic [ref=f7e32]:
+      - status [ref=f7e33]
+      - paragraph [ref=f7e34]: Loading your session…
+    - text:    
+  - contentinfo [ref=f7e36]:
+    - generic [ref=f7e38]:
+      - generic [ref=f7e39]:
+        - text: LinguaDojo
+        - paragraph [ref=f7e40]: Master any language with active practice
+      - generic [ref=f7e41]: © 2025 LinguaDojo. All rights reserved.
+  - text:   

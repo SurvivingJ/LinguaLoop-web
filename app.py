@@ -48,6 +48,7 @@ from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
 from routes.dual_translation import dual_translation_bp
 from routes.test_intros import test_intros_bp
+from routes.word_list_import import word_list_import_bp
 
 
 def create_app(config_class=Config):
@@ -416,6 +417,36 @@ def _initialize_scheduler(app):
         replace_existing=True,
     )
 
+    # word-list-import Step 5 — recurring watchlist match-sweep (wiki/
+    # tasklist/word-list-import.plan.md). Scheduled last in the 04:xx chain,
+    # immediately after generation_queue_drain_nightly, for the same reason
+    # that job is last: it should run after any nightly content
+    # regeneration has had a chance to land, so the sweep's "tests created
+    # since the last run" scan sees a settled picture rather than racing
+    # in-flight writes. Cross-worker safety is a Postgres advisory lock
+    # inside run_watchlist_sweep itself (key 'WUSw'), matching every other
+    # job in this chain.
+    def _run_word_upload_watchlist_sweep():
+        try:
+            from services.word_list_import.sweep_cron import run_watchlist_sweep
+            summary = run_watchlist_sweep(get_supabase_admin())
+            if summary.get('skipped'):
+                app.logger.info("Word-upload watchlist sweep: skipped (%s)",
+                                summary.get('reason'))
+            else:
+                app.logger.info("Word-upload watchlist sweep: %s", summary)
+        except Exception as exc:
+            app.logger.exception("Word-upload watchlist sweep crashed: %s", exc)
+
+    scheduler.add_job(
+        _run_word_upload_watchlist_sweep,
+        trigger=CronTrigger(hour=4, minute=20),
+        id='word_upload_watchlist_sweep_nightly',
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+
     scheduler.start()
     app.scheduler = scheduler
     app.logger.info(
@@ -425,6 +456,7 @@ def _initialize_scheduler(app):
         "exercise_time_estimate_refresh @ 04:05 UTC, "
         "slug_health_nightly @ 04:10 UTC, "
         "generation_queue_drain_nightly @ 04:15 UTC, "
+        "word_upload_watchlist_sweep_nightly @ 04:20 UTC, "
         "study_plan_weekly_recompute @ Sun 23:00 UTC"
     )
 
@@ -457,6 +489,7 @@ def _register_blueprints(app):
     app.register_blueprint(study_session_bp, url_prefix='/api/study-session')
     app.register_blueprint(dual_translation_bp, url_prefix='/api/dual-translation')
     app.register_blueprint(test_intros_bp)
+    app.register_blueprint(word_list_import_bp)
 
     app.logger.info("Blueprints registered")
 
@@ -572,6 +605,12 @@ def _register_web_routes(app):
     def flashcards():
         """Render flashcards review page"""
         return render_template('flashcards.html')
+
+    @app.route('/word-list')
+    def word_list_page():
+        """Render the word-list upload + watchlist page (Step 8 of
+        wiki/tasklist/word-list-import.plan.md)."""
+        return render_template('word_list.html')
 
     @app.route('/mysteries')
     def mysteries():

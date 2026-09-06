@@ -21,8 +21,6 @@ from datetime import datetime, timezone
 from typing import Callable, List, Optional
 from uuid import UUID, uuid4
 
-from postgrest.exceptions import APIError
-
 from .config import get_test_gen_config
 from .question_mix import report_question_mix
 from .enrichment_metrics import (
@@ -47,10 +45,8 @@ from .agents import (
     AudioSynthesizer
 )
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
-from services.vocabulary.sense_generator import (
-    SenseGenerator, find_sentence, retry_transient_db_call,
-)
-from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
+from services.vocabulary.sense_generator import SenseGenerator, find_sentence
+from services.vocabulary.word_resolver import get_or_create_vocab_id
 from services.vocabulary.kana_homophone_judge import pick_homophone_sense
 # Fail-closed judging (TASK-510/727). Imported at module top rather than lazily
 # because `run`/`run_batch` open the guard before any generation begins — an
@@ -1471,12 +1467,22 @@ class TestGenerationOrchestrator:
 
         return result
 
-    @retry_transient_db_call
     def _get_or_create_vocab_id(
         self, db, item: dict, language_id: int, language_code: str
     ) -> int:
         """
         Get existing vocab ID or create new entry in dim_vocabulary.
+
+        Thin delegator: the look-before-insert + 23505 unique-violation race
+        handling now lives in
+        services/vocabulary/word_resolver.py::get_or_create_vocab_id,
+        extracted (word-list-import plan, Step 2) so that module's
+        resolve_or_create_sense — the request-safe single-word resolver used
+        outside a test-generation run — shares exactly one copy of this
+        logic rather than a second one drifting alongside it. This method's
+        cache/lock stay instance-level (TASK-737: fanned out across a thread
+        pool, one thread per extracted vocab word) so behavior here is
+        unchanged.
 
         Args:
             db: Supabase admin client
@@ -1486,80 +1492,10 @@ class TestGenerationOrchestrator:
         Returns:
             Integer vocab ID
         """
-        lemma = item['lemma']
-        cache_key = (lemma, language_id)
-
-        # Whole method under one lock (TASK-737): _generate_vocabulary now
-        # calls this from a thread pool, one thread per extracted vocab word.
-        # The DB round-trips here are cheap relative to the LLM call the
-        # caller makes next, so serializing them fully is the simplest safe
-        # option — it turns the in-process race on a brand-new lemma (two
-        # threads both cache-miss, both insert) into a queue instead of
-        # relying solely on the cross-process 23505 handler below.
-        with self._vocab_cache_lock:
-            if cache_key in self._vocab_cache:
-                return self._vocab_cache[cache_key]
-
-            # Insert new vocab entry
-            row = {
-                'lemma': lemma,
-                'language_id': language_id,
-                'part_of_speech': item.get('pos'),
-            }
-
-            if item.get('phrase_type'):
-                row['phrase_type'] = item['phrase_type']
-            if item.get('components'):
-                row['component_lemmas'] = item['components']
-            if item.get('reading'):
-                # Populated for Japanese only (see extract_detailed /
-                # LemmaToken.reading) — the homophone-family lookup key in
-                # _resolve_kana_homophones. Stored at creation time so new
-                # rows don't depend on the backfill script ever running.
-                row['reading'] = item['reading']
-
-            zipf = compute_zipf_for_vocab_item(item, language_code)
-            if zipf is not None:
-                row['frequency_rank'] = zipf
-
-            # dim_vocabulary is shared across every run, so after a few hundred
-            # tests most lemmas in a transcript already exist. Look before
-            # inserting: a bare insert raises APIError 23505 on uq_vocab_lemma, and
-            # the caller's `for item in vocab_items` loop has no per-item guard, so
-            # that one exception aborts vocabulary for the *whole test* at its first
-            # already-known word — leaving vocab_sense_ids empty and
-            # vocab_token_map NULL while the run still reports "pass".
-            existing = db.table('dim_vocabulary') \
-                .select('id') \
-                .eq('lemma', lemma) \
-                .eq('language_id', language_id) \
-                .limit(1) \
-                .execute()
-
-            if existing.data:
-                vocab_id = existing.data[0]['id']
-            else:
-                try:
-                    response = db.table('dim_vocabulary') \
-                        .insert(row) \
-                        .execute()
-                    vocab_id = response.data[0]['id']
-                except APIError as exc:
-                    # Lost the insert race to a concurrent worker (another
-                    # process, or another orchestrator run) between the select
-                    # above and this insert — re-read rather than fail.
-                    if getattr(exc, 'code', None) != '23505':
-                        raise
-                    lookup = db.table('dim_vocabulary') \
-                        .select('id') \
-                        .eq('lemma', lemma) \
-                        .eq('language_id', language_id) \
-                        .single() \
-                        .execute()
-                    vocab_id = lookup.data['id']
-
-            self._vocab_cache[cache_key] = vocab_id
-            return vocab_id
+        return get_or_create_vocab_id(
+            db, item, language_id, language_code,
+            cache=self._vocab_cache, cache_lock=self._vocab_cache_lock,
+        )
 
     def _finalize(self, start_time: float, dry_run: bool) -> TestGenMetrics:
         """

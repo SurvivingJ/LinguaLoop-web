@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Word List | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block main_class %}container py-4{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wl-wrap { max-width: 760px; margin: 0 auto; }
+
+    .wl-header h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); }
+    .wl-intro { font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 20px; }
+
+    .wl-form-group { margin-bottom: 16px; }
+    .wl-form-group > label {
+        font-weight: 600; font-size: 0.85rem; color: var(--text-secondary);
+        display: block; margin-bottom: 6px;
+    }
+
+    #wlWords {
+        width: 100%; min-height: 140px; padding: 10px 12px;
+        border: 1px solid var(--border-default); border-radius: 10px;
+        font-family: inherit; font-size: 0.95rem; resize: vertical;
+    }
+
+    .wl-lang-options { display: flex; gap: 10px; flex-wrap: wrap; }
+    .wl-lang-chip {
+        display: flex; align-items: center; gap: 8px;
+        border: 2px solid var(--border-strong); border-radius: 10px;
+        padding: 8px 16px; cursor: pointer; background: var(--bg-surface);
+        transition: var(--transition-fast);
+    }
+    .wl-lang-chip:hover { border-color: var(--slate-400); }
+    .wl-lang-chip.selected { border-color: var(--primary); background: var(--selected-bg); }
+    .wl-lang-chip .flag { font-size: 20px; }
+
+    .wl-status { font-size: 0.88rem; margin-top: 10px; min-height: 1.2em; }
+    .wl-status.processing { color: var(--primary); }
+    .wl-status.error { color: #b91c1c; }
+
+    .wl-table-wrap { margin-top: 28px; }
+    table.wl-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    table.wl-table th {
+        text-align: left; font-size: 0.75rem; text-transform: uppercase;
+        letter-spacing: 0.04em; color: var(--text-muted);
+        border-bottom: 1px solid var(--border-default); padding: 8px 10px;
+    }
+    table.wl-table td { padding: 10px; border-bottom: 1px solid var(--border-default); vertical-align: middle; }
+    table.wl-table tr.wl-row-new { background: #fffbeb; }
+
+    .wl-badge {
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+        text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+        white-space: nowrap; display: inline-block;
+    }
+    .wl-badge.ready { background: #d1fae5; color: #065f46; }
+    .wl-badge.pending { background: #fef3c7; color: #92400e; }
+    .wl-badge.matched { background: #dbeafe; color: #1d4ed8; }
+    .wl-badge.watching { background: var(--bg-page); color: var(--text-secondary); }
+    .wl-badge.inactive { background: #fee2e2; color: #991b1b; }
+
+    .wl-empty, .wl-loading, .wl-error { text-align: center; padding: 32px 16px; color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wl-wrap">
+    <div class="wl-header">
+        <h1 data-i18n="word_list.title">Word List</h1>
+    </div>
+    <p class="wl-intro" data-i18n="word_list.intro">
+        Upload words you want to keep practicing. Every word is added to your vocabulary
+        ladder right away, and the app watches for matching tests as new ones are created.
+    </p>
+
+    <form id="wlForm">
+        <div class="wl-form-group">
+            <label for="wlWords" data-i18n="word_list.textarea_label">Words</label>
+            <textarea id="wlWords" data-i18n-placeholder="word_list.textarea_placeholder"
+                      placeholder="Enter one word per line"></textarea>
+        </div>
+
+        <div class="wl-form-group">
+            <label data-i18n="word_list.language_label">Language</label>
+            <div class="wl-lang-options" id="wlLangOptions">
+                <div class="wl-lang-chip" data-lang="zh">
+                    <span class="flag">🇨🇳</span>
+                    <span class="native">中文</span>
+                </div>
+                <div class="wl-lang-chip" data-lang="en">
+                    <span class="flag">🇺🇸</span>
+                    <span class="native">English</span>
+                </div>
+                <div class="wl-lang-chip" data-lang="ja">
+                    <span class="flag">🇯🇵</span>
+                    <span class="native">日本語</span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="wlSubmitBtn" data-i18n="word_list.submit">Submit</button>
+        <div class="wl-status" id="wlStatus" role="status" aria-live="polite"></div>
+    </form>
+
+    <div class="wl-table-wrap">
+        <h2 class="h6" data-i18n="word_list.watchlist_title">Your Watchlist</h2>
+
+        <div id="wlLoading" class="wl-loading" data-i18n="word_list.loading">Loading…</div>
+        <div id="wlError" class="wl-error" style="display:none;"></div>
+        <div id="wlEmpty" class="wl-empty" style="display:none;" data-i18n="word_list.watchlist_empty">
+            No words yet — submit a list above to get started.
+        </div>
+
+        <table class="wl-table" id="wlTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th data-i18n="word_list.col_word">Word</th>
+                    <th data-i18n="word_list.col_language">Language</th>
+                    <th data-i18n="word_list.col_ladder">Ladder</th>
+                    <th data-i18n="word_list.col_match">Matched Test</th>
+                    <th data-i18n="word_list.col_uploaded">Uploaded</th>
+                </tr>
+            </thead>
+            <tbody id="wlTableBody"></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/word_list.js') }}"></script>
+{% endblock %}
