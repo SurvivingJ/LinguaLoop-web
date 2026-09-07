@@ -153,6 +153,7 @@ def _judge_candidates(
             prompt,
             model=model,
             temperature=0.0,
+            max_tokens=3000,
             # Provider-enforced JSON: a prose answer fails open and keeps every
             # candidate, which is the expensive failure for a uniqueness judge.
             response_format='json_object',

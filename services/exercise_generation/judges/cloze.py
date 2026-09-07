@@ -85,6 +85,7 @@ def judge_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
+            max_tokens=4750,
             response_format='json',
             provider='openrouter',
             pipeline=_PIPELINE,

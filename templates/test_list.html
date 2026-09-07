@@ -741,7 +741,20 @@
         if (!isCompleted) {
             card.onclick = function() {
                 const testType = test.test_type || 'listening';
-                window.location.href = '/test/' + test.slug + '?type=' + testType + '&daily=true';
+                // Mirrors goToTestPreviewRecommended's dispatch above: pitch_accent
+                // and pinyin have dedicated trainer routes/templates and don't
+                // understand the generic /test/<slug>?type= query param — sending
+                // them there silently rendered a multiple-choice quiz instead of
+                // the actual trainer. dictation IS understood by test.html, so it
+                // stays on the generic route (matches test_preview.html's dictation
+                // branch only diverging for its own daily-load-less flow).
+                if (testType === 'pitch_accent') {
+                    window.location.href = '/test/' + test.slug + '/pitch-accent?daily=true';
+                } else if (testType === 'pinyin') {
+                    window.location.href = '/test/' + test.slug + '/pinyin?daily=true';
+                } else {
+                    window.location.href = '/test/' + test.slug + '?type=' + testType + '&daily=true';
+                }
             };
         }
 

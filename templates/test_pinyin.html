@@ -554,6 +554,7 @@
         timerInterval: null,
         isComplete: false,
         isPaused: false,     // paused during error modal
+        isDailyLoad: false,  // ?daily=true — reached via the Today's Test Load queue
     };
 
     const TONE_NAMES = { 1: '1st (flat)', 2: '2nd (rising)', 3: '3rd (dip)', 4: '4th (falling)', 5: 'Neutral' };
@@ -594,6 +595,7 @@
             state.slug = parts[testIdx + 1];
 
             if (!state.slug) throw new Error('No test slug in URL');
+            state.isDailyLoad = new URLSearchParams(window.location.search).get('daily') === 'true';
 
             if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'pinyin' });
 
@@ -943,10 +945,24 @@
                 if (data.result) {
                     updateResultsWithElo(data.result);
                 }
+                if (state.isDailyLoad) markDailyLoadComplete(state.testData?.id);
             }
         } catch (err) {
             console.error('Submit error:', err);
         }
+    }
+
+    // Mirrors test.html's markDailyLoadComplete — reached via the "Today's
+    // Test Load" queue on the Tests page, this trainer never told that queue
+    // an attempt was finished, so the slot stayed stuck showing incomplete.
+    function markDailyLoadComplete(testId) {
+        const languageId = localStorage.getItem('selectedLanguageId');
+        if (!languageId || !testId) return;
+
+        window.authFetch('/api/tests/daily-load/complete', {
+            method: 'POST',
+            body: JSON.stringify({ test_id: testId, language_id: parseInt(languageId) })
+        }).catch((err) => console.error('Error marking daily load complete:', err));
     }
 
     function showResults(accuracy, timeSec) {

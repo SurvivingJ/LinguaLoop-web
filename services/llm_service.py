@@ -28,11 +28,14 @@ Usage:
                  pipeline='test_gen', task_name='question_generator')
 """
 
+import csv
 import hashlib
 import json
 import logging
 import os
+import threading
 import time
+from datetime import datetime, timezone
 from typing import Optional
 
 import httpx
@@ -221,9 +224,53 @@ def _resolve_model(
 
 
 # ---------------------------------------------------------------------------
-# Observability — every LLM round-trip writes one row to llm_calls.
-# Guarded so a DB outage never breaks a generation pipeline.
+# Observability — every LLM round-trip writes one row to llm_calls (DB) and
+# one row to a local daily CSV. Both are guarded so an outage in either sink
+# never breaks a generation pipeline.
 # ---------------------------------------------------------------------------
+
+# CSV sink: a plain, greppable, always-available record of every call this
+# process makes — independent of Supabase, and (unlike llm_calls.cost_usd)
+# never silently NULL just because a call errored or the provider omitted
+# usage accounting. One file per UTC day under logs/llm_usage/, so a single
+# day's log stays a manageable size even with full prompt/response text in
+# every row. Writes are lock-guarded: pipelines share this module's process
+# and can call concurrently (see the shared-client-pool note below).
+_CSV_LOG_LOCK = threading.Lock()
+
+_CSV_FIELDS = [
+    'timestamp', 'pipeline', 'task_name', 'template_version', 'model',
+    'provider', 'language_code', 'temperature', 'seed', 'max_tokens',
+    'timeout_s', 'latency_ms', 'cost_usd',
+    'input_tokens', 'output_tokens', 'reasoning_tokens',
+    'parsed_ok', 'schema_ok', 'judge_verdict', 'judge_confidence',
+    'artifact_id', 'error', 'input_text', 'output_text',
+]
+
+
+def _csv_log_path(when: datetime) -> str:
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    directory = os.path.join(root, 'logs', 'llm_usage')
+    os.makedirs(directory, exist_ok=True)
+    return os.path.join(directory, f'llm_calls_{when:%Y-%m-%d}.csv')
+
+
+def _log_llm_call_csv(row: dict) -> None:
+    """Append one row to the daily LLM-usage CSV. Best-effort; never raises."""
+    try:
+        when = datetime.now(timezone.utc)
+        path = _csv_log_path(when)
+        full_row = {**row, 'timestamp': when.isoformat()}
+        with _CSV_LOG_LOCK:
+            write_header = not os.path.exists(path)
+            with open(path, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS, extrasaction='ignore')
+                if write_header:
+                    writer.writeheader()
+                writer.writerow(full_row)
+    except Exception as exc:
+        logger.warning("llm_calls CSV logging failed: %s", exc)
+
 
 def _log_llm_call(
     *,
@@ -243,8 +290,19 @@ def _log_llm_call(
     artifact_id: str | None,
     cost_usd: float | None = None,
     language_code: str | None = None,
+    provider: str | None = None,
+    max_tokens: int | None = None,
+    timeout_s: int | None = None,
+    input_text: str | None = None,
+    input_tokens: int | None = None,
+    output_tokens: int | None = None,
+    reasoning_tokens: int | None = None,
+    error: str | None = None,
 ) -> None:
-    """Insert one row into llm_calls. Best-effort; never raises."""
+    """Record one LLM round-trip: a row in llm_calls (DB) and a row in the
+    daily CSV log. Both sinks are best-effort — neither can raise back into
+    the calling pipeline.
+    """
     try:
         from services.supabase_factory import get_supabase_admin, get_supabase
         admin_client = get_supabase_admin()
@@ -254,7 +312,7 @@ def _log_llm_call(
             logger.warning("Supabase service role key not available; observability fallback to anon client (RLS-restricted)")
             client = get_supabase()
         if client is None:
-            return
+            raise RuntimeError("no supabase client available")
         row = {
             'pipeline': pipeline,
             'task_name': task_name,
@@ -277,6 +335,32 @@ def _log_llm_call(
     except Exception as exc:
         # Observability must never break the calling pipeline.
         logger.warning("llm_calls logging failed: %s", exc)
+
+    _log_llm_call_csv({
+        'pipeline': pipeline,
+        'task_name': task_name,
+        'template_version': template_version,
+        'model': model,
+        'provider': provider,
+        'language_code': language_code,
+        'temperature': temperature,
+        'seed': seed,
+        'max_tokens': max_tokens,
+        'timeout_s': timeout_s,
+        'latency_ms': latency_ms,
+        'cost_usd': cost_usd,
+        'input_tokens': input_tokens,
+        'output_tokens': output_tokens,
+        'reasoning_tokens': reasoning_tokens,
+        'parsed_ok': parsed_ok,
+        'schema_ok': schema_ok,
+        'judge_verdict': judge_verdict,
+        'judge_confidence': judge_confidence,
+        'artifact_id': artifact_id,
+        'error': error,
+        'input_text': input_text,
+        'output_text': raw_response,
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -421,7 +505,8 @@ def call_llm(
     )
 
     try:
-        parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
+        (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
+         prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
             client=client,
             model=resolved_model,
             messages=messages,
@@ -467,7 +552,9 @@ def call_llm(
             raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
             judge_verdict=None, judge_confidence=None,
             latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-            language_code=language_code,
+            language_code=language_code, provider=provider, max_tokens=max_tokens,
+            timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
+            output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
         )
         return parsed  # raw text
 
@@ -482,7 +569,9 @@ def call_llm(
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=True,
                 judge_verdict=None, judge_confidence=None,
                 latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-                language_code=language_code,
+                language_code=language_code, provider=provider, max_tokens=max_tokens,
+                timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
+                output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
             )
             return validated
         except ValidationError as exc:
@@ -494,7 +583,10 @@ def call_llm(
                 raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=False,
                 judge_verdict=None, judge_confidence=None,
                 latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-                language_code=language_code,
+                language_code=language_code, provider=provider, max_tokens=max_tokens,
+                timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
+                output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+                error=str(exc),
             )
             return _repair_and_retry(
                 client=client,
@@ -523,7 +615,9 @@ def call_llm(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-        language_code=language_code,
+        language_code=language_code, provider=provider, max_tokens=max_tokens,
+        timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
+        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
     )
     return parsed
 
@@ -542,10 +636,11 @@ def _make_one_call(
     response_format: str,
     seed: int | None,
     timeout: int,
-) -> tuple[dict | list | str, str, bool, int, float | None]:
+) -> tuple[dict | list | str, str, bool, int, float | None, int | None, int | None, int | None]:
     """Execute a single API round-trip.
 
-    Returns (parsed_or_text, raw_content, parsed_ok, latency_ms, cost_usd).
+    Returns (parsed_or_text, raw_content, parsed_ok, latency_ms, cost_usd,
+    prompt_tokens, completion_tokens, reasoning_tokens).
     Raises RuntimeError on empty response or json.JSONDecodeError on malformed
     JSON; both are logged as parsed_ok=False by the caller via the finally-style
     log emission path.
@@ -574,6 +669,7 @@ def _make_one_call(
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     cost_usd = _extract_cost(response)
+    prompt_tokens, completion_tokens, reasoning_tokens = _extract_usage_tokens(response)
 
     if not response.choices:
         raise RuntimeError("LLM returned no choices")
@@ -583,7 +679,8 @@ def _make_one_call(
         raise RuntimeError("LLM returned empty content")
 
     if response_format == 'text':
-        return content, content, True, latency_ms, cost_usd
+        return (content, content, True, latency_ms, cost_usd,
+                prompt_tokens, completion_tokens, reasoning_tokens)
 
     try:
         parsed = json.loads(clean_json_response(content))
@@ -591,7 +688,8 @@ def _make_one_call(
         # Carry the raw content so the caller can echo it into a repair turn.
         exc.raw_content = content  # type: ignore[attr-defined]
         raise
-    return parsed, content, True, latency_ms, cost_usd
+    return (parsed, content, True, latency_ms, cost_usd,
+            prompt_tokens, completion_tokens, reasoning_tokens)
 
 
 def _is_openrouter(client) -> bool:
@@ -632,6 +730,25 @@ def _extract_cost(response) -> float | None:
         return None
 
 
+def _extract_usage_tokens(response) -> tuple[int | None, int | None, int | None]:
+    """(prompt_tokens, completion_tokens, reasoning_tokens) from the response.
+
+    Reasoning tokens live under ``completion_tokens_details.reasoning_tokens``
+    on OpenAI-compatible responses (o1/qwen-reasoning style); absent for
+    non-reasoning models, in which case it's simply None.
+    """
+    usage = getattr(response, 'usage', None)
+    if usage is None:
+        return None, None, None
+    prompt_tokens = getattr(usage, 'prompt_tokens', None)
+    completion_tokens = getattr(usage, 'completion_tokens', None)
+    reasoning_tokens = None
+    details = getattr(usage, 'completion_tokens_details', None)
+    if details is not None:
+        reasoning_tokens = getattr(details, 'reasoning_tokens', None)
+    return prompt_tokens, completion_tokens, reasoning_tokens
+
+
 def _repair_and_retry(
     *,
     client: OpenAI,
@@ -669,7 +786,8 @@ def _repair_and_retry(
         {'role': 'user', 'content': repair_prompt},
     ]
 
-    parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
+    (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
+     prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
         client=client,
         model=model,
         messages=repair_messages,
@@ -697,7 +815,10 @@ def _repair_and_retry(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-        language_code=language_code,
+        language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
+        input_text=repair_prompt, input_tokens=prompt_tokens,
+        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+        error=str(err) if err else None,
     )
 
     if err is not None:
@@ -744,7 +865,8 @@ def _repair_malformed_json(
     repair_messages.append({'role': 'user', 'content': repair_prompt})
 
     try:
-        parsed, raw_content, parsed_ok, latency_ms, cost_usd = _make_one_call(
+        (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
+         prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
             client=client,
             model=model,
             messages=repair_messages,
@@ -754,7 +876,7 @@ def _repair_malformed_json(
             seed=seed,
             timeout=timeout,
         )
-    except (json.JSONDecodeError, RuntimeError):
+    except (json.JSONDecodeError, RuntimeError) as exc:
         # Repair turn ALSO failed to produce parseable JSON. Surface the
         # ORIGINAL error so the caller sees the root cause, not the retry's.
         _log_llm_call(
@@ -764,7 +886,8 @@ def _repair_malformed_json(
             raw_response=None, parsed_ok=False, schema_ok=None,
             judge_verdict=None, judge_confidence=None,
             latency_ms=None, artifact_id=artifact_id,
-            language_code=language_code,
+            language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
+            input_text=repair_prompt, error=str(exc),
         )
         raise error
 
@@ -786,7 +909,10 @@ def _repair_malformed_json(
         raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
         latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
-        language_code=language_code,
+        language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
+        input_text=repair_prompt, input_tokens=prompt_tokens,
+        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+        error=str(schema_err) if schema_err else None,
     )
 
     if schema_err is not None:

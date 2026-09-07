@@ -253,6 +253,7 @@ def _judge(
             prompt,
             model=model,
             temperature=0.0,
+            max_tokens=8000,
             # Provider-enforced JSON: a judge that answers in prose fails open
             # and keeps every candidate, which is the expensive failure here.
             response_format='json_object',

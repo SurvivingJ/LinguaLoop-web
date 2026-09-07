@@ -78,6 +78,7 @@ def judge_l1_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
+            max_tokens=4500,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

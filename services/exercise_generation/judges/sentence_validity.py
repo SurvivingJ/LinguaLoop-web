@@ -109,6 +109,7 @@ def judge_wrong_sentences(
             prompt,
             model=cfg['model'],
             temperature=0.0,
+            max_tokens=19000,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

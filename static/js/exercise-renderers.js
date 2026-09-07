@@ -712,6 +712,10 @@ const ExRenderers = (function () {
     }
 
     function checkJumbled() {
+      // Placing the final chunk jumps straight here without an intermediate
+      // render(), so the last word never visually leaves the bank. Render
+      // the completed state first so the UI reflects reality before locking.
+      render();
       _setAnswered(true);
       const ok = placed.every((ci, i) => ci === correctOrder[i]);
       const answerDiv = document.getElementById('jsAnswer');
