@@ -332,27 +332,44 @@ class VocabularyKnowledgeService:
         Returns:
             List of BKT update results per word.
         """
-        bkt_updates = []
+        if not results:
+            return []
 
+        # One insert for the whole quiz instead of one per answer. PostgREST
+        # accepts a list body, so a 20-item quiz costs 1 round trip here rather
+        # than 20. Kept separate from the BKT loop below so a write failure
+        # still leaves the BKT updates to run — the audit row is not a
+        # precondition for scoring.
+        rows = []
         for r in results:
-            # Insert quiz result row
-            try:
-                row = {
-                    'user_id': user_id,
-                    'sense_id': r['sense_id'],
-                    'is_correct': r['is_correct'],
-                    'selected_answer': r.get('selected_answer'),
-                    'correct_answer': r.get('correct_answer'),
-                    'response_time_ms': r.get('response_time_ms'),
-                }
-                if attempt_id:
-                    row['attempt_id'] = attempt_id
+            row = {
+                'user_id': user_id,
+                'sense_id': r['sense_id'],
+                'is_correct': r['is_correct'],
+                'selected_answer': r.get('selected_answer'),
+                'correct_answer': r.get('correct_answer'),
+                'response_time_ms': r.get('response_time_ms'),
+            }
+            if attempt_id:
+                row['attempt_id'] = attempt_id
+            rows.append(row)
 
-                self.db.table('word_quiz_results').insert(row).execute()
-            except Exception as e:
-                logger.error(f"Failed to insert quiz result for sense {r['sense_id']}: {e}")
+        try:
+            self.db.table('word_quiz_results').insert(rows).execute()
+        except Exception as e:
+            logger.error(
+                "Failed to insert %d quiz result row(s) for senses %s: %s",
+                len(rows), [r['sense_id'] for r in results], e,
+            )
 
-            # Update BKT (strong signal — word quiz is definition match MCQ)
+        # BKT stays per-sense: the batch RPC
+        # (update_vocabulary_from_word_tests_batch) takes no p_exercise_type,
+        # so routing through it would silently drop the 'definition_match'
+        # slip/guess parameters and additionally fire _auto_create_flashcards /
+        # _seed_ladder_for_new_words, which this path deliberately does not do.
+        # Collapsing these calls needs an exercise_type-aware batch RPC first.
+        bkt_updates = []
+        for r in results:
             bkt_result = self.update_from_word_test(
                 user_id=user_id,
                 sense_id=r['sense_id'],

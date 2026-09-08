@@ -68,11 +68,19 @@
     return window.LinguaI18n && window.LinguaI18n.t ? window.LinguaI18n.t(key, params) : key;
   }
 
+  // Prefer the shared escaper, but the local fallback must ALSO escape. It
+  // previously returned its input untouched when LinguaUtils was missing,
+  // which meant a failed/reordered utils.js load silently turned every call
+  // site below into an injection point — including escapeHtml(row.lemma),
+  // where the lemma is whatever the user uploaded in their word list.
   function escapeHtml(s) {
     if (window.LinguaUtils && window.LinguaUtils.escapeHtml) {
       return window.LinguaUtils.escapeHtml(String(s == null ? '' : s));
     }
-    return String(s == null ? '' : s);
+    return String(s == null ? '' : s).replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
   }
 
   async function init() {

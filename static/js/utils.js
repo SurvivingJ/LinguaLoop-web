@@ -46,15 +46,33 @@ const DEBUG = false;
 // =============================================================================
 
 /**
- * Escape HTML to prevent XSS attacks
+ * Escape HTML to prevent XSS attacks.
+ *
+ * Escapes quotes as well as angle brackets, so the result is safe in BOTH
+ * text and quoted-attribute contexts. The previous implementation assigned to
+ * `div.textContent` and read back `div.innerHTML`, which does not escape `"`
+ * or `'` — safe in a text node, but an attribute-injection hole the moment the
+ * result was interpolated into `value="..."`. Quotes render identically in a
+ * text node either way, so the stricter version costs nothing.
+ *
+ * The falsy-input behaviour (`0` and `false` collapse to '') is preserved
+ * deliberately — call sites across the app rely on it to blank out empty
+ * values, so changing it here is a separate decision from the escaping fix.
+ *
  * @param {string} text - Raw text to escape
- * @returns {string} HTML-safe text
+ * @returns {string} HTML-safe text, usable in text and attribute contexts
  */
+const HTML_ESCAPES = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
 function escapeHtml(text) {
   if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  return String(text).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 }
 
 // =============================================================================

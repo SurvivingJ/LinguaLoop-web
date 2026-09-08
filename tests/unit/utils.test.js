@@ -48,11 +48,23 @@ describe('escapeHtml', () => {
     expect(escaped).toContain('&lt;img');
   });
 
-  it('preserves double quotes (text nodes do not need attribute-encoding)', () => {
+  it('escapes quotes so the result is safe inside HTML attributes', () => {
     const { escapeHtml } = getUtils();
-    // The DOM textContent→innerHTML path does not encode " in text nodes —
-    // that is correct: double quotes only need escaping inside HTML attributes.
-    expect(escapeHtml('"quoted"')).toBe('"quoted"');
+    // Previously this asserted quotes were left raw, on the reasoning that
+    // text nodes don't need attribute-encoding. That was true of the text-node
+    // case but wrong for this codebase: escapeHtml() is also interpolated into
+    // quoted attributes (e.g. admin-dashboard.js addTopicInput's value="..."),
+    // where a raw " lets the caller break out of the attribute. Encoding is
+    // strictly safer and renders identically in a text node.
+    expect(escapeHtml('"quoted"')).toBe('&quot;quoted&quot;');
+    expect(escapeHtml("it's")).toBe('it&#39;s');
+  });
+
+  it('neutralises an attribute-context breakout payload', () => {
+    const { escapeHtml } = getUtils();
+    const escaped = escapeHtml('" onfocus=alert(1) autofocus="');
+    expect(escaped).not.toContain('"');
+    expect(escaped).toContain('&quot;');
   });
 });
 

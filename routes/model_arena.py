@@ -13,10 +13,15 @@ from services.model_arena.pricing import fetch_model_list, get_pricing_map
 from services.model_arena.arena_service import ArenaService
 from services.model_arena.models import ArenaConfig
 from utils.responses import api_success, api_error, bad_request, not_found, server_error
+from middleware.local_only import enforce_loopback
 
 logger = logging.getLogger(__name__)
 
 model_arena_bp = Blueprint('model_arena', __name__)
+
+# Unauthenticated local operator tooling that spends OpenRouter credit —
+# same loopback guard as admin_local_bp.
+enforce_loopback(model_arena_bp)
 
 # task_id -> ArenaResults dict (kept in process for the dashboard to fetch)
 ARENA_RESULTS: dict[str, dict] = {}
