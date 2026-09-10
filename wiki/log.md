@@ -4564,3 +4564,480 @@ actually deliver.
 Pages: [[algorithms/study-plan-adaptation.tech]], [[pages/study-session.tech]], [[tasklist/master]].
 Both tech pages' Tier C sections still document the single-loop algorithm and should be read with
 this fix in mind until rewritten.
+
+## [2026-09-08] plan | Vocabulary-aware test selection (TASK-744–752, ADR-024)
+
+Source: live Supabase audit + repo read. Pages created: 4 (feature prose, tech spec,
+ADR-024, tasklist). Pages updated: 1 (index).
+
+**Question asked:** make test selection use what we know about a user's vocabulary;
+"Japanese tests are too hard".
+
+**Two corrections to the briefing's ground truth, both verified live:**
+
+1. **`get_recommended_tests` has drifted from the archive.** The briefing names
+   `migrations/archive/task715_get_recommended_tests_tier_cap.sql` as canonical. Live
+   is a **3-arg** function — `(uuid, smallint, smallint p_topic_recency_days DEFAULT 14)`
+   — being the task715 body plus TASK-740 phase5b's topic-recency clause. Every ranking
+   claim in the briefing holds exactly (ELO-only, no difficulty filter, no
+   `vocab_sense_ids`, no `user_vocabulary_knowledge`), but any migration must be built on
+   the live body. Same class of drift as [[process-test-submission-cr04-drift]].
+2. **The learner is no longer a cold start.** "~no ja attempts, elo at the 1200 default"
+   was true when TASK-732 was written; live now shows **27 ja attempts, 21 first
+   attempts**, ELO moved off 1200 in all four skills. This *sharpens* the diagnosis
+   (it can now be measured rather than argued) but it means **seed-only would never fire
+   for this learner** — hence the damped correction path in the plan.
+
+**The measurement that reframes the problem.** Inverting the Elo expectation per first
+attempt (`user = test_elo − 400·log₁₀(1/s − 1)`):
+
+| type | n | mean % | implied ability | live ELO | error |
+|---|---|---|---|---|---|
+| dictation | 1 | 87.0 | 1539 | 1209 | −330 |
+| reading | 8 | 73.1 | 1498 | 1270 | −228 |
+| listening | 7 | 67.1 | 1396 | 1248 | −148 |
+| pitch_accent | 5 | 35.4 | 1091 | 1182 | **+91** |
+
+True spread **448 points; assigned spread 88** — the rating system compresses ability
+~5×. And the signs differ: **ja is mostly too EASY** (reading/listening/dictation all
+under-rated); only pitch accent is genuinely too hard, and it dominates the felt
+experience because 6 of 7 attempts scored under 50%. Model verified exactly against live
+rows (user 1188 vs test 1305 at 14.29% predicts −6; observed 1188→1182).
+
+**Three independent causes found, only one of which is the missing vocabulary signal:**
+- **48 of 60 ja tests carry an identical ELO across all 8 test types** — `seed_test_elo`
+  scores prose, which cannot know if the task is reading, dictation or pitch accent.
+- **The MC chance floor caps ELO's reach at ~191 points** (`400·log₁₀(1/s−1)` at s=0.25).
+  A learner who knows nothing still settles ~190 below the pool and no further. With ja
+  d1 tests rated ~1240 (not the T1 midpoint 875), the learner is pinned near 1050-1240
+  whatever they do. **ELO structurally cannot express this gap** — that, not the missing
+  join, is the real argument for the feature.
+- Vocabulary is never consulted, though it carries exactly the missing signal: share of a
+  test's senses known runs **73% / 17% / 9%** across difficulty 1 / 6 / 9.
+
+**The design constraint nobody would guess:** at difficulty 9 only **10.3%** of a test's
+senses have *any* `user_vocabulary_knowledge` row — the other 90% are *untested*, not
+*unknown*. A naive INTERSECT ratio conflates the two, scores all fresh content ≈0, and
+gets *worse* as the catalogue grows. Hence `P_known` = BKT `p_known` where a row exists,
+else a Zipf prior from `ability_zipf`. Prior validated live: known senses average Zipf
+4.79, not-known 3.80, with 97-99% Zipf coverage on ja test senses.
+
+**Decisions (ADR-024):** vocabulary RANKS, never filters (17-22% of en/zh tests are
+unlinked — a filter empties their pool; unlinked tests get the cohort **median** penalty,
+not 0 and not +∞). Difficulty does **not** become a filter — live ja ELO ranges overlap
+by difficulty (d1 1112-1430, d6 1330-1545), so the label would discard measured signal;
+a 2-tier ceiling stays only as a safety rail. Calibration seeds below 5 attempts and
+otherwise corrects by `min(0.25·diff, 150)` past a 200 deadband, ≤1/week, never within
+1h of an attempt, clamped to [875,1925], every decision incl. skips audited.
+**`process_test_submission` is not modified** — the two ELO writers are separated by
+guards, not by editing a function whose live body has drifted.
+
+Two traps avoided: the tier→ELO anchors are read from `dim_complexity_tiers` at call time
+rather than becoming a **fourth** copy of the bands ([[two-difficulty-to-tier-maps]]), and
+the rollback switch is a settings **row**, not a defaulted parameter — the repo already
+carries `get_recommended_tests_drop_ambiguous_overload.sql` cleaning up exactly that.
+
+**Proof plan:** M1 on-target rate (`percentage ∈ [60,85]`), M2 below-floor, M3 ability
+compression, M4 served unknown-word rate, M5 pool health — all from existing columns, no
+new instrumentation. Baseline recorded: M1 reading 3/8, pitch accent **0/5**; M2 pitch
+accent **6/7**; M3 448 vs 88. With one live user an A/B is impossible, so before/after is
+an offline replay of the 21 first attempts re-ranked under both arms, plus a 7-day shadow
+window before flipping `vocab_weight` off 0. **Stated up front:** selection alone cannot
+fix pitch accent — that needs TASK-751's per-type ELO reseed — so if M1 for pitch accent
+does not move, that is the predicted result, not a failed rollout.
+
+Nothing implemented. No migrations applied, no code changed.
+
+## [2026-09-08] revision | ability_zipf contract gap (TASK-745 blocked)
+
+Follow-up question — "the tier ladder mentioned in the document, is that the age tier?" —
+surfaced a real defect in the plan filed earlier today. **Yes, it is the age tier**
+([[decisions/ADR-003-age-tiers]]): T1 "Toddler (4-5)" 875 … T6 "Educated Professional (30+)"
+1925, and `seed_test_elo`'s docstring names it as such.
+
+That matters because the ladder's `_REF_ZIPF` anchors are the **mean Zipf of native-speaker
+prose** at each age, whereas `ability_zipf` is a **threshold on an L2 learner's knowledge
+curve**. Different statistics. §1.2 had silently treated them as interchangeable.
+
+Measured this learner's live ja knowledge curve by Zipf band: 3.0-3.4 → 0% known,
+3.5-3.99 → 36%, 4.04-4.49 → 65%, 4.51-4.99 → 72%, 5.00-5.48 → 96%. So their 85%-known
+threshold is ~Zipf 5.0 and their 50% crossover ~3.85. Through the interpolation those map to
+**1250** and **1681** respectively — a **430-point swing from the definition alone**, and the
+high end would serve T5 ("Uni Student") content to a learner who knows 17% of T4 words.
+
+Also confirmed the right comparison statistic: a passage's **median** Zipf, not its mean.
+Live ja d1 tests run mean 4.55 / median 4.77, and the learner is 72% known at 4.51-4.99 —
+which matches their observed 73.5% known-share at d1. The curve and the content agree.
+
+Actions: TASK-745 moved to **[?] Blocked** — on a *contract*, not on code. Contract recorded:
+`ability_zipf` must be the Zipf at which known-share crosses `1 - u*` (85%). Added as a
+BLOCKING open question on the prose page, the tech-spec frontmatter and §1.2.
+**TASK-748 (the coverage term) does not depend on the ladder at all** and can ship first —
+it compares per-sense `P_known` directly and needs no tier mapping. Noted in §1.2 that if the
+contract cannot be settled, shipping §3 alone still carries most of the value.
+
+## [2026-09-08] build | Calibration Phase 1 — the semantic distractor foundation
+
+Three moves, all applied live. Pages created: 4 ([[features/calibration]],
+[[features/calibration.tech]], [[decisions/ADR-025-semantic-distractor-selection]],
+[[tasklist/calibration.tasks]]). Pages updated: 2 (index, log).
+
+**Move 1 — the embedding gap was an operator-gated step, not a bug.** `dim_word_senses.embedding`
+had ja/en at **0 of 7,126** — the pair an English speaker studying Japanese sees. Before
+re-running anything, `fetch_pending()` was tested against ground truth and returns all 7,546
+pending ja rows with zero skips, so the suspected filter/pagination defect was ruled out. The
+real cause: the `cross-language-glosses` skill has **no embed-on-write** (unlike
+`SenseGenerator._write_two_levels`) and its Stage 4 re-embed is a separate manual command. ja/zh
+glosses were uploaded 09-03 and Stage 4 was run (94%); ja/en were uploaded 09-04 and it never
+was (0%). Backfill: 12,168 embedded for **$0.0025**, then 87 transient failures — `PGRST002`
+schema-cache invalidations *caused by applying DDL concurrently* — closed by an idempotent
+re-run. **All seven combinations now 100%, 0 unembedded.**
+
+**Move 2 — the intended index design was rejected on measurement.** `nearest_senses()` timed out
+(57014 reproduced) because it filtered `dim_vocabulary.language_id` inside the lateral that
+ordered by `embedding <=> anchor`; a predicate on a joined table cannot enter an HNSW scan.
+Fixed by deriving `word_language_id` onto `dim_word_senses` via a `BEFORE INSERT OR UPDATE OF
+vocab_id` trigger (so it cannot be absent or wrong) — but the specified **three** partial
+indexes, one per word language, turned out to be **~200x slower** than seven keyed on both
+languages: 3,947 ms (3,701 disk reads) versus **19 ms (zero disk reads)**. The definition-language
+over-fetch is not a constant factor on a cheap operation, it is the dominant cost, because HNSW
+grows superlinearly in `ef_search` and the working set stops fitting in `shared_buffers`. The
+seven predicates are disjoint, so this costs nothing: 438 MB against the 482 MB global index it
+replaces, same write amplification. `nearest_senses()` **dropped**, not repaired — zero callers,
+and a second unused neighbour searcher is how it rotted the first time.
+
+Two operational traps recorded: the full-table backfill **must** run after dropping the 482 MB
+HNSW index (it timed out and rolled back otherwise; 859 MB → 393 MB and then seconds), and
+parallel index builds fail here with `53100 ... No space left on device` because /dev/shm is
+too small — serial at 512 MB `maintenance_work_mem` only.
+
+**Move 3 — `semantic_distractors()`**, new (not an overload of the still-live random
+`get_distractors()`). Excludes the anchor's **`vocab_id` siblings** — load-bearing, because the
+`"{lemma}: {definition}"` embedding recipe makes a word's own rows its nearest neighbours; floor
+and ceiling are **parameters** defaulting from a new measured `dim_distractor_bands`; frequency
+is read as a **Zipf score** and is a *soft* key, so the frequency band relaxes before the cosine
+floor. ja/en's floor was measured (0.36) — impossible before move 1. `force_custom_plan` and a
+body-level `set_config('hnsw.ef_search', …)` are both load-bearing: without the former, call #6
+silently reverts to a seq scan and the timeout returns.
+
+**Verification found something reasoning had missed.** 1,400 sampled items were dumped and read.
+All mechanical checks were clean (0 sibling leaks, 0 lemma-repeats, 0 duplicate options, 1 short
+item) — but reading them exposed that **11.3% of en/en foils were morphological variants of the
+anchor** (precision/precise, trade/trading, culture/cultural). Those are separate `vocab_id`
+rows, so the sibling exclusion never saw them, and their definitions are frequently
+also-correct. Added a stem guard, self-limiting to alphabetic scripts: **68/600 → 0/600**, no
+new short items. Also confirmed the lemma-repeat defect lives entirely at
+`definition_level='simple'` (ja/zh 14.3%, zh/ja 11.8%; standard 0.0%), which is why the RPC
+filters to `'standard'` rather than special-casing it.
+
+**Stated limit, recorded rather than papered over:** cosine cannot separate "unrelated" from
+"duplicate" — the distributions overlap — so different-word synonyms (因子/要因, 適正/妥当 at
+0.736) still get through, and 12-21% of returned foils sit at cosine ≥ 0.70. Exact exclusions do
+the duplicate work; the 0.75 ceiling is provisional and binds on ~0.2%. Only response data fixes
+this (TASK-763). Also filed **TASK-757**: some en senses are keyed to an idiom under the bare
+lemma (`hand` defined as "closely connected or associated with something else"), which produces
+a broken item no picker can rescue.
+
+Tests: 2,324 passed, 4 failed, 2 skipped — the 4 are pre-existing MCQuestion-schema and
+prompt-version failures, untouched by this work (no Python source was modified; 3 files added).
+
+## [2026-09-08] build | Calibration Phase 2 — the engine, the UI, and a measured estimator bias
+
+Pages updated: 4 ([[features/calibration]], [[features/calibration.tech]],
+[[tasklist/calibration.tasks]], index). Files added: 4 (migration, service, route,
+template) plus a bias harness; `app.py`, `base.html` and all four `static/i18n/*.json`
+touched.
+
+**The design question was "what does Calibration output?", and the answer connects it
+to blocked work.** Not a score — a **Zipf knowledge curve**: known-share as a function
+of word frequency, and the crossing of that curve. That is deliberately the same
+statistic ADR-024 / TASK-745 is blocked on (`ability_zipf`, "the Zipf at which
+known-share crosses 85%"), which this log records as swinging the derived ELO by **430
+points** on the definition alone. Calibration is the instrument that measures it.
+
+Consequences that followed from that choice: anchors are **stratified across Zipf
+bands** rather than sampled randomly (you cannot locate a crossing without points on
+both sides; verified 13/13/12/13/13/13/13 over 90 items), and **every option shown is
+stored** with its cosine and frequency tier — the un-chosen ones are precisely what
+ADR-025 says is needed to detect an also-correct distractor later.
+
+**Two product questions were decided rather than deferred.** There is **no stopping
+rule** — the run is infinite, the learner ends it, and the result *reports*
+sufficiency as a `confidence` label instead of enforcing it. And Calibration
+**does not write back** to ELO or study planning: no sentinel test, no
+`process_*_submission`, unlike `classifier_drill`. A measurement that silently moved
+the thing it measures would be a feedback loop.
+
+**Then the estimator was validated against ground truth, and it failed.** Simulated
+learners with a known threshold (correct above it, guessing at 0.25 below) put
+`ability_zipf_85` **high in all five trials, +0.15 to +0.32 Zipf, mean ≈ +0.24** —
+systematic, not noise. The cause is discretization, not guessing: for a step learner
+the 0.25 guess floor cancels out of the crossing exactly, but linear interpolation
+between the midpoints of 0.5-wide bands cannot resolve a step *inside* a band, and
+interpolating up to a high target lands late. `ability_zipf_50` is unbiased but
+noisier. Filed **TASK-764** (logistic fit with the guess floor as a fixed parameter;
+`services/irt/` already exists) and flagged explicitly, on the prose page, the tech
+page and the tasklist, that **`ability_zipf_85` must not feed test selection until
+this is fixed** — a +0.24 offset is material against a 430-point sensitivity. The
+harness is kept as `scripts/calibration_estimator_bias.py` so the fix is checkable.
+Deliberately did **not** subtract a 0.24 constant: the bias varies with where the
+threshold falls inside a band, so a constant would hide it rather than remove it.
+
+Also: TASK-757 is **contained, not fixed**. `calibration_anchor_blocklist` keeps the
+`hand`-style rows (definition describes an idiom, not the lemma) out of Calibration,
+but the dictionary is still wrong and other consumers still serve them.
+
+Verified end to end on live data: 90 items, 0 build failures, no anchor served twice,
+exactly 4 options recorded per item (90/90), blocklisted sense never served, all six
+routes registered, app boots. Tests 2,324 passed / 4 failed (the same pre-existing
+MCQuestion-schema and prompt-version failures) / 2 skipped. All 17 new i18n keys
+verified present in all four locales, since a missing key renders as the raw key.
+
+## [2026-09-08] build | Calibration Phase 3 — readings mode, and the estimator was wrong
+
+Pages updated: 4 ([[features/calibration]], [[features/calibration.tech]],
+[[tasklist/calibration.tasks]], index). Files added: 3 (pronunciation migration, the
+also-correct report, the extended bias harness).
+
+**TASK-764 — the +0.24 Zipf bias Phase 2 measured is fixed, and fixing it changed
+what the limitation IS.** The crossings now come from a maximum-likelihood logistic
+fit on the RAW responses with the 1-in-4 guess floor fixed, not from interpolating
+between the midpoints of 0.5-wide bands. Deliberately did not subtract a constant:
+the old bias varied with where the learner's threshold fell inside a band, so a
+constant would have hidden it rather than removed it.
+
+Re-validated with **two** simulated learners, because reporting one would have
+misled either way. Against a *step* learner the residual is +0.084 — but that case
+is adversarial, since an infinitely sharp step cannot be represented by a
+finite-slope logistic, so it is **model mismatch, not estimator bias**. Against a
+correctly specified *logistic* learner the fit is unbiased: −0.028 offline,
+**+0.029 live at 120 items**.
+
+**The useful finding is that precision, not bias, is now the constraint.** Measured
+sd of `ability_zipf_85`: 0.63 at 20 answers, 0.27 at 60, 0.16 at 120, 0.11 at 300,
+with bias negligible everywhere. So the confidence labels — which Phase 2 had
+*guessed* from an item count — are now read off that table, the API returns
+`ability_zipf_85_sd`, and the UI renders `4.31 ± 0.24` rather than a bare figure. For
+ADR-024, whose Zipf→ELO map this log records as swinging 430 points, ±0.27 at 60
+items is not a rounding detail: **propagate the sd, do not treat the point estimate
+as exact.**
+
+**Three degenerate cases now return None, and they were found by testing rather than
+by reasoning.** A simulated session of random answers produced
+`ability_zipf_85 = 8.43` — a Zipf no word in the corpus reaches (max 6.56). The fit
+had bent a two-parameter curve through noise. Now guarded by a minimum slope, a
+bound at the *observed* Zipf range rather than an inflated envelope, and a
+likelihood-ratio test against a constant-accuracy null model.
+
+**TASK-762 — readings mode**, a genuinely different distractor problem, so a
+different picker: nearest OTHER readings by edit distance over a per-language
+normalised form. Homophones are excluded outright (张/章 are both zhang1 — a second
+correct answer, the counterpart of the vocab_id sibling rule); zh keeps tone digits
+so `bǎ fēng`/`bā fēng` are one edit apart, which is the *opposite* of the L1 rule
+where tone-only pairs are invalid — L1 is listening and TTS renders one of them,
+whereas here the learner reads the options.
+
+Reading 300 sampled items found three defects reasoning had not: a fixed 3-edit cap
+left **13% of zh items with zero options**, all four-syllable words (scaling the cap
+to `max(3, ceil(len*0.45))` took zh to 0 empty / 2 short); the ja latin gloss suffix
+leaked into the rendered option (`いおん-Ion`), making one option a visibly different
+shape — a **format tell usable without knowing the word**; and readings exist only on
+the NATIVE row, every cross-language gloss row having `pronunciation` NULL, so the
+mode must ignore the session's definition language or select an empty set.
+**English is refused rather than degraded** — 21 of 6,555 senses carry a reading
+(0.3%) against zh 4,217 and ja 2,385 — and the UI disables the toggle, because a
+control that vanishes reads as a bug while one visibly unavailable reads as a limit.
+
+Verified: 300 sampled pronunciation items with 0 sibling leaks, 0 format tells, 0
+duplicate options; 59-item live runs in both languages with even band coverage and
+the reading correctly withheld from the prompt; EN refused. Tests 2,324 passed / 4
+failed (the same pre-existing MCQuestion-schema and prompt-version failures) / 2
+skipped.
+
+**Left open, honestly.** TASK-757 is *contained, not fixed* — the blocklist keeps
+`hand`-style rows (definition describes an idiom, not the lemma) out of Calibration,
+but the dictionary is still wrong for every other consumer, and no automatic
+detector exists; the recommended route is an LLM screen over ~6.5k en senses (~$0.17
+at measured gloss rates), not run. TASK-763 needs real learner traffic:
+`scripts/calibration_also_correct_report.py` is written and reports correctly that
+no responses exist — it cannot be run on simulated answers, because the entire
+signal is which wrong option a *person* found tempting.
+
+## [2026-09-09] build | Calibration Phase 4 — the dictionary screen, and the handoff to selection
+
+Pages updated: 5 ([[features/calibration]], [[features/calibration.tech]],
+[[features/vocabulary-aware-test-selection.tech]], [[tasklist/calibration.tasks]],
+index). Files added: 3 (state migration, dictionary screen, handoff verifier).
+
+**TASK-757 — the dictionary screen, run over all three languages.** It turned out
+to be TWO defects needing two different detectors, which is the main finding.
+
+*Definitions that do not define the headword* are semantic, so they need a model:
+the embeddings cannot see it (every sense is embedded as `"{lemma}: {definition}"`,
+so the lemma sits inside the vector and a mis-keyed definition still lands near its
+own headword), and no string rule can either. 14,400 senses on
+`google/gemini-3.5-flash-lite`, 757 calls, **$1.33**, 0 failed batches:
+**en 318/6,555 (4.85%), ja 154/3,563 (4.32%), zh 121/4,282 (2.83%)**. zh cleanest,
+consistent with [[distractor-judge-v3-likert]] finding the same once model artefacts
+were controlled for.
+
+**The guard did more work than the model.** The first pass ran at ~55% precision,
+flagging `associate` for "defining" *associate (noun)* and `tending` for *tend* —
+inflections of the headword, not the defect. Tightening the prompt removed most at
+source; a post-filter on the model's own `actually_defines` caught the rest and
+**suppressed 127 false positives across the three sweeps**. It compares whole
+normalised strings, **not leading tokens** — a first-token version suppressed `hand`
+→ "hand in hand", which is precisely the true positive the screen exists to find.
+Hand-checked sample after the fix: 5/5.
+
+*Malformed lemmas* need no model at all. Found while rate-checking Japanese:
+**90 ja lemmas (270 senses)** are MeCab morpheme sequences stored as headwords —
+`作る れる ます`, `ゲーム を 為る`. The definitions are fine; the prompt word is
+garbage. The rule is exact rather than heuristic, because zh/ja orthography has no
+spaces: a space in the lemma cannot be part of the word. Measured zh **0**, ja **90**;
+English excluded, since multi-word English lemmas are ordinary.
+
+**817 senses now blocklisted.** Real finds include `work` defined as *agriculture*,
+ja `図書` (books) carrying 図書館's (library) definition, ja `例えば` defined as
+印刷機, zh `先河` → 开先河, and sense 14178 `land` whose stored definition is the
+string *"The word 'land' does not appear in the provided target sentence"* — a
+generation error persisted as dictionary content. **Contained, not repaired**: the
+blocklist protects Calibration only, and flashcards/practice/exercise-gen still
+serve these rows.
+
+**TASK-766 — the handoff.** `user_calibration_state` is not a new invention: it is
+the input contract [[features/vocabulary-aware-test-selection]] §1.1 already
+specifies as "built in parallel". Calibration writes it, selection reads it, neither
+calls the other.
+
+The risk here was the contract, and it is now satisfied. §1.2 demands `ability_zipf`
+be the Zipf at which known-share crosses **85%**, not a 50% crossover — and those
+map **431 ELO points apart** (verified: 5.00 → 1250, 3.85 → 1681). TASK-764 is what
+makes Calibration's value the right construct: fitting with the 1-in-4 guess floor
+FIXED means 85% denotes *words genuinely known*, not *items answered right*, and
+those diverge most exactly where a struggling learner sits. Ability is **pooled
+across all sessions** per (user, language, mode) because precision is what binds
+this estimate — sd 0.63 at 20 answers, 0.27 at 60, 0.16 at 120 — and modes are never
+averaged together. `calibration_zipf_to_elo()` lives in SQL only, reading its ELO
+anchors from `dim_complexity_tiers` at call time so it cannot drift; per
+[[two-difficulty-to-tier-maps]] this adds no fourth copy of the ladder.
+
+**Deliberately not shipped: the rating write.** ADR-024 §4 guards it and §5 requires
+every decision *including every skip* to be audited to
+`user_skill_rating_adjustments` — a table that does not exist and belongs with the
+writer it audits (TASK-745). Shipping the writer without its audit trail would be an
+unaudited automated write to live user ratings, which is the exact thing those
+guards exist to prevent.
+
+**One manual step left.** The Supabase MCP connection dropped mid-session and
+`DATABASE_URL` points at a local dev database, so there was no DDL path:
+`migrations/calibration_user_state_and_zipf_to_elo.sql` is written and verified
+against a reference implementation but **not applied** (TASK-765). Everything
+downstream fails closed — `write_calibration_state()` logs a warning naming the
+migration and returns None, and a learner still gets their result. Verify with
+`python -m scripts.verify_calibration_state --self-test`.
+
+Tests: 2,324 passed / 4 failed (the same pre-existing MCQuestion-schema and
+prompt-version failures) / 2 skipped.
+
+## [2026-09-10] task | TASK-765 done — Calibration Phase 4 migration verified live
+
+Verified on project kpfqrjtfxmujzolwsvdq. `user_calibration_state` exists with PK
+`(user_id, language_id, mode)` and 0 rows. `calibration_zipf_to_elo` is STABLE and
+returns 6.25→875, 5.25→1175, 5.0→1250, 4.5→1400, 4.2→1550, 3.85→1681, 3.8→1700 and
+3.25→1925, clamping 7.0→875 and 1.0→1925. `--self-test`: both checks PASS. The
+migration was applied outside the migration history (no `schema_migrations` row).
+Its header's `APPLIED LIVE: pending` line now carries this verification.
+Also fixed 19 stray `TASK-745` references across the calibration docs,
+migrations and service docstrings so each points at the right task: 746 (audit
+table), 747 (writer) or 748 (selection).
+
+## [2026-09-10] task | TASK-745 done — delivered by Calibration, not built here
+
+`calibration_zipf_to_elo` shipped with Calibration's TASK-766/765. The "Blocked
+on a contract" note was dropped: `ability_zipf_85` *is* the 85% known-share
+crossing, and TASK-764 removed the guess floor. TASK-747 now depends on TASK-746
+only. The dependency diagram, tech spec §1.1 (the `mode` column plus the
+`mode = 'definition'` rule) and master.md were updated. master.md had never listed
+TASK-744–752 or the Calibration tasks; both sections were added and the counts
+corrected.
+
+## [2026-09-10] task | TASK-744 done — `selection_tuning`
+
+Applied live at 11:34:48 UTC and again at 11:38:01 to prove idempotency. The
+re-run left `updated_at` untouched, and an operator value survived a seed re-run
+inside a rolled-back transaction. `authenticated` is refused on SELECT and UPDATE
+(42501). `vocab_weight = 0`.
+
+## [2026-09-10] task | TASK-748 done — vocabulary-aware `get_recommended_tests`, shipped OFF
+
+Applied live at 11:49:05 UTC, **only after a rollback-only pre-apply parity proof
+on live**. Across all 13 users × en/zh/ja (39 pairs, 1,790 rows), `vocab_weight = 0`
+matched the old function row for row in content and order. At weight 1 no per-type
+count fell. The weight-0 branch *is* the captured old query, verbatim, and that is
+deliberate: 48/60 ja tests tie on ELO, so a rewritten ORDER BY could legally
+reorder ties. The old body is archived as
+`migrations/archive/task748_prev_get_recommended_tests_live_3arg.sql`. The
+task715 archive that `test_dictation_tier_cap` reads is untouched.
+
+Two spec corrections, now in tech spec §3.2 and the migration header:
+- **(a)** The Zipf prior gives 0.85 at `ability_zipf`; the old form gave 0.5.
+- **(b)** The no-calibration fallback is the learner's own uvk 85% crossing,
+  not a median of known senses (live: ja 5.02, zh 5.15). With 0 calibration
+  rows, the fallback is the path that runs.
+
+One deviation: the §4 tier ceiling **demotes** rather than excludes, because
+exclusion breaks M5. It is recorded in §4 and as an ADR-024 amendment. Fixture
+tests (`tests/sql/test_task748_vocab_ranking.sql`) pass on live. They pin the
+0.85 point, uvk-beats-prior, NULL-Zipf leaving the denominator, the cohort
+median for an unlinked test, ceiling demotion, that a pronunciation row is
+never read as vocabulary, and that an all-unlinked pool keeps its count.
+
+## [2026-09-10] task | TASK-746 + TASK-747 done — audit table and guarded writer
+
+Applied live: TASK-746 at 11:49:16 UTC, TASK-747 at 11:52:31. Proven by
+`tests/sql/test_task747_rating_writer.sql`, run on live and rolled back:
+- **G1 for every real user** — 156 rows, correct while calibration has 0 rows.
+- **G2–G6** each skip and audit.
+- **Seed and correct:** SEED 1250. Worked examples: 1182 stays 1182 at seed
+  1050, and goes 1182 → 1112 at seed 900.
+- **Boundaries:** a diff of exactly 200 is a no-op; the 150 cap and the 875
+  clamp both hold.
+- **Auth:** another user and anon are refused.
+
+`process_test_submission` md5 is identical start to end (`b6b8e04e…209c`). The
+writer's auth check is stricter than that function's, which is NULL-permissive.
+Found on the way: zh and en tests carry `pitch_accent` rating rows (34 and 38).
+
+## [2026-09-10] task | TASK-752 done — calibration `/end` wired to the writer
+
+`end_session` calls the RPC once, after the state write lands, and only in
+definition mode. A failure is logged and non-fatal, and the decisions are
+returned verbatim, refusals included. The result view renders them. 15 i18n keys
+were added to all four locales. `tests/test_calibration_completion_wiring.py`:
+6 passed.
+
+## [2026-09-10] task | TASK-749 done — measurement harness and replay (vocab_weight NOT changed)
+
+`scripts/measure_selection_quality.py` plus `tests/test_selection_metrics.py`
+(20 tests). The ja baseline is reproduced exactly: M1 reading 3/8 and pitch
+accent 0/5, M2 pitch accent 6/7, M3 448 vs 88. It does so only under the
+baseline's operative definitions, now recorded in §5.1: M1 is (60, 85], M2 counts
+all attempts, and M3 rounds. The replay of 21 ja first attempts at weight 1 vs 0
+shows:
+- served tests inside u*±tol rise from 77% to 93%
+- the unknown-share IQR halves
+- served difficulty consolidates on d6
+- the taken test's unknown share correlates with its score at Spearman −0.59
+
+Filed as [[evaluations/selection-replay-2026-09-10]]. Suite 2,324 → **2,350
+passed**, with the same 4 pre-existing failures and 2 skipped.
+
+## [2026-09-10] design | TASK-751 — per-type test-ELO reseed, proposal only
+
+Three options went into the task's Technical Notes: pooled residual offsets,
+type-specific content features, and a hierarchical online offset. The
+recommendation is content features, pitch accent first: with one learner, a
+test-side offset fitted from attempts is not identifiable against TASK-750's
+user-side offset. Nothing was reseeded. TASK-750 stays blocked: no
+(language, type) has more than 8 first attempts.

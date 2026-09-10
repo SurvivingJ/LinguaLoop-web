@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-08-24
+last_updated: 2026-09-10
 ---
 
 # Master Task List
@@ -21,10 +21,19 @@ below.
 |--------|-------|
 | Not Started | 8 |
 | In Progress (`[~]`) | 7 |
-| Blocked / Deferred (numbered tasks) | 3 |
+| Blocked / Deferred / Awaiting decision (numbered tasks) | 6 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 135 |
+| Done (cumulative, not listed here) | 155 |
+
+*2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
+Calibration) were never entered here when filed. Counts now include them:
+- +3 Blocked / awaiting decision: TASK-750, TASK-763, and TASK-751 (design
+  proposed).
+- +20 Done: Calibration's 13 (TASK-753–762, 764, 766 and 765), plus TASK-744,
+  745, 746, 747, 748, 749 and 752.
+
+Earlier counts were not re-audited.
 
 **TASK-732 done 2026-08-24 — `build_daily_session` now guarantees a practice
 (ladder Acquisition/Maintenance) slice of every day instead of a slice of zero.**
@@ -702,6 +711,43 @@ guardrails in this codebase were silently inert for months (the exercise-gen v2 
 `cost_usd` disarming every budget ceiling, a band-check RPC signature that never existed, an
 `asset_type` CHECK rejecting all typed-LLM assets, a per-type audio-field mismatch); a happy-path
 test is not evidence that a guard fires.
+
+### Vocabulary-Aware Test Selection (new 2026-09-08)
+
+Full spec: [[tasklist/vocabulary-aware-test-selection.tasks]] · ADR:
+[[decisions/ADR-024-vocabulary-aware-test-selection]]. `get_recommended_tests` ranks
+on ELO alone and never reads vocabulary; ELO cannot express the measured 448-point
+ability spread (88 assigned). Adds a vocabulary coverage term, a guarded
+calibration→ELO writer, and a measurement harness.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-744 | vocabulary-aware-test-selection | `selection_tuning` settings table | [x] Done (applied live 2026-09-10) | XS | — |
+| TASK-745 | vocabulary-aware-test-selection | `calibration_zipf_to_elo` map | [x] Done — delivered by Calibration TASK-766/765 | S | — |
+| TASK-746 | vocabulary-aware-test-selection | `user_skill_rating_adjustments` audit table | [x] Done (applied live 2026-09-10) | XS | — |
+| TASK-747 | vocabulary-aware-test-selection | `apply_calibration_to_skill_ratings` guarded writer | [x] Done (applied live 2026-09-10) | M | TASK-746 |
+| TASK-748 | vocabulary-aware-test-selection | Vocabulary-aware `get_recommended_tests` (ships `vocab_weight = 0`) | [x] Done (applied live 2026-09-10, **inert**) | L | TASK-744 |
+| TASK-749 | vocabulary-aware-test-selection | Measurement harness + offline replay | [x] Done (2026-09-10) | M | TASK-747, TASK-748 |
+| TASK-750 | vocabulary-aware-test-selection | Per-test-type ELO offsets | [?] Blocked — needs ≥30 first attempts per (language, type) | M | TASK-749 |
+| TASK-751 | vocabulary-aware-test-selection | Per-test-type test ELO reseed | [?] Design proposed — awaiting decision | L | — |
+| TASK-752 | vocabulary-aware-test-selection | Wire calibration completion to the rating writer | [x] Done (2026-09-10) | S | TASK-747 |
+
+**2026-09-10 — built, applied live, switched OFF.** The vocabulary term is live
+behind `selection_tuning.vocab_weight = 0`, whose branch runs the pre-TASK-748
+query verbatim. Parity was proven on all 13 users × 3 languages before applying.
+Turning it on is an operator decision after a 7-day shadow window
+(`scripts/measure_selection_quality.py --shadow-out`). Replay:
+[[evaluations/selection-replay-2026-09-10]].
+
+### Calibration (open tasks only)
+
+Full spec: [[tasklist/calibration.tasks]]. 13 of 14 done; TASK-765 (apply the
+Phase 4 migration) verified live 2026-09-10.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-765 | calibration | Apply the Phase 4 migration | [x] Done (verified live 2026-09-10) | XS | TASK-766 |
+| TASK-763 | calibration | Re-tune the cosine ceiling from response data | [?] Blocked — needs real learner traffic | S | TASK-759 |
 
 ### Language Packs (existing — unchanged)
 

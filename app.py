@@ -41,6 +41,7 @@ from routes.listening_lab import listening_lab_bp
 from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
+from routes.calibration import calibration_bp
 from routes.classifier_drill import classifier_drill_bp
 from routes.counter_drill import counter_drill_bp
 from routes.practice import practice_bp
@@ -481,6 +482,7 @@ def _register_blueprints(app):
     app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
+    app.register_blueprint(calibration_bp, url_prefix='/api/calibration')
     app.register_blueprint(classifier_drill_bp, url_prefix='/api/classifier-drill')
     app.register_blueprint(counter_drill_bp, url_prefix='/api/counter-drill')
     # Phase 12/13: unified Practice surface + Study Plan orchestration.
@@ -632,6 +634,11 @@ def _register_web_routes(app):
         def listening_lab_page(slug):
             """Render listening lab player page"""
             return render_template('listening_lab.html')
+
+    @app.route('/calibration')
+    def calibration_page():
+        """Render the standalone vocabulary calibration mode."""
+        return render_template('calibration.html')
 
     @app.route('/classifier-drill')
     def classifier_drill_page():

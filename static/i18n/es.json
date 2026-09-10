@@ -681,5 +681,47 @@
   "word_list.view_test": "Ver prueba",
   "word_list.watching": "En seguimiento",
   "word_list.watchlist_empty": "Aún no hay palabras — envía una lista arriba para empezar.",
-  "word_list.watchlist_title": "Tu lista de seguimiento"
+  "word_list.watchlist_title": "Tu lista de seguimiento",
+  "calibration": {
+    "title": "Calibración",
+    "answered": "respondidas",
+    "correct": "correctas",
+    "finish": "Terminar",
+    "loading": "Preparando tu calibración…",
+    "instruction": "¿Qué definición es la correcta?",
+    "skip": "No lo sé",
+    "restart": "Empezar de nuevo",
+    "home": "Volver al inicio",
+    "exhausted": "Has visto todas las palabras que tenemos para este idioma. ¡El diccionario entero!",
+    "error_start": "No se pudo iniciar la calibración. Inténtalo de nuevo.",
+    "error_item": "No se pudo cargar la siguiente palabra. Inténtalo de nuevo.",
+    "result_zipf_sub": "Tu vocabulario llega hasta este nivel de frecuencia (Zipf). Cuanto más bajo, mayor es tu vocabulario.",
+    "result_not_enough": "Responde más palabras para obtener un nivel de frecuencia; por ahora esto es solo tu puntuación.",
+    "rating_title": "Dificultad de las pruebas",
+    "rating_set": "{type}: fijada en {to}",
+    "rating_changed": "{type}: ajustada {from} → {to}",
+    "rating_unchanged": "{type}: sin cambios — {reason}",
+    "rating_type_reading": "Lectura",
+    "rating_type_listening": "Comprensión auditiva",
+    "rating_type_dictation": "Dictado",
+    "rating_type_pitch_accent": "Acento tonal",
+    "rating_reason_G1_no_state": "aún no hay estimación de vocabulario",
+    "rating_reason_G2_low_items": "responde al menos 20 palabras primero",
+    "rating_reason_G3_high_se": "la estimación aún es demasiado incierta",
+    "rating_reason_G4_stale": "la estimación está desactualizada",
+    "rating_reason_G5_in_session": "hiciste una prueba en la última hora; inténtalo más tarde",
+    "rating_reason_G6_rate_limit": "ya se ajustó en los últimos 7 días",
+    "rating_reason_within_deadband": "ya está cerca de tu nivel",
+    "note_curve": "Cada barra indica con qué frecuencia acertaste palabras de esa frecuencia. Las comunes abajo, las raras arriba.",
+    "note_low_confidence": "Esto se basa en pocas respuestas, tómalo como una primera impresión.",
+    "mode_definition": "Significados",
+    "mode_pronunciation": "Lecturas",
+    "mode_pronunciation_unavailable": "Las lecturas solo están disponibles para chino y japonés.",
+    "instruction_pronunciation": "¿Qué lectura es la correcta?"
+  },
+  "common": {
+    "nav": {
+      "calibration": "Calibración"
+    }
+  }
 }

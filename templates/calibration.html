@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}Calibration | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Structural sibling of counter_drill.html / classifier_drill.html. Their ct-*
+   and cd-* class sets are mirrored here with a cal-* prefix so the three
+   standalone modes read as one pattern. */
+.cal-header { position: sticky; top: 0; z-index: 20; background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-default); display: flex; flex-wrap: wrap;
+    align-items: center; gap: 12px; padding: 10px 16px; }
+.cal-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }
+.cal-header-right { display: flex; align-items: center; gap: 16px; }
+.cal-stat { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+.cal-stat b { color: var(--text-primary); font-size: 15px; }
+
+.cal-stage { max-width: 680px; margin: 0 auto; padding: 40px 20px 24px; }
+.cal-prompt { font-size: clamp(2rem, 8vw, 3.25rem); font-weight: 600; line-height: 1.25;
+    text-align: center; word-break: break-word; }
+.cal-reading { margin-top: 8px; color: var(--text-secondary); font-size: 1rem; text-align: center; }
+.cal-instruction { margin-top: 14px; color: var(--text-muted); font-size: .9rem; text-align: center; }
+
+.cal-options { display: grid; gap: 12px; margin-top: 32px; }
+.cal-option { padding: 16px 18px; border: 2px solid var(--border-default); border-radius: 12px;
+    background: var(--bg-surface); cursor: pointer; text-align: left; font-size: 1rem;
+    line-height: 1.45; color: var(--text-primary); transition: border-color .15s, background .15s; }
+.cal-option:hover:not(:disabled) { border-color: var(--brand-primary, #4f46e5); }
+.cal-option:disabled { cursor: default; }
+.cal-option.correct { border-color: var(--success, #16a34a); background: color-mix(in srgb, var(--success, #16a34a) 10%, transparent); }
+.cal-option.wrong { border-color: var(--danger, #dc2626); background: color-mix(in srgb, var(--danger, #dc2626) 10%, transparent); }
+
+.cal-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.cal-btn { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border-default);
+    background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; font-size: 14px; }
+.cal-btn-primary { background: var(--brand-primary, #4f46e5); border-color: var(--brand-primary, #4f46e5); color: #fff; }
+
+/* Results: the knowledge curve. One row per Zipf band. */
+.cal-results { max-width: 680px; margin: 0 auto; padding: 32px 20px; }
+/* TASK-752: what the result did to test difficulty, including refusals. */
+.cal-rating { margin-top: 16px; font-size: 0.9rem; }
+.cal-rating-title { font-weight: 600; margin-bottom: 4px; }
+.cal-rating-row { opacity: 0.85; }
+.cal-headline { text-align: center; margin-bottom: 8px; }
+.cal-headline .cal-big { font-size: 2.75rem; font-weight: 700; line-height: 1.1; }
+.cal-headline .cal-sub { color: var(--text-secondary); font-size: .95rem; margin-top: 6px; }
+.cal-curve { margin-top: 28px; display: grid; gap: 8px; }
+.cal-band { display: grid; grid-template-columns: 84px 1fr 64px; align-items: center; gap: 10px; font-size: 13px; }
+.cal-band-label { color: var(--text-secondary); white-space: nowrap; }
+.cal-band-track { background: var(--bg-muted); border-radius: 6px; height: 18px; overflow: hidden; }
+.cal-band-fill { height: 100%; background: var(--brand-primary, #4f46e5); border-radius: 6px; transition: width .3s ease; }
+.cal-band-fill.thin { background: var(--text-muted); opacity: .45; }
+.cal-band-n { color: var(--text-muted); text-align: right; white-space: nowrap; }
+.cal-note { margin-top: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
+.cal-msg { max-width: 640px; margin: 60px auto; text-align: center; color: var(--text-secondary); }
+
+.cal-mode-toggle { display: inline-flex; border: 1px solid var(--border-default);
+    border-radius: 8px; overflow: hidden; }
+.cal-mode-toggle button { border: 0; background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 13px; padding: 6px 12px; cursor: pointer; }
+.cal-mode-toggle button.active { background: var(--brand-primary, #4f46e5); color: #fff; }
+.cal-mode-toggle button:disabled { opacity: .45; cursor: not-allowed; }
+/* Readings are short; four of them read better in a row than stacked. */
+.cal-options.pron { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cal-options.pron .cal-option { text-align: center; font-size: 1.35rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="calHeader" class="cal-header" style="display:none;">
+    <div class="cal-header-left">
+        <span class="text-base font-semibold" data-i18n="calibration.title">Calibration</span>
+    </div>
+    <div class="cal-header-right">
+        <span class="cal-mode-toggle" id="calModeToggle">
+            <button type="button" data-mode="definition" class="active"
+                    data-i18n="calibration.mode_definition">Meanings</button>
+            <button type="button" data-mode="pronunciation"
+                    data-i18n="calibration.mode_pronunciation">Readings</button>
+        </span>
+        <span class="cal-stat"><b id="calAnswered">0</b> <span data-i18n="calibration.answered">answered</span></span>
+        <span class="cal-stat"><b id="calAccuracy">—</b> <span data-i18n="calibration.correct">correct</span></span>
+        <button type="button" id="calFinishBtn" class="cal-btn" data-i18n="calibration.finish">Finish</button>
+    </div>
+</div>
+
+<div id="calLoading" class="cal-msg" data-i18n="calibration.loading">Preparing your calibration…</div>
+
+<div id="calStage" class="cal-stage" style="display:none;">
+    <div id="calPrompt" class="cal-prompt"></div>
+    <div id="calReading" class="cal-reading"></div>
+    <div class="cal-instruction" data-i18n="calibration.instruction">Which definition is correct?</div>
+    <div id="calOptions" class="cal-options"></div>
+    <div class="cal-actions">
+        <button type="button" id="calSkipBtn" class="cal-btn" data-i18n="calibration.skip">I don't know</button>
+        <span></span>
+    </div>
+</div>
+
+<div id="calResults" class="cal-results" style="display:none;">
+    <div class="cal-headline">
+        <div class="cal-big" id="calResultLevel">—</div>
+        <div class="cal-sub" id="calResultSub"></div>
+    </div>
+    <div class="cal-curve" id="calCurve"></div>
+    <p class="cal-note" id="calResultNote"></p>
+    <div class="cal-rating" id="calRating" hidden></div>
+    <div class="cal-actions">
+        <button type="button" id="calRestartBtn" class="cal-btn cal-btn-primary" data-i18n="calibration.restart">Start again</button>
+        <a href="/" class="cal-btn" data-i18n="calibration.home">Back home</a>
+    </div>
+</div>
+
+<div id="calEmpty" class="cal-msg" style="display:none;" data-i18n="calibration.exhausted">
+    You have seen every word we have for this language. That is the whole dictionary!
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    // dim_languages ids. `es` is a UI locale only — it has no dim_languages row,
+    // so a Spanish-speaking learner reads English definitions rather than none.
+    const LOCALE_TO_LANGUAGE_ID = { zh: 1, en: 2, ja: 3 };
+
+    const el = {
+        header:      document.getElementById('calHeader'),
+        loading:     document.getElementById('calLoading'),
+        stage:       document.getElementById('calStage'),
+        prompt:      document.getElementById('calPrompt'),
+        reading:     document.getElementById('calReading'),
+        options:     document.getElementById('calOptions'),
+        instruction: document.querySelector('.cal-instruction'),
+        answered:    document.getElementById('calAnswered'),
+        accuracy:    document.getElementById('calAccuracy'),
+        results:     document.getElementById('calResults'),
+        resultLevel: document.getElementById('calResultLevel'),
+        resultSub:   document.getElementById('calResultSub'),
+        resultNote:  document.getElementById('calResultNote'),
+        curve:       document.getElementById('calCurve'),
+        rating:      document.getElementById('calRating'),
+        empty:       document.getElementById('calEmpty'),
+        skipBtn:     document.getElementById('calSkipBtn'),
+        finishBtn:   document.getElementById('calFinishBtn'),
+        restartBtn:  document.getElementById('calRestartBtn'),
+        modeToggle:  document.getElementById('calModeToggle'),
+    };
+
+    const state = {
+        sessionId: null,
+        item: null,
+        locked: false,
+        shownAt: 0,
+        ability: null,
+        mode: 'definition',
+    };
+
+    // Readings are only stored for Chinese and Japanese, so the toggle is
+    // disabled rather than hidden for English — a control that vanishes reads
+    // like a bug, one that is visibly unavailable reads like a limitation.
+    function pronunciationAvailable() {
+        return wordLanguageId() === 1 || wordLanguageId() === 3;
+    }
+
+    function tr(key, params) {
+        return (window.LinguaI18n && window.LinguaI18n.t)
+            ? window.LinguaI18n.t(key, params)
+            : key;
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function wordLanguageId() {
+        const id = parseInt(localStorage.getItem('selectedLanguageId'), 10);
+        return (id === 1 || id === 2 || id === 3) ? id : 3;
+    }
+
+    function definitionLanguageId() {
+        const locale = (window.LinguaI18n && window.LinguaI18n.currentLocale)
+            || document.documentElement.lang || 'en';
+        return LOCALE_TO_LANGUAGE_ID[String(locale).slice(0, 2)] || 2;
+    }
+
+    function show(node) {
+        [el.loading, el.stage, el.results, el.empty].forEach(n => { n.style.display = 'none'; });
+        if (node) node.style.display = '';
+    }
+
+    async function api(path, opts) {
+        const resp = await window.authFetch(path, opts);
+        const data = await resp.json();
+        if (!resp.ok || (data && data.status === 'error')) {
+            throw new Error((data && data.error) || 'request failed');
+        }
+        return data;
+    }
+
+    async function startSession() {
+        show(el.loading);
+        el.header.style.display = 'none';
+        try {
+            const data = await api('/api/calibration/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    word_language_id: wordLanguageId(),
+                    definition_language_id: definitionLanguageId(),
+                    mode: state.mode,
+                }),
+            });
+            state.sessionId = data.session_id;
+            state.ability = null;
+            updateStats({ answered: 0, correct: 0 });
+            await nextItem();
+        } catch (err) {
+            el.loading.textContent = tr('calibration.error_start');
+            show(el.loading);
+        }
+    }
+
+    async function nextItem() {
+        state.locked = false;
+        try {
+            const data = await api('/api/calibration/next?session_id=' + encodeURIComponent(state.sessionId));
+            if (!data.item) { show(el.empty); el.header.style.display = 'none'; return; }
+            state.item = data.item;
+            renderItem(data.item);
+        } catch (err) {
+            el.loading.textContent = tr('calibration.error_item');
+            show(el.loading);
+        }
+    }
+
+    function renderItem(item) {
+        el.prompt.textContent = item.lemma || '';
+        el.reading.textContent = item.pronunciation || '';
+        el.reading.style.display = item.pronunciation ? '' : 'none';
+
+        const isPron = (item.mode === 'pronunciation');
+        el.options.classList.toggle('pron', isPron);
+        el.instruction.textContent = tr(isPron
+            ? 'calibration.instruction_pronunciation'
+            : 'calibration.instruction');
+
+        el.options.innerHTML = '';
+        (item.options || []).forEach(function (opt) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cal-option';
+            btn.dataset.position = String(opt.position);
+            btn.innerHTML = escapeHtml(opt.definition);
+            btn.addEventListener('click', function () { answer(opt.position); });
+            el.options.appendChild(btn);
+        });
+
+        el.header.style.display = '';
+        show(el.stage);
+        state.shownAt = Date.now();
+    }
+
+    function updateStats(ability) {
+        const answered = (ability && ability.answered) || 0;
+        const correct = (ability && ability.correct) || 0;
+        el.answered.textContent = String(answered);
+        el.accuracy.textContent = answered
+            ? Math.round((correct / answered) * 100) + '%'
+            : '—';
+    }
+
+    async function answer(position) {
+        if (state.locked || !state.item) return;
+        state.locked = true;
+
+        const buttons = Array.prototype.slice.call(el.options.querySelectorAll('.cal-option'));
+        buttons.forEach(b => { b.disabled = true; });
+
+        let data;
+        try {
+            data = await api('/api/calibration/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: state.sessionId,
+                    response_id: state.item.response_id,
+                    position: position,
+                    latency_ms: Math.max(0, Date.now() - state.shownAt),
+                }),
+            });
+        } catch (err) {
+            buttons.forEach(b => { b.disabled = false; });
+            state.locked = false;
+            return;
+        }
+
+        // Always reveal the key, including on a skip: being shown the answer is
+        // the only thing the learner gets back from an item they could not do.
+        buttons.forEach(function (b) {
+            const pos = parseInt(b.dataset.position, 10);
+            if (pos === data.correct_position) b.classList.add('correct');
+            else if (pos === position && !data.is_correct) b.classList.add('wrong');
+        });
+
+        state.ability = data.ability;
+        updateStats(data.ability);
+        setTimeout(nextItem, data.is_correct ? 450 : 1300);
+    }
+
+    function bandLabel(band) {
+        return ({
+            1: '< 3.0', 2: '3.0–3.5', 3: '3.5–4.0', 4: '4.0–4.5',
+            5: '4.5–5.0', 6: '5.0–5.5', 7: '5.5+',
+        })[band] || String(band);
+    }
+
+    function renderResults(ability) {
+        const a = ability || {};
+        const z85 = a.ability_zipf_85;
+
+        if (z85 != null) {
+            // Show the uncertainty, not just the point estimate. At 60 answers
+            // the standard error is still ~0.27 Zipf, and a bare two-decimal
+            // number reads far more precise than the measurement actually is.
+            const sd = a.ability_zipf_85_sd;
+            el.resultLevel.textContent = Number(z85).toFixed(2)
+                + (sd != null ? ' ± ' + Number(sd).toFixed(2) : '');
+            el.resultSub.textContent = tr('calibration.result_zipf_sub');
+        } else {
+            el.resultLevel.textContent = a.answered
+                ? Math.round(((a.correct || 0) / a.answered) * 100) + '%'
+                : '—';
+            el.resultSub.textContent = tr('calibration.result_not_enough');
+        }
+
+        // The curve is the evidence. Showing it beside the headline number is the
+        // point: a single figure derived from four answers should not look like a
+        // single figure derived from eighty.
+        el.curve.innerHTML = '';
+        (a.bands || []).forEach(function (b) {
+            const row = document.createElement('div');
+            row.className = 'cal-band';
+            const pct = Math.round((b.known_share || 0) * 100);
+            const thin = (b.n || 0) < 3 ? ' thin' : '';
+            row.innerHTML =
+                '<span class="cal-band-label">' + escapeHtml(bandLabel(b.band)) + '</span>' +
+                '<span class="cal-band-track"><span class="cal-band-fill' + thin +
+                    '" style="width:' + pct + '%"></span></span>' +
+                '<span class="cal-band-n">' + pct + '% · n=' + (b.n || 0) + '</span>';
+            el.curve.appendChild(row);
+        });
+
+        const notes = [tr('calibration.note_curve')];
+        if (a.confidence === 'none' || a.confidence === 'low') {
+            notes.push(tr('calibration.note_low_confidence'));
+        }
+        el.resultNote.textContent = notes.join(' ');
+        renderRating(a.rating_decisions);
+
+        el.header.style.display = 'none';
+        show(el.results);
+    }
+
+    // A translated string, or `fallback` when the key is missing (tr returns the
+    // key itself in that case).
+    function trOr(key, fallback, params) {
+        const text = tr(key, params);
+        return text === key ? fallback : text;
+    }
+
+    // TASK-752: show what this result did to test difficulty — including a
+    // refusal and its reason, so a skipped write is visible rather than silent.
+    // The server owns every rule; this only renders its decisions.
+    function renderRating(decisions) {
+        el.rating.innerHTML = '';
+        if (!Array.isArray(decisions) || !decisions.length) {
+            el.rating.hidden = true;
+            return;
+        }
+        const title = document.createElement('div');
+        title.className = 'cal-rating-title';
+        title.textContent = tr('calibration.rating_title');
+        el.rating.appendChild(title);
+        decisions.forEach(function (d) {
+            const type = trOr('calibration.rating_type_' + d.test_type, d.test_type);
+            let text;
+            if (d.source === 'calibration_seed') {
+                text = tr('calibration.rating_set', { type: type, to: d.elo_after });
+            } else if (d.source === 'calibration_correct') {
+                text = tr('calibration.rating_changed',
+                          { type: type, from: d.elo_before, to: d.elo_after });
+            } else {
+                text = tr('calibration.rating_unchanged', {
+                    type: type,
+                    reason: trOr('calibration.rating_reason_' + d.reason, d.reason),
+                });
+            }
+            const row = document.createElement('div');
+            row.className = 'cal-rating-row';
+            row.textContent = text;
+            el.rating.appendChild(row);
+        });
+        el.rating.hidden = false;
+    }
+
+    async function finish() {
+        try {
+            const data = await api('/api/calibration/end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: state.sessionId }),
+            });
+            renderResults(data.ability);
+        } catch (err) {
+            renderResults(state.ability);
+        }
+    }
+
+    el.modeToggle.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-mode]');
+        if (!btn || btn.disabled) return;
+        const mode = btn.dataset.mode;
+        if (mode === state.mode) return;
+        state.mode = mode;
+        syncModeToggle();
+        // A mode switch is a different measurement, so it starts a new session
+        // rather than mixing two kinds of item into one ability curve.
+        startSession();
+    });
+
+    function syncModeToggle() {
+        const pronBtn = el.modeToggle.querySelector('button[data-mode="pronunciation"]');
+        if (pronBtn) {
+            pronBtn.disabled = !pronunciationAvailable();
+            pronBtn.title = pronBtn.disabled
+                ? tr('calibration.mode_pronunciation_unavailable') : '';
+        }
+        if (!pronunciationAvailable() && state.mode === 'pronunciation') {
+            state.mode = 'definition';
+        }
+        el.modeToggle.querySelectorAll('button[data-mode]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.mode === state.mode);
+        });
+    }
+
+    el.skipBtn.addEventListener('click', function () { answer(null); });
+    el.finishBtn.addEventListener('click', finish);
+    el.restartBtn.addEventListener('click', startSession);
+
+    // Number keys 1-4 pick an option; they are the fastest way through a long run.
+    document.addEventListener('keydown', function (e) {
+        if (state.locked || el.stage.style.display === 'none') return;
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= 4) {
+            const btn = el.options.querySelectorAll('.cal-option')[n - 1];
+            if (btn) btn.click();
+        }
+    });
+
+    function boot() { syncModeToggle(); startSession(); }
+    document.addEventListener('DOMContentLoaded', boot);
+    if (document.readyState !== 'loading') boot();
+})();
+</script>
+{% endblock %}
