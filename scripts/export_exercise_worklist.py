@@ -186,7 +186,14 @@ def build_pool(db, language_id: int, counts: Counter, args) -> list[int]:
     logger.info("%d senses already have exercises%s",
                 len(with_ex), " (ignored: --overwrite)" if args.overwrite else "")
 
-    candidates = [s for s in every if s not in with_ex]
+    # TASK-767: a quarantined sense's dictionary row is known to be wrong, and
+    # the exercises trigger would retire anything written for it.
+    from services.vocabulary.sense_quarantine import quarantined_sense_ids
+    quarantined = quarantined_sense_ids(db, every)
+    if quarantined:
+        logger.info("%d senses skipped as quarantined", len(quarantined))
+
+    candidates = [s for s in every if s not in with_ex and s not in quarantined]
     candidate_set = set(candidates)
 
     ranked = [s for s, _ in counts.most_common() if s in candidate_set]

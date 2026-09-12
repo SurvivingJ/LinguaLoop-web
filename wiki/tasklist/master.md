@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-09-10
+last_updated: 2026-09-11
 ---
 
 # Master Task List
@@ -24,7 +24,7 @@ below.
 | Blocked / Deferred / Awaiting decision (numbered tasks) | 6 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 155 |
+| Done (cumulative, not listed here) | 157 |
 
 *2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
 Calibration) were never entered here when filed. Counts now include them:
@@ -32,6 +32,9 @@ Calibration) were never entered here when filed. Counts now include them:
   proposed).
 - +20 Done: Calibration's 13 (TASK-753–762, 764, 766 and 765), plus TASK-744,
   745, 746, 747, 748, 749 and 752.
+
+*2026-09-11:* +2 Done — TASK-767 and TASK-768 (sense blocklist enforced for all
+exercise consumers; blocklisted dictionary rows repaired at source).
 
 Earlier counts were not re-audited.
 
@@ -741,13 +744,16 @@ Turning it on is an operator decision after a 7-day shadow window
 
 ### Calibration (open tasks only)
 
-Full spec: [[tasklist/calibration.tasks]]. 13 of 14 done; TASK-765 (apply the
-Phase 4 migration) verified live 2026-09-10.
+Full spec: [[tasklist/calibration.tasks]]. 15 of 16 done; TASK-765 (apply the
+Phase 4 migration) verified live 2026-09-10; TASK-767/768 (blocklist binds every
+exercise consumer; 430 definitions repaired at source) done 2026-09-11.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-765 | calibration | Apply the Phase 4 migration | [x] Done (verified live 2026-09-10) | XS | TASK-766 |
 | TASK-763 | calibration | Re-tune the cosine ceiling from response data | [?] Blocked — needs real learner traffic | S | TASK-759 |
+| TASK-767 | calibration | Make the sense blocklist bind exercise generation and practice | [x] Done (applied live 2026-09-11) | S | TASK-757 |
+| TASK-768 | calibration | Repair the blocklisted dictionary rows at source | [x] Done 2026-09-11 (817 → 355; 355 need upstream re-segmentation) | L | TASK-767 |
 
 ### Language Packs (existing — unchanged)
 

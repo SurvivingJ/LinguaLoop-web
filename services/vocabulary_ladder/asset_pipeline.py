@@ -22,6 +22,7 @@ from services.exercise_generation.judges.base import (
 )
 from services.supabase_factory import get_supabase_admin
 from services.timing import stage, log_stage_seconds
+from services.vocabulary.sense_quarantine import is_quarantined
 from services.vocabulary_ladder.config import (
     compute_active_levels, active_levels_for_context, normalize_semantic_class,
     prompt3_levels_for_context, capability_context_from_core,
@@ -112,6 +113,15 @@ class VocabAssetPipeline:
         # wrapper once this returns, on every path (TASK-758).
         stage_seconds: dict[str, float] = {}
         result['stage_seconds'] = stage_seconds
+
+        # TASK-767: a quarantined sense has a known-bad dictionary row, and the
+        # exercises trigger would retire anything built from it. Checked before
+        # force, so a forced regeneration cannot spend on it either.
+        if is_quarantined(self.db, sense_id):
+            result['status'] = 'skipped'
+            result['quarantined'] = True
+            result['errors'].append('sense is quarantined (calibration_anchor_blocklist)')
+            return result
 
         # Check existing assets
         if not force and self._assets_exist(sense_id):

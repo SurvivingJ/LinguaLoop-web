@@ -3,9 +3,9 @@ title: "Calibration — Task Breakdown"
 feature: calibration
 prose_page: ../features/calibration.md
 tech_page: ../features/calibration.tech.md
-total_tasks: 14
-done: 13
-last_updated: 2026-09-10
+total_tasks: 16
+done: 15
+last_updated: 2026-09-11
 ---
 
 # Calibration — Task Breakdown
@@ -187,13 +187,117 @@ not heuristic — zh/ja do not use spaces, so a space in the lemma cannot be par
 the word. Measured zh 0, ja 90; English excluded, since multi-word English lemmas
 are ordinary.
 
-**Still not fixed at source.** All 817 blocklist rows protect Calibration only.
-Flashcards, practice and exercise generation still serve these rows. Per-flag JSON
-files (`sense_mismatch_lang*.json`) were produced so an upstream repair has
-something to work from — that repair is deliberately NOT automated here, because
-rewriting a definition is a content decision, not a screening one.
+**Superseded 2026-09-11 — see TASK-767 and TASK-768.** The blocklist originally
+protected Calibration only; TASK-767 made it bind every exercise consumer, and
+TASK-768 repaired 430 of the flagged definitions at source, cutting the list from
+817 to 355.
 
 **Files:** `scripts/screen_sense_definition_mismatch.py`
+
+---
+
+## TASK-767: Make the sense blocklist bind exercise generation and practice
+
+**Status:** [x] Done — applied live 2026-09-11
+**Feature:** calibration
+**Type:** bug
+**Complexity:** S
+**Depends On:** TASK-757
+
+**Description:**
+`calibration_anchor_blocklist` was read only by the two Calibration picker RPCs, so on
+2026-09-11 225 active exercises across 27 blocklisted senses were still being served,
+each built on a known-bad definition. Every serving path already filters
+`exercises.is_active`, so the quarantine is enforced at the table rather than in each
+reader: an exercise on a blocklisted sense is never active.
+
+**Acceptance Criteria:**
+- [x] No active exercise on a blocklisted sense (backfilled: 225 retired)
+- [x] Any insert/update of an exercise for a blocklisted sense lands inactive
+- [x] Blocklisting a sense retires its live exercises immediately
+- [x] `generation_queue` drops quarantined senses (else the ladder supply gate and
+      the nightly coverage sweep re-queue them forever and burn LLM spend)
+- [x] The ladder asset pipeline and the exercise worklist exporter skip quarantined
+      senses before any LLM call
+
+**Technical Notes:**
+Three triggers plus `is_sense_quarantined(int)`. Trigger 1 *demotes* rather than
+raises, because generators insert many senses per statement. Un-blocklisting does
+**not** reactivate: retired exercises were written from the bad definition and must
+be regenerated. Python guard fails open (the triggers still hold) — worst case is
+wasted spend, never a bad item served. The table keeps its Calibration name; renaming
+would break two RPCs and the screen script for a cosmetic gain.
+
+**Files:**
+- `migrations/task767_sense_quarantine_guards.sql` — triggers, helper, backfill
+- `services/vocabulary/sense_quarantine.py` — `quarantined_sense_ids()` / `is_quarantined()`
+- `services/vocabulary_ladder/asset_pipeline.py` — skip before Prompt 1
+- `services/vocabulary_ladder/queue_drain.py` — treat a quarantined skip as failure
+- `scripts/export_exercise_worklist.py` — exclude from the pool
+- `tests/test_sense_quarantine.py` — 6 tests
+
+**Verification:** live, in rolled-back transactions: reactivating a quarantined
+sense's exercises leaves them inactive; a queue insert for one writes 0 rows;
+blocklisting a healthy sense retires its exercises. 169 ladder/pipeline tests pass.
+
+---
+
+## TASK-768: Repair the blocklisted dictionary rows at source
+
+**Status:** [x] Done — 2026-09-11 (355 rows deliberately left quarantined)
+**Feature:** calibration
+**Type:** bug
+**Complexity:** L
+**Depends On:** TASK-767
+
+**Description:**
+Every one of the 547 definition-mismatch flags was read by hand and given one of
+three verdicts. Rewrites are **in place**, not merges into a sibling sense: the
+dictionary keeps one sense per test context and `tests.vocab_sense_ids` points at
+these exact rows, so rewriting keeps every test link valid. Each rewrite defines
+what the headword means in its example sentence (`carbon` from "carbon footprint"
+becomes carbon as in carbon emissions).
+
+| verdict | zh | en | ja | total |
+|---|---|---|---|---|
+| rewrite (definition, + simple row / example where wrong) | 85 | 277 | 68 | 430 |
+| false positive (definition was fine; unblocked) | 8 | 9 | 15 | 32 |
+| keep quarantined (headword itself is broken) | 28 | 32 | 25 | 85 |
+
+Plus 208 cross-language gloss rows (52 senses × en/zh/ja × 2 levels) that had been
+translated *from* the bad definition — 川 glossed "a peel", 説明 "a yawn",
+例えば "a printing press".
+
+**What "keep" means.** The headword, not the definition, is wrong: zh segmentation
+fragments (进大, 下降时, 坐在, 人会), lemmatizer-stripped English phrases (`tell
+story`, `help us`, `call export`), ja reading-only or mis-annotated lemmas (リツ,
+`クラム-clam` carrying *crumb*), symbols (`15`, `C`, `*`) and definitions invented
+to fit a non-word (斯塔 as NATO, 三一 as a bird). Rewriting cannot fix these; the
+fix is upstream in tokenisation / test-sense-linking. With the 270 ja MeCab
+morpheme-sequence lemmas, **355 senses stay quarantined**.
+
+**Every change is reversible.** The old text of each rewritten row is appended to
+`validation_notes` (`[date TASK-768] ... (was: '...')`); 733 rows carry it.
+
+**Incident, fixed in the same session:** the first zh run's paired-simple lookup did
+not filter `definition_language_id`, so it overwrote 22 en/ja gloss rows with Chinese
+text. All 22 were restored exactly from `validation_notes`, and the lookup now filters
+by language and refuses to write when more than one row matches.
+
+**Open follow-ups (not done):**
+- 181 exercises on 24 rewritten senses stay retired and will **not** regenerate by
+  themselves — none are ladder-backed, so `v_sense_family_coverage` never shows them.
+  `export_exercise_worklist.senses_with_exercises` counts inactive rows, so the worklist
+  would also skip these senses; regenerating them needs that check narrowed to active rows.
+- The 355 kept rows need upstream repair (re-segment / re-link the tests that use them).
+
+**Files:**
+- `scripts/fix_quarantined_senses.py` — validated uploader (rewrite / false_positive / keep / gloss)
+- `data/calibration/quarantine_fixes/*.json` — every per-sense decision, with reasons
+
+**Verification:** blocklist 817 → 355 (zh 28, en 32, ja 295); 0 TASK-768 rows without
+an embedding (755 re-embedded); 0 active exercises on quarantined senses; 0 refusal-text
+definitions left in `dim_word_senses`.
 
 ---
 

@@ -253,6 +253,22 @@ class Config:
         'dual_translation': 12,
     }
 
+    # Test types that only exist for one language (type_code -> allowed
+    # dim_languages.id). A test_skill_ratings row for any other language makes
+    # the recommender offer that type to the wrong learners. Types not listed
+    # here apply to every language.
+    LANGUAGE_RESTRICTED_TEST_TYPES = {
+        'pinyin':           {1},   # zh
+        'classifier_drill': {1},   # zh measure words
+        'pitch_accent':     {3},   # ja
+        'counter_drill':    {3},   # ja counters
+    }
+
+    @classmethod
+    def test_type_applies_to_language(cls, type_code: str, language_id) -> bool:
+        allowed = cls.LANGUAGE_RESTRICTED_TEST_TYPES.get(type_code)
+        return allowed is None or language_id in allowed
+
     # ==========================================================================
     # TOKEN ECONOMY - Single source of truth
     # ==========================================================================

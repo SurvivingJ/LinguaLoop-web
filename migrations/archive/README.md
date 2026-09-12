@@ -16,9 +16,10 @@ because they remain the sole repo record of other still-live objects.
 
 | Archived file | Defined object | Now lives in (canonical) | Live marker checked |
 |---|---|---|---|
-| `process_test_submission_v2.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
-| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
-| `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `task704_process_test_submission_retry_elo.sql` | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704; see CR-04 caveat below) |
+| `process_test_submission_v2.sql` | `process_test_submission(...)` | `sec_submission_rpcs_auth_gate.sql` (was task704) | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
+| `process_test_submission_reduced_repeats.sql` | `process_test_submission(...)` | `sec_submission_rpcs_auth_gate.sql` (was task704) | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704) |
+| `phase14_test_kfactor_decay.sql` | `process_test_submission(...)` | `sec_submission_rpcs_auth_gate.sql` (was task704) | `elo_reduction_factor` in INSERT + `slot_type='retry'` scan present (TASK-704; see CR-04 caveat below) |
+| `task704_process_test_submission_retry_elo.sql` | `process_test_submission(...)`, `test_attempts.elo_reduction_factor` | `sec_submission_rpcs_auth_gate.sql` | `auth.uid() IS DISTINCT FROM p_user_id` gate + `search_path=public, pg_temp` in proconfig (2026-09-11) |
 | `fix_get_recommended_tests_signature.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `add_pinyin_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |

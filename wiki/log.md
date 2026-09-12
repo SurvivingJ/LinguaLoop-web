@@ -5041,3 +5041,29 @@ recommendation is content features, pitch accent first: with one learner, a
 test-side offset fitted from attempts is not identifiable against TASK-750's
 user-side offset. Nothing was reseeded. TASK-750 stays blocked: no
 (language, type) has more than 8 first attempts.
+
+## [2026-09-11] task | TASK-767 + TASK-768 — sense blocklist enforced everywhere; 430 definitions repaired
+
+**TASK-767 (applied live).** `calibration_anchor_blocklist` bound only Calibration;
+225 active exercises on 27 blocklisted senses were still served. Enforcement moved
+to the `exercises` table (every serving path already filters `is_active`): three
+triggers keep exercises on quarantined senses inactive, retire them when a sense is
+flagged, and drop quarantined senses from `generation_queue` (which would otherwise
+loop spend via the ladder supply gate and the nightly coverage sweep). The ladder
+asset pipeline and the worklist exporter skip them before any LLM call. Un-blocklisting
+does not reactivate. `tests/test_sense_quarantine.py` 6 passed; 169 ladder/pipeline
+tests pass.
+
+**TASK-768.** All 547 definition-mismatch flags were read by hand: 430 rewritten in
+place (zh 85 / en 277 / ja 68), 32 false positives unblocked, and 85 kept quarantined
+because the headword itself is broken (segmentation fragments, stripped phrases,
+reading-only or mis-annotated lemmas, symbols). 208 cross-language gloss rows had
+been translated from the bad definitions (川 → "a peel", 説明 → "a yawn") and were
+rewritten too. The blocklist went from 817 to 355 (the 270 ja MeCab-lemma rows plus
+the 85 kept). 755 rows were re-embedded. The old text of every change is kept in
+`validation_notes`.
+Incident: the first run overwrote 22 en/ja gloss rows through an unfiltered
+paired-simple lookup; all 22 were restored exactly and the lookup was fixed.
+Follow-ups: 181 retired exercises on 24 rewritten senses will not regenerate on
+their own, and the worklist's `senses_with_exercises` counts inactive rows.
+Pages updated: [[tasklist/calibration.tasks]], [[tasklist/master]].

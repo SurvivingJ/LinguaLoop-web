@@ -273,7 +273,7 @@ def _regenerate(db, row: dict) -> tuple[bool, dict]:
         detail['pipeline_status'] = result.get('status')
         if result.get('errors'):
             detail['pipeline_errors'] = result['errors'][:5]
-        if result.get('status') == 'failed':
+        if result.get('status') == 'failed' or result.get('quarantined'):
             return False, detail
 
         renderer = LadderExerciseRenderer(db)

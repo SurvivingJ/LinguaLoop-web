@@ -13,6 +13,7 @@ from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
 from dataclasses import dataclass, field
 
+from config import Config
 from ..supabase_factory import get_supabase_admin
 from ..dictation.cap import passage_word_range_for_tier
 
@@ -865,7 +866,8 @@ class TestDatabaseClient:
             test_id: Test UUID
             initial_elo: Starting ELO rating
             has_audio: Whether the test has audio
-            language_id: Language ID (1=Chinese) — pinyin type only for Chinese
+            language_id: Language ID — language-specific types (pinyin,
+                pitch_accent, drills) are only created for their own language
         """
         # Get active test types from dim_test_types
         active_types = self.get_active_test_types()
@@ -875,8 +877,7 @@ class TestDatabaseClient:
         for t in active_types:
             if t['requires_audio'] and not has_audio:
                 continue
-            # Pinyin type is Chinese-only
-            if t['type_code'] == 'pinyin' and language_id != 1:
+            if not Config.test_type_applies_to_language(t['type_code'], language_id):
                 continue
             types_to_create.append(t)
 

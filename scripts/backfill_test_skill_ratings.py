@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
+from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
 # Setup logging
@@ -70,7 +71,7 @@ class BackfillRunner:
 
         # Get all active tests
         tests = self.db.table('tests') \
-            .select('id, slug, difficulty, audio_url') \
+            .select('id, slug, difficulty, audio_url, language_id') \
             .eq('is_active', True) \
             .execute()
 
@@ -102,10 +103,11 @@ class BackfillRunner:
         has_audio = bool(test.get('audio_url'))
         elo = DIFFICULTY_ELO_MAP.get(difficulty, 1400)
 
-        # Filter types based on audio availability
+        # Filter types based on audio availability and language
         types_to_create = [
             t for t in active_types
-            if not t['requires_audio'] or has_audio
+            if (not t['requires_audio'] or has_audio)
+            and Config.test_type_applies_to_language(t['type_code'], test.get('language_id'))
         ]
 
         if not types_to_create:

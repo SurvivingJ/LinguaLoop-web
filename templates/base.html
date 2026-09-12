@@ -283,6 +283,13 @@
                             Browse Tests
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('calibration_page') }}"
+                           class="nav-link {% if request.endpoint == 'calibration_page' %}active{% endif %}"
+                           data-i18n="common.nav.calibration">
+                            Calibration
+                        </a>
+                    </li>
                     <li class="nav-item lang-gate d-none" data-lang-gate="zh">
                         <a href="{{ url_for('classifier_drill_page') }}"
                            class="nav-link {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
@@ -342,6 +349,12 @@
                             <a class="dropdown-item {% if request.endpoint == 'test_list' %}active{% endif %}"
                                href="{{ url_for('tests') }}" data-i18n="common.nav.browse_tests">
                                 Browse Tests
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if request.endpoint == 'calibration_page' %}active{% endif %}"
+                               href="{{ url_for('calibration_page') }}" data-i18n="common.nav.calibration">
+                                Calibration
                             </a>
                         </li>
                         <li class="lang-gate d-none" data-lang-gate="zh">
@@ -414,12 +427,6 @@
                             <a class="dropdown-item" href="/study-plan">
                                 <i class="fas fa-calendar-week me-2"></i>
                                 <span data-i18n="common.nav.study_plan">Study Plan</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="/calibration">
-                                <i class="fas fa-ruler-horizontal me-2"></i>
-                                <span data-i18n="common.nav.calibration">Calibration</span>
                             </a>
                         </li>
                         <li>
