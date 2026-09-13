@@ -61,6 +61,17 @@ def _has_kanji(text: str) -> bool:
     return bool(text) and bool(_KANJI_RANGE.search(text))
 
 
+# UniDic spells a loanword's lexeme as katakana + '-' + its source word, with
+# an optional homograph gloss: ノブ-knob, ライト-light（光）, フェア-fair(見本市).
+# That is dictionary metadata, never a Japanese headword. The gloss can carry
+# kanji (光), which is what let these slip past the _has_kanji preference below.
+_LOANWORD_LEMMA = re.compile(r'-[A-Za-z]')
+
+
+def _is_loanword_lemma(lemma: str) -> bool:
+    return bool(lemma) and bool(_LOANWORD_LEMMA.search(lemma))
+
+
 # Katakana (U+30A1-U+30F6) -> hiragana (U+3041-U+3096) is a flat -0x60
 # offset. ー (U+30FC, the long-vowel mark) is shared by both scripts and is
 # left as-is. Readings are stored in hiragana for consistency with the rest
@@ -142,10 +153,15 @@ class JapaneseProcessor(BaseLanguageProcessor):
         instead, since raw kana collides across true homophones (城/白/...
         all spell しろ) while 'lemma' is UniDic's own disambiguation attempt.
         Falls back to the raw surface when nothing usable is available.
+
+        A loanword 'lemma' (ノブ-knob, ライト-light（光）) is never used: it is
+        UniDic's English-annotated lexeme id, not a word a learner can read.
         """
         feature = word.feature
         orth = getattr(feature, "orthBase", None)
         lemma = feature.lemma
+        if _is_loanword_lemma(lemma):
+            lemma = None
 
         if orth and orth != '*':
             if not _has_kanji(orth) and lemma and lemma != '*' and _has_kanji(lemma):

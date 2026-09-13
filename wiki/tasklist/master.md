@@ -20,8 +20,8 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 8 |
-| In Progress (`[~]`) | 7 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 6 |
+| In Progress (`[~]`) | 8 |
+| Blocked / Deferred / Awaiting decision (numbered tasks) | 7 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 165 |
@@ -39,6 +39,9 @@ exercise consumers; blocklisted dictionary rows repaired at source).
 *2026-09-13:* +7 Done — Calibration Phase 5 (latency): TASK-769, 770, 771, 772,
 773, 773b, 774, 775. The per-item cycle goes from 2.9-3.7 s to 0.6 s / learner-paced;
 TASK-774's token cache is app-wide, not calibration-only.
+
+*2026-09-14:* +1 In Progress (TASK-776, synonym-foil headword guard — written, not
+applied) and +1 Blocked / open question (TASK-777, LLM synonym judge — paused).
 
 Earlier counts were not re-audited.
 
@@ -768,6 +771,8 @@ build in 348 ms where twenty singular builds cost ~38 s.
 | TASK-771 | calibration | Prefetch items into a client-side queue | [x] Done 2026-09-13 | S | TASK-770 |
 | TASK-774 | calibration | Stop revalidating every token over the network | [x] Done 2026-09-13 (app-wide) | S | — |
 | TASK-775 | calibration | Learner-paced advance after a wrong answer | [x] Done 2026-09-13 | XS | TASK-771 |
+| TASK-776 | calibration | Drop foils that share a head gloss with the right answer (synonyms) | [~] Migration written, not applied; cache rebuild pending | S | TASK-773 |
+| TASK-777 | calibration | Offline LLM synonym judge over the distractor cache | [?] Open question — paused by decision | M | TASK-776 |
 
 ### Language Packs (existing — unchanged)
 

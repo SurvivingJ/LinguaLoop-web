@@ -220,6 +220,9 @@ COMMENT ON FUNCTION public.shared_prefix_len(text, text) IS
 
 -- -----------------------------------------------------------------------------
 -- semantic_distractors
+-- SUPERSEDED by calibration_distractor_headword_guard.sql (TASK-776), which adds
+-- guard (6). This copy is kept because the file is still the only record of
+-- dim_distractor_bands and shared_prefix_len().
 -- -----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.semantic_distractors(
     p_sense_id               integer,

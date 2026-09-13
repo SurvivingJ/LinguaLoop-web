@@ -3,9 +3,9 @@ title: "Calibration — Task Breakdown"
 feature: calibration
 prose_page: ../features/calibration.md
 tech_page: ../features/calibration.tech.md
-total_tasks: 24
+total_tasks: 26
 done: 23
-last_updated: 2026-09-13
+last_updated: 2026-09-14
 ---
 
 # Calibration — Task Breakdown
@@ -27,6 +27,10 @@ action, items precomputed and prefetched, and — separately — a learner who d
 for themselves when to leave a wrong answer.
 
 One task remains: **TASK-763** needs real learner traffic that does not exist yet.
+
+2026-09-14: **TASK-776** (drop synonym foils that share a head gloss — found via 先生/教師)
+is written but awaits live apply + cache rebuild. **TASK-777** (offline LLM synonym judge) is
+parked as an open question.
 
 ---
 
@@ -921,5 +925,91 @@ the thousands behind them.
 **Verification:**
 Re-running the pair that hung now reports `already complete` and exits 0; the 13 anchors are
 recorded with `rows_found = 0`.
+
+---
+
+## TASK-776: Drop foils that share a head gloss with the right answer
+
+**Status:** [~] In Progress — migration written 2026-09-14, **not yet applied live**; cache not rebuilt
+**Feature:** calibration
+**Type:** bug
+**Complexity:** S
+**Depends On:** TASK-773
+
+**Description:**
+A ja/en item for 先生 offered 教師 "teacher; an instructor at a school" as a *wrong* answer beside
+先生 "a teacher — a person who teaches…". Both are correct. The pair scored cosine 0.71, under
+the 0.75 ceiling, and `semantic_distractors()` ranks by similarity DESC, so a synonym just under
+the ceiling is ranked **first**, not merely admitted. The sibling and stem-variant guards compare
+lemmas and cannot see it. An also-correct foil marks a learner who knows the word as wrong, which
+biases the ability estimate down.
+
+Fix: a new guard (6) in `semantic_distractors()` rejecting any candidate whose head glosses (text
+before the first em dash, split on ; ； ：, lightly normalised by `definition_head_glosses()`)
+overlap the anchor's. Rejected candidates are replaced by the next nearest, as with every other
+guard.
+
+**Measured before the fix** (cache, top-3 served foils, anchors affected): ja/en 680 / 3,268 ·
+ja/zh 395 / 3,267 · zh/en 293 / 3,680 · zh/ja 122 / 3,681 · en/en 18 / 6,110 · zh/zh 5 / 4,041 ·
+ja/ja 0. First-gloss-only matching caught roughly half as many in ja/en (354); a hand-read sample
+of 85 any-overlap matches was overwhelmingly true synonyms, loosest being cross-POS pairs
+(to plant / plant) that give the answer away anyway.
+
+**Acceptance Criteria:**
+- [x] `definition_head_glosses(text) → text[]` exists, IMMUTABLE, returns `{}` for NULL/prose.
+- [x] Guard applied after the index scan; signature unchanged, so no DROP / re-GRANT.
+- [ ] Migration applied live.
+- [ ] Affected anchors' definition-mode cache rows deleted and refilled (the cache is an exact
+      copy of the function's output — without the rebuild nothing a learner sees changes).
+- [ ] The no-overlap verification query in the migration returns 0.
+- [ ] Anchor 43399 (先生, ja/en) no longer caches sense 56314 (教師).
+- [ ] Short anchors (fewer than 3 foils after the guard) counted and reported.
+
+**Technical Notes:**
+Only anchors with a match in their cached rows need rebuilding: the guard only removes rows, and
+any row it would remove from an anchor's top 6 is already in the cache to be checked, so
+unmatched anchors are provably unchanged. Rebuild one language pair at a time (TASK-773
+decision 4). `calibration_distractor_cache_misses` should be cleared for the rebuilt anchors so
+the bulk builder retries them. Paraphrased synonyms are out of scope — see TASK-777.
+
+**Files to Create / Modify:**
+- `migrations/calibration_distractor_headword_guard.sql` — new; canonical for `semantic_distractors()`
+- `migrations/calibration_semantic_distractors.sql` — kept (sole record of `dim_distractor_bands`,
+  `shared_prefix_len`); pointer comment added
+
+**Verification:**
+1. Apply the migration.
+2. Run the DELETE in the migration's *Rebuild* block, then
+   `python -m scripts.build_calibration_distractor_cache --mode definition --word-language 3 --definition-language 2`
+   (repeat per affected pair: 3/2, 3/1, 1/2, 1/3, 2/2, 1/1).
+3. Run both verification queries at the bottom of the migration; expect 0 and 0.
+
+---
+
+## TASK-777: Offline LLM synonym judge over the distractor cache
+
+**Status:** [?] Open question — paused 2026-09-14 by decision; do not start
+**Feature:** calibration
+**Type:** feature
+**Complexity:** M
+**Depends On:** TASK-776
+
+**Description:**
+TASK-776 only catches synonyms that *state* the same gloss. Paraphrased synonyms ("instructor"
+vs "teacher") still pass the cosine ceiling and are still ranked first. Because the cache is
+precomputed and stores 6 foils per anchor while serving 3, a one-off judge pass ("could this
+option also correctly define the prompt word?") would cost nothing at serve time and has slack
+to drop rejects.
+
+**Open questions (answer before this becomes a task):**
+- Is the headword guard alone enough? Measure after TASK-776 with a hand-read sample of the
+  highest-similarity surviving foils before spending on a judge.
+- Which model, and how is it validated? The distractor-judge history (TASK-718) showed two judges
+  producing disjoint reject sets with no gold set to arbitrate — a judge here needs its own small
+  gold set or it is unvalidated.
+- What happens to an anchor that drops below 3 foils: refill deeper from the pool (needs a
+  larger `p_count` than 6), or leave it short and skipped?
+- Does a rejection live in the cache only (lost on rebuild) or in a durable table that
+  `semantic_distractors()` / the filler consults?
 
 ---

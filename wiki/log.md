@@ -1,5 +1,19 @@
 # Activity Log
 
+## [2026-09-14] query+execute | Calibration synonym foils (先生 / 教師) — TASK-776, TASK-777
+Pages updated: [[tasklist/calibration.tasks]] (+2), [[tasklist/master]]. New migration
+`calibration_distractor_headword_guard.sql` — **written, NOT applied live** (the live apply was
+refused by the session's permission guard; left for the operator), cache not rebuilt.
+
+**Why a synonym was offered as a wrong answer:** 教師 "teacher; an instructor at a school" scored
+cosine 0.71 against 先生 "a teacher — …", under the provisional 0.75 ceiling; the lemma-based
+sibling/stem guards cannot see synonyms; and `semantic_distractors()` orders by similarity DESC,
+so it was ranked **first**. Measured on the cache: 25–30% of anchors in every pair have a top-3
+foil at cosine ≥ 0.70. A shared-head-gloss check (any overlap) flags ja/en 680, ja/zh 395,
+zh/en 293, zh/ja 122, en/en 18, zh/zh 5, ja/ja 0 anchors; an 85-row hand sample was almost all
+true synonyms. The LLM synonym judge for paraphrased synonyms is parked as TASK-777 (open
+question, paused by decision).
+
 ## [2026-09-13] execute | Calibration Phase 5 — TASK-769 – TASK-775, latency
 Pages updated: [[features/calibration.tech]] (new Phase 5), [[tasklist/calibration.tasks]]
 (+7 tasks), [[tasklist/master]]. Migrations applied live: `task769_calibration_record_answer`,
