@@ -12,14 +12,20 @@ which calls the guarded SQL writer and owns none of its policy.
 The item shape is: one prompt word, four definitions, exactly one of them right.
 The three wrong ones come from ``semantic_distractors()`` (ADR-025), which makes
 them semantically near and difficulty-matched rather than random.
+
+Since TASK-769/770 this module does not BUILD items or GRADE answers in Python.
+Both are single SQL functions -- ``calibration_build_items`` and
+``calibration_record_answer`` -- because the work was never the expensive part:
+answering one item cost eight sequential Supabase round trips and serving one
+cost seven, on a link whose median round trip is ~65 ms. What is left here is
+the estimator, which is genuinely Python's job.
 """
 
 from __future__ import annotations
 
 import logging
 import math
-import random
-from typing import Any, Optional
+from typing import Optional
 
 from services.supabase_factory import get_supabase_admin
 
@@ -35,6 +41,11 @@ DISTRACTORS_PER_ITEM = OPTIONS_PER_ITEM - 1
 #: four options it is known a priori, and fitting it as a free parameter on a few
 #: dozen responses makes the fit wander badly.
 GUESS_RATE = 1.0 / OPTIONS_PER_ITEM
+
+#: Most items one /next may build. Mirrors the clamp inside
+#: ``calibration_build_items`` -- the SQL is the authority, this only stops the
+#: service asking for something it knows will be trimmed.
+MAX_BATCH = 25
 
 #: log(0.85 / 0.15) — the logit of the 85% knowledge target the ADR-024 contract
 #: names. Precomputed because it is a constant of the contract, not of the data.
@@ -146,278 +157,159 @@ def get_session(user_id: str, session_id: str) -> Optional[dict]:
     return rows[0] if rows else None
 
 
-def _fetch_distractors(db, anchor: dict, word_language_id: int,
-                       definition_language_id: int) -> list[dict]:
-    """Semantic distractors for one anchor, with a documented fallback.
+def build_items(user_id: str, session: dict, count: int = 1) -> dict:
+    """Build up to ``count`` items in ONE round trip, persisting what was served.
 
-    Falls back to the older random picker only when the semantic one cannot fill
-    the item. That is a real quality drop — random foils make an item answerable
-    by elimination — so it is logged at WARNING rather than passed over. It should
-    be rare: over 1,400 sampled items exactly one came up short.
+    TASK-770. Everything this used to do in Python -- pick an anchor, fetch
+    distractors, insert the response, shuffle four options, insert them, bump the
+    served counter -- now happens inside ``calibration_build_items``. The old
+    version cost six Supabase round trips and two slow RPCs PER ITEM (~1.8-2.1 s
+    measured); twenty items is now one request.
+
+    The distractor pickers are gone from this module for the same reason. They
+    were two round trips on the hot path and their results are cached in SQL
+    (TASK-773); ``semantic_distractors`` is deterministic, so the cache returns
+    the identical foils. The random-foil fallback is retired with them: a batch
+    builder that comes up short on one anchor simply uses the next, which is
+    strictly better than padding an item with foils that make it answerable by
+    elimination.
+
+    Returns ``{'items': [...], 'built': int, 'exhausted': bool}``.
+    ``exhausted`` is True only when the language pair has no unseen anchors left
+    -- NOT when a batch merely happened to build nothing.
     """
-    try:
-        rows = db.rpc('semantic_distractors', {
-            'p_sense_id': anchor['sense_id'],
-            'p_word_language_id': int(word_language_id),
-            'p_definition_language_id': int(definition_language_id),
-            'p_count': DISTRACTORS_PER_ITEM,
-        }).execute().data or []
-    except Exception as exc:
-        logger.error('semantic_distractors failed for sense %s: %s',
-                     anchor['sense_id'], exc)
-        rows = []
-
-    options = [{
-        'sense_id': r.get('out_sense_id'),
-        'vocab_id': r.get('out_vocab_id'),
-        'lemma': r.get('out_lemma'),
-        'definition': r.get('out_definition'),
-        'similarity': r.get('out_similarity'),
-        'frequency': r.get('out_frequency'),
-        'freq_tier': r.get('out_freq_tier'),
-    } for r in rows]
-
-    if len(options) >= DISTRACTORS_PER_ITEM:
-        return options[:DISTRACTORS_PER_ITEM]
-
-    logger.warning(
-        'semantic_distractors returned %d/%d for sense %s (%s) — falling back to '
-        'random foils; this item measures less than it should',
-        len(options), DISTRACTORS_PER_ITEM, anchor['sense_id'], anchor.get('lemma'))
+    db = get_supabase_admin()
+    mode = session.get('mode') or MODE_DEFINITION
+    wanted = max(1, min(int(count or 1), MAX_BATCH))
 
     try:
-        filler = db.rpc('get_distractors', {
-            'p_sense_id': anchor['sense_id'],
-            'p_language_id': int(word_language_id),
-            'p_count': DISTRACTORS_PER_ITEM - len(options),
-            'p_definition_language_id': int(definition_language_id),
-        }).execute().data or []
+        resp = db.rpc('calibration_build_items', {
+            'p_session_id': session['id'],
+            'p_user_id': user_id,
+            'p_word_language_id': int(session['word_language_id']),
+            'p_definition_language_id': int(session['definition_language_id']),
+            'p_mode': mode,
+            'p_count': wanted,
+        }).execute()
     except Exception as exc:
-        logger.error('get_distractors fallback failed for sense %s: %s',
-                     anchor['sense_id'], exc)
-        filler = []
+        logger.error('calibration_build_items failed: %s', exc)
+        raise CalibrationError('could not build calibration items') from exc
 
-    seen = {o['definition'] for o in options}
-    for row in filler:
-        text = (row.get('out_definition') or '').strip()
-        if not text or text in seen:
-            continue
-        seen.add(text)
-        options.append({
-            'sense_id': None, 'vocab_id': None, 'lemma': None,
-            'definition': text, 'similarity': None,
-            'frequency': None, 'freq_tier': None,
-        })
-    return options[:DISTRACTORS_PER_ITEM]
+    payload = resp.data if isinstance(resp.data, dict) else {}
+    items = payload.get('items') or []
+    built = int(payload.get('built') or 0)
+    skipped = int(payload.get('skipped') or 0)
+    filled = int(payload.get('filled') or 0)
 
+    if skipped:
+        # Expected to be ~0 once the distractor cache is built. A persistently
+        # high number means either the cache is cold for this language pair or
+        # real anchors cannot be filled, and both are worth seeing.
+        logger.info(
+            'calibration batch: built %d/%d, skipped %d anchors, filled %d cold '
+            '(session %s, mode %s)', built, wanted, skipped, filled,
+            session['id'], mode)
 
-def _fetch_pronunciation_foils(db, anchor: dict, word_language_id: int) -> list[dict]:
-    """Audio/orthographically confusable readings for one anchor.
-
-    A different problem from the semantic case and so a different picker. There is
-    no fallback to a random one: a random reading is trivially discardable, and an
-    item with random readings would measure nothing while still counting toward
-    the ability curve. Better to skip the anchor.
-    """
-    try:
-        rows = db.rpc('pronunciation_distractors', {
-            'p_sense_id': anchor['sense_id'],
-            'p_word_language_id': int(word_language_id),
-            'p_count': DISTRACTORS_PER_ITEM,
-        }).execute().data or []
-    except Exception as exc:
-        logger.error('pronunciation_distractors failed for sense %s: %s',
-                     anchor['sense_id'], exc)
-        return []
-
-    return [{
-        'sense_id': r.get('out_sense_id'),
-        'vocab_id': r.get('out_vocab_id'),
-        'lemma': r.get('out_lemma'),
-        'definition': r.get('out_pronunciation'),   # the rendered option text
-        'similarity': None,
-        'frequency': r.get('out_frequency'),
-        # Reuse freq_tier to carry edit distance, so the response-options table
-        # records how close each reading was without needing another column.
-        'freq_tier': r.get('out_distance'),
-    } for r in rows]
+    session['items_served'] = int(session.get('items_served', 0)) + built
+    return {
+        'items': items,
+        'built': built,
+        'exhausted': bool(payload.get('exhausted')),
+    }
 
 
 def next_item(user_id: str, session: dict) -> Optional[dict]:
-    """Build the next calibration item, persisting what was served.
+    """One item, or None when the language pair is exhausted.
 
-    Returns None when the language pair has no anchors left for this session.
-    The correct answer is recorded server-side and never sent to the client as a
-    flag — the client learns which option was right only when it submits one.
+    Kept as the single-item face of :func:`build_items` so callers that only want
+    one need not change. The correct answer is still recorded server-side and
+    never sent to the client as a flag; the client learns which option was right
+    only when it submits one.
     """
-    db = get_supabase_admin()
-    word_lang = int(session['word_language_id'])
-    def_lang = int(session['definition_language_id'])
-    mode = session.get('mode') or MODE_DEFINITION
-
-    try:
-        rows = db.rpc('calibration_next_anchor', {
-            'p_session_id': session['id'],
-            'p_word_language_id': word_lang,
-            'p_definition_language_id': def_lang,
-            'p_mode': mode,
-        }).execute().data or []
-    except Exception as exc:
-        logger.error('calibration_next_anchor failed: %s', exc)
-        raise CalibrationError('could not select a word') from exc
-
-    if not rows:
+    batch = build_items(user_id, session, count=1)
+    if batch['items']:
+        return batch['items'][0]
+    if batch['exhausted']:
         return None
-
-    r = rows[0]
-    anchor = {
-        'sense_id': r.get('out_sense_id'),
-        'vocab_id': r.get('out_vocab_id'),
-        'lemma': r.get('out_lemma'),
-        'definition': r.get('out_definition'),
-        'pronunciation': r.get('out_pronunciation'),
-        'zipf': r.get('out_zipf'),
-        'zipf_band': r.get('out_zipf_band'),
-    }
-
-    if mode == MODE_PRONUNCIATION:
-        distractors = _fetch_pronunciation_foils(db, anchor, word_lang)
-        key_text = anchor['pronunciation']
-    else:
-        distractors = _fetch_distractors(db, anchor, word_lang, def_lang)
-        key_text = anchor['definition']
-
-    if not key_text or len(distractors) < DISTRACTORS_PER_ITEM:
-        # Came up short. Skip this anchor rather than render a two- or
-        # three-option item, which would silently change the guess rate the
-        # ability curve is built on — every band's known-share is interpreted
-        # against a 1-in-4 floor.
-        logger.info('only %d foils for sense %s (%s, mode=%s) — skipping anchor',
-                    len(distractors), anchor['sense_id'], anchor.get('lemma'), mode)
-        raise CalibrationError('could not build an item for this word')
-
-    response_resp = db.table('calibration_responses').insert({
-        'session_id': session['id'],
-        'user_id': user_id,
-        'anchor_sense_id': anchor['sense_id'],
-        'anchor_vocab_id': anchor['vocab_id'],
-        'anchor_zipf': anchor['zipf'],
-        'zipf_band': anchor['zipf_band'],
-    }).execute()
-    if not response_resp.data:
-        raise CalibrationError('could not record the served item')
-    response_id = response_resp.data[0]['id']
-
-    options = [{
-        'sense_id': anchor['sense_id'], 'vocab_id': anchor['vocab_id'],
-        'definition': key_text, 'is_key': True,
-        'similarity': None, 'frequency': anchor['zipf'], 'freq_tier': None,
-    }] + [{
-        'sense_id': d['sense_id'], 'vocab_id': d['vocab_id'],
-        'definition': d['definition'], 'is_key': False,
-        'similarity': d['similarity'], 'frequency': d['frequency'],
-        'freq_tier': d['freq_tier'],
-    } for d in distractors]
-    random.shuffle(options)
-
-    db.table('calibration_response_options').insert([{
-        'response_id': response_id,
-        'sense_id': o['sense_id'] if o['sense_id'] is not None else -(pos + 1),
-        'vocab_id': o['vocab_id'] if o['vocab_id'] is not None else -1,
-        'is_key': o['is_key'],
-        'position': pos,
-        'similarity': o['similarity'],
-        'frequency': o['frequency'],
-        'freq_tier': o['freq_tier'],
-    } for pos, o in enumerate(options)]).execute()
-
-    db.table('calibration_sessions').update({
-        'items_served': int(session.get('items_served', 0)) + 1,
-    }).eq('id', session['id']).execute()
-    session['items_served'] = int(session.get('items_served', 0)) + 1
-
-    return {
-        'response_id': response_id,
-        'lemma': anchor['lemma'],
-        # In pronunciation mode the reading IS the answer, so it must not also be
-        # shown under the prompt.
-        'pronunciation': None if mode == MODE_PRONUNCIATION else anchor['pronunciation'],
-        'zipf_band': anchor['zipf_band'],
-        'mode': mode,
-        # No `is_key` here. The client is told which option was correct only in
-        # the answer response.
-        'options': [{'position': pos, 'definition': o['definition']}
-                    for pos, o in enumerate(options)],
-    }
+    # Anchors were available but none could be filled. Same outcome the old
+    # builder produced when an anchor came up short of foils.
+    raise CalibrationError('could not build an item for this word')
 
 
 def record_answer(user_id: str, session: dict, response_id: int,
                   position: Optional[int], latency_ms: Optional[int] = None) -> dict:
-    """Grade and persist one answer. Returns what the client needs to render feedback.
+    """Grade and persist one answer in ONE round trip.
+
+    TASK-769. This was eight sequential Supabase calls -- a session read, a
+    response read, an options read, three writes and an ability RPC -- for ~570 ms
+    of latency the learner felt as a lag between clicking and seeing whether they
+    were right. ``calibration_record_answer`` does all of it, and returns the two
+    running counts the header needs, so nothing else is asked for afterwards.
 
     `position` may be None, meaning the learner skipped. A skip is recorded as
     incorrect: not knowing is the thing being measured, and dropping skips would
     bias the curve upward.
+
+    Ownership, session membership and double-answer checks all live in the RPC
+    and come back as an ``error`` string, which is re-raised here as the same
+    :class:`CalibrationError` the route has always turned into a 400.
     """
     db = get_supabase_admin()
+    try:
+        resp = db.rpc('calibration_record_answer', {
+            'p_response_id': int(response_id),
+            'p_user_id': user_id,
+            'p_session_id': session['id'],
+            'p_position': position,
+            'p_latency_ms': latency_ms,
+        }).execute()
+    except Exception as exc:
+        logger.error('calibration_record_answer failed for response %s: %s',
+                     response_id, exc)
+        raise CalibrationError('could not record the answer') from exc
 
-    resp = (db.table('calibration_responses')
-              .select('id, session_id, user_id, is_correct')
-              .eq('id', response_id)
-              .eq('user_id', user_id)
-              .limit(1)
-              .execute())
-    rows = resp.data or []
-    if not rows:
-        raise CalibrationError('unknown item')
-    if str(rows[0]['session_id']) != str(session['id']):
-        raise CalibrationError('item does not belong to this session')
-    if rows[0]['is_correct'] is not None:
-        raise CalibrationError('item already answered')
+    result = resp.data if isinstance(resp.data, dict) else {}
+    if result.get('error'):
+        raise CalibrationError(str(result['error']))
 
-    opt_resp = (db.table('calibration_response_options')
-                  .select('sense_id, is_key, position, similarity, frequency, freq_tier')
-                  .eq('response_id', response_id)
-                  .execute())
-    options = opt_resp.data or []
-    if not options:
-        raise CalibrationError('item has no recorded options')
-
-    key = next((o for o in options if o['is_key']), None)
-    chosen = next((o for o in options if o['position'] == position), None) \
-        if position is not None else None
-
-    if position is not None and chosen is None:
-        raise CalibrationError('no such option')
-
-    is_correct = bool(chosen and chosen['is_key'])
-
-    db.table('calibration_responses').update({
-        'chosen_sense_id': chosen['sense_id'] if chosen else None,
-        'is_correct': is_correct,
-        'latency_ms': latency_ms,
-        'answered_at': 'now()',
-    }).eq('id', response_id).execute()
-
-    if chosen is not None:
-        (db.table('calibration_response_options')
-           .update({'was_chosen': True})
-           .eq('response_id', response_id)
-           .eq('sense_id', chosen['sense_id'])
-           .execute())
-
-    db.table('calibration_sessions').update({
-        'items_answered': int(session.get('items_answered', 0)) + 1,
-        'items_correct': int(session.get('items_correct', 0)) + (1 if is_correct else 0),
-    }).eq('id', session['id']).execute()
-    session['items_answered'] = int(session.get('items_answered', 0)) + 1
-    session['items_correct'] = int(session.get('items_correct', 0)) + (1 if is_correct else 0)
+    answered = int(result.get('answered') or 0)
+    correct = int(result.get('correct') or 0)
+    session['items_answered'] = answered
+    session['items_correct'] = correct
 
     return {
-        'is_correct': is_correct,
-        'correct_position': key['position'] if key else None,
-        'skipped': position is None,
+        'is_correct': bool(result.get('is_correct')),
+        'correct_position': result.get('correct_position'),
+        'skipped': bool(result.get('skipped')),
+        # The running header reads these directly. Computing them used to mean
+        # calling calibration_ability() on the hot path to read two integers out
+        # of a report whose every other field was thrown away.
+        'answered': answered,
+        'correct': correct,
     }
+
+
+def discard_unanswered(user_id: str, session: dict) -> int:
+    """Drop items that were prefetched but never reached. Best-effort.
+
+    TASK-770. Prefetching means a learner who stops mid-batch leaves served rows
+    with is_correct NULL. They never affected an estimate -- every consumer
+    filters on is_correct IS NOT NULL -- but they would keep their anchors marked
+    "already seen" for the session and leave items_served overstating the run.
+
+    Never fatal: a learner's result must not be lost because tidying failed.
+    """
+    db = get_supabase_admin()
+    try:
+        resp = db.rpc('calibration_discard_unanswered', {
+            'p_session_id': session['id'],
+            'p_user_id': user_id,
+        }).execute()
+    except Exception as exc:
+        logger.warning('calibration_discard_unanswered failed for session %s: %s',
+                       session['id'], exc)
+        return 0
+    return resp.data if isinstance(resp.data, int) else 0
 
 
 def _log_likelihood(points: list[tuple[float, bool]], slope: float,
@@ -556,7 +448,7 @@ def _fit_points(db, session_id: str) -> list[tuple[float, bool]]:
     return [(float(r['anchor_zipf']), bool(r['is_correct'])) for r in rows]
 
 
-def ability(user_id: str, session: dict, fit: bool = True) -> dict:
+def ability(user_id: str, session: dict) -> dict:
     """The Zipf knowledge curve and where it crosses.
 
     `ability_zipf_85` is the statistic the ADR-024 §1.2 contract names: the Zipf
@@ -566,8 +458,13 @@ def ability(user_id: str, session: dict, fit: bool = True) -> dict:
     The per-band curve still comes from the SQL RPC, because that is the evidence
     the UI shows. The crossings come from :func:`_fit_ability`, which owns them
     outright: two estimators disagreeing about the headline number would be worse
-    than either. Pass ``fit=False`` on the hot path (after every answer) where
-    only the running counts are needed.
+    than either.
+
+    This is NOT on the hot path. It used to be called after every answer with
+    ``fit=False``, purely to read `answered` and `correct` out of a report whose
+    every other field was then discarded — 47 ms of SQL plus a round trip for two
+    integers. Since TASK-769 the grading RPC returns those counts itself, so this
+    runs only at /ability and /end, where someone actually reads the curve.
     """
     db = get_supabase_admin()
     try:
@@ -581,13 +478,6 @@ def ability(user_id: str, session: dict, fit: bool = True) -> dict:
         return {'answered': 0, 'correct': 0, 'bands': [],
                 'ability_zipf_85': None, 'ability_zipf_50': None,
                 'confidence': 'none'}
-
-    if not fit:
-        # The RPC's own interpolated crossings are the biased ones. Strip them
-        # rather than return a number this function no longer stands behind.
-        report['ability_zipf_85'] = None
-        report['ability_zipf_50'] = None
-        return report
 
     try:
         zipf_85, zipf_50 = _fit_ability(_fit_points(db, session['id']))
@@ -752,6 +642,12 @@ def apply_calibration_to_ratings(user_id: str,
 def end_session(user_id: str, session: dict) -> dict:
     """Close a session, publish pooled ability, and return the final report."""
     db = get_supabase_admin()
+
+    # BEFORE the report is computed, not after: prefetched items the learner
+    # never reached are not part of this run, and leaving them behind would
+    # overstate items_served in the session row the report is built from.
+    discard_unanswered(user_id, session)
+
     db.table('calibration_sessions').update({
         'ended_at': 'now()',
     }).eq('id', session['id']).eq('user_id', user_id).execute()

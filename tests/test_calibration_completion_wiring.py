@@ -71,8 +71,9 @@ def test_writer_fires_once_after_the_state_write(wiring):
     rpc = _rpc_calls(calls)
     assert len(rpc) == 1
     assert rpc[0][2] == {'p_user_id': USER, 'p_language_id': 3}
-    order = [c[0] for c in calls]
-    assert order.index('state') < order.index('rpc')
+    # Position of THIS rpc, not of any rpc: since TASK-770, end_session also
+    # calls calibration_discard_unanswered, and it does so first.
+    assert calls.index(('state', USER, 3, cs.MODE_DEFINITION)) < calls.index(rpc[0])
 
 
 def test_decisions_reach_the_result_view_unfiltered(wiring):

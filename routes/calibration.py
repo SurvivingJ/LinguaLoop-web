@@ -3,7 +3,7 @@
 
 Five endpoints:
   POST /api/calibration/start    body: {word_language_id, definition_language_id, mode?}
-  GET  /api/calibration/next     query: session_id
+  GET  /api/calibration/next     query: session_id, count? (1..MAX_BATCH)
   POST /api/calibration/answer   body: {session_id, response_id, position|null, latency_ms?}
   GET  /api/calibration/ability  query: session_id
   POST /api/calibration/end      body: {session_id}
@@ -90,16 +90,40 @@ def start() -> ApiResponse:
 @calibration_bp.route('/next', methods=['GET'])
 @supabase_jwt_required
 def next_item() -> ApiResponse:
-    """Serve the next item. `item` is null when the language pair is exhausted."""
+    """Serve the next item, or a batch of them.
+
+    `count` (TASK-770) asks for up to that many items in one request; the client
+    keeps them in a queue and renders from it, so no answer is ever followed by a
+    wait for the next word. Without `count` this behaves exactly as before and
+    still answers with a single `item`, so an old client keeps working.
+
+    Both shapes are returned every time: `items` is the batch, `item` is its
+    first element. `exhausted` means the language pair has nothing unseen left —
+    it is NOT the same as an empty batch, which can also mean every candidate in
+    this attempt had to be skipped.
+    """
     try:
         session, err = _load_session(request.args.get('session_id'))
         if err:
             return err
 
-        item = calibration_service.next_item(g.current_user_id, session)
-        if item is None:
-            return api_success({'item': None, 'exhausted': True})
-        return api_success({'item': item, 'exhausted': False})
+        try:
+            count = int(request.args.get('count', 1))
+        except (TypeError, ValueError):
+            return bad_request("count must be an integer")
+        if count < 1 or count > calibration_service.MAX_BATCH:
+            return bad_request(
+                f"count must be between 1 and {calibration_service.MAX_BATCH}")
+
+        batch = calibration_service.build_items(
+            g.current_user_id, session, count=count)
+        items = batch['items']
+        return api_success({
+            'items': items,
+            'item': items[0] if items else None,
+            'built': batch['built'],
+            'exhausted': batch['exhausted'],
+        })
     except CalibrationError as e:
         return bad_request(str(e))
     except Exception as e:
@@ -110,12 +134,23 @@ def next_item() -> ApiResponse:
 @calibration_bp.route('/answer', methods=['POST'])
 @supabase_jwt_required
 def answer() -> ApiResponse:
-    """Record one answer. `position` may be null, meaning the learner skipped."""
+    """Record one answer. `position` may be null, meaning the learner skipped.
+
+    TASK-769: this endpoint deliberately does NOT load the session first. The
+    reveal is the one place a learner feels every millisecond, and the session
+    read was a round trip spent proving something the grading RPC proves anyway —
+    it checks that the response belongs to this user AND to this session before
+    it writes. A session id that is wrong or not the caller's therefore comes back
+    as "item does not belong to this session" (400) rather than a 404, which is
+    the same amount of information: neither answer tells you whether the session
+    exists.
+    """
     try:
         data = request.get_json() or {}
-        session, err = _load_session(data.get('session_id'))
-        if err:
-            return err
+        session_id = data.get('session_id')
+        if not session_id:
+            return bad_request("session_id required")
+        session = {'id': session_id}
 
         response_id = data.get('response_id')
         if not isinstance(response_id, int):
@@ -131,10 +166,11 @@ def answer() -> ApiResponse:
 
         result = calibration_service.record_answer(
             g.current_user_id, session, response_id, position, latency_ms)
-        # fit=False: the running header only needs counts, and re-fitting the
-        # curve after every single answer would be wasted work on the hot path.
-        result['ability'] = calibration_service.ability(
-            g.current_user_id, session, fit=False)
+        # The counts come back from the grading RPC itself. This used to call
+        # calibration_ability(fit=False) — 47 ms of SQL plus a round trip — to
+        # read `answered` and `correct` out of a report whose every other field
+        # was then discarded. The ability CURVE is still computed by the same
+        # estimator, at /ability and /end, where someone actually looks at it.
         return api_success(result)
     except CalibrationError as e:
         return bad_request(str(e))

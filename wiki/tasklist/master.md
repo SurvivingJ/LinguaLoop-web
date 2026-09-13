@@ -24,7 +24,7 @@ below.
 | Blocked / Deferred / Awaiting decision (numbered tasks) | 6 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 157 |
+| Done (cumulative, not listed here) | 165 |
 
 *2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
 Calibration) were never entered here when filed. Counts now include them:
@@ -35,6 +35,10 @@ Calibration) were never entered here when filed. Counts now include them:
 
 *2026-09-11:* +2 Done — TASK-767 and TASK-768 (sense blocklist enforced for all
 exercise consumers; blocklisted dictionary rows repaired at source).
+
+*2026-09-13:* +7 Done — Calibration Phase 5 (latency): TASK-769, 770, 771, 772,
+773, 773b, 774, 775. The per-item cycle goes from 2.9-3.7 s to 0.6 s / learner-paced;
+TASK-774's token cache is app-wide, not calibration-only.
 
 Earlier counts were not re-audited.
 
@@ -744,9 +748,11 @@ Turning it on is an operator decision after a 7-day shadow window
 
 ### Calibration (open tasks only)
 
-Full spec: [[tasklist/calibration.tasks]]. 15 of 16 done; TASK-765 (apply the
+Full spec: [[tasklist/calibration.tasks]]. 23 of 24 done; TASK-765 (apply the
 Phase 4 migration) verified live 2026-09-10; TASK-767/768 (blocklist binds every
-exercise consumer; 430 definitions repaired at source) done 2026-09-11.
+exercise consumer; 430 definitions repaired at source) done 2026-09-11;
+**Phase 5 (TASK-769 - TASK-775, latency) applied live 2026-09-13** - 20 items now
+build in 348 ms where twenty singular builds cost ~38 s.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
@@ -754,6 +760,14 @@ exercise consumer; 430 definitions repaired at source) done 2026-09-11.
 | TASK-763 | calibration | Re-tune the cosine ceiling from response data | [?] Blocked — needs real learner traffic | S | TASK-759 |
 | TASK-767 | calibration | Make the sense blocklist bind exercise generation and practice | [x] Done (applied live 2026-09-11) | S | TASK-757 |
 | TASK-768 | calibration | Repair the blocklisted dictionary rows at source | [x] Done 2026-09-11 (817 → 355; 355 need upstream re-segmentation) | L | TASK-767 |
+| TASK-769 | calibration | Grade an answer in one round trip | [x] Done (applied live 2026-09-13) | S | TASK-759 |
+| TASK-772 | calibration | Materialise a narrow anchor pool | [x] Done (applied live 2026-09-13) | M | TASK-758 |
+| TASK-773 | calibration | Cache the distractor sets | [x] Done (applied live 2026-09-13) | M | TASK-772 |
+| TASK-773b | calibration | Stop the bulk builder retrying a short anchor forever | [x] Done (applied live 2026-09-13) | XS | TASK-773 |
+| TASK-770 | calibration | Build items in batches | [x] Done (applied live 2026-09-13) | M | TASK-772, TASK-773 |
+| TASK-771 | calibration | Prefetch items into a client-side queue | [x] Done 2026-09-13 | S | TASK-770 |
+| TASK-774 | calibration | Stop revalidating every token over the network | [x] Done 2026-09-13 (app-wide) | S | — |
+| TASK-775 | calibration | Learner-paced advance after a wrong answer | [x] Done 2026-09-13 | XS | TASK-771 |
 
 ### Language Packs (existing — unchanged)
 

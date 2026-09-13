@@ -33,9 +33,13 @@
 .cal-option.wrong { border-color: var(--danger, #dc2626); background: color-mix(in srgb, var(--danger, #dc2626) 10%, transparent); }
 
 .cal-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.cal-actions [hidden] { display: none !important; }
 .cal-btn { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border-default);
     background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; font-size: 14px; }
 .cal-btn-primary { background: var(--brand-primary, #4f46e5); border-color: var(--brand-primary, #4f46e5); color: #fff; }
+/* Stays on the right even when "I don't know" is hidden beside it. */
+#calNextBtn { margin-left: auto; }
+.cal-next-hint { font-size: 12px; color: var(--text-muted); align-self: center; }
 
 /* Results: the knowledge curve. One row per Zipf band. */
 .cal-results { max-width: 680px; margin: 0 auto; padding: 32px 20px; }
@@ -96,7 +100,9 @@
     <div id="calOptions" class="cal-options"></div>
     <div class="cal-actions">
         <button type="button" id="calSkipBtn" class="cal-btn" data-i18n="calibration.skip">I don't know</button>
-        <span></span>
+        <span class="cal-next-hint" id="calNextHint" hidden data-i18n="calibration.next_hint">or press Enter</span>
+        <button type="button" id="calNextBtn" class="cal-btn cal-btn-primary" hidden
+                data-i18n="calibration.next">Next word</button>
     </div>
 </div>
 
@@ -146,14 +152,36 @@
         rating:      document.getElementById('calRating'),
         empty:       document.getElementById('calEmpty'),
         skipBtn:     document.getElementById('calSkipBtn'),
+        nextBtn:     document.getElementById('calNextBtn'),
+        nextHint:    document.getElementById('calNextHint'),
         finishBtn:   document.getElementById('calFinishBtn'),
         restartBtn:  document.getElementById('calRestartBtn'),
         modeToggle:  document.getElementById('calModeToggle'),
     };
 
+    // TASK-771. Items are fetched ahead and rendered from a queue, so answering
+    // one is never followed by waiting for the next. Sizes, not tuning knobs:
+    //   FIRST_BATCH small, because it is the only fetch the learner waits on;
+    //   LOW_WATER > 0, so a top-up starts while there are still items to answer;
+    //   BATCH comfortably larger than anyone answers during one round trip.
+    const FIRST_BATCH = 3;
+    const BATCH = 12;
+    const LOW_WATER = 6;
+    //: How long a CORRECT answer stays on screen before moving on. A wrong one
+    //: has no timer at all — see `advance`.
+    const CORRECT_PAUSE_MS = 450;
+
     const state = {
         sessionId: null,
         item: null,
+        queue: [],
+        topping: false,
+        topPromise: null,
+        exhausted: false,
+        // True between revealing the answer and moving on. The gate that stops a
+        // stray keypress from consuming two items.
+        awaitingAdvance: false,
+        advanceTimer: null,
         locked: false,
         shownAt: 0,
         ability: null,
@@ -206,7 +234,16 @@
 
     async function startSession() {
         show(el.loading);
+        el.loading.textContent = tr('calibration.loading');
         el.header.style.display = 'none';
+        clearAdvance();
+        hideAdvanceButton();
+        // Everything buffered belongs to the session being replaced.
+        state.queue = [];
+        state.topping = false;
+        state.topPromise = null;
+        state.exhausted = false;
+        state.item = null;
         try {
             const data = await api('/api/calibration/start', {
                 method: 'POST',
@@ -220,24 +257,82 @@
             state.sessionId = data.session_id;
             state.ability = null;
             updateStats({ answered: 0, correct: 0 });
-            await nextItem();
+            // Ask for a few, not a full batch: this is the one fetch the learner
+            // actually waits on. The rest arrive while they answer these.
+            await topUp(FIRST_BATCH);
+            showNext();
         } catch (err) {
             el.loading.textContent = tr('calibration.error_start');
             show(el.loading);
         }
     }
 
-    async function nextItem() {
+    // Fetch more items into the queue. Safe to call at any time: it collapses
+    // into the in-flight request rather than starting a second one.
+    function topUp(count) {
+        if (state.exhausted || !state.sessionId) return Promise.resolve();
+        if (state.topping) return state.topPromise || Promise.resolve();
+
+        state.topping = true;
+        const sid = state.sessionId;
+        state.topPromise = api('/api/calibration/next?session_id='
+                + encodeURIComponent(sid) + '&count=' + count)
+            .then(function (data) {
+                // A restart or mode switch may have replaced the session while
+                // this was in flight. Those items belong to a run we left.
+                if (sid !== state.sessionId) return;
+                const items = (data && data.items) || [];
+                state.queue.push.apply(state.queue, items);
+                // `exhausted` means the dictionary is finished. A batch that
+                // merely built nothing is also the end of the road for us, but
+                // only once the queue has drained.
+                if (data && (data.exhausted || items.length === 0)) {
+                    state.exhausted = true;
+                }
+            })
+            .catch(function () { /* handled by whoever is waiting for an item */ })
+            .then(function () {
+                if (sid === state.sessionId) state.topping = false;
+            });
+        return state.topPromise;
+    }
+
+    function showNext() {
+        clearAdvance();
+        hideAdvanceButton();
+        state.awaitingAdvance = false;
         state.locked = false;
-        try {
-            const data = await api('/api/calibration/next?session_id=' + encodeURIComponent(state.sessionId));
-            if (!data.item) { show(el.empty); el.header.style.display = 'none'; return; }
-            state.item = data.item;
-            renderItem(data.item);
-        } catch (err) {
-            el.loading.textContent = tr('calibration.error_item');
-            show(el.loading);
+        state.item = null;
+
+        // Start the refill BEFORE rendering, so it overlaps the time the learner
+        // spends reading this item rather than the time after it.
+        if (state.queue.length <= LOW_WATER) topUp(BATCH);
+
+        const item = state.queue.shift();
+        if (!item) { waitForItem(); return; }
+        state.item = item;
+        renderItem(item);
+    }
+
+    // The queue ran dry. Either the run is over, or a fetch is still in flight —
+    // the only case where the learner sees a spinner at all.
+    async function waitForItem() {
+        if (state.exhausted) {
+            show(el.empty);
+            el.header.style.display = 'none';
+            return;
         }
+        el.loading.textContent = tr('calibration.loading');
+        show(el.loading);
+        await topUp(BATCH);
+        if (state.queue.length) { showNext(); return; }
+        if (state.exhausted) {
+            show(el.empty);
+            el.header.style.display = 'none';
+            return;
+        }
+        el.loading.textContent = tr('calibration.error_item');
+        show(el.loading);
     }
 
     function renderItem(item) {
@@ -276,6 +371,33 @@
             : '—';
     }
 
+    function clearAdvance() {
+        if (state.advanceTimer) { clearTimeout(state.advanceTimer); state.advanceTimer = null; }
+    }
+
+    function showAdvanceButton() {
+        // "I don't know" is meaningless once the answer is on screen.
+        el.skipBtn.hidden = true;
+        el.nextBtn.hidden = false;
+        el.nextHint.hidden = false;
+    }
+
+    function hideAdvanceButton() {
+        el.nextBtn.hidden = true;
+        el.nextHint.hidden = true;
+        el.skipBtn.hidden = false;
+    }
+
+    // The single way forward from a revealed answer, whether it came from the
+    // timer, the button or a key. Guarded by `awaitingAdvance` so two of those
+    // firing together cannot consume two items.
+    function advance() {
+        if (!state.awaitingAdvance) return;
+        state.awaitingAdvance = false;
+        clearAdvance();
+        showNext();
+    }
+
     async function answer(position) {
         if (state.locked || !state.item) return;
         state.locked = true;
@@ -309,9 +431,21 @@
             else if (pos === position && !data.is_correct) b.classList.add('wrong');
         });
 
-        state.ability = data.ability;
-        updateStats(data.ability);
-        setTimeout(nextItem, data.is_correct ? 450 : 1300);
+        state.ability = data;
+        updateStats(data);
+
+        state.awaitingAdvance = true;
+        if (data.is_correct) {
+            // Right answer: nothing to study, so it moves on by itself. A key
+            // press still skips the pause.
+            state.advanceTimer = setTimeout(advance, CORRECT_PAUSE_MS);
+        } else {
+            // Wrong, or skipped. This is the one moment in the run where there
+            // is something to read — which option was right, and how close the
+            // one they picked was to it. A timer would decide for them how long
+            // that takes, so the learner moves on when they are ready.
+            showAdvanceButton();
+        }
     }
 
     function bandLabel(band) {
@@ -411,6 +545,12 @@
     }
 
     async function finish() {
+        // Whatever is still queued was served but never answered. /end discards
+        // those server-side (calibration_discard_unanswered), so dropping them
+        // here just keeps the two sides agreeing.
+        clearAdvance();
+        state.awaitingAdvance = false;
+        state.queue = [];
         try {
             const data = await api('/api/calibration/end', {
                 method: 'POST',
@@ -451,12 +591,26 @@
     }
 
     el.skipBtn.addEventListener('click', function () { answer(null); });
+    el.nextBtn.addEventListener('click', advance);
     el.finishBtn.addEventListener('click', finish);
     el.restartBtn.addEventListener('click', startSession);
 
-    // Number keys 1-4 pick an option; they are the fastest way through a long run.
+    // Number keys 1-4 pick an option; Enter / Space move on from a revealed
+    // answer. Together they are the fastest way through a long run, and they are
+    // why the button is never focused: a focused button would turn one Space
+    // into both a native click and this handler.
     document.addEventListener('keydown', function (e) {
-        if (state.locked || el.stage.style.display === 'none') return;
+        if (el.stage.style.display === 'none') return;
+
+        if (state.awaitingAdvance) {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                advance();
+            }
+            return;
+        }
+        if (state.locked) return;
+
         const n = parseInt(e.key, 10);
         if (n >= 1 && n <= 4) {
             const btn = el.options.querySelectorAll('.cal-option')[n - 1];

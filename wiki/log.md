@@ -1,5 +1,64 @@
 # Activity Log
 
+## [2026-09-13] execute | Calibration Phase 5 — TASK-769 – TASK-775, latency
+Pages updated: [[features/calibration.tech]] (new Phase 5), [[tasklist/calibration.tasks]]
+(+7 tasks), [[tasklist/master]]. Migrations applied live: `task769_calibration_record_answer`,
+`task772_calibration_anchor_pool`, `task773_calibration_distractor_cache`,
+`task770_calibration_build_items`. New `scripts/build_calibration_distractor_cache.py`,
+`tests/test_calibration_fast_path.py` (14), `tests/test_auth_token_cache.py` (7).
+
+**The reported symptom was not where the time was.** "2–3 seconds to show
+correct/incorrect" measured as ~570 ms for the reveal and ~1.8–2.1 s for the *next* word
+loading behind it. Almost none of either was computation: 8 and 7 sequential Supabase calls
+respectively, on a link whose median round trip is **65 ms** (measured keep-alive, 53–108 ms).
+
+**The instance cannot hold what the item builder reads.** `shared_buffers` is 224 MB; the
+seven HNSW indexes on `dim_word_senses` total 442 MB. `semantic_distractors()` measured
+**1064–1252 ms cold vs 17 ms warm** — cold is the normal case, and no index or parameter
+fixes that. Item building had to be precomputed, not tuned.
+
+**The fact that made the cache free:** `semantic_distractors()` contains **no `random()`** —
+its final `ORDER BY (freq_tier, similarity DESC)` is fully determined by the data, so the same
+anchor has always returned the same three foils. The cache is the same answer, precomputed,
+verified byte-for-byte against a live call for sense 41543. `pronunciation_distractors()`
+*does* contain `random()`, so it is cached as a pool of 8 and sampled at serve time.
+
+Measured after: 20 anchors selected in **15.6 ms** (was 202–565 ms for one); 20 items built in
+**348 ms**, 0 skipped, 0 filled (was ~38 s); reveal ~70–130 ms. Distractor cache built for ALL pairs
+same day: 99.4-100% coverage everywhere except en/en pronunciation (3/12, and English
+pronunciation mode is refused at the route anyway). 177 anchors of ~34k pair/mode rows
+could not supply three foils (0.5%) and are recorded in the miss ledger; the batch builder
+over-fetches 1.4x, so they are invisible to a learner.
+
+**Two behaviour changes worth remembering.** (1) The `get_distractors()` random-foil fallback
+is retired for calibration — it existed only because a singular builder had no second chance,
+and a batch builder always has one, so definition mode now matches pronunciation mode's
+existing "skip rather than pad" rule (~1 anchor in 1,400). (2) `/answer` now returns 400 rather
+than 404 for a session that is not the caller's; the session read it dropped proved nothing the
+grading RPC does not prove.
+
+**Two new tables are DERIVED and go stale silently:** `calibration_anchor_pool` and
+`calibration_distractor_cache`. Re-run `scripts/build_calibration_distractor_cache.py
+--refresh-pool` after any job that writes senses, embeddings, pronunciations or frequency
+ranks. The builder deliberately drains one language pair at a time so that pair's partial HNSW
+index stays resident — measured 451 → 86 → 62 ms/anchor over the first three chunks, which is
+a ~30 minute build instead of an overnight one.
+
+**A bug the build itself found (TASK-773b).** The bulk filler selected anchors with no cache
+rows and looped until a chunk processed zero — but an anchor that legitimately yields fewer than
+three foils ends with no cache rows, so it is selected again forever. ja/ja pronunciation stalled
+at 2,339/2,352 with thirteen anchors cycling. The obvious fix (stop when a chunk fills nothing)
+would have been wrong: the selector is `ORDER BY sense_id LIMIT n`, so short anchors at the front
+would hide everything behind them. Fixed with `calibration_distractor_cache_misses`, which records
+an **attempt, not a verdict** — nothing at serve time reads it, so a listed anchor is still
+serveable and still self-fills on demand.
+
+TASK-774 (token validation cache) is **app-wide**, not calibration-only: `auth.get_user()` was a
+network call on every authenticated request in the application.
+
+TASK-775 (UI): a wrong answer and a skip now wait for a **Next word** button instead of a
+1,300 ms timer, because that is the one moment in a run with something to read.
+
 ## [2026-08-16] execute | TASK-718 — cross-model judge A/B; the zh divergence was the judge
 Pages updated: [[evaluations/distractor-judge-language-divergence-2026-08-16]] (new §11),
 [[tasklist/distractor-judge-calibration.tasks]], [[tasklist/master]].

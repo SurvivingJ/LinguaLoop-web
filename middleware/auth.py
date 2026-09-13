@@ -15,11 +15,104 @@ endpoints. If `BATCH_SERVICE_TOKEN` is unset the bypass branch is inert.
 from functools import wraps
 from flask import request, jsonify, g
 from gotrue.errors import AuthApiError, AuthRetryableError
+import base64
+import hashlib
 import hmac
+import json
 import os
 import logging
+import threading
+import time
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================================
+# Token validation cache (TASK-774)
+# ============================================================================
+# `auth.get_user(token)` is a NETWORK CALL to GoTrue, and it ran on every single
+# authenticated request. Measured 2026-09-13: the round trip to this project's
+# region is 53-108 ms even with keep-alive, so every endpoint in the app paid a
+# fixed ~65-150 ms toll before its handler started. On the calibration hot path
+# that was a fifth of the time between clicking an answer and seeing whether it
+# was right.
+#
+# Two properties keep this honest:
+#
+#   * ONLY SUCCESSES ARE CACHED. A rejected token is re-checked every time, so a
+#     bad or revoked-then-retried token never gets a free pass from here.
+#
+#   * AN ENTRY NEVER OUTLIVES ITS TOKEN. The expiry is
+#     min(now + TTL, the JWT's own `exp`), read from the payload without
+#     verifying it — safe because the value is only ever used to SHORTEN a
+#     lifetime, so a forged `exp` can make a cache entry die early and nothing
+#     else. A token that has actually expired is therefore never served from
+#     cache; GoTrue is asked again and rejects it.
+#
+# The residual risk is the intended one: a session revoked server-side keeps
+# working for at most AUTH_CACHE_TTL_SECONDS. Set it to 0 to disable the cache
+# entirely and restore the previous behaviour.
+_AUTH_CACHE_TTL = float(os.getenv('AUTH_CACHE_TTL_SECONDS', '60'))
+_AUTH_CACHE_MAX = 512
+_auth_cache: dict = {}
+_auth_cache_lock = threading.Lock()
+
+
+def _token_exp(token):
+    """The JWT's own `exp`, or None. Unverified — see the note above."""
+    try:
+        payload = token.split('.')[1]
+        payload += '=' * (-len(payload) % 4)
+        exp = json.loads(base64.urlsafe_b64decode(payload)).get('exp')
+        return float(exp) if exp is not None else None
+    except Exception:
+        return None
+
+
+def _auth_cache_get(key):
+    with _auth_cache_lock:
+        entry = _auth_cache.get(key)
+        if not entry:
+            return None
+        expires_at, claims = entry
+        if expires_at <= time.time():
+            _auth_cache.pop(key, None)
+            return None
+        return claims
+
+
+def _auth_cache_put(key, claims, token):
+    if _AUTH_CACHE_TTL <= 0:
+        return
+    expires_at = time.time() + _AUTH_CACHE_TTL
+    token_exp = _token_exp(token)
+    if token_exp is not None:
+        expires_at = min(expires_at, token_exp)
+    if expires_at <= time.time():
+        return
+    with _auth_cache_lock:
+        if len(_auth_cache) >= _AUTH_CACHE_MAX:
+            # Crude but adequate: drop everything already dead, and if that
+            # frees nothing, drop the whole map. This is a latency cache, not a
+            # store — losing it costs one round trip per active user.
+            now = time.time()
+            for k in [k for k, (exp, _) in _auth_cache.items() if exp <= now]:
+                _auth_cache.pop(k, None)
+            if len(_auth_cache) >= _AUTH_CACHE_MAX:
+                _auth_cache.clear()
+        _auth_cache[key] = (expires_at, claims)
+
+
+def _auth_cache_key(token):
+    """Hash, so a raw bearer token is never a key in a long-lived dict."""
+    return hashlib.sha256(token.encode('utf-8')).hexdigest()
+
+
+def clear_auth_cache():
+    """Drop every cached validation. For tests, and for an operator who has just
+    revoked a session and does not want to wait out the TTL."""
+    with _auth_cache_lock:
+        _auth_cache.clear()
 
 
 def _extract_token(req):
@@ -71,18 +164,27 @@ def _authenticate(token):
             'user': None,
         }, None
 
+    cache_key = _auth_cache_key(token)
+    cached = _auth_cache_get(cache_key)
+    if cached is not None:
+        return cached, None
+
     try:
         user_response = _get_supabase_client().auth.get_user(token)
         if not user_response or not user_response.user:
             return None, (jsonify({'error': 'Invalid or expired token'}), 401)
         user = user_response.user
-        return {
+        claims = {
             'sub': user.id,
             'email': user.email,
             'role': 'authenticated',
             'aud': 'authenticated',
             'user': user,
-        }, None
+        }
+        # Successes only. A rejection falls through to the handlers below and is
+        # never remembered.
+        _auth_cache_put(cache_key, claims, token)
+        return claims, None
     except AuthApiError as e:
         logger.warning('Auth API error: %s', e.message)
         return None, (jsonify({'error': 'Invalid or expired token'}), 401)

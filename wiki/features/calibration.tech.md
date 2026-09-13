@@ -3,7 +3,7 @@ title: Calibration — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: calibration.md
-last_updated: 2026-09-08
+last_updated: 2026-09-13
 dependencies:
   - "table: dim_word_senses (+ new column word_language_id, embedding)"
   - "table: dim_vocabulary (lemma, language_id, frequency_rank)"
@@ -17,6 +17,9 @@ dependencies:
   - "tables: calibration_sessions / _responses / _response_options / _anchor_blocklist (new)"
   - "RPCs: calibration_next_anchor, calibration_ability, calibration_zipf_band, calibration_band_midpoint (new)"
   - "routes/calibration.py, services/calibration_service.py, templates/calibration.html (new)"
+  - "tables: calibration_anchor_pool, calibration_distractor_cache (TASK-772/773, DERIVED - rebuild on dictionary change)"
+  - "RPCs: calibration_record_answer, calibration_build_items, calibration_next_anchors, calibration_discard_unanswered, calibration_refresh_anchor_pool, calibration_fill_distractor_cache, calibration_cache_distractors_chunk, calibration_distractor_cache_coverage (TASK-769/770/772/773)"
+  - "script: scripts/build_calibration_distractor_cache.py (TASK-773)"
 breaking_change_risk: low
 ---
 
@@ -560,3 +563,154 @@ a screening one.
 - [[decisions/ADR-025-semantic-distractor-selection]]
 - [[tasklist/calibration.tasks]]
 - [[database/schema.tech]], [[api/rpcs.tech]]
+
+---
+
+## Phase 5 — latency (COMPLETE, applied live 2026-09-13 — TASK-769 – TASK-775)
+
+### The measurement that reframed the problem
+
+The complaint was "I click an answer and it takes 2–3 seconds to show
+correct/incorrect". Measured on 2026-09-13, the reveal was not where the time went,
+and almost none of the time was computation:
+
+| | measured |
+|---|---|
+| REST round trip, Flask → Supabase `ap-southeast-2`, keep-alive | 53–108 ms, median ~65 ms |
+| `semantic_distractors()` — cold anchor | 1064–1252 ms (17 ms warm) |
+| `calibration_next_anchor()` | 202–565 ms |
+| `pronunciation_distractors()` | 181 ms |
+| `calibration_ability()` | 47 ms |
+
+and the two endpoints were making, per item:
+
+* **`POST /answer`** — 8 sequential Supabase calls ≈ 520 ms of network + 47 ms ≈ **570 ms**
+* **`GET /next`** — 7 sequential calls ≈ 455 ms of network + 1.3–1.65 s of RPC ≈ **1.8–2.1 s**
+
+plus the client's own 450 ms / 1300 ms reveal pause. Full cycle: **2.9 s correct,
+3.7 s wrong** — of which the reveal the learner complained about was only ~570 ms.
+The rest was the *next* word loading after it.
+
+### Why the slow RPCs could not simply be tuned
+
+```
+shared_buffers                          224 MB
+seven HNSW indexes on dim_word_senses   442 MB
+```
+
+The working set does not fit, so a cold HNSW probe is the **normal** case, not the
+exception — which is exactly what the 1064 ms / 17 ms split shows. Item building had
+to be precomputed or hidden; there was no index or parameter that would make it fast
+in place.
+
+### The four changes
+
+1. **One round trip per action.** `calibration_record_answer()` (TASK-769) and
+   `calibration_build_items()` (TASK-770) each do in one call what Python did in
+   eight and seven. Nothing about grading, the stored evidence, or the ability fit
+   changed — the estimator is untouched and still runs at `/ability` and `/end`.
+
+2. **A narrow anchor pool** (TASK-772). `calibration_anchor_pool` is a materialised,
+   27,326-row copy of the eligible senses without the `vector(1536)` column that made
+   `dim_word_senses` expensive to scan. Per-pair counts match the old query exactly.
+   `calibration_next_anchors(..., p_count)` picks N round-robin over the least-served
+   bands in one pass; at `p_count = 1` it reduces exactly to the old behaviour.
+
+3. **A distractor cache** (TASK-773). The load-bearing fact:
+   **`semantic_distractors()` contains no `random()`** — its final ordering is fully
+   determined by the data, so the same anchor has always returned the same three
+   foils. Caching it is therefore *the same answer, precomputed*, not an
+   approximation; ADR-025 still holds word for word. Verified byte-for-byte against a
+   live call. `pronunciation_distractors()` **does** contain `random()`, so it is
+   cached as a pool of 8 and sampled at serve time, keeping the variety it has today.
+
+4. **Prefetch** (TASK-771). The client renders from a queue and tops it up in the
+   background, so no answer is ever followed by a wait.
+
+### What this cost in behaviour, stated plainly
+
+* **The random-foil fallback is retired for calibration.** `get_distractors()` was
+  called when the semantic picker came up short — its own comment called it "a real
+  quality drop — random foils make an item answerable by elimination", and the
+  pronunciation path already refused to do it. It existed because a singular builder
+  had no second chance. A batch builder always has one, so an item is now built from
+  real foils or it is not built. Measured rate at which this bites: ~1 anchor in 1,400.
+* **`/answer` returns 400, not 404, for a session that is not the caller's.** The
+  session read it used to do proved nothing the grading RPC does not prove. Neither
+  response reveals whether the session exists.
+* **A revoked session survives up to `AUTH_CACHE_TTL_SECONDS`** (TASK-774, default
+  60 s, `0` disables). Bounded deliberately; an entry never outlives the token's own
+  `exp`, and rejections are never cached.
+* **Prefetched items the learner never reaches** are served-but-unanswered rows. They
+  never affected an estimate — every consumer filters `is_correct IS NOT NULL` — and
+  `calibration_discard_unanswered()` removes them at `/end`.
+
+### Result
+
+| | before | after |
+|---|---|---|
+| reveal (click → correct/incorrect) | ~570 ms | ~70–130 ms |
+| next word | ~1.9 s | from the queue, ~0 |
+| 20 items built | ~38 s (20 × ~1.9 s) | **348 ms**, one request |
+| 20 anchors selected | 202–565 ms *each* | **15.6 ms** for all 20 |
+| full cycle, correct | 2.9 s | ~0.5 s |
+| full cycle, wrong | 3.7 s | learner-paced (TASK-775) |
+
+### Maintenance — both new tables are DERIVED
+
+`calibration_anchor_pool` and `calibration_distractor_cache` are caches of
+`dim_word_senses` / `dim_vocabulary`. They go stale **silently**. Re-run after any job
+that writes senses, embeddings, pronunciations or frequency ranks:
+
+```
+PYTHONPATH=. python scripts/build_calibration_distractor_cache.py --refresh-pool
+PYTHONPATH=. python scripts/build_calibration_distractor_cache.py --coverage
+```
+
+A stale pool cannot corrupt a measurement — it can only fail to offer a
+newly-eligible word — but a stale distractor cache will keep serving a definition
+that has since been corrected. The builder works one language pair at a time so that
+pair's partial HNSW index stays resident; measured effect across the first three
+chunks was 451 → 86 → 62 ms/anchor, which is the difference between a ~30 minute
+build and an overnight one.
+
+### TASK-773b: the bulk builder had a non-terminating loop
+
+Worth recording because the obvious fix was the wrong one. The chunk function
+selects anchors with no cache rows and the script loops until a chunk processes
+zero. An anchor whose picker returns fewer than three usable foils finishes its
+attempt with **no cache rows**, so the next chunk selects it again — ja/ja
+pronunciation stalled at 2,339 of 2,352 with thirteen anchors cycling forever.
+
+Stopping the script when a chunk fills nothing would have been wrong: the
+selector is `ORDER BY sense_id LIMIT n`, so a few short anchors at the front of
+that order would have ended the build before the thousands behind them were
+reached.
+
+`calibration_distractor_cache_misses` records the attempt and how many rows came
+back, and the selector skips it. Three properties keep that from becoming a
+quiet quality regression:
+
+* it records an **attempt, not a verdict** — "this anchor is bad" belongs to
+  `calibration_anchor_blocklist` and is a human judgement;
+* **nothing at serve time reads it**, so a listed anchor can still be served and
+  `calibration_build_items` will still self-fill it on demand;
+* `calibration_clear_distractor_cache_misses()` forgets them, because an anchor
+  that was short yesterday may have gained near neighbours since.
+
+The blocklist is deliberately **not** baked into the pool: `calibration_anchor_blocklist`
+is applied live at selection time, so a TASK-767/768 edit takes effect immediately.
+
+### TASK-775: the learner paces a wrong answer
+
+A wrong answer used to be replaced after 1,300 ms. That is the one moment in a run
+with something to read — which option was right, and how near the one they picked
+was — and a fixed timer decides for the learner how long that takes. A wrong answer
+and a skip now reveal the key and show a **Next word** button, and nothing moves
+until the learner acts. A correct answer has nothing to study and still advances
+after 450 ms, which a key press can skip.
+
+Timer, button and key all route through one `advance()` guarded by
+`awaitingAdvance`, so two of them firing together cannot consume two items; and the
+button is never focused, so one Space cannot both activate it natively and fire the
+key handler.

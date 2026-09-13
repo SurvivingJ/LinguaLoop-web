@@ -3,9 +3,9 @@ title: "Calibration — Task Breakdown"
 feature: calibration
 prose_page: ../features/calibration.md
 tech_page: ../features/calibration.tech.md
-total_tasks: 16
-done: 15
-last_updated: 2026-09-11
+total_tasks: 24
+done: 23
+last_updated: 2026-09-13
 ---
 
 # Calibration — Task Breakdown
@@ -16,8 +16,17 @@ Phases 1-3 are complete and live as of 2026-09-08: the **distractor foundation**
 
 Phase 4 (TASK-757, TASK-766) added the dictionary screen and the handoff to test
 selection. **TASK-765** (applying the Phase 4 migration) was verified live on
-2026-09-10. One task remains: **TASK-763** needs real learner traffic that does not
-exist yet.
+2026-09-10.
+
+Phase 5 (TASK-769 – TASK-775, 2026-09-13) is **latency**. The run was measured at
+2.9 s per item correct and 3.7 s wrong, and essentially none of it was computation:
+eight round trips to grade a click, seven to serve a word, on a link whose median
+round trip is ~65 ms, plus two RPCs that between them cost ~1.5 s because the
+instance cannot hold the HNSW indexes they read. The fix is one round trip per
+action, items precomputed and prefetched, and — separately — a learner who decides
+for themselves when to leave a wrong answer.
+
+One task remains: **TASK-763** needs real learner traffic that does not exist yet.
 
 ---
 
@@ -605,5 +614,312 @@ often *strong* learners picked them over the key — the discriminating statisti
 since a weak learner picking one is evidence of nothing. It currently reports,
 correctly, that no responses exist. It cannot be run on simulated answers: the whole
 signal is which wrong option a *person* found tempting.
+
+---
+
+## TASK-769: Grade a calibration answer in one round trip
+
+**Status:** [x] Done — applied live 2026-09-13
+**Feature:** calibration
+**Type:** refactor
+**Complexity:** S
+**Depends On:** TASK-759
+
+**Description:**
+Clicking an option took ~570 ms to reveal correct/incorrect, and almost none of it was
+computation. `record_answer()` made eight sequential Supabase calls — a session read, a
+response read, an options read, three writes and `calibration_ability(fit=False)` — on a link
+whose median round trip is ~65 ms. Collapse all of it into one RPC that also returns the two
+running counts the header renders, so the estimator is not called on the reveal path at all.
+
+**Acceptance Criteria:**
+- [x] `calibration_record_answer()` performs every check the Python did, in the same order,
+      with the same outcomes: unknown item, wrong session, already answered, no such option,
+      no recorded options.
+- [x] A skip (`position` NULL) is still graded incorrect, never dropped.
+- [x] Session counters are incremented in SQL (`items_answered + 1`), not read-modify-written
+      from a Python copy, so two tabs cannot lose an update.
+- [x] Invariant failures return `{"error": ...}` **before any write** and surface as the same
+      `CalibrationError` -> 400 the route always produced.
+- [x] `/answer` makes exactly one Supabase call (pinned by `tests/test_calibration_fast_path.py`).
+
+**Technical Notes:**
+`/answer` no longer loads the session first: the RPC proves ownership *and* session membership
+before writing, so the read proved nothing new. A wrong session id is therefore a 400
+("item does not belong to this session") rather than a 404 — the same amount of information,
+since neither answer reveals whether the session exists.
+
+**Files to Create / Modify:**
+- `migrations/task769_calibration_record_answer.sql` — the RPC
+- `services/calibration_service.py` — `record_answer()` rewritten
+- `routes/calibration.py` — drops `_load_session` and the `ability(fit=False)` call
+
+**Verification:**
+Measured 2026-09-13: 8 calls -> 2 (auth + RPC), ~570 ms -> ~130 ms; with TASK-774, ~70 ms.
+
+---
+
+## TASK-772: Materialise a narrow calibration anchor pool
+
+**Status:** [x] Done — applied live 2026-09-13
+**Feature:** calibration
+**Type:** refactor
+**Complexity:** M
+**Depends On:** TASK-758
+
+**Description:**
+`calibration_next_anchor()` measured 202-565 ms per item because it scanned
+`dim_word_senses JOIN dim_vocabulary` twice — once inside a correlated EXISTS evaluated per
+Zipf band, once to pick the row — and `dim_word_senses` is 56,022 rows carrying a
+`vector(1536)`. Materialise the eligible anchors into a narrow table and select from that.
+
+**Acceptance Criteria:**
+- [x] `calibration_anchor_pool` holds one row per eligible (word lang, def lang, sense);
+      27,326 rows built, and the per-pair counts match the old query exactly
+      (zh/zh 4048, zh/en 3682, zh/ja 3682, en/en 6110, ja/* 3268).
+- [x] The **blocklist is not baked in** — `calibration_anchor_blocklist` is still applied live,
+      so a TASK-767/768 edit takes effect without a rebuild.
+- [x] One table serves both modes via `has_embedding` / `has_pronunciation`.
+- [x] Pronunciation is stored raw and rendered by `calibration_display_pronunciation()` at read
+      time, so a display fix needs no data rebuild.
+- [x] `calibration_next_anchors(..., p_count)` picks N anchors round-robin over the least-served
+      bands in one pass; at `p_count = 1` it reduces exactly to the old behaviour.
+- [x] `calibration_next_anchor()` keeps its signature and delegates.
+- [x] `calibration_refresh_anchor_pool()` rebuilds with `DELETE` (not `TRUNCATE`, which would
+      take an ACCESS EXCLUSIVE lock and block a live run).
+
+**Technical Notes:**
+The pool is a **cache**. Refresh it after any job that writes senses, embeddings,
+pronunciations or frequency ranks — it goes stale silently, and a stale pool cannot corrupt a
+measurement but will fail to offer newly-eligible words.
+
+**Files to Create / Modify:**
+- `migrations/task772_calibration_anchor_pool.sql`
+
+**Verification:**
+20 anchors in **15.6 ms** (was 202-565 ms for one).
+
+---
+
+## TASK-773: Cache the distractor sets
+
+**Status:** [x] Done — applied live 2026-09-13; bulk build run same day
+**Feature:** calibration
+**Type:** infra
+**Complexity:** M
+**Depends On:** TASK-772
+
+**Description:**
+`semantic_distractors()` measured 1064-1252 ms **cold** and 17 ms warm, and cold is the normal
+case: `shared_buffers` is 224 MB and the seven HNSW indexes on `dim_word_senses` total 442 MB,
+so the working set cannot stay resident. Precompute the distractor sets into a table.
+
+**Acceptance Criteria:**
+- [x] Caching the semantic picker is **free, not a trade-off**: `semantic_distractors()`
+      contains no `random()` and its final `ORDER BY (freq_tier, similarity DESC)` is fully
+      determined by the data, so the cache returns the identical foils. Verified byte-for-byte
+      against a live call for sense 41543.
+- [x] Pronunciation is cached as a **pool of 8 and sampled at serve time**, because
+      `pronunciation_distractors()` *does* contain `random()` and freezing three foils would
+      remove variety the live picker has.
+- [x] The cache self-fills on a miss, so a newly-eligible sense is never unserveable.
+- [x] The bulk filler works **one language pair at a time** so that pair's partial HNSW index
+      stays resident; measured effect 451 -> 86 -> 62 ms/anchor across the first three chunks.
+- [x] An anchor that cannot be filled is left uncached, not marked bad — that verdict is the
+      blocklist's job and a human judgement.
+- [x] `calibration_distractor_cache_coverage()` reports cached-vs-total per pair and mode.
+
+**Technical Notes:**
+Derived data. Re-run the builder after any change to definitions, embeddings or the sense
+inventory, or a corrected definition keeps being served as a stale foil.
+
+**Files to Create / Modify:**
+- `migrations/task773_calibration_distractor_cache.sql`
+- `scripts/build_calibration_distractor_cache.py`
+
+**Verification:**
+```
+PYTHONPATH=. python scripts/build_calibration_distractor_cache.py --coverage
+PYTHONPATH=. python scripts/build_calibration_distractor_cache.py --refresh-pool
+```
+Full build ~30 min for ~27k anchors at ~65 ms each.
+
+---
+
+## TASK-770: Build calibration items in batches
+
+**Status:** [x] Done — applied live 2026-09-13
+**Feature:** calibration
+**Type:** feature
+**Complexity:** M
+**Depends On:** TASK-772, TASK-773
+
+**Description:**
+`/next` cost ~1.8-2.1 s per item and sat between every answer and the next word. After
+TASK-772/773 removed the two slow RPCs, six round trips per item remained. Move the whole item
+build — anchor selection, distractor lookup, both inserts, the option shuffle, the served
+counter — into one SQL function that can produce up to 25 items per call.
+
+**Acceptance Criteria:**
+- [x] `calibration_build_items()` returns items **without** the key; the client still learns
+      which option was right only by submitting one.
+- [x] The option shuffle is one `MATERIALIZED` CTE feeding both the stored rows and the returned
+      JSON, so positions cannot disagree. Verified against the stored rows of a built item.
+- [x] Anchors are over-fetched ~1.4x; an anchor that cannot supply three real foils is skipped,
+      not padded with random ones.
+- [x] Cold-cache fills are capped per call (`p_max_fill`, default 4) so a batch cannot become a
+      22-second request.
+- [x] `exhausted` is true only when the language pair has no unseen anchors — an empty batch is
+      reported by `built = 0` instead.
+- [x] `calibration_discard_unanswered()` removes prefetched-but-unreached items at `/end` and
+      corrects `items_served`.
+
+**Technical Notes:**
+This retires the `get_distractors()` random-foil fallback **for calibration**. It existed
+because a singular builder had no second chance; a batch builder always has one, so definition
+mode now agrees with pronunciation mode — an item is built from real foils or it is not built.
+Measured rate at which this bites: ~1 anchor in 1,400.
+
+**Files to Create / Modify:**
+- `migrations/task770_calibration_build_items.sql`
+- `services/calibration_service.py` — `build_items()`, `next_item()` wrapper, `discard_unanswered()`
+- `routes/calibration.py` — `/next?count=`
+
+**Verification:**
+20 items in **348 ms**, 0 skipped, 0 filled, against a warm cache (measured 2026-09-13).
+Previously 20 x ~1.9 s = ~38 s.
+
+---
+
+## TASK-771: Prefetch items into a client-side queue
+
+**Status:** [x] Done — 2026-09-13
+**Feature:** calibration
+**Type:** feature
+**Complexity:** S
+**Depends On:** TASK-770
+
+**Description:**
+Render from a queue rather than fetching on demand, so answering an item is never followed by
+waiting for the next one. Fetch a small first batch — the only one the learner waits on — and
+top up in the background while they answer.
+
+**Acceptance Criteria:**
+- [x] First paint asks for 3 items; top-ups of 12 fire when the queue falls to 6 or fewer.
+- [x] A top-up started for a session that has since been replaced (restart, mode switch) does
+      not enqueue its items.
+- [x] Concurrent top-ups collapse into the in-flight request rather than starting a second.
+- [x] A drained queue shows the exhausted state only when the server said exhausted; otherwise
+      it waits for the in-flight fetch.
+- [x] Queued-but-unanswered items are dropped on `finish()`, matching the server-side discard.
+
+**Files to Create / Modify:**
+- `templates/calibration.html` — `state.queue`, `topUp()`, `showNext()`, `waitForItem()`
+
+---
+
+## TASK-774: Stop revalidating every token over the network
+
+**Status:** [x] Done — 2026-09-13
+**Feature:** calibration (app-wide effect)
+**Type:** refactor
+**Complexity:** S
+**Depends On:** none
+
+**Description:**
+`_authenticate` called `auth.get_user(token)` — a network call to GoTrue — on **every**
+authenticated request in the application, so every endpoint paid a fixed ~65-150 ms toll before
+its handler started. Cache successful validations in-process.
+
+**Acceptance Criteria:**
+- [x] A repeated token does not go to the network.
+- [x] A **rejection is never cached**, so a bad token is re-checked every time.
+- [x] An entry never outlives the token's own `exp` — the expiry is `min(now + TTL, exp)`, read
+      unverified, which is safe because that value can only *shorten* a lifetime.
+- [x] `AUTH_CACHE_TTL_SECONDS=0` disables the cache and restores the previous behaviour.
+- [x] Raw bearer tokens are never used as keys (SHA-256).
+
+**Technical Notes:**
+The residual risk is the intended one and is what the TTL bounds: a session revoked
+server-side keeps working for at most the TTL (default 60 s). `clear_auth_cache()` drops
+everything for an operator who does not want to wait it out.
+
+**Files to Create / Modify:**
+- `middleware/auth.py`
+- `tests/test_auth_token_cache.py`
+
+---
+
+## TASK-775: Let the learner move on from a wrong answer themselves
+
+**Status:** [x] Done — 2026-09-13
+**Feature:** calibration
+**Type:** feature
+**Complexity:** XS
+**Depends On:** TASK-771
+
+**Description:**
+A wrong answer used to be replaced automatically after 1,300 ms. That is the one moment in a run
+where there is something to read — which option was right, and how near the one they picked was
+— and a timer decides for the learner how long that takes. Show a **Next word** button instead
+and wait. A correct answer has nothing to study, so it still advances by itself.
+
+**Acceptance Criteria:**
+- [x] A wrong answer, and a skip, reveal the key and show a Next button; nothing advances until
+      the learner acts.
+- [x] "I don't know" is hidden while an answer is revealed — it can no longer mean anything.
+- [x] A correct answer advances after 450 ms, and a key press skips that pause.
+- [x] Enter / Space / Right arrow advance from a revealed answer. The button is never focused,
+      so one Space cannot both activate it natively and fire the handler.
+- [x] Timer, button and key all go through one `advance()` guarded by `awaitingAdvance`, so two
+      of them firing together cannot consume two items.
+- [x] `calibration.next` and `calibration.next_hint` exist in all four locale files
+      (see [[i18n]] — a missing key renders as the raw key string).
+
+**Files to Create / Modify:**
+- `templates/calibration.html`
+- `static/i18n/{en,zh,ja,es}.json`
+
+---
+
+## TASK-773b: Stop the bulk distractor builder retrying a short anchor forever
+
+**Status:** [x] Done — applied live 2026-09-13
+**Feature:** calibration
+**Type:** bug
+**Complexity:** XS
+**Depends On:** TASK-773
+
+**Description:**
+Found by running the TASK-773 build. `calibration_cache_distractors_chunk` selects anchors with
+no cache rows, and the driving script loops until a chunk processes zero. An anchor whose picker
+legitimately returns fewer than three usable foils ends its attempt with no cache rows — so the
+next chunk selects it again, and again. ja/ja pronunciation stalled at 2,339 of 2,352 with
+thirteen anchors cycling indefinitely.
+
+**Why the obvious fix was wrong:**
+Stopping the script when a chunk fills nothing would have ended the build early: the selector is
+`ORDER BY sense_id LIMIT n`, so a few short anchors at the front of that order would have hidden
+the thousands behind them.
+
+**Acceptance Criteria:**
+- [x] `calibration_distractor_cache_misses` records the anchor and how many rows came back; the
+      selector excludes it.
+- [x] The ledger records an **attempt, not a verdict**. "This anchor is bad" stays with
+      `calibration_anchor_blocklist`, which is a human judgement (TASK-767/768).
+- [x] **Nothing at serve time reads it.** `calibration_build_items` still self-fills on a miss,
+      so a listed anchor is not barred from being served — only from being bulk-retried.
+- [x] `calibration_clear_distractor_cache_misses()` forgets them, for after a dictionary change:
+      an anchor that was short yesterday may have gained near neighbours since.
+- [x] The script keeps a second line of defence — it stops if the remaining count repeats — so a
+      future selector bug cannot spin forever either.
+
+**Files to Create / Modify:**
+- `migrations/task773b_calibration_distractor_cache_misses.sql`
+- `scripts/build_calibration_distractor_cache.py` — `_remaining()` stall guard
+
+**Verification:**
+Re-running the pair that hung now reports `already complete` and exits 0; the 13 anchors are
+recorded with `rows_found = 0`.
 
 ---
