@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibration answer animations</title>
+<style>
+:root {
+    --bg: #f7f7f8; --bg-surface: #fff; --border-default: #d9d9de;
+    --text-primary: #18181b; --text-secondary: #52525b; --text-muted: #71717a;
+    --brand-primary: #4f46e5; --success: #16a34a; --danger: #dc2626;
+}
+@media (prefers-color-scheme: dark) {
+    :root { --bg: #111113; --bg-surface: #1c1c1f; --border-default: #3a3a40;
+        --text-primary: #f4f4f5; --text-secondary: #b4b4bb; --text-muted: #8b8b93; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px 64px; background: var(--bg); color: var(--text-primary);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+.intro { color: var(--text-secondary); max-width: 760px; margin: 0 0 16px; }
+.controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px;
+    padding: 12px 14px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; }
+.controls label { display: flex; gap: 8px; align-items: center; color: var(--text-secondary); font-size: 14px; }
+.controls select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border-default);
+    background: var(--bg); color: var(--text-primary); }
+
+.grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 14px; padding: 18px; }
+.card h2 { margin: 0; font-size: 1rem; }
+.card .desc { margin: 2px 0 14px; color: var(--text-muted); font-size: 13px; }
+.prompt { font-size: 2.2rem; font-weight: 600; text-align: center; margin: 6px 0 16px; }
+
+/* Base option — mirrors .cal-option in templates/calibration.html */
+.opts { display: grid; gap: 10px; }
+.opt { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%; padding: 14px 16px; border: 2px solid var(--border-default); border-radius: 12px;
+    background: var(--bg-surface); color: var(--text-primary); font: inherit; text-align: left; cursor: pointer;
+    transition: border-color .15s, background-color .15s, opacity .2s, transform .15s, box-shadow .2s; }
+.opt:hover:not(:disabled) { border-color: var(--brand-primary); }
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--success); background-color: color-mix(in srgb, var(--success) 10%, var(--bg-surface)); }
+.opt.wrong   { border-color: var(--danger);  background-color: color-mix(in srgb, var(--danger) 10%, var(--bg-surface)); }
+.opt > .label { position: relative; z-index: 1; }
+
+@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+
+/* ── 1. Press & pulse ─────────────────────────────────────────── */
+.v1 .opt:active:not(:disabled) { transform: scale(.97); }
+.v1 .opt.picked { border-color: var(--brand-primary); animation: v1-pulse 1s ease-out infinite; }
+.v1 .opt.correct { animation: v1-pop .35s ease-out; }
+.v1 .opt.wrong { animation: shake .4s ease-in-out; }
+@keyframes v1-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand-primary) 45%, transparent); }
+    100% { box-shadow: 0 0 0 10px transparent; } }
+@keyframes v1-pop { 0% { transform: scale(1); } 45% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+/* ── 2. Ripple ────────────────────────────────────────────────── */
+.v2 .opt.picked { border-color: var(--brand-primary); }
+.v2 .ripple { position: absolute; border-radius: 50%; pointer-events: none; transform: scale(0);
+    width: 40px; height: 40px; margin: -20px 0 0 -20px; animation: v2-ripple .65s ease-out forwards; }
+.v2 .ripple.brand { background: color-mix(in srgb, var(--brand-primary) 30%, transparent); }
+.v2 .ripple.good  { background: color-mix(in srgb, var(--success) 35%, transparent); }
+.v2 .ripple.bad   { background: color-mix(in srgb, var(--danger) 35%, transparent); }
+.v2 .opt.wrong { animation: shake .4s ease-in-out; }
+@keyframes v2-ripple { to { transform: scale(14); opacity: 0; } }
+
+/* ── 3. Fill sweep ────────────────────────────────────────────── */
+.v3 .opt::before { content: ""; position: absolute; inset: 0; transform: scaleX(0); transform-origin: left;
+    background: color-mix(in srgb, var(--brand-primary) 14%, transparent); }
+.v3 .opt.picked { border-color: var(--brand-primary); }
+.v3 .opt.picked::before { transform: scaleX(.85); transition: transform 1.4s cubic-bezier(.1,.7,.3,1); }
+.v3 .opt.correct::before, .v3 .opt.wrong::before { transform: scaleX(1); transition: transform .18s ease-out, background-color .2s; }
+.v3 .opt.correct::before { background: color-mix(in srgb, var(--success) 16%, transparent); }
+.v3 .opt.wrong::before { background: color-mix(in srgb, var(--danger) 16%, transparent); }
+.v3 .opt.correct, .v3 .opt.wrong { background-color: var(--bg-surface); }
+
+/* ── 4. Spinner → tick / cross ────────────────────────────────── */
+.v4 .badge { width: 22px; height: 22px; flex: none; position: relative; z-index: 1; }
+.v4 .badge svg { width: 100%; height: 100%; display: block; }
+.v4 .opt.picked { border-color: var(--brand-primary); }
+.v4 .opts.answered .opt:not(.picked):not(.correct) { opacity: .5; }
+.v4 .spin { animation: v4-spin .7s linear infinite; transform-origin: 50% 50%; }
+.v4 .draw { stroke-dasharray: 30; stroke-dashoffset: 30; animation: v4-draw .3s ease-out forwards; }
+.v4 .draw.second { animation-delay: .12s; }
+@keyframes v4-spin { to { transform: rotate(360deg); } }
+@keyframes v4-draw { to { stroke-dashoffset: 0; } }
+
+/* ── 5. Lift & dim ────────────────────────────────────────────── */
+.v5 .opt.picked { border-color: var(--brand-primary); transform: translateY(-3px);
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--brand-primary) 55%, transparent); }
+.v5 .opts.answered .opt:not(.picked):not(.correct) { opacity: .4; transform: scale(.98); }
+.v5 .opt.correct { transform: translateY(-3px); animation: v5-glow .6s ease-out;
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--success) 60%, transparent); }
+.v5 .opt.wrong { transform: none; box-shadow: none; animation: shake .4s ease-in-out; }
+@keyframes v5-glow { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 55%, transparent); }
+    100% { box-shadow: 0 0 0 14px transparent; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .opt, .opt::before, .ripple, .badge * { animation: none !important; transition: none !important; }
+    .v5 .opt.picked, .v5 .opt.correct { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<h1>Calibration — answer feedback animations</h1>
+<p class="intro">Click an option (or press 1–4 over a card). Each variant has two phases: an <strong>instant</strong>
+acknowledgement the moment you click, and the <strong>reveal</strong> once <code>/api/calibration/answer</code> returns.
+Use the latency control to feel the gap between them — that gap is what currently reads as "nothing happened".</p>
+
+<div class="controls">
+    <label>Simulated server latency
+        <select id="latency">
+            <option value="0">0 ms</option>
+            <option value="150">150 ms</option>
+            <option value="500" selected>500 ms (≈ real)</option>
+            <option value="1200">1200 ms (slow)</option>
+        </select>
+    </label>
+    <label>Outcome
+        <select id="outcome">
+            <option value="random">Random</option>
+            <option value="correct">Always correct</option>
+            <option value="wrong">Always wrong</option>
+        </select>
+    </label>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+(function () {
+    const VARIANTS = [
+        { id: 'v1', name: '1. Press & pulse', desc: 'Button compresses on press, pulses a ring while waiting; pops if right, shakes if wrong.' },
+        { id: 'v2', name: '2. Ripple', desc: 'Ink ripple from the click point; a second green/red ripple on reveal.' },
+        { id: 'v3', name: '3. Fill sweep', desc: 'A fill bar sweeps across the chosen option while waiting, then completes in green/red.' },
+        { id: 'v4', name: '4. Spinner → tick / cross', desc: 'Spinner on the chosen option, morphs into a drawn ✓ or ✗; the rest fade.' },
+        { id: 'v5', name: '5. Lift & dim', desc: 'Chosen option lifts, the others recede; green glow if right, drops and shakes if wrong.' },
+    ];
+    const ITEMS = [
+        { prompt: '勉強', options: ['to study', 'to forget', 'a lesson', 'to be strong'], correct: 0 },
+        { prompt: '天气', options: ['sky', 'weather', 'heaven', 'temperature'], correct: 1 },
+        { prompt: '약속', options: ['medicine', 'a promise', 'a meeting place', 'speed'], correct: 1 },
+        { prompt: '暖かい', options: ['bright', 'soft', 'warm', 'gentle'], correct: 2 },
+    ];
+    const SVG = {
+        spin: '<svg viewBox="0 0 24 24"><circle class="spin" cx="12" cy="12" r="9" fill="none" stroke="var(--brand-primary)" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 60"/></svg>',
+        tick: '<svg viewBox="0 0 24 24"><path class="draw" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        cross: '<svg viewBox="0 0 24 24"><path class="draw" d="M6 6l12 12" fill="none" stroke="var(--danger)" stroke-width="3" stroke-linecap="round"/><path class="draw second" d="M18 6L6 18" fill="none" stroke="var(--danger)" stroke-width="3" stroke-linecap="round"/></svg>',
+    };
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const latencyEl = document.getElementById('latency');
+    const outcomeEl = document.getElementById('outcome');
+    const grid = document.getElementById('grid');
+
+    VARIANTS.forEach(function (v) {
+        const card = document.createElement('section');
+        card.className = 'card ' + v.id;
+        card.tabIndex = 0;
+        card.innerHTML = '<h2>' + v.name + '</h2><p class="desc">' + v.desc + '</p>' +
+            '<div class="prompt"></div><div class="opts"></div>';
+        grid.appendChild(card);
+        const state = { idx: Math.floor(Math.random() * ITEMS.length), locked: false };
+        render(card, v, state);
+        card.addEventListener('keydown', function (e) {
+            const n = parseInt(e.key, 10);
+            const btn = card.querySelectorAll('.opt')[n - 1];
+            if (btn) btn.click();
+        });
+    });
+
+    function render(card, v, state) {
+        const item = ITEMS[state.idx];
+        card.querySelector('.prompt').textContent = item.prompt;
+        const opts = card.querySelector('.opts');
+        opts.className = 'opts';
+        opts.innerHTML = '';
+        item.options.forEach(function (text, i) {
+            const btn = document.createElement('button');
+            btn.className = 'opt';
+            btn.dataset.position = i;
+            btn.innerHTML = '<span class="label"></span>' + (v.id === 'v4' ? '<span class="badge"></span>' : '');
+            btn.querySelector('.label').textContent = text;
+            btn.addEventListener('click', function (e) { answer(card, v, state, btn, e); });
+            opts.appendChild(btn);
+        });
+    }
+
+    function ripple(btn, x, y, tone) {
+        if (reducedMotion) return;
+        const r = document.createElement('span');
+        r.className = 'ripple ' + tone;
+        r.style.left = x + 'px';
+        r.style.top = y + 'px';
+        btn.appendChild(r);
+        r.addEventListener('animationend', function () { r.remove(); });
+    }
+
+    function answer(card, v, state, btn, e) {
+        if (state.locked) return;
+        state.locked = true;
+        const opts = card.querySelector('.opts');
+        const buttons = Array.prototype.slice.call(opts.querySelectorAll('.opt'));
+        const position = parseInt(btn.dataset.position, 10);
+
+        // Phase 1 — instant acknowledgement, before the network call.
+        buttons.forEach(function (b) { b.disabled = true; });
+        btn.classList.add('picked');
+        opts.classList.add('answered');
+        const rect = btn.getBoundingClientRect();
+        const fromKeyboard = !e || (e.clientX === 0 && e.clientY === 0);
+        const cx = fromKeyboard ? rect.width / 2 : e.clientX - rect.left;
+        const cy = fromKeyboard ? rect.height / 2 : e.clientY - rect.top;
+        if (v.id === 'v2') ripple(btn, cx, cy, 'brand');
+        if (v.id === 'v4') btn.querySelector('.badge').innerHTML = SVG.spin;
+
+        // Simulated POST /api/calibration/answer
+        const item = ITEMS[state.idx];
+        const mode = outcomeEl.value;
+        const correctPos = mode === 'correct' ? position
+            : mode === 'wrong' ? (position + 1) % item.options.length
+            : item.correct;
+        setTimeout(function () { reveal(card, v, state, buttons, btn, position, correctPos, cx, cy); },
+            parseInt(latencyEl.value, 10));
+    }
+
+    function reveal(card, v, state, buttons, btn, position, correctPos, cx, cy) {
+        const isCorrect = position === correctPos;
+        // Phase 2 — reveal (same class contract as templates/calibration.html).
+        buttons.forEach(function (b) {
+            const pos = parseInt(b.dataset.position, 10);
+            if (pos === correctPos) b.classList.add('correct');
+            else if (pos === position) b.classList.add('wrong');
+        });
+        if (!isCorrect || v.id !== 'v5') btn.classList.remove('picked');
+        if (v.id === 'v2') ripple(btn, cx, cy, isCorrect ? 'good' : 'bad');
+        if (v.id === 'v4') {
+            btn.querySelector('.badge').innerHTML = isCorrect ? SVG.tick : SVG.cross;
+            if (!isCorrect) buttons[correctPos].querySelector('.badge').innerHTML = SVG.tick;
+        }
+        setTimeout(function () {
+            state.idx = (state.idx + 1) % ITEMS.length;
+            state.locked = false;
+            render(card, v, state);
+        }, isCorrect ? 1100 : 2000);
+    }
+})();
+</script>
+</body>
+</html>

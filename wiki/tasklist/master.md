@@ -24,7 +24,7 @@ below.
 | Blocked / Deferred / Awaiting decision (numbered tasks) | 7 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 165 |
+| Done (cumulative, not listed here) | 166 |
 
 *2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
 Calibration) were never entered here when filed. Counts now include them:
@@ -42,6 +42,10 @@ TASK-774's token cache is app-wide, not calibration-only.
 
 *2026-09-14:* +1 In Progress (TASK-776, synonym-foil headword guard — written, not
 applied) and +1 Blocked / open question (TASK-777, LLM synonym judge — paused).
+
+*2026-09-15:* +1 Done — TASK-779 (47 ja token maps pointed at senses TASK-778
+deleted; rebuilt). First step of the ELO × word-coverage plan (TASK-780–783, not
+yet filed).
 
 Earlier counts were not re-audited.
 
@@ -741,6 +745,7 @@ calibration→ELO writer, and a measurement harness.
 | TASK-750 | vocabulary-aware-test-selection | Per-test-type ELO offsets | [?] Blocked — needs ≥30 first attempts per (language, type) | M | TASK-749 |
 | TASK-751 | vocabulary-aware-test-selection | Per-test-type test ELO reseed | [?] Design proposed — awaiting decision | L | — |
 | TASK-752 | vocabulary-aware-test-selection | Wire calibration completion to the rating writer | [x] Done (2026-09-10) | S | TASK-747 |
+| TASK-779 | vocabulary-aware-test-selection | Repair token-map drift (ja maps → deleted senses) | [x] Done (applied live 2026-09-15) | S | — |
 
 **2026-09-10 — built, applied live, switched OFF.** The vocabulary term is live
 behind `selection_tuning.vocab_weight = 0`, whose branch runs the pre-TASK-748

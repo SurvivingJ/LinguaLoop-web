@@ -129,7 +129,10 @@ BEGIN
 
     -- DELETE rather than TRUNCATE: TRUNCATE takes an ACCESS EXCLUSIVE lock and
     -- would block a live calibration run for the duration of the rebuild.
-    DELETE FROM calibration_anchor_pool;
+    -- `WHERE true` is required: Supabase's pg_safeupdate rejects an unqualified
+    -- DELETE issued through PostgREST ("DELETE requires a WHERE clause"), which
+    -- made `build_calibration_distractor_cache.py --refresh-pool` fail (TASK-778).
+    DELETE FROM calibration_anchor_pool WHERE true;
 
     INSERT INTO calibration_anchor_pool (
         word_language_id, definition_language_id, sense_id, vocab_id,
@@ -145,7 +148,11 @@ BEGIN
            v.frequency_rank,
            calibration_zipf_band(v.frequency_rank),
            (s.embedding IS NOT NULL),
-           (s.pronunciation IS NOT NULL AND btrim(s.pronunciation) <> '')
+           (s.pronunciation IS NOT NULL AND btrim(s.pronunciation) <> ''
+            -- A hiragana-only headword (もっと, ぐるぐる) IS its own reading, so
+            -- a pronunciation item for it is answered by copying the prompt and
+            -- measures nothing. Excluded from pronunciation mode only.
+            AND v.lemma !~ '^[ぁ-ゟー]+$')
       FROM dim_word_senses s
       JOIN dim_vocabulary v ON v.id = s.vocab_id
      WHERE s.definition_level = 'standard'
@@ -155,7 +162,8 @@ BEGIN
        -- A row that qualifies for neither mode can never be served, so it is
        -- not an anchor and does not belong in the pool.
        AND (s.embedding IS NOT NULL
-            OR (s.pronunciation IS NOT NULL AND btrim(s.pronunciation) <> ''));
+            OR (s.pronunciation IS NOT NULL AND btrim(s.pronunciation) <> ''
+                AND v.lemma !~ '^[ぁ-ゟー]+$'));
 
     GET DIAGNOSTICS v_rows = ROW_COUNT;
     ANALYZE calibration_anchor_pool;

@@ -32,6 +32,26 @@
 .cal-option.correct { border-color: var(--success, #16a34a); background: color-mix(in srgb, var(--success, #16a34a) 10%, transparent); }
 .cal-option.wrong { border-color: var(--danger, #dc2626); background: color-mix(in srgb, var(--danger, #dc2626) 10%, transparent); }
 
+/* Answer feedback: the chosen option gets a spinner the instant it is clicked
+   (the answer round trip is ~0.5 s and otherwise reads as a dead click), which
+   becomes a drawn tick or cross on reveal. The badge is absolutely positioned
+   so it never shifts the option text, including centred pronunciation options. */
+.cal-option { position: relative; padding-right: 46px; transition: border-color .15s, background .15s, opacity .2s; }
+.cal-option.picked { border-color: var(--brand-primary, #4f46e5); }
+.cal-options.answered .cal-option:not(.picked):not(.correct):not(.wrong) { opacity: .5; }
+.cal-badge { position: absolute; right: 14px; top: 50%; width: 22px; height: 22px; margin-top: -11px; pointer-events: none; }
+.cal-badge svg { display: block; width: 100%; height: 100%; }
+.cal-badge .spin { animation: cal-spin .7s linear infinite; transform-origin: 50% 50%; }
+.cal-badge .draw { stroke-dasharray: 30; stroke-dashoffset: 30; animation: cal-draw .3s ease-out forwards; }
+.cal-badge .draw.second { animation-delay: .12s; }
+@keyframes cal-spin { to { transform: rotate(360deg); } }
+@keyframes cal-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .cal-option { transition: none; }
+    .cal-badge .spin { animation: none; }
+    .cal-badge .draw { animation: none; stroke-dashoffset: 0; }
+}
+
 .cal-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
 .cal-actions [hidden] { display: none !important; }
 .cal-btn { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border-default);
@@ -69,7 +89,7 @@
 .cal-mode-toggle button:disabled { opacity: .45; cursor: not-allowed; }
 /* Readings are short; four of them read better in a row than stacked. */
 .cal-options.pron { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.cal-options.pron .cal-option { text-align: center; font-size: 1.35rem; }
+.cal-options.pron .cal-option { text-align: center; font-size: 1.35rem; padding-left: 46px; }
 </style>
 {% endblock %}
 
@@ -199,6 +219,17 @@
         return (window.LinguaI18n && window.LinguaI18n.t)
             ? window.LinguaI18n.t(key, params)
             : key;
+    }
+
+    const BADGE_SVG = {
+        spin: '<svg viewBox="0 0 24 24"><circle class="spin" cx="12" cy="12" r="9" fill="none" stroke="var(--brand-primary, #4f46e5)" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 60"/></svg>',
+        tick: '<svg viewBox="0 0 24 24"><path class="draw" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="var(--success, #16a34a)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        cross: '<svg viewBox="0 0 24 24"><path class="draw" d="M6 6l12 12" fill="none" stroke="var(--danger, #dc2626)" stroke-width="3" stroke-linecap="round"/><path class="draw second" d="M18 6L6 18" fill="none" stroke="var(--danger, #dc2626)" stroke-width="3" stroke-linecap="round"/></svg>',
+    };
+
+    function setBadge(btn, svg) {
+        const badge = btn.querySelector('.cal-badge');
+        if (badge) badge.innerHTML = svg;
     }
 
     function escapeHtml(s) {
@@ -352,7 +383,7 @@
             btn.type = 'button';
             btn.className = 'cal-option';
             btn.dataset.position = String(opt.position);
-            btn.innerHTML = escapeHtml(opt.definition);
+            btn.innerHTML = escapeHtml(opt.definition) + '<span class="cal-badge" aria-hidden="true"></span>';
             btn.addEventListener('click', function () { answer(opt.position); });
             el.options.appendChild(btn);
         });
@@ -405,6 +436,14 @@
         const buttons = Array.prototype.slice.call(el.options.querySelectorAll('.cal-option'));
         buttons.forEach(b => { b.disabled = true; });
 
+        // Acknowledge the click before the network call, not after it.
+        const picked = buttons.find(b => parseInt(b.dataset.position, 10) === position);
+        el.options.classList.add('answered');
+        if (picked) {
+            picked.classList.add('picked');
+            setBadge(picked, BADGE_SVG.spin);
+        }
+
         let data;
         try {
             data = await api('/api/calibration/answer', {
@@ -418,6 +457,11 @@
                 }),
             });
         } catch (err) {
+            el.options.classList.remove('answered');
+            if (picked) {
+                picked.classList.remove('picked');
+                setBadge(picked, '');
+            }
             buttons.forEach(b => { b.disabled = false; });
             state.locked = false;
             return;
@@ -430,6 +474,15 @@
             if (pos === data.correct_position) b.classList.add('correct');
             else if (pos === position && !data.is_correct) b.classList.add('wrong');
         });
+        if (picked) {
+            picked.classList.remove('picked');
+            setBadge(picked, data.is_correct ? BADGE_SVG.tick : BADGE_SVG.cross);
+        }
+        // On a wrong answer or a skip, draw the tick on the key as well.
+        if (!data.is_correct) {
+            const key = buttons.find(b => parseInt(b.dataset.position, 10) === data.correct_position);
+            if (key) setBadge(key, BADGE_SVG.tick);
+        }
 
         state.ability = data;
         updateStats(data);

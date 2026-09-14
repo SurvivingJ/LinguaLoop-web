@@ -5140,3 +5140,44 @@ paired-simple lookup; all 22 were restored exactly and the lookup was fixed.
 Follow-ups: 181 retired exercises on 24 rewritten senses will not regenerate on
 their own, and the worklist's `senses_with_exercises` counts inactive rows.
 Pages updated: [[tasklist/calibration.tasks]], [[tasklist/master]].
+
+## [2026-09-14] fix | TASK-778 Japanese loanword headwords (`ノブ-knob`)
+344 ja `dim_vocabulary.lemma` values (2,028 sense rows) carried UniDic's loanword
+lexeme form — katakana + `-english`, sometimes with a homograph gloss
+(`ライト-light（光）`). Source: `JapaneseProcessor._orth_lemma` before ede24bd4
+(2026-08-26); the gloss variant still leaked after it because `（光）` contains
+kanji and tripped the kana-only → kanji-lemma preference. Detection is exact: a ja
+lemma containing Latin letters AND kana/kanji (all 344 hits were defects; zh had
+only the real word `T恤`).
+**Code:** `_orth_lemma` now rejects any lemma matching `-[A-Za-z]`;
+`tests/test_japanese_orth_lemma.py` (incl. a real-tagger test).
+**Data** (`migrations/task778_ja_loanword_lemma_cleanup.sql`, applied live): 182
+renamed in place; 162 merged into an existing clean twin by re-parenting senses
+(sense ids unchanged, so token maps / `vocab_sense_ids` stay valid), ranks
+renumbered with the referenced dirty-origin senses first. The 157 twin pairs were
+hand-reviewed: 164 duplicate rank groups (984 rows, all unreferenced) deleted; 9
+distinct meanings kept (スプリング coil, ケース container, ベル bell, ...).
+Blocklist: 7 senses un-quarantined whose only defect was the headword (クラム,
+ボランティア活動, コミュニティー作り); ル 53374 added. Six pure-English ja lemmas
+(`pesticides`, `vironment`, ...) deleted. New CHECK
+`chk_ja_lemma_no_loanword_gloss`. 2,094 ja senses re-embedded ($0.0004).
+**Incidental bug:** `calibration_refresh_anchor_pool()` did an unqualified
+`DELETE`, which pg_safeupdate rejects via PostgREST — `--refresh-pool` could never
+have run through the script. Fixed live (`WHERE true`) and in task772's migration.
+Gotchas: `dim_word_senses` updates on rows with a non-null embedding re-insert into
+seven cold HNSW indexes — the first dry run hit the 120 s timeout; null the vectors
+first. The migration's `ON COMMIT DROP` temp tables need a single transaction.
+
+## [2026-09-15] fix | TASK-779 — token-map drift repaired (ja)
+Precondition for a per-occurrence coverage term in test selection. Token maps vs
+`vocab_sense_ids` overlap was en 0.88 / ja 0.83 / zh 1.00. ja was real drift: 198
+map entries in 47 tests pointed at senses deleted by TASK-778, whose reference
+check did not include `vocab_token_map` (the reader showed those words clickable
+with no definition). en divergence is structural (330 multi-word phrase senses,
+~325 fallback links) and was left alone. New `scripts/rebuild_token_maps.py`
+(shared sense-linking builder; writes the map only; refuses rebuilds that lose a
+working link) applied to ja: 47 written, 0 refused. ja dangling 198 → 0, overlap
+0.95. No backup was taken (a failed backup step did not stop the chained apply).
+Found, not fixed: the ja processor drops newlines (6 maps lose paragraph breaks);
+homograph-suffixed ja headwords (`引く-他動詞`) never match a token.
+Pages updated: [[tasklist/vocabulary-aware-test-selection.tasks]], [[tasklist/master]].

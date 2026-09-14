@@ -3,9 +3,9 @@ title: "Vocabulary-Aware Test Selection — Task Breakdown"
 feature: vocabulary-aware-test-selection
 prose_page: ../features/vocabulary-aware-test-selection.md
 tech_page: ../features/vocabulary-aware-test-selection.tech.md
-total_tasks: 9
-done: 7
-last_updated: 2026-09-10
+total_tasks: 10
+done: 8
+last_updated: 2026-09-15
 ---
 
 # Vocabulary-Aware Test Selection — Task Breakdown
@@ -439,6 +439,58 @@ the RPC so this cannot bypass a gate.
 
 **Files:** Calibration completion handler (path depends on the parallel build);
 `tests/integration/test_calibration_completion_wiring.py`
+
+---
+
+## TASK-779: repair token-map drift
+
+**Status:** [x] Done — applied live 2026-09-15 (47 ja maps rewritten) · **Type:** bug · **Complexity:** S · **Depends On:** none
+
+**Description:**
+Precondition for a per-occurrence coverage term (planned TASK-780), which would
+read `tests.vocab_token_map` instead of `vocab_sense_ids`. On 2026-09-15 the two
+disagreed for most en/ja tests (overlap en 0.88, ja 0.83, zh 1.00).
+
+**Outcome (2026-09-15).** Classified the disagreement first:
+- **ja: real drift.** 198 map entries in 47 tests pointed at deleted senses
+  (シャツ, デザイン, メンバー…). `task778_ja_loanword_lemma_cleanup.sql` deleted
+  "unreferenced" senses, but its reference union covered `vocab_sense_ids`,
+  questions, mysteries and calibration, **not `vocab_token_map`** (jsonb). The
+  reader rendered those words clickable, with no definition behind them.
+- **en: by design, not drift.** 330 linked senses are multi-word lemmas that a
+  per-token map cannot carry, and ~325 map tokens are fallback links to words the
+  linker did not extract. A rebuild changes neither. TASK-780 must decide how
+  phrase senses count under a token basis.
+- **zh: clean** (2 fallback links).
+
+`scripts/rebuild_token_maps.py` rebuilds maps using the sense-linking workflow's
+shared builder (`build_token_map_with_fallback`), seeded from the test's own
+`vocab_sense_ids`. It writes `vocab_token_map` only. It refuses to write a rebuild
+that loses a currently working link, still contains a deleted sense, or
+reproduces the text less faithfully than the current map. Applied to ja: 47 of 47
+written, 0 refused. Live after: ja dangling 198 → 0, overlap 0.83 → 0.95. zh/en
+had no targets. **No backup was taken** (a failed backup step did not stop the
+chained apply). Every write passed the no-lost-link guard, so what was
+overwritten was the dangling pointers plus unchanged links.
+
+**Found, not fixed:**
+- The ja processor drops newlines. 6 ja maps (before and after) do not
+  concatenate to their transcript, so the reader loses paragraph breaks.
+- The remaining ja gap (overlap 0.95) is mostly linked senses whose lemma never
+  appears as a token, e.g. homograph-suffixed headwords like `引く-他動詞`.
+- Any future sense deletion must check `vocab_token_map` as well.
+  `rebuild_token_maps.py --language <l> --dry-run` detects the damage.
+
+**Acceptance Criteria:**
+- [x] No live test map references a deleted sense (all languages: 0).
+- [x] Rebuild never unlinks a working token (guard + unit test).
+- [x] Divergence that is structural (en phrases, fallback links) documented, not "repaired".
+
+**Files:** `scripts/rebuild_token_maps.py`, `tests/test_rebuild_token_maps.py` (8 tests)
+
+**Verification:**
+`PYTHONPATH=. pytest tests/test_rebuild_token_maps.py`;
+`python scripts/rebuild_token_maps.py --language ja --dry-run` reports 0 targeted.
 
 ---
 
