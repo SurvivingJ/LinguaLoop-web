@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"裁判\" in Mandarin Chinese. A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 5.173050403594971,
+  "response": {
+    "id": "gen-1789655512-sR08SztYbEBhduLXbHdd",
+    "object": "chat.completion",
+    "created": 1789655512,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"裁伴\",\n      \"explanation\": \"Confuses the right-side component 判 with 伴, which is a common phonetic substitution error but changes the meaning completely.\"\n    },\n    {\n      \"wrong_form\": \"才判\",\n      \"explanation\": \"Uses the wrong homophonous character 才 instead of 裁, failing to capture the 'cutting/judging' root meaning.\"\n    },\n    {\n      \"wrong_form\": \"栽判\",\n      \"explanation\": \"Replaces the correct radical with the wood radical (栽), which relates to planting rather than legal judgment.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"confusable_word\": \"才华\",\n      \"explanation\": \"Sounds somewhat similar in initial consonants and tone contour to careless learners, though phonetically distinct to native speakers.\"\n    },\n    {\n      \"confusable_word\": \"彩排\",\n      \"explanation\": \"Shares the 'cǎi' syllable sound with a similar nasal final, often leading to mishearings in fast-paced spoken contexts.\"\n    },\n    {\n      \"confusable_word\": \"参判\",\n      \"explanation\": \"A near-homophone depending on regional accent variations of the first syllable (cái vs cān).\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"distractor\": \"烹饪\",\n      \"explanation\": \"Cooking verbs do not collocate with a legal or athletic referee term like 裁判.\"\n    },\n    {\n      \"distractor\": \" photosynthesis\",\n      \"explanation\": \"Scientific processes cannot be the direct object or subject associated with a judge or referee.\"\n    },\n    {\n      \"distractor\": \"流利\",\n      \"explanation\": \"Fluent is an adjective reserved for language skills, not judicial or referee rulings.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"planted_wrong_collocate\": \"炒裁判\",\n    \"explanation\": \"The verb 炒 (to stir-fry or fire someone casually) does not collocate with 裁判; one typically uses 罢免 or infers official disciplinary actions.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"裁剪\",\n      \"explanation\": \"Means 'to tailor' or 'to cut', which fits visually due to the shared first character 裁 but makes no sense in a judicial or sports context.\"\n    },\n    {\n      \"option\": \"批判\",\n      \"explanation\": \"Means 'to criticize', which shares the second character 判 but alters the meaning to ideological criticism rather than formal judgment or refereeing.\"\n    },\n    {\n      \"option\": \"财产权\",\n      \"explanation\": \"A legal term meaning 'property rights', tempting because of the legal theme, but it is a noun phrase rather than the verb/noun 'judge/referee'.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"他在厨房里认真地裁判那条鱼该怎么切。\",\n      \"reason\": \"Incorrect usage: 裁判 refers to legal judges or sports referees, not someone cutting fish in a kitchen.\"\n    },\n    {\n      \"sentence\": \"这本小说的裁判非常引人入胜。\",\n      \"reason\": \"Incorrect usage: Novels have plots or writing styles (情节/文笔), not a referee or court judgment (裁判).\"\n    },\n    {\n      \"sentence\": \"今天天气很好，我和朋友去公园裁判。\",\n      \"reason\": \"Incorrect usage: 裁判 is a noun or verb of official judgment/refereeing, not an intransitive activity like strolling or playing.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"这场足球比赛的裁判吹哨了，宣布红牌犯规。\",\n    \"planted_error\": \"裁判吹哨了\",\n    \"error_description\": \"While 裁判 can mean the referee, in this specific action context, it usually requires the classifier or noun phrase like 裁判员 to perform the physical action of blowing the whistle, or the verb is mismatched with the animate role.\",\n    \"corrected_version\": \"这场足球比赛的主裁判吹了哨，宣布红牌犯规。\"\n  },\n  \"word_family_fake_forms\": [\n    \"裁判性\",\n    \"反裁判\",\n    \"超裁判\"\n  ],\n  \"particle_candidates\": [\n    \"が\",\n    \"を\",\n    \"に\",\n    \"で\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18JoZ3GWwFDcRRjCqL6sp9BQugfZtx+FujEQfobZN/QV4H1PYW5UfcBcyjAaTVu/DY5ZBNJ3uc8229+DtRvsYuOxoW2dpLOb9XngLFqowo=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 219,
+      "completion_tokens": 1038,
+      "total_tokens": 1257,
+      "cost": 0.0026607,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0026607,
+        "upstream_inference_prompt_cost": 6.57e-05,
+        "upstream_inference_completions_cost": 0.002595
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

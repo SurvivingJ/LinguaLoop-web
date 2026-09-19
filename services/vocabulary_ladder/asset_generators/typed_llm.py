@@ -110,7 +110,16 @@ class TypedLLMGenerator(SplitLevelGenerator):
         raw = self._call_with_retry(prompt, cfg, sense_id)
         if raw is None:
             return None
+        return self.fragment_from_raw(raw, sentence_index, sense_id)
 
+    def fragment_from_raw(
+        self, raw: dict, sentence_index: int, sense_id: int | None = None,
+    ) -> dict:
+        """Schema-valid raw answer → ``{type_code: fragment}``, or ``{}`` if declined.
+
+        The post-call half of :meth:`generate`, public so a hand-authored
+        answer (scripts/upload_exercises.py) is stored exactly as a model's.
+        """
         # Key 9: the model says this sense cannot carry the type. Same outcome
         # as a failed precondition — a skip, not a failure.
         declined = error_escape(raw)

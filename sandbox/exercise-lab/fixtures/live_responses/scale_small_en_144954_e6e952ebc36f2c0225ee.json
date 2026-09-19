@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"effectiveness\" in English. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"effectiveness\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.4619331359863281,
+  "response": {
+    "id": "gen-1789655512-XxGZBx5wPGoUQoPLoQOb",
+    "object": "chat.completion",
+    "created": 1789655512,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"effectiveness\",\n  \"definition_simple\": \"How well something works to get the desired result.\",\n  \"definition_standard\": \"The degree to which something is successful in producing a desired result; success.\",\n  \"examples\": [\n    \"The manager questioned the effectiveness of the new marketing strategy.\",\n    \"Scientists are still testing the effectiveness of the new vaccine.\",\n    \"We need to measure the effectiveness of our training program.\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+M72C5BccaYIlUNGhxPvGx1xoVAiT/S1WZJs2dadvPQxMv1YUzqQs+txejTi9CuxPTAgeSBzPMsLa516Kddm2W+OxG2EPdOPLFRpJ9ltk=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 47,
+      "completion_tokens": 103,
+      "total_tokens": 150,
+      "cost": 0.0002716,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0002716,
+        "upstream_inference_prompt_cost": 1.41e-05,
+        "upstream_inference_completions_cost": 0.0002575
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"identities\" in English (expected part of speech: NOUN).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"identities\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.65922474861145,
+  "response": {
+    "id": "gen-1789655516-2FnszG5LT7Bbo3kpZO3y",
+    "object": "chat.completion",
+    "created": 1789655516,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"The qualities, beliefs, or names that make a person or group who they are.\",\n  \"definition_standard\": \"The distinct characteristics, individuality, or social roles by which a person or group is definitively recognized.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"abstract\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"People have different identities.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"The students explored their cultural identities through art.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"Online anonymity allows users to hide their true identities.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"Immigrants often navigate multiple identities in a new country.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"The novel examines how historical trauma shapes national identities.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"Intersectionality highlights how intersecting social identities compound marginalization.\"\n    }\n  ],\n  \"primary_collocate\": \"national\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"heavy\",\n      \"reason\": \"'Heavy' describes physical weight and is not used as a modifier for abstract concepts like identities.\"\n    },\n    {\n      \"word\": \"swift\",\n      \"reason\": \"'Swift' describes fast movement or action, which does not appropriately modify the state of having identities.\"\n    },\n    {\n      \"word\": \"bitter\",\n      \"reason\": \"'Bitter' typically describes taste or deep resentment, making it an unnatural collocation for identities.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"personalities\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"personas\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"profiles\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"anonymity\",\n      \"relation\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+R6Ts1LK/hO7fouYRe4xOnqMRlxNanKxoOkv7pkql2hXEzl8M0Hoy2eObbH7aTo/C4eVyEky2iJBZeKyQTQdLz5XWhWNc4TWnMgw6YIbU=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 144,
+      "completion_tokens": 512,
+      "total_tokens": 656,
+      "cost": 0.0013232,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0013232,
+        "upstream_inference_prompt_cost": 4.32e-05,
+        "upstream_inference_completions_cost": 0.00128
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

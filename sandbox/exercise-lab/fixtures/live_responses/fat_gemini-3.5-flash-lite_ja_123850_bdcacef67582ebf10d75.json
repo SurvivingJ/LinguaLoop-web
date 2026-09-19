@@ -1,0 +1,58 @@
+{
+  "prompt": "You are generating the complete exercise-authoring seed for ONE\nvocabulary sense in Japanese. Target word: \"ネーム\" (expected part of speech: n).\n\nReturn ONE JSON object with ALL of the following fields. This single response\nreplaces what used to be 8-14 separate calls (core definition, per-level\nexercise content, per-level judges) -- you must author BOTH the correct\ncontent AND the deliberately WRONG content for every level below, because no\ndownstream step will invent wrong content for you and no synchronous judge\nwill check your work before it ships as provisional (unpublished) content.\nQuality matters precisely because nothing else will catch a mistake before an\nasynchronous review pass runs.\n\n1. definition_simple, definition_standard: two definitions of this sense, in\n   Japanese-native/appropriate register, or your working language if source-language\n   definitions are not requested.\n2. pos: this language's own part-of-speech label for the word.\n3. semantic_class: ONE of concrete | abstract | action | property | function | proper.\n4. sentences: EXACTLY 10 example sentences using \"ネーム\" as a whole word, each\n   tagged with a difficulty tier T1 (easiest) through T6 (hardest), spanning a\n   spread of tiers, not all the same one. This is not negotiable down to 3 --\n   the ladder's own sentence-assignment contract needs distinct sentences for\n   levels 3/4/5/6/7/9 in TWO non-overlapping variants, with headroom for\n   review-time attrition.\n5. morphological_forms: if this word inflects/derives in Japanese, list at least\n   2 real forms with labels (e.g. past_tense, plural, comparative). If the word\n   is invariant, return an empty list -- do not pad with fake entries.\n   morphology_wrong_forms: for EACH morphological_forms entry, 3 INVENTED WRONG\n   inflected forms a learner might plausibly produce by mistake, each with a\n   one-sentence explanation of the error.\n6. l1_audio_confusables: OMIT this field. Japanese L1 phonetic-recognition distractors are produced by a deterministic mora-trie lookup elsewhere, not by this seed.\n7. primary_collocate: the single most natural fixed collocate of this word (or\n   null if none exists / not applicable in this language). collocation_distractors:\n   3 words that are semantically related to the target but are NOT genuine\n   collocates, each with a one-sentence explanation of why not.\n   collocation_wrong_collocate: ONE additional word that looks like it could\n   collocate but does not, for a \"spot and repair\" exercise.\n8. cloze_distractors: 3 wrong words for a fill-in-the-blank exercise built on\n   one of your sentences, each with a one-sentence reason it's wrong (wrong\n   sense, wrong register, or trivially unrelated -- vary the reasons).\n9. discrimination_wrong_sentences: 3 sentences using \"ネーム\" that are WRONG\n   for a SPECIFIC, stated linguistic reason each (e.g. wrong argument\n   structure, wrong register, wrong collocate) -- not just \"different\" from a\n   correct sentence, genuinely and describably wrong.\n10. spot_incorrect: ONE sentence with a single planted error, plus a one-\n    sentence error_description and the corrected version.\n11. word_family_forms: real derived forms in other parts of speech (if\n    applicable). word_family_fake_forms: 3 INVENTED, plausible-LOOKING but\n    non-existent derived forms (a learner should not immediately recognize\n    them as fake).\n12. syn_ant_candidates: up to 4 candidates, each tagged synonym or antonym,\n    anchored to THIS SPECIFIC SENSE's meaning (not just the bare lemma --\n    a polysemous word's synonym for one sense can be wrong for another).\n13. particle_candidates: Japanese only -- for one of your sentences, list the\n    3-4 particles a learner might choose, marking exactly one correct, each\n    with a one-sentence explanation.\n\nOutput strict JSON matching this field list. No prose outside the JSON object.",
+  "elapsed": 5.846281051635742,
+  "response": {
+    "id": "gen-1789655124-GZTYURAHHIC7ykAq0Gc3",
+    "object": "chat.completion",
+    "created": 1789655124,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"名前や人名、また漫画のネーム（下描き）のこと。\",\n  \"definition_standard\": \"主に英語の「name」に由来し、人名や名声、あるいは漫画におけるコマ割りやセリフの配置を決めた下描き（絵コンテ）を指す語。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"彼のネームはよく知られている。\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"漫画のネームを描く。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"新しい企画のネームを編集者に見せた。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"このブランドはネームバリューがある。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"今週中にはすべてのネームを仕上げなければならない。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"彼女は新人賞に向けて、徹夜でネームの修正を続けている。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"プロットがしっかりしていれば、ネームの作業もスムーズに進む。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"ストーリーの構成に納得がいかず、ネームを最初からすべて描き直した。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"ベテランの漫画家であっても、ネームの段階で何度も悩むことがある。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"限られたページ数の中で読者を引き込むために、緻密に計算されたネーム作りが求められる。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"バリュー\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"カラー\",\n      \"reason\": \"「ネームカラー」という表現は一般的ではなく、色を指す文脈では使われません。\"\n    },\n    {\n      \"word\": \"サイズ\",\n      \"reason\": \"「ネームサイズ」は名声や漫画のコンテを指すこの語とは結びつかず、不自然な組み合わせです。\"\n    },\n    {\n      \"word\": \"スピード\",\n      \"reason\": \"「ネームスピード」という定型表現は日本語に存在しません。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"パワー\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"タイトル\",\n      \"reason\": \"作品の「題名」という意味になってしまい、漫画の下描きや名声を表す文脈に合いません。\"\n    },\n    {\n      \"word\": \"ノート\",\n      \"reason\": \"「ノート」は冊子を指すため、漫画のコンテや名前を表すこの文脈では意味が通じません。\"\n    },\n    {\n      \"word\": \"ペーパー\",\n      \"reason\": \"「紙」という意味になり、ネーム（下描き・名声）の文脈の空欄には入りません。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼は会社でネームを食べる。\",\n      \"reason\": \"「ネーム」は食べられないため、動詞「食べる」の目的語として意味的に不適切です。\"\n    },\n    {\n      \"sentence\": \"窓の外のネームが美しい。\",\n      \"reason\": \"「ネーム」は景色や自然物を指さないため、視覚的な美しさを表す文脈で使用できません。\"\n    },\n    {\n      \"sentence\": \"昨日の夜はネームがとても冷え込んだ。\",\n      \"reason\": \"「ネーム」は天候や気温を表す言葉ではないため、気候に関する文脈で使えません。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"漫画のネームを書き上げる。\",\n    \"error_description\": \"日本語では、絵や図面、漫画の下描きなどを制作する際には「書く」ではなく「描く」という漢字を使用します。\",\n    \"corrected_sentence\": \"漫画のネームを描き上げる。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"ネイミング\",\n      \"pos\": \"名詞\",\n      \"definition\": \"命名すること、名前をつけること。\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"ネーム化する\",\n    \"ネーム的\",\n    \"ネームさ\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"名前\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"ネームバリュー\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"絵コンテ\",\n      \"type\": \"synonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"を\",\n      \"correct\": true,\n      \"explanation\": \"他動詞「描く」の目的語を示すため、「を」が正解です。\"\n    },\n    {\n      \"particle\": \"が\",\n      \"correct\": false,\n      \"explanation\": \"主格を示す「が」では、動作の対象を表す文脈になりません。\"\n    },\n    {\n      \"particle\": \"に\",\n      \"correct\": false,\n      \"explanation\": \"方向や対象の着点を示す「に」は、この文の動詞「描く」の直接の目的語には合いません。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"correct\": false,\n      \"explanation\": \"手段や場所を示す「で」を使用すると、「ネームという道具を使って描く」という意味になってしまい不自然です。\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18B+mS3CuT+/9t/aqBju/O8V6j4DXR9eZakW7An3h8Ww3mo7ZtUp+gx167NBV2VuDkypxQdpU/oAgIkUB3yeoWtDfCxjfpQe25qcC2vRR4=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 952,
+      "completion_tokens": 1427,
+      "total_tokens": 2379,
+      "cost": 0.0038531,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0038531,
+        "upstream_inference_prompt_cost": 0.0002856,
+        "upstream_inference_completions_cost": 0.0035675
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

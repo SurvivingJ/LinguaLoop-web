@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"犯す\" in Japanese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"犯す\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.7604706287384033,
+  "response": {
+    "id": "gen-1789655520-ImAqdH4vr4CXVD0wNsUJ",
+    "object": "chat.completion",
+    "created": 1789655520,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"To commit a crime, sin, or violation.\",\n  \"definition_standard\": \"To commit (a crime, sin, error, or fault); to violate or infringe upon (rights, laws, etc.).\",\n  \"examples\": [\n    {\n      \"japanese\": \"彼は重大な罪を犯してしまった。\",\n      \"romaji\": \"Kare wa jūdai na tsumi o犯[okashi]-te shimatta.\",\n      \"english\": \"He has committed a serious crime.\"\n    },\n    {\n      \"japanese\": \"法律を犯す者は罰せられる。\",\n      \"romaji\": \"Hōritsu o okasu mono wa hasserareru.\",\n      \"english\": \"Those who violate the law will be punished.\"\n    },\n    {\n      \"japanese\": \"他人の権利を犯してはならない。\",\n      \"romaji\": \"Tanin no kenri o okashi-te wa naranai.\",\n      \"english\": \"You must not infringe upon the rights of others.\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a19rzcqr+gB3Qn7ReSSp0uoG7ffTyA+MjxXWuMSdKomhInl6NCpSUEp++jBQaki3nY+y/y5uk4j64nWSMreh2LczVibp+Ztg9ZbsJRmjwQ0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 49,
+      "completion_tokens": 238,
+      "total_tokens": 287,
+      "cost": 0.0006097,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0006097,
+        "upstream_inference_prompt_cost": 1.47e-05,
+        "upstream_inference_completions_cost": 0.000595
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"无量\" in Mandarin Chinese. A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 5.0432209968566895,
+  "response": {
+    "id": "gen-1789655510-zEx7sgwK6gODGjzazSA1",
+    "object": "chat.completion",
+    "created": 1789655510,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"无量地\",\n      \"explanation\": \"无量 is typically used as a stative adjective or in fixed Buddhist/literary compounds, not as an adverbial modifier taking 地.\"\n    },\n    {\n      \"wrong_form\": \"无量化\",\n      \"explanation\": \"Suffixing 化 turns a noun into a process/verb (like 现代化), but 无量 is an abstract property of scale that cannot be a process.\"\n    },\n    {\n      \"wrong_form\": \"无量们\",\n      \"explanation\": \"The plural suffix 们 is exclusively used for human or animate personal nouns, whereas 无量 describes abstract quantities.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"confusable_word\": \"力量\",\n      \"explanation\": \"Similar second syllable and vowel sounds (liàng vs liáng), but means 'strength/power' instead of 'boundless'.\"\n    },\n    {\n      \"confusable_word\": \"流量\",\n      \"explanation\": \"Shares the '-liàng' ending, commonly confused by learners mishearing initial consonants (wú vs liú).\"\n    },\n    {\n      \"confusable_word\": \"重量\",\n      \"explanation\": \"Also ends in liàng, which can sound phonetically similar in fast speech compared to wūliàng.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"distractor\": \"狭窄\",\n      \"explanation\": \"Means 'narrow'. It directly contradicts the meaning of 无量 (boundless/immeasurable).\"\n    },\n    {\n      \"distractor\": \"有限\",\n      \"explanation\": \"Means 'limited'. This is an antonym, making it an incorrect collocation for a word denoting infinity.\"\n    },\n    {\n      \"distractor\": \"短暂\",\n      \"explanation\": \"Means 'brief/short-lived'. It clashes with the vast spatial or temporal scale implied by 无量.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"target_base\": \"前途\",\n    \"planted_wrong\": \"深厚\",\n    \"explanation\": \"前途 (future/prospects) collocates with 无量 to mean 'boundless prospects', but learners mistakenly use 深厚 (deep/profound).\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"大量\",\n      \"explanation\": \"Means 'large quantity/a lot'. While related to amount, it lacks the mystical or absolute magnitude of 无量.\"\n    },\n    {\n      \"option\": \"过量\",\n      \"explanation\": \"Means 'excessive'. This carries a negative connotation of having too much, unlike the neutral or positive tone of 无量.\"\n    },\n    {\n      \"option\": \"尽量\",\n      \"explanation\": \"An adverb meaning 'to the best of one's ability', chosen purely due to superficial visual similarity in characters.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"这家超市的商品无量，什么都有。\",\n      \"wrong_reason\": \"无量 cannot be used to describe physical commercial inventory in a mundane supermarket setting; use 丰富 instead.\"\n    },\n    {\n      \"sentence\": \"今天跑完步后，我感到无量的疲惫。\",\n      \"wrong_reason\": \"Physical fatigue is countable or measurable in degree, whereas 无量 is reserved for abstract, infinite scopes like 前途 or 功德.\"\n    },\n    {\n      \"sentence\": \"这栋大楼的高度无量，直插云霄。\",\n      \"wrong_reason\": \"Architectural height is concrete and measurable; 无量 cannot replace adjectives like 无限 or 极高 for physical heights.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"他的未来前途无量着，必定能成功。\",\n    \"planted_error\": \"着\",\n    \"error_description\": \"前途无量 is a complete set phrase functioning as a predicate; adding the continuous aspect marker 着 is ungrammatical.\",\n    \"corrected_version\": \"他的未来前途无量，必定能成功。\"\n  },\n  \"word_family_fake_forms\": [\n    \"无度量\",\n    \"无计量\",\n    \"无超量\"\n  ],\n  \"particle_candidates\": []\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18OsMl40kEckcXafxOtzy+IW0CaMoatlqL6NSAzSrXnR13yQznukGzk0opHyeydMZLWPmgQqjWCB7KWb8l09kPJi6Sodojg8na8EeSPtlA=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 1002,
+      "total_tokens": 1222,
+      "cost": 0.002571,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.002571,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.002505
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

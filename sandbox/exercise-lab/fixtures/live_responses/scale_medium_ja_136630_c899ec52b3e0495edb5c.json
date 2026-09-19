@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"犯す\" in Japanese (expected part of speech: v5s,vt).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"犯す\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.8338241577148438,
+  "response": {
+    "id": "gen-1789655520-Au2WoJCu8MKwurai5UdH",
+    "object": "chat.completion",
+    "created": 1789655520,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"To commit a crime, sin, or error.\",\n  \"definition_standard\": \"To commit (a crime, offense, error, or sin); to violate or infringe upon (rights, taboos, etc.).\",\n  \"pos\": \"v5s,vt\",\n  \"semantic_class\": \"Action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"japanese\": \"彼は罪を犯した。\",\n      \"english\": \"He committed a crime.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"japanese\": \"大きな間違いを犯してしまった。\",\n      \"english\": \"I have made a serious mistake.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"japanese\": \"法律を犯す者は罰せられる。\",\n      \"english\": \"Those who violate the law will be punished.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"japanese\": \"人間である以上、誰しも過ちを犯す可能性がある。\",\n      \"english\": \"Being human, anyone is capable of committing errors.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"japanese\": \"彼の行動は国際法を犯すものであり、非難を免れない。\",\n      \"english\": \"His actions violate international law and are deserving of criticism.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"japanese\": \"不可侵の領域を犯すことは、さらなる紛争の火種となりかねない。\",\n      \"english\": \"Violating an inviolable territory could become the spark for further conflict.\"\n    }\n  ],\n  \"primary_collocate\": \"罪\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"服す\",\n      \"reason\": \"While related to crime (serving a sentence), it takes particles like 'に' rather than direct objects like '罪'.\"\n    },\n    {\n      \"word\": \"償う\",\n      \"reason\": \"Although related to atoning for a crime, it typically pairs with '罪を' in the sense of making amends, not 'committing'.\"\n    },\n    {\n      \"word\": \"暴く\",\n      \"reason\": \"Means to expose or reveal (a secret or crime), which is semantically distinct from committing the act itself.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"冒す\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"破る\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"違反する\",\n      \"type\": \"synonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a19WJieFd1py7YblNPegQll2E9EVtGN4afu8nAV13H9iRIfcqQMlMbuXCl/BrvUxpBP+1WJ22kzDgqsmn4Dx30BxazVy88FYT179ML6kxI8=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 147,
+      "completion_tokens": 624,
+      "total_tokens": 771,
+      "cost": 0.0016041,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0016041,
+        "upstream_inference_prompt_cost": 4.41e-05,
+        "upstream_inference_completions_cost": 0.00156
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

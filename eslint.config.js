@@ -33,4 +33,9 @@ export default [
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    // ES modules (import/export) — everything else in static/js is a classic script.
+    files: ['static/js/session/**/*.js'],
+    languageOptions: { sourceType: 'module' },
+  },
 ];

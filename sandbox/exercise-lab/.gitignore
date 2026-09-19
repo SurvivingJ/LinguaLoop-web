@@ -1,0 +1,18 @@
+# The built lab database is a local, regenerable artifact (see db/build_db.py).
+# It is never checked in: it's derived from raw/*, data/*, and *.csv files
+# that already live elsewhere in the repo, and it can be multiple MB.
+db/lab.sqlite
+db/lab.sqlite-journal
+db/lab.sqlite-wal
+db/lab.sqlite-shm
+
+# Generated harness output (JSON/markdown reports) - regenerable by re-running
+# the harness, not source material. Keep the directory itself (.gitkeep) so
+# the path exists for a fresh checkout.
+reports/*.json
+reports/*.md
+!reports/.gitkeep
+
+__pycache__/
+*.pyc
+.pytest_cache/

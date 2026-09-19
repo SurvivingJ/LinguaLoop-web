@@ -359,7 +359,17 @@ const MARKUP = `
     .js-answer { background: rgba(30,64,175,0.04); border: 2px solid var(--primary); margin-bottom: 12px; }
     .js-chunk { padding: 8px 16px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 500; user-select: none; transition: all .15s; }
     .js-chunk:hover { border-color: var(--primary); }
-    .js-chunk.placed { opacity: .4; pointer-events: none; }
+    .js-chunk.disabled { cursor: default; }
+    /* A chunk in the answer box is removable — the × says so, and turning it
+       red on hover says which way the click goes. */
+    .js-chunk--placed::after { content: '\\00d7'; margin-left: 8px; color: var(--text-secondary); font-weight: 700; }
+    .js-chunk--placed:hover { border-color: var(--danger); }
+    .js-chunk--placed:hover::after { color: var(--danger); }
+    .js-chunk--placed.disabled::after { content: none; }
+    /* Drop target caret for drag-reordering. Without a rule the element is
+       created on every dragover and renders as nothing. */
+    .js-drop-indicator { width: 3px; align-self: stretch; min-height: 28px; background: var(--primary); border-radius: 2px; }
+    .js-bank.drag-over, .js-answer.drag-over { border-color: var(--primary); background: rgba(30,64,175,0.08); }
     .phonetic-display { text-align: center; margin-bottom: 24px; }
     .phonetic-display .ipa { font-size: 24px; color: var(--primary); font-weight: 600; }
     .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }

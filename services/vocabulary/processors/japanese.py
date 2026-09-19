@@ -72,6 +72,13 @@ def _is_loanword_lemma(lemma: str) -> bool:
     return bool(lemma) and bool(_LOANWORD_LEMMA.search(lemma))
 
 
+# UniDic tags classical conjugations as 文語形容詞-ク, 文語助動詞-ケリ, and so on.
+# Their orthBase is the classical dictionary form (長し for 長き), which no modern
+# dictionary entry matches; the lemma carries the modern headword instead.
+def _is_classical(c_type: str) -> bool:
+    return bool(c_type) and c_type.startswith('文語')
+
+
 # Katakana (U+30A1-U+30F6) -> hiragana (U+3041-U+3096) is a flat -0x60
 # offset. ー (U+30FC, the long-vowel mark) is shared by both scripts and is
 # left as-is. Readings are stored in hiragana for consistency with the rest
@@ -156,12 +163,22 @@ class JapaneseProcessor(BaseLanguageProcessor):
 
         A loanword 'lemma' (ノブ-knob, ライト-light（光）) is never used: it is
         UniDic's English-annotated lexeme id, not a word a learner can read.
+
+        A classical inflection (文語, e.g. 長き/幼き/若き) is the one case where
+        'lemma' beats an available kanji 'orthBase': orthBase gives the classical
+        dictionary form (長し, 幼し, 若し), which is not a headword a modern
+        learner looks up, while 'lemma' gives the modern one (長い, 幼い, 若い).
+        There is no comparable marker for potential verbs — 拭える carries an
+        ordinary cType and lemma 拭う — so those are left on orthBase (TASK-779).
         """
         feature = word.feature
         orth = getattr(feature, "orthBase", None)
         lemma = feature.lemma
         if _is_loanword_lemma(lemma):
             lemma = None
+
+        if _is_classical(getattr(feature, "cType", None)) and lemma and lemma != '*':
+            return lemma
 
         if orth and orth != '*':
             if not _has_kanji(orth) and lemma and lemma != '*' and _has_kanji(lemma):

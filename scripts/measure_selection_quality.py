@@ -24,10 +24,23 @@ Metrics (features/vocabulary-aware-test-selection.tech §5.1), per (language, ty
   M5  pool health      candidates returned per type, both arms (must not fall)
 
 Replay (§5.2.1): every first attempt in --replay-language is re-ranked against the
-candidate set AS OF its timestamp under vocab_weight 0 and 1, and the unknown(t)
-distribution of each arm's top-10 for that attempt's type is reported. See the
-AS-OF caveats in migrations/task748_get_recommended_tests_vocab_aware.sql: test
-ELOs and later-updated p_known values cannot be rewound.
+candidate set AS OF its timestamp under each ARM, and the unknown(t) distribution
+of that arm's top-10 for the attempt's type is reported. See the AS-OF caveats in
+migrations/task748_get_recommended_tests_vocab_aware.sql: test ELOs and
+later-updated p_known values cannot be rewound.
+
+Arms (TASK-781) are (vocab_weight, combine_mode) pairs:
+
+  w0       weight 0            the pre-TASK-748 ranking; vocabulary contributes nothing
+  sum      weight 1, 'sum'     score = e + v
+  product  weight 1, 'product' score = (1+e)·(1+v), the sum plus the cross term e·v
+
+`combine_mode` is a selection_tuning row, not an RPC argument (see tech spec
+§3.5), and this script talks PostgREST, so the product arm is measured by WRITING
+that row and restoring it in a finally. That is safe ONLY while
+selection_tuning.vocab_weight = 0, because get_recommended_tests never reaches
+the ranker at weight 0 — so the mode cannot change what a live learner is served.
+The script REFUSES to flip the mode if vocab_weight is anything else.
 
 Shadow snapshot (§5.2.2): --shadow-out DIR appends one JSONL line per active
 (user, language) with both arms' top-10 per type, for a daily cron over the
@@ -48,6 +61,7 @@ import os
 import statistics
 import sys
 from collections import defaultdict
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Iterable, Optional, Sequence
 
@@ -69,6 +83,16 @@ BELOW_FLOOR = 50.0
 U_STAR, U_TOL = 0.15, 0.10
 TOP_N = 10
 LANG_CODES = {1: 'zh', 2: 'en', 3: 'ja'}
+
+#: TASK-781 arms: label -> (vocab_weight, combine_mode). 'w0' runs in sum mode
+#: because at weight 0 the mode cannot matter: (1+e)·1 is a monotone transform of
+#: e, so both modes give the identical order — one fewer live write.
+ARM_SPEC: dict = {
+    'w0':      (0.0, 'sum'),
+    'sum':     (1.0, 'sum'),
+    'product': (1.0, 'product'),
+}
+ARMS = tuple(ARM_SPEC)
 
 
 # =============================================================================
@@ -232,6 +256,58 @@ def ranked(db, user_id: str, language_id: int, weight: float,
     }).execute().data or []
 
 
+def read_tuning(db) -> dict:
+    """selection_tuning as {key: value or value_text}."""
+    rows = db.table('selection_tuning').select('key,value,value_text').execute().data or []
+    return {r['key']: (r['value_text'] if r['value'] is None else r['value']) for r in rows}
+
+
+@contextmanager
+def combine_mode(db, mode: str):
+    """Hold selection_tuning.combine_mode at `mode`, then put it back.
+
+    The ONLY write this script makes. It is refused unless vocab_weight = 0,
+    because at weight 0 get_recommended_tests never reaches the ranker, so the
+    mode is inert for live traffic; above 0 this would change what real learners
+    are served mid-measurement. A crash between the two writes therefore leaves
+    an inert row, not a live behaviour change — but the caller re-reads and says
+    so at the end of the run.
+    """
+    tuning = read_tuning(db)
+    weight = float(tuning.get('vocab_weight') or 0)
+    current = tuning.get('combine_mode') or 'sum'
+    if mode == current:
+        yield current
+        return
+    if weight != 0:
+        raise RuntimeError(
+            f'refusing to set combine_mode={mode!r}: selection_tuning.vocab_weight is '
+            f'{weight}, not 0, so the flip would change what live learners are served. '
+            'Set vocab_weight = 0 first, or run the arms from SQL inside a rollback-only '
+            'transaction.')
+    print(f'  [combine_mode {current} -> {mode}] (inert: vocab_weight = 0)', flush=True)
+    db.table('selection_tuning').update({'value_text': mode}).eq('key', 'combine_mode').execute()
+    try:
+        yield mode
+    finally:
+        db.table('selection_tuning').update({'value_text': current}).eq('key', 'combine_mode').execute()
+        print(f'  [combine_mode {mode} -> {current}] restored', flush=True)
+
+
+def collect(db, requests: Sequence[tuple], arms: Sequence[str]) -> dict:
+    """{arm: {(user_id, lang, as_of): rows}} — one mode flip per arm, not per call.
+
+    `requests` is a sequence of (user_id, language_id, as_of|None).
+    """
+    out: dict = {}
+    for arm in arms:
+        weight, mode = ARM_SPEC[arm]
+        with combine_mode(db, mode):
+            out[arm] = {key: ranked(db, key[0], key[1], weight, as_of=key[2])
+                        for key in requests}
+    return out
+
+
 # =============================================================================
 # Reports
 # =============================================================================
@@ -288,45 +364,66 @@ def _top(rows: list[dict], test_type: str, n: int = TOP_N) -> list[dict]:
                   key=lambda r: r['rank_in_type'])
 
 
-def served_metrics(db, pairs: list[tuple[str, int]]) -> dict:
-    """M4 and M5 for each (user, language), both arms, current state."""
+def served_metrics(db, pairs: list[tuple[str, int]], arms: Sequence[str] = ARMS) -> dict:
+    """M4, M5 and per-arm rank correlation for each (user, language), current state."""
+    requests = [(u, l, None) for u, l in pairs]
+    cache = collect(db, requests, arms)
     out = {}
     for user_id, lang in pairs:
-        arms = {w: ranked(db, user_id, lang, w) for w in (0, 1)}
-        types = sorted({r['test_type'] for rows in arms.values() for r in rows})
+        key = (user_id, lang, None)
+        by_arm = {a: cache[a][key] for a in arms}
+        types = sorted({r['test_type'] for rows in by_arm.values() for r in rows})
         per_type = {}
         for t in types:
-            top0, top1 = _top(arms[0], t), _top(arms[1], t)
+            tops = {a: _top(by_arm[a], t) for a in arms}
+            base = arms[0]
             per_type[t] = {
-                'M5_count_w0': len(top0), 'M5_count_w1': len(top1),
-                'M4_unknown_w0': quantiles(r['unknown_share'] for r in top0),
-                'M4_unknown_w1': quantiles(r['unknown_share'] for r in top1),
-                'in_band_w0': band_share(r['unknown_share'] for r in top0),
-                'in_band_w1': band_share(r['unknown_share'] for r in top1),
-                'overlap_jaccard': jaccard((r['test_id'] for r in top0),
-                                           (r['test_id'] for r in top1)),
+                'M5_count': {a: len(tops[a]) for a in arms},
+                'M4_unknown': {a: quantiles(r['unknown_share'] for r in tops[a]) for a in arms},
+                'in_band': {a: band_share(r['unknown_share'] for r in tops[a]) for a in arms},
+                # Overlap of each arm's top-10 with the first arm's, and of the
+                # two vocabulary arms with each other.
+                'overlap_vs_' + base: {a: jaccard((r['test_id'] for r in tops[base]),
+                                                  (r['test_id'] for r in tops[a])) for a in arms},
+                'overlap_sum_vs_product': (
+                    jaccard((r['test_id'] for r in tops['sum']),
+                            (r['test_id'] for r in tops['product']))
+                    if 'sum' in tops and 'product' in tops else None),
             }
-        src = arms[1][0]['ability_source'] if arms[1] else None
-        zipf = arms[1][0]['ability_zipf'] if arms[1] else None
-        out[f'{user_id}:{lang}'] = {'ability_source': src, 'ability_zipf': zipf,
-                                   'types': per_type}
+        # How strongly each arm's ORDER is driven by vocabulary: rho(unknown, score)
+        # over every candidate, pooled across types. |unknown − u*| is V-shaped, so
+        # this is not a linearity claim — it reads as "which way the ranking leans"
+        # on content that sits almost entirely above u*.
+        rho = {a: spearman([r['unknown_share'] for r in by_arm[a]],
+                           [float(r['score']) for r in by_arm[a]]) for a in arms}
+        first = next((rows[0] for rows in by_arm.values() if rows), None)
+        out[f'{user_id}:{lang}'] = {
+            'ability_source': first['ability_source'] if first else None,
+            'ability_zipf': first['ability_zipf'] if first else None,
+            'spearman_unknown_vs_score': rho,
+            'types': per_type,
+        }
     return out
 
 
-def replay(db, attempts: list[dict], language_id: int) -> dict:
-    """Re-rank every first attempt in `language_id` as of its timestamp."""
+def replay(db, attempts: list[dict], language_id: int, arms: Sequence[str] = ARMS) -> dict:
+    """Re-rank every first attempt in `language_id` as of its timestamp, per arm."""
     firsts = [a for a in attempts
               if int(a['language_id']) == language_id and a.get('is_first_attempt')]
+    requests = [(a['user_id'], language_id, a['created_at']) for a in firsts]
+    cache = collect(db, requests, arms)
+
     rows_out = []
     for a in firsts:
+        key = (a['user_id'], language_id, a['created_at'])
         rec = {'attempt_id': a['id'], 'created_at': a['created_at'], 'type': a['_type'],
-               'percentage': a['_pct'], 'test_id': a['test_id']}
-        for w in (0, 1):
-            cands = ranked(db, a['user_id'], language_id, w, as_of=a['created_at'])
+               'percentage': a['_pct'], 'test_id': a['test_id'], 'arms': {}}
+        for arm in arms:
+            cands = cache[arm][key]
             top = _top(cands, a['_type'])
             taken = next((c for c in cands
                           if c['test_id'] == a['test_id'] and c['test_type'] == a['_type']), None)
-            rec[f'w{w}'] = {
+            rec['arms'][arm] = {
                 'top_unknown': [c['unknown_share'] for c in top],
                 'top_difficulty': [c['difficulty_level'] for c in top],
                 'top_ids': [c['test_id'] for c in top],
@@ -337,26 +434,38 @@ def replay(db, attempts: list[dict], language_id: int) -> dict:
                 'ability_source': cands[0]['ability_source'] if cands else None,
                 'ability_zipf': cands[0]['ability_zipf'] if cands else None,
             }
-        rec['overlap_jaccard'] = jaccard(rec['w0']['top_ids'], rec['w1']['top_ids'])
+        rec['overlap'] = {f'{x}|{y}': jaccard(rec['arms'][x]['top_ids'], rec['arms'][y]['top_ids'])
+                          for i, x in enumerate(arms) for y in arms[i + 1:]}
         rows_out.append(rec)
 
-    summary = {}
-    for w in (0, 1):
-        pooled = [u for r in rows_out for u in r[f'w{w}']['top_unknown']]
-        diffs = [d for r in rows_out for d in r[f'w{w}']['top_difficulty']]
-        summary[f'w{w}'] = {
+    summary = {'arms': {}}
+    for arm in arms:
+        pooled = [u for r in rows_out for u in r['arms'][arm]['top_unknown']]
+        diffs = [d for r in rows_out for d in r['arms'][arm]['top_difficulty']]
+        summary['arms'][arm] = {
             'top10_unknown': quantiles(pooled),
             'top10_in_band': band_share(pooled),
             'top10_difficulty': quantiles(diffs),
-            'neutral_slots': sum(r[f'w{w}']['neutral'] for r in rows_out),
-            'slots': sum(len(r[f'w{w}']['top_unknown']) for r in rows_out),
-            'taken_rank': quantiles(r[f'w{w}']['taken_rank'] for r in rows_out),
+            'neutral_slots': sum(r['arms'][arm]['neutral'] for r in rows_out),
+            'slots': sum(len(r['arms'][arm]['top_unknown']) for r in rows_out),
+            'taken_rank': quantiles(r['arms'][arm]['taken_rank'] for r in rows_out),
+            'min_pool': min([r['arms'][arm]['pool'] for r in rows_out] or [0]),
         }
-    summary['mean_overlap_jaccard'] = statistics.fmean(
-        [r['overlap_jaccard'] for r in rows_out if r['overlap_jaccard'] is not None] or [0.0])
-    # Does unknown(t) predict the score the learner actually got? (as of the attempt)
+    summary['mean_overlap'] = {}
+    for i, x in enumerate(arms):
+        for y in arms[i + 1:]:
+            vals = [r['overlap'][f'{x}|{y}'] for r in rows_out if r['overlap'][f'{x}|{y}'] is not None]
+            summary['mean_overlap'][f'{x}|{y}'] = statistics.fmean(vals) if vals else None
+    # M5 as the replay sees it: no arm's pool may be smaller than w0's.
+    summary['M5_min_pool_delta'] = {
+        arm: min([r['arms'][arm]['pool'] - r['arms'][arms[0]]['pool'] for r in rows_out] or [0])
+        for arm in arms}
+    # The BASELINE −0.59: unknown share of the test the learner actually took vs
+    # the score they got. It is a property of (user, test, as_of), so it is the
+    # SAME in every arm — a check on the vocabulary signal, not an arm comparison.
     summary['spearman_taken_unknown_vs_pct'] = spearman(
-        [r['w0']['taken_unknown'] for r in rows_out], [r['percentage'] for r in rows_out])
+        [r['arms'][arms[0]]['taken_unknown'] for r in rows_out],
+        [r['percentage'] for r in rows_out])
     return {'attempts': rows_out, 'summary': summary}
 
 
@@ -399,44 +508,66 @@ def print_attempt_metrics(m: dict) -> None:
 
 
 def print_served(s: dict) -> None:
-    print('\n=== M4 / M5 — what would be served now, per arm ===')
+    print('\n=== M4 / M5 - what would be served now, per arm ===')
     for key, block in s.items():
         user, lang = key.split(':')
         print(f"\n[{LANG_CODES.get(int(lang), lang)} user {user[:8]}] ability "
               f"{_fmt(block['ability_zipf'], 3)} ({block['ability_source']})")
+        rho = block['spearman_unknown_vs_score']
+        print('  rho(unknown, score) over all candidates: '
+              + ', '.join(f'{a} {_fmt(v, 3)}' for a, v in rho.items()))
         for t, r in block['types'].items():
-            print(f"  {t:<13} M5 {r['M5_count_w0']:>2} -> {r['M5_count_w1']:>2} | "
-                  f"M4 w0 {_q(r['M4_unknown_w0'])} | w1 {_q(r['M4_unknown_w1'])} | "
-                  f"in u*±tol {_fmt(r['in_band_w0'])} -> {_fmt(r['in_band_w1'])} | "
-                  f"overlap {_fmt(r['overlap_jaccard'])}")
+            arms = list(r['M5_count'])
+            print(f"  {t:<13} M5 " + ' '.join(f'{a}={r["M5_count"][a]}' for a in arms))
+            for a in arms:
+                # `in_band` and M4 are computed over candidates that HAVE an
+                # unknown share, so print how many of the ten are neutral: an
+                # arm that serves more unlinked tests scores its band share over
+                # a smaller denominator, which would otherwise read as a win.
+                neutral = r['M5_count'][a] - r['M4_unknown'][a]['n']
+                print(f"      {a:<8} M4 {_q(r['M4_unknown'][a])} | in u*+-tol "
+                      f"{_fmt(r['in_band'][a])} | neutral {neutral}/{r['M5_count'][a]}")
+            if r.get('overlap_sum_vs_product') is not None:
+                print(f"      top-10 overlap sum|product {_fmt(r['overlap_sum_vs_product'])}")
 
 
 def print_replay(r: dict, language_id: int) -> None:
-    print(f'\n=== Replay: {LANG_CODES.get(language_id, language_id)} first attempts, as of each timestamp ===')
-    print(f"  {'when':<17}{'type':<13}{'pct':>6}  {'ability':>8} {'src':<13}"
-          f"{'w0 top10 unknown':<22}{'w1 top10 unknown':<22}{'rank w0/w1':>11}{'ovl':>6}")
-    for a in r['attempts']:
-        w0, w1 = a['w0'], a['w1']
-        q0, q1 = quantiles(w0['top_unknown']), quantiles(w1['top_unknown'])
-        m0 = f"{q0['median']:.2f} [{min(w0['top_unknown'] or [0]):.2f}-{max(w0['top_unknown'] or [0]):.2f}]" \
-            if q0['n'] else 'neutral'
-        m1 = f"{q1['median']:.2f} [{min(w1['top_unknown'] or [0]):.2f}-{max(w1['top_unknown'] or [0]):.2f}]" \
-            if q1['n'] else 'neutral'
-        print(f"  {a['created_at'][:16]:<17}{a['type']:<13}{_fmt(a['percentage'], 1):>6}  "
-              f"{_fmt(w1['ability_zipf'], 3):>8} {str(w1['ability_source']):<13}"
-              f"{m0:<22}{m1:<22}{_fmt(w0['taken_rank']) + '/' + _fmt(w1['taken_rank']):>11}"
-              f"{_fmt(a['overlap_jaccard']):>6}")
     s = r['summary']
-    for w in ('w0', 'w1'):
-        b = s[w]
-        print(f"\n  {w}: top-10 unknown {_q(b['top10_unknown'])}")
-        print(f"      share of served tests inside u*±tol [{U_STAR - U_TOL:.2f}, {U_STAR + U_TOL:.2f}]: "
-              f"{_fmt(b['top10_in_band'])}")
+    arms = list(s['arms'])
+    print(f'\n=== Replay: {LANG_CODES.get(language_id, language_id)} first attempts, '
+          f'as of each timestamp ({len(r["attempts"])} attempts, arms: {", ".join(arms)}) ===')
+    head = f"  {'when':<17}{'type':<13}{'pct':>6} {'src':<13}"
+    head += ''.join(f'{a + " top10 unknown":<24}' for a in arms)
+    head += f"{'taken rank':>26}"
+    print(head)
+    for a in r['attempts']:
+        line = (f"  {a['created_at'][:16]:<17}{a['type']:<13}{_fmt(a['percentage'], 1):>6} "
+                f"{str(a['arms'][arms[0]]['ability_source']):<13}")
+        for arm in arms:
+            u = a['arms'][arm]['top_unknown']
+            q = quantiles(u)
+            line += (f"{q['median']:.2f} [{min(u):.2f}-{max(u):.2f}]".ljust(24)
+                     if q['n'] else 'neutral'.ljust(24))
+        line += ('/'.join(_fmt(a['arms'][arm]['taken_rank']) for arm in arms)).rjust(26)
+        print(line)
+
+    for arm in arms:
+        b = s['arms'][arm]
+        print(f"\n  {arm}: top-10 unknown {_q(b['top10_unknown'])}")
+        print(f"      share of served tests inside u*+-tol [{U_STAR - U_TOL:.2f}, "
+              f"{U_STAR + U_TOL:.2f}]: {_fmt(b['top10_in_band'])}")
         print(f"      top-10 difficulty {_q(b['top10_difficulty'])}")
-        print(f"      neutral slots {b['neutral_slots']}/{b['slots']}; taken test's rank {_q(b['taken_rank'])}")
-    print(f"\n  mean top-10 overlap between arms (Jaccard): {s['mean_overlap_jaccard']:.2f}")
-    print(f"  Spearman(unknown of the taken test, its score): "
-          f"{_fmt(s['spearman_taken_unknown_vs_pct'], 3)}")
+        print(f"      neutral slots {b['neutral_slots']}/{b['slots']}; "
+              f"taken test's rank {_q(b['taken_rank'])}")
+        print(f"      M5 smallest per-attempt pool {b['min_pool']} "
+              f"(min delta vs {arms[0]}: {s['M5_min_pool_delta'][arm]})")
+
+    print('\n  mean top-10 overlap between arms (Jaccard):')
+    for pair, v in s['mean_overlap'].items():
+        print(f'      {pair:<18} {_fmt(v)}')
+    print(f"\n  Spearman(unknown of the taken test, its score): "
+          f"{_fmt(s['spearman_taken_unknown_vs_pct'], 3)}"
+          f"   [arm-independent: the taken test's unknown share is the same in every arm]")
 
 
 # =============================================================================
@@ -451,8 +582,15 @@ def main() -> None:
                     help='language_id to replay (default 3 = ja; 0 to skip)')
     ap.add_argument('--no-served', action='store_true', help='skip M4/M5')
     ap.add_argument('--json', help='write the full result as JSON to this path')
-    ap.add_argument('--shadow-out', help='append a both-arms JSONL snapshot to this directory')
+    ap.add_argument('--shadow-out', help='append an all-arms JSONL snapshot to this directory')
+    ap.add_argument('--arms', default=','.join(ARMS),
+                    help=f'comma-separated subset of {",".join(ARMS)} (default: all three)')
     args = ap.parse_args()
+
+    arms = tuple(a.strip() for a in args.arms.split(',') if a.strip())
+    unknown = [a for a in arms if a not in ARM_SPEC]
+    if unknown:
+        raise SystemExit(f'unknown arm(s) {unknown}; choose from {list(ARM_SPEC)}')
 
     from dotenv import load_dotenv
     load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
@@ -468,28 +606,38 @@ def main() -> None:
 
     pairs = sorted({(a['user_id'], int(a['language_id'])) for a in attempts})
     if not args.no_served:
-        result['served'] = served_metrics(db, pairs)
+        result['served'] = served_metrics(db, pairs, arms)
         print_served(result['served'])
 
     if args.replay_language:
-        result['replay'] = replay(db, attempts, args.replay_language)
+        result['replay'] = replay(db, attempts, args.replay_language, arms)
         print_replay(result['replay'], args.replay_language)
 
     if args.shadow_out:
         os.makedirs(args.shadow_out, exist_ok=True)
         stamp = datetime.now(timezone.utc)
         path = os.path.join(args.shadow_out, f'{stamp:%Y-%m-%d}.jsonl')
+        snap = collect(db, [(u, l, None) for u, l in pairs], arms)
         with open(path, 'a', encoding='utf-8') as fh:
             for user_id, lang in pairs:
-                arms = {w: ranked(db, user_id, lang, w) for w in (0, 1)}
+                key = (user_id, lang, None)
                 fh.write(json.dumps({
                     'at': stamp.isoformat(), 'user_id': user_id, 'language_id': lang,
-                    'arms': {str(w): [{k: r[k] for k in ('test_id', 'test_type', 'rank_in_type',
-                                                          'score', 'unknown_share', 'vocab_neutral')}
-                                      for r in rows if r['rank_in_type'] <= TOP_N]
-                             for w, rows in arms.items()},
+                    'arms': {arm: [{k: r[k] for k in ('test_id', 'test_type', 'rank_in_type',
+                                                      'score', 'unknown_share', 'vocab_neutral')}
+                                   for r in snap[arm][key] if r['rank_in_type'] <= TOP_N]
+                             for arm in arms},
                 }, ensure_ascii=False) + '\n')
         print(f'\nshadow snapshot appended to {path}')
+
+    final = read_tuning(db)
+    result['selection_tuning_after'] = final
+    print(f"\nselection_tuning after the run: vocab_weight={final.get('vocab_weight')}, "
+          f"combine_mode={final.get('combine_mode')!r}")
+    if str(final.get('combine_mode')) != 'sum':
+        print("  WARNING: combine_mode is not back at 'sum'. It is inert while "
+              "vocab_weight = 0, but restore it:")
+        print("  UPDATE selection_tuning SET value_text = 'sum' WHERE key = 'combine_mode';")
 
     if args.json:
         with open(args.json, 'w', encoding='utf-8') as fh:

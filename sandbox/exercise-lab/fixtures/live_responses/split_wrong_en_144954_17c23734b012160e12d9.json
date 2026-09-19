@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"effectiveness\" in English (NOUN). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.662894248962402,
+  "response": {
+    "id": "gen-1789655513-78wTULi2p3JC0yxmJQRY",
+    "object": "chat.completion",
+    "created": 1789655513,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"effectivity\",\n      \"explanation\": \"Often confused with effectiveness, but 'effectivity' is largely restricted to legal contexts (e.g., when a law takes effect) rather than general capability to produce results.\"\n    },\n    {\n      \"wrong_form\": \"effectlessness\",\n      \"explanation\": \"A morphologically possible but non-standard coinage; standard English uses 'ineffectiveness'.\"\n    },\n    {\n      \"wrong_form\": \"effectivelyness\",\n      \"explanation\": \"Double suffix error; adding '-ness' to the adverb 'effectively' creates an ungrammatical noun.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"affectiveness\",\n      \"explanation\": \"Sounds very similar due to the unstressed initial vowel and shared root, but relates to psychology/emotions (affect) rather than producing a result.\"\n    },\n    {\n      \"word\": \"defectiveness\",\n      \"explanation\": \"Phonetically overlaps in rapid speech ('-fectiveness'), but means having flaws or faults rather than being successful.\"\n    },\n    {\n      \"word\": \"attentiveness\",\n      \"explanation\": \"Similar rhythmic structure and ending, but means paying close attention rather than achieving a desired outcome.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"collocate\": \"fast\",\n      \"explanation\": \"Native speakers use 'high' or 'proven' with effectiveness; 'fast' is used with speed or results, not the noun itself.\"\n    },\n    {\n      \"collocate\": \"strong\",\n      \"explanation\": \"While 'strong' pairs with 'effect', it does not naturally collocate with 'effectiveness'; 'high' or 'maximum' are the correct modifiers.\"\n    },\n    {\n      \"collocate\": \"deep\",\n      \"explanation\": \"'Deep' implies physical depth or emotional intensity, which does not collocate with the measurable success metric of effectiveness.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"collocate\": \"deep effectiveness\",\n    \"explanation\": \"The adjective 'deep' cannot modify 'effectiveness'; use 'proven effectiveness' or 'overall effectiveness' instead.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"effect\",\n      \"explanation\": \"A noun meaning a result, but syntactically and semantically incorrect in contexts requiring a measure of successful outcome.\"\n    },\n    {\n      \"option\": \"affect\",\n      \"explanation\": \"Usually a verb, or a psychological noun, making it grammatically incompatible as a direct replacement for this noun.\"\n    },\n    {\n      \"option\": \"efficient\",\n      \"explanation\": \"An adjective, whereas the sentence structure requires a noun.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The new manager improved the company's effectiveness to finish the project by Friday.\",\n      \"reason\": \"Effectiveness is a general measure of producing a result, not a specific deadline-driven action; 'efficiency' or 'ability' is more appropriate.\"\n    },\n    {\n      \"sentence\": \"We need to monitor the effectiveness of the rain.\",\n      \"reason\": \"Natural weather phenomena do not have 'effectiveness' because they do not have a goal or intended outcome.\"\n    },\n    {\n      \"sentence\": \"Her effectiveness as a musician was shown by her beautiful guitar solo.\",\n      \"reason\": \"Artistic beauty is evaluated by aesthetic criteria (e.g., skill, expressiveness), not functional effectiveness.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"The marketing campaign proved its high effectiveness by increasing sales by fifty percent.\",\n    \"planted_error\": \"high effectiveness\",\n    \"error_description\": \"While 'high effectiveness' is occasionally used, standard business English strongly prefers 'proven effectiveness' or 'cost-effectiveness' in this specific metric context.\",\n    \"corrected_version\": \"The marketing campaign proved its proven effectiveness by increasing sales by fifty percent.\"\n  },\n  \"word_family_fake_forms\": [\n    \"effectify\",\n    \"effectation\",\n    \"effectment\"\n  ],\n  \"particle_candidates\": [\n    \"ga\",\n    \"wo\",\n    \"ni\",\n    \"de\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+26tV3TZOhh9UH6hEMjHux/UGPTqVp6KnTdkezI/eXMBMZDzEdlG8285zXfxFJnb1S00MbzXS8jSaRpJwuH6hwTbeGH60Ato0Ca1ARzQg=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 994,
+      "total_tokens": 1214,
+      "cost": 0.002551,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.002551,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.002485
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

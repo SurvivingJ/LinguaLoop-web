@@ -19,6 +19,9 @@ then stores through `word_assets`.
                        `prompt3_transforms_<variant>` asset (the shape the
                        renderer reads), validates each, upserts them, then
                        renders `exercises` rows via LadderExerciseRenderer.
+                       A batch exported with typed prompts (--include-typed,
+                       or the CSV stage runner) also stores `llm_types_<v>`,
+                       schema-gated and remapped as typed_llm.generate does.
 
 Validation is fail-closed for the whole batch: nothing is written if any sense
 fails, so a batch is never half-applied. --skip-invalid drops the offending
@@ -65,6 +68,7 @@ from services.vocabulary_ladder.asset_generators.prompt2_exercises import Exerci
 from services.vocabulary_ladder.asset_generators.prompt3_transforms import TransformAssetGenerator
 from services.vocabulary_ladder.asset_generators.l4_morphology import MorphologySlotGenerator
 from services.vocabulary_ladder.asset_generators.l8_repair import CollocationRepairGenerator
+from services.vocabulary_ladder.asset_generators import typed_llm
 from services.vocabulary_ladder.collocation_grounding import (
     GROUNDING_ASSERTED, ground_core_asset,
 )
@@ -257,6 +261,28 @@ def _remap_split(gen, raw, level: int, sentence_index: int,
     return {f'level_{level}': gen._remap(raw, sentence_index)}
 
 
+def _remap_typed(db, language_id: int, type_code: str, raw, spec: dict,
+                 sense_id: int, errors: list[str]) -> dict:
+    """Schema-gate one typed LLM answer and remap it, as typed_llm.generate does.
+
+    Returns ``{type_code: fragment}``, or {} for the model's own decline or a
+    payload the gate refuses — a dropped type costs that type only.
+    """
+    cls = typed_llm.generator_class(type_code)
+    if cls is None:
+        errors.append(f"typed {type_code}: no registered generator")
+        return {}
+    try:
+        schema_errors = validate_ladder_output(type_code, int(spec['prompt_version']), raw)
+    except SchemaError as exc:
+        errors.append(f"typed {type_code}: {exc}")
+        return {}
+    if schema_errors:
+        errors.append(f"typed {type_code} schema: {'; '.join(schema_errors[:4])}")
+        return {}
+    return cls(db, language_id).fragment_from_raw(raw, spec['sentence_index'], sense_id)
+
+
 def prepare_exercises(db, batch: dict, answers: dict[int, dict]) -> tuple[list[dict], list[dict]]:
     """Remap and validate every exercise answer, both variants. No writes."""
     language_id = batch['language_id']
@@ -334,6 +360,28 @@ def prepare_exercises(db, batch: dict, answers: dict[int, dict]) -> tuple[list[d
                 if not ok:
                     errors.extend(f"[{variant_key}] {e}" for e in errs)
                 assets[f'prompt3_transforms_{variant_key}'] = p3_asset
+
+            # Typed LLM types (syn/ant, word family, particle selection), only
+            # when the batch was exported with them. Stored even when empty,
+            # as the pipeline does: an empty llm_types_<v> tells the renderer
+            # "no applicable types", a missing one "never generated".
+            if 'typed' in variant:
+                raw_typed = answer.get('typed')
+                if not isinstance(raw_typed, dict):
+                    raw_typed = {}
+                    if variant['typed']:
+                        errors.append(f"[{variant_key}] missing typed answers")
+                fragments: dict = {}
+                for type_code, spec in variant['typed'].items():
+                    raw = raw_typed.get(type_code)
+                    if not isinstance(raw, dict):
+                        errors.append(f"[{variant_key}] missing typed.{type_code} answer")
+                        continue
+                    typed_errors: list[str] = []
+                    fragments.update(_remap_typed(db, language_id, type_code, raw,
+                                                  spec, sid, typed_errors))
+                    errors.extend(f"[{variant_key}] {e}" for e in typed_errors)
+                assets[typed_llm.asset_type_for(variant_key)] = fragments
 
         if errors:
             failed.append({'sense_id': sid, 'errors': errors})

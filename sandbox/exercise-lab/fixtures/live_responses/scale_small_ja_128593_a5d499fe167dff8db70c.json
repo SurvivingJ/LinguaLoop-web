@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"空洞\" in Japanese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"空洞\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 2.4861903190612793,
+  "response": {
+    "id": "gen-1789655518-eHGNLh832LC7iIbUfy6Q",
+    "object": "chat.completion",
+    "created": 1789655518,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"空洞\",\n  \"reading\": \"くうどう\",\n  \"definition_simple\": \"中がからっぽになっていること。またはその空間。\",\n  \"definition_standard\": \"内部に何もなく、ぽっかりと空間が広がっていること。また、その空間や洞穴。\",\n  \"examples\": [\n    {\n      \"japanese\": \"地盤沈下の原因を調べたら、地下に大きな空洞が見つかった。\",\n      \"reading\": \"じばんちんかのげんいんをしらべたら、ちかにおおきなくうどうがみつかった。\",\n      \"english\": \"When investigating the cause of the ground subsidence, a large cavity was found underground.\"\n    },\n    {\n      \"japanese\": \"この木の幹は古くなって、中はすっかり空洞になっている。\",\n      \"reading\": \"このきのかみはふるくなって、なかはすっかりくうどうになっている。\",\n      \"english\": \"The trunk of this tree is old, and the inside is completely hollow.\"\n    },\n    {\n      \"japanese\": \"大切な友人を失って以来、心にぽっかりと空洞ができたようだ。\",\n      \"reading\": \"たいせつなゆうじんをうしなっていから、こころにぽっかりとくうどうができたようだ。\",\n      \"english\": \"Ever since I lost my dear friend, it feels like a void has opened up in my heart.\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/JlQJDrMiQQkR0kcrVP3NKb0UcznQbaG9yL/DDGHRHl4ZFkWG/N1DM2lXYYI0Fm1pcGopPXL4XejrJ0YvlINmbxqbljHYcJZmoV9cq4jw=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 49,
+      "completion_tokens": 323,
+      "total_tokens": 372,
+      "cost": 0.0008222,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0008222,
+        "upstream_inference_prompt_cost": 1.47e-05,
+        "upstream_inference_completions_cost": 0.0008075
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

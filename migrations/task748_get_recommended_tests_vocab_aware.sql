@@ -1,6 +1,15 @@
 -- TASK-748 — vocabulary-aware get_recommended_tests, shipped SWITCHED OFF.
 -- Supersedes the live 3-arg body, archived verbatim as
 -- migrations/archive/task748_prev_get_recommended_tests_live_3arg.sql.
+--
+-- SUPERSEDED IN PART by migrations/task780_selection_combine_mode.sql
+-- (2026-09-16), which is now canonical for `recommended_tests_ranked` — it adds
+-- selection_tuning.combine_mode and the (1+e)·(1+v) branch. This file is kept,
+-- not archived, because it remains the only repo record of
+-- `selection_vocab_ability` and of `get_recommended_tests`, both live and NOT
+-- redefined by TASK-780 (migrations/CLAUDE.md rule 4). Section 2 below is the
+-- pre-780 ranker; tests/sql/test_task748_parity.sql freezes a copy of it and
+-- proves combine_mode = 'sum' still reproduces it exactly.
 -- =============================================================================
 -- PROBLEM
 --   get_recommended_tests ranks candidates on ABS(test_elo - user_elo) alone and

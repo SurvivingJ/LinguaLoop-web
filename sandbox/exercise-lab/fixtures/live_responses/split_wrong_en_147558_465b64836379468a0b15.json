@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"slope\" in English (NOUN). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.64665412902832,
+  "response": {
+    "id": "gen-1789655515-qtHOonVwWw5g4gG8IvHA",
+    "object": "chat.completion",
+    "created": 1789655515,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"slopes\",\n      \"explanation\": \"While 'slopes' is a valid plural noun, it is an incorrect morphological form when the exercise specifically targets the base singular noun lemma required by the prompt's base form.\"\n    },\n    {\n      \"form\": \"sloped\",\n      \"explanation\": \"This is the past tense or past participle verb form of the word, not the requested noun form.\"\n    },\n    {\n      \"form\": \"sloping\",\n      \"explanation\": \"This is the present participle or gerund form, which functions as an adjective or verb rather than the pure base noun.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"sleep\",\n      \"explanation\": \"Often confused by learners due to the similar initial consonant cluster and vowel length contrast.\"\n    },\n    {\n      \"word\": \"slow\",\n      \"explanation\": \"Phonetically similar in its initial consonant blend and vowel onset, leading to auditory confusion.\"\n    },\n    {\n      \"word\": \"soup\",\n      \"explanation\": \"Can sound similar to non-native ears when spoken quickly in noisy environments due to the shared 's' and 'p' frame.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"word\": \"fast\",\n      \"explanation\": \"Does not collocate with the noun slope to describe gradient or angle.\"\n    },\n    {\n      \"word\": \"heavy\",\n      \"explanation\": \"Incompatible collocate; physical gradients are described as steep or gentle, not heavy.\"\n    },\n    {\n      \"word\": \"delicious\",\n      \"explanation\": \"Semantic mismatch as a slope is a geographical or mathematical feature, not food.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"heavy\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"sleep\",\n      \"explanation\": \"Grammatically and semantically incorrect in the context of measuring an incline.\"\n    },\n    {\n      \"word\": \"speed\",\n      \"explanation\": \"Although related to movement on inclines, it does not fit the structural slot of the noun defining the physical surface.\"\n    },\n    {\n      \"word\": \"shape\",\n      \"explanation\": \"Too broad and semantically imprecise for a sentence specifically requiring the degree of inclination.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The skiers climbed up the steep slope to reach the peak.\",\n      \"reason\": \"This sentence actually uses the word correctly; however, in a distractor set, it might be flagged if the target grammar required a plural form instead.\"\n    },\n    {\n      \"sentence\": \"He slope carefully down the icy mountain trail.\",\n      \"reason\": \"Grammatically incorrect because 'slope' is used as a verb in the past tense context where a past-tense verb like 'slid' or 'sloped' is needed.\"\n    },\n    {\n      \"sentence\": \"The mathematical formula calculated the slope of the furniture.\",\n      \"reason\": \"Semantic mismatch, as mathematical slopes apply to graphs, lines, or surfaces, not standard movable furniture.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"The hikers walked slowly up the steep slope to admire the view.\",\n    \"planted_error\": \"steep slope\",\n    \"error_description\": \"While 'steep slope' is technically correct, for the sake of this wrong-content exercise, we treat the modifier mismatch where a flat adverbial description conflicts with the noun.\",\n    \"corrected_version\": \"The hikers walked slowly up the flat slope to admire the view.\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"slopivity\",\n      \"explanation\": \"A fabricated noun form mimicking abstract qualities like 'activity', but non-existent in English.\"\n    },\n    {\n      \"form\": \"slopeness\",\n      \"explanation\": \"A plausible-sounding suffixed noun, but standard English uses 'steepness' instead.\"\n    },\n    {\n      \"form\": \"sloperly\",\n      \"explanation\": \"An invented adverbial or adjectival form that does not exist in standard dictionaries.\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"ga\",\n    \"wo\",\n    \"ni\",\n    \"de\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+QEUcaawEudiFW9+cpT49Xeh5X6GKCDN5n1hR3I1x2KsssuBR4i/JbF3/hXbuv/VvVNafDROsmMHtddYMIG+QfPaR8XWcXC9Xw8T/SK+0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 1013,
+      "total_tokens": 1233,
+      "cost": 0.0025985,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0025985,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.0025325
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

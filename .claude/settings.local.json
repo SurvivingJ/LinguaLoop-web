@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ECC_GATEGUARD": "off"
+  },
   "permissions": {
     "allow": [
       "Bash(wc -l:*)",
@@ -198,7 +201,11 @@
       "Bash(node --check static/js/session/player_registry.js)",
       "mcp__plugin_context-mode_context-mode__ctx_execute",
       "Bash(python -)",
-      "Bash(PYTHONPATH=. python -c ' *)"
+      "Bash(PYTHONPATH=. python -c ' *)",
+      "Agent",
+      "Bash(awk 'NR>=612' data/exercise_seeding/ja/run_batch_01/stage1/round_01/call_001.prompt.md)",
+      "Bash(grep -v '^--$')",
+      "Bash(python -c ' *)"
     ],
     "additionalDirectories": [
       "\\tmp"
@@ -207,8 +214,5 @@
   "enabledPlugins": {
     "ecc@ecc": true,
     "context-mode@context-mode": true
-  },
-  "env": {
-    "ECC_GATEGUARD": "off"
   }
 }

@@ -689,11 +689,12 @@ class VocabAssetPipeline:
         target_word, source, complexity_tier, sentence_source, test_id.
         Returns ``[]`` on any failure — P1 then generates the full set, which
         is the correct degradation.
-        """
-        from services.exercise_generation.language_processor import LanguageProcessor
-        from services.exercise_generation.transcript_miner import TranscriptMiner
-        from services.vocabulary_ladder.tier_gate import screen_sentence, tier_for_lemma
 
+        Two halves: the RPC here (data), and :func:`mine_sentences` (pure).
+        The CSV authoring export bulk-fetches the rows for many senses at once
+        and calls the second half directly, so a sentence mined offline is
+        byte-identical to one mined here.
+        """
         lemma = self._lemma_for_sense(sense_id)
         if not lemma:
             return []
@@ -711,80 +712,7 @@ class VocabAssetPipeline:
             )
             return []
 
-        if not rows:
-            logger.info("No transcripts contain sense %s — nothing to mine", sense_id)
-            return []
-
-        try:
-            processor = LanguageProcessor.for_language(language_id)
-        except Exception as e:
-            logger.warning("No language processor for %s: %s", language_id, e)
-            return []
-
-        tier = tier_for_lemma(lemma, language_id)
-        limit = Config.VOCAB_SENTENCES_PER_WORD
-        seen: set[str] = set()
-        mined: list[dict] = []
-        screened_out = 0
-
-        for test in rows:
-            transcript = test.get('transcript') or ''
-            if not transcript:
-                continue
-            tokens = self._sense_surface_tokens(test.get('vocab_token_map'), sense_id)
-            if not tokens:
-                # The sense is indexed on the test but the token map has no
-                # surface form for it — fall back to the lemma itself.
-                tokens = [lemma]
-            test_tier = TranscriptMiner._difficulty_to_tier(test.get('difficulty') or 2)
-
-            try:
-                candidates = processor.split_sentences(transcript)
-            except Exception:
-                continue
-
-            for raw_sentence in candidates:
-                text = TranscriptMiner._strip_markup(raw_sentence).strip()
-                if len(text) < 10:
-                    continue
-
-                matched = next(
-                    (tok for tok in tokens
-                     if self._mentions_token(processor, text, tok)), None,
-                )
-                if matched is None:
-                    continue
-
-                key = text.lower()
-                if key in seen:
-                    continue
-                seen.add(key)
-
-                if not screen_sentence(
-                    text, language_id, tier, target_word=matched,
-                ).passed:
-                    screened_out += 1
-                    continue
-
-                mined.append({
-                    'text': text,
-                    'target_word': matched,
-                    'source': 'transcript',
-                    'complexity_tier': test_tier,
-                    'sentence_source': SENTENCE_SOURCE_MINED,
-                    'test_id': test.get('id'),
-                })
-                if len(mined) >= limit:
-                    break
-            if len(mined) >= limit:
-                break
-
-        logger.info(
-            "Mined %d sentence(s) for sense %s from %d transcript(s) "
-            "(%d rejected by the tier gate at %s)",
-            len(mined), sense_id, len(rows), screened_out, tier,
-        )
-        return mined
+        return mine_sentences(rows, lemma, sense_id, language_id)
 
     @staticmethod
     def _mentions_token(processor, text: str, token: str) -> bool:
@@ -1059,3 +987,100 @@ class VocabAssetPipeline:
 
 # Import Config at module level for VOCAB_SENTENCES_PER_WORD
 from config import Config
+
+
+def mine_sentences(
+    rows: list[dict],
+    lemma: str,
+    sense_id: int,
+    language_id: int,
+    tier: str | None = None,
+) -> list[dict]:
+    """The pure half of :meth:`VocabAssetPipeline._fetch_corpus_sentences`.
+
+    ``rows`` are ``tests_containing_sense`` results (id, transcript,
+    difficulty, vocab_token_map) in the order the RPC returned them — order
+    matters, because mining stops at ``VOCAB_SENTENCES_PER_WORD``. ``tier``
+    defaults to the lemma's own band via ``tier_for_lemma``, as the live path
+    computes it. No DB access; returns ``[]`` on the same failures.
+    """
+    from services.exercise_generation.language_processor import LanguageProcessor
+    from services.exercise_generation.transcript_miner import TranscriptMiner
+    from services.vocabulary_ladder.tier_gate import screen_sentence, tier_for_lemma
+
+    if not rows:
+        logger.info("No transcripts contain sense %s — nothing to mine", sense_id)
+        return []
+
+    try:
+        processor = LanguageProcessor.for_language(language_id)
+    except Exception as e:
+        logger.warning("No language processor for %s: %s", language_id, e)
+        return []
+
+    if tier is None:
+        tier = tier_for_lemma(lemma, language_id)
+    limit = Config.VOCAB_SENTENCES_PER_WORD
+    seen: set[str] = set()
+    mined: list[dict] = []
+    screened_out = 0
+
+    for test in rows:
+        transcript = test.get('transcript') or ''
+        if not transcript:
+            continue
+        tokens = VocabAssetPipeline._sense_surface_tokens(
+            test.get('vocab_token_map'), sense_id)
+        if not tokens:
+            # The sense is indexed on the test but the token map has no
+            # surface form for it — fall back to the lemma itself.
+            tokens = [lemma]
+        test_tier = TranscriptMiner._difficulty_to_tier(test.get('difficulty') or 2)
+
+        try:
+            candidates = processor.split_sentences(transcript)
+        except Exception:
+            continue
+
+        for raw_sentence in candidates:
+            text = TranscriptMiner._strip_markup(raw_sentence).strip()
+            if len(text) < 10:
+                continue
+
+            matched = next(
+                (tok for tok in tokens
+                 if VocabAssetPipeline._mentions_token(processor, text, tok)), None,
+            )
+            if matched is None:
+                continue
+
+            key = text.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+
+            if not screen_sentence(
+                text, language_id, tier, target_word=matched,
+            ).passed:
+                screened_out += 1
+                continue
+
+            mined.append({
+                'text': text,
+                'target_word': matched,
+                'source': 'transcript',
+                'complexity_tier': test_tier,
+                'sentence_source': SENTENCE_SOURCE_MINED,
+                'test_id': test.get('id'),
+            })
+            if len(mined) >= limit:
+                break
+        if len(mined) >= limit:
+            break
+
+    logger.info(
+        "Mined %d sentence(s) for sense %s from %d transcript(s) "
+        "(%d rejected by the tier gate at %s)",
+        len(mined), sense_id, len(rows), screened_out, tier,
+    )
+    return mined

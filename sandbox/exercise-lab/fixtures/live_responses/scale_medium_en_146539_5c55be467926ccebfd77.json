@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"observation\" in English (expected part of speech: NOUN).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"observation\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.647094249725342,
+  "response": {
+    "id": "gen-1789655517-0X9K6G8sykOw8P6r5eEo",
+    "object": "chat.completion",
+    "created": 1789655517,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"The act of watching something carefully to learn from it.\",\n  \"definition_standard\": \"The action or process of closely monitoring or watching someone or something, or a remark based on such a process.\",\n  \"pos\": \"NOUN\",\n  \"semantic_class\": \"Cognition\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"His observation of the birds took hours.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"The teacher wrote down her observation of the class.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"Scientific progress relies on careful observation of natural phenomena.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"During the night shift, the patient was kept under close observation.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"Her acute observation regarding market trends surprised the board of directors.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"Empirical validation requires that theoretical frameworks remain tethered to rigorous observational data.\"\n    }\n  ],\n  \"primary_collocate\": \"close\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"heavy\",\n      \"reason\": \"While things like rain or traffic can be heavy, observation is monitored with intensity rather than weight.\"\n    },\n    {\n      \"word\": \"strong\",\n      \"reason\": \"Strong usually pairs with opinions or coffee, whereas observation typically takes adjectives related to care or duration.\"\n    },\n    {\n      \"word\": \"deep\",\n      \"reason\": \"Deep is commonly used with thought or water, but standard monitoring uses 'close' or 'careful' observation.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"monitoring\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"surveillance\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"inspection\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"ignorance\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/W31ZY1x+EKQGxfHqE4EaC2+Z1nGfDAFXAQghWKZYJPnntSj2CO06C/0ssK8//BQ3/5hob/A6/U5KUwNKJ1Z5p/SmA5/TbH/kUTAH8Dhs=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 142,
+      "completion_tokens": 526,
+      "total_tokens": 668,
+      "cost": 0.0013576,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0013576,
+        "upstream_inference_prompt_cost": 4.26e-05,
+        "upstream_inference_completions_cost": 0.001315
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"裁判\" in Mandarin Chinese.\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"裁判\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 3.195230007171631,
+  "response": {
+    "id": "gen-1789655510-Zwb3k0u4AvaYn3Go4BUs",
+    "object": "chat.completion",
+    "created": 1789655510,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"比赛中负责判定输赢的人或机构\",\n  \"definition_standard\": \"体育比赛中维持秩序、判定运动员或队伍是否犯规并决定比赛结果的人，或法律诉讼中依法审理案件并作出判决的司法人员或机构。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"人物角色\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"裁判吹哨了，比赛结束了。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"这个球太快了，裁判没有看清楚。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"运动员对裁判的判罚表示不满，跑过去理论。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"主裁判经过反复观看视频回放，最终改判进球有效。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"一场公正的比赛离不开严格遵守规则的裁判团队。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"在法庭辩论结束后，由法官组成的裁判席开始合议并宣读判决结果。\"\n    }\n  ],\n  \"primary_collocate\": \"判罚\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"裁判长\",\n      \"reason\": \"虽然包含裁判二字，但属于复合词或具体职位称呼，并非通常意义上的动宾或主谓直接搭配。\"\n    },\n    {\n      \"word\": \"裁判桌\",\n      \"reason\": \"指裁判坐的桌子，属于场景物品搭配，不构成语义上的核心动宾或修饰搭配。\"\n    },\n    {\n      \"word\": \"裁判员\",\n      \"reason\": \"这是‘裁判’的同义指代或下位词，不是经常与‘裁判’一词相连的修饰或动宾结构。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"评委\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"仲裁\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"选手\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"运动员\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+Sp0gP8sXbExleqTYEi6gRyMupahMW33amTQg5vzHddpzM47T07rEX3cO726AN7tbQhEE/O9t5u1DQ1lEQX+OhcUewG3kS718or8afqv0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 135,
+      "completion_tokens": 585,
+      "total_tokens": 720,
+      "cost": 0.001503,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.001503,
+        "upstream_inference_prompt_cost": 4.05e-05,
+        "upstream_inference_completions_cost": 0.0014625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

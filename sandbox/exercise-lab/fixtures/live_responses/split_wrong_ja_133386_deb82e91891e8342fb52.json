@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"接戦\" in Japanese (n,vs,vi). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), (omit l1_audio_confusables -- Japanese L1 uses a deterministic trie),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.772308349609375,
+  "response": {
+    "id": "gen-1789655523-6JSmjELxV8wQP1jFnqVi",
+    "object": "chat.completion",
+    "created": 1789655523,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"接戦ります\",\n      \"explanation\": \"Treats the noun/suru-verb as a godan verb ending in 'ru', which is incorrect.\"\n    },\n    {\n      \"wrong_form\": \"接戦だ\",\n      \"explanation\": \"While grammatically possible as ana-adjective style, '接戦する' is the standard verbal form, and treating it as a pure na-adjective without 'na' or 'no' in modifier positions leads to ungrammatical noun-modifying structures.\"\n    },\n    {\n      \"wrong_form\": \"接戦しった\",\n      \"explanation\": \"Incorrect past tense inflection for the suru-verb; it should be '接戦した'.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"wrong_collocate\": \"接戦を食べる\",\n      \"explanation\": \"You cannot 'eat' a close match/contest.\"\n    },\n    {\n      \"wrong_collocate\": \"接戦を塗装する\",\n      \"explanation\": \"You cannot 'paint' a competition.\"\n    },\n    {\n      \"wrong_collocate\": \"接戦をプログラミングする\",\n      \"explanation\": \"You cannot 'program' a sports match or election battle directly as an object.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"wrong_collocate\": \"接戦を達成する\",\n    \"explanation\": \"You achieve goals or results, but you don't 'achieve' (attain) a close contest; you 'fight' or 'win/lose' one.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"接客\",\n      \"explanation\": \"Means customer service, completely unrelated to a sports or election battle.\"\n    },\n    {\n      \"option\": \"接続\",\n      \"explanation\": \"Means connection or joining, a common kanji mix-up.\"\n    },\n    {\n      \"option\": \"接触\",\n      \"explanation\": \"Means contact or touch, semantically incorrect in the context of a competitive match.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼は昨日のテストで接戦をとった。\",\n      \"reason\": \"Tests and exams result in high scores or failing grades, not 'close matches' (接戦).\"\n    },\n    {\n      \"sentence\": \"その工場は新しい機械を接戦した。\",\n      \"reason\": \"Factories install or introduce machinery, not engage in a close contest with it.\"\n    },\n    {\n      \"sentence\": \"空が暗くなり、接戦が降り始めた。\",\n      \"reason\": \"Weather phenomena like rain or snow start falling, which does not fit 'close battle'.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"両チームの実力が拮抗しており、息をのむような接戦を行った。\",\n    \"planted_error\": \"行った\",\n    \"error_description\": \"While '行う' can be used with events, for '接戦', the natural verb combinations are '接戦を演じる' or simply using it as an intransitive/suru verb '接戦した'.\",\n    \"corrected_version\": \"両チームの実力が拮抗しており、息をのむような接戦を演じた。\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"接戦性\",\n      \"explanation\": \"An artificially suffixed noun form meaning 'closeness-of-contest-ness' which does not exist in standard Japanese.\"\n    },\n    {\n      \"fake_form\": \"接戦らか\",\n      \"explanation\": \"A fabricated na-adjective inflection blending unrelated morphological endings.\"\n    },\n    {\n      \"fake_form\": \"お接戦\",\n      \"explanation\": \"An unnatural polite honorific prefix attached to this specific compound noun.\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"を\",\n    \"に\",\n    \"で\",\n    \"が\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18HTB70J4pgiHc6J4kinfXtgDwF3C39BWhqHPR8XpJH8lU94xhXDF0BlQcYWP3FcJ+JYnfFqtrFYs6XM9XgcuujfgERqppojMj3ktxbTb0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 226,
+      "completion_tokens": 947,
+      "total_tokens": 1173,
+      "cost": 0.0024353,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0024353,
+        "upstream_inference_prompt_cost": 6.78e-05,
+        "upstream_inference_completions_cost": 0.0023675
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

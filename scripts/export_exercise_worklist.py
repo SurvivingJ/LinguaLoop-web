@@ -65,7 +65,8 @@ if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
 
 from services.prompt_service import get_template_config
-from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline
+from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline, mine_sentences
+from services.vocabulary_ladder.asset_generators import typed_llm
 from services.vocabulary_ladder.asset_generators._renderer import render_template
 from services.vocabulary_ladder.asset_generators.prompt1_core import (
     CoreAssetGenerator, TASK_NAME as P1_TASK,
@@ -123,8 +124,12 @@ def all_senses_for_language(db, language_id: int) -> list[int]:
     sense_ids: list[int] = []
     for i in range(0, len(vocab_ids), 400):
         chunk = vocab_ids[i:i + 400]
+        # Same-language senses only: a cross-language gloss shares the vocab_id
+        # and would otherwise be exported (and exercised) as a second sense.
         rows = (db.table('dim_word_senses').select('id')
-                  .in_('vocab_id', chunk).execute().data or [])
+                  .in_('vocab_id', chunk)
+                  .eq('definition_language_id', language_id)
+                  .execute().data or [])
         sense_ids.extend(r['id'] for r in rows)
     return sense_ids
 
@@ -215,15 +220,60 @@ def build_pool(db, language_id: int, counts: Counter, args) -> list[int]:
 # Per-sense item builders
 # ---------------------------------------------------------------------------
 
+def fetch_sense_test_rows(db, sense_ids: list[int], language_id: int,
+                          chunk_size: int = 50) -> dict[int, list[dict]]:
+    """``tests_containing_sense`` for many senses in a few queries.
+
+    Same predicate as the RPC (active tests of this language whose
+    ``vocab_sense_ids`` contain the sense) and the same columns, so the rows
+    can go straight into ``mine_sentences``. Each sense's rows keep the order
+    the query returned them in; scripts/verify_mining_split.py checks that
+    this order matches the per-sense RPC, because mining stops at the cap.
+    """
+    wanted = set(sense_ids)
+    by_sense: dict[int, list[dict]] = {s: [] for s in sense_ids}
+    seen_tests: set = set()
+    for i in range(0, len(sense_ids), chunk_size):
+        chunk = sense_ids[i:i + chunk_size]
+        offset = 0
+        while True:
+            page = (db.table('tests')
+                      .select('id, transcript, difficulty, vocab_token_map, vocab_sense_ids')
+                      .eq('language_id', language_id).eq('is_active', True)
+                      .overlaps('vocab_sense_ids', [str(s) for s in chunk])
+                      .range(offset, offset + 999).execute().data or [])
+            for row in page:
+                if row['id'] in seen_tests:
+                    continue  # already assigned by an earlier chunk
+                seen_tests.add(row['id'])
+                hit = {'id': row['id'], 'transcript': row.get('transcript'),
+                       'difficulty': row.get('difficulty'),
+                       'vocab_token_map': row.get('vocab_token_map')}
+                for sid in (row.get('vocab_sense_ids') or []):
+                    if sid in wanted:
+                        by_sense[sid].append(hit)
+            if len(page) < 1000:
+                break
+            offset += 1000
+    return by_sense
+
+
 def build_core_item(pipeline, p1_gen, sense_id: int, language_id: int,
-                    test_refs: int) -> dict | None:
-    """One `stage=core` item: the filled vocab_prompt1_core prompt."""
+                    test_refs: int, test_rows: list[dict] | None = None) -> dict | None:
+    """One `stage=core` item: the filled vocab_prompt1_core prompt.
+
+    ``test_rows`` (from :func:`fetch_sense_test_rows`) skips the per-sense
+    RPC; the mining itself is the pipeline's own ``mine_sentences`` either way.
+    """
     word = p1_gen._load_word_data(sense_id)
     if not word or not word.get('lemma'):
         logger.warning("sense %s: no word data — skipped", sense_id)
         return None
 
-    corpus = pipeline._fetch_corpus_sentences(sense_id, language_id)
+    if test_rows is None:
+        corpus = pipeline._fetch_corpus_sentences(sense_id, language_id)
+    else:
+        corpus = mine_sentences(test_rows, word['lemma'].strip(), sense_id, language_id)
     needed = max(0, Config.VOCAB_SENTENCES_PER_WORD - len(corpus))
 
     prompt = p1_gen._build_prompt(
@@ -244,9 +294,23 @@ def build_core_item(pipeline, p1_gen, sense_id: int, language_id: int,
     }
 
 
+def typed_generators_for(db, language_id: int, semantic_class: str | None,
+                         capability_context: dict) -> dict:
+    """type_code -> typed LLM generator, for the types this word gets.
+
+    ``typed_llm.applicable_types`` is the same matrix walk the pipeline's
+    ``generate_all`` does, so the set here is the set the pipeline would run.
+    """
+    return {
+        cap['type_code']: typed_llm.generator_class(cap['type_code'])(db, language_id)
+        for cap in typed_llm.applicable_types(language_id, semantic_class,
+                                              capability_context)
+    }
+
+
 def build_exercise_item(pipeline, p2_gen, p3_gen, split_gens,
                         sense_id: int, language_id: int, core: dict,
-                        test_refs: int) -> dict | None:
+                        test_refs: int, include_typed: bool = False) -> dict | None:
     """One `stage=exercises` item: the filled P2/P3 (+L4/L8) prompts, per variant.
 
     The level derivation mirrors VocabAssetPipeline._generate_for_sense_impl
@@ -254,6 +318,10 @@ def build_exercise_item(pipeline, p2_gen, p3_gen, split_gens,
     and the L5 PMI gate — because the validator on upload is held to the same
     level list. Deriving it differently here would read back as "Missing
     level_N" on an otherwise-good asset.
+
+    ``include_typed`` adds a ``typed`` block per variant: the typed LLM prompts
+    (syn/ant, word family, particle selection) the pipeline's
+    ``typed_llm.generate_all`` would run, stored on upload as ``llm_types_<v>``.
     """
     semantic_class = normalize_semantic_class(core.get('semantic_class'))
     capability_context = pipeline._capability_context(core)
@@ -271,7 +339,11 @@ def build_exercise_item(pipeline, p2_gen, p3_gen, split_gens,
     p2_active = sorted(lv for lv in active_levels if lv in PROMPT2_LEVELS)
     p3_active = sorted(lv for lv in p3_expected if lv in PROMPT3_MONOLITH_LEVELS)
 
-    if not p2_active and not p3_active and not split_levels:
+    typed_gens = (typed_generators_for(pipeline.db, language_id, semantic_class,
+                                       capability_context)
+                  if include_typed else {})
+
+    if not p2_active and not p3_active and not split_levels and not typed_gens:
         logger.info("sense %s: no LLM-authored levels active — skipped", sense_id)
         return None
 
@@ -314,6 +386,25 @@ def build_exercise_item(pipeline, p2_gen, p3_gen, split_gens,
                     gen.cfg['template'], **gen._prompt_vars(core, idx, []),
                 ),
             }
+        if include_typed:
+            # Always present, even empty: upload stores an empty llm_types_<v>
+            # asset, which the renderer reads as "no applicable types" rather
+            # than "never generated" (the pipeline does the same).
+            typed: dict = {}
+            for type_code, gen in typed_gens.items():
+                idx = gen._sentence_index(core, assignments)
+                if idx is None:
+                    continue  # generate() would clean-skip this type too
+                typed[type_code] = {
+                    'type_code': type_code,
+                    'task_name': gen.TASK_NAME,
+                    'prompt_version': gen.prompt_version,
+                    'sentence_index': idx,
+                    'prompt': render_template(
+                        gen.cfg['template'], **gen._prompt_vars(core, idx, []),
+                    ),
+                }
+            variant['typed'] = typed
         variants[key] = variant
 
     return {
@@ -356,9 +447,14 @@ def core_header(db, language_id: int) -> dict:
     }
 
 
+def typed_task_names() -> list[str]:
+    return sorted(typed_llm.generator_class(t).TASK_NAME
+                  for t in typed_llm.registered_types())
+
+
 def exercise_header(db, language_id: int) -> dict:
     prompts = {}
-    for task in (P2_TASK, P3_TASK, *SPLIT_LEVEL_TASKS.values()):
+    for task in (P2_TASK, P3_TASK, *SPLIT_LEVEL_TASKS.values(), *typed_task_names()):
         try:
             cfg = get_template_config(db, task, language_id)
             prompts[task] = {'version': cfg['version'],
@@ -403,11 +499,141 @@ def write_batches(items: list[dict], header: dict, out_dir: str,
     return written
 
 
+# ---------------------------------------------------------------------------
+# --format csv: stage 0 of CSV exercise authoring (TASK-796)
+# ---------------------------------------------------------------------------
+
+CSV_COLUMNS = [
+    'sense_id', 'lemma', 'reading', 'part_of_speech', 'definition',
+    'zipf', 'level_tag', 'semantic_class', 'complexity_tier', 'blocks_n_tests',
+    'surface_tokens', 'corpus_sentences', 'n_mined', 'sentences_needed',
+    'sentences_required', 'pos_set', 'semantic_class_enum', 'prompt_version',
+    'p1_prompt',
+]
+
+
+def judge_task_names() -> list[str]:
+    """prompt_templates names of the ladder judges, read off the judge modules
+    so a renamed template cannot leave a stale copy here."""
+    from services.exercise_generation.judges import (
+        collocation, l1_distractor, p1_sentences, particle, relation,
+        sentence_validity,
+    )
+    return [p1_sentences._PT_NAME, sentence_validity._PT_NAME,
+            l1_distractor._PT_NAME, collocation._PT_NAME,
+            relation._RELATION_PT, relation._FAMILY_PT, particle._PT_NAME]
+
+
+def prompts_manifest(db, language_id: int) -> dict:
+    """Every prompt the staged chain uses, version-pinned, template included."""
+    tasks = [P1_TASK, P2_TASK, P3_TASK, *SPLIT_LEVEL_TASKS.values(),
+             *typed_task_names(), *judge_task_names()]
+    manifest: dict = {}
+    for task in tasks:
+        try:
+            cfg = get_template_config(db, task, language_id)
+            manifest[task] = {'version': cfg['version'], 'model_of_record': cfg['model'],
+                              'provider': cfg['provider'], 'template': cfg['template']}
+        except Exception as exc:
+            manifest[task] = {'error': str(exc)}
+    return manifest
+
+
+def vocab_extras(db, sense_ids: list[int], language_id: int) -> dict[int, dict]:
+    """reading / zipf / semantic_class etc. for each sense, same-language rows only."""
+    out: dict[int, dict] = {}
+    for i in range(0, len(sense_ids), 200):
+        rows = (db.table('dim_word_senses')
+                  .select('id, dim_vocabulary(reading, part_of_speech, frequency_rank, '
+                          'level_tag, semantic_class)')
+                  .in_('id', sense_ids[i:i + 200])
+                  .eq('definition_language_id', language_id)
+                  .execute().data or [])
+        for r in rows:
+            out[r['id']] = r.get('dim_vocabulary') or {}
+    return out
+
+
+def build_csv_rows(db, pipeline, p1_gen, selected: list[int], language_id: int,
+                   counts: Counter, header: dict) -> list[dict]:
+    test_rows = fetch_sense_test_rows(db, selected, language_id)
+    extras = vocab_extras(db, selected, language_id)
+    validation = header['validation']
+    p1_version = header['prompts'][P1_TASK]['version']
+    as_json = lambda v: json.dumps(v, ensure_ascii=False)  # noqa: E731
+
+    rows: list[dict] = []
+    for n, sid in enumerate(selected, 1):
+        logger.info("[%d/%d] csv row for sense %s", n, len(selected), sid)
+        if sid not in extras:
+            logger.warning("sense %s: not a same-language sense — skipped", sid)
+            continue
+        item = build_core_item(pipeline, p1_gen, sid, language_id,
+                               counts.get(sid, 0), test_rows=test_rows.get(sid, []))
+        if not item:
+            continue
+        surface: list[str] = []
+        for row in test_rows.get(sid, []):
+            for tok in VocabAssetPipeline._sense_surface_tokens(
+                    row.get('vocab_token_map'), sid):
+                if tok not in surface:
+                    surface.append(tok)
+        vx = extras[sid]
+        rows.append({
+            'sense_id': sid,
+            'lemma': item['lemma'],
+            'reading': vx.get('reading') or '',
+            'part_of_speech': vx.get('part_of_speech') or '',
+            'definition': item['existing_definition'],
+            'zipf': vx.get('frequency_rank'),
+            'level_tag': vx.get('level_tag') or '',
+            'semantic_class': vx.get('semantic_class') or '',
+            'complexity_tier': item['complexity_tier'],
+            'blocks_n_tests': item['tests_referencing'],
+            'surface_tokens': as_json(surface),
+            'corpus_sentences': as_json(item['corpus_sentences']),
+            'n_mined': len(item['corpus_sentences']),
+            'sentences_needed': item['sentences_needed'],
+            'sentences_required': validation['sentences_required'],
+            'pos_set': as_json(validation['pos_set']),
+            'semantic_class_enum': as_json(validation['semantic_class_set']),
+            'prompt_version': p1_version,
+            'p1_prompt': item['prompt'],
+        })
+    return rows
+
+
+def write_csv_run(rows: list[dict], header: dict, manifest: dict, out_dir: str,
+                  language: str, language_id: int) -> str:
+    import csv
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, 'senses.csv')
+    with open(path, 'w', encoding='utf-8', newline='') as fh:
+        writer = csv.DictWriter(fh, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
+    with open(os.path.join(out_dir, 'prompts.json'), 'w', encoding='utf-8') as fh:
+        json.dump({'language': language, 'language_id': language_id,
+                   'answer_contract': header['answer_contract'],
+                   'validation': header['validation'],
+                   'prompts': manifest}, fh, ensure_ascii=False, indent=2)
+    return path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'])
-    parser.add_argument('--stage', required=True, choices=['core', 'exercises'])
+    parser.add_argument('--stage', choices=['core', 'exercises'],
+                        help='required unless --format csv (which is stage 0 '
+                             'of CSV authoring and selects like --stage core)')
+    parser.add_argument('--format', choices=['json', 'csv'], default='json',
+                        help='csv: write senses.csv + prompts.json for the '
+                             'staged CSV authoring chain '
+                             '(scripts/exercise_stage_runner.py)')
+    parser.add_argument('--include-typed', action='store_true',
+                        help='stage=exercises: also export the typed LLM '
+                             'prompts (syn/ant, word family, particle)')
     parser.add_argument('--batch-size', type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--include-unreferenced', action='store_true')
@@ -421,6 +647,14 @@ def main() -> int:
                              'the ranked pool entirely')
     parser.add_argument('--out-dir')
     args = parser.parse_args()
+    if args.format == 'csv':
+        if args.stage == 'exercises':
+            parser.error('--format csv is stage 0 of CSV authoring; the '
+                         'exercise prompts are rendered later by the stage '
+                         'runner\'s bridge step')
+        args.stage = 'core'
+    elif not args.stage:
+        parser.error('--stage is required')
 
     db = get_supabase_admin()
     language_id = LANG_ID[args.language]
@@ -470,6 +704,25 @@ def main() -> int:
     pipeline = VocabAssetPipeline(db)
     items: list[dict] = []
 
+    if args.format == 'csv':
+        from datetime import datetime
+        p1_gen = CoreAssetGenerator(db, language_id)
+        header = core_header(db, language_id)
+        rows = build_csv_rows(db, pipeline, p1_gen, selected, language_id,
+                              counts, header)
+        if not rows:
+            logger.warning("No rows built — nothing written.")
+            return 1
+        out_dir = args.out_dir or os.path.join(
+            ROOT, 'data', 'exercise_seeding', args.language,
+            f"run_{datetime.now():%Y%m%d_%H%M%S}")
+        path = write_csv_run(rows, header, prompts_manifest(db, language_id),
+                             out_dir, args.language, language_id)
+        logger.info("Done: %d senses -> %s (+ prompts.json). Next: "
+                    "python scripts/exercise_stage_runner.py prepare %s --stage 1",
+                    len(rows), path, out_dir)
+        return 0
+
     if args.stage == 'core':
         p1_gen = CoreAssetGenerator(db, language_id)
         header = core_header(db, language_id)
@@ -490,6 +743,7 @@ def main() -> int:
                 item = build_exercise_item(
                     pipeline, p2_gen, p3_gen, split_gens,
                     sense_id, language_id, cores[sense_id], counts.get(sense_id, 0),
+                    include_typed=args.include_typed,
                 )
             except Exception as exc:
                 logger.error("sense %s: prompt build failed: %s", sense_id, exc)

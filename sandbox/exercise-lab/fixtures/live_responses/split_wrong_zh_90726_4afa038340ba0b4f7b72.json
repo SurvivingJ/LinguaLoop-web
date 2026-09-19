@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"苦待\" in Mandarin Chinese. A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 5.368505001068115,
+  "response": {
+    "id": "gen-1789655507-9pNH5O5qn7Su2MTlbOES",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"苦待着\",\n      \"explanation\": \"Adding the progressive aspect marker '着' incorrectly turns this stative or achievement verb into an ongoing action, which misrepresents its typical lexical aspect.\"\n    },\n    {\n      \"form\": \"苦待了\",\n      \"explanation\": \"Attaching the perfective particle '了' implies a completed action of mistreatment, whereas the base form often describes an enduring state or habit of harsh treatment.\"\n    },\n    {\n      \"form\": \"苦待过\",\n      \"explanation\": \"Using the experiential marker '过' frames the mistreatment as a past discrete life experience, altering the core valence of ongoing severity.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"枯代\",\n      \"explanation\": \"Sounds phonetically similar (kū dài) but is a non-existent lexeme in standard Mandarin, often confused by learners mishearing the third tone on '苦'.\"\n    },\n    {\n      \"word\": \"库带\",\n      \"explanation\": \"Sounds like kù dài, but means 'belt/strap' (裤带 variant), completely unrelated to the act of mistreatment.\"\n    },\n    {\n      \"word\": \"哭贷\",\n      \"explanation\": \"Sounds like kū dài, combining 'to cry' and 'to loan', an unnatural pairing that sounds superficially like the target word.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"word\": \"快乐\",\n      \"explanation\": \"One does not 'bitterly-treat happiness'; '苦待' requires an object that can suffer abuse or neglect, not a positive abstract noun.\"\n    },\n    {\n      \"word\": \"风景\",\n      \"explanation\": \"Scenery cannot be mistreated or subjected to harsh enduring neglect in standard Chinese collocations.\"\n    },\n    {\n      \"word\": \"真诚\",\n      \"explanation\": \"Sincerity is an attribute or feeling, not an entity that can undergo the harsh mistreatment denoted by '苦待'.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"word\": \"奖励\",\n    \"explanation\": \"奖励 (reward) is semantically opposite to the harsh, abusive nature of 苦待; one cannot '苦待奖励' (harshly mistreatment a reward).\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"对待\",\n      \"explanation\": \"A common neutral alternative, but it lacks the severe, negative, and often oppressive nuance specifically carried by '苦待'.\"\n    },\n    {\n      \"option\": \"期待\",\n      \"explanation\": \"Meaning 'to look forward to', it is chosen purely based on visual similarity ('待') but makes zero semantic sense in a context of hardship.\"\n    },\n    {\n      \"option\": \"虐待\",\n      \"explanation\": \"While close in meaning (abuse), it refers more to physical or direct cruelty rather than the specific enduring, bitter treatment implied by '苦待'.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"老板每天都苦待员工，发了厚年终奖。\",\n      \"reason\": \"Contradictory context: giving a generous year-end bonus clashes with the harsh mistreatment implied by '苦待'.\"\n    },\n    {\n      \"sentence\": \"为了减肥，她开始苦待自己的身体做瑜伽。\",\n      \"reason\": \"Inappropriate usage: doing yoga is a healthy practice, whereas '苦待' implies severe, harmful maltreatment.\"\n    },\n    {\n      \"sentence\": \"这朵花需要苦待才能在温室里盛开。\",\n      \"reason\": \"Semantic mismatch: flowers require care and nurturing, not harsh abuse or mistreatment.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"经理对下属非常温和，总是苦待他们完成任务。\",\n    \"planted_error\": \"苦待\",\n    \"error_description\": \"The adjective '温和' (gentle/mild) contradicts the harsh and abusive nature of '苦待' (mistreat harshly).\",\n    \"corrected_version\": \"经理对下属非常温和，总是鼓励他们完成任务。\"\n  },\n  \"word_family_fake_forms\": [\n    \"苦性\",\n    \"待苦\",\n    \"反苦待\"\n  ],\n  \"particle_candidates\": [\n    \"を\",\n    \"に\",\n    \"で\",\n    \"が\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/pVb5X+aPumv2jwl5/xEpA2KFLbRGZ/kBmYzgQSyiUsFfKyV3RyRzuW4uC26At52UYxRwKp7xrcsY1AgO7ycxcvV9N9Q7LBNcsm+R5qo0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 1043,
+      "total_tokens": 1263,
+      "cost": 0.0026735,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0026735,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.0026075
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

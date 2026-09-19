@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"盛り上がる\" in Japanese (v5r,vi). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), (omit l1_audio_confusables -- Japanese L1 uses a deterministic trie),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.78265380859375,
+  "response": {
+    "id": "gen-1789655525-Trb1FFWUMH5KVNfgAzWe",
+    "object": "chat.completion",
+    "created": 1789655525,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"盛り上がりまする\",\n      \"explanation\": \"Incorrect polite archaic ending. The correct polite non-past form is 盛り上がります.\"\n    },\n    {\n      \"form\": \"盛り合る\",\n      \"explanation\": \"Incorrect stem reduction. The verb is a godan verb ending in -ru (盛り上がる), so the correct dictionary form retains the 'agaru' portion.\"\n    },\n    {\n      \"form\": \"盛り上がったる\",\n      \"explanation\": \"Incorrect auxiliary combination. 'Taru' is an archaic attributive/perfective suffix not used to form the standard past tense of godan verbs (which uses 盛り上がった).\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"collocate\": \"を決定する\",\n      \"explanation\": \"盛り上がる (to get excited, to swell) is intransitive and typically takes particles like が or に, not the direct object marker を with 'to decide'.\"\n    },\n    {\n      \"collocate\": \"を開発する\",\n      \"explanation\": \"Development (開発する) requires a direct object to be built or engineered, which does not semantically match an intransitive state of excitement or rising.\"\n    },\n    {\n      \"collocate\": \"を乾燥する\",\n      \"explanation\": \"Drying something (乾燥する) is a transitive physical action, whereas 盛り上がる describes an abstract rise in atmosphere or a physical bulge/mound.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"を解決する\",\n  \"cloze_distractors\": [\n    {\n      \"option\": \"盛り下がる\",\n      \"reason\": \"This is an antonym meaning 'to die down' or 'to deflate', which contradicts a positive party or conversation getting lively.\"\n    },\n    {\n      \"option\": \"盛り付ける\",\n      \"reason\": \"This means 'to dish up food', which shares the kanji 盛 but has a completely different meaning and transitive valency.\"\n    },\n    {\n      \"option\": \"埋める\",\n      \"reason\": \"This means 'to bury' or 'to fill', which does not fit the intransitive dynamic of an event or mood rising.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼は会議の資料をきれいに盛り上がった。\",\n      \"reason\": \"Using 盛り上がる intransitively for organizing or preparing physical documents is incorrect; a transitive verb like まとめた or 準備した is needed.\"\n    },\n    {\n      \"sentence\": \"昨日、新しいプロジェクトを盛り上がった。\",\n      \"reason\": \"盛り上がる is an intransitive verb and cannot take the direct object marker を to mean 'excited a project'.\"\n    },\n    {\n      \"sentence\": \"コップのジュースを机の上に盛り上がった。\",\n      \"reason\": \"Liquids in a cup cannot use 盛り上がる in this context; it describes mounds or swelling, not liquid volume or placement.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"パーティーの雰囲気がとても盛り下げた。\",\n    \"planted_error\": \"盛り下げた\",\n    \"error_description\": \"盛り下げる is rarely used transitively this way; if describing a mood dying down, the intransitive 盛り下がった or 盛り上がらなかった is grammatically correct.\",\n    \"corrected_version\": \"パーティーの雰囲気がとても盛り上がった。\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"盛り上がりみ\",\n      \"explanation\": \"Plausible-looking nominalization suffix '-mi' attached incorrectly to the stem of a verb.\"\n    },\n    {\n      \"form\": \"盛り上がりる\",\n      \"explanation\": \"Incorrectly treats the nominalized/masu-stem form 盛り上がり as a base for another godan verb.\"\n    },\n    {\n      \"form\": \"盛り合さる\",\n      \"explanation\": \"Fake intransitive-transitive pairing suffix alteration (-saru instead of -garu).\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"が\",\n    \"を\",\n    \"に\",\n    \"で\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/cTtbQ4WoJtnq3+vJ/L6WAwdKwjwfEnJu2sTEw6/a8guGsasMgS8AwqB7gk/b1a+SCnW7sdpoYYtnqkiL/DSLa4Wg6WJKunv326JYfFRI=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 226,
+      "completion_tokens": 968,
+      "total_tokens": 1194,
+      "cost": 0.0024878,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0024878,
+        "upstream_inference_prompt_cost": 6.78e-05,
+        "upstream_inference_completions_cost": 0.00242
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"裁判\" in Mandarin Chinese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"裁判\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.8887379169464111,
+  "response": {
+    "id": "gen-1789655510-fHODQs49SAueWRf6fFNy",
+    "object": "chat.completion",
+    "created": 1789655510,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"裁判\",\n  \"definition_simple\": \"比赛中的裁判员，或者法院的法官和审判工作。\",\n  \"definition_standard\": \"1. 体育比赛中公正判定胜负和规则执行的人员；2. 司法机关对案件的审判和判决。\",\n  \"examples\": [\n    \"这场足球比赛的裁判非常公正，赢得了双方球员的尊重。\",\n    \"裁判吹响了比赛结束的哨音，比分定格在二比一。\",\n    \"法院依法作出了公正的裁判，维护了受害者的合法权益。\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/CXyHNfBNliBcOiHsqfv0VnpQgg1+SISuHarE73RZleTTpcQZRaVZ0COg2ifXuYJJ76DnyxiZ5/HN07gcpCpUENbwNH08+M2D8nLNu8Zw=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 48,
+      "completion_tokens": 140,
+      "total_tokens": 188,
+      "cost": 0.0003644,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0003644,
+        "upstream_inference_prompt_cost": 1.44e-05,
+        "upstream_inference_completions_cost": 0.00035
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

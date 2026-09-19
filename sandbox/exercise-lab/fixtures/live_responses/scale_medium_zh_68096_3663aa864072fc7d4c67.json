@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"无量\" in Mandarin Chinese.\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"无量\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 3.56359601020813,
+  "response": {
+    "id": "gen-1789655509-PgsDMWVXURMWfK4WWwIc",
+    "object": "chat.completion",
+    "created": 1789655509,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"不可计量的，无穷无尽的\",\n  \"definition_standard\": \"数量极多，无法计算；或指佛法、功德等广阔深远、不可限量。\",\n  \"pos\": \"adj.\",\n  \"semantic_class\": \"quantity / abstract degree\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"祝您前程无量，事业有成。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"这家公司拥有无量的发展潜力。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"大慈大悲的观世音菩萨普度众生，功德无量。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"面对浩瀚的宇宙，人类的智慧虽大，却也显得前途无量而又充满未知。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"他凭着一腔热血投身环保事业，虽历经坎坷，但其精神实乃福慧无量。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"古人登高远眺，常因天地之壮阔而感叹造化之无量、人生之微末。\"\n    }\n  ],\n  \"primary_collocate\": \"功德\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"绝对\",\n      \"reason\": \"‘绝对’是副词或形容词，表示毫无例外或程度极端，无法与表示数量极多的‘无量’自然搭配修饰。\"\n    },\n    {\n      \"word\": \"通常\",\n      \"reason\": \"‘通常’表示一般情况下，属于时间频度副词，与侧重宏大数量或程度的‘无量’在语义上不兼容。\"\n    },\n    {\n      \"word\": \"狭隘\",\n      \"reason\": \"‘狭隘’形容心胸、见识或地域狭窄，与表示无限宽广的‘无量’概念对立，但无法作为其直接修饰或被修饰的惯用组合。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"无限\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"无数\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"有限\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"微薄\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a19neL3p7Roa6IpVzpcTsfU6au+WIgzqcQogQWvXXBHfUzSMEWt2laXRm7NJojXIEwYy8BG7akrERMkKEibxs8jNFg236I86BDdZntlBJ4c=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 137,
+      "completion_tokens": 627,
+      "total_tokens": 764,
+      "cost": 0.0016086,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0016086,
+        "upstream_inference_prompt_cost": 4.11e-05,
+        "upstream_inference_completions_cost": 0.0015675
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,5 +1,160 @@
 # Activity Log
 
+## [2026-09-17] task | Vocabulary-aware selection SWITCHED ON (`vocab_weight` 0 → 1)
+Pages updated: [[tasklist/vocabulary-aware-test-selection.tasks]] (TASK-748 status),
+[[tasklist/master]], [[index]], [[evaluations/selection-three-arm-replay-2026-09-17]].
+No code or migration changed — this is one settings row.
+
+**The operator ran the `UPDATE`.** Both the flag write and, after it, reads of
+`selection_tuning` were refused to the agent by the session's permission guard
+("Feature Flag Writes"), so the change was made by hand and **verified
+behaviourally instead of by reading the row** — which is arguably the better
+check anyway:
+
+- **0 unlinked tests served in any zh type**, against 7-9 of every ten before.
+  Only the vocabulary term can do that: 27 of 125 active zh tests carry no
+  `vocab_sense_ids`, they sit near the learner's ELO, and the weight-0 branch
+  therefore favours them.
+- **`elo_diff` is non-monotonic in 6 of 8 (language, type) lists.** On the
+  weight-0 branch that is impossible — its final sort *is* `elo_diff ASC`.
+- **Still 10 candidates per type, every language.** M5 holds in production, not
+  only in the replay.
+
+**Latency, measured before flipping** (best/worst of two runs per language, after
+a warm-up): `get_recommended_tests` 5-14 ms at weight 0 → 25-69 ms at weight 1.
+Five times the work, but ~50 ms against a link whose median round trip is 65 ms,
+and it is now real work on the `/session` build path where it used to be a sort.
+
+**What the flip costs in guarantees.** Above 0 the RPC no longer takes the
+verbatim pre-TASK-748 branch, so the byte-for-byte rollback guarantee stops
+applying to live traffic (it remains one `UPDATE` away). The TASK-781 harness
+will now correctly **refuse** to switch `combine_mode`, so re-running the three
+arms means moving the product arm into a SQL rollback-only transaction.
+`combine_mode` stays `'sum'` — the replay found product worse (0.938 vs 0.952
+in-band, better on 0 of 21 attempts).
+
+**Rollback:** `UPDATE selection_tuning SET value = 0 WHERE key = 'vocab_weight';`
+
+**Still unmeasured:** whether better-matched serving shows up in *scores*. The
+replay predicts it from one learner's history; no live attempt has tested it.
+
+## [2026-09-17] execute | TASK-781 — three arms replayed; the multiplicative arm does not pay
+Pages updated: [[evaluations/selection-three-arm-replay-2026-09-17]] (new),
+[[tasklist/vocabulary-aware-test-selection.tasks]] (+1), [[tasklist/master]],
+[[index]]. `scripts/measure_selection_quality.py` extended from two arms to three.
+**Nothing was switched on: `vocab_weight` 0, `combine_mode` 'sum', verified after
+the run.**
+
+**The headline is a negative result, and it is the useful kind.** On the ja
+replay — 21 first attempts, 210 top-10 slots per arm — the share of served tests
+inside the 5-25% unknown band goes **w0 0.786 → sum 0.952 → product 0.938**.
+TASK-780's multiplicative arm is *worse*, and per attempt it is better on **0**
+of 21, worse on 3, equal on 18. The two vocabulary arms pick the same top-10 set
+on 14 of 21 attempts (mean Jaccard 0.939) against 0.395 / 0.391 versus w0: **the
+vocabulary term is the entire effect, and the combination rule is noise on top of
+it.** M5 holds everywhere — minimum per-type pool delta vs w0 is 0 in both arms.
+
+**Why the cross term backfires.** `product = sum + e·v`, so the extra charge is
+largest where `v` is largest — on exactly the candidates the vocabulary term is
+already demoting. It dilutes its own signal: rho(unknown, score) over all
+candidates falls 0.918 → 0.839 (zh) and 0.961 → 0.913 (ja).
+
+**The sharper cost is in zh, and it is a §3.4 regression.** 27 of 125 active zh
+tests carry no `vocab_sense_ids` (verified live) and they sit near the learner's
+ELO, so the pre-748 arm serves 7-9 of every ten from them. `sum` clears them out
+completely — 0/10 neutral in all four types. **`product` lets 2-5 of ten back
+in.** A neutral candidate carries the cohort *median* penalty, and product's
+extra `e·v` is smallest where `e` is small, so "no vocabulary opinion, and close
+in ELO" becomes a mild **reward** — the exact asymmetry §3.4 chose the median to
+avoid. Worth remembering as a general shape: a multiplicative combination is not
+neutral toward the term that abstains.
+
+**Spearman −0.584 reproduces the −0.59 on record**, and the harness now says out
+loud that it is **arm-independent**: `unknown_share` is a property of
+(user, test, as-of), not of the ranking, so it validates the vocabulary signal and
+is not an arm comparison. It had been easy to read the other way.
+
+**A metric trap, now surfaced.** `band_share` is computed over candidates that
+*have* an unknown share, so an arm serving more unlinked tests scores its band
+share over a smaller denominator — zh product's 0.80 is 4 of 5, not 8 of 10. The
+served printout now prints the neutral count beside it. The ja replay figures are
+unaffected (0 neutral slots in every arm).
+
+**How the product arm was measured at all.** `combine_mode` is a
+`selection_tuning` row, not an RPC argument, and the harness talks PostgREST, so
+it cannot use the transaction-local `UPDATE … ROLLBACK` the SQL tests use. It
+writes the row, runs the whole arm, and restores it in a `finally` — **refusing
+unless `vocab_weight = 0`**, because at weight 0 `get_recommended_tests` never
+reaches the ranker and the mode cannot touch live traffic. One flip per arm, not
+per call; `selection_tuning` re-read and printed at the end.
+
+**What is still open.** `vocab_weight` — and only that. 0.786 → 0.952 in-band
+with M5 intact is a real gain, but it is one learner's history: verified live,
+14 users exist and **exactly one has ever taken a test**. The call is between a
+7-day shadow window (`--shadow-out`) and accepting n=1 for a reversible flag.
+If it is ever raised, this replay must be re-run first — above 0 the harness will
+correctly refuse to switch `combine_mode`, and the product arm has to move into a
+SQL rollback-only transaction.
+
+## [2026-09-16] execute | TASK-780 — multiplicative ELO × coverage scoring, shipped inert
+Pages updated: [[features/vocabulary-aware-test-selection.tech]] (§3.3, §3.4, §3.5, §6),
+[[tasklist/vocabulary-aware-test-selection.tasks]] (+1), [[tasklist/master]]. New
+`migrations/task780_selection_combine_mode.sql` (**applied live 2026-09-16**,
+schema_migrations 20260916134648) and `tests/sql/test_task780_combine_mode.sql`;
+`tests/sql/test_task748_parity.sql` gained steps 3-4.
+
+**What the sum could not say.** TASK-748 ranks on `e + v` — normalised misses on
+difficulty and on vocabulary. A sum is indifferent to how a total miss is
+distributed, so a test half a term off on *both* axes ties with one a full term
+off on difficulty alone. `combine_mode = 'product'` scores `(1+e)·(1+v)` =
+`1 + e + v + e·v`: the same two terms plus a cross term that exists only when
+both miss. **The `1 +` shift is the whole design.** A bare `e·v` is not a
+blunter ranker, it is a broken one — a perfect ELO match with 90% unknown words
+scores 0 and ranks first. That case is now a fixture (`too_hard`) that must rank
+last in both modes.
+
+**Coverage counting did not change, deliberately.** TASK-779 recorded TASK-780 as
+a per-occurrence term over `vocab_token_map`. Dropped: a linked word appears 1.15
+(ja) / 1.33 (zh) / 1.44 (en) times per test, so per-occurrence and distinct-word
+counting nearly coincide, and distinct-word is the better match for "how much new
+vocabulary must this learner absorb". TASK-779 stands on its own merits.
+
+**Only one function changed.** `recommended_tests_ranked` — same signature, same
+`RETURNS TABLE`, two additions: `combine_mode` joins the existing single tuning
+read, and the `scored` CTE wraps the score in a `CASE` whose `ELSE` is the
+TASK-748 expression verbatim. `get_recommended_tests` and
+`selection_vocab_ability` were not redefined (`prosrc` md5 identical live before
+and after), so the `vocab_weight = 0` rollback branch is the same bytes, and
+**`combine_mode` is inert while `vocab_weight` is 0** — it never reaches the
+ranker. That property is what makes replaying a product arm against live safe.
+
+**`selection_tuning` now holds text as well as numbers.** A nullable `value_text`
+column, `value` made nullable, and a `selection_tuning_value_shape` CHECK that
+enforces exactly one of the two per key — so the numeric keys keep their NOT NULL
+guarantee through the CHECK rather than the column. A 0/1 encoding was rejected:
+an operator flipping the switch should not have to remember which mode `1` is.
+No new function parameter, for the reason
+`migrations/get_recommended_tests_drop_ambiguous_overload.sql` already records;
+arms are selected with a transaction-local `UPDATE ... ; ROLLBACK`.
+
+**Proven live, rollback-only, after applying.** 14 users × en/zh/ja = 42 pairs,
+13,934 ranker rows at weight 1. At `combine_mode = 'sum'` the new function is
+row-identical (content **and** order) to a frozen copy of the pre-780 body at
+`vocab_weight` 0 **and** 1, on all 42 pairs; the public RPC is unchanged at
+`vocab_weight = 0` under either mode on all 42; the minimum per-type candidate
+count delta in product mode is **0** (M5). The frozen copy is not taken on trust
+— it self-verifies against the `prosrc` md5 read before the migration
+(`7b44009489ed1628ba70b8b9e5ed03ad`). Fixtures also pass live: `bad_both`
+(e 0.50, v 0.55) and `bad_elo` (e 1.00, v 0.10) **swap** between modes (sum 1.05
+< 1.10; product 2.325 > 2.200), the neutral candidate keeps the cohort median
+0.325 in both, and every pre-combination column is identical across modes.
+
+**Nothing was switched on.** `vocab_weight` 0, `combine_mode` 'sum'. **TASK-781
+(not yet filed)** replays weight 0 / sum / product through
+`scripts/measure_selection_quality.py` — share of top-10 inside the 5-25% unknown
+band, Spearman of unknown share against score (−0.59 today), top-10 overlap
+between arms, M5 — and that replay is what decides whether either switch moves.
+
 ## [2026-09-14] query+execute | Calibration synonym foils (先生 / 教師) — TASK-776, TASK-777
 Pages updated: [[tasklist/calibration.tasks]] (+2), [[tasklist/master]]. New migration
 `calibration_distractor_headword_guard.sql` — **written, NOT applied live** (the live apply was
@@ -5181,3 +5336,143 @@ working link) applied to ja: 47 written, 0 refused. ja dangling 198 → 0, overl
 Found, not fixed: the ja processor drops newlines (6 maps lose paragraph breaks);
 homograph-suffixed ja headwords (`引く-他動詞`) never match a token.
 Pages updated: [[tasklist/vocabulary-aware-test-selection.tasks]], [[tasklist/master]].
+
+## [2026-09-16] fix | TASK-779 follow-up — ja lexeme-vs-written headword links
+The 73 unmapped ja links were UniDic *lexeme* headwords (越える for 超え, 付く for
+就く), left by tests linked before the orthBase fix. APPLIED: `_orth_lemma` now
+prefers `lemma` for 文語 conjugations (長き→長い, not 長し; potential verbs have no
+marker so keep orthBase), +4 tests; ja maps rebuilt (11 written, 1 refused).
+BLOCKED at the write step by the permission classifier:
+`scripts/fix_ja_sense_link_variants.py` (dry-run verified — 76 links / 33 tests /
+3 questions repointed to the written form, 潔し's 6 senses re-parented onto 潔い,
+5 artifact headwords deferred because their twins already carry senses).
+INCONCLUSIVE: `scripts/audit_ja_variant_duplicates.py` runs read-only, but
+reading+kanji+POS cannot separate spelling variants from homophones (offers
+風邪/風; hides 錆び付く/錆びつく under a disagreeing POS column) — its output is a
+review list, and the duplicate problem is still unsized.
+
+## [2026-09-16] fix | TASK-779 steps 1-2 applied
+`fix_ja_sense_link_variants.py` run live: 76 links / 33 tests / 3 questions
+repointed from UniDic lexeme headwords to the written form, 1 duplicate id
+collapsed, 潔し's 6 senses re-parented onto 潔い. Subsequent ja map rebuild: 59
+unchanged (expected — re-parenting preserves sense ids). End state: ja/zh/en 0
+dangling senses; mean link-vs-map overlap ja 0.985 (from 0.83), zh 1.000, en
+0.880 (structural: multi-word phrase senses + fallback links).
+
+## [2026-09-19] design | Lookahead Pre-Teaching (TASK-782, ADR-026)
+Brief: make the practice engine + ladder central to the daily session by teaching
+the words a learner does not know *before* serving the test that needs them.
+Pages created: 5 ([[features/lookahead-preteaching]], `.tech`,
+[[evaluations/preteach-variants-2026-09-19]],
+[[decisions/ADR-026-lookahead-preteaching]],
+[[tasklist/lookahead-preteaching.tasks]]). Updated: index, master, log.
+New harness: `scripts/simulate_preteach_variants.py` (read-only).
+
+27 variants simulated over live data on three axes. Chosen: **a2_cohort
+(10-test pool) + b2_working (Ring 2) + c3_greedy (least-known first)**, advisory
+ordering only, `preteach_enabled` ships at 0.
+
+**The finding that reframed the brief: the algorithm is not the constraint, the
+content is.** Under the live supply gate the best variant moves ja from 11.9% to
+11.9% of the catalogue in band — zero change — because only 1.8 of the 17.5 words
+blocking an average ja test are drillable, and in zh, on ladder levels, **zero**
+are. With the gate lifted the same algorithm reaches 98.3% (zh 100%). Cause:
+generation has been frequency-first, so the mean sense *with* exercises sits at
+Zipf 4.77 against an `ability_zipf` of 5.03 — **the practice engine can only
+drill words the learner already knows.** Live corroboration: 15
+`exercise_attempts` ever vs 54 `test_attempts`; 47/47 ladder rows still `new`;
+5 of 47 clear the supply gate.
+
+Axis results (ja / zh, ceiling arm): depth Ring1 0.356/0.704 → Ring2
+**0.983/1.000** → mastery 0.983/1.000 at +66% time. Target: cohort costs 1.7
+words per test unlocked vs 17.8 for pinning one test. Word order is inert until
+a budget binds, then greedy > frequency > frontier (0.339/0.288/0.271 at 5 words)
+— but on a model that charges every word the same cost, which BKT contradicts, so
+`frontier` ships as a switch rather than a discard.
+
+Two defects found: `generation_queue` has 7 rows `running` since 2026-08-21 with
+no lease expiry, and `_open_queue_sense_ids` de-dupes against them, so those
+senses can never be re-queued (TASK-783); `reason = 'subscribe_topup'` has never
+been written at all.
+
+Methodological finding for anyone evaluating this: **the outcome measure is
+endogenous.** The recorded as-of Spearman(unknown share, score) is −0.584;
+recomputing it from *current* `p_known` on the same 21 ja attempts gives +0.107
+— the sign inverts, because `update_vocabulary_from_test` writes `p_known` from
+the very results being scored. Hence `unknown_at_open`/`unknown_at_close` are
+schema columns, not an analyst convention.
+
+Open questions remaining: 4 (greedy-vs-frontier needs a live A/B; `target_new_rate`
+5 words/week is inconsistent with a 12-word cohort on a 10-day deadline;
+`preteach_top_n = 10` is inherited not measured; whether the UI names a target test).
+
+## [2026-09-19] build | CSV exercise authoring infrastructure (TASK-795–802)
+Spec: [[features/csv-exercise-authoring.tech]]. Pages created: 2
+([[features/csv-exercise-authoring]], [[tasklist/csv-exercise-authoring.tasks]]).
+Pages updated: 4 (the tech spec, master, index, this log).
+
+Two spec corrections, agreed with the user before building. First, **the level
+plan cannot be a stage-0 column.** `active_levels`, `p3_expected_levels` and the
+L5 collocate grade are functions of the P1 *answer* (semantic_class, morph-form
+count, the collocate P1 asserts), so they are computed at a new stage 2b
+(`bridge`) by the same pipeline functions. Second, typed levels
+(syn/ant, particle, word family) had no upload path; the uploader now writes
+`llm_types_<v>` (TASK-799).
+
+Mining split (TASK-795) proven: old == new == bulk on **12/12** ja senses,
+4 of them at the 10-sentence cap where row order decides the result. CSV export
+matches the JSON core export 8/8. Judge prompts are captured from the real judge
+functions and the real renderer with `call_llm` swapped for a recorder. One bug
+found and fixed doing it: a judge module first imported *inside* the capture
+kept the recorder for the rest of the process.
+
+E2E (TASK-800, `data/exercise_seeding/ja/run_task798_e2e`), stages 0–5 done.
+The fresh-context stage-2 judge rewrote 9 sentences across 5 of 8 senses. It caught every
+mined sentence whose target was embedded in a compound (色彩, 赤色, 好循環) or
+used in another sense (賭ける-sense かけ, 声をかける), plus a generated 鍵を掛ける
+the author missed. That is the evidence the separate-context judge is doing work.
+Stage 6 then blocked 作業/循環. They were authored `action` (copied from `dim_vocabulary`), so L4
+conjugation was planned for a noun, the L4 prompt correctly declined, and
+`validate_prompt3` rejected "Missing level_4". The live pipeline would do the
+same: TASK-801. Both were re-authored `abstract` (stage 1 round 2), and the
+re-judge was prepared (stage 2 round 3), **but the auto-mode classifier denied the second judge
+subagent**, so stage 6 and the upload have not run. No DB writes this session.
+
+Also found: `npm run check` exits 1 on 11 pre-existing ESLint parse errors in
+`static/js/session/**` (ES modules linted as scripts), not only the CRLF
+baseline. The fix is a one-block config change that the ECC config-protection
+hook blocks for agents (TASK-802). And `tests/test_prompt_split_l4_l8.py::test_unregistered_prompt_version_is_refused_not_guessed`
+is stale: `morphology_slot` v2 has been registered since c4267844.
+
+## [2026-09-19] build | CSV authoring e2e complete, no API calls (TASK-800, 803)
+The user's rule: every model call is a Claude subagent, none a hosted API. The first
+upload violated it, because `upload_exercises.py` renders through `LadderExerciseRenderer`,
+which calls hosted judges (about 6 min per sense, and a failing `qwen/qwen-2.5-72b-instruct`
+cloze-judge slug that passed items unchecked). That upload was stopped. Added **stage 8**: capture the
+renderer's judge requests, have a subagent answer them in their own JSON, and replay them
+at render time. An unanswered request blocks the sense. The ja L1 trie's `random.shuffle` made
+captures non-repeatable, so the runner now seeds per sense and two captures are byte-identical.
+It converged in 3 rounds (83, 14 and 2 requests). The 74 API-rendered rows (4 senses, 0
+attempts) were deleted and rebuilt. **Result: 153 rows, 8/8 senses, 12 types,
+count(word_asset_id) = count(*).** Rendering takes seconds per sense against about 6 minutes on the API path.
+New bug, TASK-803: ja verbs reach the L1 trie and judge as their stem (超え, かけ), so they
+lose L1 entirely, in the live renderer too. Pages updated: 4.
+
+## [2026-09-20] update | TASK-803 done; TASK-801 measured; TASK-802 edit specified
+TASK-803: ja L1 now names its answer with the dictionary form (`_headword`, from
+`dim_vocabulary.lemma`) instead of the sentence stem. The trie itself was always keyed on the
+reading and was correct; the stem reached only the judge and the learner. 53352 and 35241
+re-rendered through stage 8 (4 new judge requests, subagent-answered, no API) to 23 and 21 rows,
+all linked, each with a real L1 row. Live verbs with no L1: 10 of 22 before, 8 after; 7 live rows still
+carry a stem answer and need a re-render. New `tests/test_l1_headword.py`. TASK-801: measured,
+not implemented (0 of 84 live P1 assets affected; 2,766 `dim_vocabulary` senses at risk); awaiting
+the operator's choice. TASK-802: exact `eslint.config.js` edit recorded, awaiting the operator.
+Pages updated: 4.
+
+## [2026-09-20] update | TASK-801 done (POS-aware L4 gate)
+Operator chose option (a). ja `morphology_slot` now also requires `inflecting_pos` (from P1 `pos`;
+名詞 and other non-inflecting POS fail it, 形状詞 keeps L4), so suru-nouns labelled `action` are no
+longer planned an L4 the model must decline, and the validator is never held to a `level_4` it
+cannot get. One definition in `capability_context_from_core`, shared by the pipeline, the
+worklist exporter and the renderer. No prompt_templates edit; the mirror migration row is updated
+but not applied live. New `tests/test_ja_suru_noun_l4_gate.py` (16). Pages updated: 3.

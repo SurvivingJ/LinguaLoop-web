@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"苦待\" in Mandarin Chinese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"苦待\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.6695692539215088,
+  "response": {
+    "id": "gen-1789655507-pBKZyL60geUkfSbzU7Sh",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"苦待\",\n  \"definition_simple\": \"残酷或刻薄地对待别人。\",\n  \"definition_standard\": \"虐待；刻薄、严酷地对待。\",\n  \"examples\": [\n    \"继母经常苦待这个孤儿。\",\n    \"他虽然受尽苦待，却依然保持着善良的品质。\",\n    \"历史上的暴君往往苦待百姓，最终导致民不聊生。\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/PuvCmThlis1ajdlLHEYY//NZKWy1LJhCwE//zqXUI3XGka5sZcorLRcI4PWFgTnwf6JXIWCVMavGGOL31Hu1TZaZoPn1K2YWXqxc1fCI=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 50,
+      "completion_tokens": 105,
+      "total_tokens": 155,
+      "cost": 0.0002775,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0002775,
+        "upstream_inference_prompt_cost": 1.5e-05,
+        "upstream_inference_completions_cost": 0.0002625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

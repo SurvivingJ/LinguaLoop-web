@@ -1,0 +1,438 @@
+[00:11:45] building sentence indices...
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+Loading model cost 0.532 seconds.
+Prefix dict has been built successfully.
+[00:11:51] sentence indices built in 6.25s
+[00:11:52] coverage computed: {'zh': {'language_id': 1, 'total_vocab': 121159, 'corpus_sentences_available': 517, 'example_sentence_column_filled': 1897, 'example_sentence_column_pct': 1.57, 'tokenized_corpus_mined_filled': 1541, 'tokenized_corpus_mined_pct': 1.27, 'cedict_jmdict_native_examples': 0}, 'en': {'language_id': 2, 'total_vocab': 4842, 'corpus_sentences_available': 1028, 'example_sentence_column_filled': 2604, 'example_sentence_column_pct': 53.78, 'tokenized_corpus_mined_filled': 2143, 'tokenized_corpus_mined_pct': 44.26, 'cedict_jmdict_native_examples': 0}, 'ja': {'language_id': 3, 'total_vocab': 22426, 'corpus_sentences_available': 7, 'example_sentence_column_filled': 27, 'example_sentence_column_pct': 0.12, 'tokenized_corpus_mined_filled': 17, 'tokenized_corpus_mined_pct': 0.08, 'cedict_jmdict_native_examples': 0}}
+[00:11:53] sampled: {'zh': 1200, 'en': 1200, 'ja': 1200}
+[00:11:53] generating exercises for zh (1200 senses x2 variants)...
+[00:12:14]   zh: 200/1200 senses done (21.3s elapsed)
+[00:12:35]   zh: 400/1200 senses done (41.9s elapsed)
+[00:12:55]   zh: 600/1200 senses done (61.7s elapsed)
+[00:13:16]   zh: 800/1200 senses done (83.1s elapsed)
+[00:13:34]   zh: 1000/1200 senses done (101.4s elapsed)
+[00:13:56]   zh: done in 122.7s
+[00:13:56] generating exercises for en (1200 senses x2 variants)...
+[00:13:57]   en: 200/1200 senses done (1.4s elapsed)
+[00:13:58]   en: 400/1200 senses done (2.2s elapsed)
+[00:13:59]   en: 600/1200 senses done (3.2s elapsed)
+[00:14:00]   en: 800/1200 senses done (4.6s elapsed)
+[00:14:01]   en: 1000/1200 senses done (5.5s elapsed)
+[00:14:02]   en: done in 6.4s
+[00:14:02] generating exercises for ja (1200 senses x2 variants)...
+[00:14:06]   ja: 200/1200 senses done (4.2s elapsed)
+[00:14:10]   ja: 400/1200 senses done (7.7s elapsed)
+[00:14:13]   ja: 600/1200 senses done (11.1s elapsed)
+[00:14:16]   ja: 800/1200 senses done (14.4s elapsed)
+[00:14:20]   ja: 1000/1200 senses done (17.7s elapsed)
+[00:14:23]   ja: done in 21.3s
+[00:14:23] latency/throughput benchmark...
+[00:15:20] distractor strategy comparison...
+{
+  "sentence_index_build_seconds": 6.25,
+  "sentence_coverage": {
+    "zh": {
+      "language_id": 1,
+      "total_vocab": 121159,
+      "corpus_sentences_available": 517,
+      "example_sentence_column_filled": 1897,
+      "example_sentence_column_pct": 1.57,
+      "tokenized_corpus_mined_filled": 1541,
+      "tokenized_corpus_mined_pct": 1.27,
+      "cedict_jmdict_native_examples": 0
+    },
+    "en": {
+      "language_id": 2,
+      "total_vocab": 4842,
+      "corpus_sentences_available": 1028,
+      "example_sentence_column_filled": 2604,
+      "example_sentence_column_pct": 53.78,
+      "tokenized_corpus_mined_filled": 2143,
+      "tokenized_corpus_mined_pct": 44.26,
+      "cedict_jmdict_native_examples": 0
+    },
+    "ja": {
+      "language_id": 3,
+      "total_vocab": 22426,
+      "corpus_sentences_available": 7,
+      "example_sentence_column_filled": 27,
+      "example_sentence_column_pct": 0.12,
+      "tokenized_corpus_mined_filled": 17,
+      "tokenized_corpus_mined_pct": 0.08,
+      "cedict_jmdict_native_examples": 0
+    }
+  },
+  "semantic_class_heuristic_distribution": {
+    "zh": {
+      "concrete": 999,
+      "action": 195,
+      "proper": 4,
+      "function": 2
+    },
+    "en": {
+      "concrete": 524,
+      "proper": 86,
+      "property": 183,
+      "function": 52,
+      "action": 341,
+      "NULL": 14
+    },
+    "ja": {
+      "concrete": 652,
+      "property": 211,
+      "action": 306,
+      "function": 24,
+      "NULL": 5,
+      "proper": 2
+    }
+  },
+  "sample_size_per_language": {
+    "zh": 1200,
+    "en": 1200,
+    "ja": 1200
+  },
+  "capability_matrix_pct_of_sample": {
+    "zh": {
+      "definition_match": {
+        "senses": 1196,
+        "pct_of_sample": 99.67
+      },
+      "hanzi_to_pinyin": {
+        "senses": 1133,
+        "pct_of_sample": 94.42
+      },
+      "pinyin_to_hanzi": {
+        "senses": 1133,
+        "pct_of_sample": 94.42
+      },
+      "tone_id_word": {
+        "senses": 1133,
+        "pct_of_sample": 94.42
+      },
+      "cloze_typed": {
+        "senses": 27,
+        "pct_of_sample": 2.25
+      },
+      "jumbled_sentence": {
+        "senses": 26,
+        "pct_of_sample": 2.17
+      },
+      "classifier_match": {
+        "senses": 5,
+        "pct_of_sample": 0.42
+      }
+    },
+    "en": {
+      "jumbled_sentence": {
+        "senses": 577,
+        "pct_of_sample": 48.08
+      },
+      "cloze_typed": {
+        "senses": 576,
+        "pct_of_sample": 48.0
+      }
+    },
+    "ja": {
+      "definition_match": {
+        "senses": 1198,
+        "pct_of_sample": 99.83
+      },
+      "reading_to_kanji": {
+        "senses": 965,
+        "pct_of_sample": 80.42
+      },
+      "kanji_to_reading": {
+        "senses": 932,
+        "pct_of_sample": 77.67
+      },
+      "counter_match": {
+        "senses": 17,
+        "pct_of_sample": 1.42
+      }
+    }
+  },
+  "skip_reasons_top": {
+    "zh": {
+      "cloze_typed": {
+        "no cloze-capable sentence to derive from": 2334
+      },
+      "classifier_match": {
+        "'礼法' is not in the classifier dictionary": 2,
+        "'南沙区' is not in the classifier dictionary": 2,
+        "'经穴' is not in the classifier dictionary": 2
+      },
+      "jumbled_sentence": {
+        "no P1 sentence available": 2334,
+        "sentence chunks into 0 pieces (min 3) — too short to jumble": 2
+      },
+      "hanzi_to_pinyin": {
+        "pronunciation missing or unparseable as pinyin": 126
+      },
+      "pinyin_to_hanzi": {
+        "pronunciation missing or unparseable as pinyin": 126
+      },
+      "tone_id_word": {
+        "pronunciation missing or unparseable as pinyin": 126
+      }
+    },
+    "en": {
+      "definition_match": {
+        "no definition on the P1 asset": 2228
+      },
+      "cloze_typed": {
+        "no cloze-capable sentence to derive from": 924,
+        "target 'moreover' does not occur in its own sentence": 2,
+        "target 'tv' does not occur in its own sentence": 2
+      },
+      "jumbled_sentence": {
+        "no P1 sentence available": 924,
+        "sentence chunks into 0 pieces (min 3) — too short to jumble": 18
+      }
+    },
+    "ja": {
+      "cloze_typed": {
+        "no cloze-capable sentence to derive from": 2338
+      },
+      "counter_match": {
+        "'否' is not in the counter dictionary": 4,
+        "'貸出用' is not in the counter dictionary": 2,
+        "'プランター' is not in the counter dictionary": 2
+      },
+      "jumbled_sentence": {
+        "no P1 sentence available": 2338
+      },
+      "kanji_to_reading": {
+        "lemma contains no kanji — reading is trivial": 466,
+        "only 2 kana confusions available": 34,
+        "only 0 kana confusions available": 22
+      },
+      "reading_to_kanji": {
+        "lemma contains no kanji — nothing to choose": 466
+      }
+    }
+  },
+  "exercises_per_sense_headline": {
+    "zh": {
+      "n": 1200,
+      "0_exercises_pct": 0.3,
+      "1_2_exercises_pct": 5.2,
+      "3_4_exercises_pct": 0.0,
+      "5plus_exercises_pct": 94.5,
+      "mean_exercises_per_sense": 7.75
+    },
+    "en": {
+      "n": 1200,
+      "0_exercises_pct": 51.3,
+      "1_2_exercises_pct": 1.2,
+      "3_4_exercises_pct": 47.4,
+      "5plus_exercises_pct": 0.0,
+      "mean_exercises_per_sense": 1.92
+    },
+    "ja": {
+      "n": 1200,
+      "0_exercises_pct": 0.2,
+      "1_2_exercises_pct": 18.9,
+      "3_4_exercises_pct": 3.2,
+      "5plus_exercises_pct": 77.8,
+      "mean_exercises_per_sense": 5.19
+    }
+  },
+  "latency_throughput": {
+    "zh": {
+      "n": 400,
+      "concurrency_1_ms_per_sense": 57.956,
+      "concurrency_1_senses_per_sec": 17.3,
+      "concurrency_8_ms_per_sense_wallclock": 61.057,
+      "concurrency_8_senses_per_sec": 16.4,
+      "speedup_8_over_1": 0.95
+    },
+    "en": {
+      "n": 400,
+      "concurrency_1_ms_per_sense": 2.135,
+      "concurrency_1_senses_per_sec": 468.3,
+      "concurrency_8_ms_per_sense_wallclock": 2.321,
+      "concurrency_8_senses_per_sec": 430.8,
+      "speedup_8_over_1": 0.92
+    },
+    "ja": {
+      "n": 400,
+      "concurrency_1_ms_per_sense": 9.22,
+      "concurrency_1_senses_per_sec": 108.5,
+      "concurrency_8_ms_per_sense_wallclock": 9.414,
+      "concurrency_8_senses_per_sec": 106.2,
+      "speedup_8_over_1": 0.98
+    }
+  },
+  "distractor_strategy_comparison": {
+    "zh": {
+      "n_compared": 80,
+      "n_pool_embedded": 8000,
+      "mean_overlap_of_3": 0.0,
+      "pct_high_similarity_gt_0.92_embed_top1": 1.2,
+      "examples": [
+        {
+          "lemma": "看待",
+          "definition": "to look upon; to regard",
+          "embed_distractors": [
+            "to look upon; to take a fancy to; to fall for",
+            "to look over; to examine; to check up",
+            "to see; to look at; to read; to watch"
+          ],
+          "embed_top_sim": 0.569,
+          "nonembed_distractors": [
+            "to circulate; to distribute; circulation; distribution",
+            "to have no other option but to ...; to have to; to be forced to",
+            "to inspect; to observe and study; on-the-spot investigation"
+          ]
+        },
+        {
+          "lemma": "对打",
+          "definition": "to fight (one against one)",
+          "embed_distractors": [
+            "to resist; to make a stand and fight (against)",
+            "to oppose; to be against; to object to",
+            "to oppose; to set sth against; to be antagonistic to"
+          ],
+          "embed_top_sim": 0.525,
+          "nonembed_distractors": [
+            "to select",
+            "to take part in an election; to run for office",
+            "to take charge of; to manage; department (under a ministry)"
+          ]
+        },
+        {
+          "lemma": "大火",
+          "definition": "conflagration; large fire; CL:場|场[chang2]",
+          "embed_distractors": [
+            "snow; CL:場|场[chang2]; (literary) to wipe away (a humiliation etc)",
+            "war; conflict; CL:場|场[chang2],次[ci4]",
+            "a nap; a sleep; CL:場|场[chang2]"
+          ],
+          "embed_top_sim": 0.594,
+          "nonembed_distractors": [
+            "(lit. and fig.) shadow; CL:道[dao4]",
+            "courtesy; politeness; manners; courteous; polite",
+            "mature; experienced; sophisticated"
+          ]
+        },
+        {
+          "lemma": "正当时",
+          "definition": "the right time for sth; the right season (for planting cabbage)",
+          "embed_distractors": [
+            "timely; at the right time; promptly; without delay",
+            "immediately; right then",
+            "to sound the night watches (on clappers or gongs, in former times)"
+          ],
+          "embed_top_sim": 0.468,
+          "nonembed_distractors": [
+            "stock price; share price",
+            "number of days of sth taking place (e.g. days of heavy pollution); days; occasions",
+            "surname Cao; Zhou Dynasty vassal state"
+          ]
+        },
+        {
+          "lemma": "性地",
+          "definition": "innate quality; natural disposition",
+          "embed_distractors": [
+            "aptitude; disposition; inclination",
+            "nationality",
+            "nature; disposition; temperament"
+          ],
+          "embed_top_sim": 0.555,
+          "nonembed_distractors": [
+            "intoxicated",
+            "criminal law",
+            "balance (of an account, bill etc); surplus; remainder"
+          ]
+        }
+      ]
+    },
+    "en": {
+      "note": "fewer than 20 embedded senses — skipped"
+    },
+    "ja": {
+      "n_compared": 80,
+      "n_pool_embedded": 8000,
+      "mean_overlap_of_3": 0.0,
+      "pct_high_similarity_gt_0.92_embed_top1": 1.2,
+      "examples": [
+        {
+          "lemma": "尿",
+          "definition": "urine",
+          "embed_distractors": [
+            "engineering",
+            "uric acid",
+            "urban area; urban district"
+          ],
+          "embed_top_sim": 0.388,
+          "nonembed_distractors": [
+            "descendant; progeny; offspring",
+            "minidisc; MD",
+            "bat (in baseball, cricket, etc.)"
+          ]
+        },
+        {
+          "lemma": "虹",
+          "definition": "rainbow",
+          "embed_distractors": [
+            "rain",
+            "brain",
+            "train; railway train"
+          ],
+          "embed_top_sim": 0.589,
+          "nonembed_distractors": [
+            "greed; craving; desire",
+            "sugar",
+            "public utilities charge"
+          ]
+        },
+        {
+          "lemma": "制定",
+          "definition": "enactment; establishment; creation",
+          "embed_distractors": [
+            "establishment; institution",
+            "establishment; settlement",
+            "establishment; creation; posing (a problem)"
+          ],
+          "embed_top_sim": 0.635,
+          "nonembed_distractors": [
+            "decisive battle; deciding match; play-off",
+            "to point",
+            "to decide; to determine"
+          ]
+        },
+        {
+          "lemma": "役",
+          "definition": "role; assignment; responsibility",
+          "embed_distractors": [
+            "irresponsibility",
+            "burden; load; responsibility",
+            "sense of responsibility"
+          ],
+          "embed_top_sim": 0.532,
+          "nonembed_distractors": [
+            "son",
+            "one face; one surface",
+            "mother"
+          ]
+        },
+        {
+          "lemma": "神聖",
+          "definition": "holiness; sacredness; sanctity",
+          "embed_distractors": [
+            "happiness; blessedness; luck",
+            "chilliness; coldness",
+            "tiredness; fatigue"
+          ],
+          "embed_top_sim": 0.569,
+          "nonembed_distractors": [
+            "left wing",
+            "(a) little; somewhat; somehow",
+            "irony; sarcasm; cynicism"
+          ]
+        }
+      ]
+    }
+  }
+}

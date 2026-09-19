@@ -13,9 +13,10 @@ import pytest
 from services.vocabulary.processors.japanese import JapaneseProcessor
 
 
-def _word(surface, orth, lemma):
+def _word(surface, orth, lemma, c_type=None):
     return SimpleNamespace(surface=surface,
-                           feature=SimpleNamespace(orthBase=orth, lemma=lemma))
+                           feature=SimpleNamespace(orthBase=orth, lemma=lemma,
+                                                   cType=c_type))
 
 
 @pytest.mark.parametrize('surface, orth, lemma, expected', [
@@ -38,6 +39,27 @@ def test_kana_surface_still_prefers_kanji_lemma():
 
 def test_kanji_orth_still_preferred_over_lexeme():
     assert JapaneseProcessor._orth_lemma(_word('速い', '速い', '早い')) == '速い'
+
+
+@pytest.mark.parametrize('surface, orth, lemma', [
+    ('長き', '長し', '長い'),
+    ('幼き', '幼し', '幼い'),
+    ('若き', '若し', '若い'),
+])
+def test_classical_inflection_uses_the_modern_headword(surface, orth, lemma):
+    """TASK-779: orthBase gives the 文語 dictionary form (長し), which no modern
+    entry matches; only for 文語 does lemma beat an available kanji orthBase."""
+    word = _word(surface, orth, lemma, c_type='文語形容詞-ク')
+    assert JapaneseProcessor._orth_lemma(word) == lemma
+
+
+def test_modern_conjugation_is_unaffected_by_the_classical_rule():
+    # Same shape, ordinary cType: the 速い/早い conflation must still be avoided.
+    assert JapaneseProcessor._orth_lemma(
+        _word('速い', '速い', '早い', c_type='形容詞')) == '速い'
+    # Potential verbs carry no 文語 marker, so they keep orthBase (拭える).
+    assert JapaneseProcessor._orth_lemma(
+        _word('拭える', '拭える', '拭う', c_type='下一段-ア行')) == '拭える'
 
 
 def test_real_tagger_emits_no_latin_lemmas():

@@ -590,13 +590,16 @@ const ExRenderers = (function () {
     const initialBankOrder = shuffleArr([...Array(chunks.length).keys()]);
 
     function render() {
+      const answered = _isAnswered();
+      const complete = placed.length === chunks.length;
       let h =
         (w || '') +
         `<div class="exercise-type-badge"><i class="fas fa-shuffle"></i> ${fmtType('jumbled_sentence')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
         `<div class="exercise-instruction">Arrange the words in the correct order:</div>` +
         `<div class="js-answer" id="jsAnswer">`;
       placed.forEach((ci, i) => {
-        h += `<span class="js-chunk" draggable="true" data-placed="${i}" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
+        // `js-chunk--placed` carries the removal affordance (a × via ::after).
+        h += `<span class="js-chunk js-chunk--placed" draggable="true" data-placed="${i}" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
       });
       if (placed.length === 0)
         h += `<span style="color:var(--text-secondary);font-size:14px;padding:8px;">Tap or drag words below to build the sentence</span>`;
@@ -605,25 +608,71 @@ const ExRenderers = (function () {
       bankIndices.forEach((ci) => {
         h += `<span class="js-chunk" draggable="true" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
       });
-      h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
+      h += `</div>`;
+      // Grading is explicit: the learner arranges, reviews, then submits.
+      // Auto-grading on the final placement used to lock the card at exactly
+      // the moment they'd want to fix a word.
+      if (!answered)
+        h += `<button class="btn btn-primary exercise-check-btn" id="jsCheckBtn"${complete ? '' : ' disabled'}><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>`;
+      h += `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
       _card.innerHTML = h;
 
       const answerDiv = document.getElementById('jsAnswer');
       const bankDiv = document.getElementById('jsBank');
+      const checkBtn = document.getElementById('jsCheckBtn');
+      if (checkBtn) checkBtn.addEventListener('click', checkJumbled);
 
-      bankDiv.addEventListener('click', (e) => {
-        if (_isAnswered()) return;
-        const ch = e.target.closest('.js-chunk');
-        if (!ch) return;
-        placed.push(parseInt(ch.dataset.chunk));
-        if (placed.length === chunks.length) checkJumbled();
-        else render();
+      // A native HTML5 drag swallows the `click` that would otherwise follow,
+      // and Chrome decides a press is a drag after only a few px of travel —
+      // so tapping a chunk silently did nothing often enough to read as broken.
+      // Track the pointer ourselves and treat a near-stationary press as a tap,
+      // keeping the plain `click` path for keyboard/AT and for environments
+      // without pointer events.
+      const TAP_SLOP_PX = 5;
+
+      // Both paths can fire for one gesture. Re-rendering replaces _card's
+      // children but leaves the old subtree intact and still wired to the old
+      // zone listener, so the losing handler would act a second time on a stale
+      // index. Marking the node makes the pair idempotent.
+      function tap(ch, handler) {
+        if (_isAnswered() || !ch || ch.dataset.tapped) return;
+        ch.dataset.tapped = '1';
+        handler(ch);
+      }
+
+      function bindTap(zone, handler) {
+        let start = null;
+        zone.addEventListener('pointerdown', (e) => {
+          const ch = e.target.closest('.js-chunk');
+          start = ch ? { ch: ch, x: e.clientX, y: e.clientY } : null;
+        });
+        zone.addEventListener('pointerup', (e) => {
+          const s = start;
+          start = null;
+          if (!s) return;
+          if (Math.abs(e.clientX - s.x) > TAP_SLOP_PX) return;
+          if (Math.abs(e.clientY - s.y) > TAP_SLOP_PX) return;
+          tap(s.ch, handler);
+        });
+        zone.addEventListener('pointercancel', () => {
+          start = null;
+        });
+        zone.addEventListener('click', (e) => {
+          tap(e.target.closest('.js-chunk'), handler);
+        });
+      }
+
+      bindTap(bankDiv, (ch) => {
+        const ci = parseInt(ch.dataset.chunk, 10);
+        if (Number.isNaN(ci)) return;
+        placed.push(ci);
+        render();
       });
-      answerDiv.addEventListener('click', (e) => {
-        if (_isAnswered()) return;
-        const ch = e.target.closest('.js-chunk');
-        if (!ch || ch.dataset.placed === undefined) return;
-        placed.splice(parseInt(ch.dataset.placed), 1);
+      bindTap(answerDiv, (ch) => {
+        // `parseInt` guarded because splice(NaN, 1) silently drops chunk 0.
+        const at = parseInt(ch.dataset.placed, 10);
+        if (Number.isNaN(at)) return;
+        placed.splice(at, 1);
         render();
       });
 
@@ -703,8 +752,7 @@ const ExRenderers = (function () {
           }
 
           dragChunkIdx = null;
-          if (placed.length === chunks.length) checkJumbled();
-          else render();
+          render();
         });
       });
 
@@ -712,12 +760,18 @@ const ExRenderers = (function () {
     }
 
     function checkJumbled() {
-      // Placing the final chunk jumps straight here without an intermediate
-      // render(), so the last word never visually leaves the bank. Render
-      // the completed state first so the UI reflects reality before locking.
-      render();
+      if (_isAnswered()) return;
+      // The Check button is disabled until every chunk is placed, but guard
+      // here too: `every` on a short array returns true whenever the prefix
+      // happens to be right ([0] against [0,1,2]), which would grade a
+      // half-built sentence as correct.
+      if (placed.length !== chunks.length) return;
+      const ok =
+        placed.length === correctOrder.length && placed.every((ci, i) => ci === correctOrder[i]);
+      // Lock first so the final render() draws the answered state — no Check
+      // button — in one pass.
       _setAnswered(true);
-      const ok = placed.every((ci, i) => ci === correctOrder[i]);
+      render();
       const answerDiv = document.getElementById('jsAnswer');
       answerDiv.classList.add(ok ? 'correct' : 'incorrect');
       document.querySelectorAll('.js-chunk').forEach((el) => {

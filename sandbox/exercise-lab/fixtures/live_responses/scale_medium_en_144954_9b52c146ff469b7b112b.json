@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"effectiveness\" in English (expected part of speech: NOUN).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"effectiveness\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.710265874862671,
+  "response": {
+    "id": "gen-1789655512-f4T4MEhfzy0oCjWTnjhe",
+    "object": "chat.completion",
+    "created": 1789655512,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"effectiveness\",\n  \"definition_simple\": \"How well something works to get the result you want.\",\n  \"definition_standard\": \"The degree to which something is successful in producing a desired result; the capability of producing an intended outcome.\",\n  \"pos\": \"NOUN\",\n  \"semantic_class\": \"property\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"The new medicine proved its effectiveness in clinical trials.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"We need to measure the effectiveness of this marketing campaign.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"The manager questioned the cost-effectiveness of the outsourcing plan.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"To maximize effectiveness, the team streamlined their daily communication protocols.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"Scholars continue to debate the long-term effectiveness of monetary policy in curbing inflation.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"Evaluating the therapeutic effectiveness of experimental treatments requires rigorous longitudinal data.\"\n    }\n  ],\n  \"primary_collocate\": \"cost-effectiveness\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"efficiency\",\n      \"reason\": \"While often confused, efficiency refers to doing things with minimum waste, whereas effectiveness is about achieving the intended goal.\"\n    },\n    {\n      \"word\": \"productivity\",\n      \"reason\": \"Productivity measures the volume of output produced per unit of input, which is distinct from the general success rate implied by effectiveness.\"\n    },\n    {\n      \"word\": \"potency\",\n      \"reason\": \"Potency typically describes the strength of a drug or influence, whereas effectiveness measures practical success in real-world application.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"efficacy\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"success\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"ineffectiveness\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"uselessness\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/ImztiiMhZ7Jb5sSUij5Mi/3Wi+voJA7eXp+OuTN2DLuO8LDBCQkwrvSUoF/FTJe3+AGwnOgCF1koTJaBi1gG3pZpkusMVySPPO3js80Y=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 142,
+      "completion_tokens": 553,
+      "total_tokens": 695,
+      "cost": 0.0014251,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0014251,
+        "upstream_inference_prompt_cost": 4.26e-05,
+        "upstream_inference_completions_cost": 0.0013825
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

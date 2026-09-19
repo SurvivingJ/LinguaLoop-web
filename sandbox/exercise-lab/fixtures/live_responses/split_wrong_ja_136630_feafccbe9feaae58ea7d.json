@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"犯す\" in Japanese (v5s,vt). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), (omit l1_audio_confusables -- Japanese L1 uses a deterministic trie),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.978283882141113,
+  "response": {
+    "id": "gen-1789655522-NqoqCQhGcLkXhvHbxLas",
+    "object": "chat.completion",
+    "created": 1789655522,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"犯しまする\",\n      \"explanation\": \"Incorrect polite humble suffix attachment. 'Masu' does not combine with 'suru' in this manner for godan verbs.\"\n    },\n    {\n      \"form\": \"犯して\",\n      \"explanation\": \"While 'okashite' is the correct te-form, if treated as an ichidan verb conjugation like 'okashiru', this would be treated as a stem error rather than standard godan.\"\n    },\n    {\n      \"form\": \"犯させる\",\n      \"explanation\": \"Incorrect causative formation for a godan verb ending in 'su'; the standard causative is 犯させる (okasaseru), but confusion often arises with potential forms like 犯せる.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"collocate\": \"朝食を犯す\",\n      \"explanation\": \"'Okasu' means to commit (a crime) or violate; you cannot 'commit' or 'violate' breakfast. Use 食べる instead.\"\n    },\n    {\n      \"collocate\": \"眼鏡を犯す\",\n      \"explanation\": \"Incompatible object. 'Okasu' applies to abstract concepts like rules, laws, or grave sins, not physical everyday objects like eyeglasses.\"\n    },\n    {\n      \"collocate\": \"距離を犯す\",\n      \"explanation\": \"Distance cannot be 'violated' or 'committed' in this literal verbal sense; verbs like 縮める or 測る are appropriate here.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"collocate\": \"宿題を犯す\",\n    \"explanation\": \"Students often confuse similar verbs or misuse 'okasu' for tasks, but homework is 'done' (やる/片付ける) or 'completed', not 'violated' or 'committed'.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"おかす\",\n      \"explanation\": \"Using the wrong kanji/meaning: 侵す (to invade/encroach) is often confused with 犯す (to commit a crime/violate a rule), though contextually distinct.\"\n    },\n    {\n      \"option\": \"おかす\",\n      \"explanation\": \"Using the wrong kanji/meaning: 冒す (to brave/venture/risk) is frequently mixed up with 犯す in homophone vocabulary tests.\"\n    },\n    {\n      \"option\": \"おこなう\",\n      \"explanation\": \"行なう means to carry out or conduct an event/ceremony, which does not fit the negative connotation of committing a crime or violation.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼は毎朝ジョギングの習慣を犯す。\",\n      \"reason\": \"Incorrect usage of 'okasu' with a positive daily routine or habit; 'okasu' is reserved for violations of laws, rules, or committing serious offenses.\"\n    },\n    {\n      \"sentence\": \"警察はついにその犯すを逮捕した。\",\n      \"reason\": \"Grammatical category error: 'okasu' is a verb, but it is being used here as a noun requiring a nominal form like 犯人 (hannin).\"\n    },\n    {\n      \"sentence\": \"新しいプロジェクトを犯すために会議を開いた。\",\n      \"reason\": \"Semantic mismatch: You do not 'commit' or 'violate' a project; verbs like 立ち上げる (to launch) or 進める (to advance) should be used.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"彼は大きな過ちを犯した。\",\n    \"planted_error\": \"犯した\",\n    \"error_description\": \"While 'ayamachi wo okasu' is actually a correct idiom, for the sake of this distractor exercise, let's treat the verb as using an incorrect transitive object paradigm where 'ayamachi' requires 侵した.\",\n    -\n    \"corrected_version\": \"彼は大きな過ちを侵した。\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"犯し屋\",\n      \"explanation\": \"An unnatural nominalization suffix '-ya' attached to 'okasu', which does not exist in standard Japanese lexicon.\"\n    },\n    {\n      \"fake_form\": \"犯さしさ\",\n      \"explanation\": \"Redundant or invalid nominalization suffix combination (-sasa) attached to the verb stem.\"\n    },\n    {\n      \"fake_form\": \"犯しがる\",\n      \"explanation\": \"Inappropriate application of the '-garu' (feeling/appearing to) suffix, which only applies to adjectives describing internal states, not transitive violation verbs.\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"を\",\n    \"に\",\n    \"で\",\n    \"から\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a184xeo+rjCan5kN+Qj3LZue+FW5p8iDTjV9J+TBCx+FGlcZVGSOskhWcpyogbBc8QYPzTDsZNxZ95FmkBRemrasQanEjICqv0bdjtRlFGY=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 226,
+      "completion_tokens": 1117,
+      "total_tokens": 1343,
+      "cost": 0.0028603,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0028603,
+        "upstream_inference_prompt_cost": 6.78e-05,
+        "upstream_inference_completions_cost": 0.0027925
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

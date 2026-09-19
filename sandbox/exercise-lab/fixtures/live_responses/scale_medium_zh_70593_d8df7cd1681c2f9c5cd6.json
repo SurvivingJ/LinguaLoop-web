@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"获胜\" in Mandarin Chinese.\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"获胜\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.9697043895721436,
+  "response": {
+    "id": "gen-1789655507-TR0DS4goTQUcqvTy48OF",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"赢了，取得胜利\",\n  \"definition_standard\": \"在竞赛、斗争或比赛中取得胜利或成功。\",\n  \"pos\": \"v.\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"我们队获胜了！\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"经过努力，他们终于获胜。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"这场比赛谁会获胜，现在还很难说。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"客场作战的球队凭借顽强的斗志艰难获胜。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"候选人在辩论赛中表现出色，从而在选战中获胜。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"在瞬息万变的商战中，唯有精准决策方能最终获胜。\"\n    }\n  ],\n  \"primary_collocate\": \"比赛\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"失败\",\n      \"reason\": \"失败表示未取得成功，与获胜语义相反，不能作为直接搭配。\"\n    },\n    {\n      \"word\": \"练习\",\n      \"reason\": \"练习是准备阶段的活动，通常不直接与获胜构成动宾或主谓搭配。\"\n    },\n    {\n      \"word\": \"观众\",\n      \"reason\": \"观众是观看比赛的人，而获胜通常是参赛者的行为结果。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"取胜\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"胜利\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"失败\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"落败\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/kG+Dw7RKj1xSRhadPHzi4AjPeBH/bduFOh5KVzII1uJtqg5xA8U/Q4+ivR5RmUdwicNiQefaMylTMO1Z5yhZd4wpgUVmkMLYI8gisBK8=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 137,
+      "completion_tokens": 513,
+      "total_tokens": 650,
+      "cost": 0.0013236,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0013236,
+        "upstream_inference_prompt_cost": 4.11e-05,
+        "upstream_inference_completions_cost": 0.0012825
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

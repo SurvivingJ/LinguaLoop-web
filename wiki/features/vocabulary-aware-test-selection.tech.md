@@ -3,7 +3,7 @@ title: Vocabulary-Aware Test Selection — Technical Specification
 type: feature-tech
 status: planned
 prose_page: vocabulary-aware-test-selection.md
-last_updated: 2026-09-08
+last_updated: 2026-09-16
 dependencies:
   - "table: user_vocabulary_knowledge (p_known, status, language_id)"
   - "table: user_calibration_state (ability_zipf, ability_se, band_accuracies, items_answered, sessions_pooled, mode, last_run_at), PK (user_id, language_id, mode) — BUILT 2026-09-09 by Calibration Phase 4, APPLIED LIVE (TASK-765, verified 2026-09-10). Selection reads mode='definition' ONLY."
@@ -402,15 +402,52 @@ neutral).
 
 ### 3.3 Combined ranking
 
-Replace the sole `ORDER BY ABS(test_elo - user_elo)` with:
+Replace the sole `ORDER BY ABS(test_elo - user_elo)` with two normalised misses,
+combined in one of two ways (`selection_tuning.combine_mode`, TASK-780):
 
 ```
-score(t) = w_elo · |test_elo − user_elo| / 400
-         + w_vocab · |unknown(t) − u*| / u_tol
+e(t) = w_elo   · |test_elo − user_elo| / 400      -- difficulty miss
+v(t) = w_vocab · |unknown(t) − u*|     / u_tol    -- vocabulary miss
+
+score(t) = e + v                 when combine_mode = 'sum'      (default)
+score(t) = (1 + e) · (1 + v)     when combine_mode = 'product'
 ORDER BY score ASC          -- rank_in_type <= 10 unchanged, now on score
 ```
 
 Initial constants: `w_elo = 1.0`, `w_vocab = 1.0`, `u* = 0.15`, `u_tol = 0.10`.
+
+**Why a product mode (TASK-780).** `(1+e)(1+v) = 1 + e + v + e·v` — the sum plus
+a cross term. A sum is indifferent to how a given total miss is distributed: a
+test half a term off on difficulty *and* half a term off on vocabulary scores the
+same as one a full term off on difficulty alone with perfect vocabulary. It is
+not the same lesson; the learner hits both frictions at once. The cross term is
+the only part of the arithmetic that can say so, and it exists only when both
+terms are non-zero. The constant 1 cannot reorder anything.
+
+**The `1 +` shift is load-bearing — a bare `e · v` is broken, not merely worse.**
+Any perfect match on one axis annihilates the other: a test with a perfect ELO
+match and 90% unknown words would score 0 and rank **first**. With the shift each
+factor is a multiplier ≥ 1 on the other's miss, both factors stay monotone
+increasing, and "2.2" reads as "2.2× as far from ideal as a perfect candidate".
+Pinned by the `too_hard` fixture in `tests/sql/test_task780_combine_mode.sql`,
+which must rank **last** in both modes.
+
+**Coverage counting is deliberately unchanged.** `unknown(t)` counts each
+**distinct** sense in `tests.vocab_sense_ids` once. Per-occurrence counting (over
+`vocab_token_map`, the shape TASK-780 was first sketched as) was considered and
+dropped: a linked word appears 1.15 (ja) / 1.33 (zh) / 1.44 (en) times per test,
+so the two measures nearly coincide, and distinct-word counting is the better
+match for "how much new vocabulary must this learner absorb". TASK-779's
+token-map repair stands on its own merits and is not a precondition for
+anything here.
+
+**Both switches ship off.** `combine_mode = 'sum'` is output-identical to
+TASK-748 — the `ELSE` branch of the `scored` CTE is the TASK-748 expression
+verbatim, proven against a frozen copy of the pre-780 body (§6). And
+`vocab_weight = 0` still takes the verbatim pre-TASK-748 branch inside
+`get_recommended_tests`, which never reaches the ranker — so **combine_mode is
+inert while `vocab_weight` is 0**. That is what makes replaying a product arm
+against live safe.
 
 **Why `u* = 0.15` and not the 3-7% the dropped RPC aimed at.** Live Japanese
 content cannot reach 3-7% unknown for this learner — the *best available* is 27%
@@ -432,7 +469,9 @@ A test gets a **neutral** vocabulary term when any of:
 - no `ability_zipf` and no fallback median (§3.2).
 
 Neutral = **the median penalty across the candidate set for that
-(user, type)** — computed in the same CTE — not 0 and not `+∞`:
+(user, type)** — computed in the same CTE, on the **raw** penalty *before* the
+§3.3 combination, so a neutral candidate carries the identical `vocab_penalty`
+in `sum` and `product` mode — not 0 and not `+∞`:
 
 - 0 would make unlinked tests always win.
 - `+∞` would hard-filter them, silently emptying the pool for a fifth of the
@@ -454,7 +493,24 @@ resolves unpredictably. A settings row also allows instant rollback without
 re-applying a migration, and lets §5's shadow mode run both arms.
 
 Keys: `vocab_weight`, `elo_weight`, `unknown_target`, `unknown_tolerance`,
-`tier_ceiling_offset`.
+`tier_ceiling_offset`, and (TASK-780) `combine_mode`.
+
+**Numeric and text values (TASK-780).** `combine_mode` is `'sum'` | `'product'`,
+not a number, so the table gained a nullable `value_text` column; `value` became
+nullable and a `selection_tuning_value_shape` CHECK now enforces exactly one of
+the two per key — the numeric keys keep their NOT NULL guarantee through that
+CHECK rather than through the column. Encoding the mode as 0/1 was rejected: an
+operator flipping a switch should not have to remember which mode `1` is. A
+missing row, a NULL `value_text`, or any unrecognised value reads as `'sum'`; the
+mode cannot be switched on by absence.
+
+**Switching arms for a replay.** Because `combine_mode` is a row and not an
+argument, an offline arm is selected with a transaction-local
+`UPDATE selection_tuning ... ; ROLLBACK` — the same way the SQL tests do it.
+Adding a `p_combine_mode` parameter was rejected for the same reason as
+`p_vocab_weight`: after `p_as_of` it would have to be defaulted, and a defaulted
+parameter is exactly the ambiguous overload
+`migrations/get_recommended_tests_drop_ambiguous_overload.sql` had to clean up.
 
 ### 3.6 Performance
 
@@ -592,6 +648,33 @@ suite ([[webapp-pytest-needs-pythonpath]]).
   inside 7 days is refused by G6.
 - **Revert-red:** deleting the vocabulary CTE makes the ranking tests fail —
   proving they test the feature and not the fixture.
+
+**Combination mode (TASK-780)** — `tests/sql/test_task780_combine_mode.sql`,
+five synthetic ja reading candidates whose two terms are set exactly (every
+sense carries a uvk row, so the Zipf prior never runs):
+
+| label | e | v | sum | product |
+|-------|---|---|-----|---------|
+| `good_both` | 0.10 | 0.10 | 0.20 | 1.210 |
+| `unlinked` | 0.00 | 0.325 (median) | 0.325 | 1.325 |
+| `bad_both` | 0.50 | 0.55 | **1.05** | **2.325** |
+| `bad_elo` | 1.00 | 0.10 | **1.10** | **2.200** |
+| `too_hard` | 0.00 | 7.50 | 7.50 | 8.500 |
+
+`bad_both` and `bad_elo` swap: sum prefers the candidate wrong on both axes,
+product demotes it. `too_hard` must rank last in **both** modes — a bare `e·v`
+would rank it first. The neutral candidate's `vocab_penalty`, `unknown_share`,
+`vocab_neutral`, `n_senses` and `n_resolved` must be identical across modes, and
+the per-type candidate count must not move (M5). **Revert-red:** delete the
+product branch of the `scored` CTE and the two orders become equal, which the
+test reports by name.
+
+**Sum-mode parity (TASK-780)** — `tests/sql/test_task748_parity.sql` steps 3-4
+freeze the pre-780 ranker body under `_rtr_pre780` (self-verified by an md5 of
+the live `prosrc` taken before the migration) and require row-identical output at
+`combine_mode = 'sum'` for every user × en/zh/ja at `vocab_weight` 0 **and** 1,
+plus: the public RPC unchanged at `vocab_weight = 0` under *either* mode, and no
+per-type count falling in product mode.
 
 **Not covered by tests** — the offline replay (§5.2.1) is an analysis script
 under `scripts/`, not a test; it depends on live history and must not gate CI.

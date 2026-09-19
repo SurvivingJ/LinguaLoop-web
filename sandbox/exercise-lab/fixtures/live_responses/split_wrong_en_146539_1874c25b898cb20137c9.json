@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"observation\" in English (NOUN). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.9026570320129395,
+  "response": {
+    "id": "gen-1789655518-a6O8c8nlNWX6uOmIPtU7",
+    "object": "chat.completion",
+    "created": 1789655518,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"observations\",\n      \"explanation\": \"This is actually a correct plural form, not a wrong inflection.\"\n    },\n    {\n      \"form\": \"observationed\",\n      \"explanation\": \"Incorrectly treats the noun as a regular verb in the past tense.\"\n    },\n    {\n      \"form\": \"observationly\",\n      \"explanation\": \"Incorrectly attempts to turn the noun into an adverb using an invalid suffix.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"obsession\",\n      \"explanation\": \"Sounds superficially similar in rhythm and ending, but means an unhealthily fixed idea.\"\n    },\n    {\n      \"word\": \"reservation\",\n      \"explanation\": \"Shares a similar ending sound (-vation) and syllable count, leading to auditory confusion.\"\n    },\n    {\n      \"word\": \"preservation\",\n      \"explanation\": \"Rhymes closely with observation and shares the same suffix, but relates to protecting something.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"collocate\": \"heavy observation\",\n      \"explanation\": \"Native speakers typically use 'close' or 'careful' rather than 'heavy' for monitoring.\"\n    },\n    {\n      \"collocate\": \"fast observation\",\n      \"explanation\": \"Observations require time and focus, making 'fast' an unnatural modifier.\"\n    },\n    {\n      \"collocate\": \"strong observation\",\n      \"explanation\": \"While insights can be strong, the act or product of observation is usually described as 'keen' or 'sharp'.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"collocate\": \"make an observation\",\n    \"explanation\": \"This is actually a correct collocation; however, in a distractor context, learners often mistakenly pair it with the wrong verb like 'do' instead of 'make'.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"observance\",\n      \"explanation\": \"Often confused due to spelling similarity, but refers to the practice of religious or cultural laws.\"\n    },\n    {\n      \"option\": \"observer\",\n      \"explanation\": \"A noun referring to the person watching, whereas the context requires the abstract noun for the act itself.\"\n    },\n    {\n      \"option\": \"observatory\",\n      \"explanation\": \"Refers to a physical building used for gazing at stars, not the act of noticing.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The scientist wrote down her observation on the notepad.\",\n      \"reason\": \"Grammatically acceptable, but in this specific distractor set, it tests the misuse of singular vs. plural when recording multiple data points.\"\n    },\n    {\n      \"sentence\": \"He gave a very observation during the meeting.\",\n      \"reason\": \"Uses the noun 'observation' directly as a noun complement where an adjective like 'observant' is required.\"\n    },\n    {\n      \"sentence\": \"They decided to observation the animal behavior closely.\",\n      \"reason\": \"Uses the noun form in a verb position instead of the correct base verb 'observe'.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"Under close observation, the suspect showed no sign of nervousness.\",\n    \"planted_error\": \"close\",\n    \"error_description\": \"While 'close observation' is acceptable, the prompt tests a sentence where 'closely observation' was mistakenly used.\",\n    \"corrected_version\": \"Under close observation, the suspect showed no sign of nervousness.\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"observosity\",\n      \"explanation\": \"An invented noun form that incorrectly mimics words like curiosity.\"\n    },\n    {\n      \"form\": \"observate\",\n      \"explanation\": \"A back-formation verb that does not exist in standard English (the correct verb is 'observe').\"\n    },\n    {\n      \"form\": \"observitude\",\n      \"explanation\": \"An invented noun using the suffix -itude in an ungrammatical way.\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"wo\",\n      \"explanation\": \"Correct accusative marker when using the Japanese equivalent noun phrase as a direct object.\"\n    },\n    {\n      \"particle\": \"ni\",\n      \"explanation\": \"Incorrect directional or locative particle for this specific grammatical slot.\"\n    },\n    {\n      \"particle\": \"de\",\n      \"explanation\": \"Incorrect instrumental particle that would imply performing an action using the observation itself as a tool.\"\n    },\n    {\n      \"particle\": \"ga\",\n      \"explanation\": \"Incorrect subject marker when the noun is functioning as the direct object of the sentence.\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18YoFV8gyLsAc8q5Mu+9S2MN0FwQpukafgeACWSEJCRYhk6LktmLCqrtjQNj0JF5lWealqGBpnr0tg7yp7pI647UeboQ7iYX1GothCZi3c=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 1110,
+      "total_tokens": 1330,
+      "cost": 0.002841,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.002841,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.002775
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

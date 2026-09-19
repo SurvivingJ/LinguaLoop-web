@@ -479,7 +479,10 @@ _CAPABILITY_SPEC: list[tuple] = [
     ('cloze_completion', (1, 2, 3), ('all',), 3, 'llm', ('p1_sentences',), 'cloze', True),
     ('cloze_typed', (1, 2, 3), ('concrete', 'abstract', 'action', 'property'), 4, 'deterministic', ('cloze_asset',), None, True),
     ('morphology_slot', (2,), ('concrete', 'action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', True),
-    ('morphology_slot', (3,), ('action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', True),
+    # JA also needs an inflecting part of speech: a suru-noun (作業, 循環) is
+    # labelled `action` yet has no conjugation of its own, so its L4 prompt can
+    # only decline and the empty slot then failed the whole P3 asset (TASK-801).
+    ('morphology_slot', (3,), ('action', 'property'), 4, 'llm', ('morph_forms>=2', 'inflecting_pos'), 'sentence_validity', True),
     ('morphology_slot', (1,), ('action', 'property'), 4, 'llm', ('morph_forms>=2',), 'sentence_validity', False),
     ('classifier_match', (1,), ('concrete',), 4, 'deterministic', ('classifier_dict',), None, True),
     ('particle_selection', (3,), ('concrete', 'abstract', 'action'), 4, 'llm', ('p1_sentences', 'tokenised_particles'), 'particle', True),
@@ -691,6 +694,15 @@ PROMPT3_TYPE_FOR_LEVEL: dict[int, str] = {
 }
 
 
+# JA parts of speech (UniDic, the P1 enum) that never conjugate. 形状詞 (na-
+# adjectives) and 動詞 / 形容詞 are deliberately absent: they take endings, so
+# they keep L4. Anything not listed is treated as inflecting, so an unfamiliar
+# label degrades to the old behaviour rather than silently dropping L4.
+JA_NON_INFLECTING_POS: frozenset[str] = frozenset({
+    '名詞', '代名詞', '副詞', '連体詞', '接続詞', '感動詞', '助詞',
+})
+
+
 def capability_context_from_core(core_asset: dict) -> dict:
     """Build a capability ``requires`` context from a prompt1_core asset.
 
@@ -702,13 +714,20 @@ def capability_context_from_core(core_asset: dict) -> dict:
     Shared by the generation pipeline and the exercise renderer so both sides
     gate on identical facts.
     """
-    forms = (core_asset or {}).get('morphological_forms') or []
-    return {
+    core_asset = core_asset or {}
+    forms = core_asset.get('morphological_forms') or []
+    context = {
         'morph_forms':   len(forms) if isinstance(forms, (list, tuple, dict)) else 0,
-        'pronunciation': bool((core_asset or {}).get('pronunciation')),
-        'p1_definition': bool((core_asset or {}).get('definition')),
-        'p1_sentences':  bool((core_asset or {}).get('sentences')),
+        'pronunciation': bool(core_asset.get('pronunciation')),
+        'p1_definition': bool(core_asset.get('definition')),
+        'p1_sentences':  bool(core_asset.get('sentences')),
     }
+    # Only the JA morphology row asks for this token. Left out when P1 gave no
+    # part of speech, so a sparse asset is planned rather than silently gated.
+    pos = core_asset.get('pos')
+    if isinstance(pos, str) and pos:
+        context['inflecting_pos'] = pos not in JA_NON_INFLECTING_POS
+    return context
 
 
 def type_is_available(

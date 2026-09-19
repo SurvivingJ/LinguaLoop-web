@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"slope\" in English (expected part of speech: NOUN).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"slope\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 2.924349546432495,
+  "response": {
+    "id": "gen-1789655514-iRZ3OC6ijQWEWLiwvmJp",
+    "object": "chat.completion",
+    "created": 1789655514,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"A surface that goes up or down at an angle.\",\n  \"definition_standard\": \"An inclined surface, or the degree of this inclination, connecting a higher point to a lower point.\",\n  \"pos\": \"NOUN\",\n  \"semantic_class\": \"Topography\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"The children love to roll down the grassy slope.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"We walked carefully down the steep slope of the hill.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"The ski resort offers a variety of runs for every skill level on the snowy slope.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"Heavy rainfall can destabilize the slope and cause a dangerous landslide.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"Engineers calculated the exact slope needed for the wheelchair ramp to meet safety codes.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"The mathematical model demonstrates the changing slope of the curve at any given tangent.\"\n    }\n  ],\n  \"primary_collocate\": \"steep\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"fast\",\n      \"reason\": \"While a slope can be fast for skiing, 'fast' does not naturally collocate with 'slope' in general descriptive geography or engineering.\"\n    },\n    {\n      \"word\": \"heavy\",\n      \"reason\": \"Although rainfall on a slope can be heavy, 'heavy' is not used as a descriptive adjective for the slope itself.\"\n    },\n    {\n      \"word\": \"tall\",\n      \"reason\": \"Slopes are described as steep or gentle rather than tall, which is typically reserved for vertical structures like buildings.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"incline\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"declivity\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"gradient\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"flat\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18s9JFZPoVU/AjvtWwCh1Fu+95Jegp8qampYIwF8eurS2qL+lteLUjUY/95Z51Z2nq/Ql95c+M2VJQqWUlzmUCpE7PQYrgyQo3STBLIN8E=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 142,
+      "completion_tokens": 552,
+      "total_tokens": 694,
+      "cost": 0.0014226,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0014226,
+        "upstream_inference_prompt_cost": 4.26e-05,
+        "upstream_inference_completions_cost": 0.00138
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

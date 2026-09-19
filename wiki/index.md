@@ -1,5 +1,51 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-09-10 (**Vocabulary-aware test selection is built, applied live, and switched OFF (TASK-744–752).**
+Last updated: 2026-09-19 (**CSV EXERCISE AUTHORING BUILT** — TASK-795–799; see [[tasklist/csv-exercise-authoring.tasks]]. **VOCABULARY-AWARE TEST SELECTION IS ON.** The operator
+raised `selection_tuning.vocab_weight` 0 → 1 on 2026-09-17, with `combine_mode`
+left at `'sum'`. Verified from the recommender's own output, not the settings
+row: 0 unlinked tests served in any zh type (7-9 of ten before), `elo_diff`
+non-monotonic in 6 of 8 lists (impossible on the weight-0 branch, whose final
+sort *is* `elo_diff ASC`), and still 10 candidates per type — M5 holds in
+production. Latency 5-14 ms → 25-69 ms. The byte-for-byte rollback guarantee no
+longer covers live traffic, but rollback is still one statement:
+`UPDATE selection_tuning SET value = 0 WHERE key = 'vocab_weight';` **What it
+bought, predicted:** the share of served tests inside the 5-25%-unknown band goes
+0.786 → 0.952. **What is still unmeasured:** whether that shows up in scores.
+See `wiki/log.md` 2026-09-17.)
+
+Prior: 2026-09-17 (**TASK-781 — the three selection arms are replayed, and
+the multiplicative one does not pay.** Share of served tests inside the 5-25%
+unknown band, ja replay, 21 first attempts: **weight 0 → 0.786, sum → 0.952,
+product → 0.938**. TASK-780's product arm is better on **0** of 21 attempts,
+worse on 3, and agrees with sum on 14 of 21 top-10 sets — the vocabulary term is
+the whole effect and the combination rule is noise on top of it. Worse, in zh it
+re-admits 2-5 of ten *unlinked* tests that sum had cleared out: `product = sum +
+e·v` charges least where the ELO gap is small, so "no vocabulary opinion, close
+in ELO" becomes a mild reward — the asymmetry §3.4's median was chosen to avoid.
+M5 holds in every arm. Spearman(unknown of the test taken, its score) = **−0.584**,
+reproducing the −0.59 on record, and it is arm-INDEPENDENT by construction.
+**Decision: `combine_mode` stays `'sum'`; `vocab_weight` is now the only open
+switch** (n=1 — exactly one user in the database has ever taken a test). See
+[[evaluations/selection-three-arm-replay-2026-09-17]] and `wiki/log.md`
+2026-09-17.) | Pages: 111
+
+Prior: 2026-09-16 (**TASK-780 — test selection can now score ELO and
+vocabulary coverage multiplicatively, and that too ships switched off.** A second
+`selection_tuning` key, `combine_mode` = `'sum'` (default) | `'product'`. Product
+scores `(1+e)·(1+v)` = the existing sum plus the cross term `e·v`, so a candidate
+wrong on **both** difficulty and vocabulary is demoted below one equally wrong on
+a single axis; a bare `e·v` would be broken, not blunter — a perfect ELO match
+with 90% unknown words would score 0 and rank first, which is now a fixture that
+must rank last. Only `recommended_tests_ranked` changed; `get_recommended_tests`
+is untouched, so `vocab_weight = 0` is still the same bytes and **`combine_mode`
+is inert while it is 0**. Proven live on 42 user × language pairs: `'sum'` is
+row-identical to a frozen copy of the pre-780 body at weight 0 and 1, and no
+per-type pool shrinks in product mode. Coverage still counts each **distinct**
+sense once — the per-occurrence shape TASK-779 anticipated was dropped, because
+a linked word appears only 1.15-1.44 times per test. **TASK-781 replays weight 0
+/ sum / product and decides whether anything is switched on.** See `wiki/log.md`
+2026-09-16.) | Pages: 110
+
+Prior: 2026-09-10 (**Vocabulary-aware test selection is built, applied live, and switched OFF (TASK-744–752).**
 - **What shipped.** A `selection_tuning` settings table, the vocabulary term in
   `get_recommended_tests` with `vocab_weight = 0`, the audit table and guarded
   calibration→ELO writer, the `/calibration/end` wiring, and a measurement +
@@ -41,7 +87,11 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/calibration]] — Standalone infinite-MCQ mode that measures vocabulary knowledge — **Phases 1-4** (distractors, engine, UI, readings mode, handoff to test selection); outputs a Zipf knowledge curve with its uncertainty, not a bare score. All four phases live (TASK-765 verified 2026-09-10); `/end` now hands definition-mode results to the guarded rating writer (TASK-752)
 - [[features/calibration.tech]] — Semantic + pronunciation distractor RPCs, per-language cosine bands, pair-keyed HNSW indexes, stratified sampling, and the **guess-aware logistic estimator** that removed the +0.24 Zipf bias (precision, not bias, is now the limit: sd 0.27 at 60 answers — propagate `ability_zipf_85_sd` into ADR-024)
 - [[features/vocabulary-aware-test-selection]] — Make test selection read the learner's vocabulary; fixes "ja is too hard" — **BUILT + LIVE, SWITCHED OFF 2026-09-10** (`vocab_weight = 0`)
-- [[features/vocabulary-aware-test-selection.tech]] — zipf→ELO map, feedback-loop guards, coverage term, metrics
+- [[features/vocabulary-aware-test-selection.tech]] — zipf→ELO map, feedback-loop guards, coverage term, metrics, and (TASK-780) the `combine_mode` sum-vs-product switch
+- [[features/lookahead-preteaching]] — **NEW 2026-09-19**: teach the words that block the next tests *before* serving them, through the practice ladder — the acquisition-side answer to "ja is too hard", where [[features/vocabulary-aware-test-selection]] is the selection-side one. **PLANNED, ships behind `preteach_enabled = 0`**
+- [[features/lookahead-preteaching.tech]] — Cohort selection from a 10-test pool, Ring-2 depth, `preteach_cohorts` schema, Queue C in the ladder intake, and an advisory tiebreak in `build_daily_session`. §7 is the critical path and it is a **content** task, not an algorithm one
+- [[features/csv-exercise-authoring]] — **NEW 2026-09-19**: run the live ladder prompt chain stage by stage across a whole sense list, in-session, with the judges in a separate context — the content infrastructure [[features/lookahead-preteaching]] TASK-784 needs. **BUILT, e2e in progress**
+- [[features/csv-exercise-authoring.tech]] — Stage 0 CSV export, stage 2b bridge (the level plan is a function of P1, so it cannot be exported up front), judge prompts captured from the real renderer, rubber-stamp gate, `llm_types` upload path
 - [[features/judge-eval-campaign]] — Repeatable multi-model judge screening (dataset + funnel + HTML report) — **PLANNED / DEFERRED 2026-08-17**
 - [[features/judge-eval-campaign.tech]] — Tiered funnel, pre-flight gate, metric modules, deferral rationale
 - [[features/practice-engine]] — Unified vocabulary practice surface (Acquisition + Maintenance modes; merges Exercises + Vocab Dojo) — **NEW 2026-05-21**
@@ -152,11 +202,14 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-020-late-symbolic-resolution-must-fail-safe]] — **PROPOSED 2026-07-15**: a slug referencing an independently versioned artifact must never fall back into the value space (`enum[0]`); analyses the TASK-637 JA `particle` bug as the 4th instance of one class; proposes fail-safe resolution, a cross-artifact reference test, and `requires_taxonomy_version` pinning
 - [[decisions/ADR-024-vocabulary-aware-test-selection]] — **PROPOSED 2026-09-08**: vocabulary coverage RANKS test candidates (never filters — 17-22% of en/zh tests are unlinked); untested senses get a Zipf prior, not a zero; difficulty stays ELO-mediated with a 2-tier safety rail; calibration seeds ratings under hard guards and `process_test_submission` is not touched
 - [[decisions/ADR-025-semantic-distractor-selection]] — Distractors must be semantically near and difficulty-matched: derived word-language column, 7 pair-keyed partial HNSW indexes (~200x faster than the 3-index design, measured), per-language-pair cosine floors, and the explicit limit that cosine cannot detect an also-correct synonym
+- [[decisions/ADR-026-lookahead-preteaching]] — **ACCEPTED 2026-09-19**: pre-teach from a *pool* of ten candidate tests (~10x cheaper per test unlocked than pinning one), to **Ring 2 cleared** (Ring 1 puts 36% of the ja catalogue in band, Ring 2 puts 98%, mastery adds nothing for 66% more time), least-known-first. Advisory ordering only — never a lock, because zh currently has **zero** ladder-drillable blocking words per test and a locking design would serve that learner nothing. Ships off; demand-first generation is the critical path
 
 ## Task Lists
 - [[tasklist/calibration.tasks]] — Calibration (TASK-753–766): **done 13/14** (TASK-765 verified live 2026-09-10; only TASK-763 open — needs traffic). Originally: **done 12/14** — embeddings, semantic + pronunciation distractors, session engine, logistic ability estimator, UI, dictionary screen (817 bad senses blocklisted across all 3 languages for $1.33), and the `user_calibration_state` handoff to test selection. Open: **TASK-765** (apply the Phase 4 migration — the only thing between Calibration and selection), TASK-763 (cosine ceiling — needs live traffic)
 - [[tasklist/master]] — **Rebuilt 2026-07-13**: incomplete tasks only, cross-checked against the live codebase + Supabase (found Practice Engine Merger and Study Plans nearly fully shipped but unchecked — see the file's "Recently confirmed complete" section)
 - [[tasklist/vocabulary-aware-test-selection.tasks]] — **NEW 2026-09-08** (TASK-744–752): test selection ignores `user_vocabulary_knowledge` entirely. A live audit found the rating system compresses a **448-point** true ability spread (pitch accent ~1091 … dictation ~1539) into an **88-point** band, that 48/60 ja tests share one ELO across all 8 test types, and that the MC chance floor caps ELO's reach at ~190 points — so ELO *structurally cannot* close the gap. Adds a vocabulary coverage term, a calibration→ELO seed under guards, and a measurement harness. Start at TASK-744; TASK-751 (per-type ELO reseed) runs in parallel and is what actually fixes pitch accent
+- [[tasklist/lookahead-preteaching.tasks]] — **NEW 2026-09-19** (TASK-782–793): the practice engine can only drill words the learner already knows — mean Zipf of a sense *with* exercises is 4.77 (ja) against an `ability_zipf` of 5.03, and **15 exercise attempts have ever been recorded** against 54 test attempts. TASK-782 (variant simulation) is done; **TASK-783 (the generation queue has been jammed since 2026-08-21) and TASK-784 (demand-first generation, ~500 senses/language, ~$12 and ~46 h wall clock each) gate every other task**. Do not start at the algorithm
+- [[tasklist/csv-exercise-authoring.tasks]] — **NEW 2026-09-19** (TASK-795–802): done 5/8 — mining split (byte-identical on 12 ja senses), `--format csv` export, stage runner, the authoring + judging skills, typed `llm_types` upload path. Open: TASK-800 (8-sense e2e: judge stages + upload), TASK-801 (ja suru-nouns labelled `action` plan an L4 they cannot have — live pipeline too), TASK-802 (ESLint `session/` module config)
 - [[tasklist/distractor-judge-calibration.tasks]] — **NEW 2026-08-16** (TASK-717–722): fix the distractor judge's two dead prompt slots (`keywords` never passed, `type_code` never acted on), settle judge-harshness vs content-quality with a cross-model A/B, split the rating onto two axes, redefine the review band as uncertainty, give the 18 generator prompts a distractor spec, and rewrite the zh/ja vocab prompts natively. Start at TASK-717.
 - [[tasklist/test-gen-fail-closed-judging.tasks]] — **Complete 2026-08-21** (TASK-727–730): the `batch_mode()` fail-closed judge guard is wired into exercise generation only, so a bulk *test* run with a delisted model slug ships unjudged questions. Wire it at the two orchestrator batch entry points, audit the 15 `except Exception` blocks so `JudgeUnavailable` is not swallowed, prove the guard fires, then measure 20 tests for cost and wall clock. Blocks any large test-generation run.
 - [[tasklist/ladder-numeric-keys.tasks]] — **Complete 2026-08-11** (TASK-537–540): numeric-key JSON contract live on all 16 ladder prompts, so English field names no longer contaminate ZH/JA generation; + worked examples (incl. the JA polysemy rule), provider-enforced JSON, judge-polarity regression test. `prompt_version` stayed at 1
@@ -174,6 +227,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
 
 ## Evaluations
+- [[evaluations/preteach-variants-2026-09-19]] — **NEW 2026-09-19** (TASK-782): 27 pre-teaching variants simulated over the live catalogue across three axes (what to target / how deep / which words first). **The algorithm is solved and the content is not**: gated by today's inventory the best variant moves ja from 11.9% to 11.9% in band — zero — because 1.8 of the 17.5 words blocking an average test are drillable (zh: 0.0 on ladder levels). Lift the supply gate and the same algorithm reaches **98.3%**. Ring 1 only reaches 36%, mastery adds nothing for 66% more time; a 10-test cohort costs **1.7 words per test unlocked** against 17.8 for pinning one test; least-known-first wins at every bounded budget but on arithmetic that charges every word the same cost, so it is the one axis needing a live A/B. Also: **the outcome measure is endogenous** — the as-of Spearman is −0.584, recomputing it from *current* `p_known` on the same 21 attempts gives **+0.107**, the sign inverts, because `update_vocabulary_from_test` writes `p_known` from the very results being scored
+- [[evaluations/selection-three-arm-replay-2026-09-17]] — **NEW 2026-09-17** (TASK-781): the three selection arms replayed on live history — `vocab_weight` 0 vs `combine_mode` sum vs product. In-band share (5-25% unknown) over 210 ja top-10 slots: **0.786 → 0.952 → 0.938**. TASK-780's product arm is better on **0** of 21 attempts, worse on 3, and agrees with sum on 14 of 21 top-10 sets — the vocabulary term is the whole effect, the combination rule is noise on it. In zh it is actively harmful: it re-admits 2-5 of ten *unlinked* tests that sum had cleared, because `product = sum + e·v` charges least where the ELO gap is small, so "no vocabulary opinion, close in ELO" becomes a mild reward — the asymmetry §3.4's median was chosen to avoid. M5 holds in every arm; Spearman(unknown of the test taken, its score) = −0.584, reproducing −0.59, and it is arm-INDEPENDENT by construction. **Decision: `combine_mode` stays `'sum'`; `vocab_weight` is the only open switch**, on n=1 — exactly one user in the database has ever taken a test
 - [[evaluations/selection-replay-2026-09-10]] — **NEW 2026-09-10** (TASK-749): the vocabulary-aware ranker replayed over the 21 ja first attempts as of each timestamp, arm `vocab_weight` 0 vs 1, plus the M1-M5 baseline reproduced exactly (under the baseline's operative definitions). Weight 1 tightens served unknown-share around u* = 0.15 (in-band 77% → 93%, IQR 0.114 → 0.065) and shifts served difficulty from a d1/d6 mix to d6; unknown share of the taken test correlates with its score at Spearman −0.59 (n=13). zh is where it bites hardest: at weight 0, 8/10 served zh tests are unlinked. `vocab_weight` left at 0 pending the shadow window
 - [[evaluations/test-gen-20-run-2026-08-21]] — **NEW 2026-08-21** (TASK-730): 20 tests end to end with the fail-closed judge guard live. $0.175 ($0.00875/test), 3,532 s (2.9 min/test), 20/20 generated, 0 vocab shortfalls. Spend is a non-issue at scale (~$8.75/1,000 tests); **wall clock is the constraint and 82% of it is vocabulary enrichment, which is 16% of the spend**. Judges 38.2% of spend. Also documents two `llm_calls` query traps beyond the known one
 - [[evaluations/distractor-judge-unsure-band-audit-2026-08-20]] — **NEW 2026-08-20**: does the v7 review band report honest doubt, or did the wording make a confident model timid? **Refuted by ablation, in the unexpected direction** — strip every directional cue from the v7 prompt (both the "use 3 if unsure" nudge AND the "5 is the normal expected rating" / "4 is the target" anchors) and hedging **doubles** in all three languages (41 → 83 unsure ratings; en 5 → 22). v7's wording is *net anti-hedging*, so its 22-47% review rate is a **floor** on this model's uncertainty, not an inflation — and the anomaly was always **v4's near-zero rate**, manufactured by its own anchor. Two further findings: **temperature 0 is not deterministic** (ja moved 30% between identical runs, so the two-axis page's per-language rates carry ±3pp), and the nudge does not change *how much* the judge hedges but does change *what lands there* — band-3 reasons hedge at 3-20× their neighbours under v7 and barely at all under ablation, where the model reverts to using 3 as "medium" and often restates a neighbouring band's definition. Fixed en route: the harness had been discarding the judge's written reasons, so no flag was auditable after the fact. Spend $0.2980.

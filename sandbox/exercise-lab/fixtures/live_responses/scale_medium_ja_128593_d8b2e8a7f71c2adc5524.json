@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"空洞\" in Japanese (expected part of speech: n).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"空洞\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 3.3809475898742676,
+  "response": {
+    "id": "gen-1789655518-3Kim2Fa7BQ4nnJzcGsKR",
+    "object": "chat.completion",
+    "created": 1789655518,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"空洞\",\n  \"definition_simple\": \"物体の内部にある、何もないすき間や穴。\",\n  \"definition_standard\": \"物体の内部にできた、中身が詰まっておらずぽっかりと空いている空間や穴。\",\n  \"pos\": \"n\",\n  \"semantic_class\": \"concrete_object\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"古い木の幹に大きな空洞ができていた。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"歯の虫歯が進行して、奥歯に空洞が空いてしまった。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"道路の地下に空洞が見つかり、緊急の調査が行われた。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"火山活動によって形成された溶岩洞は、地下の巨大な空洞である。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"彼は大切な親友を失ったことで、心にぽっかりと空洞ができたような喪失感を覚えていた。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"コンクリート構造物の内部に生じた微細な空洞は、超音波探傷試験によって検知されることが多い。\"\n    }\n  ],\n  \"primary_collocate\": \"地下\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"空中\",\n      \"reason\": \"「空中」は地面から離れた上の空間を指すため、内部が空いている「空洞」の直接的なコロケーションとしては不自然です。\"\n    },\n    {\n      \"word\": \"空白\",\n      \"reason\": \"「空白」は文字や時間、書類の抜けなどを指すことが多く、物理的な穴や空間を表す「空洞」とは結びつきません。\"\n    },\n    {\n      \"word\": \"空腹\",\n      \"reason\": \"「空腹」は胃の中に食べ物がない状態を指す言葉であり、物理的な空間や構造を意味する「空洞」とは共起しません。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"空隙\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"穴\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"実質\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"充填\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18OrZo4+/mORPn2Yaec8iL7gNFJB5ViUY753VQAClVu2I7DJRKxOPj5fPCjJxAcAkfRNltkgAT5c/a9BjoZEbl5VoFMIqVWeV/qfWFoqs0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 143,
+      "completion_tokens": 628,
+      "total_tokens": 771,
+      "cost": 0.0016129,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0016129,
+        "upstream_inference_prompt_cost": 4.29e-05,
+        "upstream_inference_completions_cost": 0.00157
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

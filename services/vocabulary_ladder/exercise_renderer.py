@@ -454,6 +454,24 @@ class LadderExerciseRenderer:
             target = get_sentence_target(sentence)
             if target:
                 return target
+        return self._vocab_lemma(sense_id)
+
+    def _headword(self, core: dict, sense_id: int) -> str:
+        """The dictionary form of the sense's word, for L1 phonetic recognition.
+
+        ``_lemma`` returns a sentence's *target*, which for ja verbs and
+        adjectives is the inflected surface as it stands in the sentence
+        (超え, かけ) — while P1's ``pronunciation`` (what the phonetic trie is
+        keyed on) is the dictionary reading (こえる). Given the stem, the
+        candidates were neighbours of こえる but the judge and the learner
+        were shown 超え, so every distractor was a mora away from a form that
+        was never the answer (TASK-803). ``dim_vocabulary.lemma`` is the
+        headword the trie's reading belongs to. Falls back to the sentence
+        target when the vocabulary row is unreadable.
+        """
+        return self._vocab_lemma(sense_id) or self._lemma(core, sense_id)
+
+    def _vocab_lemma(self, sense_id: int) -> str:
         try:
             resp = (
                 self.db.table('dim_word_senses')
@@ -541,7 +559,7 @@ class LadderExerciseRenderer:
         from services.vocabulary_ladder import l1_lookup
 
         source = 'llm'
-        target_word = self._lemma(core, sense_id)
+        target_word = self._headword(core, sense_id)
         trie_result = l1_lookup.build_candidates(
             target_word, core.get('pronunciation', ''), language_id,
             definition=core.get('definition'),

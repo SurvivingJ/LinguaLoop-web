@@ -1,6 +1,23 @@
 {
-  "enabledPlugins": {
-    "ecc@ecc": true
+  "enabledPlugins": { "ecc@ecc": true },
+  "permissions": {
+    "allow": [
+      "Agent",
+      "Bash(python scripts/exercise_stage_runner.py:*)",
+      "Bash(python scripts/export_exercise_worklist.py:*)",
+      "Bash(python scripts/upload_exercises.py:*)",
+      "Bash(ls:*)",
+      "mcp__claude_ai_Supabase__execute_sql"
+    ],
+    "deny": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
   },
-  "ECC_DISABLED_HOOKS": {"ECC_GATEGUARD": true}
+  "env": {
+    "PYTHONPATH": ".",
+    "PYTHONIOENCODING": "utf-8",
+    "ECC_CONTEXT_MONITOR_COST_WARNINGS": "0",
+    "ECC_DISABLED_HOOKS": "pre:edit-write:gateguard-fact-force,pre:observe:continuous-learning,post:observe:continuous-learning,post:ecc-metrics-bridge,post:session-activity-tracker,stop:cost-tracker,stop:evaluate-session,stop:format-typecheck,post:quality-gate,post:edit:console-warn,stop:desktop-notify,pre:edit-write:suggest-compact"
+  }
 }

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"identities\" in English (NOUN). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 5.144704103469849,
+  "response": {
+    "id": "gen-1789655517-Nn3ztnck6kwxQkjNgrpO",
+    "object": "chat.completion",
+    "created": 1789655517,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"identitys\",\n      \"explanation\": \"Incorrect pluralization rule applied; words ending in a consonant plus 'y' must change the 'y' to 'i' and add '-es'.\"\n    },\n    {\n      \"wrong_form\": \"identitae\",\n      \"explanation\": \"Incorrect Latinate pluralization applied; 'identity' is of Late Latin origin, but does not take a first-declension plural.\"\n    },\n    {\n      \"wrong_form\": \"identien\",\n      \"explanation\": \"Incorrect Germanic weak plural suffix applied; English nouns do not form plurals using '-en' unless they are irregular relics like ' oxen'.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"confusable\": \"intensity\",\n      \"explanation\": \"Similar syllable count and stress pattern ('i-DEN-ti-ty' vs 'in-TEN-si-ty'), easily misheard in fast speech.\"\n    },\n    {\n      \"confusable\": \"dentistry\",\n      \"explanation\": \"Shares the '-ntist-' phonetic core and final unstressed syllable, leading to acoustic overlap when mumbled.\"\n    },\n    {\n      \"confusable\": \"entirety\",\n      \"explanation\": \"Similar vowel sounds and rhythmic cadence at the end of the word (-enty vs -ity).\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"distractor\": \"heavy\",\n      \"explanation\": \"Learners often mistakenly pair abstract nouns with 'heavy' instead of the correct intensifier 'strong' or 'deep'.\"\n    },\n    {\n      \"confusable\": \"speedy\",\n      \"explanation\": \"Semantic mismatch; 'speedy' modifies processes or recovery, not abstract concepts like identity.\"\n    },\n    {\n      \"confusable\": \"narrow\",\n      \"explanation\": \"Spatial adjective incorrectly applied to a conceptual entity where 'national' or 'personal' is expected.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"wrong_collocate\": \"fast\",\n    \"explanation\": \"'Fast' is a physical speed descriptor and cannot collocate with 'identity' to mean rapid or quick; 'rapid' or 'swift' should be used if referring to shifting characteristics.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"distractor\": \"identification\",\n      \"explanation\": \"While related, 'identification' refers to the action or process of identifying someone, not the distinct character or condition itself.\"\n    },\n    {\n      \"distractor\": \"identical\",\n      \"explanation\": \"Grammatically incorrect as this slot requires a noun, but learners confuse the adjective form with the noun.\"\n    },\n    {\n      \"distractor\": \"ideology\",\n      \"explanation\": \"Semantic distractor; represents a system of ideas rather than the condition of being a specified person or thing.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The police asked for his identities before letting him enter the building.\",\n      \"reason\": \"Used in the plural when referring to a single individual's official documents or personhood, which requires the singular 'identification' or 'identity'.\"\n    },\n    {\n      \"sentence\": \"She has a very strong identity for playing the piano.\",\n      \"reason\": \"Incorrect collocation; 'identity' does not pair with 'for [verb]-ing' to describe a skill or talent.\"\n    },\n    {\n      \"sentence\": \"The two brothers share the same exact identity.\",\n      \"reason\": \"Semantic misuse; identical twins share physical traits or appearance, but 'identity' refers to the distinct personality or legal personhood, which remains separate.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"As a global citizen, protecting your digital identity are crucial in modern society.\",\n    \"planted_error\": \"are\",\n    \"error_description\": \"Subject-verb agreement failure: the head noun of the subject phrase is the singular 'identity', which requires the singular verb 'is' instead of 'are'.\",\n    \"corrected_version\": \"As a global citizen, protecting your digital identity is crucial in modern society.\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"identize\",\n      \"explanation\": \"Plausible verb derivation using the '-ize' suffix, but not a recognized English word.\"\n    },\n    {\n      \"fake_form\": \"identitude\",\n      \"explanation\": \"Blends 'identity' with the abstract noun suffix '-tude', sounding like a real psychological term.\"\n    },\n    {\n      \"fake_form\": \"identically\",\n      \"explanation\": \"Real word, but used as a distractor for the noun family; the fake noun form derived from it is 'identication'.\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"ga\",\n    \"wo\",\n    \"ni\",\n    \"de\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a19QjHmXhzPh5ZEAmN26PbRPxQAkiB9qfJpvBGRK42suHUDsNesKAVHQM5eLM6Ha8N6cYvP873B6g909RCeXApW1bMULKRrBb0FCSxQCYLU=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 221,
+      "completion_tokens": 1141,
+      "total_tokens": 1362,
+      "cost": 0.0029188,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0029188,
+        "upstream_inference_prompt_cost": 6.63e-05,
+        "upstream_inference_completions_cost": 0.0028525
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

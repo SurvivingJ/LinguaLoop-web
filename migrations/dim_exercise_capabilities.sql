@@ -79,7 +79,7 @@ VALUES
 
     -- L4 morphology_slot (form_production) — EN (+concrete plural) & JA inflection; ZH DISABLED (analytic)
     (2, 'morphology_slot', ARRAY['concrete','action','property'], 4, 'llm', ARRAY['morph_forms>=2'], 'sentence_validity', true),
-    (3, 'morphology_slot', ARRAY['action','property'], 4, 'llm', ARRAY['morph_forms>=2'], 'sentence_validity', true),
+    (3, 'morphology_slot', ARRAY['action','property'], 4, 'llm', ARRAY['morph_forms>=2','inflecting_pos'], 'sentence_validity', true),
     (1, 'morphology_slot', ARRAY['action','property'], 4, 'llm', ARRAY['morph_forms>=2'], 'sentence_validity', false),
 
     -- L4 classifier_match (form_production) — ZH concrete nouns, deterministic from classifier dict

@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"获胜\" in Mandarin Chinese. A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), l1_audio_confusables (3 real audio-confusable words + explanations),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 5.177395582199097,
+  "response": {
+    "id": "gen-1789655507-RRp8RBG6m6PCl6f4BxJ0",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"获胜着\",\n      \"explanation\": \"Incorrectly uses the nominal suffix '着' (which is a progressive aspect marker) instead of '者' (person) to form 'winner'.\"\n    },\n    {\n      \"wrong_form\": \"被获胜\",\n      \"explanation\": \"Treats the verb incorrectly as passive; '获胜' (to win) is an active intransitive/semi-transitive verb and rarely takes the passive '被'.\"\n    },\n    {\n      \"wrong_form\": \"获胜化\",\n      \"explanation\": \"Incorrectly attaches the suffix '化' (to -ize/transform into) to an achievement verb where it makes no semantic sense.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"获生\",\n      \"explanation\": \"Sounds nearly identical (huò shēng vs huò shèng, differing only in tone for the second syllable), but means to obtain life or survive.\"\n    },\n    {\n      \"word\": \"获盛\",\n      \"explanation\": \"Homophonous in some dialects (huò shèng), but '盛' relates to prosperity or abundance, not victory in a competition.\"\n    },\n    {\n      \"word\": \"货肾\",\n      \"explanation\": \"A phonetically similar nonsense combination (huò shèn) that sounds like a mispronounced version of '获胜'.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"word\": \"天气\",\n      \"explanation\": \"Weather cannot collocate directly as an object or direct modifier with the act of winning a competition.\"\n    },\n    {\n      \"word\": \"桌子\",\n      \"explanation\": \"An inanimate noun 'table' that makes no semantic sense as a direct object of 'to win'.\"\n    },\n    {\n      \"word\": \"速度\",\n      \"explanation\": \"Speed is a measurement, not an appropriate direct object for the verb '获胜' (you win a match/prize, not speed).\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"wrong_collocate\": \"赢得获胜\",\n    \"explanation\": \"'赢得' (to win/gain) and '获胜' (to win/achieve victory) are semantic redundancies when placed together as verb-object.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"获得\",\n      \"explanation\": \"Means 'to obtain', but usually requires an object like '奖品' (prize) or '成功' (success) rather than standing alone as an intransitive predicate like '获胜'.\"\n    },\n    {\n      \"option\": \"成功\",\n      \"explanation\": \"Means 'to succeed'; while conceptually close, it does not fit the specific contest/match context that '获胜' implies.\"\n    },\n    {\n      \"option\": \"失败\",\n      \"explanation\": \"The exact antonym (to fail/lose), used as a distractor for meaning comprehension.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"这场比赛非常获胜，大家都很高兴。\",\n      \"reason\": \"Used '获胜' as a descriptive adjective modifying a noun/event, but it is an action verb.\"\n    },\n    {\n      \"sentence\": \"他为了获胜这个奖杯，付出了很多努力。\",\n      \"reason\": \"Incorrectly treats '获胜' as a transitive verb taking a physical object like a trophy; should use '赢得' or '夺得'.\"\n    },\n    {\n      \"sentence\": \"老师获胜了我们班明天去春游。\",\n      \"reason\": \"Nonsensical subject ('teacher') and object clause for '获胜', which requires a competitive context.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"经过激烈的讨论，我们终于在辩论赛中获胜了冠军。\",\n    \"planted_error\": \"获胜了冠军\",\n    \"error_description\": \"'获胜' is an intransitive verb and cannot take a direct object like '冠军'.\",\n    \"corrected_version\": \"经过激烈的讨论，我们终于在辩论赛中获得了冠军。\"\n  },\n  \"word_family_fake_forms\": [\n    \"获败\",\n    \"胜获\",\n    \"得胜者化\"\n  ],\n  \"particle_candidates\": [\n    \"在\",\n    \"把\",\n    \"被\",\n    \"从\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a19HbcfiubAmm9mmiZ4SAucuvq5O1D6KBVkRlIXjIAuYyBBfiJZw9kN6fDSj91RNdc9XTT+Yo0QKC7Uhj7OWg+IVL552Dd3IUi1vpuVFYyg=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 220,
+      "completion_tokens": 1042,
+      "total_tokens": 1262,
+      "cost": 0.002671,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.002671,
+        "upstream_inference_prompt_cost": 6.6e-05,
+        "upstream_inference_completions_cost": 0.002605
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

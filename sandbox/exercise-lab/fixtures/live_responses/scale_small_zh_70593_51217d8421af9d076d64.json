@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"获胜\" in Mandarin Chinese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"获胜\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.8755488395690918,
+  "response": {
+    "id": "gen-1789655507-1px6KoNMDuXm8KeVWIxc",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "[\n  {\n    \"target_word\": \"获胜\",\n    \"definition_simple\": \"赢了比赛或竞争。\",\n    \"definition_standard\": \"在竞赛、对抗或斗争中取得胜利。\",\n    \"example_sentences\": [\n      \"经过艰苦的比赛，我们终于获胜了。\",\n      \"这场比赛谁能获胜还很难说。\",\n      \"他们凭借出色的团队配合赢得了获胜。\"\n    ]\n  }\n]",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18RF901H4nnUU262OilIuC8ii0S76RrS4GQ39+rVCZYqDkr0OdSxReup5IDCNJwRNVQd/lJaTb7sr6vMQfzyELRvn4dzgE1u4OzD5ag2n8=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 50,
+      "completion_tokens": 106,
+      "total_tokens": 156,
+      "cost": 0.00028,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00028,
+        "upstream_inference_prompt_cost": 1.5e-05,
+        "upstream_inference_completions_cost": 0.000265
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

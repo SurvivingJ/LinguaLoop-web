@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"identities\" in English. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"identities\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.5649476051330566,
+  "response": {
+    "id": "gen-1789655515-7ZTuVkxVJj9DQBhUBftW",
+    "object": "chat.completion",
+    "created": 1789655515,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"identities\",\n  \"definition_simple\": \"Who people are, or the different groups they belong to.\",\n  \"definition_standard\": \"The distinct characteristics, beliefs, or qualities by which a person or group is definitively recognized.\",\n  \"examples\": [\n    \"The art exhibition explores the diverse cultural identities of the city's residents.\",\n    \"People can hold multiple identities related to their nationality, profession, and hobbies.\",\n    \"The documentary examines how online communities help teenagers shape their identities.\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+I2gqFaGDNYmXKVzOy06gymf6GQjgX+BRafgUGnurCq2+OqS2SV2sOdWzjaBm8WM6XAJ7y4sUnfwClcgaStKJupXYSkKoHPSjYuGIQiZ8=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 49,
+      "completion_tokens": 118,
+      "total_tokens": 167,
+      "cost": 0.0003097,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0003097,
+        "upstream_inference_prompt_cost": 1.47e-05,
+        "upstream_inference_completions_cost": 0.000295
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

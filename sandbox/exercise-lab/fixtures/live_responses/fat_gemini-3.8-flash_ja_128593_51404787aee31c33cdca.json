@@ -1,0 +1,58 @@
+{
+  "prompt": "You are generating the complete exercise-authoring seed for ONE\nvocabulary sense in Japanese. Target word: \"空洞\" (expected part of speech: n).\n\nReturn ONE JSON object with ALL of the following fields. This single response\nreplaces what used to be 8-14 separate calls (core definition, per-level\nexercise content, per-level judges) -- you must author BOTH the correct\ncontent AND the deliberately WRONG content for every level below, because no\ndownstream step will invent wrong content for you and no synchronous judge\nwill check your work before it ships as provisional (unpublished) content.\nQuality matters precisely because nothing else will catch a mistake before an\nasynchronous review pass runs.\n\n1. definition_simple, definition_standard: two definitions of this sense, in\n   Japanese-native/appropriate register, or your working language if source-language\n   definitions are not requested.\n2. pos: this language's own part-of-speech label for the word.\n3. semantic_class: ONE of concrete | abstract | action | property | function | proper.\n4. sentences: EXACTLY 10 example sentences using \"空洞\" as a whole word, each\n   tagged with a difficulty tier T1 (easiest) through T6 (hardest), spanning a\n   spread of tiers, not all the same one. This is not negotiable down to 3 --\n   the ladder's own sentence-assignment contract needs distinct sentences for\n   levels 3/4/5/6/7/9 in TWO non-overlapping variants, with headroom for\n   review-time attrition.\n5. morphological_forms: if this word inflects/derives in Japanese, list at least\n   2 real forms with labels (e.g. past_tense, plural, comparative). If the word\n   is invariant, return an empty list -- do not pad with fake entries.\n   morphology_wrong_forms: for EACH morphological_forms entry, 3 INVENTED WRONG\n   inflected forms a learner might plausibly produce by mistake, each with a\n   one-sentence explanation of the error.\n6. l1_audio_confusables: OMIT this field. Japanese L1 phonetic-recognition distractors are produced by a deterministic mora-trie lookup elsewhere, not by this seed.\n7. primary_collocate: the single most natural fixed collocate of this word (or\n   null if none exists / not applicable in this language). collocation_distractors:\n   3 words that are semantically related to the target but are NOT genuine\n   collocates, each with a one-sentence explanation of why not.\n   collocation_wrong_collocate: ONE additional word that looks like it could\n   collocate but does not, for a \"spot and repair\" exercise.\n8. cloze_distractors: 3 wrong words for a fill-in-the-blank exercise built on\n   one of your sentences, each with a one-sentence reason it's wrong (wrong\n   sense, wrong register, or trivially unrelated -- vary the reasons).\n9. discrimination_wrong_sentences: 3 sentences using \"空洞\" that are WRONG\n   for a SPECIFIC, stated linguistic reason each (e.g. wrong argument\n   structure, wrong register, wrong collocate) -- not just \"different\" from a\n   correct sentence, genuinely and describably wrong.\n10. spot_incorrect: ONE sentence with a single planted error, plus a one-\n    sentence error_description and the corrected version.\n11. word_family_forms: real derived forms in other parts of speech (if\n    applicable). word_family_fake_forms: 3 INVENTED, plausible-LOOKING but\n    non-existent derived forms (a learner should not immediately recognize\n    them as fake).\n12. syn_ant_candidates: up to 4 candidates, each tagged synonym or antonym,\n    anchored to THIS SPECIFIC SENSE's meaning (not just the bare lemma --\n    a polysemous word's synonym for one sense can be wrong for another).\n13. particle_candidates: Japanese only -- for one of your sentences, list the\n    3-4 particles a learner might choose, marking exactly one correct, each\n    with a one-sentence explanation.\n\nOutput strict JSON matching this field list. No prose outside the JSON object.",
+  "elapsed": 13.586393594741821,
+  "response": {
+    "id": "gen-1789682371-ajwU8DS2KrijBdi5CCh4",
+    "object": "chat.completion",
+    "created": 1789682371,
+    "model": "google/gemini-3.8-flash",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"中身が何もなく、からっぽになっている穴やくぼみのこと。\",\n  \"definition_standard\": \"物体の内部がからになっていること。また、そのからっぽの空間や穴。転じて、内容や実質が失われて形骸化している状態。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"japanese\": \"木の幹に大きな空洞がある。\",\n      \"english\": \"There is a large hollow in the tree trunk.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"japanese\": \"地面の下に空洞が見つかった。\",\n      \"english\": \"A cavity was found beneath the ground.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"japanese\": \"この壁の裏には空洞ができている。\",\n      \"english\": \"A hollow space has formed behind this wall.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"japanese\": \"古い大木の空洞に小鳥が巣を作っている。\",\n      \"english\": \"Small birds are nesting in the hollow of an old large tree.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"japanese\": \"道路が突然陥没し、地下に巨大な空洞が広がっていることが判明した。\",\n      \"english\": \"The road suddenly caved in, revealing a massive underground cavity.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"japanese\": \"産業の空洞化が進むと、地域の雇用が急激に失われる。\",\n      \"english\": \"As the hollowing out of industry progresses, regional employment is sharply lost.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"japanese\": \"レントゲン検査によって骨の内部に小さな空洞が確認された。\",\n      \"english\": \"An X-ray examination confirmed a small cavity inside the bone.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"japanese\": \"形式的な手続きばかりが先行し、議論の実質的な空洞化を招いている。\",\n      \"english\": \"Formal procedures precede substance, leading to an effective hollowing out of the debate.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"japanese\": \"鍾乳洞の奥深くには、何万年もの歳月をかけて形成された神秘的な空洞が連なっている。\",\n      \"english\": \"Deep within the limestone cave lies a series of mystical caverns formed over tens of thousands of years.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"japanese\": \"度重なる組織改革の失敗により、中核を担う人材が流出して組織内部に回復不能な空洞が生じた。\",\n      \"english\": \"Due to repeated failures in organizational reform, core personnel fled, leaving an irreparable void within the organization.\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"空洞化\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"空白\",\n      \"reason\": \"「空白」は埋めるべき空所や時間的途切れを表す名詞であり、物理的な空洞や構造的空洞化を示す「空洞」と慣用的な連語を形成しない。\"\n    },\n    {\n      \"word\": \"虚無\",\n      \"reason\": \"「虚無」は哲学・心理的な虚しさを表す抽象名詞であり、物理的・機能的空隙を指す「空洞」の修飾・複合語として定着していない。\"\n    },\n    {\n      \"word\": \"隙間\",\n      \"reason\": \"「隙間」は物と物の間の狭い空隙を指す名詞であり、中身が抜けた内部空間を表す「空洞」とは共起構造が重複し不自然である。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"空洞現象\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"隙間\",\n      \"reason\": \"「隙間」は物と物の間の細いあき間を指すため、幹の内部がまるごとえぐれて空間になっている状態には適さない。\"\n    },\n    {\n      \"word\": \"空間\",\n      \"reason\": \"「空間」は物理的なスペース全般を指す広範な概念語であり、木の内部にできた穴そのものを具体的に指す語として不自然。\"\n    },\n    {\n      \"word\": \"虚空\",\n      \"reason\": \"「虚空」は何もない大空や空中を指す文学的・仏教的語彙であり、物体の内部のからっぽな穴を表す文脈には使えない。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"japanese\": \"彼は空洞な性格なので、誰とでもすぐに仲良くなれる。\",\n      \"reason\": \"形容動詞「空洞な」として人の性格を肯定的に修飾する用法は存在せず、「気さくな」や「素直な」との混同。\"\n    },\n    {\n      \"japanese\": \"コップの水を全部飲んで、中を空洞にした。\",\n      \"reason\": \"容器の液体をなくすことは「空（から）にする」と言い、構造内部がえぐれて穴になっているわけではないため「空洞にする」とは言わない。\"\n    },\n    {\n      \"japanese\": \"部屋が狭いので、もっと空洞を広げてください。\",\n      \"reason\": \"居住空間や余白を広げる文脈で「空洞」は用いず、「スペース」や「部屋の広さ」を用いるべき誤用。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"激しい雨で地盤が緩み、アスファルトの下に深い空洞が落ちた。\",\n    \"error_description\": \"「空洞」は穴や空間そのものを指すため「落ちる」という述語とは共起せず、「空洞ができた」または「地面が落ちた（陥没した）」とする必要がある。\",\n    \"corrected_sentence\": \"激しい雨で地盤が緩み、アスファルトの下に深い空洞ができた。\"\n  },\n  \"word_family_forms\": [\n    \"空洞化\",\n    \"空洞化する\"\n  ],\n  \"word_family_fake_forms\": [\n    \"空洞的\",\n    \"空洞さ\",\n    \"空洞がる\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"うろ\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"空隙\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"洞穴\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"充実\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"に\",\n      \"is_correct\": true,\n      \"explanation\": \"存在場所（木の幹の中）を示す助詞として「に」が文法的に正しい。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"is_correct\": false,\n      \"explanation\": \"「で」は動作の行われる場所を示す助詞であり、静的な存在を表す述語「ある」とは共起しない。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"is_correct\": false,\n      \"explanation\": \"「を」は他動詞の目的語を示す助詞であり、自動詞「ある」の場所補語には使えない。\"\n    },\n    {\n      \"particle\": \"へ\",\n      \"is_correct\": false,\n      \"explanation\": \"「へ」は移動の方向・帰着点を示す助詞であり、存在の所在を示す文脈には適さない。\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+zGR53ZiuMtj7jL+o8ACT8Zh0/HnFA8IyiY+BwkRs+FRwz6I41rYQAQP0LvDY+nwoHdjgWpi30VL7wCUp8cdQKnH1N7VcwsMOg",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 952,
+      "completion_tokens": 1851,
+      "total_tokens": 2803,
+      "cost": 0.00765525,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00765525,
+        "upstream_inference_prompt_cost": 0.000714,
+        "upstream_inference_completions_cost": 0.00694125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

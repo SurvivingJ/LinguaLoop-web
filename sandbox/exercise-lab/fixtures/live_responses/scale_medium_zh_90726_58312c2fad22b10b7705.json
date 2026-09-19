@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"苦待\" in Mandarin Chinese.\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"苦待\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 3.4396770000457764,
+  "response": {
+    "id": "gen-1789655507-2drjQiIbFbGB5yoymdKg",
+    "object": "chat.completion",
+    "created": 1789655507,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"长时间地虐待、折磨或苛刻对待某人。\",\n  \"definition_standard\": \"指长期给予痛苦的待遇，在精神或肉体上施加残酷、苛刻的虐待或折磨。\",\n  \"pos\": \"verb\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"地主常常苦待穷苦的长工。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"继母总是苦待这个失去母亲的孩子。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"在那个黑暗的时代，战俘们遭到了敌人无休止的苦待。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"善良的仆人虽然屡遭苦待，却依然保持着忠诚与宽容。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"历史不应忘记那些在流放期间遭受残酷苦待的革命志士。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"面对命运的百般苦待，他非但没有消沉，反而淬炼出坚韧不拔的意志。\"\n    }\n  ],\n  \"primary_collocate\": \"奴役\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"优待\",\n      \"reason\": \"优待表示给予优厚的好待遇，与苦待的虐待含义完全相反，无法构成习惯搭配。\"\n    },\n    {\n      \"word\": \"款待\",\n      \"reason\": \"款待侧重于热情诚恳地招待客人，常用于正面场景，而苦待带有贬义和残酷色彩。\"\n    },\n    {\n      \"word\": \"看待\",\n      \"reason\": \"看待是中性词，表示对事物或人的看法、态度，不能直接用来修饰或组合痛苦的待遇。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"虐待\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"折磨\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"善待\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"厚待\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18F8c15S7CPFEHzYz2uUgXCu5qSbEibJRq9Zc83B7IZSI4KKBpZbuXgi7472gHO2lKVC5s+XYJJj+OE2d3ZsigLg551tJJJisgKsozt3nA=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 137,
+      "completion_tokens": 588,
+      "total_tokens": 725,
+      "cost": 0.0015111,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0015111,
+        "upstream_inference_prompt_cost": 4.11e-05,
+        "upstream_inference_completions_cost": 0.00147
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

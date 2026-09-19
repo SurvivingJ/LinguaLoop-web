@@ -1,0 +1,866 @@
+[
+  {
+    "tag": "fat_gemini-3.8-flash_zh_68096",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 15.007625818252563,
+    "prompt_tokens": 987,
+    "completion_tokens": 1848,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 1848,
+      "total_tokens": 2835,
+      "cost": 0.00767025,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00767025,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.00693
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 72,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.00767025,
+    "content": "{\n  \"definition_simple\": \"没有限量，无法计算，多形容前途、功德或潜力极大。\",\n  \"definition_standard\": \"无法计量；没有限度。多用作定语或谓语，常用于“前途无量”、“功德无量”等固定搭配中，表示极其广大、不可限量。\",\n  \"pos\": \"形容词\",\n  \"semantic_class\": \"property\",\n  \"sentences\": [\n    {\n      \"text\": \"小明学习非常刻苦，老师夸他前途无量。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"text\": \"年轻人勇于拼搏，未来的发展潜力无量。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"修建这所希望小学是一件功德无量的大善事。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"这项新能源技术一旦研发成功，市场价值不可估量、商机无量。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"佛家常说慈悲心能广积善缘，所得福报亦是无量无边。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"宇宙浩瀚，繁星如海，其中蕴含着无量的奥秘等待人类去探寻。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"科研团队历经数载攻克技术壁垒，此项突破对国家工业升级贡献无量。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"先生毕生致力于古籍整理与抢救，虽甘于寂寞，然其学术泽被后世，实属功德无量。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"大乘经典有云：应发无量心，誓度无量众生，以无边愿力铸就解脱之途。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"观夫天地化生，气机流转，其生生不息之生机与造化伟力，诚浩瀚而无量也。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"无良\",\n      \"explanation\": \"拼音同为 wúliáng，声调完全相同，但“无良”意为没有良心、不道德，常用于“无良商家”，与褒义/中性的“无量”极易在听觉上混淆。\"\n    },\n    {\n      \"word\": \"无粮\",\n      \"explanation\": \"拼音同为 wúliáng，意为没有粮食，语境和词义截然不同，同音极易引起听觉歧义。\"\n    },\n    {\n      \"word\": \"物价\",\n      \"explanation\": \"拼音为 wùjià，声韵母差异较明显，但在方言区或语速极快时声韵容易与 wúliàng 产生听感混淆。\"\n    }\n  ],\n  \"primary_collocate\": \"前途无量\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"广大\",\n      \"explanation\": \"“广大”常修饰空间、规模或群众（如“广大人民”），与“无量”语义重叠但语法功能不搭配，不可组合成“广大无量”。\"\n    },\n    {\n      \"word\": \"很多\",\n      \"explanation\": \"“很多”为口语中表示数量多的常用词，属于口语初级词汇，与书面语素“无量”语义风格不合，不能组合为“很多无量”。\"\n    },\n    {\n      \"word\": \"无数\",\n      \"explanation\": \"“无数”表示不可计数，常作定语修饰具体名词（如“无数星星”），与“无量”构成词义冗余，不能直接作其常规固定搭配。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"面积无量\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"无限\",\n      \"explanation\": \"“无限”强调没有边界限制，虽然意思接近，但在成语“前途无量”中不可替换为“前途无限”（习惯上常用“前途无量”）。\"\n    },\n    {\n      \"word\": \"无尽\",\n      \"explanation\": \"“无尽”侧重于没有穷尽、没有终点，多形容思念、苦难等抽象情感或时间，修饰前途属于语域错配。\"\n    },\n    {\n      \"word\": \"微薄\",\n      \"explanation\": \"“微薄”意为微小单薄，与“无量”语义完全相反，放在褒奖语境中语义自相矛盾。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"桌子上放着无量的苹果，大家可以随便吃。\",\n      \"explanation\": \"“无量”属于书面语且形容极其宏大或不可估量的抽象事物（如功德、前途），不能直接作定语修饰具体、有限的可数生活实物。\"\n    },\n    {\n      \"sentence\": \"他今天无量地喝了三杯水。\",\n      \"explanation\": \"“无量”是形容词，不能直接充当修饰具体动作频次或数量的状语，句法功能错误。\"\n    },\n    {\n      \"sentence\": \"这个水杯很无量，能装一升水。\",\n      \"explanation\": \"“无量”表示不可限量，不能用来描述容量确切、有限的具体容器体积。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"这家公司为了谋取暴利生产假药，真是功德无量。\",\n    \"error_description\": \"“功德无量”是极高的褒义词，用于形容造福众生的善行，不能用于批判作恶造假的企业，属于褒贬误用。\",\n    \"corrected_sentence\": \"这家公司为了谋取暴利生产假药，真是罪大恶极。\"\n  },\n  \"word_family_forms\": [],\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"无量化\",\n      \"explanation\": \"错误借用后缀“-化”企图构成动词，现代汉语中不存在“无量化”这一构词。\"\n    },\n    {\n      \"fake_form\": \"无量性\",\n      \"explanation\": \"错误借用抽象名词后缀“-性”构成生造词，汉语中通常用“不可限量”或“无限性”，无“无量性”用法。\"\n    },\n    {\n      \"fake_form\": \"无量度\",\n      \"explanation\": \"错误杂糅“无量”与物理测量名词“量度”，汉语中并无此衍生复合词。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"不可估量\",\n      \"relationship\": \"synonym\"\n    },\n    {\n      \"word\": \"无限\",\n      \"relationship\": \"synonym\"\n    },\n    {\n      \"word\": \"有限\",\n      \"relationship\": \"antonym\"\n    },\n    {\n      \"word\": \"微不足道\",\n      \"relationship\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": []\n}",
+    "lang": "zh",
+    "vocab_id": 68096,
+    "lemma": "无量"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_144954",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 15.372421741485596,
+    "prompt_tokens": 989,
+    "completion_tokens": 1875,
+    "usage_raw": {
+      "prompt_tokens": 989,
+      "completion_tokens": 1875,
+      "total_tokens": 2864,
+      "cost": 0.007773,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.007773,
+        "upstream_inference_prompt_cost": 0.00074175,
+        "upstream_inference_completions_cost": 0.00703125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 268,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.007773,
+    "content": "{\n  \"definition_simple\": \"The degree to which something successfully produces the desired result.\",\n  \"definition_standard\": \"The capability of producing a desired result or the ability to produce successfully a planned or intended outcome, often evaluated quantitatively or qualitatively.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"property\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"The doctor checked the effectiveness of the new medicine.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"Regular practice improves the effectiveness of your study habits.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"We questioned the effectiveness of the school's new recycling policy.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"The survey measures the effectiveness of our customer support team.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"Cost is an important factor, but overall effectiveness should be prioritized.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"Rigorous clinical trials are conducted to verify the effectiveness and safety of vaccines.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"The marketing team analyzed user retention metrics to determine advertising effectiveness.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"Diminishing returns can undermine the operational effectiveness of even well-funded initiatives.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"Scholars continue to debate the pedagogical effectiveness of standardized testing across diverse socioeconomic backgrounds.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"Bureaucratic inertia compromised the systemic effectiveness of the newly promulgated regulatory framework.\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"effectivenesses\",\n      \"label\": \"plural\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"base_form\": \"effectivenesses\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"effectiveness\",\n          \"explanation\": \"Treated as invariant plural by failing to add the -es inflection when referring to distinct types of efficacy.\"\n        },\n        {\n          \"form\": \"effectivities\",\n          \"explanation\": \"Incorrectly applies Latinate -ity pluralization to the Germanic -ness suffix base.\"\n        },\n        {\n          \"form\": \"effectiveness's\",\n          \"explanation\": \"Confuses the singular possessive apostrophe-s with the plural inflection.\"\n        }\n      ]\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"affectiveness\",\n      \"explanation\": \"Differs by the initial unstressed vowel /ə/ vs /ɪ/ (affective vs effective), causing frequent spelling and phonological confusion.\"\n    },\n    {\n      \"word\": \"infectiousness\",\n      \"explanation\": \"Shares rhythm and the unstressed /-tɪvnəs/ ending, differing in the root morpheme.\"\n    },\n    {\n      \"word\": \"defectiveness\",\n      \"explanation\": \"Differs only by the prefix /dɪ-/ versus /ɪ-/, creating an acoustic near-minimal pair with opposite connotations.\"\n    }\n  ],\n  \"primary_collocate\": \"cost\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"price\",\n      \"explanation\": \"'Price-effectiveness' is not an idiomatic compound in English; standard usage strictly prefers 'cost-effectiveness'.\"\n    },\n    {\n      \"word\": \"expense\",\n      \"explanation\": \"While semantically synonymous with cost, 'expense-effectiveness' violates conventional lexical pairing.\"\n    },\n    {\n      \"word\": \"gain\",\n      \"explanation\": \"'Gain-effectiveness' is not recognized; 'cost-benefit' or 'cost-effectiveness' are the standard functional pairings.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"budget-effectiveness\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"efficiency\",\n      \"explanation\": \"Wrong sense: efficiency measures resource usage and waste minimization rather than whether the objective itself was achieved.\"\n    },\n    {\n      \"word\": \"affectation\",\n      \"explanation\": \"Trivially unrelated: refers to artificial behavior designed to impress, confused only via superficial morphological similarity to 'affect'.\"\n    },\n    {\n      \"word\": \"efficacy\",\n      \"explanation\": \"Wrong register/context: efficacy specifically denotes performance under ideal, controlled conditions rather than real-world operational results.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The manager praised John for his high effectiveness at completing tasks quickly without any errors.\",\n      \"reason\": \"Confuses 'effectiveness' with 'efficiency'; doing tasks quickly without wasted time or resources specifically denotes efficiency, whereas effectiveness refers purely to achieving the target goal.\"\n    },\n    {\n      \"sentence\": \"She effectivenesses the implementation of the new software across all branches.\",\n      \"reason\": \"Wrong syntactic category; 'effectiveness' is a noun and cannot take verbal inflections or function as the finite predicate.\"\n    },\n    {\n      \"sentence\": \"The effectiveness between the two proposals was strongly argued during the meeting.\",\n      \"reason\": \"Wrong argument structure; 'effectiveness' cannot take a reciprocal 'between' complement without an explicit comparative noun phrase like 'difference in effectiveness'.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"The audit raised serious questions regarding the cost-affectiveness of the municipal transit expansion.\",\n    \"error_description\": \"Incorrectly substitutes the non-word root 'affectiveness' for the standard spelling 'effectiveness' in the compound noun.\",\n    \"corrected\": \"The audit raised serious questions regarding the cost-effectiveness of the municipal transit expansion.\"\n  },\n  \"word_family_forms\": [\n    {\n      \"pos\": \"adjective\",\n      \"form\": \"effective\"\n    },\n    {\n      \"pos\": \"adverb\",\n      \"form\": \"effectively\"\n    },\n    {\n      \"pos\": \"noun\",\n      \"form\": \"effect\"\n    },\n    {\n      \"pos\": \"verb\",\n      \"form\": \"effect\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"effectivize\",\n    \"effectful\",\n    \"effectivity\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"efficacy\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"successfulness\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"ineffectiveness\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"futility\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 144954,
+    "lemma": "effectiveness"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_147558",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 32.123188495635986,
+    "prompt_tokens": 989,
+    "completion_tokens": 4586,
+    "usage_raw": {
+      "prompt_tokens": 989,
+      "completion_tokens": 4586,
+      "total_tokens": 5575,
+      "cost": 0.01793925,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01793925,
+        "upstream_inference_prompt_cost": 0.00074175,
+        "upstream_inference_completions_cost": 0.0171975
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2817,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01793925,
+    "content": "{\n  \"definition_simple\": \"A surface or piece of land that is higher at one end than the other.\",\n  \"definition_standard\": \"An inclined line, surface, or piece of ground where one end or side is at a higher elevation than the other, or the degree of such an incline.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"We rolled the ball down the grassy slope.\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"He slipped and fell on the muddy slope.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"The ski slope was covered in fresh powder this morning.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"Be careful walking down that steep slope in the rain.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"The roof has a gentle slope to allow rainwater to run off easily.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"Houses built on a steep slope require deep foundations to prevent erosion.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"The hikers rested briefly before tackling the rocky slope of the mountain.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"Calculating the slope of the line requires dividing the change in vertical distance by horizontal distance.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"Intensive deforestation on the upper slope has dramatically heightened the danger of devastating mudslides during the monsoon season.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"The geomorphological survey revealed an unstable scree slope predisposed to catastrophic shear failure under seismic loading.\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"label\": \"plural\",\n      \"form\": \"slopes\"\n    },\n    {\n      \"label\": \"singular_possessive\",\n      \"form\": \"slope's\"\n    }\n  ],\n  \"morphology_wrong_forms\": {\n    \"slopes\": [\n      {\n        \"form\": \"slopess\",\n        \"explanation\": \"Erroneously doubles the terminal 's' following a silent 'e' when attempting to form a regular plural.\"\n      },\n      {\n        \"form\": \"slopi\",\n        \"explanation\": \"Incorrectly applies a Latinate second-declension '-i' plural suffix to a standard English noun.\"\n      },\n      {\n        \"form\": \"slopeen\",\n        \"explanation\": \"Overapplies the archaic Germanic '-en' plural suffix found in irregular words like 'oxen'.\"\n      }\n    ],\n    \"slope's\": [\n      {\n        \"form\": \"slopes's\",\n        \"explanation\": \"Incorrectly appends both a plural marker and an explicit singular possessive clitic to a singular noun base.\"\n      },\n      {\n        \"form\": \"slope-is\",\n        \"explanation\": \"Treats the English genitive clitic as a hyphenated morpheme modeled on obsolete phonetic spellings.\"\n      },\n      {\n        \"form\": \"slopeth\",\n        \"explanation\": \"Confuses archaic Early Modern English third-person singular verbal inflection with nominal possession.\"\n      }\n    ]\n  },\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"slop\",\n      \"explanation\": \"Replaces the diphthong /oʊ/ with the short open vowel /ɒ/ (or /ɑː/), yielding a word meaning liquid spill or waste.\"\n    },\n    {\n      \"word\": \"slip\",\n      \"explanation\": \"Substitutes the high front lax vowel /ɪ/ for the mid back diphthong /oʊ/, altering the meaning to losing footing.\"\n    },\n    {\n      \"word\": \"slow\",\n      \"explanation\": \"Omits the final voiceless bilabial stop /p/, leaving an open syllable /sloʊ/ denoting a lack of speed.\"\n    }\n  ],\n  \"primary_collocate\": \"steep slope\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"sharp slope\",\n      \"explanation\": \"While 'sharp' pairs with 'turn', 'drop', or 'incline', native English conventionally pairs 'slope' with 'steep' or 'gentle' rather than 'sharp'.\"\n    },\n    {\n      \"word\": \"tall slope\",\n      \"explanation\": \"'Tall' applies to vertical objects measured upwards from a base, not to lateral gradients or inclined surfaces.\"\n    },\n    {\n      \"word\": \"deep slope\",\n      \"explanation\": \"'Deep' describes depths, cavities, or chasms rather than the angular steepness of an exposed incline.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"high slope\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"slant\",\n      \"explanation\": \"Wrong register and semantic nuance; 'slant' primarily denotes an angular tilt or subjective bias rather than a natural landform.\"\n    },\n    {\n      \"word\": \"grade\",\n      \"explanation\": \"Wrong sense; 'grade' denotes the mathematical percentage or measurement of an incline rather than the physical hillside terrain.\"\n    },\n    {\n      \"word\": \"pinnacle\",\n      \"explanation\": \"Trivially unrelated; 'pinnacle' designates a sharp vertical peak or apex, opposite to an extensive inclined ground surface.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The road descended down steeply, making the slope very sloping to drive across.\",\n      \"explanation\": \"Tautological argument structure; redundantly stacking derived adjectival and nominal forms of 'slope' results in an unidiomatic predicate.\"\n    },\n    {\n      \"sentence\": \"She carefully calibrated the slope of the completely flat dining table so it had zero inclination.\",\n      \"explanation\": \"Semantic contradiction; 'slope' denotes an incline or gradient, so asserting the existence of a 'slope' on an inherently flat object violates its lexical presupposition.\"\n    },\n    {\n      \"sentence\": \"We got lost while walking through a dense slope of pine trees in the flat meadow.\",\n      \"explanation\": \"Category error; 'slope' cannot function as a collective noun or classifier for vegetation like 'grove' or 'stand'.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"The skiers carefully navigated down the icy, steep slopen to avoid losing control on the mountain.\",\n    \"error_description\": \"The noun 'slope' is incorrectly inflected with an illegitimate '-n' suffix instead of remaining in its base singular form.\",\n    \"corrected_sentence\": \"The skiers carefully navigated down the icy, steep slope to avoid losing control on the mountain.\"\n  },\n  \"word_family_forms\": [\n    \"sloping\",\n    \"sloped\",\n    \"aslope\"\n  ],\n  \"word_family_fake_forms\": [\n    \"slopement\",\n    \"slopity\",\n    \"slopeless\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"incline\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"gradient\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"decline\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"flat\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 147558,
+    "lemma": "slope"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_70593",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 32.45040202140808,
+    "prompt_tokens": 987,
+    "completion_tokens": 4471,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 4471,
+      "total_tokens": 5458,
+      "cost": 0.0175065,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0175065,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.01676625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2783,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0175065,
+    "content": "{\n  \"definition_simple\": \"在比赛、竞争或斗争中取得胜利。\",\n  \"definition_standard\": \"在竞赛、博弈、战斗或选举等具有对抗性的活动中，击败对手或取得优势而最终胜出。\",\n  \"pos\": \"动词\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"sentence\": \"我们队在昨天的足球比赛中获胜了。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"谁能在明天的决赛中获胜，谁就是今年的冠军。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"他们凭借默契的团队配合，最终以微弱优势获胜。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"只要大家在下半场不放弃，我们依然有希望获胜。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"在激烈的辩论赛中，正方论证严密、反驳有力，成功获胜。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"尽管面对实力强劲的卫冕选手，这名年轻黑马依然沉着应战并爆冷获胜。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"竞选团队通过精准的选民数据画像与动员策略，协助候选人在关键摇摆州获胜。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"该项争议提案在股东大会上以压倒性多数票获胜，得以如期落地推行。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"在瞬息万变的高频算法博弈中，指令响应速度哪怕仅领先微秒者亦能获胜，进而攫取超额利润。\",\n      \"tier\": \"T6\"\n    },\n    {\n      \"sentence\": \"这场旷日持久的跨国知识产权诉讼终见分晓，原告凭借扎实的底层代码溯源证据艰难获胜。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"获释\",\n      \"explanation\": \"拼音为 huòshì，声母及韵母与 huòshèng 接近（声调同为第四声），但意为被羁押者获得释放，语义完全不同。\"\n    },\n    {\n      \"word\": \"获赠\",\n      \"explanation\": \"拼音为 huòzèng，韵母相同且声调皆为去声，在部分不分平翘舌（z/sh）的方言区听觉上极易混淆，其意为得到赠予。\"\n    },\n    {\n      \"word\": \"活生\",\n      \"explanation\": \"拼音为 huóshēng，声韵母完全相同，仅声调由去声变为阳平和阴平，发音稍有不慎即会引发听音误判。\"\n    }\n  ],\n  \"primary_collocate\": \"最终\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"打败\",\n      \"explanation\": \"“打败”本身是及物动词或述补结构，不可充当副词来修饰不及物动词“获胜”。\"\n    },\n    {\n      \"word\": \"战胜\",\n      \"explanation\": \"“战胜”与“获胜”语义同质且为及物动词，两词不可直接叠置搭配形成修饰关系。\"\n    },\n    {\n      \"word\": \"优胜\",\n      \"explanation\": \"“优胜”通常作定语（如“优胜者”）或状态名词，不作状语修饰动词“获胜”。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"全面\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"战胜\",\n      \"explanation\": \"“战胜”是及物动词，后面必须带受事宾语（如“战胜对手”），不可在句末无宾语独立作谓语。\"\n    },\n    {\n      \"word\": \"赢取\",\n      \"explanation\": \"“赢取”侧重于获得具体的奖品或荣誉（如“赢取奖金”），在此语境中缺乏宾语且语义侧重点偏离胜利结果。\"\n    },\n    {\n      \"word\": \"成全\",\n      \"explanation\": \"“成全”意为帮助他人达到某种目的，语义与本队比赛取得胜利完全不相关。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"我们队在最后的决赛中以三比零获胜了对手。\",\n      \"explanation\": \"及物性错误。“获胜”是不及物动词，不能直接带人或队伍等受事宾语，应使用及物动词“战胜/击败”或改说“战胜对手而获胜”。\"\n    },\n    {\n      \"sentence\": \"他凭借平时的刻苦努力，终于获胜了这次期末考试。\",\n      \"explanation\": \"语义与搭配对象错误。“获胜”适用于对抗性竞技、争端或诉讼，不能与非博弈性质的标准测试（如“考试”）搭配，应改为“通过了考试”。\"\n    },\n    {\n      \"sentence\": \"这场比赛虽然打得十分艰苦，但最终被主队获胜了。\",\n      \"explanation\": \"语态结构错误。“获胜”表示主动赢得竞争的自主行为，不能用于被动句中充当被动动词谓语（“比赛被获胜”不合语法规则）。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"经过两个小时的鏖战，中国女排最终以三比二获胜了巴西队。\",\n    \"error_description\": \"“获胜”为不及物动词，后不可直接加受事宾语“巴西队”，应使用及物动词“击败”或“战胜”，或者在宾语前加介词“战胜巴西队获胜”。\",\n    \"corrected_sentence\": \"经过两个小时的鏖战，中国女排最终以三比二战胜了巴西队。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"获胜者\",\n      \"pos\": \"名词\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"获胜度\",\n    \"获胜化\",\n    \"获胜感\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"candidate\": \"胜出\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"candidate\": \"凯旋\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"candidate\": \"落败\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"candidate\": \"失利\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 70593,
+    "lemma": "获胜"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_146539",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 26.52953267097473,
+    "prompt_tokens": 989,
+    "completion_tokens": 3561,
+    "usage_raw": {
+      "prompt_tokens": 989,
+      "completion_tokens": 3561,
+      "total_tokens": 4550,
+      "cost": 0.0140955,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0140955,
+        "upstream_inference_prompt_cost": 0.00074175,
+        "upstream_inference_completions_cost": 0.01335375
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1814,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0140955,
+    "content": "{\n  \"definition_simple\": \"The act of watching or listening to someone or something carefully in order to gain information.\",\n  \"definition_standard\": \"The active acquisition and systematic recording of information from a primary source, or an assessment based on what has been seen or noticed.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"Careful observation of the birds helped the students identify the different species.\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"She made a quick observation about the sudden change in the weather.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"The doctor decided to keep the patient in the clinic overnight for observation.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"His keen powers of observation allowed him to solve the mystery quickly.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"Direct observation of animals in their natural habitat requires patience and quiet.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"The mentor shared a helpful observation regarding my classroom management skills.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"Astronomers rely on satellite observation to study distant galaxies and radiation.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"Under close observation, the counterfeit banknote revealed several minute printing flaws.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"The sociological study reconciled qualitative interview data with longitudinal field observation.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"Scientific empiricism asserts that rigorous sensory observation must precede theoretical generalization.\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"observations\",\n      \"label\": \"plural\"\n    },\n    {\n      \"form\": \"observation's\",\n      \"label\": \"possessive_singular\"\n    }\n  ],\n  \"morphology_wrong_forms\": {\n    \"observations\": [\n      {\n        \"form\": \"observationes\",\n        \"explanation\": \"Applies an archaic or Latinate plural ending '-es' to a word that simply forms its plural with '-s'.\"\n      },\n      {\n        \"form\": \"observatia\",\n        \"explanation\": \"Erroneously treats the word as a neuter Latin borrowing taking a '-ia' plural suffix.\"\n      },\n      {\n        \"form\": \"observata\",\n        \"explanation\": \"Incorrectly inflects the noun using the Latin plural participle suffix instead of standard English pluralization.\"\n      }\n    ],\n    \"observation's\": [\n      {\n        \"form\": \"observations's\",\n        \"explanation\": \"Double-marks possession by appending ''s' to a pluralized base for a singular possessive.\"\n      },\n      {\n        \"form\": \"observation-s\",\n        \"explanation\": \"Uses an erroneous hyphen instead of an apostrophe to indicate possession.\"\n      },\n      {\n        \"form\": \"observational's\",\n        \"explanation\": \"Mistakenly attaches the possessive clitic to the adjectival derivation rather than the noun itself.\"\n      }\n    ]\n  },\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"reservation\",\n      \"explanation\": \"Differs primarily in the initial consonant and syllable onset (/ˌɹɛzɚˈveɪʃən/ vs. /ˌɑbzɚˈveɪʃən/), which can lead to acoustic confusion in rapid speech.\"\n    },\n    {\n      \"word\": \"preservation\",\n      \"explanation\": \"Shares the rhythmic cadence, stress pattern, and rhyme (/ˌpɹɛzɚˈveɪʃən/), differing only by the onset cluster.\"\n    },\n    {\n      \"word\": \"obviation\",\n      \"explanation\": \"Shares the Latinate root prefix 'ob-' and nominal suffix '-ation' (/ˌɑbviˈeɪʃən/), sounding near-homophonic to an inattentive listener.\"\n    }\n  ],\n  \"primary_collocate\": \"close observation\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"narrow observation\",\n      \"explanation\": \"English uses 'close' or 'detailed' to describe intense scrutiny; 'narrow' implies limited scope rather than high scrutiny.\"\n    },\n    {\n      \"word\": \"tight observation\",\n      \"explanation\": \"'Tight' collocates with 'security' or 'control', but is unidiomatic when describing the act of monitoring or observing.\"\n    },\n    {\n      \"word\": \"hard observation\",\n      \"explanation\": \"Learners confuse 'take a hard look' with 'observation', producing an unnatural adjectival pairing.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"near observation\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"superstition\",\n      \"explanation\": \"A noun with a similar phonological rhythm and syllable count, but completely irrelevant to medical or scientific monitoring.\"\n    },\n    {\n      \"word\": \"celebration\",\n      \"explanation\": \"A grammatically plausible noun that fits the syntactic slot but conflicts directly with the clinical context of hospital care.\"\n    },\n    {\n      \"word\": \"spectating\",\n      \"explanation\": \"A gerund referring to passive entertainment viewing, which is incorrect in both register and idiomatic medical usage.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The researcher did an observation of the birds feeding in the yard.\",\n      \"explanation\": \"English requires the light verb 'make' or the verb 'conduct/carry out' with 'observation'; 'do an observation' is an unnatural collocate.\"\n    },\n    {\n      \"sentence\": \"The nurse told the family that the patient must observation quietly overnight.\",\n      \"explanation\": \"The noun 'observation' is erroneously used in a modal verb complement slot where the base verb 'observe' is required.\"\n    },\n    {\n      \"sentence\": \"The analyst offered an observation for that the market was likely to crash.\",\n      \"explanation\": \"The noun 'observation' takes a direct finite content clause ('observation that...'), making the preposition 'for' ungrammatical.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"After several hours of continuous observe, the scientists noted an unexpected shift in cell division.\",\n    \"error_description\": \"The base verb 'observe' is used incorrectly as the complement of the preposition 'of' where the nominal form 'observation' is required.\",\n    \"corrected\": \"After several hours of continuous observation, the scientists noted an unexpected shift in cell division.\"\n  },\n  \"word_family_forms\": [\n    \"observe\",\n    \"observational\",\n    \"observant\",\n    \"observantly\"\n  ],\n  \"word_family_fake_forms\": [\n    \"observate\",\n    \"observatious\",\n    \"observatorily\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"monitoring\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"scrutiny\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"inattention\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"neglect\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 146539,
+    "lemma": "observation"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_145715",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 30.642405033111572,
+    "prompt_tokens": 992,
+    "completion_tokens": 3935,
+    "usage_raw": {
+      "prompt_tokens": 992,
+      "completion_tokens": 3935,
+      "total_tokens": 4927,
+      "cost": 0.01550025,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01550025,
+        "upstream_inference_prompt_cost": 0.000744,
+        "upstream_inference_completions_cost": 0.01475625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2191,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01550025,
+    "content": "{\n  \"definition_simple\": \"The qualities, beliefs, and characteristics that make people, groups, or things who or what they are.\",\n  \"definition_standard\": \"The distinct individual characteristics, social affiliations, or conditions of being by which persons or collectives are recognized and defined.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"abstract\",\n  \"sentences\": [\n    {\n      \"sentence\": \"Online video games allow players to create different virtual identities.\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"The twins look alike, but their personal identities are completely distinct.\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"Many immigrants balance two cultural identities in their everyday lives.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"Police officers worked quickly to confirm the identities of both drivers after the accident.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"Digital identities have become increasingly vulnerable to cyberattacks and fraudulent misuse.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"Adolescents frequently experiment with multiple social identities before discovering where they belong.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"The whistleblowers requested anonymity because revealing their identities could jeopardize their safety.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"Contemporary sociologists investigate how regional and occupational identities intersect in modern cities.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"Subcultures construct fluid identities that intentionally resist the rigid classifications imposed by dominant institutions.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"Postmodern literature frequently subverts coherent subjecthood by portraying protagonists with fractured, irreconcilable identities.\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"identity\",\n      \"label\": \"singular_noun\"\n    },\n    {\n      \"form\": \"identities'\",\n      \"label\": \"plural_possessive_noun\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"form\": \"identity\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"identitys\",\n          \"explanation\": \"Applies standard '-s' pluralization instead of changing final 'y' preceded by a consonant to '-ies'.\"\n        },\n        {\n          \"form\": \"identite\",\n          \"explanation\": \"Erroneously drops the terminal 'y' based on false analogy with French-derived cognates.\"\n        },\n        {\n          \"form\": \"identityness\",\n          \"explanation\": \"Redundantly appends the abstract noun suffix '-ness' to an existing abstract noun.\"\n        }\n      ]\n    },\n    {\n      \"form\": \"identities'\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"identities's\",\n          \"explanation\": \"Incorrectly attaches an apostrophe-s to a regular plural noun already ending in 's'.\"\n        },\n        {\n          \"form\": \"identity's\",\n          \"explanation\": \"Uses the singular possessive apostrophe-s instead of the plural possessive form.\"\n        },\n        {\n          \"form\": \"identitiess\",\n          \"explanation\": \"Doubles the final 's' to mark possession phonetically instead of inserting a possessive apostrophe.\"\n        }\n      ]\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"entities\",\n      \"explanation\": \"Shares an identical rhythmic cadence and final syllable structure ('-tities'), differing primarily by initial vowel and consonants.\"\n    },\n    {\n      \"word\": \"intensities\",\n      \"explanation\": \"Shares stress patterns and near-identical terminal phonemes, differing only in the medial consonant cluster.\"\n    },\n    {\n      \"word\": \"indemnities\",\n      \"explanation\": \"Possesses a very similar four-syllable prosodic envelope with identical '-d-em-n-ities' acoustic features.\"\n    }\n  ],\n  \"primary_collocate\": \"cultural\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"folkloric\",\n      \"explanation\": \"While semantically related to heritage, 'folkloric identities' is unidiomatic and rarely attested in standard English.\"\n    },\n    {\n      \"word\": \"habitual\",\n      \"explanation\": \"Relates to personal behavior and repetition, but native speakers do not describe core senses of self as 'habitual identities'.\"\n    },\n    {\n      \"word\": \"ancestral\",\n      \"explanation\": \"Modifies origins, roots, or estates, but typically does not collocate directly with plural 'identities' to describe living affiliations.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"temperamental\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"passports\",\n      \"explanation\": \"Wrong sense: refers to tangible state-issued travel booklets rather than the abstract self-conceptions required by the sentence.\"\n    },\n    {\n      \"word\": \"personages\",\n      \"explanation\": \"Wrong register: an elevated, formal term referring to famous or historic individuals, not psychological or social facets of self.\"\n    },\n    {\n      \"word\": \"uniforms\",\n      \"explanation\": \"Trivially unrelated: refers to physical matching garments worn by an organization rather than internal or community belongings.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"She identities herself as an independent researcher on her professional portfolio.\",\n      \"explanation\": \"Wrong part of speech: uses the plural noun 'identities' in an active predicate slot that requires the third-person singular present verb 'identifies'.\"\n    },\n    {\n      \"sentence\": \"The curator provided three fascinating identities about the ancient sculpture.\",\n      \"explanation\": \"Category error: 'identities' cannot function as countable informational details, facts, or properties of an inanimate artifact.\"\n    },\n    {\n      \"sentence\": \"He experienced an acute identities crisis after abruptly leaving the tech industry.\",\n      \"explanation\": \"Syntactic constraint violation: the fixed compound noun modifier must be in the singular attributive form ('identity crisis'), not the plural.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"Children often construct elaborate fictional identities' during imaginative playground games.\",\n    \"error_description\": \"The plural noun 'identities' is erroneously marked with an apostrophe ('identities''), turning a standard direct object noun into an incomplete possessive.\",\n    \"corrected_sentence\": \"Children often construct elaborate fictional identities during imaginative playground games.\"\n  },\n  \"word_family_forms\": [\n    \"identify\",\n    \"identifiable\",\n    \"identifiably\",\n    \"identification\"\n  ],\n  \"word_family_fake_forms\": [\n    \"identitious\",\n    \"identificate\",\n    \"identitarianize\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"personas\",\n      \"tag\": \"synonym\"\n    },\n    {\n      \"word\": \"individualities\",\n      \"tag\": \"synonym\"\n    },\n    {\n      \"word\": \"anonymities\",\n      \"tag\": \"antonym\"\n    },\n    {\n      \"word\": \"uniformities\",\n      \"tag\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 145715,
+    "lemma": "identities"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_128593",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 13.586393594741821,
+    "prompt_tokens": 952,
+    "completion_tokens": 1851,
+    "usage_raw": {
+      "prompt_tokens": 952,
+      "completion_tokens": 1851,
+      "total_tokens": 2803,
+      "cost": 0.00765525,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00765525,
+        "upstream_inference_prompt_cost": 0.000714,
+        "upstream_inference_completions_cost": 0.00694125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.00765525,
+    "content": "{\n  \"definition_simple\": \"中身が何もなく、からっぽになっている穴やくぼみのこと。\",\n  \"definition_standard\": \"物体の内部がからになっていること。また、そのからっぽの空間や穴。転じて、内容や実質が失われて形骸化している状態。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"japanese\": \"木の幹に大きな空洞がある。\",\n      \"english\": \"There is a large hollow in the tree trunk.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"japanese\": \"地面の下に空洞が見つかった。\",\n      \"english\": \"A cavity was found beneath the ground.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"japanese\": \"この壁の裏には空洞ができている。\",\n      \"english\": \"A hollow space has formed behind this wall.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"japanese\": \"古い大木の空洞に小鳥が巣を作っている。\",\n      \"english\": \"Small birds are nesting in the hollow of an old large tree.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"japanese\": \"道路が突然陥没し、地下に巨大な空洞が広がっていることが判明した。\",\n      \"english\": \"The road suddenly caved in, revealing a massive underground cavity.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"japanese\": \"産業の空洞化が進むと、地域の雇用が急激に失われる。\",\n      \"english\": \"As the hollowing out of industry progresses, regional employment is sharply lost.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"japanese\": \"レントゲン検査によって骨の内部に小さな空洞が確認された。\",\n      \"english\": \"An X-ray examination confirmed a small cavity inside the bone.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"japanese\": \"形式的な手続きばかりが先行し、議論の実質的な空洞化を招いている。\",\n      \"english\": \"Formal procedures precede substance, leading to an effective hollowing out of the debate.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"japanese\": \"鍾乳洞の奥深くには、何万年もの歳月をかけて形成された神秘的な空洞が連なっている。\",\n      \"english\": \"Deep within the limestone cave lies a series of mystical caverns formed over tens of thousands of years.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"japanese\": \"度重なる組織改革の失敗により、中核を担う人材が流出して組織内部に回復不能な空洞が生じた。\",\n      \"english\": \"Due to repeated failures in organizational reform, core personnel fled, leaving an irreparable void within the organization.\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"空洞化\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"空白\",\n      \"reason\": \"「空白」は埋めるべき空所や時間的途切れを表す名詞であり、物理的な空洞や構造的空洞化を示す「空洞」と慣用的な連語を形成しない。\"\n    },\n    {\n      \"word\": \"虚無\",\n      \"reason\": \"「虚無」は哲学・心理的な虚しさを表す抽象名詞であり、物理的・機能的空隙を指す「空洞」の修飾・複合語として定着していない。\"\n    },\n    {\n      \"word\": \"隙間\",\n      \"reason\": \"「隙間」は物と物の間の狭い空隙を指す名詞であり、中身が抜けた内部空間を表す「空洞」とは共起構造が重複し不自然である。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"空洞現象\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"隙間\",\n      \"reason\": \"「隙間」は物と物の間の細いあき間を指すため、幹の内部がまるごとえぐれて空間になっている状態には適さない。\"\n    },\n    {\n      \"word\": \"空間\",\n      \"reason\": \"「空間」は物理的なスペース全般を指す広範な概念語であり、木の内部にできた穴そのものを具体的に指す語として不自然。\"\n    },\n    {\n      \"word\": \"虚空\",\n      \"reason\": \"「虚空」は何もない大空や空中を指す文学的・仏教的語彙であり、物体の内部のからっぽな穴を表す文脈には使えない。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"japanese\": \"彼は空洞な性格なので、誰とでもすぐに仲良くなれる。\",\n      \"reason\": \"形容動詞「空洞な」として人の性格を肯定的に修飾する用法は存在せず、「気さくな」や「素直な」との混同。\"\n    },\n    {\n      \"japanese\": \"コップの水を全部飲んで、中を空洞にした。\",\n      \"reason\": \"容器の液体をなくすことは「空（から）にする」と言い、構造内部がえぐれて穴になっているわけではないため「空洞にする」とは言わない。\"\n    },\n    {\n      \"japanese\": \"部屋が狭いので、もっと空洞を広げてください。\",\n      \"reason\": \"居住空間や余白を広げる文脈で「空洞」は用いず、「スペース」や「部屋の広さ」を用いるべき誤用。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"激しい雨で地盤が緩み、アスファルトの下に深い空洞が落ちた。\",\n    \"error_description\": \"「空洞」は穴や空間そのものを指すため「落ちる」という述語とは共起せず、「空洞ができた」または「地面が落ちた（陥没した）」とする必要がある。\",\n    \"corrected_sentence\": \"激しい雨で地盤が緩み、アスファルトの下に深い空洞ができた。\"\n  },\n  \"word_family_forms\": [\n    \"空洞化\",\n    \"空洞化する\"\n  ],\n  \"word_family_fake_forms\": [\n    \"空洞的\",\n    \"空洞さ\",\n    \"空洞がる\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"うろ\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"空隙\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"洞穴\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"充実\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"に\",\n      \"is_correct\": true,\n      \"explanation\": \"存在場所（木の幹の中）を示す助詞として「に」が文法的に正しい。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"is_correct\": false,\n      \"explanation\": \"「で」は動作の行われる場所を示す助詞であり、静的な存在を表す述語「ある」とは共起しない。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"is_correct\": false,\n      \"explanation\": \"「を」は他動詞の目的語を示す助詞であり、自動詞「ある」の場所補語には使えない。\"\n    },\n    {\n      \"particle\": \"へ\",\n      \"is_correct\": false,\n      \"explanation\": \"「へ」は移動の方向・帰着点を示す助詞であり、存在の所在を示す文脈には適さない。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 128593,
+    "lemma": "空洞"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_90726",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 46.96152329444885,
+    "prompt_tokens": 987,
+    "completion_tokens": 5765,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 5765,
+      "total_tokens": 6752,
+      "cost": 0.022359,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.022359,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.02161875
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 4161,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.022359,
+    "content": "{\n  \"definition_simple\": \"苦苦地等待；在艰苦或焦虑的心情中耐着性子长久等待。\",\n  \"definition_standard\": \"动词。指怀着焦急、痛苦、坚忍或充满期盼的心情，在困境或漫长时间中苦苦等待结果、时机或特定对象的到来。\",\n  \"pos\": \"动词\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"老人每天坐在门前，苦待儿子的归来。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"他在站台上苦待了整整一个晚上，列车却晚点了。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"连续几个月没有下雨，村民们都在苦待甘霖。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"被困在风雪中的登山队员，正苦待救援队的到来。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"创业初期十分艰难，大家都在苦待第一个商业转机。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"他苦待良机多年，终于在这次行业变革中脱颖而出。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"面对市场行情的持续低迷，投资者只能苦待转机。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"纵使前路渺茫、音讯全无，她依旧苦待故人，未曾动摇。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"这支孤军在弹尽粮绝的绝境中苦待援兵，展现出惊人的毅力。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"历经十载沉浮与落魄，他苦待昭雪，终在卷帙浩繁的历史公案中得还清白。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"酷待\",\n      \"explanation\": \"读音与“苦待”仅第一字声调不同（去声 kù 对上声 kǔ），字面容易误听，但“酷待”意思是残酷虐待，语义截然相反。\"\n    },\n    {\n      \"word\": \"苦态\",\n      \"explanation\": \"读音与“苦待”仅第二字声母是否送气不同（t 对 d），发音部位相同极易混淆，但“苦态”是名词，指愁苦的神态。\"\n    },\n    {\n      \"word\": \"姑待\",\n      \"explanation\": \"读音与“苦待”仅第一字声母送气与声调不同（gū 对 kǔ），“姑待”为书面语指“姑且等待”，听觉与语境上极易相混。\"\n    }\n  ],\n  \"primary_collocate\": \"良机\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"效率\",\n      \"explanation\": \"“效率”通常与“提高”、“讲求”搭配，不能作为耐苦等待的对象，语义搭配不通。\"\n    },\n    {\n      \"word\": \"速度\",\n      \"explanation\": \"虽然等待过程期盼加快，但现代汉语中不搭配“苦待速度”，应使用“加快速度”或“追求速度”。\"\n    },\n    {\n      \"word\": \"方便\",\n      \"explanation\": \"“方便”一般作为状语或与“提供”、“给予”搭配，不能作“苦待”的支配宾语。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"捷径\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"亏待\",\n      \"explanation\": \"词义完全不符，“亏待”指待遇不公或对不起人，无法代入等待救援队的语境中。\"\n    },\n    {\n      \"word\": \"优待\",\n      \"explanation\": \"词义与语境冲突，“优待”表示给予良好的待遇，不能用于表达在困境中焦急盼望的心情。\"\n    },\n    {\n      \"word\": \"懒待\",\n      \"explanation\": \"语体与含义不符，“懒待”为方言或口语词，表示“懒得去做”，不能表达长久的期盼和等待。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"他在餐厅苦待了服务员十分钟，服务员才拿来菜单。\",\n      \"explanation\": \"语境轻重失衡。“苦待”带有强烈的煎熬、痛苦与漫长感，用于日常餐厅等候点餐这类微不足道的小事属于语体严重错配。\"\n    },\n    {\n      \"sentence\": \"老板每个月按时发足薪水，从来没有苦待过手下的员工。\",\n      \"explanation\": \"混淆了“苦待”与“苛待/薄待”。现代汉语中“苦待”不表示在待遇上刻薄对待他人，此处应使用“苛待”或“亏待”。\"\n    },\n    {\n      \"sentence\": \"这个实验需要把溶液苦待三十分钟后才能观察反应。\",\n      \"explanation\": \"论元与主客体错配。“苦待”是有意识的主体在主观情绪上的耐熬与期盼，不能作为对客观实验物品施加的使动或静置动作。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"他在车站接朋友，仅仅苦待了五分钟便不耐烦地离开了。\",\n    \"error_description\": \"“苦待”用于表达长久、艰辛的心情熬待，与“仅仅……五分钟便不耐烦”在时限与语义程度上产生明显矛盾。\",\n    \"corrected\": \"他在车站接朋友，仅仅等待了五分钟便不耐烦地离开了。\"\n  },\n  \"word_family_forms\": [],\n  \"word_family_fake_forms\": [\n    \"苦待者\",\n    \"苦待度\",\n    \"苦待化\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"苦等\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"伫候\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"偶遇\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"速决\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 90726,
+    "lemma": "苦待"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_95554",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 52.43192505836487,
+    "prompt_tokens": 984,
+    "completion_tokens": 6713,
+    "usage_raw": {
+      "prompt_tokens": 984,
+      "completion_tokens": 6713,
+      "total_tokens": 7697,
+      "cost": 0.02591175,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.02591175,
+        "upstream_inference_prompt_cost": 0.000738,
+        "upstream_inference_completions_cost": 0.02517375
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 4438,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.02591175,
+    "content": "{\n  \"definition_simple\": \"在体育比赛或竞技活动中负责执行规则、裁决胜负的人。\",\n  \"definition_standard\": \"依据既定竞赛规程与规则，在各类体育或竞技活动中独立行使监督、评判与裁决职能的专业执法人员。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"裁判吹响了比赛结束的哨声。\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"足球比赛需要一名主裁判和两名助理裁判。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"运动员必须无条件服从裁判的判决。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"看到裁判出示黄牌，防守队员激动地跑过去申诉。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"这场焦点战对裁判的心理素质和控场能力是极大的考验。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"赛后新闻发布会上，双方教练均对裁判在关键时刻的漏判表达了不满。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"随着视频助理裁判技术的引入，赛场关键争议判罚的发生率大幅降低。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"国际体育组织对涉嫌在淘汰赛阶段操纵判罚的裁判团队启动了停职调查。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"多名资深执法人员因违规接受利益输送被起诉，直接促使联赛重组了裁判委员会。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"仲裁法庭最终裁定，裁判在未依规调阅传感系统实存数据的情况下径行终结赛事，已构成重大裁量过失。\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"裁判员\",\n      \"label\": \"agentive_suffix\"\n    },\n    {\n      \"form\": \"裁判长\",\n      \"label\": \"leader_official_suffix\"\n    }\n  ],\n  \"morphology_wrong_forms\": {\n    \"裁判员\": [\n      {\n        \"wrong_form\": \"裁判者\",\n        \"explanation\": \"现代汉语中虽然'-者'可表示人，但体育竞技体系中的正式从业人员后缀固定使用'-员'，'裁判者'不符合行业规范称谓。\"\n      },\n      {\n        \"wrong_form\": \"裁判生\",\n        \"explanation\": \"错误类比'学生'或'考生'添加后缀'-生'，裁判是具备资格资质的成年执法人员，不能使用具有学徒、受试含义的'-生'。\"\n      },\n      {\n        \"wrong_form\": \"裁判家\",\n        \"explanation\": \"错误套用表示学术或艺术名家的后缀'-家'，裁判属于规则执行岗位，不能赋予学术尊称后缀。\"\n      }\n    ],\n    \"裁判长\": [\n      {\n        \"wrong_form\": \"裁判主\",\n        \"explanation\": \"错误套用'车主/店主'的'-主'后缀，汉语中表示执法团队负责人的层级职衔应使用'-长'而非'-主'。\"\n      },\n      {\n        \"wrong_form\": \"裁判头\",\n        \"explanation\": \"误加带有口语俗语色彩的后缀'-头'，违背了正规赛事职衔的庄重书面规范。\"\n      },\n      {\n        \"wrong_form\": \"裁判官长\",\n        \"explanation\": \"生造叠加古代职官词素'官'与现代职衔'长'，属于冗余且不规范的造词。\"\n      }\n    ]\n  },\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"采办\",\n      \"explanation\": \"发音与'裁判'仅在第一字声调（上声cǎi与阳平cái）和第二字送气与否（不送气bàn与送气pàn）上存在微小差异，极易在口语语流中听混。\"\n    },\n    {\n      \"word\": \"彩排\",\n      \"explanation\": \"第一字声调不同（cǎi与cái），第二字韵母相近但存在鼻音差别（pái与pàn），听觉感知上的音响轮廓高度相似。\"\n    },\n    {\n      \"word\": \"踩盘\",\n      \"explanation\": \"音节成分完全相同，仅声调存在差异（cǎi pán与cái pàn），在说话人音调不准时极易引发听觉误判。\"\n    }\n  ],\n  \"primary_collocate\": \"主裁判\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"律法裁判\",\n      \"explanation\": \"法律审判语境中的正式人员为主审法官或审判长，'律法'不与'裁判'进行固定搭配。\"\n    },\n    {\n      \"word\": \"审理裁判\",\n      \"explanation\": \"'审理'通常与司法案件、法庭活动搭配，不能直接作为前置定语修饰作为体育执法人员的'裁判'。\"\n    },\n    {\n      \"word\": \"执法教练\",\n      \"explanation\": \"概念范畴混淆，教练负责指导队伍战术，裁判负责执行规则，二者不能混合构成修饰搭配。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"掌勺裁判\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"教练\",\n      \"explanation\": \"语义混淆：教练是主导队伍训练和制定战术的人，而非在场上执掌规则评定胜负的人。\"\n    },\n    {\n      \"word\": \"观众\",\n      \"explanation\": \"角色错位：观众是观摩比赛的群体，无权对赛场动作做出裁判性判罚。\"\n    },\n    {\n      \"word\": \"判官\",\n      \"explanation\": \"语域与文体错误：'判官'多用于古代官署或民间神话传说，现代体育竞赛中不能使用该词代指裁判。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"被告人在法庭上听取了裁判宣读的最终判决书。\",\n      \"explanation\": \"语域混淆：法庭司法审判中行使审判权的公职人员应为'法官'或'审判长'，不可使用偏向体育竞赛执法者的'裁判'。\"\n    },\n    {\n      \"sentence\": \"他在这次演讲比赛中表现优异，被评委裁判为最佳选手。\",\n      \"explanation\": \"句式与动词论元结构错误：现代汉语中'裁判'作为动词时不具备带双宾语或'使役定名'（裁判为……）的结构功能，此处应使用'评定为'或'评选为'。\"\n    },\n    {\n      \"sentence\": \"比赛结束后，队长裁判地向看台上的球迷挥手致意。\",\n      \"explanation\": \"词性与句法误用：'裁判'在此处被误当作描摹态度的状语修饰动词'挥手'，属于严重的词类误用。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"这场争议点球的判决引发了轩然大波，赛后组委会宣布涉事裁判官将被无限期停赛。\",\n    \"error_description\": \"体育执法人员的规范称谓为'裁判'或'裁判员'，混用古汉语官职后缀生造出不合规范的'裁判官'。\",\n    \"corrected_sentence\": \"这场争议点球的判决引发了轩然大波，赛后组委会宣布涉事裁判员将被无限期停赛。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"裁判权\",\n      \"pos\": \"名词\",\n      \"meaning\": \"依规则在竞赛中进行裁决的合法权力。\"\n    },\n    {\n      \"form\": \"裁判席\",\n      \"pos\": \"名词\",\n      \"meaning\": \"竞赛场边供裁判人员就座与记录的专门工作区域。\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"裁判度\",\n      \"explanation\": \"仿造'准确度/灵敏度'生造的词，现代汉语中并无表示裁判尺度或公信力高低的'裁判度'一词。\"\n    },\n    {\n      \"form\": \"裁判化\",\n      \"explanation\": \"仿造'-化'后缀生造，企图表达规则仲裁机制的普及，但该派生词在词汇系统中并不存在。\"\n    },\n    {\n      \"form\": \"裁判力\",\n      \"explanation\": \"仿造'控制力/执行力'生造，试图指代裁判掌控比赛的能力，不属于规范汉语词汇。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"裁判员\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"公断人\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"运动员\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"参赛者\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 95554,
+    "lemma": "裁判"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_133386",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 27.642054080963135,
+    "prompt_tokens": 956,
+    "completion_tokens": 4054,
+    "usage_raw": {
+      "prompt_tokens": 956,
+      "completion_tokens": 4054,
+      "total_tokens": 5010,
+      "cost": 0.0159195,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0159195,
+        "upstream_inference_prompt_cost": 0.000717,
+        "upstream_inference_completions_cost": 0.0152025
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1952,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0159195,
+    "content": "{\n  \"definition_simple\": \"力が同じくらいで、どちらが勝つかわからない激しい戦い。\",\n  \"definition_standard\": \"互いに力が接近していて、勝敗の判定がつきにくいきわどい戦い。また、接近して激しく戦うこと。\",\n  \"pos\": \"名詞・サ変名詞\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"text\": \"昨日の野球の試合は、最後まで接戦だった。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"text\": \"今回の市長選挙は、まれに見る接戦となっている。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"両チームは延長戦に突入するほどの接戦を演じた。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"手に汗握る接戦の末、我が校が辛くも勝利を収めた。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"ライバル同士の接戦を制して、彼は見事に優勝を果たした。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"世論調査では接戦が予想されていたが、開票後は意外な展開となった。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"前半から激しい接戦が繰り広げられ、観客席は大いに沸いた。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"新旧王者が互いの意地をかけて接戦を展開し、会場の熱気は最高潮に達した。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"両候補の政策支持率は拮抗しており、投開票日直前まで予断を許さない接戦が続いた。\",\n      \"tier\": \"T6\"\n    },\n    {\n      \"text\": \"世界市場でシェアを争う両社の開発競争は、まさに威信をかけた接戦の様相を呈している。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"接戦した\",\n      \"label\": \"past\"\n    },\n    {\n      \"form\": \"接戦している\",\n      \"label\": \"progressive\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"target_form\": \"接戦した\",\n      \"wrong_form\": \"接戦った\",\n      \"explanation\": \"サ変動詞の語幹を五段動詞と誤認して促音便化させてしまっている。\"\n    },\n    {\n      \"target_form\": \"接戦した\",\n      \"wrong_form\": \"接戦れた\",\n      \"explanation\": \"一段動詞の過去形活用語尾「〜れた」を誤って名詞語幹に直接接続している。\"\n    },\n    {\n      \"target_form\": \"接戦した\",\n      \"wrong_form\": \"接戦だ\",\n      \"explanation\": \"動詞の過去形を作ろうとして、形容動詞（ダ列）の過去形「だった」の短縮形と混同している。\"\n    },\n    {\n      \"target_form\": \"接戦している\",\n      \"wrong_form\": \"接戦っている\",\n      \"explanation\": \"五段動詞のテ形（促音便）に「いる」をつけて進行形を作ろうとした誤用。\"\n    },\n    {\n      \"target_form\": \"接戦している\",\n      \"wrong_form\": \"接戦中ている\",\n      \"explanation\": \"状態を示す名詞接尾辞「〜中」に直接動詞語尾「ている」を接続してしまっている。\"\n    },\n    {\n      \"target_form\": \"接戦している\",\n      \"wrong_form\": \"接戦ある\",\n      \"explanation\": \"進行・継続状態を表す補助動詞「いる」ではなく存在動詞「ある」を誤って選択している。\"\n    }\n  ],\n  \"primary_collocate\": \"接戦を制する\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"接戦を勝つ\",\n      \"explanation\": \"日本語では「接戦で勝つ」と格助詞「で」を用いるのが自然であり、「接戦を勝つ」とは言わない。\"\n    },\n    {\n      \"word\": \"接戦を競う\",\n      \"explanation\": \"「接戦」そのものに争い・競争の意味が含まれるため、動詞「競う」を重ねるのは意味の重複となり不自然である。\"\n    },\n    {\n      \"word\": \"接戦を破る\",\n      \"explanation\": \"「均衡を破る」や「相手を破る」とは言うが、戦況そのものを対象として「接戦を破る」というコロケーションは存在しない。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"接戦を収める\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"乱戦\",\n      \"explanation\": \"「乱戦」は入り乱れて秩序のない激しい戦いを指し、実力が拮抗した競り合いを表す文脈には合わない。\"\n    },\n    {\n      \"word\": \"合戦\",\n      \"explanation\": \"「合戦」は歴史的な武力衝突や伝統的な勝負を指す古風な語であり、現代のスポーツの試合に対して不自然。\"\n    },\n    {\n      \"word\": \"観戦\",\n      \"explanation\": \"「観戦」は試合を見物することを意味するため、選手自身が競い合って勝利を収める主客関係と矛盾する。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼は自己記録を更新するため、トラックで一人で接戦した。\",\n      \"reason\": \"「接戦」は複数の対戦相手の実力が伯仲して競り合う状況を指すため、単独の活動に対して使えない。\"\n    },\n    {\n      \"sentence\": \"圧倒的な戦力差があり、序盤から10点差をつけた接戦となった。\",\n      \"reason\": \"「接戦」は点差や実力差がわずかで勝敗が際どい勝負を意味するため、「大差」「圧倒的」という状況と意味的に矛盾する。\"\n    },\n    {\n      \"sentence\": \"来週の土曜日に、両校の間で接戦が予定されている。\",\n      \"reason\": \"「接戦」は試合の展開や結果として現れる性質・状態であり、「定期戦」や「練習試合」のように事前に予定・計画できるイベント名詞ではない。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"両チームの実力差が大きく、最後まで接戦となって大差で試合が終わった。\",\n    \"error_description\": \"実力差が大きく大差で決着する展開は「接戦（競り合い）」の意味と完全に矛盾している。\",\n    \"corrected_sentence\": \"両チームの実力差が大きく、最後まで一方的な展開となって大差で試合が終わった。\"\n  },\n  \"word_family_forms\": [\n    \"接戦する\"\n  ],\n  \"word_family_fake_forms\": [\n    \"接戦的\",\n    \"接戦さ\",\n    \"接戦化\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"candidate\": \"激戦\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"candidate\": \"好勝負\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"candidate\": \"圧勝\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"candidate\": \"ワンサイドゲーム\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"の\",\n      \"is_correct\": true,\n      \"explanation\": \"名詞「接戦」と名詞「末」をつなぎ、「接戦という戦いの結末」を表す連体修飾の格助詞として正しい。\"\n    },\n    {\n      \"particle\": \"に\",\n      \"is_correct\": false,\n      \"explanation\": \"「接戦に末」と名詞同士を直接「に」で接続して時間的・状況的な帰着点を作る用法は文法的に誤り。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"is_correct\": false,\n      \"explanation\": \"目的語を示す格助詞「を」は後続の動詞を修飾するものであり、名詞「末」に直接接続することはできない。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"is_correct\": false,\n      \"explanation\": \"「接戦で勝つ」のように述語にかかる手段・状況なら可能だが、名詞「末」に連体修飾として接続することはできない。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 133386,
+    "lemma": "接戦"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_136630",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 39.08159589767456,
+    "prompt_tokens": 956,
+    "completion_tokens": 4939,
+    "usage_raw": {
+      "prompt_tokens": 956,
+      "completion_tokens": 4939,
+      "total_tokens": 5895,
+      "cost": 0.01923825,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01923825,
+        "upstream_inference_prompt_cost": 0.000717,
+        "upstream_inference_completions_cost": 0.01852125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2643,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01923825,
+    "content": "{\n  \"definition_simple\": \"法律や道徳に反することや、罪・間違いをする。\",\n  \"definition_standard\": \"法律・規則・道徳などに背く行為をする。また、罪や取り返しのつかない過ちを行う。\",\n  \"pos\": \"動詞（サ行五段活用、他動詞）\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"彼は罪を犯した。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"どんな理由があっても、法を犯してはならない。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"彼は若い頃に重大な過ちを犯してしまった。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"大会の規則を犯した選手は、出場資格を失った。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"その男は再び同じ罪を犯すことを恐れていた。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"彼は社の服務規程を犯し、厳しい懲戒処分を受けた。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"私たちは人類が過去に犯してきた過ちから教訓を学ばねばならない。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"地域の神聖なタブーを犯した観光客が厳しく非難された。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"国際法上の人道に対する罪を犯した疑いで、元高官が国際刑事裁判所に起訴された。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"共同体の禁忌を犯すことへの宗教的畏怖が、秩序の崩壊を未然に防いできた。\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"label\": \"past_tense\",\n      \"form\": \"犯した\"\n    },\n    {\n      \"label\": \"negative\",\n      \"form\": \"犯さない\"\n    },\n    {\n      \"label\": \"passive\",\n      \"form\": \"犯される\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"base_form\": \"犯した\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"犯いだ\",\n          \"explanation\": \"カ行五段動詞（書く→書いた）の音便規則をサ行五段動詞に誤って適用している。\"\n        },\n        {\n          \"form\": \"犯った\",\n          \"explanation\": \"ラ行五段動詞の促音便（割る→割った）の活用規則と混同している。\"\n        },\n        {\n          \"form\": \"犯したた\",\n          \"explanation\": \"過去形語尾「た」を重複して付加してしまっている。\"\n        }\n      ]\n    },\n    {\n      \"base_form\": \"犯さない\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"犯しない\",\n          \"explanation\": \"一段動詞の未然形接続規則（連用形＋ない）をサ行五段動詞に誤適用している。\"\n        },\n        {\n          \"form\": \"犯くない\",\n          \"explanation\": \"動詞の否定形活用をイ形容詞の否定形規則（〜くない）と混同している。\"\n        },\n        {\n          \"form\": \"犯ぜない\",\n          \"explanation\": \"未然形語尾の子音を誤って濁音化させ、可能否定のような不自然な語形を作っている。\"\n        }\n      ]\n    },\n    {\n      \"base_form\": \"犯される\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"犯せられる\",\n          \"explanation\": \"仮定形／可能動詞語幹に「られる」を付加した二重受身・可能混同の誤り。\"\n        },\n        {\n          \"form\": \"犯しられる\",\n          \"explanation\": \"一段動詞の受身化規則（連用形＋られる）をサ行五段動詞に誤適用している。\"\n        },\n        {\n          \"form\": \"犯さられる\",\n          \"explanation\": \"五段動詞の受身未然形「あ段＋れる」に不要な「ら」を挿入した過剰受身形。\"\n        }\n      ]\n    }\n  ],\n  \"primary_collocate\": \"罪を犯す\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"刑罰\",\n      \"explanation\": \"「刑罰」は受ける・科す対象であり、法を破る側が「行う」名詞ではないためコロケーションとして不成立。\"\n    },\n    {\n      \"word\": \"事故\",\n      \"explanation\": \"「事故」は過失や偶然による出来事であり「起こす」「遭う」と結びつき、道徳・法規を破る意味の「犯す」とは結びつかない。\"\n    },\n    {\n      \"word\": \"嘘\",\n      \"explanation\": \"虚偽の発言には専用の動詞「つく（嘘をつく）」を用い、「犯す」とは共起しない。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"word\": \"失敗\",\n    \"explanation\": \"英語の make a mistake に引きずられて「失敗を犯す」としがちだが、日本語では「失敗をする」または「過ちを犯す」とするのが正しく、「失敗」と「犯す」はコロケーションとして不自然。\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"word\": \"破棄して\",\n      \"explanation\": \"「破棄する」は書類や契約を一方的に捨てる・無効にする動作を表し、「法」を規範として破る文脈では意味が合わない。\"\n    },\n    {\n      \"word\": \"侵略して\",\n      \"explanation\": \"同音の「侵す」に関連する軍事・領土侵害の語であり、一般的な「法」という規範を破る述語としては不適切。\"\n    },\n    {\n      \"word\": \"傷つけて\",\n      \"explanation\": \"人や感情、物理的な物体を痛める動詞であり、「法」のような抽象的規則を対象とする目的語選択として比喩的にも不自然。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼の心の中に罪が犯した。\",\n      \"explanation\": \"「犯す」は意志または行為主体を主語とする他動詞（〜が〜を犯す）であり、「罪」を主語にして自動詞のように用いる項構造の誤り。\"\n    },\n    {\n      \"sentence\": \"危険を犯してまで、大雨の中で山に登るべきではない。\",\n      \"explanation\": \"危険や困難に身を投じる意味には同音異義語の「冒す（危険を冒す）」を用いるべきであり、罪・規則違反を表す「犯す」の漢字表記は不適切。\"\n    },\n    {\n      \"sentence\": \"軍隊が隣国の国境を犯して侵入した。\",\n      \"explanation\": \"領域や権利、身体を侵害する意味には「侵す（領土を侵す・権利を侵す）」を用いるべきであり、犯罪行為を行う意味の「犯す」は不適切。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"いくら時間に追われていたとしても、スピード違反という失敗を犯してはならない。\",\n    \"error_description\": \"「犯す」は「罪」や「過ち」と共起する語であり、「失敗」と結びつけるのは不自然なコロケーションである。\",\n    \"corrected\": \"いくら時間に追われていたとしても、スピード違反という過ちを犯してはならない。\"\n  },\n  \"word_family_forms\": [\n    \"犯人\",\n    \"再犯\",\n    \"共犯\"\n  ],\n  \"word_family_fake_forms\": [\n    \"犯手\",\n    \"犯癖\",\n    \"犯死\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"破る\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"踏みにじる\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"守る\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"順守する\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"を\",\n      \"is_correct\": true,\n      \"explanation\": \"他動詞「犯す」の直接目的語（行われた過ち・罪）を示す格助詞として正しい。\"\n    },\n    {\n      \"particle\": \"に\",\n      \"is_correct\": false,\n      \"explanation\": \"「に」は帰着点や対象を示す助詞であり、行為の直接の内容である「過ち」を受ける助詞として誤り。\"\n    },\n    {\n      \"particle\": \"が\",\n      \"is_correct\": false,\n      \"explanation\": \"「が」は主語（行為主体）を指し示すため、動作の対象である「過ち」に付けると主客が逆転してしまう。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"is_correct\": false,\n      \"explanation\": \"「で」は手段や場所を表す格助詞であり、「犯す」が要求する被影響目的語を標示できない。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 136630,
+    "lemma": "犯す"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_133207",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 37.56122350692749,
+    "prompt_tokens": 956,
+    "completion_tokens": 5786,
+    "usage_raw": {
+      "prompt_tokens": 956,
+      "completion_tokens": 5786,
+      "total_tokens": 6742,
+      "cost": 0.0224145,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0224145,
+        "upstream_inference_prompt_cost": 0.000717,
+        "upstream_inference_completions_cost": 0.0216975
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 3292,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0224145,
+    "content": "{\n  \"definition_simple\": \"話やパーティーなどが、とてもにぎやかで楽しくなること。\",\n  \"definition_standard\": \"雰囲気や気分、議論などが高まって活気や熱気を帯びること。\",\n  \"pos\": \"動詞（五段活用・自動詞）\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"text\": \"パーティーはとても盛り上がった。\",\n      \"translation\": \"The party got very lively.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"友達と好きな音楽の話で盛り上がる。\",\n      \"translation\": \"I get excited talking with my friends about music we like.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"text\": \"みんなでカラオケに行き、大いに盛り上がった。\",\n      \"translation\": \"We all went to karaoke and had a fantastic, lively time.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"試合の終盤、スタジアム全体の熱気が一気に盛り上がった。\",\n      \"translation\": \"Near the end of the match, the enthusiasm throughout the entire stadium surged at once.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"text\": \"最初は静かだったが、お酒が入ると徐々に場が盛り上がってきた。\",\n      \"translation\": \"It was quiet at first, but as drinks flowed, the mood of the room gradually became lively.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"観客の手拍子とともに、会場のボルテージは最高潮に盛り上がった。\",\n      \"translation\": \"Along with the clapping of the audience, the voltage of the venue rose to its climax.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"text\": \"選挙戦が佳境に入り、支持者たちの間で議論が盛り上がりを見せている。\",\n      \"translation\": \"As the election campaign enters its final stretch, discussions among supporters are heating up.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"世論の反対運動が盛り上がるにつれて、政府も方針の再検討を迫られた。\",\n      \"translation\": \"As the public opposition movement gathered momentum, the government was forced to reconsider its policy.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"text\": \"地域の祭りは、若者たちの熱心な参加によって再び盛り上がりを取り戻した。\",\n      \"translation\": \"The local festival regained its liveliness thanks to the enthusiastic participation of the youth.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"text\": \"国際情勢の緊迫化に伴い、安全保障を巡る国民的な議論がかつてないほど盛り上がりを見せている。\",\n      \"translation\": \"With international tensions mounting, nationwide debate over national security is building up to unprecedented levels.\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"label\": \"past_tense\",\n      \"form\": \"盛り上がった\"\n    },\n    {\n      \"label\": \"polite_negative\",\n      \"form\": \"盛り上がりません\"\n    },\n    {\n      \"label\": \"te_form\",\n      \"form\": \"盛り上がって\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"label\": \"past_tense\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"盛り上がりた\",\n          \"explanation\": \"一段動詞（る動詞）と混同して、五段動詞の促音便変化（った）を行わずに連用形に直接「た」を接続している。\"\n        },\n        {\n          \"form\": \"盛り上った\",\n          \"explanation\": \"活用語尾の送り仮名「が」を脱落させて表記している。\"\n        },\n        {\n          \"form\": \"盛り上がした\",\n          \"explanation\": \"サ変動詞の過去形「〜した」と混同して、誤った助動詞接続を作っている。\"\n        }\n      ]\n    },\n    {\n      \"label\": \"polite_negative\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"盛り上がらません\",\n          \"explanation\": \"連用形接続である「ません」を、未然形語幹「〜ら」に誤って接続している。\"\n        },\n        {\n          \"form\": \"盛り上げません\",\n          \"explanation\": \"他動詞「盛り上げる」の一段活用と混同し、自動詞の丁寧否定として誤った語幹を用いている。\"\n        },\n        {\n          \"form\": \"盛り上がりくないです\",\n          \"explanation\": \"動詞の活用であるにもかかわらず、形容詞の否定形規則（〜くない）を混同して適用している。\"\n        }\n      ]\n    },\n    {\n      \"label\": \"te_form\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"盛り上がりて\",\n          \"explanation\": \"ラ行五段活用の促音便（って）を作らず、古語や一段動詞のように連用形にそのまま「て」を付けている。\"\n        },\n        {\n          \"form\": \"盛り上がいで\",\n          \"explanation\": \"「泳ぐ→泳いで」などのガ行イ音便と混同し、ラ行活用の動詞に濁音便「いで」を誤用している。\"\n        },\n        {\n          \"form\": \"盛り上がってて\",\n          \"explanation\": \"促音便化した接続形に不要な接続助詞「て」を重複して重ねている。\"\n        }\n      ]\n    }\n  ],\n  \"primary_collocate\": \"場が盛り上がる\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"気温が盛り上がる\",\n      \"explanation\": \"温度の上昇には単に「上がる」を用い、熱気や活気の高まりを表す「盛り上がる」は共起しない。\"\n    },\n    {\n      \"word\": \"声が盛り上がる\",\n      \"explanation\": \"声の音量や調子には「大きくなる」や「張り上がる」を用い、「盛り上がる」は使わない。\"\n    },\n    {\n      \"word\": \"値段が盛り上がる\",\n      \"explanation\": \"物価や金額の高騰には「上がる」や「高騰する」を用い、感情や場の熱狂を表す「盛り上がる」は不適切である。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"天気が盛り上がる\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"増大した\",\n      \"explanation\": \"「増大する」は数量や規模・程度が客観的に増える際に用いるため、パーティーの活況を表す文脈には不自然である。\"\n    },\n    {\n      \"word\": \"浮かれた\",\n      \"explanation\": \"「浮かれる」は個人が軽薄に陽気な気分になることを指し、集まり全体の熱気や楽しさを表す語として適さない。\"\n    },\n    {\n      \"word\": \"登った\",\n      \"explanation\": \"「登る」は物理的に高い場所へと移動する動作を表し、場の雰囲気や感情の昂揚には一切使用できない。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"司会者は会場の観客を大いに盛り上がった。\",\n      \"reason\": \"「盛り上がる」は自動詞であるため、「〜を盛り上がる」のように目的語を取ることはできず、他動詞「盛り上げる」を用いる必要がある。\"\n    },\n    {\n      \"sentence\": \"お風呂を沸かしたら、お湯の温度が急速に盛り上がった。\",\n      \"reason\": \"「盛り上がる」は雰囲気や議論の熱気の高まりに使われる語であり、物理的な温度の上昇には「上がる」を用いるべきである。\"\n    },\n    {\n      \"sentence\": \"彼は毎日の筋トレで筋肉の力を盛り上がっている。\",\n      \"reason\": \"体力や筋力を高める文脈で「盛り上がる」は共起せず、「鍛える」「高める」「つける」などを使うのが適切である。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"彼らは夜遅くまで映画の感想について熱く盛り上げた。\",\n    \"error_description\": \"話者たちが自ら熱中して活気づいた文脈であるため、他動詞の「盛り上げた」ではなく自動詞の「盛り上がった」を用いるのが正しい。\",\n    \"corrected\": \"彼らは夜遅くまで映画の感想について熱く盛り上がった。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"盛り上がり\",\n      \"pos\": \"名詞\"\n    },\n    {\n      \"form\": \"盛り上げる\",\n      \"pos\": \"動詞（他動詞）\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"盛り上がり性\",\n    \"盛り上がり的\",\n    \"盛り上がらし\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"白熱する\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"活気づく\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"白ける\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"冷める\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": {\n    \"sentence\": \"好きなアニメの話［ ］友達と盛り上がる。\",\n    \"options\": [\n      {\n        \"particle\": \"で\",\n        \"is_correct\": true,\n        \"explanation\": \"会話や議論が活性化する原因・材料・話題を表す助詞として「で」が正しく機能する。\"\n      },\n      {\n        \"particle\": \"に\",\n        \"is_correct\": false,\n        \"explanation\": \"助詞「に」は帰着点や対象を表すが、「話に盛り上がる」という表現は助詞選択として不自然である。\"\n      },\n      {\n        \"particle\": \"を\",\n        \"is_correct\": false,\n        \"explanation\": \"「盛り上がる」は自動詞であるため、話題を他動詞の目的語のように「〜を盛り上がる」と指定することはできない。\"\n      },\n      {\n        \"particle\": \"から\",\n        \"is_correct\": false,\n        \"explanation\": \"助詞「から」は起点や根拠を示すため、「話から盛り上がる」とすると話題自体ではなく別の展開へ発展したような不自然な響きになる。\"\n      }\n    ]\n  }\n}",
+    "lang": "ja",
+    "vocab_id": 133207,
+    "lemma": "盛り上がる"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_148144",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 24.573319911956787,
+    "prompt_tokens": 993,
+    "completion_tokens": 3712,
+    "usage_raw": {
+      "prompt_tokens": 993,
+      "completion_tokens": 3712,
+      "total_tokens": 4705,
+      "cost": 0.01466475,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01466475,
+        "upstream_inference_prompt_cost": 0.00074475,
+        "upstream_inference_completions_cost": 0.01392
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2242,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01466475,
+    "content": "{\n  \"definition_simple\": \"Supported, confirmed, or maintained a decision, law, or principle against challenge.\",\n  \"definition_standard\": \"Affirmed or defended the validity of a prior legal ruling, custom, or standard against objection or appeal.\",\n  \"pos\": \"verb\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"text\": \"The judge upheld the original rule.\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"text\": \"The school board upheld the principal's decision.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"She upheld her family's long tradition of community service.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"The committee upheld the ban on single-use plastics.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"The appeals court upheld the conviction after reviewing the new evidence.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"Throughout the crisis, the officers upheld their oath of duty.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"The state supreme court unanimously upheld the lower court's ruling on constitutional grounds.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"Despite intense public pressure, the regulatory agency upheld the environmental standards.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"The international tribunal upheld the maritime treaty, citing decades of customary law.\",\n      \"tier\": \"T6\"\n    },\n    {\n      \"text\": \"In an unprecedented decree, the constitutional council upheld the validity of the contested election.\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"uphold\",\n      \"label\": \"base_form\"\n    },\n    {\n      \"form\": \"upholding\",\n      \"label\": \"present_participle\"\n    }\n  ],\n  \"morphology_wrong_forms\": {\n    \"uphold\": [\n      {\n        \"form\": \"uphelded\",\n        \"explanation\": \"Incorrectly applies regular past-tense '-ed' inflection to an already irregular past-tense stem.\"\n      },\n      {\n        \"form\": \"upholden\",\n        \"explanation\": \"Archaically attempts to form a strong past participle by analogy with 'beholden' or 'holden'.\"\n      },\n      {\n        \"form\": \"uphelding\",\n        \"explanation\": \"Erroneously attaches the progressive participle suffix '-ing' to the past-tense stem instead of the base stem.\"\n      }\n    ],\n    \"upholding\": [\n      {\n        \"form\": \"upholdening\",\n        \"explanation\": \"Double-inflects the participle by stacking an archaic participle ending '-en' before the suffix '-ing'.\"\n      },\n      {\n        \"form\": \"upholdinged\",\n        \"explanation\": \"Combines continuous and past markers into a single illegitimate suffix cluster.\"\n      },\n      {\n        \"form\": \"upholdin\",\n        \"explanation\": \"Truncates the velar nasal coda into an informal phonetic spelling unsuited for standard morphology.\"\n      }\n    ]\n  },\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"withheld\",\n      \"explanation\": \"Shares the exact rhyme and past-tense participle ending /-hɛld/ but begins with a different prefix /wɪð-/ rather than /ʌp-/ and means retained or refused to yield.\"\n    },\n    {\n      \"word\": \"unheld\",\n      \"explanation\": \"Differs only by the prefix-coda nasal /n/ versus bilabial stop /p/, referring to something not grasped or retained.\"\n    },\n    {\n      \"word\": \"upheaved\",\n      \"explanation\": \"Shares the initial /ʌp-/ prefix and similar cadence, but ends with /-hiːvd/ and refers to forceful physical displacement rather than legal affirmation.\"\n    }\n  ],\n  \"primary_collocate\": \"ruling\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"punishment\",\n      \"explanation\": \"Courts administer, mitigate, or suspend a punishment, but they formally uphold a ruling, decision, or conviction rather than the punishment itself.\"\n    },\n    {\n      \"word\": \"opinion\",\n      \"explanation\": \"Judges deliver, issue, or draft an opinion, but they do not use 'uphold' to describe endorsing another justice's written commentary.\"\n    },\n    {\n      \"word\": \"testimony\",\n      \"explanation\": \"Witness testimony is credited, corroborated, or impeached, whereas 'uphold' requires an institutional or legal determination as its target.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"lawsuit\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"overturned\",\n      \"explanation\": \"Presents an exact antonym of 'upheld', representing the reversal rather than the affirmation of the lower court's finding.\"\n    },\n    {\n      \"word\": \"uplifted\",\n      \"explanation\": \"Confuses the abstract legal sense of 'uphold' with a literal or emotional elevation inappropriate for judicial register.\"\n    },\n    {\n      \"word\": \"entertained\",\n      \"explanation\": \"Means to consider or listen to an argument, which fails to convey the finality of officially validating the conviction.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The laborer upheld the ceiling joist with a wooden post while repairs were underway.\",\n      \"reason\": \"Uses 'upheld' for physical, structural propping; the physical action requires 'held up' or 'supported', as 'upheld' is restricted to abstract, moral, or legal maintenance.\"\n    },\n    {\n      \"sentence\": \"The jury upheld the defendant guilty after reviewing the surveillance footage.\",\n      \"reason\": \"Violates argument structure by treating 'upheld' as a complex-transitive verb taking an object and an adjective complement; English requires 'found the defendant guilty'.\"\n    },\n    {\n      \"sentence\": \"She upheld to complete the project before the end of the fiscal quarter.\",\n      \"reason\": \"Improperly complements 'upheld' with a to-infinitive clause; the verb is strictly transitive and must govern a direct noun phrase representing a standard, duty, or ruling.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"The Supreme Court was upheld the statute after hearing oral arguments from both state attorneys.\",\n    \"error_description\": \"The active transitive clause incorrectly introduces the auxiliary 'was', mistakenly converting an active agent into a passive construct while still retaining a direct object.\",\n    \"corrected\": \"The Supreme Court upheld the statute after hearing oral arguments from both state attorneys.\"\n  },\n  \"word_family_forms\": [\n    \"upholder\"\n  ],\n  \"word_family_fake_forms\": [\n    \"upholdment\",\n    \"upholdative\",\n    \"upholdation\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"affirmed\",\n      \"relationship\": \"synonym\"\n    },\n    {\n      \"word\": \"sustained\",\n      \"relationship\": \"synonym\"\n    },\n    {\n      \"word\": \"overturned\",\n      \"relationship\": \"antonym\"\n    },\n    {\n      \"word\": \"quashed\",\n      \"relationship\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 148144,
+    "lemma": "upheld"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_38924",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 29.41877508163452,
+    "prompt_tokens": 987,
+    "completion_tokens": 3803,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 3803,
+      "total_tokens": 4790,
+      "cost": 0.0150015,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0150015,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.01426125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2140,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0150015,
+    "content": "{\n  \"definition_simple\": \"指跳出作品或事物本身，从更高层次对其结构、规则或虚构本质进行自我反思与审视的（即“元-”）。\",\n  \"definition_standard\": \"对应西方文艺理论中的前缀“meta-”，指超越并审视现有系统、认知框架或叙事规则的属性；多用于文学艺术批评，特指具有自反性、自我解构或刻意暴露虚构机制的特征。\",\n  \"pos\": \"区别词\",\n  \"semantic_class\": \"property\",\n  \"sentences\": [\n    {\n      \"text\": \"这部后设电影打破了第四面墙，直接与观众对话。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"读者在这本后设小说中常能看到作者谈论自己的写作过程。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"舞台剧通过后设的手法让观众随时意识到这只是一场戏。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"该剧采用了后设的叙事结构，在戏中戏里层层嵌套。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"导演运用后设视听语言，深刻揭示了影视工业本身的虚幻感。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"后设叙述打破了传统现实主义文学所构建的“逼真幻象”。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"这篇学术书评着重探讨了卡尔维诺作品中的后设维度与自反性特征。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"文艺理论界常将后现代主义思潮与后设技巧的大规模流行联系起来。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"这种后设反思动摇了主客二元对立，将认知框架本身置于审视之下。\",\n      \"tier\": \"T6\"\n    },\n    {\n      \"text\": \"文本内部的自指符号产生了一种后设张力，彻底解构了单一确定的真理话语。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"后撤\",\n      \"explanation\": \"声母不同（sh 与 ch），“后撤”意为向后撤退，与文艺理论概念“后设”含义完全无关。\"\n    },\n    {\n      \"word\": \"厚实\",\n      \"explanation\": \"声调与韵母相近但第二字为轻声且韵母不同（shè 与 shi），“厚实”指厚度大或物资丰富，与“后设”毫无关联。\"\n    },\n    {\n      \"word\": \"候审\",\n      \"explanation\": \"第二字韵母与声调不同（shè 与 shěn），“候审”为法律用语指等待审讯，与“后设”音近义异。\"\n    }\n  ],\n  \"primary_collocate\": \"小说\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"故事\",\n      \"explanation\": \"“后设”通常与形式和文类术语搭配（如“后设小说”“后设叙述”），一般不直接与日常词汇“故事”组合成固定搭配。\"\n    },\n    {\n      \"word\": \"构思\",\n      \"explanation\": \"“后设”指涉自反结构而非创作构思的动作或过程，“后设构思”在现代汉语批评话语中并非惯用搭配。\"\n    },\n    {\n      \"word\": \"思想\",\n      \"explanation\": \"“后设思想”语义含混，中文讨论认知反思时通常使用“元认知”或“批判性反思”，不使用“后设思想”。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"假想\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"预设\",\n      \"explanation\": \"“预设”表示事先的假定或前提，不能用来修饰打破虚构界限、进行自我反思的叙事手法。\"\n    },\n    {\n      \"word\": \"附设\",\n      \"explanation\": \"“附设”是动词，指附带设立机构或设施，词性与修饰艺术特征的语境不符。\"\n    },\n    {\n      \"word\": \"陈设\",\n      \"explanation\": \"“陈设”意为摆设或布置，为普通名词或动词，在此完全无法修饰“电影”的叙事形式。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"公司在会议中后设了一个新的副总裁职位来应对业务扩张。\",\n      \"explanation\": \"误将“后设”当成了动词“事后设立/增设”使用，混淆了学术前缀“meta-”与字面汉字“后+设”的含义。\"\n    },\n    {\n      \"sentence\": \"这道几何题隐藏了一个必须先证明的后设条件。\",\n      \"explanation\": \"误将“后设”与“预设/前提条件”混为一谈，数学或逻辑学中应使用“预设”或“已知条件”。\"\n    },\n    {\n      \"sentence\": \"小王性格特别后设，大家跟他相处都觉得很舒服。\",\n      \"explanation\": \"误将专有文学理论属性词泛化为修饰人际性格特征的形容词，属于严重的范畴错位。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"为了弥补前期规划的不足，管委会决定在二期工程中后设三个安全巡查岗位。\",\n    \"error_description\": \"“后设”是专有名词/区别词（指meta-的自反属性），不能作为动词充当“事后增设”使用。\",\n    \"corrected\": \"为了弥补前期规划的不足，管委会决定在二期工程中追加设立三个安全巡查岗位。\"\n  },\n  \"word_family_forms\": [\n    \"后设小说\",\n    \"后设戏剧\",\n    \"后设叙述\",\n    \"后设认知\"\n  ],\n  \"word_family_fake_forms\": [\n    \"后设家\",\n    \"被后设\",\n    \"后设化度\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"元\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"自反\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"拟真\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"沉浸\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 38924,
+    "lemma": "后设"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_9532",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 31.372958421707153,
+    "prompt_tokens": 987,
+    "completion_tokens": 4203,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 4203,
+      "total_tokens": 5190,
+      "cost": 0.0165015,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0165015,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.01576125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2634,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0165015,
+    "content": "{\n  \"definition_simple\": \"流传在世的书籍版本。\",\n  \"definition_standard\": \"文献学与版本学专有名词，指古籍在流传过程中保存、留存至今的各种抄本或印本。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"mandarin\": \"这是一部古代小说的稀有传本。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"mandarin\": \"这本书最早的传本已经找不到了。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"mandarin\": \"博物馆里收藏着该诗集唯一的传本。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"mandarin\": \"学者们通过对比不同的传本，找到了许多文字差异。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"mandarin\": \"这部古书的早期传本中保存了作者的原貌。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"mandarin\": \"这部宋代文集的传本极少，堪称凤毛麟角。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"mandarin\": \"经过仔细考证，他发现这个传本并非宋代原刻，而是明代翻刻本。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"mandarin\": \"该书在流传过程中衍生出多个系统，各系统传本在篇目上大相径庭。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"mandarin\": \"整理古籍时必须先搜集该著作存世的所有传本，以便校勘讹误。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"mandarin\": \"《文心雕龙》的元刻本乃目前所见最早之刻本传本，对后世文本流变考辨意义重大。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"全本\",\n      \"explanation\": \"声母不同（/tɕʰ/ 与 /tʂʰ/），“全本”指内容完整无缺的本子或整部大戏，与专指流传版本的“传本”容易听混。\"\n    },\n    {\n      \"word\": \"串本\",\n      \"explanation\": \"首字声调不同（第四声 chuàn 与第二声 chuán），听觉上极易因音调差异而产生混淆。\"\n    },\n    {\n      \"word\": \"残本\",\n      \"explanation\": \"声母不同（平舌音 /tsʰ/ 与翘舌音 /tʂʰ/），且均用于文献版本语境，发音相近且容易在听觉中并置。\"\n    }\n  ],\n  \"primary_collocate\": \"存世\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"畅销\",\n      \"explanation\": \"“畅销”主要搭配现代商业化出版物，不能修饰专用于历史古籍流传版本的“传本”。\"\n    },\n    {\n      \"word\": \"版权\",\n      \"explanation\": \"“版权”是近现代法律概念，与传统古籍版本学领域的“传本”不存在固定搭配关系。\"\n    },\n    {\n      \"word\": \"印刷\",\n      \"explanation\": \"“印刷”为现代工业化生产动词，文献学中与传本搭配通常使用“刊印”、“雕版”或“传刻”。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"发售\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"本领\",\n      \"explanation\": \"字面含有“本”，但词义为技能或能力，放入古籍句式中在语义上完全不通。\"\n    },\n    {\n      \"word\": \"传说\",\n      \"explanation\": \"字面含有“传”，但词义为民间口耳相传的故事，与文献实体概念完全不符。\"\n    },\n    {\n      \"word\": \"手稿\",\n      \"explanation\": \"“手稿”指作者亲手写下的原始底稿，而“传本”强调后世流传存续下来的各类版本，二者在文献分类上概念不同。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"这家出版社下个月准备出版《红楼梦》的新传本。\",\n      \"reason\": \"语域与语义冲突。“传本”特指历史上流传存世的古籍版本，现代出版社新印发行的书籍应称为“新版”或“新印本”，不能称为“新传本”。\"\n    },\n    {\n      \"sentence\": \"他在图书馆借了一本小说，看完了立刻传本给室友。\",\n      \"reason\": \"词性与句法结构错误。“传本”是名词，不能充当及物动词或离合词表示“把书传递给某人”。\"\n    },\n    {\n      \"sentence\": \"这款电子书阅读软件上架了数万种高清排版的传本供用户付费下载。\",\n      \"reason\": \"语义范畴错误。“传本”仅限于文献学、古籍版本学领域指代流传下来的物理印本或抄本，不能泛指现代数字化电子书。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"为了考证这部古籍的源流，教授特意从北京传本了一部善本到上海进行对比。\",\n    \"error_description\": \"“传本”是名词（指流传下来的版本），句中将其误用作及物动词，混淆了词性与用法。\",\n    \"corrected\": \"为了考证这部古籍的源流，教授特意从北京借调了一部善本到上海进行对比。\"\n  },\n  \"word_family_forms\": [],\n  \"word_family_fake_forms\": [\n    \"传本化\",\n    \"传本性\",\n    \"传本儿\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"底本\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"抄本\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"善本\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"失传\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 9532,
+    "lemma": "传本"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_94970",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 32.7518048286438,
+    "prompt_tokens": 987,
+    "completion_tokens": 4321,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 4321,
+      "total_tokens": 5308,
+      "cost": 0.016944,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.016944,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.01620375
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2716,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.016944,
+    "content": "{\n  \"definition_simple\": \"指可以随身携带、随时随地上网或处理信息的便携式电子产品，如智能手机和平板电脑。\",\n  \"definition_standard\": \"具备移动计算能力、无线通信功能及人机交互界面的便携式电子终端设备的统称，主要涵盖智能手机、平板电脑及可穿戴智能设备等。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"请在飞机起飞前关闭您的行动装置。\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"走路时一直看行动装置是非常危险的行为。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"许多长辈也开始学习如何使用行动装置与家人视频通话。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"出差期间，我习惯只携带轻便的行动装置来处理日常电子邮件。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"这家图书馆提供高速无线网络，方便读者使用行动装置查阅电子资源。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"长时间以不良姿势操作行动装置，极易引发颈椎僵硬和视力疲劳。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"随着行动装置的普及，移动支付已逐渐融入大众的日常生活。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"该云端平台支持多平台同步，让使用者能在不同的行动装置间无缝切换工作任务。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"面对市场上规格繁杂的行动装置，前端工程师必须采用响应式设计以确保网页正常显示。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"针对行动装置端点展开的高级持续性威胁，企业应构建严密的零信任安全架构以防范敏感数据外泄。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"行动壮志\",\n      \"explanation\": \"“壮志”（zhuàngzhì）与“装置”（zhuāngzhì）读音高度相近，但“行动壮志”指付诸实践的宏大志向，属于字音相近导致的词义混淆。\"\n    },\n    {\n      \"word\": \"震动装置\",\n      \"explanation\": \"“震动”（zhèndòng）与“行动”（xíngdòng）发音部分相似，容易在语音不清时误听，但指产生物理振动的机械零部件。\"\n    },\n    {\n      \"word\": \"移动装置\",\n      \"explanation\": \"“移动”（yídòng）与“行动”（xíngdòng）同义且韵母相近，快速语流中容易发音或辨听混淆，属于两岸不同用词习惯下的近音近义词。\"\n    }\n  ],\n  \"primary_collocate\": \"普及\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"行走\",\n      \"explanation\": \"“行走”仅表示人或动物用脚步行，不能与“装置”组合来表示可以随身携带的智能设备。\"\n    },\n    {\n      \"word\": \"敏捷\",\n      \"explanation\": \"“敏捷”常形容动作或思维反应快速，不能直接修饰“行动装置”来表达硬件设备运行流畅。\"\n    },\n    {\n      \"word\": \"随身\",\n      \"explanation\": \"“随身”常作副词或定语修饰动词行为（如“随身携带”），直接构成“随身行动装置”属于语义重复的冗余搭配。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"驾驶\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"不动产\",\n      \"explanation\": \"词义完全不同，“不动产”指土地与房屋等不可移动资产，不能用于指代便携电子产品。\"\n    },\n    {\n      \"word\": \"交通工具\",\n      \"explanation\": \"范畴混淆，“交通工具”用于载人运输，虽然具备“移动性”，但不是信息处理终端。\"\n    },\n    {\n      \"word\": \"应急预案\",\n      \"explanation\": \"语域无关，“应急预案”属于行政与管理策略术语，与硬件设备毫无关联。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"工人们在码头使用重型行动装置吊运集装箱。\",\n      \"explanation\": \"范畴错误。“行动装置”在现代汉语中专指手机、平板等便携式数字化信息终端，不能用于指代起重机、吊车等工业重型机械。\"\n    },\n    {\n      \"sentence\": \"请在早高峰期间谨慎驾驶您的行动装置，避免发生交通事故。\",\n      \"explanation\": \"动宾搭配不当。“行动装置”是手持电子设备而非车辆等交通工具，不能与动词“驾驶”搭配。\"\n    },\n    {\n      \"sentence\": \"为了防止小偷逃跑，警方在小巷口启动了行动装置阻挡行人通行。\",\n      \"explanation\": \"字面解构错误。误将“行动”理解为“走动的行为”，把“行动装置”错当作限制人员行动的机关设施。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"随着数位时代的来临，行动装置的渗透率大幅提高，但部分年长者依然很难驾驶这些设备。\",\n    \"error_description\": \"动词“驾驶”只能搭配车辆、飞机、船只等交通运输工具，操作手机等“行动装置”应使用“操作”或“使用”。\",\n    \"corrected\": \"随着数位时代的来临，行动装置的渗透率大幅提高，但部分年长者依然很难操作这些设备。\"\n  },\n  \"word_family_forms\": [\n    \"行动化\",\n    \"行动端\"\n  ],\n  \"word_family_fake_forms\": [\n    \"装置化\",\n    \"行动装\",\n    \"行动装置性\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"移动设备\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"手持设备\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"固定终端\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"台式电脑\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 94970,
+    "lemma": "行动装置"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_146756",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 13.405875444412231,
+    "prompt_tokens": 995,
+    "completion_tokens": 1922,
+    "usage_raw": {
+      "prompt_tokens": 995,
+      "completion_tokens": 1922,
+      "total_tokens": 2917,
+      "cost": 0.00795375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00795375,
+        "upstream_inference_prompt_cost": 0.00074625,
+        "upstream_inference_completions_cost": 0.0072075
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.00795375,
+    "content": "{\n  \"definition_simple\": \"a fact, event, or situation that can be seen or observed, especially something unusual or hard to explain\",\n  \"definition_standard\": \"an observable fact, occurrence, or circumstance, especially one whose cause or explanation is in question or of scientific interest\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"abstract\",\n  \"sentences\": [\n    {\n      \"text\": \"Rainbows are a common natural phenomenon that many children love to see.\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"text\": \"The northern lights are a stunning phenomenon that attracts tourists every winter.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"Scientists study this rare weather phenomenon to better understand thunderstorm patterns.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"text\": \"Online shopping has become a worldwide phenomenon over the past two decades.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"Sleep paralysis is a frightening biological phenomenon that affects millions of people.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"text\": \"Sociologists investigated the cultural phenomenon behind viral dance crazes among adolescents.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"The rapid expansion of social media influencers represents an unprecedented commercial phenomenon.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"text\": \"Physicists sought to replicate the anomalous quantum phenomenon under strictly controlled laboratory conditions.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"The sudden collapse of the regional ecosystem was an unprecedented ecological phenomenon.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"text\": \"Epistemological inquiry often struggles to reconcile subjective sensory experience with the objective nature of a phenomenon.\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"phenomena\",\n      \"label\": \"plural\"\n    },\n    {\n      \"form\": \"phenomenon's\",\n      \"label\": \"singular_possessive\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"base_form\": \"phenomena\",\n      \"wrong_form\": \"phenomenons\",\n      \"explanation\": \"Learners overregularize by adding the standard English plural suffix '-s' instead of retaining the classical Greek neuter plural ending '-a'.\"\n    },\n    {\n      \"base_form\": \"phenomena\",\n      \"wrong_form\": \"phenomenas\",\n      \"explanation\": \"Learners mistakenly treat the irregular plural 'phenomena' as a singular noun and attach an additional plural suffix '-s'.\"\n    },\n    {\n      \"base_form\": \"phenomena\",\n      \"wrong_form\": \"phenomenies\",\n      \"explanation\": \"Learners mistakenly apply the '-ies' pluralization pattern as if the word ended in a consonant plus 'y'.\"\n    },\n    {\n      \"base_form\": \"phenomenon's\",\n      \"wrong_form\": \"phenomenas'\",\n      \"explanation\": \"Learners conflate the irregular plural with a regular singular noun and add an apostrophe after an incorrectly formed plural.\"\n    },\n    {\n      \"base_form\": \"phenomenon's\",\n      \"wrong_form\": \"phenomenon\",\n      \"explanation\": \"Learners omit the possessive marker entirely when attempting to indicate ownership or attribution.\"\n    },\n    {\n      \"base_form\": \"phenomenon's\",\n      \"wrong_form\": \"phenomenones\",\n      \"explanation\": \"Learners falsely generalize Romance-style plural or genitive inflections by adding '-es' directly without an apostrophe.\"\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"pheromone\",\n      \"explanation\": \"Shares initial bilabial and nasal consonants and similar syllable onset rhythm (/fəˈnɒm.../ vs. /ˈfɛr.ə.moʊn/), leading to acoustic confusion in fast speech.\"\n    },\n    {\n      \"word\": \"phenotype\",\n      \"explanation\": \"Shares the initial 'pheno-' acoustic prefix (/fiːn-/ or /fɛn-/), causing listeners to mistake one scientific abstract noun for the other.\"\n    },\n    {\n      \"word\": \"frenetic\",\n      \"explanation\": \"Shares the unstressed /fr/ or /f/ onset followed by nasal and alveolar transitions, causing auditory misperception in noisy environments.\"\n    }\n  ],\n  \"primary_collocate\": \"natural\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"organic\",\n      \"explanation\": \"'Organic' describes biological farming or chemical composition and does not form an idiomatic fixed descriptor with 'phenomenon' like 'natural' does.\"\n    },\n    {\n      \"word\": \"wild\",\n      \"explanation\": \"'Wild' modifies untamed animals or uncontrolled behavior rather than observable occurrences or scientific events.\"\n    },\n    {\n      \"word\": \"elemental\",\n      \"explanation\": \"While semantically adjacent to forces of nature, 'elemental' typically collocates with 'forces' or 'fury' rather than 'phenomenon'.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"unartificial\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"illusion\",\n      \"explanation\": \"Wrong sense: an illusion denotes a false perception or deceptive appearance, whereas a phenomenon denotes an actual observable reality.\"\n    },\n    {\n      \"word\": \"incident\",\n      \"explanation\": \"Wrong register and framing: an incident denotes an isolated, often discrete human or operational mishap rather than a broad, observable scientific occurrence.\"\n    },\n    {\n      \"word\": \"utensil\",\n      \"explanation\": \"Trivially unrelated: a utensil is a physical handheld tool for household tasks and makes no semantic sense in an observational scientific context.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"text\": \"The volcanic eruption phenomenoned across the entire island chain within hours.\",\n      \"linguistic_reason\": \"Syntactic category error: 'phenomenon' is exclusively a noun and cannot be inflected or used as a finite verb.\"\n    },\n    {\n      \"text\": \"These rare phenomenon have baffled astronomers for nearly half a century.\",\n      \"linguistic_reason\": \"Number agreement error: 'phenomenon' is singular and cannot agree with the plural demonstrative 'these' or the plural verb 'have baffled'; the plural 'phenomena' is required.\"\n    },\n    {\n      \"text\": \"The meteorologist gave a phenomenon of the unusual storm system to the press.\",\n      \"linguistic_reason\": \"Collocational and argument structure error: 'phenomenon' is an observable occurrence itself, not an act of communication or presentation; the noun 'explanation' or 'account' is required.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"Scientists are carefully documenting this unprecedented biological phenomena to determine its origin.\",\n    \"error_description\": \"The plural form 'phenomena' is incorrectly used with the singular demonstrative determiner 'this'.\",\n    \"corrected_sentence\": \"Scientists are carefully documenting this unprecedented biological phenomenon to determine its origin.\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"phenomenal\",\n      \"pos\": \"adjective\"\n    },\n    {\n      \"form\": \"phenomenally\",\n      \"pos\": \"adverb\"\n    },\n    {\n      \"form\": \"phenomenology\",\n      \"pos\": \"noun\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"phenomenize\",\n    \"phenomenistic\",\n    \"phenomenous\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"occurrence\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"marvel\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"nonentity\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"illusion\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": []\n}",
+    "lang": "en",
+    "vocab_id": 146756,
+    "lemma": "phenomenon"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_zh_109506",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 38.00486707687378,
+    "prompt_tokens": 987,
+    "completion_tokens": 4883,
+    "usage_raw": {
+      "prompt_tokens": 987,
+      "completion_tokens": 4883,
+      "total_tokens": 5870,
+      "cost": 0.0190515,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0190515,
+        "upstream_inference_prompt_cost": 0.00074025,
+        "upstream_inference_completions_cost": 0.01831125
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 3282,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0190515,
+    "content": "{\n  \"definition_simple\": \"宽广辽阔的天空。\",\n  \"definition_standard\": \"辽阔无际的天空，多用于诗歌、散文等书面语境，带有宏大、高远的文学色彩。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"sentence\": \"雄鹰在长空中自由自在地飞翔。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"一道闪电划破了寂静的长空。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"清脆的哨声刺破长空，宣告着比赛的开始。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"大雁排成整齐的队伍，飞越万里长空向南迁徙。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"五彩斑斓的礼花直冲长空，瞬间点亮了整座城市的夜幕。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"战机呼啸而过，在碧蓝如洗的长空中留下一道长长的白色航迹。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"边塞秋风凛冽，数点归鸦振翅悲鸣，缓缓没入苍茫的暮色长空。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"皓月当空，清冷幽微的银辉洒向无垠的长空与寂静的原野。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"仰望深邃莫测的浩瀚长空，群星璀璨，令人顿生个体渺小与宇宙无穷之叹。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"词人登高凭虚，俯仰于浩荡长空与滚滚江流之间，千古兴亡之感油然而生。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"长工\",\n      \"explanation\": \"拼音为 chánggōng，与“长空 (chángkōng)”仅在后字声母存在送气音 [kʰ] 与不送气音 [k] 的细微区别，听辨极易混淆。\"\n    },\n    {\n      \"word\": \"航空\",\n      \"explanation\": \"拼音为 hángkōng，首字韵母与声调与“长”完全一致，仅声母从舌尖后音 ch 变为舌根音 h，快速语流中容易听错。\"\n    },\n    {\n      \"word\": \"敞空\",\n      \"explanation\": \"拼音为 chǎngkōng，与“长空”声母韵母完全相同，仅首字声调为第三声（上声）与第二声（阳平）之别。\"\n    }\n  ],\n  \"primary_collocate\": \"划破\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"撕烂\",\n      \"explanation\": \"属于极口语化且针对纸张、布帛等柔软具体实物的破坏性动词，不能用于文学语境中的天幕意象。\"\n    },\n    {\n      \"word\": \"打破\",\n      \"explanation\": \"多用于硬质器具破碎或抽象的记录、平衡与僵局，与宏阔的空间意象不搭配。\"\n    },\n    {\n      \"word\": \"割断\",\n      \"explanation\": \"侧重于用刀具将条状物理连接或人际联系切断，无法搭配空灵无形的天空。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"切断\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"高空\",\n      \"explanation\": \"侧重物理高度与气象层面的客观空间（如“高空作业”），缺乏“长空”特有的文学美感与广袤诗意。\"\n    },\n    {\n      \"word\": \"天气\",\n      \"explanation\": \"词义完全不同，“天气”指气象状况，属于概念范畴错误，无法作为被动作穿透的空间实体。\"\n    },\n    {\n      \"word\": \"蓝天\",\n      \"explanation\": \"属于日常白话词汇，虽然语义相近，但在典雅古朴的诗意对仗句式中破坏了语体色彩。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"今天长空万里无云，温度正好，我们去菜市场买点新鲜蔬菜吧。\",\n      \"explanation\": \"语体色彩严重失谐：“长空”为高雅书面语与文学词汇，不可用于日常琐碎生活的口语交际中。\"\n    },\n    {\n      \"sentence\": \"工人们正在忙着用油漆把教室的长空粉刷成天蓝色。\",\n      \"explanation\": \"语义范畴错误：“长空”特指广阔无垠的室外自然天幕，不能指代室内的天花板或屋顶。\"\n    },\n    {\n      \"sentence\": \"这项工程难度极大，施工队经过了整整五年的长空才顺利完工。\",\n      \"explanation\": \"词义理解错误：误将“长空”中的“长”理解为时间之长，将空间名词错用为表示时间跨度的量词或名词。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"那架客机在发生机械故障后迅速降低高度，最终平稳地降落在城市近郊的长空上。\",\n    \"error_description\": \"“长空”指高远辽阔的天空，不能作为需要实体支撑的动作“降落”的着陆点宾语。\",\n    \"corrected\": \"那架客机在发生机械故障后迅速降低高度，最终平稳地降落在城市近郊的机场跑道上。\"\n  },\n  \"word_family_forms\": [],\n  \"word_family_fake_forms\": [\n    \"长空化\",\n    \"长空然\",\n    \"长空性\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"苍穹\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"碧空\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"大地\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"沃野\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "zh",
+    "vocab_id": 109506,
+    "lemma": "长空"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_146884",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 17.3219735622406,
+    "prompt_tokens": 989,
+    "completion_tokens": 2156,
+    "usage_raw": {
+      "prompt_tokens": 989,
+      "completion_tokens": 2156,
+      "total_tokens": 3145,
+      "cost": 0.00882675,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00882675,
+        "upstream_inference_prompt_cost": 0.00074175,
+        "upstream_inference_completions_cost": 0.008085
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 444,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.00882675,
+    "content": "{\n  \"definition_simple\": \"Talks, speeches, or visual demonstrations given to an audience to explain an idea or product.\",\n  \"definition_standard\": \"Formal or structured exhibitions, lectures, or visual displays delivered to convey information, proposals, or reports to a specific audience.\",\n  \"pos\": \"noun\",\n  \"semantic_class\": \"action\",\n  \"sentences\": [\n    {\n      \"sentence\": \"The students gave short presentations about their favorite animals.\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"We watched several interesting presentations during the morning meeting.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"She prepared interactive slide presentations to keep the team engaged.\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"The sales team delivered compelling presentations to prospective clients.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"All oral presentations must be kept within the allotted ten-minute window.\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"Conference attendees praised the poster presentations for their clarity and visual impact.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"The keynote speakers rehearsed their multimedia presentations repeatedly before the plenary session.\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"Cross-functional teams conducted analytical presentations evaluating the regional market expansion.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"The symposium highlighted interdisciplinary presentations that bridged cognitive science and artificial intelligence.\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"Her nuanced presentations before the executive board dismantled entrenched assumptions regarding fiscal risk.\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"presentation\",\n      \"label\": \"singular_noun\"\n    },\n    {\n      \"form\": \"present\",\n      \"label\": \"base_verb\"\n    }\n  ],\n  \"morphology_wrong_forms\": [\n    {\n      \"target_entry\": \"presentation\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"presentationes\",\n          \"explanation\": \"Applies an archaic or Latinate plural suffix instead of standard English '-s'.\"\n        },\n        {\n          \"form\": \"presentate\",\n          \"explanation\": \"Erroneously back-forms an unneeded verb base rather than retaining the singular noun.\"\n        },\n        {\n          \"form\": \"presentationing\",\n          \"explanation\": \"Incorrectly treats the derived nominal base as a verb stem taking a gerund-participle suffix.\"\n        }\n      ]\n    },\n    {\n      \"target_entry\": \"present\",\n      \"wrong_forms\": [\n        {\n          \"form\": \"presentize\",\n          \"explanation\": \"Adds a redundant verbalizing suffix '-ize' to an existing root verb.\"\n        },\n        {\n          \"form\": \"presentated\",\n          \"explanation\": \"Incorrectly forms the past tense by adding '-ed' to a back-formed nonexistent stem 'presentate'.\"\n        },\n        {\n          \"form\": \"mispresenting\",\n          \"explanation\": \"Combines a nonstandard prefix truncation with a participle suffix instead of standard 'misrepresenting'.\"\n        }\n      ]\n    }\n  ],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"preservations\",\n      \"explanation\": \"Differs by only a few medial phonemes, confusing the concept of conserving with the act of delivering a talk.\"\n    },\n    {\n      \"word\": \"reservations\",\n      \"explanation\": \"Shares an identical rhythmic meter and rhyme ending, differing primarily in the onset cluster /pr/ versus /r/.\"\n    },\n    {\n      \"word\": \"representations\",\n      \"explanation\": \"Shares the same prosodic contour, vowel cadence, and root syllable structure, leading to perceptual confusion during fast speech.\"\n    }\n  ],\n  \"primary_collocate\": \"deliver\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"pronounce\",\n      \"explanation\": \"Applies to articulating individual words or uttering judgments rather than performing structured talks.\"\n    },\n    {\n      \"word\": \"broadcast\",\n      \"explanation\": \"Implies mass-media transmission rather than the interpersonal delivery characteristic of presentations.\"\n    },\n    {\n      \"word\": \"exhibit\",\n      \"explanation\": \"Typically collocates with physical objects, artworks, or static collections rather than scheduled oral talks.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"recite\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"monologues\",\n      \"explanation\": \"Wrong sense because a monologue refers to a solitary dramatic or theatrical speech rather than a collaborative business or academic report.\"\n    },\n    {\n      \"word\": \"manifestos\",\n      \"explanation\": \"Wrong register and connotation, implying a militant political declaration rather than informative displays or lectures.\"\n    },\n    {\n      \"word\": \"destinations\",\n      \"explanation\": \"Trivially unrelated noun referring to physical geographic locations rather than communicated information.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The speaker presentations the audience for an hour.\",\n      \"reason\": \"Syntactic category violation; uses the plural noun 'presentations' as a transitive finite verb.\"\n    },\n    {\n      \"sentence\": \"She bought three presentations of milk from the grocery store.\",\n      \"reason\": \"Semantic selectional violation; treats 'presentations' as a measure or counter noun for physical liquid goods.\"\n    },\n    {\n      \"sentence\": \"We listened closely while the presentations whispered softly to each other.\",\n      \"reason\": \"Animacy selection restriction violation; attributes the volitional human physical act of whispering to abstract rhetorical events.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"All candidates must submitted their slide presentations before the interview begins.\",\n    \"error_description\": \"Uses a past-participle verb 'submitted' instead of the bare infinitive 'submit' following the modal auxiliary 'must'.\",\n    \"corrected\": \"All candidates must submit their slide presentations before the interview begins.\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"present\",\n      \"pos\": \"verb\"\n    },\n    {\n      \"form\": \"presenter\",\n      \"pos\": \"noun\"\n    },\n    {\n      \"form\": \"presentable\",\n      \"pos\": \"adjective\"\n    },\n    {\n      \"form\": \"presentably\",\n      \"pos\": \"adverb\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"presentatorial\",\n    \"presentativement\",\n    \"unpresentableize\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"talks\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"demonstrations\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"lectures\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"silences\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 146884,
+    "lemma": "presentations"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_133597",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 29.629476308822632,
+    "prompt_tokens": 952,
+    "completion_tokens": 4400,
+    "usage_raw": {
+      "prompt_tokens": 952,
+      "completion_tokens": 4400,
+      "total_tokens": 5352,
+      "cost": 0.017214,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.017214,
+        "upstream_inference_prompt_cost": 0.000714,
+        "upstream_inference_completions_cost": 0.0165
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2692,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.017214,
+    "content": "{\n  \"definition_simple\": \"電車や列車が走るために敷いてある鉄のレールとその道。\",\n  \"definition_standard\": \"鉄道車両を走行させるため、レール・枕木・道床などで構成された通路。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"電車が線路を走っています。\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"線路の近くで遊んではいけません。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"危ないですから、線路に入ってはいけません。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"家のすぐ隣に線路があるので、列車の音がよく聞こえます。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"遮断機が下りている間は、線路を渡ってはいけません。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"大雨の影響で線路に土砂が流れ込み、電車の運転が見合わされている。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"列車の安全運行を支えるため、作業員たちが深夜に線路の保守点検を行っている。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"かつて木材を運んでいた廃線跡の線路沿いには、春になると見事な桜並木が広がる。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"急カーブの多い山岳区間では、線路と車輪の摩耗を防ぐために自動散水装置が整備されている。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"新幹線が時速三百キロで安全に走行できるよう、継ぎ目のないロングレールを用いた堅牢な線路構造が採用されている。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"沿い\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"通り\",\n      \"explanation\": \"「通り」は市街地の一般的な街路（道）に後続する語であり、鉄道の専用路である線路には付接しません。\"\n    },\n    {\n      \"word\": \"舗装\",\n      \"explanation\": \"「舗装」はアスファルトやコンクリートを敷き固める道路工事に用いる語で、バラストやレールを敷設する線路には使いません。\"\n    },\n    {\n      \"word\": \"歩道\",\n      \"explanation\": \"線路は鉄道車両専用であり歩行者の通行が禁止されているため、「線路歩道」のような複合語は成立しません。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"車道\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"航路\",\n      \"explanation\": \"「航路」は船舶や航空機が通る水上・空中の交通路を指すため、地上の鉄道を走る文脈には合いません。\"\n    },\n    {\n      \"word\": \"回路\",\n      \"explanation\": \"「回路」は電流が流れる環状の電気的道筋などを指し、鉄道の物理的軌道とは全く異なる概念です。\"\n    },\n    {\n      \"word\": \"通路\",\n      \"explanation\": \"「通路」は建物内や乗り物内の人が通る通路を指す一般的な語であり、列車が走る専用の軌道を指す言葉としては不適切です。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"週末は線路をドライブして海まで行きました。\",\n      \"explanation\": \"「線路」は鉄道車両専用の軌道であり、一般自動車の運転対象にはならないため意味的に誤りです（「道路」を用いるべき）。\"\n    },\n    {\n      \"sentence\": \"線路をきれいに拭いてから食卓の上に置いた。\",\n      \"explanation\": \"「線路」は屋外に敷設される大規模な鉄道土木構造物であり、卓上に置くような小型の可動物体として扱うのは語義・選択制限に反します。\"\n    },\n    {\n      \"sentence\": \"朝のジョギングコースとして駅前の線路を走った。\",\n      \"explanation\": \"線路内への立ち入りは法律で厳しく禁止されており、通常のランニング・歩行路として「線路を走る」と表現するのは常識的・コロケーション的に誤用です。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"危ないですから、絶対に線路で入らないでください。\",\n    \"error_description\": \"侵入や進入の到達点・帰着点を示す助詞として「で」を用いるのは誤りで、「に」が適切です。\",\n    \"corrected\": \"危ないですから、絶対に線路に入らないでください。\"\n  },\n  \"word_family_forms\": [],\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"線路る\",\n      \"explanation\": \"名詞「線路」を五段動詞化しようとした不自然な造語です。\"\n    },\n    {\n      \"form\": \"線路的\",\n      \"explanation\": \"純粋な物理インフラ名詞「線路」に接尾辞「的」を付けた存在しない形容動詞形です。\"\n    },\n    {\n      \"form\": \"線路さ\",\n      \"explanation\": \"名詞に直接接尾辞「さ」を付けて状態の度合いを表そうとした非文法的な形態です。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"軌道\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"レール\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"鉄路\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"道路\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"に\",\n      \"correct\": true,\n      \"explanation\": \"進入・立ち入りの帰着点・到達点を示す助詞として「に」が正確です。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"correct\": false,\n      \"explanation\": \"「で」は動作が行われる場所を示しますが、境界を越えて内部へ移動する「立ち入る」の着地点を示すことはできません。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"correct\": false,\n      \"explanation\": \"「を」は移動経路や通過点を表しますが、「立ち入る」を動詞とした場合に進入先を直接目的語のように取るのは誤用です。\"\n    },\n    {\n      \"particle\": \"から\",\n      \"correct\": false,\n      \"explanation\": \"「から」は離脱の起点を示すため、「入る」という進入の意味と方向性が正反対になってしまいます。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 133597,
+    "lemma": "線路"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_130327",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 26.09021520614624,
+    "prompt_tokens": 949,
+    "completion_tokens": 3865,
+    "usage_raw": {
+      "prompt_tokens": 949,
+      "completion_tokens": 3865,
+      "total_tokens": 4814,
+      "cost": 0.0152055,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0152055,
+        "upstream_inference_prompt_cost": 0.00071175,
+        "upstream_inference_completions_cost": 0.01449375
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2167,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.0152055,
+    "content": "{\n  \"definition_simple\": \"店や倉庫に残してある商品のこと。\",\n  \"definition_standard\": \"企業や商店などにおいて、販売や使用のために手元や倉庫に保管してある商品・製品・原材料などの物品やその数量。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"この商品は今、在庫がありません。\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"店頭にない場合でも、倉庫に在庫があります。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"セールでたくさんの在庫を処分した。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"注文する前に、まず在庫を確認してください。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"人気の商品はすぐに在庫切れになってしまう。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"過剰な在庫を抱えることは、企業にとって大きなリスクとなる。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"効率的な在庫管理を行うことで、大幅なコスト削減につながる。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"新システムの導入により、リアルタイムで在庫状況を把握できるようになった。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"当社は適正在庫の維持に努めており、サプライチェーンの最適化を推進している。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"滞留在庫の評価損を計上した結果、今期の営業利益は大幅に下振れる見通しだ。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": {},\n  \"primary_collocate\": \"在庫切れ\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"在庫終わり\",\n      \"explanation\": \"「終了」の意で「終わり」を複合名詞として直接後置するのは不自然であり、慣用的に「在庫切れ」を用いる。\"\n    },\n    {\n      \"word\": \"在庫消滅\",\n      \"explanation\": \"「消滅」は自然現象や権利・痕跡などが失われる際に用いる語であり、商品の品切れを表す複合語としては成立しない。\"\n    },\n    {\n      \"word\": \"在庫空っぽ\",\n      \"explanation\": \"「空っぽ」は口語の俗称的形容表現であり、「在庫」と結合した複合語としては定着しておらず不自然。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"在庫落ち\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"遺産\",\n      \"explanation\": \"「遺産」は前世代から受け継いだ財産や歴史的遺物を指す語であり、店舗や流通で扱う商品を指す文脈には適さない。\"\n    },\n    {\n      \"word\": \"預金\",\n      \"explanation\": \"「預金」は銀行口座等に預け入れた金銭を指す語であり、商品の手持ち量を表す文脈では意味が通らない。\"\n    },\n    {\n      \"word\": \"余白\",\n      \"explanation\": \"「余白」は紙面などの空いている部分を指す語であり、保管されている物品を指す文脈には全く合致しない。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"明日までに企画書の在庫を提出してください。\",\n      \"explanation\": \"「在庫」は販売や流通のために保管されている物品を指す語であり、作成した書類や報告書などを指す対象としては使えない。\"\n    },\n    {\n      \"sentence\": \"彼は豊富な知識の在庫を持っている。\",\n      \"explanation\": \"「在庫」は物理的な物品の保管を指すのが基本であり、頭の中の知識や教養などの抽象的な蓄積に対しては「蓄え」や「引き出し」を用いるのが自然。\"\n    },\n    {\n      \"sentence\": \"棚の上に溜まった在庫を雑巾できれいに拭いた。\",\n      \"explanation\": \"「在庫」は保管されている品目や数量という概念・状態を表す語であり、ホコリや汚れのように物理的に拭き取る対象として直接目的語にすることはできない。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"ネットで靴を買おうとしたが、あいにく在庫落の状態で注文できなかった。\",\n    \"error_description\": \"品切れを表す定着した表現は「在庫切れ」であり、「在庫落」という語は存在しない。\",\n    \"corrected\": \"ネットで靴を買おうとしたが、あいにく在庫切れの状態で注文できなかった。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"在庫する\",\n      \"pos\": \"動詞\",\n      \"meaning\": \"商品を倉庫や店舗などに保管しておくこと。\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"在庫的\",\n      \"explanation\": \"接尾辞「的」を後置して形容動詞化することは日本語として定着しておらず不自然。\"\n    },\n    {\n      \"fake_form\": \"在庫がる\",\n      \"explanation\": \"名詞「在庫」に動詞化接尾辞「がる」を接続することはできず、文法的に成立しない。\"\n    },\n    {\n      \"fake_form\": \"在庫らしい\",\n      \"explanation\": \"「〜らしい」を接尾して性状を表す形容詞を作る用法典拠はなく、語彙として存在しない。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"ストック\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"手持ち\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"品切れ\",\n      \"relation\": \"antonym\"\n    },\n    {\n      \"word\": \"完売\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"の\",\n      \"correct\": true,\n      \"explanation\": \"「倉庫にある在庫」という所属・所在の関係を表すため、名詞同士を結ぶ連体修飾の格助詞「の」が最も自然。\"\n    },\n    {\n      \"particle\": \"へ\",\n      \"correct\": false,\n      \"explanation\": \"「へ」は移動の帰着点や方向を表す助詞であり、直後の名詞「在庫」を修飾する連体形を作れない。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"correct\": false,\n      \"explanation\": \"「倉庫を在庫を確認する」とすると目的語を示す格助詞「を」が連続し、文法的に不自然になる。\"\n    },\n    {\n      \"particle\": \"と\",\n      \"correct\": false,\n      \"explanation\": \"「と」は並立を表すが、「倉庫」と「在庫」を対等に並べて確認する文脈としては意味が不自然になる。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 130327,
+    "lemma": "在庫"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_139681",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 29.357553720474243,
+    "prompt_tokens": 959,
+    "completion_tokens": 4760,
+    "usage_raw": {
+      "prompt_tokens": 959,
+      "completion_tokens": 4760,
+      "total_tokens": 5719,
+      "cost": 0.01856925,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01856925,
+        "upstream_inference_prompt_cost": 0.00071925,
+        "upstream_inference_completions_cost": 0.01785
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 3222,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01856925,
+    "content": "{\n  \"definition_simple\": \"良いところと悪いところ。また、物事の優劣や質の程度。\",\n  \"definition_standard\": \"物事の善悪、長所と短所、あるいは優劣の度合いや状態。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"abstract\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"何事にも良し悪しがある。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"道具の良し悪しは、実際に使ってみないと分からない。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"デザインの良し悪しだけで商品を選ぶのは避けたほうがいい。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"人の性格の良し悪しを一言で決めることはできない。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"結果の良し悪しにかかわらず、全力を尽くしたことが大切だ。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"伝統を守ることの良し悪しについては、専門家の間でも議論が分かれている。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"新しい制度の導入には良し悪しがあり、一概に歓迎できるとは限らない。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"批評家としての力量は、作品の良し悪しを的確に見極められるかどうかにかかっている。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"好況か不況かといった景気の良し悪しが、人々の生活設計に直結している。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"善悪の判断基準や倫理観の良し悪しを巡る思索は、古代ギリシャ以来の哲学的命題である。\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"判断する\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"決定する\",\n      \"explanation\": \"「決定する」は方針や結論を決める動作であり、対象の性質や品質を評価・鑑定する「良し悪し」とは自然に結びつきません。\"\n    },\n    {\n      \"word\": \"計算する\",\n      \"explanation\": \"「計算する」は数量や損得を数値的に割り出す動詞であり、定性的な価値・優劣を表す「良し悪し」の共起語としては不適切です。\"\n    },\n    {\n      \"word\": \"分配する\",\n      \"explanation\": \"「分配する」は物や利益を割り振る動作であり、抽象的な状態や評価である「良し悪し」を目的語に取ることはできません。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"word\": \"確定する\",\n    \"explanation\": \"「良し悪しを確定する」という表現は不自然で、本来は性質を見分ける「判断する」や「見極める」を用います。\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"word\": \"損得\",\n      \"explanation\": \"文脈が物事全般の長所・短所を指しているのに対し、「損得」は個人的な金銭的・実利的な利害に限定されるため文脈に合いません。\"\n    },\n    {\n      \"word\": \"優劣\",\n      \"explanation\": \"「優劣」は複数の対象間の相対的な勝敗や格差を表す語であり、単一の物事が内包する善悪・功罪の両面を表す文脈には馴染みません。\"\n    },\n    {\n      \"word\": \"高低\",\n      \"explanation\": \"「高低」は物理的な高さや数値・音程のレベルを表す語であり、物事の質や長短を評価する文脈では使えません。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼の提案はとても良し悪しなので、すぐに採用された。\",\n      \"explanation\": \"「良し悪し」は品質や長短の両面を指す名詞であり、「とても良い」という意味の形容詞・修飾語として肯定的に用いることはできません。\"\n    },\n    {\n      \"sentence\": \"私は良し悪しな本をたくさん読んで見聞を広げたい。\",\n      \"explanation\": \"「良し悪し」は名詞であり、「良し悪しな」とナ形容詞（形容動詞）のように活用させて名詞を直接修飾することは文法的に誤りです。\"\n    },\n    {\n      \"sentence\": \"明日の天気の良し悪しをアプリで確認してから出かける。\",\n      \"explanation\": \"天候については「天気の崩れ」や単に「天気・天候」と言うのが自然であり、「良し悪し」を天候の良否に対してコロケーションとして使うのは不自然です。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"新商品のデザインについて、社員の間で良し悪しな意見が出た。\",\n    \"error_description\": \"「良し悪し」は名詞であり、「良し悪しな」と形容動詞のように活用させて連体修飾語にすることは文法的な誤りです。\",\n    \"corrected\": \"新商品のデザインについて、社員の間で良し悪しさまざまな意見が出た。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"良い\",\n      \"pos\": \"形容詞\"\n    },\n    {\n      \"form\": \"悪い\",\n      \"pos\": \"形容詞\"\n    },\n    {\n      \"form\": \"善悪\",\n      \"pos\": \"名詞\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"良し悪しむ\",\n    \"良し悪しさ\",\n    \"良し悪し的\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"candidate\": \"一長一短\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"candidate\": \"功罪\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"candidate\": \"長短\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"candidate\": \"完全無欠\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"は\",\n      \"correct\": true,\n      \"explanation\": \"文頭の「道具の良し悪し」を主題として提示し、「〜については分からない」と後続節につなげるため最も自然です。\"\n    },\n    {\n      \"particle\": \"に\",\n      \"correct\": false,\n      \"explanation\": \"「に」は帰着点や対象を示しますが、「分からない」の判断対象を提示する助詞としては不自然です。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"correct\": false,\n      \"explanation\": \"「で」は手段・場所・原因を示す助詞であり、判断や評価の対象そのものを提示することはできません。\"\n    },\n    {\n      \"particle\": \"へ\",\n      \"correct\": false,\n      \"explanation\": \"「へ」は移動の方向や目的地を表す助詞であり、評価・判断を表す文脈には適合しません。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 139681,
+    "lemma": "良し悪し"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_ja_123850",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 37.99322319030762,
+    "prompt_tokens": 952,
+    "completion_tokens": 4383,
+    "usage_raw": {
+      "prompt_tokens": 952,
+      "completion_tokens": 4383,
+      "total_tokens": 5335,
+      "cost": 0.01715025,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01715025,
+        "upstream_inference_prompt_cost": 0.000714,
+        "upstream_inference_completions_cost": 0.01643625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 2772,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.01715025,
+    "content": "{\n  \"definition_simple\": \"持ち物や服につける名前や名札のこと。\",\n  \"definition_standard\": \"衣服や所持品などに記された名前。また、名前そのものや名札。\",\n  \"pos\": \"名詞\",\n  \"semantic_class\": \"abstract\",\n  \"sentences\": [\n    {\n      \"sentence\": \"持ち物には全部ネームを書いてください。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"シャツの胸元にネームを入れた。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"制服に自分のネームを刺繍してもらった。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"プレゼントの万年筆にネームを刻印した。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"子どもの通学かばんにネームを縫い付けた。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"ホテルの従業員は胸元にネームを着けている。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"ブランドのネームが織り込まれた上質なタグが付いている。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"書類に記入する際は、略称ではなく正式なネームを用いてください。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"退職記念として贈られた時計の裏に、感謝の言葉とネームが刻まれている。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"職人の誇りを象徴するように、完成した工芸品には独自のネームが刻印される。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"primary_collocate\": \"入れる\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"結ぶ\",\n      \"explanation\": \"「契約を結ぶ」など関係性の成立に使われる動詞であり、名入れや名札を指す「ネーム」とは共起しません。\"\n    },\n    {\n      \"word\": \"覚える\",\n      \"explanation\": \"記憶する対象として「名前を覚える」とは言いますが、外来語「ネーム」と直接結びついて「ネームを覚える」とは通常言いません。\"\n    },\n    {\n      \"word\": \"呼ぶ\",\n      \"explanation\": \"声を出して対象を称呼する際は「名前を呼ぶ」と言い、「ネームを呼ぶ」というコロケーションは不自然です。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"掛ける\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"タイトル\",\n      \"explanation\": \"作品や題名を意味する語であり、衣服などに個人の名入れを施す文脈では意味が通りません。\"\n    },\n    {\n      \"word\": \"サイン\",\n      \"explanation\": \"著名人の署名や合図を指す語であり、特注仕立てで名前を刺繍する「ネームを入れる」という定型的な表現には適合しません。\"\n    },\n    {\n      \"word\": \"ラベル\",\n      \"explanation\": \"貼り付ける荷札や商標ラベルを指しますが、動詞「入れる」と組み合わせて名入れ加工を指す語としては不自然です。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"初対面の挨拶で「私のネームは田中です」と自己紹介した。\",\n      \"explanation\": \"対面の自己紹介で自分の名前を述べる際は「名前」または「氏名」を使うのが自然であり、単独の「ネーム」を名乗りとして使うのは語用論的に誤りです。\"\n    },\n    {\n      \"sentence\": \"黒板に先生のネームが大きく書かれていた。\",\n      \"explanation\": \"人物の呼称や表記を指して単純に用いる場合は和語の「名前」が適切であり、名札・刺繍・刻印などの文脈を伴わない状況で「ネーム」を用いるのは不自然です。\"\n    },\n    {\n      \"sentence\": \"遠くから走ってくる友達のネームを大きな声で呼んだ。\",\n      \"explanation\": \"相手を声に出して呼びかける動作には「名前を呼ぶ」を用い、文字化された記号や刻印のニュアンスが強い「ネーム」を呼格の対象として取ることはできません。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"万年筆の本体に、記念としてアルファベットでネームに彫ってもらった。\",\n    \"error_description\": \"動作の直接の対象（目的語）を表す格助詞には「に」ではなく「を」を用いる必要があります。\",\n    \"corrected_sentence\": \"万年筆の本体に、記念としてアルファベットでネームを彫ってもらった。\"\n  },\n  \"word_family_forms\": [\n    \"ネーミング\",\n    \"ネームバリュー\"\n  ],\n  \"word_family_fake_forms\": [\n    \"ネーム的\",\n    \"ネーム化\",\n    \"ネーマー\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"名前\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"氏名\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"名札\",\n      \"relation\": \"synonym\"\n    },\n    {\n      \"word\": \"匿名\",\n      \"relation\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": [\n    {\n      \"particle\": \"に\",\n      \"correct\": true,\n      \"explanation\": \"付加・刻印・刺繍を行う対象の場所（着点）を示す助詞として「に」が適切です。\"\n    },\n    {\n      \"particle\": \"で\",\n      \"correct\": false,\n      \"explanation\": \"「で」は動作が行われる場所や手段を示し、「ネームを入れる」の追加先・定着先を示す格助詞としては誤りです。\"\n    },\n    {\n      \"particle\": \"を\",\n      \"correct\": false,\n      \"explanation\": \"「胸元」は作用が施される位置であり、直接の目的語（ネーム）と混同して「胸元をネームを入れた」とするのは文法的に不成立です。\"\n    },\n    {\n      \"particle\": \"へ\",\n      \"correct\": false,\n      \"explanation\": \"「へ」は空間的な移動の方向を示す助詞であり、加工や記入の帰着点を示す固定的なコロケーション「〜にネームを入れる」には適合しません。\"\n    }\n  ]\n}",
+    "lang": "ja",
+    "vocab_id": 123850,
+    "lemma": "ネーム"
+  },
+  {
+    "tag": "fat_gemini-3.8-flash_en_147173",
+    "model": "google/gemini-3.8-flash",
+    "status": 200,
+    "elapsed": 168.5235743522644,
+    "prompt_tokens": 991,
+    "completion_tokens": 22192,
+    "usage_raw": {
+      "prompt_tokens": 991,
+      "completion_tokens": 22192,
+      "total_tokens": 23183,
+      "cost": 0.08396325,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.08396325,
+        "upstream_inference_prompt_cost": 0.00074325,
+        "upstream_inference_completions_cost": 0.08322
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 20169,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "cost": 0.08396325,
+    "content": "{\n  \"definition_simple\": \"Happening again and again, often in a way that feels boring or tiring.\",\n  \"definition_standard\": \"Characterized by, involving, or containing repetition, especially to the point of monotony or tedious recurrence.\",\n  \"pos\": \"adjective\",\n  \"semantic_class\": \"property\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"His new job is very repetitive, but it pays well.\"\n    },\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"I got bored quickly because the video game was so repetitive.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"Assembly line workers do repetitive tasks for hours at a time.\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"The song has a repetitive chorus that easily gets stuck in your head.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"Typing without proper hand support can lead to repetitive strain injury.\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"The editor noted that the author's descriptions were repetitive and cut several paragraphs.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"Automating these repetitive administrative procedures will free up staff for strategic projects.\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"She found the daily routine of data verification dreadfully repetitive and uninspiring.\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"The minimalist composer employed repetitive chord sequences to induce a hypnotic, meditative atmosphere.\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"Literary critics faulted the monograph for its repetitive thematic arguments and lack of methodological rigor.\"\n    }\n  ],\n  \"morphological_forms\": [\n    {\n      \"form\": \"more repetitive\",\n      \"label\": \"comparative\"\n    },\n    {\n      \"form\": \"most repetitive\",\n      \"label\": \"superlative\"\n    }\n  ],\n  \"morphology_wrong_forms\": {\n    \"more repetitive\": [\n      {\n        \"form\": \"repetitiver\",\n        \"explanation\": \"Learners often overapply the Germanic '-er' suffix to polysyllabic adjectives ending in '-ive' rather than using the periphrastic 'more'.\"\n      },\n      {\n        \"form\": \"more repetitiver\",\n        \"explanation\": \"Double-marking the comparative by pairing the adverb 'more' with the redundant suffix '-er'.\"\n      },\n      {\n        \"form\": \"repetitive-er\",\n        \"explanation\": \"Attempting an unassimilated hyphenated attachment of the comparative inflection to an adjective base.\"\n      }\n    ],\n    \"most repetitive\": [\n      {\n        \"form\": \"repetitivest\",\n        \"explanation\": \"Learners erroneously attach '-est' to a long adjective of Latin origin instead of premodifying with 'most'.\"\n      },\n      {\n        \"form\": \"most repetitivest\",\n        \"explanation\": \"Double-marking the superlative by combining 'most' with the suffix '-est'.\"\n      },\n      {\n        \"form\": \"repetitiverest\",\n        \"explanation\": \"Confusing and stacking comparative and superlative suffixes onto the base adjective.\"\n      }\n    ]\n  },\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"competitive\",\n      \"explanation\": \"Shares the identical prosodic rhythm and /-ɛtətɪv/ ending, differing only in the initial consonant /k/ versus /r/.\"\n    },\n    {\n      \"word\": \"repetitious\",\n      \"explanation\": \"Shares the identical initial base /rɪˈpɛtɪ-/, differing only in the final derivational syllable (/-ʃəs/ instead of /-tɪv/), leading to mishearing in rapid speech.\"\n    },\n    {\n      \"word\": \"appetitive\",\n      \"explanation\": \"Differs primarily by the onset /r/ versus a null/glottal onset with an open vowel, creating near-homophony in unstressed contexts.\"\n    }\n  ],\n  \"primary_collocate\": \"task\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"habitual\",\n      \"explanation\": \"While 'habitual' relates to repeating behaviors, it characterizes personal vices or regular customs (e.g., 'habitual smoker') rather than modifying neutral tasks or patterns.\"\n    },\n    {\n      \"word\": \"frequent\",\n      \"explanation\": \"Denotes high numerical occurrence across intervals rather than the continuous, monotonous cycle denoted by 'repetitive'.\"\n    },\n    {\n      \"word\": \"cyclic\",\n      \"explanation\": \"Refers to formal recurring scientific or economic cycles rather than describing tedious, reiterated actions.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"word\": \"frequency\",\n    \"explanation\": \"While repetition relates to frequency, 'repetitive frequency' is unnatural and pleonastic in English; speakers say 'high frequency' or 'monotonous repetition'.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"word\": \"recurring\",\n      \"explanation\": \"Wrong sense: 'recurring' describes periodic events that return over time (such as expenses or dreams), not monotonous, continuous assembly work.\"\n    },\n    {\n      \"word\": \"iterative\",\n      \"explanation\": \"Wrong register: 'iterative' belongs to technical, design, or computational frameworks involving incremental improvement, not routine factory labor.\"\n    },\n    {\n      \"word\": \"reluctant\",\n      \"explanation\": \"Trivially unrelated: 'reluctant' describes an unwilling human mental state and cannot logically modify inanimate manual tasks.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"The manager instructed the crew to work repetitive until the shipment was completed.\",\n      \"explanation\": \"Grammatical category error: 'repetitive' is an adjective and cannot function adverbially to modify the verb 'work'; 'repetitively' is required.\"\n    },\n    {\n      \"sentence\": \"She has a very repetitive friend who attends our weekend book club.\",\n      \"explanation\": \"Semantic selectional violation: 'repetitive' describes actions, speech, noises, or tasks, but does not modify a person directly as a character trait.\"\n    },\n    {\n      \"sentence\": \"The constant repetitive of the pneumatic drill gave residents an intense headache.\",\n      \"explanation\": \"Syntactic category error: 'repetitive' is an adjective used in the nominal head position where the abstract noun 'repetition' is syntactically required.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"During the long flight, the flight attendants performed their safety instructions repetitive for every boarding group.\",\n    \"error_description\": \"The adjective 'repetitive' is erroneously used in place of the adverb 'repetitively' to modify the verb phrase 'performed their safety instructions'.\",\n    \"corrected\": \"During the long flight, the flight attendants performed their safety instructions repetitively for every boarding group.\"\n  },\n  \"word_family_forms\": [\n    {\n      \"form\": \"repetitively\",\n      \"pos\": \"adverb\"\n    },\n    {\n      \"form\": \"repetitiveness\",\n      \"pos\": \"noun\"\n    },\n    {\n      \"form\": \"repetition\",\n      \"pos\": \"noun\"\n    },\n    {\n      \"form\": \"repeat\",\n      \"pos\": \"verb\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    {\n      \"form\": \"repetitivity\",\n      \"explanation\": \"Plausibly patterned after Latinate nouns like 'activity' or 'connectivity', but English uses 'repetitiveness' or 'repetition'.\"\n    },\n    {\n      \"form\": \"repetitify\",\n      \"explanation\": \"Plausibly patterned after causative verbs ending in '-ify' (e.g., 'simplify'), but the standard verb is 'repeat'.\"\n    },\n    {\n      \"form\": \"repetitivate\",\n      \"explanation\": \"Plausibly formed via pseudo-Latinate suffixation ('-ate'), but non-existent in standard English.\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"monotonous\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"tedious\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"varied\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"diverse\",\n      \"type\": \"antonym\"\n    }\n  ],\n  \"particle_candidates\": null\n}",
+    "lang": "en",
+    "vocab_id": 147173,
+    "lemma": "repetitive"
+  }
+]

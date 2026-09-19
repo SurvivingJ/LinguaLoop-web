@@ -3,14 +3,15 @@ title: "Vocabulary-Aware Test Selection — Task Breakdown"
 feature: vocabulary-aware-test-selection
 prose_page: ../features/vocabulary-aware-test-selection.md
 tech_page: ../features/vocabulary-aware-test-selection.tech.md
-total_tasks: 10
-done: 8
-last_updated: 2026-09-15
+total_tasks: 12
+done: 10
+last_updated: 2026-09-17
 ---
 
 # Vocabulary-Aware Test Selection — Task Breakdown
 
-TASK-744 … TASK-752. Highest existing ID at time of writing: TASK-743.
+TASK-744 … TASK-752, plus TASK-779, TASK-780 and TASK-781. Highest existing ID at
+time of writing: TASK-743.
 
 **Before starting any task, verify its status against source.** Wiki tasklists
 in this repo mark shipped work as not started
@@ -34,8 +35,9 @@ in this repo mark shipped work as not started
 746 ─► 747 ─► 752
         │
 744 ─► 748 ─┴─► 749
-                 750 (blocked: needs ≥30 first attempts per (language, type))
-                 751 (independent, parallel)
+        │        750 (blocked: needs ≥30 first attempts per (language, type))
+        │        751 (independent, parallel)
+        └─► 780 ─► 781 ✓ (replay: weight 0 vs sum vs product — done, 2026-09-17)
 ```
 
 747 calls `calibration_zipf_to_elo` (745, already live), so it depends on 746
@@ -216,7 +218,17 @@ second is refused by G6 with an audit row.
 
 ## TASK-748: vocabulary-aware `get_recommended_tests`
 
-**Status:** [x] Done — applied live 2026-09-10 11:49:05 UTC, **`vocab_weight` = 0 (inert)** · **Type:** feature · **Complexity:** L · **Depends On:** TASK-744
+**Status:** [x] Done — applied live 2026-09-10 11:49:05 UTC; **`vocab_weight` raised to 1 by the operator 2026-09-17 — the vocabulary term is now LIVE** · **Type:** feature · **Complexity:** L · **Depends On:** TASK-744
+
+**SWITCHED ON 2026-09-17 (operator).** `selection_tuning.vocab_weight` 1,
+`combine_mode` 'sum'. Verified live from the recommender's own output rather than
+the settings row: **0 unlinked tests served in any zh type** (7-9 of 10 before),
+and `elo_diff` is non-monotonic in 6 of 8 (language, type) lists — impossible on
+the weight-0 branch, whose final sort *is* `elo_diff ASC`. Still 10 candidates
+per type everywhere, so M5 holds in production and not only in the replay.
+`get_recommended_tests` latency measured 5-14 ms → 25-69 ms across all three
+languages, against a ~65 ms round trip. **Rollback:
+`UPDATE selection_tuning SET value = 0 WHERE key = 'vocab_weight';`**
 
 **Outcome (2026-09-10).** `migrations/task748_get_recommended_tests_vocab_aware.sql`;
 live body archived verbatim as
@@ -473,6 +485,40 @@ had no targets. **No backup was taken** (a failed backup step did not stop the
 chained apply). Every write passed the no-lost-link guard, so what was
 overwritten was the dangling pointers plus unchanged links.
 
+**Follow-up 2026-09-16 (steps 1-4 of the gap analysis).**
+The remaining ja gap (overlap 0.95) was 107 by-design fallback links plus **73
+links whose headword is UniDic's abstract lexeme, not the word as written** —
+越える for 超え, 押さえる for 抑え, 付く for 就く. Tests linked before the orthBase
+fix (ede24bd4, 2026-08-26) carry them; the token map already had the written form.
+
+- **APPLIED — tokenizer (step 3).** `_orth_lemma` now prefers UniDic's `lemma`
+  when `cType` starts `文語`: orthBase gives the classical dictionary form (長し,
+  幼し, 若し), which no modern entry matches. Potential verbs carry no such marker
+  (拭える has an ordinary cType), so they keep orthBase. 4 new tests.
+- **APPLIED — map rebuild.** `rebuild_token_maps.py --language ja --all`: 11
+  written, 47 unchanged, 1 refused (潔し would have lost its only link — that test
+  is waiting on the re-parent below).
+- **APPLIED 2026-09-16 — relink + re-parent (steps 1-2).**
+  `scripts/fix_ja_sense_link_variants.py`: **76 links across 33 tests and 3
+  questions** repointed to the written form (押さえる→抑える, 越える→超える,
+  付く→就く, 早い→速い, ドウジ→童子…), 1 duplicate id collapsed, and **潔し's 6
+  senses re-parented onto 潔い** (sense ids unchanged, so every reference
+  survives). The other 5 artifact headwords (若し, 長し, 幼し, 引く-他動詞, ドウジ)
+  have twins that already carry senses, so they are deferred rather than merged —
+  they are now unreferenced rows for the duplicate audit. A following
+  `rebuild_token_maps.py --language ja --all` reported all 59 unchanged, which is
+  the expected result: re-parenting keeps sense ids, so the maps were already right.
+  **Live end state: ja/zh/en all 0 dangling; mean link-vs-map overlap ja 0.985
+  (was 0.83), zh 1.000, en 0.880 (structural, see above).**
+- **INCONCLUSIVE — duplicate audit (step 4).**
+  `scripts/audit_ja_variant_duplicates.py` is read-only and runs, but reading +
+  kanji + POS does not separate one word's two spellings from two words that
+  merely sound alike: it offers 風邪/風 and こと/コート as merge candidates, while
+  putting genuine variants (錆び付く/錆びつく, 生かす/活かす) under `different_pos`
+  because `dim_vocabulary.part_of_speech` disagrees with itself. Treat its output
+  as a review list for a judge, not a to-do list. Sizing the duplicate problem
+  still needs a different method.
+
 **Found, not fixed:**
 - The ja processor drops newlines. 6 ja maps (before and after) do not
   concatenate to their transcript, so the reader loses paragraph breaks.
@@ -494,7 +540,182 @@ overwritten was the dangling pointers plus unchanged links.
 
 ---
 
+## TASK-780: multiplicative ELO × coverage scoring (`combine_mode`)
+
+**Status:** [x] Done — applied live 2026-09-16 (schema_migrations 20260916134648),
+**`combine_mode` = 'sum' and `vocab_weight` = 0 — inert on both switches** ·
+**Type:** feature · **Complexity:** M · **Depends On:** TASK-748
+
+**Scope note — this is NOT the per-occurrence task TASK-779 anticipated.**
+TASK-779 recorded TASK-780 as "a per-occurrence coverage term reading
+`vocab_token_map` instead of `vocab_sense_ids`". That shape was considered and
+**dropped**: a linked word appears only 1.15 (ja) / 1.33 (zh) / 1.44 (en) times
+per test, so per-occurrence and distinct-word counting nearly coincide, and
+distinct-word counting is the better match for "how much new vocabulary must this
+learner absorb". Coverage still counts each **distinct** sense in
+`vocab_sense_ids` once, and must stay that way. TASK-779's token-map repair
+stands on its own merits; it is not a precondition for this.
+
+**Outcome (2026-09-16).** `migrations/task780_selection_combine_mode.sql`. One
+new `selection_tuning` key, `combine_mode`, `'sum'` (default) | `'product'`:
+
+```
+e = elo_weight·|Δelo|/400      v = vocab_weight·|unknown − u*|/u_tol
+sum      score = e + v                  product  score = (1+e)·(1+v)
+```
+
+Product is the sum plus the cross term `e·v`, so a candidate wrong on **both**
+axes is demoted below one equally wrong on a single axis. A bare `e·v` is not
+implemented and must not be: a perfect ELO match with 90% unknown words would
+score 0 and rank first.
+
+- **Only `recommended_tests_ranked` changed** — same signature, same
+  `RETURNS TABLE`, two additions (the tuning read, and a `CASE` in the `scored`
+  CTE whose `ELSE` is the TASK-748 expression verbatim). `get_recommended_tests`
+  and `selection_vocab_ability` are untouched (`prosrc` md5 unchanged live), so
+  the `vocab_weight = 0` rollback branch is literally the same bytes and
+  **`combine_mode` is inert while `vocab_weight` is 0**.
+- **Schema.** `selection_tuning` gained a nullable `value_text` column; `value`
+  became nullable and a `selection_tuning_value_shape` CHECK now enforces exactly
+  one of the two per key (so numeric keys keep their NOT NULL guarantee), plus a
+  CHECK restricting `combine_mode` to `sum`/`product`. A 0/1 numeric encoding was
+  rejected as unreadable at the moment an operator flips it.
+- **No new function parameter** — after `p_as_of` it would have to be defaulted,
+  which is the ambiguous overload
+  `migrations/get_recommended_tests_drop_ambiguous_overload.sql` already cleaned
+  up once. Arms are selected with a transaction-local `UPDATE ... ; ROLLBACK`.
+- **Live proof, rollback-only, after applying.** 14 users × en/zh/ja = 42 pairs,
+  13,934 ranker rows at weight 1: at `combine_mode = 'sum'` the new function is
+  row-identical (content and order) to a frozen copy of the pre-780 body at
+  `vocab_weight` **0 and 1**, on all 42; the public RPC is unchanged at
+  `vocab_weight = 0` under *either* mode on all 42; and the minimum per-type
+  candidate-count delta in product mode is **0** (M5 holds). The frozen copy
+  self-verifies against the `prosrc` md5 read before the migration
+  (`7b44009489ed1628ba70b8b9e5ed03ad`), so a bad copy fails loudly.
+- **Fixtures pass live** (`tests/sql/test_task780_combine_mode.sql`): five
+  synthetic ja reading candidates with both terms set exactly. `bad_both`
+  (e 0.50, v 0.55) and `bad_elo` (e 1.00, v 0.10) **swap** between modes — sum
+  1.05 < 1.10, product 2.325 > 2.200 — `too_hard` (perfect ELO, 90% unknown)
+  ranks last in both, the neutral candidate's penalty is the cohort median 0.325
+  in both, and every pre-combination column is identical across modes.
+- **Nothing was switched on.** `vocab_weight` 0, `combine_mode` 'sum'. Flipping
+  either is the operator's call after the TASK-781 replay.
+
+**Acceptance Criteria:**
+- [x] `combine_mode = 'sum'` is output-identical to TASK-748, proven against a frozen copy of the old body, not argued from the diff.
+- [x] `vocab_weight = 0` still reproduces the pre-TASK-748 ranking exactly (the RPC body is unchanged).
+- [x] Product is `(1+e)(1+v)`, never a bare `e·v`; pinned by a test that would rank a 90%-unknown test first under the wrong form.
+- [x] §3.4 degradation intact: neutral = cohort MEDIAN raw penalty, computed before the combination, identical in both modes; never 0, never `+∞`.
+- [x] M5: no per-type pool size falls, in either mode.
+- [x] No defaulted function parameter; exactly 1 `get_recommended_tests` in `pg_proc`.
+- [x] Coverage still counts each distinct sense once.
+- [x] Revert-red: removing the product branch makes the two arms equal and the fixtures fail by name.
+
+**Files:** `migrations/task780_selection_combine_mode.sql`,
+`tests/sql/test_task780_combine_mode.sql`,
+`tests/sql/test_task748_parity.sql` (steps 3-4 appended),
+`migrations/task748_get_recommended_tests_vocab_aware.sql` (header note:
+superseded in part; kept because it is still the only record of the other two
+functions).
+
+**Verification:**
+```
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/test_task748_parity.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/test_task780_combine_mode.sql
+SELECT key, value, value_text FROM selection_tuning ORDER BY key;
+```
+
+---
+
+## TASK-781: replay the three arms — weight 0 vs sum vs product
+
+**Status:** [x] Done — 2026-09-17 (read-only apart from one restored
+`combine_mode` write; **neither switch moved**) · **Type:** test ·
+**Complexity:** M · **Depends On:** TASK-748, TASK-749, TASK-780
+
+**Outcome (2026-09-17).** `scripts/measure_selection_quality.py` extended from
+two arms to three; full write-up in
+[[evaluations/selection-three-arm-replay-2026-09-17]].
+
+**The decision this was built to make: `combine_mode` stays `'sum'`.** On the ja
+replay (21 first attempts, 210 top-10 slots per arm) the share of served tests
+inside the 5-25% unknown band is **w0 0.786 → sum 0.952 → product 0.938**.
+Product is *worse*, and per attempt it is better on **0** of 21, worse on 3,
+equal on 18. The two vocabulary arms agree on the top-10 set for 14 of 21
+attempts (mean Jaccard 0.939), against 0.395 / 0.391 versus w0 — i.e. **the
+vocabulary term is the whole effect; the combination rule is noise on top of it.**
+
+- **Why.** `product = sum + e·v`, so the extra charge lands hardest on candidates
+  whose vocabulary term is already large — the ones the term is trying to demote.
+  It dilutes its own signal: rho(unknown, score) over all candidates falls from
+  0.918 → 0.839 (zh) and 0.961 → 0.913 (ja).
+- **The sharper cost is in zh.** 27 of 125 active zh tests carry no
+  `vocab_sense_ids` (verified live 2026-09-17) and they sit near the learner's
+  ELO. `sum` clears all of them out of every top-10 (0/10 neutral in all four
+  types); **`product` lets 2-5 of ten back in** for dictation / listening /
+  reading. A neutral candidate carries the cohort median penalty, and product's
+  extra `e·v` is smallest where `e` is small — so "no opinion, and close in ELO"
+  becomes a mild *reward*, which is exactly what §3.4's median was chosen to
+  avoid.
+- **M5 holds everywhere.** Minimum per-type pool delta vs w0 is **0** in both
+  vocabulary arms, in the replay and in the current-state snapshot.
+- **Spearman(unknown of the taken test, its score) = −0.584**, reproducing the
+  −0.59 on record. It is **arm-independent** — `unknown_share` is a property of
+  (user, test, as-of), not of the ranking — so it validates the vocabulary signal
+  rather than comparing arms. Do not read it as an arm metric.
+- **`vocab_weight` is the switch worth arguing about**, not `combine_mode`. It is
+  still the operator's call and it is still n=1: verified live, 14 users exist
+  and exactly **one has ever taken a test**.
+
+**Harness changes.** Arms are `(vocab_weight, combine_mode)` pairs in `ARM_SPEC`;
+`--arms` selects a subset. `combine_mode` is a settings row, not an RPC argument,
+and the script talks PostgREST, so the product arm **writes** that row and
+restores it in a `finally` — and **refuses to do so unless `vocab_weight = 0`**,
+because at weight 0 `get_recommended_tests` never reaches the ranker, so the mode
+cannot change what a live learner is served. The mode is flipped once per arm,
+not once per call, and the script re-reads `selection_tuning` at the end and
+prints it (run ended `vocab_weight=0, combine_mode='sum'`).
+
+**A metric trap now surfaced.** `band_share` is computed over candidates that
+*have* an unknown share, so an arm serving more unlinked tests scores its band
+share over a smaller denominator — zh product's 0.80 is 4 of 5, not 8 of 10. The
+served printout now shows the neutral count beside the band share. The ja replay
+numbers are unaffected (0 neutral slots in every arm).
+
+**Acceptance Criteria:**
+- [x] Three arms replayed — weight 0, sum, product — through the existing harness.
+- [x] Share of top-10 inside the 5-25% unknown band reported per arm.
+- [x] Spearman of unknown share against score reported, and its arm-independence stated rather than implied.
+- [x] Top-10 overlap between arms reported (all three pairings).
+- [x] M5 reported per arm; no per-type pool fell.
+- [x] Read-only with respect to learner data; the single settings write is guarded, restored, and verified afterwards.
+- [x] Neither `vocab_weight` nor `combine_mode` changed.
+
+**Files:** `scripts/measure_selection_quality.py`,
+`wiki/evaluations/selection-three-arm-replay-2026-09-17.md`
+
+**Verification:**
+```
+PYTHONIOENCODING=utf-8 PYTHONPATH=. python -m scripts.measure_selection_quality \
+    --until 2026-09-08T23:59:59+00:00 --replay-language 3 --json out.json
+SELECT key, value, value_text FROM selection_tuning ORDER BY key;
+PYTHONPATH=. pytest tests/test_selection_metrics.py
+```
+
+---
+
 ## Open Questions
+
+0. **HALF-ANSWERED 2026-09-17 (TASK-781) — does either switch ever move?**
+   **`combine_mode`: no, on this evidence.** The replay puts product at 0.938
+   in-band against sum's 0.952, better on 0 of 21 attempts, and it re-admits
+   unlinked zh tests that sum had cleared out. It stays `'sum'`, live and inert.
+   **`vocab_weight`: ANSWERED 2026-09-17 — raised to 1, the term is live.** The
+   operator took the n=1 evidence (0.786 → 0.952 in-band, M5 intact) rather than
+   run a 7-day shadow window, on the grounds that rollback is one `UPDATE`. What
+   is still unmeasured is whether the better-matched serving shows up in
+   *scores*: the replay predicts it, live attempts have not tested it yet. See
+   [[evaluations/selection-three-arm-replay-2026-09-17]].
 
 1. **OPEN — `u*` target.** Shipping 0.15. The dropped RPC's 3-7% is unreachable:
    best available is 27% unknown at difficulty 1 for this learner. Revisit as

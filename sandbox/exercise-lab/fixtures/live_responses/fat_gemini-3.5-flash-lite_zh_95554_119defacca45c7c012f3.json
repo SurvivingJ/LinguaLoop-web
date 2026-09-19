@@ -1,0 +1,58 @@
+{
+  "prompt": "You are generating the complete exercise-authoring seed for ONE\nvocabulary sense in Mandarin Chinese. Target word: \"裁判\".\n\nReturn ONE JSON object with ALL of the following fields. This single response\nreplaces what used to be 8-14 separate calls (core definition, per-level\nexercise content, per-level judges) -- you must author BOTH the correct\ncontent AND the deliberately WRONG content for every level below, because no\ndownstream step will invent wrong content for you and no synchronous judge\nwill check your work before it ships as provisional (unpublished) content.\nQuality matters precisely because nothing else will catch a mistake before an\nasynchronous review pass runs.\n\n1. definition_simple, definition_standard: two definitions of this sense, in\n   Mandarin Chinese-native/appropriate register, or your working language if source-language\n   definitions are not requested.\n2. pos: this language's own part-of-speech label for the word.\n3. semantic_class: ONE of concrete | abstract | action | property | function | proper.\n4. sentences: EXACTLY 10 example sentences using \"裁判\" as a whole word, each\n   tagged with a difficulty tier T1 (easiest) through T6 (hardest), spanning a\n   spread of tiers, not all the same one. This is not negotiable down to 3 --\n   the ladder's own sentence-assignment contract needs distinct sentences for\n   levels 3/4/5/6/7/9 in TWO non-overlapping variants, with headroom for\n   review-time attrition.\n5. morphological_forms: if this word inflects/derives in Mandarin Chinese, list at least\n   2 real forms with labels (e.g. past_tense, plural, comparative). If the word\n   is invariant, return an empty list -- do not pad with fake entries.\n   morphology_wrong_forms: for EACH morphological_forms entry, 3 INVENTED WRONG\n   inflected forms a learner might plausibly produce by mistake, each with a\n   one-sentence explanation of the error.\n6. l1_audio_confusables: exactly 3 REAL words in this language that are audio-confusable with the target word (differ by one phoneme/tone/mora), each with a one-sentence explanation of the confusion. Required for Chinese and English only -- Japanese never needs this field, its L1 is served by a separate deterministic phonetic-trie lookup.\n7. primary_collocate: the single most natural fixed collocate of this word (or\n   null if none exists / not applicable in this language). collocation_distractors:\n   3 words that are semantically related to the target but are NOT genuine\n   collocates, each with a one-sentence explanation of why not.\n   collocation_wrong_collocate: ONE additional word that looks like it could\n   collocate but does not, for a \"spot and repair\" exercise.\n8. cloze_distractors: 3 wrong words for a fill-in-the-blank exercise built on\n   one of your sentences, each with a one-sentence reason it's wrong (wrong\n   sense, wrong register, or trivially unrelated -- vary the reasons).\n9. discrimination_wrong_sentences: 3 sentences using \"裁判\" that are WRONG\n   for a SPECIFIC, stated linguistic reason each (e.g. wrong argument\n   structure, wrong register, wrong collocate) -- not just \"different\" from a\n   correct sentence, genuinely and describably wrong.\n10. spot_incorrect: ONE sentence with a single planted error, plus a one-\n    sentence error_description and the corrected version.\n11. word_family_forms: real derived forms in other parts of speech (if\n    applicable). word_family_fake_forms: 3 INVENTED, plausible-LOOKING but\n    non-existent derived forms (a learner should not immediately recognize\n    them as fake).\n12. syn_ant_candidates: up to 4 candidates, each tagged synonym or antonym,\n    anchored to THIS SPECIFIC SENSE's meaning (not just the bare lemma --\n    a polysemous word's synonym for one sense can be wrong for another).\n13. particle_candidates: Japanese only -- for one of your sentences, list the\n    3-4 particles a learner might choose, marking exactly one correct, each\n    with a one-sentence explanation.\n\nOutput strict JSON matching this field list. No prose outside the JSON object.",
+  "elapsed": 6.776515483856201,
+  "response": {
+    "id": "gen-1789655112-C2izrOR6BKr3yJO5jD1J",
+    "object": "chat.completion",
+    "created": 1789655112,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"definition_simple\": \"在比赛中判定胜负的人或机构。\",\n  \"definition_standard\": \"体育比赛中负责维持秩序、监督规则执行并裁决胜负的人员，或法律诉讼中依法审判案件的法官。\",\n  \"pos\": \"名词\",\n  \"semantic_class\": \"concrete\",\n  \"sentences\": [\n    {\n      \"sentence\": \"裁判吹响了比赛结束的哨声。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"这场比赛的裁判非常公正。\",\n      \"tier\": \"T1\"\n    },\n    {\n      \"sentence\": \"裁判员示意运动员可以开始了。\",\n      \"tier\": \"T2\"\n    },\n    {\n      \"sentence\": \"由于裁判的判罚引发了争议，教练提出了申诉。\",\n      \"tier\": \"T3\"\n    },\n    {\n      \"sentence\": \"主裁判在观看视频回放后做出了最终的改判决定。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"作为一名国际级裁判，他需要具备极高的心理素质和应变能力。\",\n      \"tier\": \"T4\"\n    },\n    {\n      \"sentence\": \"法庭上的裁判必须秉公执法，不受任何外界因素的干扰。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"如果参赛双方对裁判的裁决结果不服，可以通过合法途径进行仲裁申请。\",\n      \"tier\": \"T5\"\n    },\n    {\n      \"sentence\": \"在复杂的竞技环境中，裁判不仅要熟悉各项繁琐的规则，还要瞬间作出准确判断。\",\n      \"tier\": \"T6\"\n    },\n    {\n      \"sentence\": \"历史与现实交织的体育精神，最终都寄托在那些默默无闻却肩负重任的裁判身上。\",\n      \"tier\": \"T6\"\n    }\n  ],\n  \"morphological_forms\": [],\n  \"morphology_wrong_forms\": [],\n  \"l1_audio_confusables\": [\n    {\n      \"word\": \"财判\",\n      \"explanation\": \"拼音同为cáipàn，但“财”字属于错别字，在现代汉语中无此词汇组合。\"\n    },\n    {\n      \"word\": \"才办\",\n      \"explanation\": \"声调相近且发音易混淆，但“才办”意为刚刚办理，与体育裁判毫无关系。\"\n    },\n    {\n      \"word\": \"采办\",\n      \"explanation\": \"声母略有差异但常被初学者混淆，“采办”意为采购办货，属于动词而非名词。\"\n    }\n  ],\n  \"primary_collocate\": \"公正\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"美味\",\n      \"explanation\": \"美味通常用来形容食物好吃，而裁判是人或职位，两者语义场完全不搭。\"\n    },\n    {\n      \"word\": \"宽敞\",\n      \"explanation\": \"宽敞用来形容空间或房间大，不能用来修饰裁判。\"\n    },\n    {\n      \"word\": \"悠久\",\n      \"explanation\": \"悠久通常修饰历史、传统等抽象概念，无法用来形容裁判。\"\n    }\n  ],\n  \"collocation_wrong_collocate\": \"粗糙\",\n  \"cloze_distractors\": [\n    {\n      \"word\": \"教练\",\n      \"explanation\": \"教练是指导运动员训练的人，而句子语境需要的是负责判罚胜负的人。\"\n    },\n    {\n      \"word\": \"观众\",\n      \"explanation\": \"观众是观看比赛的人，不具备维持秩序和判定胜负的职能。\"\n    },\n    {\n      \"word\": \"对手\",\n      \"explanation\": \"对手是指竞争的另一方，逻辑上不能由对手来执行判罚。\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"他非常裁判这场激烈的足球比赛。\",\n      \"reason\": \"词性错误，‘裁判’在这里被误作动词使用，通常应作名词或搭配‘担任裁判’。\"\n    },\n    {\n      \"sentence\": \"昨天的晚饭真是一个严格的裁判。\",\n      \"reason\": \"语义搭配错误，‘裁判’不能用来修饰或指代无生命的食物。\"\n    },\n    {\n      \"sentence\": \"我们要把垃圾扔进裁判里面。\",\n      \"reason\": \"语义荒谬，‘裁判’是人，不能作为盛放垃圾的容器。\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"这场比赛的主裁判做出了一次非常公正的裁判。\",\n    \"error_description\": \"‘裁判’一词在句尾重复出现且语意重复，动宾搭配不当，应将第二个‘裁判’改为‘判罚’。\",\n    \"corrected_version\": \"这场比赛的主裁判做出了一次非常公正的判罚。\"\n  },\n  \"word_family_forms\": [\n    {\n      \"pos\": \"动词\",\n      \"form\": \"裁判\"\n    }\n  ],\n  \"word_family_fake_forms\": [\n    \"裁办性\",\n    \"裁判化\",\n    \"反裁判\"\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"type\": \"synonym\",\n      \"word\": \"裁判员\"\n    },\n    {\n      \"type\": \"synonym\",\n      \"word\": \"仲裁人\"\n    },\n    {\n      \"type\": \"synonym\",\n      \"word\": \"法官\"\n    },\n    {\n      \"type\": \"antonym\",\n      \"word\": \"运动员\"\n    }\n  ],\n  \"particle_candidates\": []\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18+o3QVfvaAuK59cOq5HeVdZaHXLTfSn9wzcwZgA80NoRCtI3RSm++HX/TAZyC/svXqW1rtGJh3lQa6KJx4QE7jLRispi90Cq+fg7/Vhis=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 984,
+      "completion_tokens": 1352,
+      "total_tokens": 2336,
+      "cost": 0.0036752,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0036752,
+        "upstream_inference_prompt_cost": 0.0002952,
+        "upstream_inference_completions_cost": 0.00338
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

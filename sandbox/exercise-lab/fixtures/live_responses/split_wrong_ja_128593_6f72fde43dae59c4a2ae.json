@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate the WRONG-content half of a vocabulary exercise seed for\n\"空洞\" in Japanese (n). A separate call is\ngenerating the correct definition/sentences/collocate independently -- assume\ngeneric sentence contexts. Return JSON with: morphology_wrong_forms (3\ninvented wrong inflections + explanations, if applicable), (omit l1_audio_confusables -- Japanese L1 uses a deterministic trie),\ncollocation_distractors (3 non-collocates + explanations),\ncollocation_wrong_collocate (1 planted wrong collocate), cloze_distractors (3\nwrong cloze options + reasons), discrimination_wrong_sentences (3 sentences\nwrong for a specific stated reason each), spot_incorrect (1 sentence + planted\nerror + error_description + corrected version), word_family_fake_forms (3\ninvented plausible-looking non-words), particle_candidates (Japanese only: 3-4\nparticle options for a generic sentence with this word, one correct). Strict\nJSON, no prose outside it.",
+  "elapsed": 4.771437883377075,
+  "response": {
+    "id": "gen-1789655520-svVPk6whiv1XbMSYezgL",
+    "object": "chat.completion",
+    "created": 1789655520,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"morphology_wrong_forms\": [\n    {\n      \"wrong_form\": \"空洞する\",\n      \"explanation\": \"空洞 is a noun (or no-adjective), not a suru-verb root. To make it a verb, it requires the suffix 化する (koudouka suru).\"\n    },\n    {\n      \"wrong_form\": \"空洞た\",\n      \"explanation\": \"As a noun, 空洞 cannot take verbal past tense endings directly without a copula like だ or である.\"\n    },\n    {\n      \"wrong_form\": \"空洞く\",\n      \"explanation\": \"Treats the noun as an u-verb, which is grammatically impossible.\"\n    }\n  ],\n  \"collocation_distractors\": [\n    {\n      \"collocate\": \"流暢な空洞\",\n      \"explanation\": \"流暢 (fluent) is used for language or speech, not physical cavities.\"\n    },\n    {\n      \"collocate\": \"美味しい空洞\",\n      \"explanation\": \"美味しい (delicious) applies to food and taste, incompatible with an empty space or cavity.\"\n    },\n    {\n      \"collocate\": \"迅速な空洞\",\n      \"explanation\": \"迅速 (rapid/prompt) describes actions or processes, not static geological or structural voids.\"\n    }\n  ],\n  \"collocation_wrong_collocate\": {\n    \"collocate\": \"密度の空洞\",\n    \"explanation\": \"密度 (density) contradicts 空洞 (cavity/hollow), as a cavity implies a lack of density.\"\n  },\n  \"cloze_distractors\": [\n    {\n      \"option\": \"空白\",\n      \"reason\": \"Means a blank space or whitespace in text, not a physical hollow or cavity.\"\n    },\n    {\n      \"option\": \"空腹\",\n      \"reason\": \"Means hunger or an empty stomach, referring to a biological sensation rather than a physical void.\"\n    },\n    {\n      \"option\": \"虚無\",\n      \"reason\": \"Means nihilism or nothingness in an abstract/philosophical sense, not a concrete hollow structure.\"\n    }\n  ],\n  \"discrimination_wrong_sentences\": [\n    {\n      \"sentence\": \"彼のスピーチには内容がなく、完全に空洞だった。\",\n      \"reason\": \"Incorrect usage: 空洞 refers to physical cavities or hollow spaces, whereas abstract emptiness in speech should use 虚偽 or 中身がない.\"\n    },\n    {\n      \"sentence\": \"忙しい一日が終わって、心に空洞ができた。\",\n      \"reason\": \"Incorrect usage: While emotional emptiness is common, the standard idiom is 心に穴があく or 虚無感, not a physical 空洞.\"\n    },\n    {\n      \"sentence\": \"道路の表面に大きな空洞が走っている。\",\n      \"reason\": \"Incorrect usage: Underground cavities can form, but roads don't 'run' with a cavity; 裂け目 (crack) or 陥没 (cave-in) is appropriate.\"\n    }\n  ],\n  \"spot_incorrect\": {\n    \"sentence\": \"歯医者に行って、虫歯できた空洞を埋めてもらった。\",\n    \"planted_error\": \"できた\",\n    \"error_description\": \"The particle usage is awkward; it should connect the relative clause smoothly using a possessive or descriptive particle like 'による' or simply modify '空洞' directly as '虫歯でできた空洞'.\",\n    \"corrected version\": \"歯医者に行って、虫歯でできた空洞を埋めてもらった。\"\n  },\n  \"word_family_fake_forms\": [\n    {\n      \"fake_form\": \"空洞性\",\n      \"explanation\": \"Plausible-sounding derivative noun using 性, but standard Japanese uses 空洞化 (hollowing out).\"\n    },\n    {\n      \"fake_form\": \"空洞める\",\n      \"explanation\": \"Invents a transitive verb form directly from the noun, which does not exist.\"\n    },\n    {\n      \"fake_form\": \"空洞的\",\n      \"explanation\": \"Attempts to turn the noun into a na-adjective using 的, which is not standard usage.\"\n    }\n  ],\n  \"particle_candidates\": [\n    \"を\",\n    \"に\",\n    \"で\",\n    \"が\"\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1+hqkKQgidp1XpRJ7+Vbg/mIYmUnbhAkngBMSPIhfoISoR2aEBEMVzGPkqcC9C0SOJ43xtVGYWFM3XLtxYvTWAjw3W2an8bmwg3m2tkMMI=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 222,
+      "completion_tokens": 983,
+      "total_tokens": 1205,
+      "cost": 0.0025241,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0025241,
+        "upstream_inference_prompt_cost": 6.66e-05,
+        "upstream_inference_completions_cost": 0.0024575
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

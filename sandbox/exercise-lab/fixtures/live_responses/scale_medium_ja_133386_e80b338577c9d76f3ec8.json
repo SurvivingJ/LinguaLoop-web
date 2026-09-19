@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a MEDIUM vocabulary seed for \"接戦\" in Japanese (expected part of speech: n,vs,vi).\nReturn ONE JSON object with: definition_simple, definition_standard, pos,\nsemantic_class, sentences (exactly 6 example sentences using \"接戦\" as a\nwhole word, tagged with difficulty tier T1-T6, spanning a spread of tiers),\nprimary_collocate (or null), collocation_distractors (3 words semantically\nrelated but NOT genuine collocates, each with a one-sentence reason),\nsyn_ant_candidates (up to 4 candidates tagged synonym or antonym, anchored to\nthis specific sense). Strict JSON, no prose outside it.",
+  "elapsed": 3.4279961585998535,
+  "response": {
+    "id": "gen-1789655522-K15uPcKw5zYjjArhOTV4",
+    "object": "chat.completion",
+    "created": 1789655522,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"word\": \"接戦\",\n  \"definition_simple\": \"勝ち負けがどちらになるか分からない、非常に僅かな差の戦い。\",\n  \"definition_standard\": \"スポーツや選挙などで、双方の力量や得点が拮抗し、最後まで勝敗の行方が分からないような僅差の戦いや競争。\",\n  \"pos\": [\"n\", \"vs\", \"vi\"],\n  \"semantic_class\": \"competition\",\n  \"sentences\": [\n    {\n      \"tier\": \"T1\",\n      \"sentence\": \"今年の決勝戦は接戦だった。\"\n    },\n    {\n      \"tier\": \"T2\",\n      \"sentence\": \"両チームの試合は、最後まで接戦が続いた。\"\n    },\n    {\n      \"tier\": \"T3\",\n      \"sentence\": \"どちらが勝つか分からないほどの接戦を制して、我がチームが優勝した。\"\n    },\n    {\n      \"tier\": \"T4\",\n      \"sentence\": \"今回の市長選挙は歴史的な接戦となり、開票速報から目が離せない状態が続いた。\"\n    },\n    {\n      \"tier\": \"T5\",\n      \"sentence\": \"幾多の激しい接戦を潜り抜けて勝ち上がってきただけに、選手たちの表情には並々ならぬ自信がみなぎっていた。\"\n    },\n    {\n      \"tier\": \"T6\",\n      \"sentence\": \"互いに一歩も譲らぬ白熱の接戦の末に惜敗を喫したが、その清々しい健闘ぶりは観客の脳裏に深く刻まれた。\"\n    }\n  ],\n  \"primary_collocate\": \"制す\",\n  \"collocation_distractors\": [\n    {\n      \"word\": \"駆ける\",\n      \"reason\": \"「駆ける」は走る動作を表すため、「接戦」という試合の状況を表す名詞とは直接結びつかない。\"\n    },\n    {\n      \"word\": \"壊す\",\n      \"reason\": \"「壊す」は物理的なものを破壊する際に使うため、抽象的な勝負の状況である「接戦」の修飾には適さない。\"\n    },\n    {\n      \"word\": \"浴びる\",\n      \"reason\": \"「浴びる」は水や光、または批判などを大量に受ける際に使う言葉であり、「接戦」という勝負の状況とは共起しない。\"\n    }\n  ],\n  \"syn_ant_candidates\": [\n    {\n      \"word\": \"激戦\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"熱戦\",\n      \"type\": \"synonym\"\n    },\n    {\n      \"word\": \"大勝\",\n      \"type\": \"antonym\"\n    },\n    {\n      \"word\": \"圧勝\",\n      \"type\": \"antonym\"\n    }\n  ]\n}",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a1/gAtqBec0edr92ZPKIN0bPN05vhd3pANpbSSeyh4pJN51Tl9HDOZ4tIFQeTyfn1xUyz5381fRjrt3gSF3lBivKJj4918DDyTdroLzezIw=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 147,
+      "completion_tokens": 663,
+      "total_tokens": 810,
+      "cost": 0.0017016,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0017016,
+        "upstream_inference_prompt_cost": 4.41e-05,
+        "upstream_inference_completions_cost": 0.0016575
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

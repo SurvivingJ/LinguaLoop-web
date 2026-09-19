@@ -1,0 +1,58 @@
+{
+  "prompt": "Generate a SMALL vocabulary seed for \"无量\" in Mandarin Chinese. Return JSON with: definition_simple, definition_standard, and exactly 3 example sentences using \"无量\" as a whole word. Strict JSON, no prose outside it.",
+  "elapsed": 1.5364792346954346,
+  "response": {
+    "id": "gen-1789655509-bOjmCqG218EipnSllPTh",
+    "object": "chat.completion",
+    "created": 1789655509,
+    "model": "google/gemini-3.5-flash-lite",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "[\n  {\n    \"word\": \"无量\",\n    \"pinyin\": \"wú liàng\",\n    \"definition_simple\": \"数量极多，无法计算。\",\n    \"definition_standard\": \"形容数量极多或高,无法计算或估量。\",\n    \"example_sentences\": [\n      \"这片茫茫的沙漠真是前途无量吗？不对，是无边无际、不可估量。\",\n      \"祝愿大家福寿无量，阖家幸福。\",\n      \"宇宙空间无量无边，人类对它的探索永无止境。\"\n    ]\n  }\n]",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "signature": "AY89a18SMit6RKnS9Kbfx7ST0AW1MfQ+E+ijAJ+6Za/SYVgJSvvhPdlYepwHuvngbBjs6slfRoQftrhmKilwfXn3T9NLHJaHEMpy83fVEnBg4r0=",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 50,
+      "completion_tokens": 139,
+      "total_tokens": 189,
+      "cost": 0.0003625,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0003625,
+        "upstream_inference_prompt_cost": 1.5e-05,
+        "upstream_inference_completions_cost": 0.0003475
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-09-11
+last_updated: 2026-09-20
 ---
 
 # Master Task List
@@ -19,12 +19,12 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 8 |
+| Not Started | 18 |
 | In Progress (`[~]`) | 8 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 7 |
+| Blocked / Deferred / Awaiting decision (numbered tasks) | 8 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 166 |
+| Done (cumulative, not listed here) | 177 |
 
 *2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
 Calibration) were never entered here when filed. Counts now include them:
@@ -46,6 +46,39 @@ applied) and +1 Blocked / open question (TASK-777, LLM synonym judge — paused)
 *2026-09-15:* +1 Done — TASK-779 (47 ja token maps pointed at senses TASK-778
 deleted; rebuilt). First step of the ELO × word-coverage plan (TASK-780–783, not
 yet filed).
+
+*2026-09-17:* +1 Done — TASK-781 (three-arm replay). It is a decision, not a
+build: **`combine_mode` stays `'sum'`**, and `vocab_weight` is left to the
+operator.
+
+*2026-09-16:* +1 Done — TASK-780 (multiplicative `combine_mode`, applied live and
+inert). It is **not** the per-occurrence coverage term TASK-779 anticipated under
+that ID; per-occurrence counting was considered and dropped (the two measures
+nearly coincide at 1.15-1.44 occurrences per linked word).
+
+*2026-09-19:* **Lookahead Pre-Teaching filed** ([[tasklist/lookahead-preteaching.tasks]],
+[[features/lookahead-preteaching.tech]], [[decisions/ADR-026-lookahead-preteaching]]).
++1 Done (TASK-782, variant simulation), +9 Not Started (TASK-783 to TASK-792),
++1 Blocked (TASK-793, `target_new_rate` vs cohort budget).
+
+**TASK-784 is the critical path for the whole feature and is not an algorithm
+task.** The variant simulation found the design reaches 98% of the ja catalogue
+in band with exercises available, and **0% without** — of the ~17 words blocking
+an average ja test, 1.8 are drillable; in zh, using ladder levels only, zero are.
+TASK-783 (the queue has been jammed since 2026-08-21) and TASK-784
+(demand-first generation, ~500 senses/language) gate everything else.
+
+*2026-09-19:* **CSV Exercise Authoring filed**
+([[tasklist/csv-exercise-authoring.tasks]], [[features/csv-exercise-authoring.tech]]):
+the infrastructure TASK-784 needs. +5 Done (TASK-795–799), +1 In Progress
+(TASK-800, the 8-sense e2e; its judge stages need a fresh-context subagent the
+auto-mode classifier denied), +2 Not Started (TASK-801 ja suru-noun L4 plan,
+TASK-802 ESLint `session/` module config). *Later the same day:* TASK-800 done
+(153 rows, all linked, no API calls — stage 8 replays subagent answers to the
+renderer's judges); +1 Not Started TASK-803 (ja L1 stem bug).
+*2026-09-20:* TASK-803 done (L1 now gets the dictionary form; -1 Not Started,
++1 Done). TASK-801 done the same day (POS-aware gate, option (a); -1 Not Started, +1 Done).
+TASK-802 awaits the `eslint.config.js` edit; both stay in Not Started.
 
 Earlier counts were not re-audited.
 
@@ -740,18 +773,45 @@ calibration→ELO writer, and a measurement harness.
 | TASK-745 | vocabulary-aware-test-selection | `calibration_zipf_to_elo` map | [x] Done — delivered by Calibration TASK-766/765 | S | — |
 | TASK-746 | vocabulary-aware-test-selection | `user_skill_rating_adjustments` audit table | [x] Done (applied live 2026-09-10) | XS | — |
 | TASK-747 | vocabulary-aware-test-selection | `apply_calibration_to_skill_ratings` guarded writer | [x] Done (applied live 2026-09-10) | M | TASK-746 |
-| TASK-748 | vocabulary-aware-test-selection | Vocabulary-aware `get_recommended_tests` (ships `vocab_weight = 0`) | [x] Done (applied live 2026-09-10, **inert**) | L | TASK-744 |
+| TASK-748 | vocabulary-aware-test-selection | Vocabulary-aware `get_recommended_tests` | [x] Done (applied live 2026-09-10; **`vocab_weight` raised to 1 on 2026-09-17 — LIVE**) | L | TASK-744 |
 | TASK-749 | vocabulary-aware-test-selection | Measurement harness + offline replay | [x] Done (2026-09-10) | M | TASK-747, TASK-748 |
 | TASK-750 | vocabulary-aware-test-selection | Per-test-type ELO offsets | [?] Blocked — needs ≥30 first attempts per (language, type) | M | TASK-749 |
 | TASK-751 | vocabulary-aware-test-selection | Per-test-type test ELO reseed | [?] Design proposed — awaiting decision | L | — |
 | TASK-752 | vocabulary-aware-test-selection | Wire calibration completion to the rating writer | [x] Done (2026-09-10) | S | TASK-747 |
 | TASK-779 | vocabulary-aware-test-selection | Repair token-map drift (ja maps → deleted senses) | [x] Done (applied live 2026-09-15) | S | — |
+| TASK-780 | vocabulary-aware-test-selection | Multiplicative ELO × coverage scoring (`combine_mode`) | [x] Done (applied live 2026-09-16, **inert**) | M | TASK-748 |
+| TASK-781 | vocabulary-aware-test-selection | Replay the three arms (weight 0 / sum / product) | [x] Done (2026-09-17, **neither switch moved**) | M | TASK-780 |
 
-**2026-09-10 — built, applied live, switched OFF.** The vocabulary term is live
-behind `selection_tuning.vocab_weight = 0`, whose branch runs the pre-TASK-748
-query verbatim. Parity was proven on all 13 users × 3 languages before applying.
-Turning it on is an operator decision after a 7-day shadow window
-(`scripts/measure_selection_quality.py --shadow-out`). Replay:
+**2026-09-16 — a second switch, also shipped off (TASK-780).**
+`selection_tuning.combine_mode` = `'sum'` (default) | `'product'`, where product
+scores `(1+e)·(1+v)` — the sum plus the cross term `e·v`, so a candidate wrong on
+both difficulty and vocabulary is demoted below one equally wrong on a single
+axis. `'sum'` is row-identical to TASK-748 (proven live against a frozen copy of
+the old body, 42 user × language pairs, at `vocab_weight` 0 and 1), and
+`combine_mode` is inert while `vocab_weight = 0` because that branch never
+reaches the ranker. Coverage still counts each **distinct** sense once — the
+per-occurrence shape TASK-779 anticipated was considered and dropped. **TASK-781 (done
+2026-09-17) answered half of it: `combine_mode` stays `'sum'`** — product scores
+0.938 in-band against sum's 0.952, is better on 0 of 21 replayed attempts, and
+re-admits unlinked zh tests that sum had cleared out. `vocab_weight` is now the
+only live question (0.786 → 0.952 in-band, M5 intact, but n=1 learner). See
+[[evaluations/selection-three-arm-replay-2026-09-17]].
+
+**2026-09-17 — SWITCHED ON.** `selection_tuning.vocab_weight` = 1,
+`combine_mode` = `'sum'`. Verified live from the recommender's own output rather
+than the settings row: **0 unlinked tests served in any zh type** (7-9 of 10
+before), `elo_diff` non-monotonic in 6 of 8 (language, type) lists — impossible
+on the weight-0 branch, whose final sort *is* `elo_diff ASC` — and still 10
+candidates per type, so M5 holds in production. `get_recommended_tests` latency
+5-14 ms → 25-69 ms, measured in all three languages. Taken on the TASK-781
+replay (0.786 → 0.952 in-band) rather than after a 7-day shadow window, because
+rollback is one statement:
+`UPDATE selection_tuning SET value = 0 WHERE key = 'vocab_weight';`
+
+**2026-09-10 — built, applied live, switched OFF (superseded by the line above).**
+The vocabulary term shipped behind `selection_tuning.vocab_weight = 0`, whose
+branch runs the pre-TASK-748 query verbatim. Parity was proven on all 13 users ×
+3 languages before applying. Replay:
 [[evaluations/selection-replay-2026-09-10]].
 
 ### Calibration (open tasks only)
@@ -778,6 +838,16 @@ build in 348 ms where twenty singular builds cost ~38 s.
 | TASK-775 | calibration | Learner-paced advance after a wrong answer | [x] Done 2026-09-13 | XS | TASK-771 |
 | TASK-776 | calibration | Drop foils that share a head gloss with the right answer (synonyms) | [~] Migration written, not applied; cache rebuild pending | S | TASK-773 |
 | TASK-777 | calibration | Offline LLM synonym judge over the distractor cache | [?] Open question — paused by decision | M | TASK-776 |
+
+### CSV Exercise Authoring (open tasks only)
+
+Full spec: [[tasklist/csv-exercise-authoring.tasks]]. TASK-795–799 done 2026-09-19
+(mining split proven byte-identical on 12 ja senses; stage runner, two skills,
+typed upload path; 21 unit tests).
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-802 | tooling | ESLint parses `static/js/session/**` as script (`npm run check` exit 1) | [ ] Not Started (hook-blocked for agents) | XS | — |
 
 ### Language Packs (existing — unchanged)
 

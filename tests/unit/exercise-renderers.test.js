@@ -403,3 +403,133 @@ describe('ladder script/sound, measure-word and relation renderers', () => {
     expect(card.innerHTML).toContain('adjective');
   });
 });
+
+// ---------------------------------------------------------------------------
+// renderJumbled — explicit submit, and click-to-return from the answer box
+//
+// The other DOM-heavy renderers are left to E2E (see the file header), but
+// this one earns unit coverage: it used to grade itself the instant the last
+// chunk landed, which locked the card at exactly the moment a learner would
+// want to fix a word.
+// ---------------------------------------------------------------------------
+
+describe('renderJumbled', () => {
+  const CONTENT = { chunks: ['I', 'like', 'cake'], correct_ordering: [0, 1, 2] };
+
+  let card;
+  let answered;
+  let submits;
+  let feedback;
+
+  const bank = () => [...card.querySelectorAll('#jsBank .js-chunk')];
+  const answer = () => [...card.querySelectorAll('#jsAnswer .js-chunk')];
+  const checkBtn = () => card.querySelector('#jsCheckBtn');
+  const click = (el) => el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  // Address chunks by their content index so the test never depends on the
+  // bank's shuffle.
+  const place = (ci) => click(card.querySelector(`#jsBank .js-chunk[data-chunk="${ci}"]`));
+  const placeAll = (order) => order.forEach(place);
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    answered = false;
+    submits = [];
+    feedback = [];
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push([ok, expl]),
+      submitAttempt: (ok, resp) => submits.push([ok, resp]),
+      nextExercise: () => {},
+    });
+    R().dispatch('jumbled_sentence', { exercise_type: 'jumbled_sentence' }, CONTENT, '');
+  });
+
+  afterEach(() => {
+    card.remove();
+  });
+
+  it('renders a Check button, disabled until every chunk is placed', () => {
+    expect(checkBtn()).not.toBeNull();
+    expect(checkBtn().hasAttribute('disabled')).toBe(true);
+
+    place(0);
+    place(1);
+    expect(checkBtn().hasAttribute('disabled')).toBe(true);
+
+    place(2);
+    expect(checkBtn().hasAttribute('disabled')).toBe(false);
+  });
+
+  it('does not grade when the final chunk is placed', () => {
+    placeAll([0, 1, 2]);
+    expect(answer()).toHaveLength(3);
+    expect(bank()).toHaveLength(0);
+    expect(answered).toBe(false);
+    expect(submits).toEqual([]);
+  });
+
+  it('grades a correct ordering only once Check is clicked', () => {
+    placeAll([0, 1, 2]);
+    click(checkBtn());
+    expect(answered).toBe(true);
+    expect(submits).toEqual([[true, { user_ordering: [0, 1, 2] }]]);
+    expect(feedback[0][0]).toBe(true);
+  });
+
+  it('grades a wrong ordering and reports the correct one', () => {
+    placeAll([2, 1, 0]);
+    click(checkBtn());
+    expect(submits[0][0]).toBe(false);
+    expect(submits[0][1]).toEqual({ user_ordering: [2, 1, 0] });
+    expect(feedback[0][1]).toContain('I like cake');
+  });
+
+  it('refuses to grade a partial answer whose prefix happens to be right', () => {
+    // `[0].every((ci, i) => ci === correctOrder[i])` is true — without the
+    // length guard a one-word answer would score as a correct sentence.
+    place(0);
+    click(checkBtn());
+    expect(answered).toBe(false);
+    expect(submits).toEqual([]);
+  });
+
+  it('returns a placed chunk to the bank when it is clicked', () => {
+    place(1);
+    expect(answer()).toHaveLength(1);
+    expect(bank()).toHaveLength(2);
+
+    click(answer()[0]);
+    expect(answer()).toHaveLength(0);
+    expect(bank()).toHaveLength(3);
+    expect(bank().map((el) => el.dataset.chunk).sort()).toEqual(['0', '1', '2']);
+  });
+
+  it('removes only the clicked chunk, keeping the rest in order', () => {
+    placeAll([0, 1, 2]);
+    click(answer()[1]);
+    expect(answer().map((el) => el.dataset.chunk)).toEqual(['0', '2']);
+  });
+
+  it('marks placed chunks with the removal affordance class', () => {
+    place(0);
+    expect(answer()[0].classList.contains('js-chunk--placed')).toBe(true);
+    expect(bank()[0].classList.contains('js-chunk--placed')).toBe(false);
+  });
+
+  it('drops the Check button and freezes the chunks once answered', () => {
+    placeAll([0, 1, 2]);
+    click(checkBtn());
+    expect(checkBtn()).toBeNull();
+    expect(answer().every((el) => el.classList.contains('disabled'))).toBe(true);
+    expect(answer().every((el) => !el.hasAttribute('draggable'))).toBe(true);
+
+    click(answer()[0]);
+    expect(answer()).toHaveLength(3);
+    expect(submits).toHaveLength(1);
+  });
+});
