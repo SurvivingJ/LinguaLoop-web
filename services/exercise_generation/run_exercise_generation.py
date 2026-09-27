@@ -9,41 +9,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def run_grammar_batch(
-    language_id: int,
-    phases: list[str] | None = None,
-    pattern_ids: list[int] | None = None,
-) -> dict:
-    """
-    Generate exercises for all active grammar patterns of a language,
-    or a specific subset if pattern_ids is provided.
-    """
-    db             = get_supabase_admin()
-    synthesizer    = AudioSynthesizer()
-    orchestrator   = ExerciseGenerationOrchestrator(db, audio_synthesizer=synthesizer)
-
-    query = db.table('dim_grammar_patterns') \
-        .select('id') \
-        .eq('language_id', language_id) \
-        .eq('is_active', True)
-    if pattern_ids:
-        query = query.in_('id', pattern_ids)
-    patterns = query.execute()
-
-    results = {}
-    for row in (patterns.data or []):
-        pid = row['id']
-        try:
-            result = orchestrator.run('grammar', pid, language_id, phases=phases)
-            results[pid] = result
-            logger.info("Pattern %d: %d exercises", pid, result['total'])
-        except Exception as exc:
-            logger.error("Pattern %d failed: %s", pid, exc)
-            results[pid] = {'error': str(exc)}
-
-    return results
-
-
 def run_vocabulary_batch(
     language_id: int,
     sense_ids: list[int] | None = None,

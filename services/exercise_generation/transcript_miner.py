@@ -32,8 +32,6 @@ class TranscriptMiner:
         """
         if source_type == 'vocabulary':
             raw = self._mine_vocabulary(source_id, language_id)
-        elif source_type == 'grammar':
-            raw = self._mine_grammar(source_id, language_id)
         elif source_type == 'collocation':
             raw = self._mine_collocation(source_id, language_id)
         else:
@@ -63,34 +61,6 @@ class TranscriptMiner:
                     transcript, token_text, test['id'], tier
                 )
                 sentences.extend(extracted)
-
-        return sentences
-
-    def _mine_grammar(self, pattern_id: int, language_id: int) -> list[dict]:
-        """Grammar mining: scan transcripts for pattern matches via regex heuristics."""
-        pattern_row = self.db.table('dim_grammar_patterns') \
-            .select('pattern_code, complexity_tier') \
-            .eq('id', pattern_id) \
-            .single() \
-            .execute().data
-
-        pattern_code = pattern_row['pattern_code']
-
-        tests = self.db.table('tests') \
-            .select('id, transcript, difficulty') \
-            .eq('language_id', language_id) \
-            .eq('is_active', True) \
-            .execute()
-
-        sentences = []
-        for test in (tests.data or []):
-            transcript = test.get('transcript', '')
-            tier       = self._difficulty_to_tier(test.get('difficulty', 2))
-            raw_sents  = self.lp.split_sentences(transcript)
-
-            for sent in raw_sents:
-                if self.lp.matches_pattern(sent, pattern_code):
-                    sentences.append(self._make_sentence_dict(sent, test['id'], tier))
 
         return sentences
 
@@ -211,7 +181,6 @@ class LLMSentenceGenerator:
 
     # Map source_type to its dedicated prompt template
     _TEMPLATE_BY_SOURCE: dict[str, str] = {
-        'grammar':     'exercise_sentence_generation',
         'vocabulary':  'vocab_sentence_generation',
         'collocation': 'collocation_sentence_generation',
     }
@@ -237,12 +206,7 @@ class LLMSentenceGenerator:
         return SentenceFilter.deduplicate(filtered)
 
     def _load_source_data(self, source_type: str, source_id: int) -> dict:
-        if source_type == 'grammar':
-            row = self.db.table('dim_grammar_patterns') \
-                .select('pattern_code, description, example_sentence, complexity_tier') \
-                .eq('id', source_id).single().execute().data
-            return row or {}
-        elif source_type == 'vocabulary':
+        if source_type == 'vocabulary':
             row = self.db.table('dim_word_senses') \
                 .select('definition, dim_vocabulary(lemma)') \
                 .eq('id', source_id).single().execute().data

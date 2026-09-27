@@ -2,8 +2,6 @@ from flask import Blueprint, request, g
 from middleware.auth import jwt_required, admin_required
 from services.supabase_factory import get_supabase_admin
 from services.corpus.ingestion import CorpusIngestionService
-from services.corpus.pack_service import CollocationPackService
-from services.corpus.style_pack_service import StylePackService
 from utils.responses import api_success, api_error, bad_request, not_found
 
 corpus_bp = Blueprint('corpus', __name__)
@@ -64,49 +62,6 @@ def ingest_corpus():
         return api_error(str(exc), 502)
 
     return api_success(data={'corpus_source_id': corpus_source_id})
-
-
-@corpus_bp.route('/packs', methods=['GET'])
-@jwt_required
-def list_packs():
-    """
-    List public collocation packs for a language, with user selection state.
-
-    Query params:
-        language_id (int, required): Filter packs by language.
-
-    Response (200):
-        {"packs": [...]}
-    """
-    language_id_str = request.args.get('language_id')
-    if not language_id_str:
-        return bad_request('language_id is required')
-
-    try:
-        language_id = int(language_id_str)
-    except ValueError:
-        return bad_request('language_id must be an integer')
-
-    user_id = g.current_user_id
-    service = CollocationPackService(db=_get_db())
-    packs   = service.get_packs_for_user(language_id, user_id)
-    return api_success(data={'packs': packs})
-
-
-@corpus_bp.route('/packs/<int:pack_id>/select', methods=['POST'])
-@jwt_required
-def select_pack(pack_id: int):
-    """
-    Record that the authenticated user has selected a collocation pack.
-    Idempotent — re-selecting the same pack is safe.
-
-    Response (200):
-        {"status": "success"}
-    """
-    user_id = g.current_user_id
-    service = CollocationPackService(db=_get_db())
-    service.select_pack(user_id, pack_id)
-    return api_success()
 
 
 # ── Style analysis routes ──────────────────────────────────────────────
@@ -179,83 +134,3 @@ def get_style_profile(source_id: int):
 
     return api_success(data={'profile': result.data[0]})
 
-
-@corpus_bp.route('/style-packs', methods=['POST'])
-@admin_required
-def create_style_pack():
-    """
-    Create a style pack from a corpus source's style profile.
-    Admin-only.
-
-    Request body (JSON):
-        corpus_source_id (int, required)
-        pack_name        (str, required)
-        description      (str, optional)
-        language_id      (int, required)
-
-    Response (200):
-        {"status": "success", "pack_id": <int>}
-    """
-    body = request.get_json(force=True)
-    corpus_source_id = body.get('corpus_source_id')
-    pack_name = body.get('pack_name')
-    language_id = body.get('language_id')
-    description = body.get('description', '')
-
-    if not corpus_source_id or not pack_name or not language_id:
-        return bad_request('corpus_source_id, pack_name, and language_id are required')
-
-    try:
-        service = StylePackService(db=_get_db())
-        pack_id = service.create_pack_from_profile(
-            corpus_source_id=corpus_source_id,
-            pack_name=pack_name,
-            description=description,
-            language_id=language_id,
-        )
-    except ValueError as exc:
-        return bad_request(str(exc))
-    except Exception as exc:
-        return api_error(str(exc), 502)
-
-    return api_success(data={'pack_id': pack_id})
-
-
-@corpus_bp.route('/style-packs', methods=['GET'])
-@jwt_required
-def list_style_packs():
-    """
-    List public style packs for a language.
-
-    Query params:
-        language_id (int, required)
-
-    Response (200):
-        {"packs": [...]}
-    """
-    language_id_str = request.args.get('language_id')
-    if not language_id_str:
-        return bad_request('language_id is required')
-
-    try:
-        language_id = int(language_id_str)
-    except ValueError:
-        return bad_request('language_id must be an integer')
-
-    service = StylePackService(db=_get_db())
-    packs = service.get_style_packs(language_id)
-    return api_success(data={'packs': packs})
-
-
-@corpus_bp.route('/style-packs/<int:pack_id>/items', methods=['GET'])
-@jwt_required
-def get_style_pack_items(pack_id: int):
-    """
-    Get all items in a style pack.
-
-    Response (200):
-        {"items": [...]}
-    """
-    service = StylePackService(db=_get_db())
-    items = service.get_pack_items(pack_id)
-    return api_success(data={'items': items})

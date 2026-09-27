@@ -1,0 +1,1284 @@
+{
+  "sense_id": 14001,
+  "language_id": 2,
+  "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+  "started_at": "2026-09-27T00:27:14.474827+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): sense: slightly ambiguous without broader context"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.5089480876922607,
+    "p1_generate": 2.61706805229187,
+    "tier_gate": 0.0,
+    "p1_judge": 1.2713532447814941,
+    "collocate_grounding": 0.0,
+    "fan_out": 51.74622678756714
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): sense: slightly ambiguous without broader context"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈsɪstəm/",
+        "morphological_forms": [
+          {
+            "form": "system",
+            "label": "singular"
+          },
+          {
+            "form": "systems",
+            "label": "plural"
+          },
+          {
+            "form": "system's",
+            "label": "possessive"
+          },
+          {
+            "form": "systems'",
+            "label": "plural possessive"
+          }
+        ],
+        "pronunciation": "SIS-tem",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14001
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6cc5d46a-d0cb-45e8-a40a-34afcdc80ed9",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "system",
+        "pronunciation": "SIS-tem",
+        "correct_definition": "A set of connected parts that work together to form a complex whole.",
+        "options": [
+          "Used to describe something that appears to be true or real but may not actually be so.",
+          "Considered to have less worth or importance than it actually has.",
+          "Involving two or more people working together to achieve something.",
+          "A set of connected parts that work together to form a complex whole."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "942d8b2f-3d5c-4ef0-b8d2-b640e4f03ee4",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "These bugs talk to your body's defense ___, which is your immunity.",
+        "original_sentence": "These bugs talk to your body's defense system, which is your immunity.",
+        "correct_answer": "system",
+        "options": [
+          "strategy",
+          "routine",
+          "system",
+          "machine"
+        ],
+        "explanation": "Correct: 'defense system' is the standard collocation for the body's immunity.",
+        "distractor_tags": {},
+        "word_definition": "A set of connected parts that work together to form a complex whole.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "96a605ec-53c1-4cfc-9108-3849cb447e79",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Sometimes, the defense ___ gets confused.",
+        "original_sentence": "Sometimes, the defense system gets confused.",
+        "correct_answer": "system",
+        "base_form": "system",
+        "form_label": "singular",
+        "options": [
+          "systems",
+          "system",
+          "system's",
+          "systems'"
+        ],
+        "explanation": "singular form is required to agree with the third-person singular verb 'gets'",
+        "word_definition": "A set of connected parts that work together to form a complex whole.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "cc4051cf-5774-4a51-95db-10efd3cc2ec7",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The closed loop system was filled with a special liquid called a refrigerant to cool the room.",
+            "is_correct": false
+          },
+          {
+            "text": "This essential box utilizes a closed loop system filled with a special liquid called a refrigerant to bake bread.",
+            "is_correct": false
+          },
+          {
+            "text": "This essential box utilizes a closed loop system filled with a special liquid called a refrigerant to generate electricity.",
+            "is_correct": false
+          },
+          {
+            "text": "This essential box utilizes a closed loop system filled with a special liquid called a refrigerant.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'closed loop system' is redundant and less precise than 'closed loop' or 'cooling system' for a simple refrigeration box. Semantically inappropriate: refrigerants in a closed loop are used for heat transfer and cooling, not for generating electricity. Semantically inappropriate: a refrigerant system is designed for cooling, which contradicts the high heat required to bake bread.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7bfbd779-de9c-416a-b45f-5f36b104953f",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "These bugs talk to your body's defense system, which is your immunity.",
+            "is_correct": true
+          },
+          {
+            "text": "Sometimes, the defense system gets confused.",
+            "is_correct": true
+          },
+          {
+            "text": "He developed effective study system for his exams.",
+            "is_correct": false,
+            "error_description": "Missing indefinite article: 'system' is a singular countable noun and requires an article such as 'an' before it."
+          },
+          {
+            "text": "Furthermore, these systems often process vast amounts of sensitive data, raising valid concerns about privacy and security.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "3b196540-7093-4968-9118-4b817bf28d27",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Open systems take in food and heat."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "cc2bc1e7-048d-438e-86a5-b4a7b5939a82",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "system",
+        "pronunciation": "SIS-tem",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A set of connected parts that work together to form a complex whole.",
+              "not include or put something in.",
+              "Actually existing or happening, not imagined or fake.",
+              "Related to the practical problems of organizing and managing complex activities."
+            ],
+            "correct_answer": "A set of connected parts that work together to form a complex whole."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "65ad1d6a-c369-439d-87c6-348c6ab374a3",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Sometimes, the defense ___ gets confused.",
+        "original_sentence": "Sometimes, the defense system gets confused.",
+        "target_word": "system",
+        "word": "system",
+        "answer": {
+          "accepted": [
+            "system",
+            "systems",
+            "system's",
+            "systems'"
+          ],
+          "accepted_normalized": [
+            "system",
+            "systems",
+            "system's",
+            "systems'"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6d2ae0b7-d84c-4e5e-ba05-d35173d78bc9",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Open systems take in food and heat.",
+        "chunks": [
+          "Open systems",
+          "take",
+          "in food and heat"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "Open systems",
+          "in food and heat",
+          "take"
+        ],
+        "target_word": "systems",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b685b260-2836-4e6d-af5f-63e11b3c44d1",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "system",
+        "pronunciation": "SIS-tem",
+        "ipa": "/ˈsɪstəm/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "sister",
+          "sicken",
+          "cistern",
+          "system"
+        ],
+        "correct_answer": "system",
+        "explanation": "Correct word: matches the spoken target exactly.",
+        "distractor_explanations": {
+          "sister": "minimal pair: differs only in the final /m/ vs /r/ sound.",
+          "sicken": "minimal pair: differs only in the /s/ vs /k/ sound in the second syllable.",
+          "cistern": "near-homophone: shares the initial /sɪs/ but differs in the second syllable /tɜːrn/ vs /təm/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "71e66a9c-c9ea-4de6-96dc-7fc2bf0ee731",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "A living plant is an open ___.",
+        "original_sentence": "A living plant is an open system.",
+        "correct_answer": "system",
+        "options": [
+          "circuit",
+          "creature",
+          "system",
+          "gizmo"
+        ],
+        "explanation": "Correct completion: 'open system' is the standard scientific term for an entity that exchanges energy and matter with its environment.",
+        "distractor_tags": {},
+        "word_definition": "A set of connected parts that work together to form a complex whole.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "3009e03d-84b2-4662-9ef5-11fe918cb586",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The school heating ___ broke down during the coldest week of winter.",
+        "original_sentence": "The school heating system broke down during the coldest week of winter.",
+        "correct_answer": "system",
+        "base_form": "system",
+        "form_label": "singular",
+        "options": [
+          "system",
+          "systems",
+          "systems'",
+          "system's"
+        ],
+        "explanation": "singular noun functions correctly as the subject of the sentence",
+        "word_definition": "A set of connected parts that work together to form a complex whole.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3bba2730-a250-446c-a6dd-9b7d6412c9f9",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "I bought a beautiful wooden system for my living room to sit on.",
+            "is_correct": false
+          },
+          {
+            "text": "The toddler successfully reorganized the entire economic system of the country during his afternoon nap.",
+            "is_correct": false
+          },
+          {
+            "text": "Our local transport system connects all the nearby towns together.",
+            "is_correct": true
+          },
+          {
+            "text": "The chef carefully adjusted the system of the soup to make it taste more salty.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: soup is a simple liquid mixture, not a complex arrangement of interacting parts that can be 'adjusted' like a mechanical or organizational system. Semantically inappropriate: a 'system' refers to a set of connected parts forming a complex whole, not a single piece of wooden furniture like a sofa or bench. Pragmatically inappropriate: it is logically absurd to attribute the complex macroeconomic restructuring of a nation to a sleeping toddler.",
+        "target_word": "system"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f9e9da58-5750-4f4d-bfc6-22c05b781ef2",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "A living plant is an open system.",
+            "is_correct": true
+          },
+          {
+            "text": "Our local transport system connect all the nearby towns together.",
+            "is_correct": false,
+            "error_description": "The singular noun 'system' serves as a third-person singular subject, which requires the verb to take the '-s' inflection ('connects') in the present tense."
+          },
+          {
+            "text": "The school heating system broke down during the coldest week of winter.",
+            "is_correct": true
+          },
+          {
+            "text": "Our local transport system connects all the nearby towns together.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0ba3e7d8-d051-4ff2-8d37-be480c6abc6f",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "This essential box utilizes a closed loop system filled with a special liquid called a refrigerant."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "cb0defde-64f9-4c14-b324-8d39fd0b3177",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The school heating ___ broke down during the coldest week of winter.",
+        "original_sentence": "The school heating system broke down during the coldest week of winter.",
+        "target_word": "system",
+        "word": "system",
+        "answer": {
+          "accepted": [
+            "system",
+            "systems",
+            "system's",
+            "systems'"
+          ],
+          "accepted_normalized": [
+            "system",
+            "systems",
+            "system's",
+            "systems'"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "532aeb27-aaea-4d34-86a3-7509002d53b5",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "This essential box utilizes a closed loop system filled with a special liquid called a refrigerant.",
+        "chunks": [
+          "This essential box",
+          "utilizes",
+          "a closed loop system filled with a special liquid called a refrigerant"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "a closed loop system filled with a special liquid called a refrigerant",
+          "utilizes",
+          "This essential box"
+        ],
+        "target_word": "system",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14001,
+      "word_asset_id": "shadow-14001-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0021678,
+      "prompt_tokens": 2076,
+      "completion_tokens": 618,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 2477
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006631,
+      "prompt_tokens": 652,
+      "completion_tokens": 187,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1194
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00221888,
+      "prompt_tokens": 842,
+      "completion_tokens": 1523,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1380,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 16226
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0028336,
+      "prompt_tokens": 1151,
+      "completion_tokens": 1926,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1813,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 20394
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00328512,
+      "prompt_tokens": 1154,
+      "completion_tokens": 2278,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2178,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 25126
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00591104,
+      "prompt_tokens": 1584,
+      "completion_tokens": 4222,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3596,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 27111
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00280448,
+      "prompt_tokens": 848,
+      "completion_tokens": 1979,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1788,
+      "call_role": "retry",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 21628
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0066944,
+      "prompt_tokens": 1584,
+      "completion_tokens": 4834,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4199,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 51312
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003961,
+      "prompt_tokens": 412,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1277
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003101,
+      "prompt_tokens": 392,
+      "completion_tokens": 77,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 851
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004275,
+      "prompt_tokens": 500,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1122
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001691,
+      "prompt_tokens": 372,
+      "completion_tokens": 23,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 715
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003136,
+      "prompt_tokens": 412,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 881
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003055,
+      "prompt_tokens": 385,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 861
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004622,
+      "prompt_tokens": 499,
+      "completion_tokens": 125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 986
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002005,
+      "prompt_tokens": 385,
+      "completion_tokens": 34,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14001,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 829
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.02916302,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 64.75,
+  "finished_at": "2026-09-27T00:28:19.238339+00:00"
+}

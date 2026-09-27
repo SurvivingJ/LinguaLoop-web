@@ -1,0 +1,150 @@
+{
+  "reviewer": "independent second reviewer (taxonomy.md §0.8); did not author the addendum",
+  "date": "2026-09-27",
+  "reviewed": "data/eval/jev_grammar_2026-09-26/taxonomy_addendum_2026-09-27.md",
+  "against": [
+    "data/eval/jev_grammar_2026-09-26/taxonomy.md (§0.3-0.10, §2, §3, §4)",
+    "migrations/dt_taxonomy_v5_seed.sql (phrasal_verb, particle_other, particle_case, preposition)"
+  ],
+  "items": [
+    {
+      "location": "addendum §1.2 en.phrasal_verb obvious (ran out of -> ran of)",
+      "verdict": "pass",
+      "issue": "Source fully correct; one deletion; *ran of milk* fails on first read; the inverse edit restores the source; no context rescues it. Obvious rating agreed.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "addendum §1.2 en.phrasal_verb moderate (picked it up -> picked up it)",
+      "verdict": "pass",
+      "issue": "Clean single placement error that any native notices. Moderate rating agreed. Cross-bucket risk with en.B3 is covered in the word_order item below.",
+      "suggested_fix": "None for the example itself."
+    },
+    {
+      "location": "addendum §1.2 en.phrasal_verb subtle (give in to -> give up to)",
+      "verdict": "fix",
+      "issue": "Not a safe positive, as flagged. (a) Intransitive *give up* = 'surrender' exists, with *to* marking who the surrender is made to (*the suspect gave (himself) up to police*, *gave himself up to despair*). *Give up to pressure* can therefore be read as a stretched but valid frame, which breaks the addendum's own §1.3 rule that verb + particle must not be valid in that frame. (b) The 'What changed' note says *give up* 'takes no to-complement for the thing yielded to', which is inaccurate for the reason in (a). (c) V2 fails: some natives would call it 'odd but understandable' rather than correct it. (d) The correct form is not uniquely *give in to*: *yield to*, *bow to*, *cave (in) to* and *succumb to* are all fine. That is harmless for V3, which only needs the inverse edit to restore the source, but it shows the error lives at the verb-plus-particle unit, not the particle alone. In short: contested, so C11-style exclusion applies.",
+      "suggested_fix": "Replace it with a same-verb particle swap whose result has no valid parse in the frame. For example: 'It turned out to be true.' -> 'It turned up to be true.' (*turn up* = appear exists, but *turn up to be + adj* is not a pattern; the surface stays fluent). Run the V9 COCA check on 'turned up to be'. If that fails, use 'We have to put up with the noise.' -> 'We have to put up to the noise.' (*put sb up to sth* = incite needs an object, so the frame is invalid). Update the B1 draft question's example list to match."
+    },
+    {
+      "location": "addendum §1.2 'Not an error' bullet 6 (literal verb + directional adverb: *carry the box in*, *give back the pen*) vs §1.3 preposition row (movement / idiomaticity test)",
+      "verdict": "fix",
+      "issue": "Direct contradiction. The §1.3 test says a particle that can follow the object (movement) OR a non-compositional meaning makes it a phrasal verb. *Give the pen back* and *carry the box in* pass the movement test, so §1.3 routes them to phrasal_verb, while bullet 6 says they are not phrasal verbs and a wrong particle there is en.preposition. Also, *back* and *in* here are adverb particles, not prepositions, so en.preposition's definition (a preposition for a verb, adjective, noun, location or time) does not obviously cover them either. A labeller cannot decide these cases.",
+      "suggested_fix": "Make idiomaticity the deciding criterion and movement a secondary diagnostic only. phrasal_verb = verb + particle whose combined meaning is not compositional (the verb does not keep its own meaning). Literal verb + directional particle is out of scope for both types: do not author positives on it, and use correct literal alternations only as variant_ok. Rewrite the §1.3 preposition row with this rule and 'and', not 'or'."
+    },
+    {
+      "location": "addendum §1.3 boundary en.phrasal_verb vs en.preposition (prepositional verbs)",
+      "verdict": "fix",
+      "issue": "The idiomaticity half of the test is a judgement call exactly where labellers will split: inseparable prepositional verbs (*look after*, *come across*, *take after*, *get over*, *run into*) versus *deal with*, *count on*, *care for*, *believe in*, *look at*, *consist of*. Is *deal with* = handle 'not the sum of its parts'? A yes/no classifier question cannot use this test either.",
+      "suggested_fix": "Add a closed routing list of inseparable idiomatic prepositional verbs that count as phrasal_verb (the five named plus any others the author wants to use), and route every other verb + preposition pairing to en.preposition. Author positives only on verbs from the list or on separable or intransitive phrasal verbs (*give in*, *run out*, *pick up*, *turn off*)."
+    },
+    {
+      "location": "addendum §1.3 word_order row + §3.1 bucket (placement positives vs en.B3)",
+      "verdict": "fix",
+      "issue": "The addendum moves pronoun/particle placement out of en.word_order. However, taxonomy.md's en.word_order definition ('adverb placement between verb and object') and the B3 question ('words in the right order') both still literally cover *picked up it* and *looks her brother after*. The addendum's own reason for putting phrasal_verb in B1 (so a sibling question does not answer 'no' and get scored as a cross-bucket false positive) applies here too: B3 will very likely answer 'no' on placement positives, and that will be counted against it. The addendum's knock-on list does not mention this.",
+      "suggested_fix": "(1) Add to the knock-on list: amend taxonomy.md en.word_order to exclude 'particle position relative to the object of a phrasal verb'. (2) Cap placement positives at about 3 of the 10, and exclude them from B3's cross-bucket negative set, or report B3's result on them separately."
+    },
+    {
+      "location": "addendum §3.1 en.B1 membership (article_determiner, preposition, phrasal_verb)",
+      "verdict": "pass",
+      "issue": "Sound. The types are disjoint once the two boundary fixes above are made; ≤3 types; particles are closed-class function words, which fits the §4 B1 theme; B2 would be wrong because no edit touches inflection or complement type. Knock-on effects to record: (a) §0.10 sizing drops article_determiner and preposition from about 15 to about 10 positives each, so any B1 authoring plan must be rebalanced; (b) the taxonomy.md §4 comparability note should say that en B1 now also covers verb particles.",
+      "suggested_fix": "Record the two knock-ons in the addendum's knock-on list."
+    },
+    {
+      "location": "addendum §3.1 en.B1 draft question",
+      "verdict": "fix",
+      "issue": "Polarity is correct (yes = clean) and the wording is natural. However, it names *give in to*, the contested example, and the long 'including the small words that belong to verbs' tail makes this the longest B1 question. Per §0.9, the wording should be tested with and without the parenthetical.",
+      "suggested_fix": "'Are all articles (a, an, the), other determiners, prepositions and verb particles (as in *pick it up*, *run out of*) correct and in the right place?' Test it with and without the examples."
+    },
+    {
+      "location": "addendum §4 DT v6 mapping — en phrasal_verb (fidelity -> accuracy, class F -> G)",
+      "verdict": "fix",
+      "issue": "Filling jev_bucket 'B1' with mapping_kind 'split' is right. Changing the DT dimension is not justified by this addendum. v5 made phrasal_verb 'fidelity' because DT's gloss includes the 'avoided phrasal-verb form' reading, which is exactly the part jev drops. A narrower jev slice should not re-score DT's wider subtype, since the split mapping already records the difference. The dimension change would also alter live DT v6 scoring. The addendum says that is the user's call, but it still presents the change as the proposal.",
+      "suggested_fix": "Keep DT phrasal_verb as fidelity / minor / treatable false / cloze true; fill only jev_bucket = 'B1' (split). If a dimension change is wanted, raise it as a separate DT decision backed by the live dt_error_instance mix of wrong-particle versus avoided-form rows."
+    },
+    {
+      "location": "addendum §2.2 ja.particle_other obvious (一つだけあります -> 一つしかあります)",
+      "verdict": "pass",
+      "issue": "Source fully correct; one particle swap; しか + affirmative fails on first read; the inverse edit restores the source; no context rescues it. Obvious rating agreed.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "addendum §2.2 ja.particle_other moderate (父と母と私の三人 -> 父や母や私の三人)",
+      "verdict": "fix",
+      "issue": "The error is real (や with an exact total), but the edit changes two slots. The note argues 'one locus = the list', which bends C2 ('exactly one edit at one locus'), and it sets a precedent for multi-slot edits in other types. It is also avoidable.",
+      "suggested_fix": "Use a two-member list so the edit is a single swap. For example: 'かばんに本とノートの二つが入っています。' -> 'かばんに本やノートの二つが入っています。'. Alternatively, drop the count noun and use an explicitly closed set: '家族は父と母だけです' is NOT suitable (it adds だけ). Keep the two-member counted list and run V9 on 'や…の二つ'."
+    },
+    {
+      "location": "addendum §2.2 ja.particle_other subtle (金曜日までに本を返して -> 金曜日まで本を返して)",
+      "verdict": "fix",
+      "issue": "The error is a genuine, well-known まで/までに error, but the source triggers the addendum's own V5 warning (§2.4): 本 is number-neutral, so a notice-style iterative reading ('keep returning books until Friday' / 'books may be returned up to Friday') is available. 'XXまで提出してください'-type strings are also attested in semi-edited web text. As written, it is borderline under V2/V5.",
+      "suggested_fix": "Make the object singular and definite so the iterative reading disappears: 'この本を金曜日までに返してください。' -> 'この本を金曜日まで返してください。'. Subtle rating OK. Run V9 on 'まで返してください'."
+    },
+    {
+      "location": "addendum §2.1 one-line definition + §2.2 Not-an-error: ほど as negative-polarity",
+      "verdict": "fix",
+      "issue": "ほど is negative-polarity only in the comparative 'not as … as' use. The 'Not an error' list names only set phrases (死ぬほど, 山ほど), but several very common affirmative uses are missing: approximate ほど (一時間ほど待った, 三人ほど来た), ～ば～ほど (読めば読むほど面白い), clause-degree ほど (涙が出るほど嬉しい), and 'Xほど…はない' where the negation is on the existential. An author following the definition literally could produce false positives, and a labeller could mislabel a correct sentence.",
+      "suggested_fix": "Definition: 'comparative ほど (A は B ほど ～) with an affirmative predicate'. Add to Not an error: approximate-quantity ほど, ～ば～ほど, clause + ほど of degree, and ほど…はない."
+    },
+    {
+      "location": "addendum §2.2 Not-an-error: まで",
+      "verdict": "fix",
+      "issue": "The まで/までに rule is about time. Spatial or range まで with a one-time verb is correct (駅まで行く, 東京から大阪まで送る) and is missing from the list. A labeller applying 'まで + one-time action = error' will mis-tag these.",
+      "suggested_fix": "Add 'spatial / range まで (駅まで歩く, AからBまで)' to Not an error, and restate the positive as 'time-point まで + a one-time action that must be completed by that time'."
+    },
+    {
+      "location": "addendum §2.1/§2.2/§2.3 stacking positives (本をは, 私がも) vs the ja.wa_ga boundary row and the をも contested entry",
+      "verdict": "fix",
+      "issue": "Internal conflict. The §2.3 wa_ga row says 'Any edit that inserts, removes or replaces は or が is never ja.particle_other', but 本をは inserts は, and 私がも sits on が. Only the case_particle row carries the stacking exception. Also, を + も is itself marked '～をも (contested — exclude)', so the only stacking pattern that is unambiguous under all rules is が + も. The planned ~4 stacking positives therefore depend on which row a labeller reads first. C6 plausibility is also weak: an LLM essentially never writes をは or がも.",
+      "suggested_fix": "Either (a) add the same exception to the wa_ga row ('except は/も stacked after a retained が/を, which is particle_other'), or, preferably, (b) drop stacking from the authored positives (keep it as a routing rule only) and redistribute its ~4 items to polarity and まで/までに."
+    },
+    {
+      "location": "addendum §2.1 definition + §2.4 final-particle order (よね -> ねよ)",
+      "verdict": "reject",
+      "issue": "This sub-scope should not be authored. (a) C6: no fluent writer or LLM produces ねよ, so it is a random scramble, and the addendum itself says it would inflate recall. (b) The B9 draft question never mentions final particles, so a ねよ positive tests something the question does not ask about. (c) The v5 DT gloss is about final-particle choice, which jev rightly excludes, so keeping only order buys no DT alignment.",
+      "suggested_fix": "Remove 'the fixed final-particle order (よね, never ねよ)' from the definition and the ≤2 budget. Keep 'final-particle choice is not an error' in the Not-an-error list."
+    },
+    {
+      "location": "addendum §2.1 closed scope (だけ, ばかり, さえ, こそ, でも, か listing) vs the error patterns in the definition",
+      "verdict": "fix",
+      "issue": "The closed scope lists particles for which no error rule is defined. The only positives defined are polarity (しか/comparative ほど/誰も・何も), まで/までに, や/とか + exact count, stacking and ねよ. For さえ, こそ, ばかり, でも and か, a labeller does not know whether an error on them belongs here or is not an error, and a reviewer cannot check type fit (V4).",
+      "suggested_fix": "State explicitly: 'Authored positives use only patterns 1–N. The other listed particles are in scope for routing only: a real error on them found in live output is labelled particle_other, but none are authored.' Alternatively, trim the scope list to the particles that have rules."
+    },
+    {
+      "location": "addendum §2.3 boundary vs ja.clause_linkage (まで/までに/ほど after a predicate)",
+      "verdict": "fix",
+      "issue": "The clause_linkage row says 'particles after a clause (predicate + particle) are clause_linkage'. まで and までに very often follow a verb (彼が来るまで待つ, 帰るまでに終わらせる), and so does degree ほど. Under that row a まで/までに positive on a verb would be clause_linkage, while §2.1 puts まで/までに here. This overlap is unresolved.",
+      "suggested_fix": "Add: 'まで / までに / ほど are particle_other whether they follow a noun or a predicate; the clause_linkage row applies only to the connective list in taxonomy.md ja.clause_linkage.' Alternatively, restrict authored まで/までに positives to noun + まで(に) (time nouns), which is the cleaner option."
+    },
+    {
+      "location": "addendum §2.3 boundaries vs ja.case_particle, ja.tam, ja.modification, ja.contradiction, ja.register",
+      "verdict": "pass",
+      "issue": "The 'decide by the particle in the source at the edit site' rule is crisp and usable by both a labeller and a classifier question. The C7 ban on case-to-focus swaps is correct. The tam and modification rows are clear. One minor gap: listing と versus comitative と is ambiguous with symmetric predicates (太郎と花子が結婚した).",
+      "suggested_fix": "Optional: author と→や positives only where the list is closed by a count or a totalising noun, never with a symmetric/reciprocal predicate."
+    },
+    {
+      "location": "addendum §3.2 new bucket ja.B9 (justification)",
+      "verdict": "pass",
+      "issue": "Justified. ja.B1 is at the ≤3 cap; B3's theme (joining) fits only や/と; moving counter out of B1 would break the §4 B1 comparison and an existing CSV mapping. A 1-type bucket is allowed by §0.10 (30 positives). The addendum rightly records the sourcing shortfall instead of relaxing C1. Cost: about 60 extra ja items, and B9 falls outside the cross-language map, both stated.",
+      "suggested_fix": "None, apart from the B1 interaction item below."
+    },
+    {
+      "location": "addendum §3.2 'Interaction with ja.B1' (B9 positives as B1 cross-bucket negatives)",
+      "verdict": "fix",
+      "issue": "B1's question asks 'Are all the particles … used correctly', and the parenthetical list is, per §0.9, an author aid that may be removed. Read without it, or read by any native, しかあります means the particles are NOT all used correctly. So the ground-truth answer to B1 on B9 positives is 'no', not 'yes', and B1 would be charged with false positives it did not commit. This is exactly the problem the addendum avoids for en by putting phrasal_verb in the same bucket as preposition.",
+      "suggested_fix": "Either reword the B1 question to be about case particles only ('格助詞（が・を・に・で・へ・と・から）と「は」、助数詞…'), which is a knock-on to taxonomy.md; or exclude B9 positives from B1's cross-bucket negative set and report B1 on them as a diagnostic only. Pick one and record it in the knock-on list."
+    },
+    {
+      "location": "addendum §3.2 ja.B9 draft question wording and polarity",
+      "verdict": "fix",
+      "issue": "(a) Mixed polarity inside the example parenthetical: the first two checks are phrased so that yes = clean ('否定の形になっているか', 'の区別'), but '「や」を使っていないか' reads as a check-for-fault phrase where the clean answer to the literal question is a negative, which invites polarity confusion. (b) 誰も is not a particle, and '「しか」「ほど」「誰も」のあとは否定の形' is loose: the negation is on the predicate, not right after the particle, and ほど is polarity-sensitive only when comparative. (c) Stacking (and ねよ, if kept) is not covered by the question at all. (d) '並べる「や」「と」' is slightly unnatural; '並列の「や」「と」' reads better. (e) The nested 「「 opening is awkward. The main clause's polarity is correct (正しく使われていますか = yes clean).",
+      "suggested_fix": "「も・だけ・しか・まで／までに・より・ほど、並列の「や」「と」などの助詞は正しく使われていますか。（例：「しか」や比較の「ほど」、「誰も」「何も」を使った文の述語が否定形になっているか。期限を表すときに「までに」が使われているか。数が決まっている並べ方には「や」ではなく「と」が使われているか。）」 Every example is phrased so that yes = clean. Test it with and without the parenthetical (§0.9)."
+    },
+    {
+      "location": "addendum §4 DT v6 mapping — ja particle_other (keep accuracy / minor; jev_bucket B9, split)",
+      "verdict": "pass",
+      "issue": "Agreed. It matches v5 subtype_meta (accuracy / minor / treatable / cloze), and not splitting severity per subclass is right given the schema. Two known divergences should be stated in the split note so the v5 historical-alias triage does not misroute: (1) v5's particle_other is defined as '格助詞以外の助詞', and より is a 格助詞 in school grammar, so DT would file より under particle_case while jev files it under particle_other; (2) v5's particle_case gloss lists only を・に・で・へ, while jev case_particle also covers が・と・から.",
+      "suggested_fix": "Add both divergences to the mapping_kind 'split' note, and to the knock-on bullet on v5 alias triage."
+    }
+  ],
+  "overall": "Approve after fixes. The structure is sound: narrow scopes, closed particle list, en phrasal_verb in B1, a new 1-type ja.B9, and a split DT mapping. The worked examples need four changes: replace the contested en subtle example (give up to has a valid 'surrender to' parse); make ja moderate a single-slot swap; make the ja subtle object definite (この本) to block the iterative reading; drop ねよ. The boundary rules need five fixes before a labeller or classifier can apply them: the en movement-vs-literal contradiction; a closed list for idiomatic prepositional verbs; the ja stacking-vs-wa_ga conflict; まで/ほど after a predicate vs clause_linkage; the missing not-an-error uses of ほど and まで. There are two bucket-level scoring problems: B9 positives are not valid 'yes' negatives for ja.B1 as B1 is worded, and phrasal-verb placement positives will hit en.B3's word-order question. Do not change DT phrasal_verb's dimension from fidelity inside this addendum. Counts: 8 pass, 15 fix, 1 reject."
+}

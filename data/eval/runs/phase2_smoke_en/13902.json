@@ -1,0 +1,212 @@
+{
+  "sense_id": 13902,
+  "language_id": 2,
+  "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+  "started_at": "2026-09-27T21:19:10.719203+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.2461390495300293,
+    "p1_generate": 3.0210072994232178,
+    "tier_gate": 0.01564502716064453,
+    "p1_judge": 3.0378916263580322,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɡoʊ ˈɒn/",
+        "morphological_forms": [
+          {
+            "form": "go on",
+            "label": "base"
+          },
+          {
+            "form": "goes on",
+            "label": "present third person singular"
+          },
+          {
+            "form": "going on",
+            "label": "present participle"
+          },
+          {
+            "form": "went on",
+            "label": "past"
+          },
+          {
+            "form": "gone on",
+            "label": "past participle"
+          }
+        ],
+        "pronunciation": "goh on",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13902
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023008,
+      "prompt_tokens": 1936,
+      "completion_tokens": 688,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+      "language_code": "en",
+      "latency_ms": 2872
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0008979,
+      "prompt_tokens": 643,
+      "completion_tokens": 282,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+      "language_code": "en",
+      "latency_ms": 1407
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00018,
+      "prompt_tokens": 225,
+      "completion_tokens": 45,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 13902,
+      "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+      "language_code": "en",
+      "latency_ms": 734
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000234,
+      "prompt_tokens": 530,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+      "language_code": "en",
+      "latency_ms": 643
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.01343936,
+      "prompt_tokens": 2246,
+      "completion_tokens": 9938,
+      "cached_tokens": 0,
+      "reasoning_tokens": 7736,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "640f80d7-a144-414b-9caf-4f44aca4361b",
+      "language_code": "en",
+      "latency_ms": 169762
+    }
+  ],
+  "llm_calls_observed": 5,
+  "llm_cost_observed_usd": 0.01705206,
+  "render_skipped_cost_cap": false,
+  "exceptions": [
+    {
+      "stage": "render",
+      "error": "TypeError(\"'<' not supported between instances of 'str' and 'int'\")",
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\scripts\\run_exercise_gen_eval.py\", line 764, in process_one_sense\n    rows = renderer.build_rows(sense_id, language_id)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\vocabulary_ladder\\exercise_renderer.py\", line 226, in build_rows\n    requests = self._gather_bundle_judge_requests(core, variant_configs, active_levels)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\vocabulary_ladder\\exercise_renderer.py\", line 697, in _gather_bundle_judge_requests\n    if incorrect and correct_indices and correct_indices[0] < len(sentences):\n                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: '<' not supported between instances of 'str' and 'int'\n"
+    }
+  ],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 177.10999999998603,
+  "finished_at": "2026-09-27T21:22:07.846481+00:00"
+}

@@ -220,6 +220,8 @@ class CoreAssetGenerator:
                     task_name=TASK_NAME,
                     template_version=cfg.get('version'),
                     language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                    call_role='retry' if attempt > 1 else 'primary',
+                    allow_internal_repair=False,
                 )
             except Exception as e:
                 logger.warning(
@@ -285,6 +287,8 @@ class CoreAssetGenerator:
                 task_name=f'{TASK_NAME}_repair',
                 template_version=cfg.get('version'),
                 language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                call_role='repair',
+                sense_id=sense_id,
             )
         except Exception as e:
             logger.warning("Prompt 1 repair call failed for sense %s: %s", sense_id, e)
@@ -365,6 +369,8 @@ class CoreAssetGenerator:
                 task_name=f'{TASK_NAME}_sentence_repair',
                 template_version=cfg.get('version'),
                 language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                call_role='repair',
+                sense_id=sense_id,
             )
         except Exception as e:
             logger.warning("P1 sentence repair failed for sense %s: %s", sense_id, e)

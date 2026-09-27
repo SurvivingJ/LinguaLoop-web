@@ -2,7 +2,7 @@
 
 import logging
 from services.exercise_generation.config import TIER_TO_IRT
-from services.conversation_generation.categorical_maps import TIER_NUMERIC
+from services.categorical_maps import TIER_NUMERIC
 from services.vocabulary.frequency_service import get_zipf_score
 
 logger = logging.getLogger(__name__)

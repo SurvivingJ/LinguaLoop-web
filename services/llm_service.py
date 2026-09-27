@@ -28,15 +28,19 @@ Usage:
                  pipeline='test_gen', task_name='question_generator')
 """
 
+import contextvars
 import csv
 import hashlib
 import json
 import logging
 import os
+import re
 import threading
 import time
+from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Callable, Iterator, Optional
 
 import httpx
 from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
@@ -229,6 +233,166 @@ def _resolve_model(
 # never breaks a generation pipeline.
 # ---------------------------------------------------------------------------
 
+# Generation-batch context (Phase 0 cost instrumentation). ``sense_id`` and
+# ``generation_batch_id`` are set ONCE at the top of a unit of work — e.g.
+# VocabAssetPipeline._generate_for_sense_impl — and every call_llm() nested
+# underneath (P1, P2, P3, split levels, typed generators, judges) picks them
+# up automatically via these contextvars rather than every call site having to
+# thread two extra parameters through several layers of generator classes.
+#
+# Contextvars propagate down a normal call stack for free, but NOT into a
+# ``ThreadPoolExecutor`` worker by default — the pipeline fans P2/P3/split/
+# typed generation out across threads (see judges.base.BatchModeThreadPoolExecutor).
+# That executor's ``submit`` is extended (see judges/base.py) to capture
+# ``contextvars.copy_context()`` at submit time and run the worker inside it,
+# so a sense_id set on the calling thread is still visible inside the pool
+# thread that actually places the OpenRouter call.
+_ctx_sense_id: contextvars.ContextVar[int | None] = contextvars.ContextVar(
+    'llm_service_sense_id', default=None,
+)
+_ctx_generation_batch_id: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    'llm_service_generation_batch_id', default=None,
+)
+
+
+@contextmanager
+def generation_context(
+    *, sense_id: int | None = None, generation_batch_id: str | None = None,
+) -> Iterator[None]:
+    """Bind ``sense_id``/``generation_batch_id`` for every llm_calls row logged
+    within this block (and any thread that inherits this context — see the
+    module docstring above ``_ctx_sense_id``).
+
+    Either argument may be omitted; omitting both makes this a no-op scope.
+    Values are restored on exit, so nested/re-entrant use is safe.
+    """
+    tokens = []
+    if sense_id is not None:
+        tokens.append((_ctx_sense_id, _ctx_sense_id.set(sense_id)))
+    if generation_batch_id is not None:
+        tokens.append(
+            (_ctx_generation_batch_id, _ctx_generation_batch_id.set(generation_batch_id))
+        )
+    try:
+        yield
+    finally:
+        for var, tok in tokens:
+            var.reset(tok)
+
+
+# Allowed values for llm_calls.call_role — mirrors the CHECK constraint in
+# migrations/llm_calls_cost_instrumentation.sql. Keep the two in sync.
+CALL_ROLE_PRIMARY = 'primary'
+CALL_ROLE_JSON_REPAIR = 'json_repair'
+CALL_ROLE_RETRY = 'retry'
+CALL_ROLE_SALVAGE = 'salvage'
+CALL_ROLE_REPAIR = 'repair'
+_VALID_CALL_ROLES = frozenset({
+    CALL_ROLE_PRIMARY, CALL_ROLE_JSON_REPAIR, CALL_ROLE_RETRY,
+    CALL_ROLE_SALVAGE, CALL_ROLE_REPAIR,
+})
+
+# TASK-813: models that REQUIRE reasoning mode to function at all — sending
+# `reasoning: {exclude: True}` to one of these would break it, not just leave
+# it unaffected (the "qwen3.8-max is a reasoning model" finding: it needs
+# ~16k max_tokens and 100-330s/call, and must never have reasoning disabled).
+# A denylist, not an allowlist: every other model is assumed to tolerate an
+# unrecognised/no-op `reasoning` key the way OpenRouter tolerates unknown
+# `extra_body` fields for most providers. Pattern-based (not just the one
+# known slug) so a future qwen — or any other family's — reasoning-only
+# variant doesn't silently slip through un-denied.
+_REASONING_ONLY_MODEL_PATTERNS: tuple[re.Pattern, ...] = (
+    re.compile(r'qwen3\.8-max', re.IGNORECASE),
+    re.compile(r'-thinking(?:[:@-]|$)', re.IGNORECASE),
+    re.compile(r'-reasoning(?:[:@-]|$)', re.IGNORECASE),
+)
+
+# TASK-813: pipelines whose calls default to `provider_routing={'sort':
+# 'price'}` when the caller does not specify one. Scoped rather than global
+# because "cheapest provider for this model" is a cost lever for the
+# high-volume vocab_ladder generation/judge traffic ADR-028 targets, not a
+# blanket policy this change should impose on every pipeline in one step.
+_PRICE_ROUTED_PIPELINES: frozenset[str] = frozenset({'vocab_ladder'})
+
+
+def _is_reasoning_only_model(model: str | None) -> bool:
+    """True for a model that must never have reasoning mode disabled.
+
+    Checked before sending `reasoning: {exclude: True}` — see
+    `_REASONING_ONLY_MODEL_PATTERNS` for why this is a denylist rather than
+    an allowlist.
+    """
+    if not model:
+        return False
+    return any(p.search(model) for p in _REASONING_ONLY_MODEL_PATTERNS)
+
+
+# ADR-028 Phase 1 rollout finding (2026-09-27): sending `reasoning:
+# {exclude: True}` together with `provider: {'sort': 'price'}` to a qwen
+# model reproducibly makes the cheapest OpenRouter provider for that model
+# return an EMPTY completion for structurally demanding vocab_ladder steps —
+# confirmed live via A/B on EN `ladder_l4_morphology_generation` /
+# `ladder_word_family_generation` on qwen/qwen3.7-plus: price-routing OFF
+# (reasoning still disabled) succeeds; reasoning-disable OFF (price-routing
+# still on) succeeds; both flags on together reproduces "LLM returned empty
+# content" every time. The cheapest provider apparently needs its own
+# reasoning pass to produce a well-formed answer for these prompts and
+# returns nothing when reasoning is explicitly excluded. Scoped to the qwen
+# family (not pulled out of price-routing entirely) so the ADR-028 cost win
+# from `sort: price` is kept for every other model; revisit per-provider if
+# a non-qwen model shows the same interaction.
+#
+# ADR-028 continuation (2026-09-28): the finding above described a
+# WORKAROUND (leave reasoning ON for these calls), not a fix — Phase 1 then
+# showed leaving reasoning ON is expensive: 85-90% of qwen/qwen3.7-plus
+# completion tokens on every vocab_ladder task, in every language, were
+# reasoning_tokens. `_unsafe_to_disable_reasoning_when_price_routed` still
+# correctly identifies the qwen family this interaction applies to; the
+# call site (`_make_one_call`) no longer uses it to skip disabling reasoning
+# — it uses it to pick the ACTUAL fix, `reasoning: {'enabled': False}` +
+# `provider.require_parameters: True`, instead. See
+# `_use_enabled_false_reasoning_param`.
+_PRICE_ROUTING_UNSAFE_TO_DISABLE_REASONING_PATTERNS: tuple[re.Pattern, ...] = (
+    re.compile(r'^qwen/', re.IGNORECASE),
+)
+
+
+def _unsafe_to_disable_reasoning_when_price_routed(model: str | None) -> bool:
+    """True when naively sending `reasoning: {'exclude': True}` to `model`
+    while the call is also using price-based provider routing reproducibly
+    returns empty content from the cheapest provider (see the ADR-028 note
+    above). Not "must be left on" any more — see `_use_enabled_false_reasoning_param`
+    for the actual fix this now gates."""
+    if not model:
+        return False
+    return any(
+        p.search(model)
+        for p in _PRICE_ROUTING_UNSAFE_TO_DISABLE_REASONING_PATTERNS
+    )
+
+
+# ADR-028 continuation (2026-09-28): models where `reasoning: {'enabled':
+# False}` (paired with `provider.require_parameters: True` when the call is
+# also price-routed) is the validated way to fully disable reasoning, in
+# place of the default `{'exclude': True}` (see `_make_one_call`). Reuses
+# the qwen price-routing-unsafe pattern rather than a new one — same model
+# family, same interaction, now resolved instead of avoided. Not extended to
+# every model yet: `enabled: False` + `require_parameters: True` together
+# produced a live 404 ("no endpoints found") for an unrelated non-qwen model
+# during this investigation, so this stays a per-model allowlist rather than
+# a global default until other families are validated individually.
+_ENABLED_FALSE_REASONING_MODEL_PATTERNS = _PRICE_ROUTING_UNSAFE_TO_DISABLE_REASONING_PATTERNS
+
+
+def _use_enabled_false_reasoning_param(model: str | None) -> bool:
+    """True when `model` should get `reasoning: {'enabled': False}` (the
+    parameter that actually stops reasoning generation) instead of the
+    default `{'exclude': True}` (which only hides it from the response but
+    still generates and bills it)."""
+    if not model:
+        return False
+    return any(p.search(model) for p in _ENABLED_FALSE_REASONING_MODEL_PATTERNS)
+
 # CSV sink: a plain, greppable, always-available record of every call this
 # process makes — independent of Supabase, and (unlike llm_calls.cost_usd)
 # never silently NULL just because a call errored or the provider omitted
@@ -242,7 +406,8 @@ _CSV_FIELDS = [
     'timestamp', 'pipeline', 'task_name', 'template_version', 'model',
     'provider', 'language_code', 'temperature', 'seed', 'max_tokens',
     'timeout_s', 'latency_ms', 'cost_usd',
-    'input_tokens', 'output_tokens', 'reasoning_tokens',
+    'input_tokens', 'output_tokens', 'cached_tokens', 'reasoning_tokens',
+    'sense_id', 'call_role', 'generation_batch_id',
     'parsed_ok', 'schema_ok', 'judge_verdict', 'judge_confidence',
     'artifact_id', 'error', 'input_text', 'output_text',
 ]
@@ -272,6 +437,121 @@ def _log_llm_call_csv(row: dict) -> None:
         logger.warning("llm_calls CSV logging failed: %s", exc)
 
 
+# Columns added by migrations/llm_calls_cost_instrumentation.sql. Until that
+# migration is applied to a given environment, an insert carrying them fails
+# (PostgREST reports the column as unknown / not in its schema cache) — this
+# is expected during the window between deploying this code and the user
+# applying the migration, and must degrade to the pre-migration column set
+# rather than lose the row. See ``_insert_llm_call_row``.
+_NEW_LLM_CALLS_COLUMNS = (
+    'prompt_tokens', 'completion_tokens', 'cached_tokens', 'reasoning_tokens',
+    'sense_id', 'call_role', 'generation_batch_id',
+)
+
+# Warn once per process on the degrade path, not once per call — a batch of
+# thousands of senses would otherwise flood the log with the same message.
+_warned_missing_llm_calls_columns = False
+
+
+def _insert_llm_call_row(client, row: dict) -> None:
+    """Insert one llm_calls row, degrading gracefully if the new instrumentation
+    columns (``_NEW_LLM_CALLS_COLUMNS``) don't exist yet in this environment.
+
+    Raises on any failure that is NOT plausibly "unknown column" — the caller
+    (``_log_llm_call``) already wraps this in a broad try/except, but keeping
+    that distinction here means a genuine outage still logs its real error
+    rather than being masked by a fallback retry that also fails.
+    """
+    global _warned_missing_llm_calls_columns
+    try:
+        client.table('llm_calls').insert(row).execute()
+        return
+    except Exception as exc:
+        msg = str(exc)
+        looks_like_missing_column = (
+            'schema cache' in msg
+            or 'column' in msg.lower()
+            or any(col in msg for col in _NEW_LLM_CALLS_COLUMNS)
+        )
+        if not looks_like_missing_column:
+            raise
+        if not _warned_missing_llm_calls_columns:
+            logger.warning(
+                "llm_calls insert failed — likely missing the cost-instrumentation "
+                "columns (migrations/llm_calls_cost_instrumentation.sql not yet "
+                "applied). Retrying without them for the rest of this process. "
+                "Original error: %s", exc,
+            )
+            _warned_missing_llm_calls_columns = True
+        fallback_row = {k: v for k, v in row.items() if k not in _NEW_LLM_CALLS_COLUMNS}
+        client.table('llm_calls').insert(fallback_row).execute()
+
+
+# ---------------------------------------------------------------------------
+# In-process cost-hook subscribers (ADR-028 Phase 0)
+# ---------------------------------------------------------------------------
+#
+# `_log_llm_call` always writes `llm_calls` through `get_supabase_admin()`
+# directly (see below) — a caller that injects its OWN Supabase client into a
+# pipeline (e.g. scripts/run_exercise_gen_eval.py's InterceptingClient) never
+# sees that write, because it never goes through the injected client at all.
+# That made `--max-cost-usd` inert: the harness's cost ledger only counted
+# writes that passed through the client IT controlled, and this one never
+# does.
+#
+# The fix is a plain in-process observer list, independent of Supabase
+# entirely: any caller can subscribe a callback that fires synchronously,
+# right after every `_log_llm_call`, with a small dict describing the call
+# (task_name, model, cost_usd, prompt_tokens, completion_tokens,
+# cached_tokens, reasoning_tokens, call_role, sense_id, latency_ms — plus a
+# few convenience fields). This works whether or not the DB write itself
+# succeeds, and whether or not the `llm_calls` cost-instrumentation columns
+# (migrations/llm_calls_cost_instrumentation.sql) have been applied yet.
+_cost_hook_subscribers: list[Callable[[dict], None]] = []
+_cost_hook_lock = threading.Lock()
+
+
+def subscribe_llm_cost_hook(callback: Callable[[dict], None]) -> Callable[[], None]:
+    """Register `callback` to be invoked after every logged LLM call.
+
+    Fires synchronously and in-process, from whichever thread placed the
+    call — including a worker thread inside
+    ``judges.base.BatchModeThreadPoolExecutor`` (contextvars, and therefore
+    ``sense_id``/``generation_batch_id`` attribution, propagate into that pool
+    the same way they do for the DB/CSV sinks; see the ``generation_context``
+    docstring above). Independent of whether the `llm_calls` Supabase write
+    succeeds — this is the whole point: it observes what really happened,
+    not what a particular injected DB client happened to see.
+
+    Returns an ``unsubscribe`` callable; callers that subscribe for the
+    duration of a single run (e.g. a harness) MUST call it when done, or the
+    subscriber leaks into every later call in this process.
+
+    Exceptions raised by `callback` are caught and logged — a broken
+    subscriber must never break a generation pipeline (same fail-soft
+    contract as the DB/CSV sinks).
+    """
+    with _cost_hook_lock:
+        _cost_hook_subscribers.append(callback)
+
+    def _unsubscribe() -> None:
+        with _cost_hook_lock:
+            if callback in _cost_hook_subscribers:
+                _cost_hook_subscribers.remove(callback)
+
+    return _unsubscribe
+
+
+def _notify_cost_hooks(event: dict) -> None:
+    with _cost_hook_lock:
+        subscribers = list(_cost_hook_subscribers)
+    for callback in subscribers:
+        try:
+            callback(event)
+        except Exception as exc:  # fail-soft: never break the caller
+            logger.warning("llm cost-hook subscriber raised: %s", exc)
+
+
 def _log_llm_call(
     *,
     pipeline: str,
@@ -296,13 +576,47 @@ def _log_llm_call(
     input_text: str | None = None,
     input_tokens: int | None = None,
     output_tokens: int | None = None,
+    cached_tokens: int | None = None,
     reasoning_tokens: int | None = None,
+    sense_id: int | None = None,
+    call_role: str | None = None,
+    generation_batch_id: str | None = None,
     error: str | None = None,
 ) -> None:
     """Record one LLM round-trip: a row in llm_calls (DB) and a row in the
     daily CSV log. Both sinks are best-effort — neither can raise back into
     the calling pipeline.
+
+    ``sense_id``/``generation_batch_id`` fall back to the ``generation_context``
+    contextvars when not passed explicitly; ``call_role`` defaults to
+    ``'primary'`` — every logged call has a role, even one only a caller that
+    predates this instrumentation forgot to name.
     """
+    effective_sense_id = sense_id if sense_id is not None else _ctx_sense_id.get()
+    effective_batch_id = (
+        generation_batch_id if generation_batch_id is not None
+        else _ctx_generation_batch_id.get()
+    )
+    effective_call_role = call_role if call_role in _VALID_CALL_ROLES else CALL_ROLE_PRIMARY
+
+    # Cost-hook notification happens unconditionally and first — independent
+    # of whether the DB/CSV sinks below succeed. See subscribe_llm_cost_hook.
+    _notify_cost_hooks({
+        'pipeline': pipeline,
+        'task_name': task_name,
+        'model': model,
+        'cost_usd': cost_usd,
+        'prompt_tokens': input_tokens,
+        'completion_tokens': output_tokens,
+        'cached_tokens': cached_tokens,
+        'reasoning_tokens': reasoning_tokens,
+        'call_role': effective_call_role,
+        'sense_id': effective_sense_id,
+        'generation_batch_id': effective_batch_id,
+        'language_code': language_code,
+        'latency_ms': latency_ms,
+    })
+
     try:
         from services.supabase_factory import get_supabase_admin, get_supabase
         admin_client = get_supabase_admin()
@@ -330,8 +644,15 @@ def _log_llm_call(
             'artifact_id': artifact_id,
             'cost_usd': cost_usd,
             'language_code': language_code,
+            'prompt_tokens': input_tokens,
+            'completion_tokens': output_tokens,
+            'cached_tokens': cached_tokens,
+            'reasoning_tokens': reasoning_tokens,
+            'sense_id': effective_sense_id,
+            'call_role': effective_call_role,
+            'generation_batch_id': effective_batch_id,
         }
-        client.table('llm_calls').insert(row).execute()
+        _insert_llm_call_row(client, row)
     except Exception as exc:
         # Observability must never break the calling pipeline.
         logger.warning("llm_calls logging failed: %s", exc)
@@ -351,7 +672,11 @@ def _log_llm_call(
         'cost_usd': cost_usd,
         'input_tokens': input_tokens,
         'output_tokens': output_tokens,
+        'cached_tokens': cached_tokens,
         'reasoning_tokens': reasoning_tokens,
+        'sense_id': effective_sense_id,
+        'call_role': effective_call_role,
+        'generation_batch_id': effective_batch_id,
         'parsed_ok': parsed_ok,
         'schema_ok': schema_ok,
         'judge_verdict': judge_verdict,
@@ -431,6 +756,12 @@ def call_llm(
     template_version: int | None = None,
     artifact_id: str | None = None,
     language_code: str | None = None,
+    call_role: str | None = None,
+    sense_id: int | None = None,
+    generation_batch_id: str | None = None,
+    allow_internal_repair: bool = True,
+    provider_routing: dict | None = None,
+    disable_reasoning: bool = True,
 ) -> dict | list | str | BaseModel:
     """Universal LLM call. Returns parsed JSON dict/list, raw text, or a
     validated Pydantic model instance.
@@ -472,6 +803,62 @@ def call_llm(
                          observability tag — does not affect model
                          resolution (that's `language`/`model_override`).
                          Optional; NULL when omitted.
+        call_role:       One of 'primary' (default) | 'json_repair' | 'retry' |
+                         'salvage' | 'repair' — what kind of call this is
+                         within a generation attempt. The internal repair
+                         paths (malformed-JSON repair, schema-validation
+                         repair) set this themselves; a caller with its own
+                         retry/repair branch (e.g. a generator's second
+                         attempt) should pass it explicitly. Defaults to
+                         'primary' when omitted or not a recognised value.
+        sense_id:        dim_word_senses.id this call is generating/judging
+                         for, when known. Falls back to the
+                         ``generation_context`` contextvar (set once per
+                         sense by VocabAssetPipeline) when omitted — most
+                         callers never need to pass this explicitly.
+        generation_batch_id: word_assets.generation_batch_id for the batch
+                         this call belongs to. Same contextvar fallback as
+                         ``sense_id``.
+        allow_internal_repair: When False, a malformed-JSON/empty response
+                         (json.JSONDecodeError or RuntimeError from
+                         ``_make_one_call``) is re-raised immediately instead
+                         of triggering the internal ``_repair_malformed_json``
+                         turn. Set this False when the caller already runs its
+                         own outer retry loop (e.g. a generator's own
+                         attempt-2) so a single bad completion costs exactly
+                         one call here, not two. Defaults True to preserve
+                         existing behaviour for callers with no outer retry.
+        provider_routing: OpenRouter ``provider`` routing preference (e.g.
+                         ``{'sort': 'price'}``), forwarded verbatim as
+                         ``extra_body['provider']``. ``None`` (default)
+                         resolves to ``{'sort': 'price'}`` automatically for
+                         ``pipeline='vocab_ladder'`` calls (ADR-028) and to no
+                         preference for every other pipeline. Ignored for a
+                         non-OpenRouter client. Pass an explicit dict to
+                         override either default.
+        disable_reasoning: When True (the default, for every pipeline) and
+                         the resolved model is not a known reasoning-only
+                         model (see ``_is_reasoning_only_model``), sends a
+                         ``extra_body['reasoning']`` payload so a
+                         reasoning-capable model does not silently burn
+                         reasoning tokens/latency on a call that never asked
+                         for it. Never sent to a reasoning-only model (e.g.
+                         ``qwen3.8-max``), which needs reasoning mode to
+                         function at all. Ignored for a non-OpenRouter
+                         client. The payload shape is per-model (see
+                         ``_use_enabled_false_reasoning_param``): most models
+                         get ``{'exclude': True}`` (hides reasoning from the
+                         response; the provider may still generate and bill
+                         it — an OpenRouter API property, not a bug here).
+                         Validated qwen-family models get ``{'enabled':
+                         False}`` instead, which actually stops generation
+                         (ADR-028 continuation, 2026-09-28: this was silently
+                         costing 85-90% of completion tokens on qwen/
+                         qwen3.7-plus vocab_ladder tasks); when the call is
+                         also price-routed, that model also gets
+                         ``provider.require_parameters = True`` to avoid the
+                         cheapest-provider-returns-empty-content failure (see
+                         ``_unsafe_to_disable_reasoning_when_price_routed``).
 
     Returns:
         - schema given + validation passes → schema instance (BaseModel).
@@ -498,6 +885,28 @@ def call_llm(
         ((system_prompt or '') + '\n' + prompt).encode('utf-8')
     ).digest()
 
+    # TASK-813: resolve the effective provider-routing preference once. An
+    # explicit caller value always wins; otherwise a price-routed pipeline
+    # (today: vocab_ladder) gets `{'sort': 'price'}` by default so ladder
+    # traffic lands on the cheapest provider serving the pinned model without
+    # every one of its ~15 call sites needing this threaded through by hand.
+    effective_provider_routing = provider_routing
+    if (
+        effective_provider_routing is None
+        and log_pipeline in _PRICE_ROUTED_PIPELINES
+        # Diagnostic-only A/B kill switch for the ADR-028 Phase 1 rollout
+        # investigation (empty-content reports on qwen/qwen3.7-plus for EN
+        # L4/word_family). Not read anywhere else; unset in every normal
+        # deployment. Remove once TASK-813's routing default is confirmed
+        # safe or replaced by a permanent per-model rule.
+        and os.environ.get('LLM_AB_NO_PRICE_ROUTING') != '1'
+    ):
+        effective_provider_routing = {'sort': 'price'}
+
+    effective_disable_reasoning = (
+        disable_reasoning and os.environ.get('LLM_AB_NO_DISABLE_REASONING') != '1'
+    )
+
     logger.debug(
         "LLM call: provider=%s model=%s temp=%.2f fmt=%s pipeline=%s task=%s",
         provider or LLM_DEFAULT_PROVIDER, resolved_model, temperature,
@@ -505,8 +914,7 @@ def call_llm(
     )
 
     try:
-        (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
-         prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
+        call_result = _make_one_call(
             client=client,
             model=resolved_model,
             messages=messages,
@@ -515,6 +923,8 @@ def call_llm(
             response_format=response_format,
             seed=seed,
             timeout=timeout,
+            provider_routing=effective_provider_routing,
+            disable_reasoning=effective_disable_reasoning,
         )
     except (json.JSONDecodeError, RuntimeError) as exc:
         # Malformed JSON or empty/missing content. The schema repair below only
@@ -522,7 +932,7 @@ def call_llm(
         # retries transient API errors — so without this a single bad-JSON roll
         # silently loses the call. Route JSON callers through ONE deterministic
         # repair turn (text callers have no JSON to repair → re-raise).
-        if response_format == 'text':
+        if response_format == 'text' or not allow_internal_repair:
             raise
         return _repair_malformed_json(
             client=client,
@@ -541,58 +951,85 @@ def call_llm(
             artifact_id=artifact_id,
             prompt_hash=prompt_hash,
             language_code=language_code,
+            sense_id=sense_id,
+            generation_batch_id=generation_batch_id,
+            provider_routing=effective_provider_routing,
+            disable_reasoning=effective_disable_reasoning,
         )
+
+    # Prefer the model the provider actually served (relevant for aliased
+    # slugs / auto-routing) over the one requested, so llm_calls.model reflects
+    # reality; fall back to the requested slug when the response omits it.
+    logged_model = call_result.actual_model or resolved_model
 
     # Text path — short-circuit before any schema work.
     if response_format == 'text':
         _log_llm_call(
             pipeline=log_pipeline, task_name=log_task,
-            template_version=template_version, model=resolved_model,
+            template_version=template_version, model=logged_model,
             temperature=temperature, seed=seed, prompt_hash=prompt_hash,
-            raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
+            raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+            schema_ok=None,
             judge_verdict=None, judge_confidence=None,
-            latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+            latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+            cost_usd=call_result.cost_usd,
             language_code=language_code, provider=provider, max_tokens=max_tokens,
-            timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
-            output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+            timeout_s=timeout, input_text=prompt, input_tokens=call_result.prompt_tokens,
+            output_tokens=call_result.completion_tokens,
+            cached_tokens=call_result.cached_tokens,
+            reasoning_tokens=call_result.reasoning_tokens,
+            call_role=call_role, sense_id=sense_id,
+            generation_batch_id=generation_batch_id,
         )
-        return parsed  # raw text
+        return call_result.parsed  # raw text
 
     # Schema path — validate, repair once on failure.
     if schema is not None:
         try:
-            validated = schema.model_validate(parsed)
+            validated = schema.model_validate(call_result.parsed)
             _log_llm_call(
                 pipeline=log_pipeline, task_name=log_task,
-                template_version=template_version, model=resolved_model,
+                template_version=template_version, model=logged_model,
                 temperature=temperature, seed=seed, prompt_hash=prompt_hash,
-                raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=True,
+                raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+                schema_ok=True,
                 judge_verdict=None, judge_confidence=None,
-                latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+                latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+                cost_usd=call_result.cost_usd,
                 language_code=language_code, provider=provider, max_tokens=max_tokens,
-                timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
-                output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+                timeout_s=timeout, input_text=prompt, input_tokens=call_result.prompt_tokens,
+                output_tokens=call_result.completion_tokens,
+                cached_tokens=call_result.cached_tokens,
+                reasoning_tokens=call_result.reasoning_tokens,
+                call_role=call_role, sense_id=sense_id,
+                generation_batch_id=generation_batch_id,
             )
             return validated
         except ValidationError as exc:
             # Log the failed initial attempt before retrying.
             _log_llm_call(
                 pipeline=log_pipeline, task_name=log_task,
-                template_version=template_version, model=resolved_model,
+                template_version=template_version, model=logged_model,
                 temperature=temperature, seed=seed, prompt_hash=prompt_hash,
-                raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=False,
+                raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+                schema_ok=False,
                 judge_verdict=None, judge_confidence=None,
-                latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+                latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+                cost_usd=call_result.cost_usd,
                 language_code=language_code, provider=provider, max_tokens=max_tokens,
-                timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
-                output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+                timeout_s=timeout, input_text=prompt, input_tokens=call_result.prompt_tokens,
+                output_tokens=call_result.completion_tokens,
+                cached_tokens=call_result.cached_tokens,
+                reasoning_tokens=call_result.reasoning_tokens,
+                call_role=call_role, sense_id=sense_id,
+                generation_batch_id=generation_batch_id,
                 error=str(exc),
             )
             return _repair_and_retry(
                 client=client,
                 model=resolved_model,
                 original_messages=messages,
-                invalid_parsed=parsed,
+                invalid_parsed=call_result.parsed,
                 validation_error=exc,
                 schema=schema,
                 response_format=response_format,
@@ -605,26 +1042,56 @@ def call_llm(
                 artifact_id=artifact_id,
                 prompt_hash=prompt_hash,
                 language_code=language_code,
+                sense_id=sense_id,
+                generation_batch_id=generation_batch_id,
+                provider_routing=effective_provider_routing,
+                disable_reasoning=effective_disable_reasoning,
             )
 
     # JSON path, no schema — log and return.
     _log_llm_call(
         pipeline=log_pipeline, task_name=log_task,
-        template_version=template_version, model=resolved_model,
+        template_version=template_version, model=logged_model,
         temperature=temperature, seed=seed, prompt_hash=prompt_hash,
-        raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=None,
+        raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+        schema_ok=None,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+        cost_usd=call_result.cost_usd,
         language_code=language_code, provider=provider, max_tokens=max_tokens,
-        timeout_s=timeout, input_text=prompt, input_tokens=prompt_tokens,
-        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+        timeout_s=timeout, input_text=prompt, input_tokens=call_result.prompt_tokens,
+        output_tokens=call_result.completion_tokens,
+        cached_tokens=call_result.cached_tokens,
+        reasoning_tokens=call_result.reasoning_tokens,
+        call_role=call_role, sense_id=sense_id,
+        generation_batch_id=generation_batch_id,
     )
-    return parsed
+    return call_result.parsed
 
 
 # ---------------------------------------------------------------------------
 # Internals
 # ---------------------------------------------------------------------------
+
+@dataclass
+class _CallResult:
+    """Everything one API round-trip yields, for logging and for the caller.
+
+    Replaces a growing positional tuple (it was up to 8 fields and about to
+    grow to 10) — a dataclass means a new field doesn't force every unpacking
+    call site to change, and named access at each usage is self-documenting.
+    """
+    parsed: dict | list | str
+    raw_content: str
+    parsed_ok: bool
+    latency_ms: int
+    cost_usd: float | None
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    cached_tokens: int | None
+    reasoning_tokens: int | None
+    actual_model: str | None
+
 
 def _make_one_call(
     *,
@@ -636,11 +1103,11 @@ def _make_one_call(
     response_format: str,
     seed: int | None,
     timeout: int,
-) -> tuple[dict | list | str, str, bool, int, float | None, int | None, int | None, int | None]:
+    provider_routing: dict | None = None,
+    disable_reasoning: bool = False,
+) -> _CallResult:
     """Execute a single API round-trip.
 
-    Returns (parsed_or_text, raw_content, parsed_ok, latency_ms, cost_usd,
-    prompt_tokens, completion_tokens, reasoning_tokens).
     Raises RuntimeError on empty response or json.JSONDecodeError on malformed
     JSON; both are logged as parsed_ok=False by the caller via the finally-style
     log emission path.
@@ -662,14 +1129,73 @@ def _make_one_call(
         # response carries token counts but no price, and llm_calls.cost_usd
         # stays NULL — which silently disarms every budget ceiling that reads it
         # (run_generation_batch's --ceiling projects from exactly this column).
-        payload['extra_body'] = {'usage': {'include': True}}
+        extra_body: dict = {'usage': {'include': True}}
+        # TASK-813: provider price routing + reasoning disabled. Both are
+        # OpenRouter-only (a non-OpenRouter client, e.g. Ollama, never reaches
+        # this branch) and both are safety-gated by the caller/model, not
+        # unconditional: `provider_routing` is None unless the caller (or
+        # call_llm's pipeline-scoped default) asked for one, and `reasoning`
+        # is never sent to a model that needs reasoning mode to function
+        # (`_is_reasoning_only_model`) — sending it there would break the
+        # call, not just leave it unaffected.
+        if provider_routing:
+            # Copied, not aliased: a model-specific branch below may add
+            # `require_parameters` to this dict, and `provider_routing` can
+            # be a literal the caller (or call_llm's pipeline-scoped
+            # default) reuses across calls for different models.
+            extra_body['provider'] = dict(provider_routing)
+        send_reasoning_exclude = (
+            disable_reasoning
+            and not _is_reasoning_only_model(model)
+        )
+        if send_reasoning_exclude:
+            if _use_enabled_false_reasoning_param(model):
+                # ADR-028 continuation (2026-09-28 live A/B, 2 zh + 2 ja
+                # senses, full generate-for-sense pipeline): `reasoning:
+                # {'exclude': True}` only HIDES reasoning from the response
+                # -- OpenRouter still generates and bills the tokens (see
+                # OpenRouter's reasoning-tokens docs). Phase 1 measured
+                # 85-90% of qwen/qwen3.7-plus completion tokens as
+                # reasoning_tokens on every vocab_ladder task in every
+                # language -- that silent cost. `reasoning: {'enabled':
+                # False}` is the parameter that actually stops generation;
+                # confirmed live at 0 reasoning_tokens (down from ~85-90%),
+                # 0% invalid-asset rate, full success, and roughly 5x lower
+                # $/sense than the `exclude: True` baseline on the same
+                # senses. When the call is also price-routed, pairing it
+                # with `provider.require_parameters: True` is what actually
+                # fixes the "cheapest provider returns empty content"
+                # failure this file previously worked around by leaving
+                # reasoning ON for a price-routed qwen call (see
+                # `_unsafe_to_disable_reasoning_when_price_routed`) --
+                # require_parameters makes OpenRouter skip providers that
+                # don't support the reasoning param instead of silently
+                # mishandling it. Scoped to the qwen pattern, not a global
+                # default: this exact combination has not been validated
+                # for other model families, and sending both unconditionally
+                # to an unrelated (non-qwen) judge call during this A/B
+                # produced a live 404 "no endpoints found" (require_parameters
+                # filtered every provider for that model).
+                extra_body['reasoning'] = {'enabled': False}
+                if 'provider' in extra_body:
+                    extra_body['provider']['require_parameters'] = True
+            else:
+                extra_body['reasoning'] = {'exclude': True}
+        payload['extra_body'] = extra_body
 
     start = time.perf_counter()
     response = client.chat.completions.create(**payload)
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     cost_usd = _extract_cost(response)
-    prompt_tokens, completion_tokens, reasoning_tokens = _extract_usage_tokens(response)
+    (prompt_tokens, completion_tokens,
+     cached_tokens, reasoning_tokens) = _extract_usage_tokens(response)
+    # The model actually served, when the provider echoes it — OpenRouter can
+    # route an aliased/`:free`-suffixed slug to a different underlying model,
+    # and llm_calls.model should reflect what ran, not just what was asked
+    # for. None (not the requested slug) when the response omits it; the
+    # caller falls back to the requested slug itself.
+    actual_model = getattr(response, 'model', None) or None
 
     if not response.choices:
         raise RuntimeError("LLM returned no choices")
@@ -679,8 +1205,11 @@ def _make_one_call(
         raise RuntimeError("LLM returned empty content")
 
     if response_format == 'text':
-        return (content, content, True, latency_ms, cost_usd,
-                prompt_tokens, completion_tokens, reasoning_tokens)
+        return _CallResult(
+            content, content, True, latency_ms, cost_usd,
+            prompt_tokens, completion_tokens, cached_tokens, reasoning_tokens,
+            actual_model,
+        )
 
     try:
         parsed = json.loads(clean_json_response(content))
@@ -688,8 +1217,11 @@ def _make_one_call(
         # Carry the raw content so the caller can echo it into a repair turn.
         exc.raw_content = content  # type: ignore[attr-defined]
         raise
-    return (parsed, content, True, latency_ms, cost_usd,
-            prompt_tokens, completion_tokens, reasoning_tokens)
+    return _CallResult(
+        parsed, content, True, latency_ms, cost_usd,
+        prompt_tokens, completion_tokens, cached_tokens, reasoning_tokens,
+        actual_model,
+    )
 
 
 def _is_openrouter(client) -> bool:
@@ -730,23 +1262,43 @@ def _extract_cost(response) -> float | None:
         return None
 
 
-def _extract_usage_tokens(response) -> tuple[int | None, int | None, int | None]:
-    """(prompt_tokens, completion_tokens, reasoning_tokens) from the response.
+def _extract_usage_tokens(
+    response,
+) -> tuple[int | None, int | None, int | None, int | None]:
+    """(prompt_tokens, completion_tokens, cached_tokens, reasoning_tokens).
 
     Reasoning tokens live under ``completion_tokens_details.reasoning_tokens``
     on OpenAI-compatible responses (o1/qwen-reasoning style); absent for
     non-reasoning models, in which case it's simply None.
+
+    Cached tokens live under ``prompt_tokens_details.cached_tokens`` — the
+    portion of the prompt served from the provider's cache (OpenRouter passes
+    this through from providers that support prompt caching). Checked both as
+    a declared attribute and via ``model_extra``, same reasoning as
+    ``_extract_cost``: the OpenAI SDK's ``PromptTokensDetails`` does declare
+    ``cached_tokens``, but a provider-specific response can still surface it
+    only in the pydantic extras bag.
     """
     usage = getattr(response, 'usage', None)
     if usage is None:
-        return None, None, None
+        return None, None, None, None
     prompt_tokens = getattr(usage, 'prompt_tokens', None)
     completion_tokens = getattr(usage, 'completion_tokens', None)
+
     reasoning_tokens = None
-    details = getattr(usage, 'completion_tokens_details', None)
-    if details is not None:
-        reasoning_tokens = getattr(details, 'reasoning_tokens', None)
-    return prompt_tokens, completion_tokens, reasoning_tokens
+    completion_details = getattr(usage, 'completion_tokens_details', None)
+    if completion_details is not None:
+        reasoning_tokens = getattr(completion_details, 'reasoning_tokens', None)
+
+    cached_tokens = None
+    prompt_details = getattr(usage, 'prompt_tokens_details', None)
+    if prompt_details is not None:
+        cached_tokens = getattr(prompt_details, 'cached_tokens', None)
+        if cached_tokens is None:
+            extra = getattr(prompt_details, 'model_extra', None) or {}
+            cached_tokens = extra.get('cached_tokens')
+
+    return prompt_tokens, completion_tokens, cached_tokens, reasoning_tokens
 
 
 def _repair_and_retry(
@@ -767,11 +1319,15 @@ def _repair_and_retry(
     artifact_id: str | None,
     prompt_hash: bytes,
     language_code: str | None = None,
+    sense_id: int | None = None,
+    generation_batch_id: str | None = None,
+    provider_routing: dict | None = None,
+    disable_reasoning: bool = True,
 ) -> BaseModel:
     """Single deterministic repair turn at temperature 0.0.
 
     Re-raises ValidationError if the repair output also fails validation.
-    Logs its own llm_calls row.
+    Logs its own llm_calls row with ``call_role='repair'``.
     """
     repair_prompt = (
         "Your previous response failed schema validation. Return ONLY corrected "
@@ -786,8 +1342,7 @@ def _repair_and_retry(
         {'role': 'user', 'content': repair_prompt},
     ]
 
-    (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
-     prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
+    call_result = _make_one_call(
         client=client,
         model=model,
         messages=repair_messages,
@@ -796,10 +1351,12 @@ def _repair_and_retry(
         response_format=response_format,
         seed=seed,
         timeout=timeout,
+        provider_routing=provider_routing,
+        disable_reasoning=disable_reasoning,
     )
 
     try:
-        validated = schema.model_validate(parsed)
+        validated = schema.model_validate(call_result.parsed)
         schema_ok = True
         result: BaseModel = validated
         err: ValidationError | None = None
@@ -810,14 +1367,21 @@ def _repair_and_retry(
 
     _log_llm_call(
         pipeline=log_pipeline, task_name=f"{log_task}__repair",
-        template_version=template_version, model=model,
+        template_version=template_version,
+        model=call_result.actual_model or model,
         temperature=0.0, seed=seed, prompt_hash=prompt_hash,
-        raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
+        raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+        schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+        cost_usd=call_result.cost_usd,
         language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
-        input_text=repair_prompt, input_tokens=prompt_tokens,
-        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+        input_text=repair_prompt, input_tokens=call_result.prompt_tokens,
+        output_tokens=call_result.completion_tokens,
+        cached_tokens=call_result.cached_tokens,
+        reasoning_tokens=call_result.reasoning_tokens,
+        call_role=CALL_ROLE_REPAIR, sense_id=sense_id,
+        generation_batch_id=generation_batch_id,
         error=str(err) if err else None,
     )
 
@@ -844,6 +1408,10 @@ def _repair_malformed_json(
     artifact_id: str | None,
     prompt_hash: bytes,
     language_code: str | None = None,
+    sense_id: int | None = None,
+    generation_batch_id: str | None = None,
+    provider_routing: dict | None = None,
+    disable_reasoning: bool = True,
 ) -> dict | list | BaseModel:
     """Single deterministic repair turn for a malformed-JSON / empty response.
 
@@ -852,6 +1420,7 @@ def _repair_malformed_json(
     the model returned empty content), which the schema path never sees. One
     temp-0 turn re-asks for valid JSON; the (optional) schema is then validated.
     Re-raises if the repair output still cannot be parsed or validated.
+    Logs its own llm_calls row(s) with ``call_role='json_repair'``.
     """
     repair_prompt = (
         "Your previous reply was not valid JSON: "
@@ -865,8 +1434,7 @@ def _repair_malformed_json(
     repair_messages.append({'role': 'user', 'content': repair_prompt})
 
     try:
-        (parsed, raw_content, parsed_ok, latency_ms, cost_usd,
-         prompt_tokens, completion_tokens, reasoning_tokens) = _make_one_call(
+        call_result = _make_one_call(
             client=client,
             model=model,
             messages=repair_messages,
@@ -875,6 +1443,8 @@ def _repair_malformed_json(
             response_format=response_format,
             seed=seed,
             timeout=timeout,
+            provider_routing=provider_routing,
+            disable_reasoning=disable_reasoning,
         )
     except (json.JSONDecodeError, RuntimeError) as exc:
         # Repair turn ALSO failed to produce parseable JSON. Surface the
@@ -888,15 +1458,17 @@ def _repair_malformed_json(
             latency_ms=None, artifact_id=artifact_id,
             language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
             input_text=repair_prompt, error=str(exc),
+            call_role=CALL_ROLE_JSON_REPAIR, sense_id=sense_id,
+            generation_batch_id=generation_batch_id,
         )
         raise error
 
     schema_ok: bool | None = None
-    result: dict | list | BaseModel = parsed
+    result: dict | list | BaseModel = call_result.parsed
     schema_err: ValidationError | None = None
     if schema is not None:
         try:
-            result = schema.model_validate(parsed)
+            result = schema.model_validate(call_result.parsed)
             schema_ok = True
         except ValidationError as e:
             schema_ok = False
@@ -904,14 +1476,21 @@ def _repair_malformed_json(
 
     _log_llm_call(
         pipeline=log_pipeline, task_name=f"{log_task}__json_repair",
-        template_version=template_version, model=model,
+        template_version=template_version,
+        model=call_result.actual_model or model,
         temperature=0.0, seed=seed, prompt_hash=prompt_hash,
-        raw_response=raw_content, parsed_ok=parsed_ok, schema_ok=schema_ok,
+        raw_response=call_result.raw_content, parsed_ok=call_result.parsed_ok,
+        schema_ok=schema_ok,
         judge_verdict=None, judge_confidence=None,
-        latency_ms=latency_ms, artifact_id=artifact_id, cost_usd=cost_usd,
+        latency_ms=call_result.latency_ms, artifact_id=artifact_id,
+        cost_usd=call_result.cost_usd,
         language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
-        input_text=repair_prompt, input_tokens=prompt_tokens,
-        output_tokens=completion_tokens, reasoning_tokens=reasoning_tokens,
+        input_text=repair_prompt, input_tokens=call_result.prompt_tokens,
+        output_tokens=call_result.completion_tokens,
+        cached_tokens=call_result.cached_tokens,
+        reasoning_tokens=call_result.reasoning_tokens,
+        call_role=CALL_ROLE_JSON_REPAIR, sense_id=sense_id,
+        generation_batch_id=generation_batch_id,
         error=str(schema_err) if schema_err else None,
     )
 

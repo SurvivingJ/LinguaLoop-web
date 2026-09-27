@@ -3,9 +3,8 @@ title: Data Model Overview
 type: overview
 status: complete
 tech_page: ./schema.tech.md
-last_updated: 2026-05-12
+last_updated: 2026-09-22
 open_questions:
-  - "Language Packs will need new tables — pack conversations, pack word lists, pack exercise links. Design pending."
   - "21 content/infrastructure tables remain RLS-disabled after the 2026-05-12 RLS hardening (the 7 user-owning tables were locked down). Decide whether the remaining content tables (exercises, corpus_*, conversations, personas, scenarios, prompt_templates, word_assets, etc.) stay deliberately public or get RLS too."
 ---
 
@@ -32,7 +31,7 @@ Stable reference data. Cached at startup by [DimensionService](../../services/di
 - **dim_lens** (RLS) — 8 topic-generation "angles" (`lens_code` + `prompt_hint`).
 - **dim_grammar_patterns** (RLS) — Grammatical structures per language/complexity tier with example sentences.
 - **dim_vocabulary** (RLS) — Master lemma dictionary (7,071 entries) with frequency ranks, POS, phrase types, semantic classes, component lemmas for multi-word expressions.
-- **dim_word_senses** (RLS) — Definitions, IPA pronunciations, examples, morphological forms per vocab entry per definition language (9,868 entries).
+- **dim_word_senses** (RLS) — Definitions (two levels: simple / standard), pronunciations, examples and a meaning embedding per vocab entry per definition language, including cross-language glosses (55,002 rows, 2026-09-21). Holds ~84% of the database's size, almost all of it embeddings.
 
 ### 2. Users & Auth (10 tables in the `user_*` family + `users`)
 
@@ -45,7 +44,7 @@ Stable reference data. Cached at startup by [DimensionService](../../services/di
 - **user_word_ladder** (RLS) — Per (user, sense) ladder state. RLS enabled 2026-05-12. Phase 8 columns: `family_confidence` (jsonb), `gates_passed` (jsonb), `current_ring` (1-4), `stress_test_score`, `last_exercised_family`. Phase 10 column: `family_success_dates` (jsonb). Legacy Phase 4 counters (`first_try_success_count`, `first_try_failure_count`, `total_attempts`, `last_success_session_date`) are written by `ladder_record_attempt` but only `consecutive_failures` and `last_exercised_family` and `family_success_dates` are read by progression logic.
 - **user_exercise_sessions** (RLS) — Cached daily exercise session per (user, language). PK is composite `(user_id, language_id)` — one session per day, replaced on next-day rebuild.
 - **user_exercise_history** (RLS) — Anti-repetition table. Auto-populated via `trigger_sync_exercise_history` on `exercise_attempts INSERT`. Purpose-built indexes for 7-day session-builder lookups.
-- **user_pack_selections** (RLS) — Which collocation packs a user has chosen.
+- **user_pack_selections** (RLS) — Which collocation packs a user has chosen. **ARCHIVED & DROPPED 2026-09-22.**
 
 ### 3. Organizations (2 tables — B2B scaffold, no production data)
 
@@ -77,16 +76,16 @@ Stable reference data. Cached at startup by [DimensionService](../../services/di
 
 - **corpus_sources** (⚠ RLS DISABLED) — 8 ingested text sources per language.
 - **corpus_collocations** (⚠ RLS DISABLED) — 40 extracted n-grams with PMI, LMI, t-score, log-likelihood, dependency relation, substitution entropy.
-- **collocation_packs** (⚠ RLS DISABLED) — Curated groups (0 rows — scaffolded but unused).
-- **pack_collocations** (⚠ RLS DISABLED) — Many-to-many join (0 rows).
+- **collocation_packs** (⚠ RLS DISABLED) — Curated groups (0 rows — scaffolded but unused). **ARCHIVED & DROPPED 2026-09-22.**
+- **pack_collocations** (⚠ RLS DISABLED) — Many-to-many join (0 rows). **ARCHIVED & DROPPED 2026-09-22.**
 
 ### 7. Style System (3 tables — all empty, in-progress)
 
 - **corpus_style_profiles** (⚠ RLS DISABLED) — Per-source style profile (ngrams, structures, syntactic + discourse + vocab profiles).
-- **style_pack_items** (⚠ RLS DISABLED) — Items extracted into style packs.
-- **pack_style_items** (⚠ RLS DISABLED) — Many-to-many join.
+- **style_pack_items** (⚠ RLS DISABLED) — Items extracted into style packs. **ARCHIVED & DROPPED 2026-09-22.**
+- **pack_style_items** (⚠ RLS DISABLED) — Many-to-many join. **ARCHIVED & DROPPED 2026-09-22.**
 
-### 8. Conversation System (6 tables)
+### 8. Conversation System (6 tables) — ARCHIVED & DROPPED 2026-09-22
 
 - **conversation_domains** (⚠ RLS DISABLED) — 14 conversational domains.
 - **personas** (⚠ RLS DISABLED) — 386 character profiles with archetype, personality jsonb, register, expertise.
@@ -95,7 +94,7 @@ Stable reference data. Cached at startup by [DimensionService](../../services/di
 - **conversations** (⚠ RLS DISABLED) — 261 generated dialogues with `turns` jsonb, `corpus_features` jsonb, `quality_score`, `passed_qc`.
 - **conversation_generation_queue** (⚠ RLS DISABLED) — Pipeline state.
 
-### 9. Mystery System (6 tables)
+### 9. Mystery System (6 tables) — ARCHIVED & DROPPED 2026-09-22
 
 - **mysteries** (RLS) — 1 mystery currently — proof of concept stage.
 - **mystery_scenes** (RLS) — 5 scenes for the one mystery.

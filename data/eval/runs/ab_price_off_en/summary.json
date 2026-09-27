@@ -1,0 +1,283 @@
+{
+  "batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "partial": 2
+  },
+  "run_wall_clock_s": 127.79699999999139,
+  "per_sense_wall_clock_s": {
+    "13929": 77.875,
+    "13931": 49.312000000005355
+  },
+  "assets_per_sense": {
+    "13929": 7,
+    "13931": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "13929": {
+      "total": 17,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "synonym_antonym_match": 2,
+        "word_family": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "6": 4,
+        "9": 4,
+        "4": 4
+      }
+    },
+    "13931": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "9": 4,
+        "4": 4
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 12
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 12
+    }
+  },
+  "cost_usd_total_observed": 0.253321,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 46,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.104268,
+      "avg_cost_usd": 0.026067
+    },
+    {
+      "task_name": "ladder_word_family_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.059542000000000005,
+      "avg_cost_usd": 0.014885500000000001
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.028732,
+      "avg_cost_usd": 0.007183
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.028678000000000002,
+      "avg_cost_usd": 0.0071695000000000005
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.018268,
+      "avg_cost_usd": 0.004567
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.004392999999999999,
+      "avg_cost_usd": 0.0021964999999999997
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 3,
+      "total_cost_usd": 0.0014858,
+      "avg_cost_usd": 0.0004952666666666667
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0013792000000000001,
+      "avg_cost_usd": 0.00034480000000000003
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.001372,
+      "avg_cost_usd": 0.000343
+    },
+    {
+      "task_name": "judge_ladder_word_family",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 3,
+      "total_cost_usd": 0.0012866,
+      "avg_cost_usd": 0.00042886666666666666
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0012698,
+      "avg_cost_usd": 0.00031745
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.0008824,
+      "avg_cost_usd": 0.0004412
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence__json_repair",
+      "call_role": "json_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0008562,
+      "avg_cost_usd": 0.0008562
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.00046239999999999996,
+      "avg_cost_usd": 0.00023119999999999998
+    },
+    {
+      "task_name": "judge_ladder_word_family__json_repair",
+      "call_role": "json_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0004438,
+      "avg_cost_usd": 0.0004438
+    }
+  ],
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14585
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14587
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'dbd34b71-02b5-487d-8592-50527a1a42d2'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "senses_from": null
+}

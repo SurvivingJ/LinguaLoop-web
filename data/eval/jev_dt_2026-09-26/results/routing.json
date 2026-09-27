@@ -1,0 +1,99 @@
+{
+  "zh": {
+    "full_3dim": {
+      "fit_on_silver": {
+        "tau_r": 0.05,
+        "n_routed_silver": 0,
+        "n_silver": 34
+      },
+      "gold": {
+        "lang": "zh",
+        "set": "gold",
+        "tau_r": 0.05,
+        "gate_dims": [
+          "accuracy",
+          "fidelity",
+          "understandability"
+        ],
+        "n_items": 30,
+        "n_routed": 2,
+        "pct_routed": 0.06666666666666667,
+        "over_grade_items": [],
+        "over_grade_rate": 0.0,
+        "two_band_miss_items": []
+      }
+    },
+    "acc_und_only": {
+      "fit_on_silver": {
+        "tau_r": 0.05,
+        "n_routed_silver": 0,
+        "n_silver": 34
+      },
+      "gold": {
+        "lang": "zh",
+        "set": "gold",
+        "tau_r": 0.05,
+        "gate_dims": [
+          "accuracy",
+          "understandability"
+        ],
+        "n_items": 30,
+        "n_routed": 2,
+        "pct_routed": 0.06666666666666667,
+        "over_grade_items": [],
+        "over_grade_rate": 0.0,
+        "two_band_miss_items": []
+      }
+    }
+  },
+  "ja": {
+    "full_3dim": {
+      "fit_on_silver": {
+        "tau_r": 0.2,
+        "n_routed_silver": 8,
+        "n_silver": 32
+      },
+      "gold": {
+        "lang": "ja",
+        "set": "gold",
+        "tau_r": 0.2,
+        "gate_dims": [
+          "accuracy",
+          "fidelity",
+          "understandability"
+        ],
+        "n_items": 30,
+        "n_routed": 10,
+        "pct_routed": 0.3333333333333333,
+        "over_grade_items": [],
+        "over_grade_rate": 0.0,
+        "two_band_miss_items": []
+      }
+    },
+    "acc_und_only": {
+      "fit_on_silver": {
+        "tau_r": 0.45,
+        "n_routed_silver": 14,
+        "n_silver": 32
+      },
+      "gold": {
+        "lang": "ja",
+        "set": "gold",
+        "tau_r": 0.45,
+        "gate_dims": [
+          "accuracy",
+          "understandability"
+        ],
+        "n_items": 30,
+        "n_routed": 16,
+        "pct_routed": 0.5333333333333333,
+        "over_grade_items": [
+          "ja_seed_01",
+          "ja_multi_01"
+        ],
+        "over_grade_rate": 0.125,
+        "two_band_miss_items": []
+      }
+    }
+  }
+}

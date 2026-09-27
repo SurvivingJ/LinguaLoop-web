@@ -1,0 +1,148 @@
+{
+  "batch_id": "e7c68d35-029b-4c4b-86ad-a3ec844b15b7",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "partial": 2
+  },
+  "run_wall_clock_s": 1396.7189999999973,
+  "per_sense_wall_clock_s": {
+    "35127": 805.7660000000033,
+    "35341": 590.3440000000119
+  },
+  "assets_per_sense": {
+    "35127": 7,
+    "35341": 6
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 1,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "35127": {
+      "total": 17,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "6": 2,
+        "7": 2,
+        "9": 4
+      }
+    },
+    "35341": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "4": 4,
+        "9": 4,
+        "1": 2,
+        "6": 1
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 5,
+      "rejected": 0,
+      "kept": 11
+    }
+  },
+  "cost_usd_total_observed": 0,
+  "stopped_due_to_cost_cap": false,
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20763
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20869
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'e7c68d35-029b-4c4b-86ad-a3ec844b15b7'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n"
+}

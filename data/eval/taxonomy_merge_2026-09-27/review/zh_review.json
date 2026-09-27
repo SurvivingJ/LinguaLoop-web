@@ -1,0 +1,137 @@
+{
+  "reviewer": "independent zh reviewer (blind to merged_taxonomy.json / ADR-031 until comparison step)",
+  "date": "2026-09-27",
+  "blind_judgements": [
+    {
+      "type": "separable_verb",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "A pure form error: the learner's 离合词 takes an object or aspect marker in the wrong slot, but the event and participants stay transparent (我见面他 is instantly understood). It is clearly non-native yet the reader reads on without re-parsing, which is the v5 precedent for comparable morphosyntactic slips (classifier, de_particles, directional_complement all accuracy/minor). Making it major would over-penalise one of the most frequent intermediate-learner errors whose meaning is never in doubt.",
+      "example_errors": [
+        "我明天要见面我的老师。 (for 跟我的老师见面)",
+        "他帮忙了我很多。 (for 帮了我很多忙)",
+        "我们毕业大学以后就没联系了。 (for 大学毕业以后)",
+        "她生气我了。 (for 生我的气)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "coverb",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "Wrong coverb choice (从 for 离, 给 for 对, broken 对…来说) is an L2 form error calqued from English prepositions; the modal instance leaves the meaning fully recoverable, matching the v5 precedent preposition = accuracy/minor. Severity genuinely varies: when the coverb flips participant roles (他跟我借钱 'borrowed from me' vs 他给我借钱 / 借给我 'lent me') the meaning inverts and the instance should be escalated to major or critical by the grader, but that is the minority case.",
+      "example_errors": [
+        "我家从学校很近。 (for 离)",
+        "她给音乐很感兴趣。 (for 对)",
+        "这件事给我来说很重要。 (for 对…来说)",
+        "我想给你问一个问题。 (for 向/问你)"
+      ],
+      "confidence": "high"
+    },
+    {
+      "type": "connective",
+      "dimension": "accuracy",
+      "default_severity": "major",
+      "rationale": "Mis-pairing (虽然…所以, 只要…才, 因为…但是) breaks the logical relation the pair encodes: the reader gets two clauses whose stated relation is incoherent (concessive + causal) or subtly different (sufficient vs necessary condition), so they stumble and re-read - the business-rule test for major. It is a rule-of-form error (class G), so accuracy rather than naturalness; mapping it to naturalness like v5 cohesion_connective would make it cost only understandability, which is too lenient for 只要…才 where the logical claim changes. Subject-placement slips (不但他会唱歌，而且会跳舞) are minor, and the boundary with cohesion_connective (over/under-use, flow) must be stated in the gloss.",
+      "example_errors": [
+        "虽然下雨了，所以我们还是去了公园。",
+        "只要你努力，才能学好中文。",
+        "因为他很忙，但是他还是来了。",
+        "不但他会唱歌，而且会跳舞。 (minor instance)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "semantic_anomaly",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "In a DT passage an anomaly (切汤, 钓到一只鸡, roles swapped in 把冰箱放进苹果里) means the learner's Chinese describes an event the source does not and cannot describe: a meaning defect, so fidelity, not accuracy (the grammar is intact). It is worse than a plain word_choice slip (v5 fidelity/minor) because the reader sees an impossible event and must reconstruct intent; usually still recoverable from context, so major rather than critical. Role-reversal instances that invert who does what to whom approach critical and should be escalated per instance.",
+      "example_errors": [
+        "他把汤切成了小块。 (verb picked for 'serve/portion' mistranslated)",
+        "我把冰箱放进了苹果里。 (argument roles reversed)",
+        "我们在河里钓到了一只鸡。",
+        "他喝了一碗面包。 (verb-object selectional violation)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "contradiction",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "A self-contradiction in a translation almost always arises from mistranslating one clause (a dropped 没, a wrong time word, reversed kinship), so the output asserts something the source does not: a fidelity failure. The reader notices the sentence cannot be true as written, which flags that something is wrong, so the meaning is damaged but the clash itself signals it; major is the sensible modal default. Relational inversions (所以我是他哥哥) and negation flips are meaning inversions and should be escalated to critical per instance; I considered a critical default but a 25-point hit on every instance would swamp the fidelity band for often-local time-word clashes.",
+      "example_errors": [
+        "他从来没去过北京，去年还在北京住了一个月。",
+        "他比我大两岁，所以我是他哥哥。",
+        "秋天到了，树叶都绿了。"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "comparison": [
+    {
+      "type": "separable_verb",
+      "draft": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "mine": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "verdict": "AGREE",
+      "argument": "Meaning-transparent form slip; consistent with v5 classifier/de_particles/directional_complement = accuracy/minor."
+    },
+    {
+      "type": "coverb",
+      "draft": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "mine": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "verdict": "AGREE",
+      "argument": "Mirrors v5 en preposition = accuracy/minor. Note for the gloss/grader: role-flipping coverbs (跟我借 vs 借给我) should be escalated per instance."
+    },
+    {
+      "type": "connective",
+      "draft": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "mine": {
+        "dimension": "accuracy",
+        "default_severity": "major"
+      },
+      "verdict": "DISAGREE",
+      "argument": "The modal instance (虽然…所以, 只要…才, 因为…但是) states an incoherent or changed logical relation between clauses, so the reader stumbles and must re-read - the business-rule test for major; minor fits only the subject-placement slips (不但他…), which are the minority. Low confidence gap: acceptable as minor if the grader reliably escalates mis-pairings."
+    },
+    {
+      "type": "semantic_anomaly",
+      "draft": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "mine": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "verdict": "AGREE",
+      "argument": "Grammar intact, described event diverges from source and is impossible; worse than word_choice (fidelity/minor), usually recoverable, so major."
+    },
+    {
+      "type": "contradiction",
+      "draft": {
+        "dimension": "fidelity",
+        "default_severity": "critical"
+      },
+      "mine": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "verdict": "DISAGREE (conditional)",
+      "argument": "The jev-derived instances (time-word clash, 秋天…树叶都绿了) are local and self-flagging: the reader sees the clash and the rest of the passage survives, so critical (weight 25, one instance collapses the fidelity band) over-penalises them. The draft widened the definition to 'inverts the source's meaning (with -> without)'; if the type is scoped to true inversion, critical is right. Either split inversion from within-sentence clash, or keep major as default and let the grader escalate inversions. Also flag: 'meaning inversion' now overlaps omission (dropped 没) and word_choice - needs a boundary rule."
+    }
+  ]
+}

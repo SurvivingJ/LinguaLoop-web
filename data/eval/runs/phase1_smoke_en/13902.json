@@ -1,0 +1,466 @@
+{
+  "sense_id": 13902,
+  "language_id": 2,
+  "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+  "started_at": "2026-09-26T08:15:08.029333+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "[A] Missing level_7",
+    "[A] Missing level_8",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed",
+    "[B] Missing level_8",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.30065155029296875,
+    "p1_generate": 4.305202484130859,
+    "tier_gate": 0.0,
+    "p1_judge": 4.334429979324341,
+    "collocate_grounding": 0.0,
+    "fan_out": 79.35145664215088
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4",
+        "Missing level_7",
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɡoʊ ˈɒn/",
+        "morphological_forms": [
+          {
+            "form": "go on",
+            "label": "base form"
+          },
+          {
+            "form": "goes on",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "going on",
+            "label": "present participle"
+          },
+          {
+            "form": "went on",
+            "label": "past tense"
+          },
+          {
+            "form": "gone on",
+            "label": "past participle"
+          }
+        ],
+        "pronunciation": "goh on",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13902
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "d472155f-bed7-45f5-b085-10cbbffef0da",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "go on",
+        "pronunciation": "goh on",
+        "correct_definition": "To begin or proceed with an action, event, or process.",
+        "options": [
+          "To discover or locate someone or something, often by searching.",
+          "To assist with the study or teaching of physics.",
+          "To begin or proceed with an action, event, or process.",
+          "Able to be seen or noticed."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4530ddb9-a16b-4f40-bdad-53ee92206601",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "She decided to go on with her speech after taking a brief pause to drink some water."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ba0b5ad2-0249-4490-90a8-da9d000d6120",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Let us ___ with our history project after a short break.",
+        "original_sentence": "Let us go on with our history project after a short break.",
+        "target_word": "go on",
+        "word": "go on",
+        "answer": {
+          "accepted": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ],
+          "accepted_normalized": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "548eb0e1-cd41-472e-b762-bb50cd2d8669",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "She decided to go on with her speech after taking a brief pause to drink some water.",
+        "chunks": [
+          "She",
+          "decided",
+          "to go on with her speech after taking a brief pause to drink some water"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "She",
+          "to go on with her speech after taking a brief pause to drink some water",
+          "decided"
+        ],
+        "target_word": "go on",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [
+    {
+      "type_code": "definition_match",
+      "reason": "lexicon unavailable — cannot source distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0022458,
+      "prompt_tokens": 1936,
+      "completion_tokens": 666,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 4089
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007036,
+      "prompt_tokens": 637,
+      "completion_tokens": 205,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 1890
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002457,
+      "prompt_tokens": 244,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 1105
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002778,
+      "prompt_tokens": 551,
+      "completion_tokens": 45,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 972
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00225056,
+      "prompt_tokens": 873,
+      "completion_tokens": 1540,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1342,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 21108
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00233376,
+      "prompt_tokens": 837,
+      "completion_tokens": 1614,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1604,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 25550
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310944,
+      "prompt_tokens": 1193,
+      "completion_tokens": 2131,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1994,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 30016
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179616,
+      "prompt_tokens": 837,
+      "completion_tokens": 1194,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1184,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "076f6d99-7cab-4b2e-9be3-a15e30c1e9d1",
+      "language_code": "en",
+      "latency_ms": 19644
+    }
+  ],
+  "llm_calls_observed": 8,
+  "llm_cost_observed_usd": 0.01296282,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 88.76499999999942,
+  "finished_at": "2026-09-26T08:16:36.797493+00:00"
+}

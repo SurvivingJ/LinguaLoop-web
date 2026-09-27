@@ -80,38 +80,27 @@ class ExerciseGenerator(ABC):
     def _build_exercise_row(
         self, content: dict, sentence_dict: dict, source_id: int, generation_batch_id: str,
     ) -> dict:
-        # Determine the actual source context: if the sentence came from a
-        # conversation, the FK target is conversation_id (uuid) regardless
-        # of the generator's own source_type label.
-        sentence_source = sentence_dict.get('source', self.source_type)
-        is_conversation = sentence_source == 'conversation'
-
         row = {
             'id':                    str(uuid.uuid4()),
             'language_id':           self.language_id,
             'exercise_type':         self.exercise_type,
-            'source_type':           'conversation' if is_conversation else self.source_type,
+            'source_type':           self.source_type,
             'content':               content,
             'tags':                  self._build_tags(source_id, sentence_dict),
             'complexity_tier':        sentence_dict.get('complexity_tier'),
             'is_active':             True,
             'generation_batch_id':   generation_batch_id,
-            'grammar_pattern_id':    None,
             'word_sense_id':         None,
             'corpus_collocation_id': None,
         }
 
-        if is_conversation:
-            row['conversation_id'] = source_id
-        else:
-            fk_map = {
-                'grammar':     'grammar_pattern_id',
-                'vocabulary':  'word_sense_id',
-                'collocation': 'corpus_collocation_id',
-            }
-            fk_col = fk_map.get(self.source_type)
-            if fk_col:
-                row[fk_col] = source_id
+        fk_map = {
+            'vocabulary':  'word_sense_id',
+            'collocation': 'corpus_collocation_id',
+        }
+        fk_col = fk_map.get(self.source_type)
+        if fk_col:
+            row[fk_col] = source_id
 
         return row
 

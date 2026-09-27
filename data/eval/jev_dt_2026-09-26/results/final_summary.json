@@ -1,0 +1,268 @@
+{
+  "note_bugfix": "a2_units/a3_units/routing.item_signals previously dropped items whose sentence pairs were all byte-identical (all pairs skipped -> item vanished from every downstream count). Fixed: every reference-set item now yields a prediction row (0 units -> 0 errors -> bands 4/4/4, counted as confidently-clean for routing). Gold n is now 30/30/30 (was 29/29/29) for zh/ja/en. No new API calls were needed (only 1 previously-uncounted clean item per language: zh_clean_05/ja_clean_05/en_clean_05).",
+  "frozen_configs_changed": false,
+  "frozen_configs": {
+    "zh": {
+      "tau": 0.5,
+      "tau_n": 0.5,
+      "tau_c": 0.7,
+      "variant": "S2_argmax",
+      "cv_mean": 0.5603439354405434,
+      "cv_sd": 0.21129677212048287
+    },
+    "ja": {
+      "tau": 0.5,
+      "tau_n": 0.9,
+      "tau_c": 0.85,
+      "variant": "S3_prior",
+      "cv_mean": 0.7902284583558193,
+      "cv_sd": 0.1822260223116118
+    },
+    "en": {
+      "tau": 0.5,
+      "tau_n": 0.7,
+      "tau_c": 0.95,
+      "variant": "S3_prior",
+      "cv_mean": 0.8089614215491628,
+      "cv_sd": 0.11340855198110665
+    }
+  },
+  "gold_bands_qwk": {
+    "zh": {
+      "n_items": 30,
+      "accuracy": 0.4117647058823529,
+      "accuracy_ci95": [
+        0.0,
+        0.7619047619047619
+      ],
+      "fidelity": 0.7727272727272727,
+      "fidelity_ci95": [
+        -0.0869565217391306,
+        0.9412685982772122
+      ],
+      "understandability": 0.7368421052631579,
+      "understandability_ci95": [
+        -0.046511627906976605,
+        1.0
+      ]
+    },
+    "ja": {
+      "n_items": 30,
+      "accuracy": 0.4545454545454545,
+      "accuracy_ci95": [
+        0.014598540145985384,
+        0.7715736040609137
+      ],
+      "fidelity": 0.8297604035308953,
+      "fidelity_ci95": [
+        0.4444444444444444,
+        0.96
+      ],
+      "understandability": 0.7115384615384616,
+      "understandability_ci95": [
+        0.0,
+        0.9253731343283582
+      ]
+    },
+    "en": {
+      "n_items": 30,
+      "accuracy": 0.9556213017751479,
+      "accuracy_ci95": [
+        0.8251748251748252,
+        1.0
+      ],
+      "fidelity": 0.4871794871794872,
+      "fidelity_ci95": [
+        -0.052631578947368585,
+        0.7619047619047619
+      ],
+      "understandability": 0.7244094488188977,
+      "understandability_ci95": [
+        0.0,
+        0.9618320610687023
+      ]
+    }
+  },
+  "nr_silver_picked": {
+    "zh": {
+      "picked": "NRv2",
+      "naturalness": 0.023762376237623672,
+      "range": 0.6382978723404256
+    },
+    "ja": {
+      "picked": "NR",
+      "naturalness": 0.0980392156862745,
+      "range": 0.6190476190476191
+    },
+    "en": {
+      "picked": "NRv2",
+      "naturalness": 0.04210526315789476,
+      "range": 0.435483870967742
+    }
+  },
+  "detection": {
+    "zh": {
+      "auc": 0.966183574879227,
+      "precision": 1.0,
+      "recall": 0.5217391304347826,
+      "f1": 0.6857142857142856,
+      "tp": 12,
+      "fp": 0,
+      "fn": 11,
+      "tn": 9
+    },
+    "ja": {
+      "auc": 0.9850427350427351,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "tp": 13,
+      "fp": 0,
+      "fn": 13,
+      "tn": 9
+    },
+    "en": {
+      "auc": 0.924,
+      "precision": 0.9523809523809523,
+      "recall": 0.8,
+      "f1": 0.8695652173913043,
+      "tp": 20,
+      "fp": 1,
+      "fn": 5,
+      "tn": 9
+    }
+  },
+  "subtype_accuracy": {
+    "zh": {
+      "top1": 0.75,
+      "top3": 1.0,
+      "n": 12
+    },
+    "ja": {
+      "top1": 0.6923076923076923,
+      "top3": 0.9230769230769231,
+      "n": 13
+    },
+    "en": {
+      "top1": 0.95,
+      "top3": 1.0,
+      "n": 20
+    }
+  },
+  "severity_accuracy": {
+    "zh": 0.75,
+    "ja": 0.5384615384615384,
+    "en": 0.75
+  },
+  "inversion_recall_en": {
+    "silver_cv_aggregate": {
+      "en_silver_20": "critical",
+      "en_silver_21": "critical",
+      "en_silver_22": "critical",
+      "en_silver_23": "critical",
+      "en_silver_25": "critical",
+      "en_silver_27": "critical"
+    },
+    "gold_holdout": {
+      "en_seed_15": [
+        {
+          "subtype": "preposition",
+          "severity": "critical"
+        }
+      ],
+      "en_multi_04": [
+        null,
+        {
+          "subtype": "preposition",
+          "severity": "critical"
+        }
+      ]
+    }
+  },
+  "routing": {
+    "zh": {
+      "lang": "zh",
+      "set": "gold",
+      "tau_r": 0.05,
+      "gate_dims": [
+        "accuracy",
+        "fidelity",
+        "understandability"
+      ],
+      "n_items": 30,
+      "n_routed": 2,
+      "pct_routed": 0.06666666666666667,
+      "over_grade_items": [],
+      "over_grade_rate": 0.0,
+      "two_band_miss_items": []
+    },
+    "ja": {
+      "lang": "ja",
+      "set": "gold",
+      "tau_r": 0.2,
+      "gate_dims": [
+        "accuracy",
+        "fidelity",
+        "understandability"
+      ],
+      "n_items": 30,
+      "n_routed": 10,
+      "pct_routed": 0.3333333333333333,
+      "over_grade_items": [],
+      "over_grade_rate": 0.0,
+      "two_band_miss_items": []
+    },
+    "ja_acc_und_only_variant": {
+      "lang": "ja",
+      "set": "gold",
+      "tau_r": 0.45,
+      "gate_dims": [
+        "accuracy",
+        "understandability"
+      ],
+      "n_items": 30,
+      "n_routed": 16,
+      "pct_routed": 0.5333333333333333,
+      "over_grade_items": [
+        "ja_seed_01",
+        "ja_multi_01"
+      ],
+      "over_grade_rate": 0.125,
+      "two_band_miss_items": []
+    },
+    "en": {
+      "lang": "en",
+      "set": "gold",
+      "tau_r": 0.45,
+      "gate_dims": [
+        "accuracy",
+        "fidelity",
+        "understandability"
+      ],
+      "n_items": 30,
+      "n_routed": 11,
+      "pct_routed": 0.36666666666666664,
+      "over_grade_items": [],
+      "over_grade_rate": 0.0,
+      "two_band_miss_items": []
+    }
+  },
+  "cost_latency_per_item": {
+    "zh": {
+      "cost_per_item_usd": 0.00017723019999999994,
+      "mean_latency_s": 0.3225322580645649,
+      "n_calls_gold": 62
+    },
+    "ja": {
+      "cost_per_item_usd": 0.0002268966000000001,
+      "mean_latency_s": 0.29360606060579425,
+      "n_calls_gold": 66
+    },
+    "en": {
+      "cost_per_item_usd": 0.00012851159999999995,
+      "mean_latency_s": 0.2814769230769553,
+      "n_calls_gold": 65
+    }
+  },
+  "total_spend_usd": 0.058045134
+}

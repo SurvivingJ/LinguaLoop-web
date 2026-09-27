@@ -1,0 +1,572 @@
+# Phase 2 wiring patch (ADR-028 / TASK-814-816) — NOT APPLIED
+#
+# Generated 2026-09-27, during the Phase 1 eval run — per the session brief,
+# this is documentation only: apply it once the eval finishes and
+# services/vocabulary_ladder/asset_pipeline.py / exercise_renderer.py can be
+# touched again. Verify it still applies cleanly first (`git apply --check`)
+# since other Phase 1 work may have landed on these two files meanwhile.
+#
+# Prerequisites before this patch does anything:
+#   1. migrations/exercise_gen_bundle_prompts_draft.sql applied, with
+#      `is_active = true` on the rows for the languages being tested.
+#   2. VOCAB_LADDER_BUNDLE_MODE set to "shadow" (compare-only) or "on"
+#      (authoritative) — default "off" makes both hunks below no-ops.
+#
+# What each hunk does
+# --------------------
+# asset_pipeline.py (TASK-815 — generation):
+#   Adds a `BundleGenerator` call before the existing per-generator fan-out
+#   in `_generate_for_sense_impl`. Only attempted on a full, unscoped regen
+#   (`levels is None`) — TASK-811's level-scoped regen keeps using the
+#   legacy path unconditionally, on purpose (see the added comment). In
+#   "shadow" mode the bundle call still runs and is logged, but
+#   `variant_results` is populated by the untouched legacy fan-out. In "on"
+#   mode `variant_results` comes from `bundle_result.to_variant_results()`
+#   and the legacy fan-out is skipped entirely. Step 4 (validate/store) is
+#   UNCHANGED — both paths populate `variant_results` in the exact same
+#   `{(prompt_type, variant_key): value}` shape it already reads.
+#
+# exercise_renderer.py (TASK-816 — render-time judges):
+#   `build_rows` gains an eager pre-pass, `_gather_bundle_judge_requests`,
+#   that re-derives the SAME candidate lists the 6 direct judge call sites
+#   (L1 l1_distractor, L3 cloze, L5/L8 collocation, L6/L7 sentence_validity)
+#   already build, across every (variant, level), and makes ONE
+#   `BundleJudge.judge_bundle()` call before the render loop starts. The
+#   render loop tags each level/variant with `self._current_variant_key` /
+#   `self._current_level` (instance state, like the existing
+#   `self.last_skips`) so the 6 call sites can look up their precomputed
+#   verdict by the same `f'{variant}:L{level}'` request_id the gather step
+#   used, WITHOUT a signature change to any renderer method. A cache miss
+#   (bundle mode off, or this request wasn't gathered) falls through to the
+#   original direct judge call, byte-for-byte unchanged.
+#
+# Known limitation — NOT wired by this patch
+# -------------------------------------------
+# The `synonym_antonym_match` (relation) and `particle_selection` (particle)
+# judge axes are fully implemented and tested in
+# `services/vocabulary_ladder/bundle/judge.py` (BundleJudge.judge_bundle
+# already resolves `requests.relation` / `requests.particle` and falls back
+# correctly), but `_gather_bundle_judge_requests` above does NOT populate
+# them, and `_render_llm_types` / the typed generators'
+# (`asset_generators/syn_ant.py`, `asset_generators/particle_selection.py`)
+# `render()` methods are not modified here. Reason: `SynonymAntonymGenerator
+# .render()` runs an embedding band-check (`sense_neighbours.band_check_foils`,
+# a real DB call) BEFORE building its judge candidate list, and reproducing
+# that pre-filter in the eager gather step — so the bundle-judged foil set
+# matches what today's lazy path would have judged — needs either porting
+# the band-check into the gather step or factoring `render()` so its
+# pre-filter can run standalone before the eager pass. Wiring relation/
+# particle without that would silently judge a different (unfiltered) candidate
+# set than production does today, which is exactly the kind of quality
+# regression ADR-028 says must not happen. Land the band-check port as a
+# follow-up before enabling the relation/particle axes in "on" mode; "off"
+# and "shadow" modes are unaffected either way since neither axis is
+# gathered, so no fallback path is exercised for them yet.
+#
+# Testing performed before this patch was written (does not require applying it)
+# --------------------------------------------------------------------------
+# tests/test_bundle_flags.py, test_bundle_mapping.py, test_bundle_generator.py,
+# test_bundle_judge.py — 36 tests, all passing, no live LLM/DB calls (see
+# `PYTHONPATH=. python -m pytest tests/test_bundle_*.py -q`).
+#
+--- a/services/vocabulary_ladder/asset_pipeline.py
++++ b/services/vocabulary_ladder/asset_pipeline.py
+@@ -42,6 +42,8 @@
+     GROUNDING_ASSERTED, GROUNDING_CORPUS, CollocationGrounder, ground_core_asset,
+ )
+ from services.vocabulary_ladder.validators import VocabAssetValidator
++from services.vocabulary_ladder.bundle.flags import bundle_authoritative, bundle_enabled
++from services.vocabulary_ladder.bundle.generator import BundleGenerator
+
+ logger = logging.getLogger(__name__)
+
+@@ -360,82 +362,121 @@
+         want_typed = levels is None or bool(typed_wanted_codes)
+
+         variant_results = {}
+-        # BatchModeThreadPoolExecutor, not the bare one: batch mode is
+-        # thread-local, so plain pool threads judged fail-*open* for the whole
+-        # of P2/P3 and the split/typed levels — only P1, which runs on this
+-        # thread, was ever genuinely fail-closed. See judges/base.py.
+-        #
+-        # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
+-        # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
+-        # of those queued behind the rest every sense — a small but free
+-        # latency win to remove, since each future is independently CPU/IO
+-        # light on this thread (the wait is all downstream LLM latency).
+-        with stage('fan_out', stage_seconds), \
+-                BatchModeThreadPoolExecutor(max_workers=12) as pool:
+-            futures = {}
+-            for variant_key, cfg in variants.items():
+-                # Submit P2 variant
+-                if want_p2:
+-                    futures[pool.submit(
+-                        p2_gen.generate, sense_id, core_asset, active_levels,
+-                        cfg['sentence_assignments'],
+-                    )] = ('p2', variant_key)
+-                else:
+-                    variant_results[('p2', variant_key)] = _SKIPPED
+-                # Submit P3 variant. semantic_class + capability_context turn
+-                # on per-type gating inside the generator (TASK-514/B5) so P3
+-                # only asks for spot-incorrect when an enabled capability row
+-                # for that *type* can actually fire.
+-                if want_p3:
+-                    futures[pool.submit(
+-                        p3_gen.generate, sense_id, core_asset, active_levels,
+-                        cfg['sentence_assignments'], cfg['l7_correct_indices'],
+-                        None, semantic_class, capability_context,
+-                    )] = ('p3', variant_key)
+-                else:
+-                    variant_results[('p3', variant_key)] = _SKIPPED
+-                # Submit the split levels. Already gated by p3_expected_levels,
+-                # so each generator only has to decide whether *this sense*
+-                # gives it a usable sentence.
+-                for level in split_levels:
+-                    if level in split_levels_wanted:
++
++        # ADR-028 Phase 2 (TASK-815): bundle-mode call collapse. Only ever
++        # attempted on a full, unscoped regen (`levels is None`) — TASK-811
++        # level-scoped regen and the bundle collapse don't compose (a scoped
++        # regen wants to skip whole prompt families; the bundle call would
++        # have to ask for them anyway to produce anything at all), so a
++        # scoped regen always uses the legacy per-generator fan-out below,
++        # regardless of the flag.
++        bundle_attempted = levels is None and bundle_enabled()
++        bundle_result = None
++        if bundle_attempted:
++            bundle_gen = BundleGenerator(self.db, language_id)
++            bundle_result = bundle_gen.generate_bundle(
++                sense_id=sense_id,
++                core_asset=core_asset,
++                active_levels=active_levels,
++                semantic_class=semantic_class,
++                capability_context=capability_context,
++                p3_expected_levels=p3_expected_levels,
++                split_levels_wanted=split_levels_wanted,
++                typed_wanted_codes=None,  # unscoped regen -> every applicable type
++                variants=variants,
++                l7_correct_indices={
++                    vk: cfg['l7_correct_indices'] for vk, cfg in variants.items()
++                },
++            )
++            logger.info(
++                "Bundle generation for sense %s: ok=%s fallback_calls=%s",
++                sense_id, bundle_result.ok, bundle_result.fallback_calls,
++            )
++            if bundle_authoritative():
++                variant_results.update(bundle_result.to_variant_results())
++            # else: VOCAB_LADDER_BUNDLE_MODE=shadow — bundle_result is logged
++            # above (and should be persisted to a shadow-comparison sink by
++            # whoever wires TASK-807's protocol) but NOT stored/served; the
++            # legacy fan-out below still runs and its output remains
++            # authoritative.
++
++        if not (bundle_attempted and bundle_authoritative()):
++            # BatchModeThreadPoolExecutor, not the bare one: batch mode is
++            # thread-local, so plain pool threads judged fail-*open* for the whole
++            # of P2/P3 and the split/typed levels — only P1, which runs on this
++            # thread, was ever genuinely fail-closed. See judges/base.py.
++            #
++            # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
++            # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
++            # of those queued behind the rest every sense — a small but free
++            # latency win to remove, since each future is independently CPU/IO
++            # light on this thread (the wait is all downstream LLM latency).
++            with stage('fan_out', stage_seconds), \
++                    BatchModeThreadPoolExecutor(max_workers=12) as pool:
++                futures = {}
++                for variant_key, cfg in variants.items():
++                    # Submit P2 variant
++                    if want_p2:
+                         futures[pool.submit(
+-                            split_gens[level].generate, sense_id, core_asset,
++                            p2_gen.generate, sense_id, core_asset, active_levels,
+                             cfg['sentence_assignments'],
+-                        )] = (f'l{level}', variant_key)
++                        )] = ('p2', variant_key)
+                     else:
+-                        variant_results[(f'l{level}', variant_key)] = _SKIPPED
+-                # Type-registered LLM generators (TASK-522 syn/ant +
+-                # word_family, TASK-527 particle_selection). One future per
+-                # variant rather than per type: they share a driver that
+-                # already walks the capability matrix, and the matrix decides
+-                # which of them apply to this word. `typed_wanted_codes`
+-                # narrows that further to the requested levels (TASK-811).
+-                if want_typed:
+-                    futures[pool.submit(
+-                        typed_llm.generate_all,
+-                        self.db, language_id, sense_id, core_asset, semantic_class,
+-                        cfg['sentence_assignments'], capability_context,
+-                        typed_wanted_codes,
+-                    )] = ('typed', variant_key)
+-                else:
+-                    variant_results[('typed', variant_key)] = _SKIPPED
+-
+-            for future in as_completed(futures):
+-                prompt_type, variant_key = futures[future]
+-                try:
+-                    asset = future.result()
+-                    variant_results[(prompt_type, variant_key)] = asset
+-                except JudgeUnavailable:
+-                    # A judge outage during a batch aborts the batch. Letting
+-                    # this fall into the generic handler below would downgrade
+-                    # a loud stop into "variant failed, carry on" — quieter
+-                    # than the fail-open bug it replaced.
+-                    raise
+-                except Exception as e:
+-                    logger.error("Variant %s_%s failed for sense %s: %s",
+-                                 prompt_type, variant_key, sense_id, e)
+-                    variant_results[(prompt_type, variant_key)] = None
++                        variant_results[('p2', variant_key)] = _SKIPPED
++                    # Submit P3 variant. semantic_class + capability_context turn
++                    # on per-type gating inside the generator (TASK-514/B5) so P3
++                    # only asks for spot-incorrect when an enabled capability row
++                    # for that *type* can actually fire.
++                    if want_p3:
++                        futures[pool.submit(
++                            p3_gen.generate, sense_id, core_asset, active_levels,
++                            cfg['sentence_assignments'], cfg['l7_correct_indices'],
++                            None, semantic_class, capability_context,
++                        )] = ('p3', variant_key)
++                    else:
++                        variant_results[('p3', variant_key)] = _SKIPPED
++                    # Submit the split levels. Already gated by p3_expected_levels,
++                    # so each generator only has to decide whether *this sense*
++                    # gives it a usable sentence.
++                    for level in split_levels:
++                        if level in split_levels_wanted:
++                            futures[pool.submit(
++                                split_gens[level].generate, sense_id, core_asset,
++                                cfg['sentence_assignments'],
++                            )] = (f'l{level}', variant_key)
++                        else:
++                            variant_results[(f'l{level}', variant_key)] = _SKIPPED
++                    # Type-registered LLM generators (TASK-522 syn/ant +
++                    # word_family, TASK-527 particle_selection). One future per
++                    # variant rather than per type: they share a driver that
++                    # already walks the capability matrix, and the matrix decides
++                    # which of them apply to this word. `typed_wanted_codes`
++                    # narrows that further to the requested levels (TASK-811).
++                    if want_typed:
++                        futures[pool.submit(
++                            typed_llm.generate_all,
++                            self.db, language_id, sense_id, core_asset, semantic_class,
++                            cfg['sentence_assignments'], capability_context,
++                            typed_wanted_codes,
++                        )] = ('typed', variant_key)
++                    else:
++                        variant_results[('typed', variant_key)] = _SKIPPED
++
++                for future in as_completed(futures):
++                    prompt_type, variant_key = futures[future]
++                    try:
++                        asset = future.result()
++                        variant_results[(prompt_type, variant_key)] = asset
++                    except JudgeUnavailable:
++                        # A judge outage during a batch aborts the batch. Letting
++                        # this fall into the generic handler below would downgrade
++                        # a loud stop into "variant failed, carry on" — quieter
++                        # than the fail-open bug it replaced.
++                        raise
++                    except Exception as e:
++                        logger.error("Variant %s_%s failed for sense %s: %s",
++                                     prompt_type, variant_key, sense_id, e)
++                        variant_results[(prompt_type, variant_key)] = None
+
+         # Step 4: Validate and store each variant
+         for variant_key in ('A', 'B'):
+--- a/services/vocabulary_ladder/exercise_renderer.py
++++ b/services/vocabulary_ladder/exercise_renderer.py
+@@ -24,6 +24,11 @@
+     SENTENCE_SOURCE_GENERATED, SENTENCE_SOURCE_MINED,
+     get_sentence_target,
+ )
++from services.vocabulary_ladder.bundle.flags import bundle_enabled
++from services.vocabulary_ladder.bundle.judge import (
++    BundleJudge, BundleJudgeRequests, CollocationVerdictRequest,
++    DistractorRequest, SentenceValidityRequest,
++)
+
+ logger = logging.getLogger(__name__)
+
+@@ -194,6 +199,28 @@
+             'classifier_match', 'counter_match',
+         })
+         seen_context_free_types: set[str] = set()
++
++        # ADR-028 Phase 2 (TASK-816): bundle-mode render judging. Gathered
++        # BEFORE the render loop below, across every (variant, level) at
++        # once, so ONE ladder_bundle_judge call can cover what the render
++        # loop's per-level judge calls would otherwise make one-at-a-time.
++        # `self._bundle_judge_result` is instance state (like
++        # `self.last_skips`) rather than a threaded parameter, so the 6
++        # judged renderers below don't need a signature change — they read
++        # `self._current_variant_key`/`self._current_level` (set immediately
++        # before each `_render_level` call) to build the SAME request_id this
++        # gather step used. `None` (bundle mode off, or nothing to judge this
++        # sense) makes every call site fall through to its original direct
++        # judge call, unchanged.
++        self._bundle_judge_result = None
++        if bundle_enabled():
++            requests = self._gather_bundle_judge_requests(core, variant_configs, active_levels)
++            if not requests.is_empty():
++                target = self._headword(core, sense_id)
++                self._bundle_judge_result = BundleJudge(self.db, language_id).judge_bundle(
++                    sense_id, target, requests,
++                )
++
+         for variant in variant_configs:
+             p2 = variant['p2']
+             p3 = variant['p3']
+@@ -201,6 +228,8 @@
+
+             for level in active_levels:
+                 try:
++                    self._current_variant_key = variant['key']
++                    self._current_level = level
+                     content = self._render_level(
+                         level, core, p2, p3, sense_id, language_id, sa)
+                     if content is None:
+@@ -558,6 +587,130 @@
+         }
+
+     # ------------------------------------------------------------------
++    # ADR-028 Phase 2 (TASK-816) — bundle judge request gathering
++    # ------------------------------------------------------------------
++
++    @staticmethod
++    def _bundle_request_id(variant_key: str, level: int) -> str:
++        return f'{variant_key}:L{level}'
++
++    def _gather_bundle_judge_requests(
++        self, core: dict, variant_configs: list[dict], active_levels: list[int],
++    ) -> BundleJudgeRequests:
++        """Every candidate the render loop's 6 direct judge calls would need,
++        across every (variant, level), collected up front for ONE
++        ``ladder_bundle_judge`` call.
++
++        Deliberately re-derives each level's context from the SAME asset
++        fields its renderer reads (``p2['level_N']`` / ``p3['level_N']``) —
++        this is the unavoidable cost of judging eagerly instead of lazily.
++        Mirrors each renderer's own early-return guards (missing level data,
++        too-short sentence, absent collocate, ...) so a request is only
++        gathered when the renderer would actually have reached its judge
++        call; anything that would have returned ``None`` before the judge is
++        skipped here too, exactly as it will be skipped in the render pass.
++        """
++        requests = BundleJudgeRequests()
++        sentences = core.get('sentences', [])
++
++        for variant in variant_configs:
++            vk = variant['key']
++            p2, p3, sa = variant['p2'], variant['p3'], variant['sentence_assignments']
++
++            if 1 in active_levels:
++                level_data = p2.get('level_1') or {}
++                options = level_data.get('options', [])
++                correct = [o.get('text', '') for o in options if o.get('is_correct')]
++                if correct and len(options) >= 4:
++                    distractors = [
++                        o.get('text', '') for o in options
++                        if not o.get('is_correct') and o.get('text')
++                    ]
++                    requests.l1_distractor.append(DistractorRequest(
++                        self._bundle_request_id(vk, 1), distractors, 'L1 listening candidate',
++                        {'target': correct[0]},
++                    ))
++
++            if 3 in active_levels:
++                level_data = p2.get('level_3') or {}
++                sent_idx = level_data.get('sentence_index', sa.get(3, 0))
++                if level_data and sent_idx < len(sentences):
++                    sentence = sentences[sent_idx]
++                    text = sentence.get('text', '')
++                    target = get_sentence_target(sentence)
++                    correct = level_data.get('correct_answer', target)
++                    distractors = [
++                        o.get('text', '') for o in level_data.get('options', [])
++                        if not o.get('is_correct') and o.get('text')
++                    ][:3]
++                    if text and target and distractors:
++                        blanked = text.replace(target, '___', 1)
++                        requests.cloze.append(DistractorRequest(
++                            self._bundle_request_id(vk, 3), distractors, 'L3 cloze candidate',
++                            {'sentence_with_blank': blanked, 'correct_answer': correct},
++                        ))
++
++            if 5 in active_levels:
++                level_data = p2.get('level_5')
++                if level_data:
++                    sent_idx = level_data.get('sentence_index', sa.get(5, 2))
++                    if sent_idx < len(sentences):
++                        sentence = sentences[sent_idx]
++                        text = sentence.get('text', '')
++                        collocate = level_data.get('correct_collocate', '')
++                        target_word = get_sentence_target(sentence)
++                        distractors = [
++                            o.get('text', '') for o in level_data.get('options', [])
++                            if not o.get('is_correct') and o.get('text')
++                        ]
++                        if text and collocate and '___' in text.replace(collocate, '___', 1):
++                            blanked = text.replace(collocate, '___', 1)
++                            requests.collocation_filter.append(DistractorRequest(
++                                self._bundle_request_id(vk, 5), distractors, 'L5 collocation candidate',
++                                {'sentence': blanked, 'target': target_word, 'correct_collocate': collocate},
++                            ))
++
++            if 6 in active_levels:
++                level_data = p2.get('level_6') or {}
++                correct_idx = level_data.get('correct_sentence_index', sa.get(6, 3))
++                wrong_sents = level_data.get('wrong_sentences', [])
++                if correct_idx < len(sentences) and len(wrong_sents) >= 3:
++                    target_word = get_sentence_target(sentences[correct_idx])
++                    pairs = [(ws.get('text', ''), ws.get('explanation', '')) for ws in wrong_sents]
++                    requests.sentence_validity.append(SentenceValidityRequest(
++                        self._bundle_request_id(vk, 6), target_word, pairs,
++                    ))
++
++            if 7 in active_levels:
++                level_data = p3.get('level_7') or {}
++                incorrect = level_data.get('incorrect_sentence', '')
++                correct_indices = level_data.get('correct_sentence_indices', [0, 1, 2])
++                if incorrect and correct_indices and correct_indices[0] < len(sentences):
++                    target_word = get_sentence_target(sentences[correct_indices[0]])
++                    error_desc = level_data.get('error_description', '')
++                    requests.sentence_validity.append(SentenceValidityRequest(
++                        self._bundle_request_id(vk, 7), target_word, [(incorrect, error_desc)],
++                    ))
++
++            if 8 in active_levels:
++                level_data = p3.get('level_8')
++                if level_data:
++                    sent_idx = level_data.get('sentence_index', sa.get(8, 4))
++                    if sent_idx < len(sentences):
++                        sentence = sentences[sent_idx]
++                        text = sentence.get('text', '')
++                        correct_collocate = level_data.get('correct_collocate', '')
++                        error_collocate = level_data.get('error_collocate', '')
++                        if text and correct_collocate and error_collocate:
++                            target_word = get_sentence_target(sentence)
++                            requests.collocation_verdict.append(CollocationVerdictRequest(
++                                self._bundle_request_id(vk, 8), text, target_word,
++                                correct_collocate, error_collocate,
++                            ))
++
++        return requests
++
++    # ------------------------------------------------------------------
+     # Per-level renderers
+     # ------------------------------------------------------------------
+
+@@ -642,9 +795,14 @@
+         # drop real-word synonyms and spelling-only look-alikes that aren't
+         # audio-confusable. Skip the variant if fewer than 3 clean distractors
+         # survive (same contract as the L3 cloze path).
+-        kept, judge_meta = filter_l1_distractors(
+-            self.db, correct_answer, raw_distractors, language_id,
+-        )
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 1)
++        if bundle is not None and request_id in bundle.l1_distractor:
++            kept, judge_meta = bundle.l1_distractor[request_id]
++        else:
++            kept, judge_meta = filter_l1_distractors(
++                self.db, correct_answer, raw_distractors, language_id,
++            )
+         if len(kept) < 3:
+             logger.info(
+                 "L1 l1_distractor_judge (source=%s) kept %d/%d distractors for sense %s; skipping variant",
+@@ -770,13 +928,18 @@
+             if not o.get('is_correct') and o.get('text')
+         ][:3]
+
+-        kept, judge_meta = filter_distractors(
+-            self.db,
+-            sentence_with_blank=blanked,
+-            correct_answer=correct,
+-            distractors=distractors,
+-            language_id=language_id,
+-        )
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 3)
++        if bundle is not None and request_id in bundle.cloze:
++            kept, judge_meta = bundle.cloze[request_id]
++        else:
++            kept, judge_meta = filter_distractors(
++                self.db,
++                sentence_with_blank=blanked,
++                correct_answer=correct,
++                distractors=distractors,
++                language_id=language_id,
++            )
+         if len(kept) < 3:
+             logger.info(
+                 "L3 cloze_judge rejected %d/%d distractors for sense %s; skipping variant",
+@@ -887,9 +1050,14 @@
+         # answer). Skip the variant if fewer than 3 clean distractors survive
+         # (same contract as the L3 cloze path).
+         from services.exercise_generation.judges.collocation import filter_collocation_distractors
+-        kept, judge_meta = filter_collocation_distractors(
+-            self.db, blanked, target_word, collocate, raw_distractors, language_id,
+-        )
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 5)
++        if bundle is not None and request_id in bundle.collocation_filter:
++            kept, judge_meta = bundle.collocation_filter[request_id]
++        else:
++            kept, judge_meta = filter_collocation_distractors(
++                self.db, blanked, target_word, collocate, raw_distractors, language_id,
++            )
+         if len(kept) < 3:
+             logger.info(
+                 "L5 collocation_judge kept %d/%d distractors for sense %s; skipping variant",
+@@ -936,7 +1104,12 @@
+         # so skip the variant if fewer than 3 clean wrong sentences survive.
+         from services.exercise_generation.judges.sentence_validity import judge_wrong_sentences
+         pairs = [(ws.get('text', ''), ws.get('explanation', '')) for ws in wrong_sents]
+-        outcomes = judge_wrong_sentences(self.db, target_word, pairs, language_id)
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 6)
++        if bundle is not None and request_id in bundle.sentence_validity:
++            outcomes = bundle.sentence_validity[request_id]
++        else:
++            outcomes = judge_wrong_sentences(self.db, target_word, pairs, language_id)
+         kept_wrong = [
+             ws for ws, o in zip(wrong_sents, outcomes) if o.verdict != 'reject'
+         ]
+@@ -1016,9 +1189,14 @@
+             get_sentence_target(sentences[correct_indices[0]])
+             if correct_indices and correct_indices[0] < len(sentences) else ''
+         )
+-        outcomes = judge_wrong_sentences(
+-            self.db, target_word, [(incorrect, error_desc)], language_id,
+-        )
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 7)
++        if bundle is not None and request_id in bundle.sentence_validity:
++            outcomes = bundle.sentence_validity[request_id]
++        else:
++            outcomes = judge_wrong_sentences(
++                self.db, target_word, [(incorrect, error_desc)], language_id,
++            )
+         if outcomes and outcomes[0].verdict == 'reject':
+             logger.info(
+                 "L7 sentence_validity_judge rejected the incorrect sentence for sense %s; skipping variant",
+@@ -1072,9 +1250,14 @@
+         # pass as a valid collocate, the repair exercise is broken — drop it.
+         from services.exercise_generation.judges.collocation import judge_collocation_repair
+         target_word = get_sentence_target(sentence)
+-        outcome = judge_collocation_repair(
+-            self.db, text, target_word, correct_collocate, error_collocate, language_id,
+-        )
++        bundle = self._bundle_judge_result
++        request_id = self._bundle_request_id(self._current_variant_key, 8)
++        if bundle is not None and request_id in bundle.collocation_verdict:
++            outcome = bundle.collocation_verdict[request_id]
++        else:
++            outcome = judge_collocation_repair(
++                self.db, text, target_word, correct_collocate, error_collocate, language_id,
++            )
+         if outcome.verdict == 'reject':
+             logger.info(
+                 "L8 collocation_judge rejected error_collocate '%s' for sense %s; skipping variant",

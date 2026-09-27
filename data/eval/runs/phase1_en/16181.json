@@ -1,0 +1,1102 @@
+{
+  "sense_id": 16181,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:51:54.674089+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] Missing level_4"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.21813368797302246,
+    "p1_generate": 3.8194358348846436,
+    "tier_gate": 0.0,
+    "p1_judge": 5.4094414710998535,
+    "collocate_grounding": 0.0,
+    "fan_out": 66.59478974342346
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/wɛl/",
+        "morphological_forms": [
+          {
+            "form": "well",
+            "label": "positive"
+          },
+          {
+            "form": "better",
+            "label": "comparative"
+          },
+          {
+            "form": "best",
+            "label": "superlative"
+          }
+        ],
+        "pronunciation": "well",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            16181
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a0bf2df5-be84-4401-b013-8b02f9c1e61e",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "better",
+        "pronunciation": "well",
+        "correct_definition": "In a satisfactory or proper manner.",
+        "options": [
+          "To begin something again after a pause, or to replace something old with something new.",
+          "In a satisfactory or proper manner.",
+          "A biography, a written account of a person's life.",
+          "To make the sound of a word or letter in a particular way."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "fe508531-58f8-4fc0-8c3c-956b269c583e",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She understands the math problem better by ignoring it completely.",
+            "is_correct": false
+          },
+          {
+            "text": "The sun shines better at midnight than at noon.",
+            "is_correct": false
+          },
+          {
+            "text": "The color blue tastes better than the color red.",
+            "is_correct": false
+          },
+          {
+            "text": "If you study hard, you will do better on the upcoming history exam.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "semantic: violates sensory selectional restrictions, as colors cannot be tasted. pragmatic: logically contradictory, as ignoring a problem precludes understanding it. pragmatic: contradicts basic physical reality and the definition of midnight.",
+        "target_word": "well"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2498512c-72ba-4f84-bcf6-317d47624c9b",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "He speaks French better because he lived in Paris last year."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "4cb3718b-668c-4757-a5df-67101be9b084",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "better",
+        "pronunciation": "well",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "To change old food or plants into good soil for growing new plants.",
+              "The process of forming conclusions or judgments from facts.",
+              "A click is a short, sharp sound made when something locks or snaps into place.",
+              "In a satisfactory or proper manner."
+            ],
+            "correct_answer": "In a satisfactory or proper manner."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "46292460-4f9d-4808-a44a-bf9a2752d000",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "He speaks French better because he lived in Paris last year.",
+        "chunks": [
+          "He speaks",
+          "French",
+          "better",
+          "because he lived in Paris last year"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "better",
+          "French",
+          "He speaks",
+          "because he lived in Paris last year"
+        ],
+        "target_word": "well",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ba35b2ed-6f9f-444c-87db-cabab31c5dbc",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "better",
+        "relation": "antonym",
+        "options": [
+          "worse",
+          "slower",
+          "harder",
+          "faster"
+        ],
+        "correct_answer": "worse",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "In a satisfactory or proper manner.",
+            "explanation": "means in a less satisfactory manner, directly opposing the sense of performing properly"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3f64d7fa-516a-4115-b855-23974813aa2d",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "better",
+        "pronunciation": "well",
+        "ipa": "/wɛl/",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "batter",
+          "bettor",
+          "better",
+          "bitter"
+        ],
+        "correct_answer": "better",
+        "explanation": "Correct: matches the spoken target word /ˈbɛtər/.",
+        "distractor_explanations": {
+          "bettor": "Homophone: same /ˈbɛtər/ sound, different spelling and meaning (a person who bets).",
+          "bitter": "Minimal pair: differs only in the vowel sound /ɪ/ instead of /ɛ/.",
+          "batter": "Minimal pair: differs only in the vowel sound /æ/ instead of /ɛ/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3f3c0039-6873-4610-880f-8c737f134092",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Everything went even better than we had hoped during the event.",
+        "original_sentence": "Everything went even better than we had hoped during the event.",
+        "correct_answer": "better",
+        "options": [
+          "more precisely",
+          "harder",
+          "worse",
+          "better"
+        ],
+        "explanation": "Correct: the target comparative adverb appropriately describes the positive outcome of the event.",
+        "distractor_tags": {},
+        "word_definition": "In a satisfactory or proper manner.",
+        "target_word": "well"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "4c912258-f96b-416d-b3a3-1562b26f73c0",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He slept better during the loud, chaotic rock concert in the front row.",
+            "is_correct": false
+          },
+          {
+            "text": "The deceased plant grew better after it was completely dried out and left in the dark.",
+            "is_correct": false
+          },
+          {
+            "text": "She knows the neighborhood better since she grew up around here.",
+            "is_correct": true
+          },
+          {
+            "text": "The ice cream melted better when it was kept inside the freezing freezer.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: dead and dried plants cannot grow, making the sentence logically absurd. Pragmatically inappropriate: people do not sleep better in loud, chaotic environments like a front-row concert. Pragmatically inappropriate: ice cream does not melt better in a freezing environment; it melts better in heat.",
+        "target_word": "well"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "df5b2f55-329f-413d-89c1-11cdba9c0865",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "If you study hard, you will do better on the upcoming history exam."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f85c4404-f9c0-4718-acb1-447dd67689f7",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "If you study hard, you will do better on the upcoming history exam.",
+        "chunks": [
+          "If you study hard",
+          "you will do",
+          "better",
+          "on the upcoming history exam"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "If you study hard",
+          "better",
+          "on the upcoming history exam",
+          "you will do"
+        ],
+        "target_word": "well",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f060a772-7b05-4ed2-998d-81aed62a565b",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "better",
+        "relation": "antonym",
+        "options": [
+          "worse",
+          "more",
+          "further",
+          "rather"
+        ],
+        "correct_answer": "worse",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "In a satisfactory or proper manner.",
+            "explanation": "antonym: performing an action in a less satisfactory or proper manner"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16181,
+      "word_asset_id": "shadow-16181-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'well' does not occur in its own sentence"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'well' does not occur in its own sentence"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0020602,
+      "prompt_tokens": 1909,
+      "completion_tokens": 595,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3480
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0009021,
+      "prompt_tokens": 632,
+      "completion_tokens": 285,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 2185
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005863,
+      "prompt_tokens": 471,
+      "completion_tokens": 178,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1464
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006246,
+      "prompt_tokens": 632,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1473
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00304544,
+      "prompt_tokens": 1121,
+      "completion_tokens": 2099,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1992,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 24956
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310176,
+      "prompt_tokens": 1121,
+      "completion_tokens": 2143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2036,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 26782
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169952,
+      "prompt_tokens": 655,
+      "completion_tokens": 1164,
+      "cached_tokens": 0,
+      "reasoning_tokens": 981,
+      "call_role": "retry",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 15008
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00107648,
+      "prompt_tokens": 792,
+      "completion_tokens": 643,
+      "cached_tokens": 0,
+      "reasoning_tokens": 633,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 9546
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00260864,
+      "prompt_tokens": 652,
+      "completion_tokens": 1875,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1682,
+      "call_role": "retry",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 24906
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00711456,
+      "prompt_tokens": 1561,
+      "completion_tokens": 5168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4561,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 63517
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157344,
+      "prompt_tokens": 793,
+      "completion_tokens": 1031,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1021,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 15002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.007464,
+      "prompt_tokens": 1561,
+      "completion_tokens": 5441,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4910,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 66442
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003358,
+      "prompt_tokens": 411,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1067
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003571,
+      "prompt_tokens": 382,
+      "completion_tokens": 97,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1349
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003386,
+      "prompt_tokens": 437,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1239
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004088,
+      "prompt_tokens": 521,
+      "completion_tokens": 101,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1269
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002986,
+      "prompt_tokens": 412,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1009
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003217,
+      "prompt_tokens": 389,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1108
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004266,
+      "prompt_tokens": 472,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1159
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation__json_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003648,
+      "prompt_tokens": 641,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "json_repair",
+      "sense_id": 16181,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 970
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.03470904,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 87.32799999997951,
+  "finished_at": "2026-09-27T03:53:22.010383+00:00"
+}

@@ -6,7 +6,7 @@ word-count range and seed ELO for a test come off the same row. Two Python
 copies of those bands exist for code paths that must not pay for a DB round
 trip:
 
-  * ``services.conversation_generation.categorical_maps.DIFFICULTY_TO_TIER``
+  * ``services.categorical_maps.DIFFICULTY_TO_TIER``
     (dual translation age_tier, model arena, mystery generation, and the
     ``ProseWriter`` fallback), and
   * ``services.dictation.cap.DIFFICULTY_TO_TIER`` (transcript length cap).
@@ -19,7 +19,7 @@ stop the two copies drifting apart again.
 
 import pytest
 
-from services.conversation_generation.categorical_maps import (
+from services.categorical_maps import (
     DIFFICULTY_TO_TIER,
     TIER_TO_IRT,
     TIER_TO_PHASE,

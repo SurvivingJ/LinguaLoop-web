@@ -1,0 +1,1131 @@
+{
+  "sense_id": 39661,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T07:06:01.906390+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] particle_selection generation failed",
+    "[B] Level 7: incorrect_sentence and corrected_sentence are identical",
+    "[B] particle_selection generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[3] rejected (rating 2): 義項：行為・作業の意で使用"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.7758526802062988,
+    "p1_generate": 81.98660278320312,
+    "tier_gate": 0.0,
+    "p1_judge": 87.11849284172058,
+    "collocate_grounding": 0.0,
+    "fan_out": 152.06092643737793
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[3] rejected (rating 2): 義項：行為・作業の意で使用"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/itonami/",
+        "pronunciation": "いとなみ",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            39661
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "4ff51a1d-a4a2-43f8-9256-aa54cdc305ba",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "営み",
+        "pronunciation": "いとなみ",
+        "ipa": "/itonami/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "伊奘冉",
+          "営み",
+          "人並み",
+          "岩波"
+        ],
+        "correct_answer": "営み",
+        "explanation": "正解です。「営み」は「人や動物が生活し、生命を保つための活動。」という意味です。",
+        "distractor_explanations": {
+          "岩波": "「岩波」は「営み」と一モーラだけ異なる実在語です（2モーラ目: 「と」→「わ」、一部の音の違い）。",
+          "伊奘冉": "「伊奘冉」は「営み」と一モーラだけ異なる実在語です（2モーラ目: 「と」→「ざ」、一部の音の違い）。",
+          "人並み": "「人並み」は「営み」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「ひ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "l1_distractor_judge": {
+          "rejected": 4,
+          "kept": 6,
+          "rejected_items": [
+            "人並",
+            "人波",
+            "家並",
+            "入り波"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c65244cb-7511-4c1f-a72d-2c8a4af7ff84",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "営み",
+        "pronunciation": "いとなみ",
+        "correct_definition": "人や動物が生活し、生命を保つための活動。",
+        "options": [
+          "物や情報などを、多くの人にわたすこと。",
+          "人や動物が生活し、生命を保つための活動。",
+          "音楽において、音の長さや強さが規則的にくり返されるパターンや、その流れの感じ。",
+          "まだ歩いたり話したりすることがあまりできない、小さな子ども。特に、親に保護されて育てられている年ごろの子ども。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "235b589c-d4f1-4ba3-958f-fa2409f2ebbe",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "童子の行為は、単なる日常的な___の模倣を超え、生命の循環に対する原初的な祈りにも似た、崇高な儀式としてそこに刻まれるのです。",
+        "original_sentence": "童子の行為は、単なる日常的な営みの模倣を超え、生命の循環に対する原初的な祈りにも似た、崇高な儀式としてそこに刻まれるのです。",
+        "correct_answer": "営み",
+        "options": [
+          "営み",
+          "仕事",
+          "業務",
+          "動作"
+        ],
+        "explanation": "正解です。文脈にある「生命の循環に対する原初的な祈りにも似た」活動は、自然や生物の「営み」と結びつくのが適切です。",
+        "distractor_tags": {},
+        "word_definition": "人や動物が生活し、生命を保つための活動。",
+        "target_word": "営み"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "35d49b3a-14f8-40fc-b2a0-aa14a1ef4b9e",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "童子の行為は、単なる日常的な営みの模倣を超え、生命の循環に対する原初的な祈りにも似た、崇高な儀式としてそこに刻まれるのです。",
+            "is_correct": true
+          },
+          {
+            "text": "しかし、微生物の営みを経ることで、難消化性の成分は低分子化され、栄養価が劇的に向上するのみならず、フィチン酸などの抗栄養因子も分解されます。",
+            "is_correct": true
+          },
+          {
+            "text": "我々大人が往々にして見落とす微小な営みを、彼は無心に、そして厳粛に刻み続けているのです。",
+            "is_correct": true
+          },
+          {
+            "text": "それはまさに、自然の営みが時間が凝縮したかような深紅を纏うリンゴでした。",
+            "is_correct": false,
+            "error_description": "「自然の営み」と「時間」は並列されて「凝縮した」にかかるため、並立助詞「と」を用いるのが適切です。「が」を用いると「自然の営み」だけが主語となり、「時間が」との係り受けが破綻します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0e7cd882-3fc1-4f43-a2a0-46252fd4eb1c",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "自然の営みについて学びたいと思います。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d8229a03-b00e-40d7-88a3-024e0e118237",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "営み",
+        "pronunciation": "いとなみ",
+        "tier": "T6",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "low-priced (cheap)",
+              "人や動物が生活し、生命を保つための活動。",
+              "时间 —— 用钟表可以知道的、流逝着的时刻",
+              "ちゅうごくは、アジアにあるおおきなくにです。"
+            ],
+            "correct_answer": "人や動物が生活し、生命を保つための活動。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8c6269a8-d4f3-4a8b-a957-93f0d0e6c97c",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "しかし、微生物の___を経ることで、難消化性の成分は低分子化され、栄養価が劇的に向上するのみならず、フィチン酸などの抗栄養因子も分解されます。",
+        "original_sentence": "しかし、微生物の営みを経ることで、難消化性の成分は低分子化され、栄養価が劇的に向上するのみならず、フィチン酸などの抗栄養因子も分解されます。",
+        "target_word": "営み",
+        "word": "営み",
+        "answer": {
+          "accepted": [
+            "営み"
+          ],
+          "accepted_normalized": [
+            "営み"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d79fbf2c-6a60-47e4-a3b3-30470bdc6fb7",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "自然の営みについて学びたいと思います。",
+        "chunks": [
+          "自然の",
+          "営みに",
+          "ついて学びたいと",
+          "思います"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "営みに",
+          "思います",
+          "ついて学びたいと",
+          "自然の"
+        ],
+        "target_word": "営み",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ad720d3f-b51e-40e3-aad7-6d39e69f44f2",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "営み",
+        "options": [
+          "いとうなみ",
+          "いいとなみ",
+          "いとなみ",
+          "いどなみ"
+        ],
+        "correct_answer": "いとなみ",
+        "word": "営み",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3a71cb1f-9b42-4c23-8145-e065280bc1db",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "いとなみ",
+        "options": [
+          "宇宙",
+          "経営",
+          "運営",
+          "営み"
+        ],
+        "correct_answer": "営み",
+        "word": "営み",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "運営": "component",
+          "宇宙": "component",
+          "経営": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6e519820-4a29-49d4-9c1c-f39f27db5b6b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "小さな営みを積み重なる。",
+            "is_correct": false,
+            "error_description": "助詞：自動詞「積み重なる」の主体は「が」で示す。「を」は誤り。"
+          },
+          {
+            "text": "生物の営みは不思議ですね。",
+            "is_correct": true
+          },
+          {
+            "text": "人々の営みを守りたいです。",
+            "is_correct": true
+          },
+          {
+            "text": "日々の営みが続いています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "81a9781a-10a2-4755-99d6-7c81d689856b",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "無機質な素材が自律的実体へと昇華する奇跡を、自らの双手で紡ぎ出す営みなのです。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "aa31984b-f4f4-4b04-b53f-ccc1830eb004",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "人々の___を守りたいです。",
+        "original_sentence": "人々の営みを守りたいです。",
+        "target_word": "営み",
+        "word": "営み",
+        "answer": {
+          "accepted": [
+            "営み"
+          ],
+          "accepted_normalized": [
+            "営み"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6d7a7379-d50b-4a87-9fca-6c6975139bb6",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "無機質な素材が自律的実体へと昇華する奇跡を、自らの双手で紡ぎ出す営みなのです。",
+        "chunks": [
+          "無機質な素材が",
+          "自律的実体へと",
+          "昇華する奇跡を",
+          "自らの双手で",
+          "紡ぎ出す営みなの",
+          "です"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "です",
+          "自らの双手で",
+          "昇華する奇跡を",
+          "紡ぎ出す営みなの",
+          "無機質な素材が",
+          "自律的実体へと"
+        ],
+        "target_word": "営み",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 39661,
+      "word_asset_id": "shadow-39661-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 4,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00857696,
+      "prompt_tokens": 2823,
+      "completion_tokens": 5995,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5182,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 81028
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00350784,
+      "prompt_tokens": 826,
+      "completion_tokens": 2534,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2234,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 33865
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00304256,
+      "prompt_tokens": 432,
+      "completion_tokens": 2269,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2053,
+      "call_role": "repair",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 28611
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00251136,
+      "prompt_tokens": 780,
+      "completion_tokens": 1767,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1651,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 23875
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00608224,
+      "prompt_tokens": 2767,
+      "completion_tokens": 4060,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3298,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 35035
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00402912,
+      "prompt_tokens": 2767,
+      "completion_tokens": 2456,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1821,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 36179
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00873344,
+      "prompt_tokens": 1724,
+      "completion_tokens": 6392,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5950,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 83251
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183008,
+      "prompt_tokens": 763,
+      "completion_tokens": 1239,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1229,
+      "call_role": "retry",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 21885
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.004887168,
+      "prompt_tokens": 1710,
+      "completion_tokens": 3621,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 3506,
+      "call_role": "retry",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 46333
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00626176,
+      "prompt_tokens": 868,
+      "completion_tokens": 4675,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4344,
+      "call_role": "json_repair",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 64251
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017936,
+      "prompt_tokens": 406,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2578
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0032352,
+      "prompt_tokens": 674,
+      "completion_tokens": 2359,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2285,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 33526
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169888,
+      "prompt_tokens": 557,
+      "completion_tokens": 1188,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1159,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 19002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00562816,
+      "prompt_tokens": 832,
+      "completion_tokens": 4189,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3957,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 58641
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016408,
+      "prompt_tokens": 368,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2655
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00363392,
+      "prompt_tokens": 672,
+      "completion_tokens": 2671,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2578,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 39049
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00095104,
+      "prompt_tokens": 508,
+      "completion_tokens": 616,
+      "cached_tokens": 0,
+      "reasoning_tokens": 586,
+      "call_role": "primary",
+      "sense_id": 39661,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 9099
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.06495316799999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "grounding deferred for this language — no frequency source"
+  },
+  "wall_clock_s": 731.3129999999946,
+  "finished_at": "2026-09-27T07:18:13.206177+00:00"
+}

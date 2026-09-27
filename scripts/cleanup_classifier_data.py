@@ -6,7 +6,8 @@ One-off maintenance pass that fixes two issues in the measure-word trainer
 tables that accumulated from the CC-CEDICT import:
 
   1. Traditional Han characters were imported into dim_classifiers.hanzi,
-     dim_classifier_noun_pairs.lemma_text, dim_classifier_example_sentences.*
+     dim_classifier_noun_pairs.lemma_text (dim_classifier_example_sentences was
+     archived and dropped 2026-09-21)
      when CC-CEDICT entries had no simplified counterpart in the CL: tag.
      Convert every Han string to its simplified form using OpenCC ``t2s``.
 
@@ -236,12 +237,6 @@ def _merge_classifier(db, src_id, dst_id):
         db.table('dim_classifier_noun_pairs').insert(new_row).execute()
         dst_existing.add(p['lemma_text'])
 
-    # Examples table
-    db.table('dim_classifier_example_sentences') \
-      .update({'classifier_id': dst_id}) \
-      .eq('classifier_id', src_id) \
-      .execute()
-
     db.table('dim_classifier_noun_pairs').delete().eq('classifier_id', src_id).execute()
     db.table('dim_classifiers').delete().eq('id', src_id).execute()
 
@@ -281,32 +276,6 @@ def fix_noun_pairs(db, dry_run: bool) -> int:
     return updates + deletes
 
 
-def fix_example_sentences(db, dry_run: bool) -> int:
-    """Convert sentence / blanked_sentence / noun_lemma to simplified."""
-    rows = _fetch_all(db, 'dim_classifier_example_sentences',
-                      'id, sentence, blanked_sentence, noun_lemma', LANGUAGE_ID_ZH)
-    logger.info(f"dim_classifier_example_sentences: {len(rows)} rows to inspect")
-
-    updates = 0
-    for r in rows:
-        new_sentence = to_simp(r['sentence'] or '')
-        new_blanked  = to_simp(r['blanked_sentence'] or '')
-        new_lemma    = to_simp(r['noun_lemma'] or '')
-        if new_sentence == r['sentence'] and new_blanked == r['blanked_sentence'] and new_lemma == r['noun_lemma']:
-            continue
-        patch = {}
-        if new_sentence != r['sentence']:     patch['sentence'] = new_sentence
-        if new_blanked  != r['blanked_sentence']: patch['blanked_sentence'] = new_blanked
-        if new_lemma    != r['noun_lemma']:   patch['noun_lemma'] = new_lemma
-        logger.info(f"  UPDATE example id={r['id']}: {patch}")
-        if not dry_run:
-            db.table('dim_classifier_example_sentences').update(patch).eq('id', r['id']).execute()
-        updates += 1
-
-    logger.info(f"dim_classifier_example_sentences: {updates} row updates")
-    return updates
-
-
 def main(dry_run: bool):
     db = get_supabase_admin()
     logger.info("=" * 60)
@@ -315,7 +284,6 @@ def main(dry_run: bool):
 
     fix_classifiers(db, dry_run)
     fix_noun_pairs(db, dry_run)
-    fix_example_sentences(db, dry_run)
 
     logger.info("Done.")
 

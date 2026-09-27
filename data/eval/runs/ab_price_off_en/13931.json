@@ -1,0 +1,1312 @@
+{
+  "sense_id": 13931,
+  "language_id": 2,
+  "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+  "started_at": "2026-09-27T00:09:54.936307+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Missing level_8",
+    "[B] Missing level_8"
+  ],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): slightly vague context without clear referent"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.25655317306518555,
+    "p1_generate": 3.357919454574585,
+    "tier_gate": 0.0,
+    "p1_judge": 4.540061712265015,
+    "collocate_grounding": 0.0,
+    "fan_out": 24.63452172279358
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): slightly vague context without clear referent"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "ɡriːn",
+        "morphological_forms": [
+          {
+            "form": "green",
+            "label": "base"
+          },
+          {
+            "form": "greener",
+            "label": "comparative"
+          },
+          {
+            "form": "greenest",
+            "label": "superlative"
+          },
+          {
+            "form": "greenly",
+            "label": "adverb"
+          },
+          {
+            "form": "greenness",
+            "label": "noun"
+          }
+        ],
+        "pronunciation": "green",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13931
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "fcb17420-56f1-4c58-a283-28a679b7c418",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "green",
+        "pronunciation": "green",
+        "ipa": "ɡriːn",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "grain",
+          "green",
+          "grin",
+          "greed"
+        ],
+        "correct_answer": "green",
+        "explanation": "This is the target word as it would naturally be written and pronounced /ɡriːn/.",
+        "distractor_explanations": {
+          "grin": "minimal pair: differs only in the vowel /ɪ/ vs /iː/, easily confused by ear.",
+          "grain": "rhymes closely with the target and shares the initial /ɡr/ cluster, but has a different vowel /eɪ/.",
+          "greed": "minimal pair: shares the same vowel /iː/ but ends in a different consonant sound /d/ instead of /n/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2839fcd0-d66d-4d4d-8670-7bd78a446afb",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "green",
+        "pronunciation": "green",
+        "correct_definition": "Green is a color between blue and yellow on the spectrum, often associated with nature.",
+        "options": [
+          "Having many details or parts; not simple.",
+          "A strong feeling such as love, anger, or fear.",
+          "Globalization is the process by which businesses, cultures, and economies become more interconnected and interdependent across the world.",
+          "Green is a color between blue and yellow on the spectrum, often associated with nature."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bdba6a8a-98f8-473c-863c-98ede701388d",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The animal walks in a ___ forest.",
+        "original_sentence": "The animal walks in a green forest.",
+        "correct_answer": "green",
+        "options": [
+          "salty",
+          "sleepy",
+          "square",
+          "green"
+        ],
+        "explanation": "Correct: matches the sentence describing the color of the forest the animal walks through.",
+        "distractor_tags": {},
+        "word_definition": "Green is a color between blue and yellow on the spectrum, often associated with nature.",
+        "target_word": "green"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c9bf72b7-51b6-49fd-af14-461b610c25d3",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He felt very green after winning the race.",
+            "is_correct": false
+          },
+          {
+            "text": "The music sounded green during the concert.",
+            "is_correct": false
+          },
+          {
+            "text": "She wore a bright green jacket to school yesterday.",
+            "is_correct": true
+          },
+          {
+            "text": "The soup tasted green and sweet after dinner.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Green describes color, not taste, so using it to describe a flavor is semantically inappropriate. Green as an emotion word usually implies envy or sickness, which contradicts the joy of winning, making this pragmatically odd. Green is a visual color term and cannot logically describe a sound, making this a nonsensical sensory mismatch.",
+        "target_word": "green"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "99f3c51a-d47d-4648-b7ed-0e6c64c8b9a1",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Are those apples on the tree still green and sour?"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "703c7ec1-80a2-4142-bb80-5c7540d312c7",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "green",
+        "pronunciation": "green",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A living organism that grows in earth, usually having roots, a stem, and leaves.",
+              "Lacking interest or excitement; dull.",
+              "Green is a color between blue and yellow on the spectrum, often associated with nature.",
+              "makes larger or fuller in size or volume."
+            ],
+            "correct_answer": "Green is a color between blue and yellow on the spectrum, often associated with nature."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bc0d7fcf-15ac-42af-bbf1-318306fcc10f",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Then, they are ___.",
+        "original_sentence": "Then, they are green.",
+        "target_word": "green",
+        "word": "green",
+        "answer": {
+          "accepted": [
+            "green",
+            "greener",
+            "greenest",
+            "greenly",
+            "greenness"
+          ],
+          "accepted_normalized": [
+            "green",
+            "greener",
+            "greenest",
+            "greenly",
+            "greenness"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "df0053e6-2f45-4a62-a714-8cac5c74ba15",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Are those apples on the tree still green and sour?",
+        "chunks": [
+          "Are",
+          "those apples on the tree",
+          "still green and sour"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "Are",
+          "still green and sour",
+          "those apples on the tree"
+        ],
+        "target_word": "green",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "c75e48ab-8536-4d2e-8ca0-3c9b9c87658a",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "green",
+        "sentence_with_blank": "Then, they are ___.",
+        "original_sentence": "Then, they are green.",
+        "required_pos": "adjective",
+        "options": [
+          "green",
+          "greenic",
+          "greenous",
+          "greenful"
+        ],
+        "correct_answer": "green",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the base adjective form fits the predicate slot directly"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a929412d-07bd-4a1b-bf13-cb05a9a28b7d",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "We painted our bedroom walls a soft ___ color.",
+        "original_sentence": "We painted our bedroom walls a soft green color.",
+        "correct_answer": "green",
+        "options": [
+          "green",
+          "hungry",
+          "loud",
+          "wooden"
+        ],
+        "explanation": "Correct: matches the sentence exactly, describing the color chosen for the walls.",
+        "distractor_tags": {},
+        "word_definition": "Green is a color between blue and yellow on the spectrum, often associated with nature.",
+        "target_word": "green"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "3d80b37a-3def-4cf5-90f5-ee2e4162555c",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The music sounded green during the concert.",
+            "is_correct": false
+          },
+          {
+            "text": "Look at that little frog sitting on the green leaf.",
+            "is_correct": true
+          },
+          {
+            "text": "He whispered a green secret to his best friend.",
+            "is_correct": false
+          },
+          {
+            "text": "The teacher gave him a green idea for solving the math problem.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrect: 'green' as a color cannot logically describe an abstract idea in this way. Incorrect: color words cannot describe sound; this mixes senses in a nonsensical way. Incorrect: a secret is not a physical object that can have a color, making this usage inappropriate.",
+        "target_word": "green"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "dfd7caad-7835-4437-8bbd-36967c8329b0",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "She wore a bright green jacket to school yesterday."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f1fcebed-52aa-495a-8ec1-419402b9d377",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "His new bicycle is bright ___ with black wheels.",
+        "original_sentence": "His new bicycle is bright green with black wheels.",
+        "target_word": "green",
+        "word": "green",
+        "answer": {
+          "accepted": [
+            "green",
+            "greener",
+            "greenest",
+            "greenly",
+            "greenness"
+          ],
+          "accepted_normalized": [
+            "green",
+            "greener",
+            "greenest",
+            "greenly",
+            "greenness"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "dacce051-0109-4f58-b5f2-8dd734fd0c56",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "She wore a bright green jacket to school yesterday.",
+        "chunks": [
+          "She wore",
+          "a bright green jacket",
+          "to school",
+          "yesterday"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "yesterday",
+          "She wore",
+          "a bright green jacket",
+          "to school"
+        ],
+        "target_word": "green",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "c998d1ab-add7-4768-8873-ffed387d1e48",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "green",
+        "sentence_with_blank": "His new bicycle is bright ___ with black wheels.",
+        "original_sentence": "His new bicycle is bright green with black wheels.",
+        "required_pos": "adjective",
+        "options": [
+          "green",
+          "greenous",
+          "greenment",
+          "greenify"
+        ],
+        "correct_answer": "green",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the base adjective naming the color itself, fitting the color-description slot"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13931,
+      "word_asset_id": "shadow-13931-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0019505,
+      "prompt_tokens": 1860,
+      "completion_tokens": 557,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 3188
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0008606,
+      "prompt_tokens": 627,
+      "completion_tokens": 269,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 2256
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001042,
+      "prompt_tokens": 189,
+      "completion_tokens": 19,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1084
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001899,
+      "prompt_tokens": 508,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 931
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.004238,
+      "prompt_tokens": 1214,
+      "completion_tokens": 181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 3208
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.00571,
+      "prompt_tokens": 1205,
+      "completion_tokens": 330,
+      "cached_tokens": 0,
+      "reasoning_tokens": 149,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 5553
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.003344,
+      "prompt_tokens": 927,
+      "completion_tokens": 149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 135,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 5641
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.003634,
+      "prompt_tokens": 927,
+      "completion_tokens": 178,
+      "cached_tokens": 0,
+      "reasoning_tokens": 164,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 6124
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006454,
+      "prompt_tokens": 1537,
+      "completion_tokens": 338,
+      "cached_tokens": 0,
+      "reasoning_tokens": 240,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 6256
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006542,
+      "prompt_tokens": 1536,
+      "completion_tokens": 347,
+      "cached_tokens": 0,
+      "reasoning_tokens": 241,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 7050
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.010786,
+      "prompt_tokens": 1103,
+      "completion_tokens": 858,
+      "cached_tokens": 0,
+      "reasoning_tokens": 658,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 12453
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.02209,
+      "prompt_tokens": 2160,
+      "completion_tokens": 1777,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1116,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 19360
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.02394,
+      "prompt_tokens": 2160,
+      "completion_tokens": 1962,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1330,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 21994
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.016574,
+      "prompt_tokens": 1112,
+      "completion_tokens": 1435,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1229,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 18274
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000323,
+      "prompt_tokens": 410,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 2021
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003136,
+      "prompt_tokens": 362,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1492
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003493,
+      "prompt_tokens": 456,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 2230
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family__json_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004438,
+      "prompt_tokens": 621,
+      "completion_tokens": 103,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "json_repair",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1134
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003455,
+      "prompt_tokens": 410,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1586
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002967,
+      "prompt_tokens": 364,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1280
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003356,
+      "prompt_tokens": 452,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1301
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004172,
+      "prompt_tokens": 499,
+      "completion_tokens": 107,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13931,
+      "generation_batch_id": "dbd34b71-02b5-487d-8592-50527a1a42d2",
+      "language_code": "en",
+      "latency_ms": 1904
+    }
+  ],
+  "llm_calls_observed": 22,
+  "llm_cost_observed_usd": 0.10924189999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 49.312000000005355,
+  "finished_at": "2026-09-27T00:10:44.253181+00:00"
+}

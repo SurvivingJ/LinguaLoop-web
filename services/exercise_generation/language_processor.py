@@ -542,17 +542,31 @@ def prepare_jumbled_content(content: dict, language_id: int) -> dict:
     'chunks' (multi-word phrase groups via the language-specific
     chunk_sentence) and 'correct_ordering' added. Falls back to word-level
     tokenisation only if chunk_sentence cannot produce ≥3 chunks.
+
+    Rows from the deterministic builder (services/vocabulary_ladder/
+    deterministic/jumbled.py) arrive already chunked, in answer order, but
+    without 'correct_ordering' — those are completed without re-chunking.
+    Every other stored key is preserved.
     """
-    sentence = content['original_sentence']
-    processor = LanguageProcessor.for_language(language_id)
-    try:
-        chunks = processor.chunk_sentence(sentence)
-    except (ValueError, Exception):
-        chunks = processor.tokenize(sentence)
-        if len(chunks) < 2:
-            chunks = [sentence]
+    chunks = content.get('chunks')
+    if not (isinstance(chunks, list) and chunks):
+        sentence = content['original_sentence']
+        processor = LanguageProcessor.for_language(language_id)
+        try:
+            chunks = processor.chunk_sentence(sentence)
+        except (ValueError, Exception):
+            chunks = processor.tokenize(sentence)
+            if len(chunks) < 2:
+                chunks = [sentence]
     return {
-        'original_sentence': sentence,
+        **content,
         'chunks': chunks,
         'correct_ordering': list(range(len(chunks))),
     }
+
+
+def needs_jumbled_prep(content) -> bool:
+    """Whether stored jumbled content is missing what the renderer needs."""
+    return isinstance(content, dict) and not (
+        content.get('chunks') and content.get('correct_ordering')
+    )

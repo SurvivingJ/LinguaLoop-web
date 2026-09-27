@@ -21,7 +21,7 @@ breaking_change_risk: low
 test creation
    │
    ▼
-services/test_service.py::save_test()
+TestGenerationOrchestrator._generate_test()  (services/test_generation/orchestrator.py)
    ├── (Chinese) process_pinyin_passage     → tests.pinyin_payload
    ├── (Japanese) process_pitch_passage     → tests.pitch_payload
    └── (Japanese) process_furigana_payload  → tests.furigana_payload    [NEW]

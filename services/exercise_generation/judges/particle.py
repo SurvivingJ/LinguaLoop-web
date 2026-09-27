@@ -153,7 +153,12 @@ def _judge_candidates(
             prompt,
             model=model,
             temperature=0.0,
-            max_tokens=3000,
+            # TASK-812: was 3000. TASK-808's baseline (ja-only, low volume:
+            # n=6) shows this judge's own completion_tokens max at 2857 --
+            # within 5% of the old cap, a real truncation risk for a slightly
+            # larger candidate set. 9000 (>=3x the observed p99/max) removes
+            # that risk; re-derive from a larger ja sample once one exists.
+            max_tokens=9000,
             # Provider-enforced JSON: a prose answer fails open and keeps every
             # candidate, which is the expensive failure for a uniqueness judge.
             response_format='json_object',

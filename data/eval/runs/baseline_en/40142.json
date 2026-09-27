@@ -1,0 +1,1140 @@
+{
+  "sense_id": 40142,
+  "language_id": 2,
+  "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+  "started_at": "2026-09-26T03:39:23.759014+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.11276030540466309,
+    "p1_generate": 3.004899024963379,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3351032733917236,
+    "collocate_grounding": 0.0,
+    "fan_out": 27.60816740989685
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɡreɪt wɔːl ɒv ˈtʃaɪnə/",
+        "morphological_forms": [
+          {
+            "form": "Great Wall of China",
+            "label": "singular"
+          }
+        ],
+        "pronunciation": "grayt wawl ov chy-nuh",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            40142
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0dd24d9a-afa1-4182-b65a-862141de8fdb",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Great Wall of China",
+        "pronunciation": "grayt wawl ov chy-nuh",
+        "ipa": "/ɡreɪt wɔːl ɒv ˈtʃaɪnə/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "Great Wall of Chinatown",
+          "Grey Wall of China",
+          "Great Wall of China",
+          "Great Hall of China"
+        ],
+        "correct_answer": "Great Wall of China",
+        "explanation": "This is the correct written form matching the spoken phrase.",
+        "distractor_explanations": {
+          "Great Hall of China": "minimal pair: 'Hall' vs 'Wall' differ only in the initial consonant /h/ vs /w/.",
+          "Grey Wall of China": "near-homophone: 'Grey' vs 'Great' sound similar when the final /t/ is dropped in fast speech.",
+          "Great Wall of Chinatown": "near-homophone: 'Chinatown' shares the initial sound of 'China' but adds an extra syllable that could be misheard."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e5c78c95-7816-4540-a621-9eca784a0993",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Great Wall of China",
+        "pronunciation": "grayt wawl ov chy-nuh",
+        "correct_definition": "A big wall built a long time ago in China to keep people safe.",
+        "options": [
+          "Having a clear and organized arrangement or plan.",
+          "An amount of money spent on something.",
+          "A big wall built a long time ago in China to keep people safe.",
+          "Erosion is the process by which natural forces like wind, water, or ice gradually remove soil and rock from one place and deposit it elsewhere."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7649e6b1-8d11-4992-aa6f-4ffbbc6f4255",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Many tourists visit the ___ every single year to see its incredible length.",
+        "original_sentence": "Many tourists visit the Great Wall of China every single year to see its incredible length.",
+        "correct_answer": "Great Wall of China",
+        "options": [
+          "Eiffel Tower",
+          "shopping mall",
+          "Statue of Liberty",
+          "Great Wall of China"
+        ],
+        "explanation": "Correct: this is the exact phrase used in the sentence and fits the context of tourists visiting a long structure.",
+        "distractor_tags": {},
+        "word_definition": "A big wall built a long time ago in China to keep people safe.",
+        "target_word": "Great Wall of China"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "121c0300-7db9-4448-a2ba-3893e5e5edba",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The Great Wall of China whispered softly to the sleepy toddler.",
+            "is_correct": false
+          },
+          {
+            "text": "People often wonder if astronauts can actually spot the Great Wall of China from outer space.",
+            "is_correct": true
+          },
+          {
+            "text": "She microwaved the Great Wall of China for two minutes before dinner.",
+            "is_correct": false
+          },
+          {
+            "text": "He folded the Great Wall of China neatly into his backpack before school.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically impossible: the Great Wall is an enormous outdoor structure, not something that fits in a microwave. Pragmatically impossible: the Great Wall is an inanimate structure and cannot speak or whisper. Pragmatically impossible: the Great Wall is far too large to be folded or carried in a backpack.",
+        "target_word": "Great Wall of China"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ce60efa1-0393-4fe0-8609-cac716006434",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Many tourists visit the Great Wall of China every single year to see its incredible length.",
+            "is_correct": true
+          },
+          {
+            "text": "Historians have studied how ancient builders constructed the Great Wall of China across mountains.",
+            "is_correct": true
+          },
+          {
+            "text": "Many tourists visit Great Wall of China every single year to see its incredible length.",
+            "is_correct": false,
+            "error_description": "The definite article 'the' is missing before the proper noun 'Great Wall of China'; this landmark name requires 'the' in English."
+          },
+          {
+            "text": "Walking along the Great Wall of China was an amazing experience for my older brother.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a678b7f0-02a7-4090-9492-47802888a2af",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "The famous Great Wall of China snakes across hills and deserts for thousands of miles."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f094894b-97a4-48cb-be39-eec555d21a9c",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Great Wall of China",
+        "pronunciation": "grayt wawl ov chy-nuh",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A big wall built a long time ago in China to keep people safe.",
+              "The distance from one end to the other.",
+              "To cause something to move quickly through the air by using your hand.",
+              "A type of story or film that is based on imagined future scientific discoveries or technology."
+            ],
+            "correct_answer": "A big wall built a long time ago in China to keep people safe."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "130588d9-716a-425a-b986-9b9a05c96fd3",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Historians have studied how ancient builders constructed the ___ across mountains.",
+        "original_sentence": "Historians have studied how ancient builders constructed the Great Wall of China across mountains.",
+        "target_word": "Great Wall of China",
+        "word": "Great Wall of China",
+        "answer": {
+          "accepted": [
+            "Great Wall of China"
+          ],
+          "accepted_normalized": [
+            "great wall of china"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9d8d74b8-4868-49a9-aedd-55d802347503",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The famous Great Wall of China snakes across hills and deserts for thousands of miles.",
+        "chunks": [
+          "The famous Great Wall of China",
+          "snakes",
+          "across hills and deserts",
+          "for thousands of miles"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "for thousands of miles",
+          "across hills and deserts",
+          "snakes",
+          "The famous Great Wall of China"
+        ],
+        "target_word": "Great Wall of China",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ea348852-0321-4e38-a618-857039232679",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "My parents took numerous pictures when they explored the ___ last summer.",
+        "original_sentence": "My parents took numerous pictures when they explored the Great Wall of China last summer.",
+        "correct_answer": "Great Wall of China",
+        "options": [
+          "Statue of Liberty",
+          "Great Depression",
+          "Great Wall of China",
+          "Eiffel Tower"
+        ],
+        "explanation": "Correct: this matches the exact phrase used in the original sentence.",
+        "distractor_tags": {},
+        "word_definition": "A big wall built a long time ago in China to keep people safe.",
+        "target_word": "Great Wall of China"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "dd3bcb3e-e3df-40a0-a2d4-40ca33b4e898",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Yesterday, the Great Wall of China was invented by a young scientist in a laboratory.",
+            "is_correct": false
+          },
+          {
+            "text": "Preserving the crumbling sections of the Great Wall of China requires a lot of careful work.",
+            "is_correct": true
+          },
+          {
+            "text": "The Great Wall of China fits perfectly into my pocket.",
+            "is_correct": false
+          },
+          {
+            "text": "She ate the Great Wall of China for breakfast this morning.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Semantically impossible: a massive stone structure cannot be eaten as food. Pragmatically absurd: the wall is thousands of miles long and could never fit in a pocket. Semantically wrong: the wall is an ancient historical construction, not a recent lab invention.",
+        "target_word": "Great Wall of China"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d803fd88-f8fa-414d-b5cc-8b18038a267e",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "My parents took numerous pictures when they explored a Great Wall of China last summer.",
+            "is_correct": false,
+            "error_description": "The indefinite article 'a' is incorrectly used before 'Great Wall of China,' which is a unique, specific proper noun and must take the definite article 'the.'"
+          },
+          {
+            "text": "Guard towers were built strategically along the Great Wall of China to watch for approaching enemies.",
+            "is_correct": true
+          },
+          {
+            "text": "Preserving the crumbling sections of the Great Wall of China requires a lot of careful work.",
+            "is_correct": true
+          },
+          {
+            "text": "My parents took numerous pictures when they explored the Great Wall of China last summer.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8a28976e-356d-4ec5-8392-8ecd691a83a5",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "People often wonder if astronauts can actually spot the Great Wall of China from outer space."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "dc044723-f4ed-4676-95e1-0ef9dcfbc3b0",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Guard towers were built strategically along the ___ to watch for approaching enemies.",
+        "original_sentence": "Guard towers were built strategically along the Great Wall of China to watch for approaching enemies.",
+        "target_word": "Great Wall of China",
+        "word": "Great Wall of China",
+        "answer": {
+          "accepted": [
+            "Great Wall of China"
+          ],
+          "accepted_normalized": [
+            "great wall of china"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ac4c5f96-b620-4ac8-a8e9-6eed35d9ef5d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "People often wonder if astronauts can actually spot the Great Wall of China from outer space.",
+        "chunks": [
+          "People",
+          "often",
+          "wonder",
+          "if astronauts can actually spot the Great Wall of China from outer space"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "often",
+          "wonder",
+          "if astronauts can actually spot the Great Wall of China from outer space",
+          "People"
+        ],
+        "target_word": "Great Wall of China",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40142,
+      "word_asset_id": "shadow-40142-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023772,
+      "prompt_tokens": 1799,
+      "completion_tokens": 735,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 2819
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000642,
+      "prompt_tokens": 690,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1214
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006104,
+      "prompt_tokens": 1692,
+      "completion_tokens": 272,
+      "cached_tokens": 0,
+      "reasoning_tokens": 142,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 5161
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.00737,
+      "prompt_tokens": 1690,
+      "completion_tokens": 399,
+      "cached_tokens": 0,
+      "reasoning_tokens": 257,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 6112
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.025296,
+      "prompt_tokens": 2338,
+      "completion_tokens": 2062,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1298,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 20680
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.031466,
+      "prompt_tokens": 2338,
+      "completion_tokens": 2679,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1990,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 27445
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003966,
+      "prompt_tokens": 422,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 2008
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003075,
+      "prompt_tokens": 375,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 2210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004226,
+      "prompt_tokens": 467,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1165
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001805,
+      "prompt_tokens": 385,
+      "completion_tokens": 26,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 889
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004191,
+      "prompt_tokens": 422,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1138
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003272,
+      "prompt_tokens": 374,
+      "completion_tokens": 86,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1110
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003655,
+      "prompt_tokens": 460,
+      "completion_tokens": 91,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1903
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000197,
+      "prompt_tokens": 390,
+      "completion_tokens": 32,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40142,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 864
+    }
+  ],
+  "llm_calls_observed": 14,
+  "llm_cost_observed_usd": 0.0758712,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 44.73399999999674,
+  "finished_at": "2026-09-26T03:40:08.494633+00:00"
+}

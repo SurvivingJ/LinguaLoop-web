@@ -1,0 +1,460 @@
+{
+  "sense_id": 14020,
+  "language_id": 2,
+  "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+  "started_at": "2026-09-26T03:48:15.027283+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "[A] Missing level_7",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "[B] Missing level_7"
+  ],
+  "warnings": [
+    "P1 sentence[2] flagged (rating 3): register: too technical/scientific for neutral register",
+    "P1 sentence[3] flagged (rating 3): register: overly formal and scientific for neutral register"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3906667232513428,
+    "p1_generate": 3.0811400413513184,
+    "tier_gate": 0.0010004043579101562,
+    "p1_judge": 4.635564565658569,
+    "collocate_grounding": 0.0,
+    "fan_out": 8.11448884010315
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] flagged (rating 3): register: too technical/scientific for neutral register",
+        "P1 sentence[3] flagged (rating 3): register: overly formal and scientific for neutral register"
+      ]
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/əˈroʊmə/",
+        "morphological_forms": [
+          {
+            "form": "aroma",
+            "label": "singular"
+          },
+          {
+            "form": "aromas",
+            "label": "plural"
+          },
+          {
+            "form": "aromas",
+            "label": "genitive"
+          }
+        ],
+        "pronunciation": "uh-ROH-muh",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14020
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "438d2a97-06f6-400e-9381-a6bc82bef4bb",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "aromas",
+        "pronunciation": "uh-ROH-muh",
+        "correct_definition": "A pleasant, distinctive smell, often of food or drink.",
+        "options": [
+          "Of considerable or relatively great size, extent, or capacity.",
+          "A pleasant, distinctive smell, often of food or drink.",
+          "A continent is one of the seven large landmasses on Earth, such as Europe, Asia, or Africa.",
+          "The careful use and protection of natural resources like water, forests, and animals."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5fe72114-31b9-4bb3-b0f8-80ee222048ff",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "The rich aromas of brewing tea filled the quiet room while they studied."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a445a5c4-3e80-4893-a3e5-2a6d98d81a9d",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "aromas",
+        "pronunciation": "uh-ROH-muh",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "The soul is the part of a person that thinks and feels, not the body.",
+              "To cause something, especially a problem or danger; also, to sit or stand in a particular position for a picture.",
+              "A loud mix of many sounds that is not nice to hear.",
+              "A pleasant, distinctive smell, often of food or drink."
+            ],
+            "correct_answer": "A pleasant, distinctive smell, often of food or drink."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4d2919f1-01f7-4020-866d-2c54c8481002",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "His small shop, nestled at the cobblestone corner of the main square, quickly fills with the comforting, toasted ___s of rising dough.",
+        "original_sentence": "His small shop, nestled at the cobblestone corner of the main square, quickly fills with the comforting, toasted aromas of rising dough.",
+        "target_word": "aroma",
+        "word": "aromas",
+        "answer": {
+          "accepted": [
+            "aroma"
+          ],
+          "accepted_normalized": [
+            "aroma"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "899634eb-30d9-4442-8c27-6acf30c92ba7",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The rich aromas of brewing tea filled the quiet room while they studied.",
+        "chunks": [
+          "The rich aromas of brewing tea",
+          "filled",
+          "the quiet room",
+          "while they studied"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "the quiet room",
+          "The rich aromas of brewing tea",
+          "filled",
+          "while they studied"
+        ],
+        "target_word": "aroma",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0025208,
+      "prompt_tokens": 1936,
+      "completion_tokens": 776,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 2910
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0010329,
+      "prompt_tokens": 718,
+      "completion_tokens": 327,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1449
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007453,
+      "prompt_tokens": 551,
+      "completion_tokens": 232,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1415
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0008179,
+      "prompt_tokens": 693,
+      "completion_tokens": 244,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1484
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006166,
+      "prompt_tokens": 1193,
+      "completion_tokens": 378,
+      "cached_tokens": 0,
+      "reasoning_tokens": 187,
+      "call_role": "retry",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 6996
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006504,
+      "prompt_tokens": 1212,
+      "completion_tokens": 408,
+      "cached_tokens": 0,
+      "reasoning_tokens": 207,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 7989
+    }
+  ],
+  "llm_calls_observed": 6,
+  "llm_cost_observed_usd": 0.017786899999999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 16.60899999999674,
+  "finished_at": "2026-09-26T03:48:31.629252+00:00"
+}

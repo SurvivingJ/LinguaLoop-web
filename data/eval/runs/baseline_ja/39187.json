@@ -1,0 +1,1392 @@
+{
+  "sense_id": 39187,
+  "language_id": 3,
+  "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+  "started_at": "2026-09-26T04:21:06.511966+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] particle_selection generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "[B] Level 1: expected 4-8 options, got 1",
+    "[B] particle_selection generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.6321980953216553,
+    "p1_generate": 91.49897027015686,
+    "tier_gate": 20.006599187850952,
+    "p1_judge": 100.55995798110962,
+    "collocate_grounding": 0.0,
+    "fan_out": 238.99349641799927
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/mizukara/",
+        "morphological_forms": [
+          {
+            "form": "自らも",
+            "label": "派生"
+          },
+          {
+            "form": "自らが",
+            "label": "派生"
+          },
+          {
+            "form": "自らの",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "みずから",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            39187
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "c7256aa3-f692-4d19-8de1-25511f655711",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "自ら",
+        "pronunciation": "みずから",
+        "correct_definition": "自分自身を指す言葉。",
+        "options": [
+          "物事を考えるときの、特定の立場や視点。",
+          "バロックとは、1600年から1750年頃のヨーロッパで栄えた芸術様式の一つです。音楽では、教会旋法から長調・短調の調性音楽へと移行し、バッハやヘンデルのような作曲家が活躍しました。特徴として、装飾音の多用、対位法の重視、通奏低音の使用などが挙げられます。",
+          "競争や試合などで、他の人やチームよりも優れた結果を出すこと。",
+          "自分自身を指す言葉。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "098b4a44-0a6a-41a8-a6ac-d6a51fe2b0a7",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "しかし、農薬を使わずに野菜を育てるという仕事を通じて、彼は自然の厳しさと、土が命を育むという壮大な仕組みを、___の肌で実感していくことになります。",
+        "original_sentence": "しかし、農薬を使わずに野菜を育てるという仕事を通じて、彼は自然の厳しさと、土が命を育むという壮大な仕組みを、自らの肌で実感していくことになります。",
+        "correct_answer": "自ら",
+        "options": [
+          "自動的に",
+          "自ら",
+          "他人",
+          "受動的に"
+        ],
+        "explanation": "文脈に合っており、自分自身で体験するという意味で適切です。",
+        "distractor_tags": {},
+        "word_definition": "自分自身を指す言葉。",
+        "target_word": "自ら"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "517a1a27-67a1-46c2-865a-1ba6022d2f90",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼は自然の厳しさと、土が命を育むという壮大な仕組みを、自らに肌で実感していくことになります。",
+            "is_correct": false,
+            "error_description": "「自ら」が名詞を修飾する場合は助詞「の」を用いて「自らの肌」とするのが正しい用法です。「に」は誤りです。"
+          },
+          {
+            "text": "自らの手で丁寧に掃除をしています。",
+            "is_correct": true
+          },
+          {
+            "text": "しかし、農薬を使わずに野菜を育てるという仕事を通じて、彼は自然の厳しさと、土が命を育むという壮大な仕組みを、自らの肌で実感していくことになります。",
+            "is_correct": true
+          },
+          {
+            "text": "変化に適応し、自らの価値を高め続ける姿勢が、これからの職場では強く求められる。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "3e840790-d5fc-416e-b3b2-03bc69a3405f",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "自らの頭で考えて行動できる人です。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "8bffdbe5-8ec9-4b68-823d-4a8cb7e9aabe",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "自ら",
+        "pronunciation": "みずから",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "しろ。しろい いろ。",
+              "废弃 —— 把不再需要的东西丢弃处理掉",
+              "自分自身を指す言葉。",
+              "a part (component)"
+            ],
+            "correct_answer": "自分自身を指す言葉。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "49d29bc8-649f-4dee-b446-bfacd050afde",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "変化に適応し、___の価値を高め続ける姿勢が、これからの職場では強く求められる。",
+        "original_sentence": "変化に適応し、自らの価値を高め続ける姿勢が、これからの職場では強く求められる。",
+        "target_word": "自ら",
+        "word": "自ら",
+        "answer": {
+          "accepted": [
+            "自ら",
+            "自らも",
+            "自らが",
+            "自らの"
+          ],
+          "accepted_normalized": [
+            "自ら",
+            "自らも",
+            "自らが",
+            "自らの"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1c3e745f-4b9f-451e-b1be-cd2be6173997",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "自らの頭で考えて行動できる人です。",
+        "chunks": [
+          "自らの",
+          "頭で",
+          "考えて",
+          "行動できる人です"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "行動できる人です",
+          "頭で",
+          "自らの",
+          "考えて"
+        ],
+        "target_word": "自ら",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "103ddfa2-7baf-4010-b1b9-03b4d88fc81c",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "自ら",
+        "options": [
+          "みいずから",
+          "みずから",
+          "みすから",
+          "みずがら"
+        ],
+        "correct_answer": "みずから",
+        "word": "自ら",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f3771c44-06f3-4dd5-8451-6943edc66411",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "みずから",
+        "options": [
+          "購買",
+          "自分",
+          "見る",
+          "自ら"
+        ],
+        "correct_answer": "自ら",
+        "word": "自ら",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "購買": "component",
+          "自分": "component",
+          "見る": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9990edfa-6262-495e-b7d3-42a0d4151457",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "自ら",
+        "pronunciation": "みずから",
+        "ipa": "/mizukara/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "水換え",
+          "自ら",
+          "水替え",
+          "ミズカビ"
+        ],
+        "correct_answer": "自ら",
+        "explanation": "正解です。「自ら」は「自分自身を指す言葉。」という意味です。",
+        "distractor_explanations": {
+          "ミズカビ": "「ミズカビ」は「自ら」と一モーラだけ異なる実在語です（4モーラ目: 「ら」→「び」、一部の音の違い）。",
+          "水替え": "「水替え」は「自ら」と一モーラだけ異なる実在語です（4モーラ目: 「ら」→「え」、一部の音の違い）。",
+          "水換え": "「水換え」は「自ら」と一モーラだけ異なる実在語です（4モーラ目: 「ら」→「え」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 6,
+          "kept": 4,
+          "rejected_items": [
+            "ミズニラ",
+            "水占",
+            "水腹",
+            "瑞風",
+            "みず垣",
+            "見るから"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "651d9b97-345b-45d4-828e-df116f7ff04c",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "高めている彼女は自らを。",
+            "is_correct": false
+          },
+          {
+            "text": "自らを信じています。",
+            "is_correct": true
+          },
+          {
+            "text": "彼女は自らを高まっている。",
+            "is_correct": false
+          },
+          {
+            "text": "彼女は自らが高めている。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：他動詞「高める」の対象は「を」で示す。「が」は誤り。 活用：他動詞は「高める」であり、自動詞「高まる」との混同は誤り。 語順：述語を文頭に置き、係り受けが崩れている。",
+        "target_word": "自ら"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2c108cff-eba2-4c31-b94c-031e53f02822",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "自らの手で花を育てています。",
+            "is_correct": true
+          },
+          {
+            "text": "自らを信じています。",
+            "is_correct": true
+          },
+          {
+            "text": "自ら意思で毎日勉強しています。",
+            "is_correct": false,
+            "error_description": "「自ら」が名詞を修飾する場合は、「自らの」と助詞「の」を伴うのが正しい用法です。"
+          },
+          {
+            "text": "自らの意思で毎日勉強しています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b405073c-c7e5-4e50-9895-b45639867c1a",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "自らの意見を堂々と言えます。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a8163a85-a636-49c6-b1cb-656659402a5d",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___の意思で毎日勉強しています。",
+        "original_sentence": "自らの意思で毎日勉強しています。",
+        "target_word": "自ら",
+        "word": "自ら",
+        "answer": {
+          "accepted": [
+            "自ら",
+            "自らも",
+            "自らが",
+            "自らの"
+          ],
+          "accepted_normalized": [
+            "自ら",
+            "自らも",
+            "自らが",
+            "自らの"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7c5833b6-21f0-4108-91a2-a440aee37522",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "自らの意見を堂々と言えます。",
+        "chunks": [
+          "自らの",
+          "意見を",
+          "堂々と",
+          "言えます"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "堂々と",
+          "意見を",
+          "言えます",
+          "自らの"
+        ],
+        "target_word": "自ら",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "04018baf-7d6a-4f43-a31e-d8a28055afb7",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "自ら",
+        "relation": "antonym",
+        "options": [
+          "他人",
+          "自分",
+          "彼",
+          "我々"
+        ],
+        "correct_answer": "他人",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "自分自身を指す言葉。",
+            "explanation": "自分以外の人を指し、「自ら」の対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "自分": 0.853162
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 39187,
+      "word_asset_id": "shadow-39187-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 6,
+      "kept": 4
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0100912,
+      "prompt_tokens": 2635,
+      "completion_tokens": 7225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6432,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 91129
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016944,
+      "prompt_tokens": 199,
+      "completion_tokens": 1274,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1255,
+      "call_role": "repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 19749
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00285152,
+      "prompt_tokens": 743,
+      "completion_tokens": 2042,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1848,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 26007
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00520032,
+      "prompt_tokens": 279,
+      "completion_tokens": 3993,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3908,
+      "call_role": "repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 53568
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0022704,
+      "prompt_tokens": 651,
+      "completion_tokens": 1611,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1480,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 20425
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00468416,
+      "prompt_tokens": 2678,
+      "completion_tokens": 2990,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2376,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 25446
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00370592,
+      "prompt_tokens": 1661,
+      "completion_tokens": 2480,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2378,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 36117
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00406304,
+      "prompt_tokens": 1657,
+      "completion_tokens": 2760,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2612,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 40224
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.01006272,
+      "prompt_tokens": 2678,
+      "completion_tokens": 7192,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6748,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 51225
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019664,
+      "prompt_tokens": 777,
+      "completion_tokens": 1342,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1144,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 21620
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0052864,
+      "prompt_tokens": 864,
+      "completion_tokens": 3914,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3599,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 49090
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017924,
+      "prompt_tokens": 409,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 12563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00498848,
+      "prompt_tokens": 633,
+      "completion_tokens": 3739,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3662,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 52626
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00326624,
+      "prompt_tokens": 535,
+      "completion_tokens": 2418,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2388,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 34550
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00372352,
+      "prompt_tokens": 864,
+      "completion_tokens": 2693,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2370,
+      "call_role": "json_repair",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 36077
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016104,
+      "prompt_tokens": 364,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 4373
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00558624,
+      "prompt_tokens": 589,
+      "completion_tokens": 4217,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4145,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 71119
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00087424,
+      "prompt_tokens": 508,
+      "completion_tokens": 556,
+      "cached_tokens": 0,
+      "reasoning_tokens": 528,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 8929
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00558592,
+      "prompt_tokens": 616,
+      "completion_tokens": 4210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4138,
+      "call_role": "primary",
+      "sense_id": 39187,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 56092
+    }
+  ],
+  "llm_calls_observed": 25,
+  "llm_cost_observed_usd": 0.0762414,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 1,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 895.6870000000054,
+  "finished_at": "2026-09-26T04:36:02.196053+00:00"
+}

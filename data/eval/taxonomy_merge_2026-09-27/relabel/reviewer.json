@@ -1,0 +1,82 @@
+[
+  {
+    "item_id": "zh_seed_11",
+    "decision": "keep",
+    "v6_type": "de_particle",
+    "severity": "minor",
+    "rationale": "画的很细致 for 画得很细致: 的 in the degree-complement slot. The v6 de_particle definition exempts only 的-for-地; 的-for-得 before a complement is still a wrong structural particle. taxonomy.md marks it contested (casual online) but explicitly 'wrong in 规范 text', and the DT reference is edited 规范 text. Meaning fully recoverable -> minor.",
+    "cited_rule": "merged_taxonomy.json zh.de_particle definition (only 的-for-地 exempt); taxonomy.md §1.2 zh.de_particle 'Not an error' (的-for-得 contested, wrong in 规范 text). C11 governs jev benchmark authoring, not DT gold."
+  },
+  {
+    "item_id": "zh_multi_02",
+    "decision": "keep",
+    "v6_type": "de_particle",
+    "severity": "minor",
+    "rationale": "Same 画的/画得 error as zh_seed_11; same reasoning. The other errors in this multi item are outside this relabel pass.",
+    "cited_rule": "merged_taxonomy.json zh.de_particle definition; taxonomy.md §1.2 zh.de_particle 'Not an error' list."
+  },
+  {
+    "item_id": "zh_silver_20",
+    "decision": "variant_ok",
+    "v6_type": null,
+    "severity": null,
+    "rationale": "被小心的取出 for 被小心地取出: 的 in place of 地 before a verb. This is the exact form v6 declares not an error (common in informal Mainland writing and Taiwan usage).",
+    "cited_rule": "taxonomy.md §1.2 zh.de_particle 'Not an error': '的 in place of 地 before a verb (认真的讨论)... Never use it as a positive'; merged_taxonomy.json zh.de_particle definition ('的-for-地 substitution ... is NOT an error'); v5_to_merged.csv row zh,de_particles."
+  },
+  {
+    "item_id": "zh_silver_29",
+    "decision": "keep",
+    "v6_type": "de_particle",
+    "severity": "minor",
+    "rationale": "我地朋友们 for 我的朋友们: 地 used in the attributive (possessive) 的 slot. Not in any 'Not an error' list (the exemption is 的-for-地, not the reverse) and wrong in standard Mandarin. It is a structural-particle swap, the family de_particle owns (taxonomy §0.1 names de_particle as a deliberate character-swap type). Caveat: the v6 definition text says 'before a complement or adverbial', which does not literally cover an attributive locus; orthography is the fallback if the definition is read strictly. Recommend widening the definition to 'wrong 的/得/地 choice'.",
+    "cited_rule": "taxonomy.md §0.1 (de_particle is a named swap type); §1.2 zh.de_particle 'Not an error' list (does not exempt 地-for-的); merged_taxonomy.json zh.de_particle definition (locus wording gap)."
+  },
+  {
+    "item_id": "ja_seed_01",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "rationale": "必要な部品はセットになったもの: 部品 is the subject INSIDE the relative clause modifying もの, so structural rule 2 requires が (or の). は there is ungrammatical and makes 部品 read as topic of 見つかります, garbling the clause. This is not a main-clause topic/focus choice, so it survives the v6 narrowing. v6 default severity major.",
+    "cited_rule": "merged_taxonomy.json ja.wa_ga definition ('the subject inside a relative clause'); taxonomy.md §2 ja.wa_ga moderate example (私は作ったケーキ)."
+  },
+  {
+    "item_id": "ja_multi_01",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "rationale": "Identical 部品はセットになったもの relative-clause error to ja_seed_01.",
+    "cited_rule": "merged_taxonomy.json ja.wa_ga definition (relative-clause subject)."
+  },
+  {
+    "item_id": "ja_multi_05",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "rationale": "私たちは作るものは: 私たち is the subject of the relative clause 作る modifying もの; は is structurally barred and the double は breaks the parse. Textbook instance of rule 2 (matches the moderate example 私は作ったケーキ almost exactly).",
+    "cited_rule": "merged_taxonomy.json ja.wa_ga definition; taxonomy.md §2 ja.wa_ga moderate example."
+  },
+  {
+    "item_id": "en_seed_10",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "minor",
+    "rationale": "'move it' for 'move them' (antecedent 'small things'). Not a case error, reflexive, which-for-person or resumptive pronoun, so v6 pronoun does not cover it. The sentence is grammatical standalone ('it' = the arm), so this is a fidelity/lexical substitution that shifts the referent, not a grammar error. Closest v6 home is word_choice (fidelity). Referent shift is local and recoverable -> minor.",
+    "cited_rule": "merged_taxonomy.json en.pronoun definition (narrow binding scope) + en.word_choice definition; v5_to_merged.csv row en,pronoun_reference ('ambiguous-antecedent errors ... have no home and need per-instance review')."
+  },
+  {
+    "item_id": "en_multi_03",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "minor",
+    "rationale": "Same 'it' for 'them' substitution as en_seed_10.",
+    "cited_rule": "merged_taxonomy.json en.pronoun + en.word_choice definitions; v5_to_merged.csv en,pronoun_reference."
+  },
+  {
+    "item_id": "en_silver_13",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "minor",
+    "rationale": "'move him' for 'move them': animacy/number mismatch with the antecedent (things/arm). None of the four v6 pronoun sub-rules (case, local reflexive, which-for-person, resumptive) applies; 'him' is correct object case. Falls to word_choice as a wrong lexical substitution. More jarring than 'it' but meaning recoverable -> minor. Flag: v6 has no pronoun-antecedent agreement type; if that gap is closed, this and the two 'it' items belong there.",
+    "cited_rule": "merged_taxonomy.json en.pronoun definition (narrow) + en.word_choice definition; v5_to_merged.csv en,pronoun_reference."
+  }
+]

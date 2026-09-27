@@ -1,0 +1,17 @@
+{
+  "id": "en_silver_24",
+  "blind_analysis": {
+    "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+    "reproduction": "The coding is important. The Arduino writes instructions for you. You can make the arm pick up small things. You can move them to a new spot.",
+    "differences": [
+      {
+        "learner_form": "The Arduino writes instructions for you.",
+        "corrected_form": "You write instructions for the Arduino.",
+        "description": "Subject and object of 'write instructions' are swapped (agent/recipient reversal): reference has the learner writing instructions for the Arduino; reproduction has the Arduino writing instructions for the learner. This inverts who performs the action.",
+        "v5_subtype": "word_choice",
+        "severity": "critical"
+      }
+    ]
+  },
+  "rationale": "Only one difference exists between reference and reproduction (sentence 2). It is not a surface morphology/agreement/particle issue but a full agent-swap that inverts the meaning of the sentence (who instructs whom), matching the README's critical criterion ('meaning lost/inverted/misleading'). Of the v5 EN subtypes available (no dedicated meaning-inversion subtype exists in v5), 'word_choice' (fidelity dimension) is the closest fit for a whole-meaning substitution, over 'word_order' (pure syntactic reordering) or 'pronoun_reference' (anaphora resolution, not applicable here since 'you'/'the Arduino' are not co-referential pronouns)."
+}

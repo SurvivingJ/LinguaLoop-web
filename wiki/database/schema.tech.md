@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-05-13
+last_updated: 2026-09-24
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -42,6 +42,28 @@ The schema lives in Supabase PostgreSQL with Row-Level Security (RLS) policies o
 **Triggers:** 11 across 8 tables
 **RLS coverage:** 36 enabled / 28 disabled (see [[database/schema]] for the audit snapshot)
 **Application RPCs:** ~77 plpgsql/sql functions (plus ~199 extension functions from pgvector, pg_trgm, intarray)
+
+### Archive of 2026-09-21
+
+28 tables across six groups were exported with their code and docs and were
+dropped by [migrations/archive_unused_modules_2026_09_21.sql](../../migrations/archive_unused_modules_2026_09_21.sql)
+(**applied 2026-09-22**; database 1,144 MB → 1,098 MB):
+
+| Group | Tables | Archive (local, gitignored) |
+|---|---|---|
+| Unused (stage 1) | flagged_content, question_type_distributions, vocabulary_review_queue, dim_classifier_example_sentences, dim_study_goals, organizations, organization_members | `archive/db_backups/stage1-unused-tables-2026-09-21.zip` |
+| Language packs | collocation_packs, pack_collocations, pack_key_words, pack_style_items, style_pack_items, user_pack_selections | `archive/modules/language-packs-2026-09-21.zip` |
+| Listening Lab | listening_lab_passages, listening_lab_sessions | `archive/modules/listening-lab-2026-09-21.zip` |
+| Grammar patterns | dim_grammar_patterns | `archive/modules/grammar-patterns-2026-09-21.zip` |
+| Conversations | conversation_domains, personas, persona_pairs, scenarios, conversations, conversation_generation_queue (+ 7,352 exercises rows) | `archive/modules/conversations-2026-09-21.zip` |
+| Mysteries | mysteries, mystery_scenes, mystery_questions, mystery_attempts, mystery_progress, mystery_skill_ratings | `archive/modules/mysteries-2026-09-21.zip` |
+
+The same migration drops `exercises.{grammar_pattern_id, conversation_id, style_pack_item_id}`,
+rebuilds `chk_source_fk`, drops the FKs (not the columns) `user_study_plans.goal_id` and
+`tests/users.organization_id`, deletes the 45 conversation/mystery `prompt_templates` rows, and
+truncates `llm_calls` after moving 43,605 rows to `archive/db_backups/llm-calls-log-2026-09-21.zip`.
+**Kept:** the corpus tables (the vocabulary ladder reads `corpus_collocations`) and
+`user_exercise_sessions` (daily practice-session cache, not attempt data).
 
 ## Extensions
 
@@ -268,33 +290,55 @@ stored at **two definition levels** (`simple` + `standard`) sharing one
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
 | `id` | integer | NO | GENERATED ALWAYS AS IDENTITY | PK |
-| `vocab_id` | integer | NO | | FK -> dim_vocabulary |
-| `definition_language_id` | smallint | NO | | FK -> dim_languages |
-| `definition` | text | NO | | Target-language definition for this level |
+| `vocab_id` | integer | NO | | FK -> dim_vocabulary (ON DELETE CASCADE) |
+| `word_language_id` | smallint | NO | | Language of the *word* (denormalised from `dim_vocabulary.language_id` by trigger `set_sense_word_language()`); differs from `definition_language_id` on cross-language gloss rows |
+| `definition_language_id` | smallint | NO | | FK -> dim_languages. Language the definition is written in |
+| `definition` | text | NO | | Definition for this level, in `definition_language_id` |
 | `definition_level` | text | NO | 'standard' | CHECK: simple/standard. `simple` = child (T1/T2) register; `standard` = normal |
 | `pronunciation` | text | YES | | Filled deterministically (pypinyin/fugashi), not by the LLM |
-| `ipa_pronunciation` | text | YES | | |
+| `ipa_pronunciation` | text | YES | | ~150 rows populated |
 | `example_sentence` | text | YES | | LLM-generated example (differs from the source sentence) |
-| `usage_notes` | text | YES | | |
 | `sense_rank` | integer | NO | 1 | Ordering within vocab_id; shared by both levels of a sense |
-| `usage_frequency` | text | YES | 'common' | CHECK: common/uncommon/rare/archaic |
-| `semantic_category` | text | YES | | |
-| `morphological_forms` | jsonb | YES | | |
+| `morphological_forms` | jsonb | YES | | ~150 rows populated |
+| `register` | text | YES | | ~150 rows populated (migrations/dim_word_senses_register.sql) |
 | `is_validated` | boolean | YES | false | True when `gen_confidence` >= 0.7 and language check passes |
 | `gen_confidence` | real | YES | | Self-rated 0..1 from single-call generation (replaces the old validation call) |
-| `source` | text | NO | 'llm' | CHECK: llm/manual. `manual` (admin-curated) is never overwritten by backfill |
+| `source` | text | NO | 'llm' | CHECK: llm/manual/llm_gloss. `manual` (admin-curated) is never overwritten by backfill; `llm_gloss` = cross-language gloss |
 | `source_ref` | text | YES | | Provenance, e.g. `"deepseek/deepseek-v4-flash v2"` |
-| `validated_by` | uuid | YES | | FK -> users |
 | `validation_notes` | text | YES | | |
+| `embedding` | halfvec(768) | YES | | text-embedding-3-small of `"{lemma}: {definition}"` (TASK-521), truncated to 768 dims + L2-normalised (≡ API `dimensions=768`), stored fp16. Was vector(1536) until 2026-09-22. Writers must pass vectors through `scripts/backfill_sense_embeddings.py::sense_vector` — see *Storage* below |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
+**Dropped 2026-09-21** (migrations/dim_word_senses_drop_dead_columns.sql): `usage_notes`,
+`semantic_category`, `validated_by` (FK -> users) — NULL in every row — and `usage_frequency`
+(only ever its `'common'` default; CHECK common/uncommon/rare/archaic). None had a reader or
+writer in code, functions, views, policies or triggers. Do not reintroduce them; historical
+DDL in `create_all_tables.sql` and `archive/` still shows them.
+
 - **Primary Key:** `dim_word_senses_pkey (id)`
 - **Unique:** `uq_sense_def_level (vocab_id, definition_language_id, definition_level, sense_rank)` — replaced `uq_sense_definition` (migrations/add_sense_levels_and_source.sql, 2026-05-31)
-- **Indexes:** `idx_senses_lang (definition_language_id)`, `idx_senses_rank (vocab_id, sense_rank)`, `idx_senses_vocab (vocab_id)`, `idx_senses_source (source)`
-- **Foreign Keys:** `vocab_id` -> `dim_vocabulary.id`, `definition_language_id` -> `dim_languages.id`, `validated_by` -> `users.id`
-- **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`
+- **Indexes (btree):** `idx_senses_rank (vocab_id, sense_rank)` — also serves plain `vocab_id` lookups and the FK cascade; `idx_senses_lang (definition_language_id)`; `idx_senses_source (source)`; `idx_dim_word_senses_wl_dl_level (word_language_id, definition_language_id, definition_level)`; `idx_dim_word_senses_pronunciation_lookup (word_language_id, definition_level) WHERE pronunciation IS NOT NULL`. `idx_senses_vocab (vocab_id)` was dropped 2026-09-21 as redundant (0.55 vs 0.56 ms on a 150-id lookup).
+- **Indexes (HNSW):** none since 2026-09-22 — the seven partial `idx_dws_emb_w{W}_d{D}` indexes (~456 MB) were dropped; `semantic_distractors()` scans one language pair exactly (~16 ms warm on en/en, 10.8k rows).
+- **Foreign Keys:** `vocab_id` -> `dim_vocabulary.id` (CASCADE), `definition_language_id` -> `dim_languages.id`
+- **Triggers:** BEFORE UPDATE -> `update_updated_at_column()` (`update_sense_timestamp`); BEFORE INSERT OR UPDATE OF vocab_id -> `set_sense_word_language()` (`trg_dim_word_senses_word_language`)
 - **RLS:** Enabled
+
+#### Storage
+
+**Before (2026-09-21):** 960 MB of a 1,144 MB database — ~466 MB TOAST (55,002 float32 1536-d
+vectors) and ~456 MB across seven partial HNSW indexes; non-embedding data only ~12 MB.
+
+**After (2026-09-22, `migrations/shrink_sense_embeddings_halfvec768.sql`):** 113 MB; whole
+database **252 MB**. Vectors are halfvec(768) (≈1.5 KB each) and there is no ANN index.
+
+Measured trade-offs of the truncation (1536-d → 768-d, live data): cosine correlation 0.980;
+top-10 neighbour overlap 92%, top-100 90%; cosines shift up by +0.010–0.019 near the band floor
+(per pair) and ~+0.007–0.009 near the top. `dim_distractor_bands.cos_min` was shifted per pair by
+the measured amount and `cos_max` by +0.01 (0.75 → 0.76); `sense_neighbours.BAND_MIN` 0.35 → 0.365;
+`BAND_MAX` 0.88 unchanged (shift within noise). `calibration_distractor_cache` was cleared and
+rebuilt on the new vectors. Growth: ~2 MB per 1,000 new senses. If a language pair grows past
+~100k senses, an HNSW index on halfvec(768) costs ~2 KB/row. Undo = re-embed at 1536-d (~$0.03).
 
 #### Two-level sense generation
 
@@ -310,8 +354,9 @@ Senses are produced by a **single LLM call per word** ([services/vocabulary/sens
 
 ---
 
-### `dim_grammar_patterns`
+### `dim_grammar_patterns` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/grammar-patterns-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Grammar pattern definitions for exercise generation.
 
 | Column | Type | Nullable | Default | Notes |
@@ -382,7 +427,7 @@ Public mirror of `auth.users`. Auto-created by trigger on auth signup.
 - **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`, `native_language_id` -> `dim_languages.id`
 - **Triggers:** AFTER INSERT -> `create_user_dependencies()`, BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled (Phase 6). Policies: users read own profile, users update own profile, service_role full access, admin read all users.
-- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, dim_word_senses (validated_by), vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
+- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
 
 ---
 
@@ -566,6 +611,14 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 | `pinyin_payload` | jsonb | YES | | Tokenised pinyin data for Chinese tests (tone trainer) |
 | `pitch_payload` | jsonb | YES | | Tokenised pitch-accent data for Japanese tests (pitch trainer) |
 | `audio_generated` | boolean | YES | false | |
+| `target_age_tier` | smallint | YES | | 1–6 = `dim_complexity_tiers.id`. **The jev-assigned tier of the finished passage** ([[decisions/ADR-029-jev-tier-assignment]]), not the topic's target tier |
+| `seeded_elo` | integer | YES | | Lexical-complexity ELO seed from `difficulty_scorer` (NULL on older tests) |
+| `age_tier_score` | real | YES | | jev's raw 0 (T1) – 5 (T6) score. `target_age_tier` is derived from it by the language's cut points |
+| `age_tier_confidence` | real | YES | | jev confidence for the score answer |
+| `age_tier_probabilities` | jsonb | YES | | `{"T1": p, …, "T6": p}` |
+| `age_tier_model` | text | YES | | Dated jev snapshot that served the answer |
+| `age_tier_calibration` | text | YES | | Which score→tier table: `default`, `ja-2026-09-27`, `zh-2026-09-27` |
+| `age_tier_assessed_at` | timestamptz | YES | | |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
@@ -577,6 +630,13 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 - **RLS:** Enabled
 - **Referenced by:** test_attempts, questions, test_skill_ratings, token_transactions, user_reports
 
+
+**Tier backup tables** (service role only: RLS on, no policies). Restore statements are in `migrations/task819_jev_tier_assignment.sql` and `task821_tier_calibration.sql`.
+
+- `tests_tier_backup_20260926` (`test_id` PK, `target_age_tier`, `difficulty`, `seeded_elo`, `is_active`, `backed_up_at`) — every test before the jev re-tier (307 rows).
+- `tests_tier_backup_20260927_v1` (`test_id` PK, `target_age_tier`, `difficulty`, `age_tier_calibration`, `backed_up_at`) — active tests after the first jev pass, before the per-language calibration.
+
+See [[features/test-tier-assignment.tech]].
 ---
 
 ### `questions`
@@ -694,8 +754,9 @@ Records each user test completion with ELO snapshots.
 
 ---
 
-### `question_type_distributions`
+### `question_type_distributions` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Defines which question types to generate for each difficulty level (1-9).
 
 | Column | Type | Nullable | Default | Notes |
@@ -860,8 +921,9 @@ Tables for the persona-driven conversation generation pipeline.
 
 ---
 
-### `conversation_domains`
+### `conversation_domains` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Conversation topic domains linked to content categories.
 
 | Column | Type | Nullable | Default | Notes |
@@ -885,8 +947,9 @@ Conversation topic domains linked to content categories.
 
 ---
 
-### `personas`
+### `personas` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Character profiles for conversation generation.
 
 | Column | Type | Nullable | Default | Notes |
@@ -916,8 +979,9 @@ Character profiles for conversation generation.
 
 ---
 
-### `persona_pairs`
+### `persona_pairs` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Pre-computed compatible pairs of personas for conversations.
 
 | Column | Type | Nullable | Default | Notes |
@@ -940,8 +1004,9 @@ Pre-computed compatible pairs of personas for conversations.
 
 ---
 
-### `scenarios`
+### `scenarios` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Conversation scenario templates with context and constraints.
 
 | Column | Type | Nullable | Default | Notes |
@@ -971,8 +1036,9 @@ Conversation scenario templates with context and constraints.
 
 ---
 
-### `conversations`
+### `conversations` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Generated conversations (multi-turn dialogue) between persona pairs.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1000,8 +1066,9 @@ Generated conversations (multi-turn dialogue) between persona pairs.
 
 ---
 
-### `conversation_generation_queue`
+### `conversation_generation_queue` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Queue for scheduling conversation generation jobs.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1039,11 +1106,11 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 | `language_id` | integer | NO | | FK -> dim_languages |
 | `exercise_type` | text | NO | | Free-text exercise type identifier |
 | `source_type` | exercise_source_type | NO | | ENUM: grammar/vocabulary/collocation/conversation/style |
-| `grammar_pattern_id` | integer | YES | | FK -> dim_grammar_patterns (when source_type='grammar') |
+| ~~`grammar_pattern_id`~~ | integer | YES | | **Dropping 2026-09-21** (grammar source archived; 0 non-null) |
 | `word_sense_id` | integer | YES | | FK -> dim_word_senses (when source_type='vocabulary') |
 | `corpus_collocation_id` | integer | YES | | (when source_type='collocation') |
-| `conversation_id` | uuid | YES | | FK -> conversations (when source_type='conversation') |
-| `style_pack_item_id` | bigint | YES | | FK -> style_pack_items (when source_type='style') |
+| ~~`conversation_id`~~ | uuid | YES | | **Dropping 2026-09-21** with the 7,352 conversation exercises (never servable: no word_sense_id) |
+| ~~`style_pack_item_id`~~ | bigint | YES | | **Dropping 2026-09-21** (packs archived; 0 non-null) |
 | `word_asset_id` | bigint | YES | | FK -> word_assets |
 | `content` | jsonb | NO | | Exercise content (questions, answers, etc.) |
 | `tags` | jsonb | NO | '{}' | |
@@ -1065,7 +1132,7 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 - **Primary Key:** `exercises_pkey (id)`
 - **Indexes:** `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_content_gin GIN (content)`, `idx_exercises_conversation (conversation_id WHERE NOT NULL)`, `idx_exercises_grammar (grammar_pattern_id WHERE NOT NULL)`, `idx_exercises_irt_calibrated (irt_calibrated_at WHERE NOT NULL)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `idx_exercises_language (language_id)`, `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_source (source_type)`, `idx_exercises_style_item (style_pack_item_id WHERE NOT NULL)`, `idx_exercises_tags_gin GIN (tags)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_type (exercise_type)`
 - **Foreign Keys:** `language_id` -> `dim_languages.id`, `grammar_pattern_id` -> `dim_grammar_patterns.id`, `word_sense_id` -> `dim_word_senses.id`, `word_asset_id` -> `word_assets.id`, `conversation_id` -> `conversations.id`, `style_pack_item_id` -> `style_pack_items.id`
-- **Constraints:** `chk_source_fk` — at least one of `grammar_pattern_id`, `word_sense_id`, `corpus_collocation_id`, `conversation_id`, `style_pack_item_id` must be non-null
+- **Constraints:** `chk_source_fk` — at least one of `grammar_pattern_id`, `word_sense_id`, `corpus_collocation_id`, `conversation_id`, `style_pack_item_id` must be non-null. **After the 2026-09-21 archive migration:** rebuilt as at least one of `word_sense_id`, `corpus_collocation_id`.
 - **RLS:** Disabled
 - **Referenced by:** exercise_attempts
 
@@ -1266,8 +1333,9 @@ Individual word quiz results within a test attempt.
 
 ---
 
-### `vocabulary_review_queue`
+### `vocabulary_review_queue` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Admin review queue for vocabulary items flagged during generation or validation.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1359,8 +1427,9 @@ Extracted collocations with statistical association measures.
 
 ---
 
-### `collocation_packs`
+### `collocation_packs` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Themed packs of collocations for study.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1384,8 +1453,9 @@ Themed packs of collocations for study.
 
 ---
 
-### `pack_collocations`
+### `pack_collocations` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Junction table: collocation pack <-> collocation.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1402,8 +1472,9 @@ Junction table: collocation pack <-> collocation.
 
 ---
 
-### `user_pack_selections`
+### `user_pack_selections` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Tracks which collocation packs a user has selected. Rebuilt in Phase 2: user_id fixed from text to uuid, composite PK, proper FKs, RLS enabled.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1447,8 +1518,9 @@ Writing-style profile for a corpus source. One row per source, containing extrac
 
 ---
 
-### `style_pack_items`
+### `style_pack_items` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Individual learnable items extracted from a style profile. Each row represents one characteristic feature (n-gram, sentence pattern, syntactic feature, discourse marker) that can be turned into exercises.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1472,8 +1544,9 @@ Individual learnable items extracted from a style profile. Each row represents o
 
 ---
 
-### `pack_style_items`
+### `pack_style_items` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Junction table: collocation pack <-> style item. Links style items into packs (pack_type='style').
 
 | Column | Type | Nullable | Default | Notes |
@@ -1495,8 +1568,9 @@ Multi-scene narrative mysteries with comprehension questions and ELO matching.
 
 ---
 
-### `mysteries`
+### `mysteries` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Master mystery records (multi-scene listening/reading puzzles).
 
 | Column | Type | Nullable | Default | Notes |
@@ -1529,8 +1603,9 @@ Master mystery records (multi-scene listening/reading puzzles).
 
 ---
 
-### `mystery_scenes`
+### `mystery_scenes` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Individual scenes within a mystery (1-5 per mystery).
 
 | Column | Type | Nullable | Default | Notes |
@@ -1556,8 +1631,9 @@ Individual scenes within a mystery (1-5 per mystery).
 
 ---
 
-### `mystery_questions`
+### `mystery_questions` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Questions attached to mystery scenes.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1580,8 +1656,9 @@ Questions attached to mystery scenes.
 
 ---
 
-### `mystery_progress`
+### `mystery_progress` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 User progress through a mystery (save state).
 
 | Column | Type | Nullable | Default | Notes |
@@ -1605,8 +1682,9 @@ User progress through a mystery (save state).
 
 ---
 
-### `mystery_skill_ratings`
+### `mystery_skill_ratings` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Per-mystery ELO ratings (analogous to test_skill_ratings).
 
 | Column | Type | Nullable | Default | Notes |
@@ -1626,8 +1704,9 @@ Per-mystery ELO ratings (analogous to test_skill_ratings).
 
 ---
 
-### `mystery_attempts`
+### `mystery_attempts` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Records each user mystery completion with ELO snapshots.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1662,8 +1741,9 @@ Multi-tenant organization support for schools/businesses.
 
 ---
 
-### `organizations`
+### `organizations` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Organization records with subscription tiers and token pools.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1687,8 +1767,9 @@ Organization records with subscription tiers and token pools.
 
 ---
 
-### `organization_members`
+### `organization_members` — ARCHIVED & DROPPED 2026-09-22
 
+> Exported to `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 Junction table: organization <-> user with role.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1818,8 +1899,63 @@ User-submitted bug reports and feedback.
 
 ---
 
-### `flagged_content`
+### `llm_calls`
 
+Observability log for every LLM round-trip made through `services/llm_service.py`'s
+`call_llm()` (OpenRouter, Ollama, and the headless Claude Code CLI transport). One
+row per API call, written centrally by `_log_llm_call()` — no call site inserts
+directly, so no pipeline can skip logging by omission. Truncated 2026-09-21
+(43,605 rows moved to `archive/db_backups/llm-calls-log-2026-09-21.zip` by
+`migrations/archive_unused_modules_2026_09_21.sql`); the table has carried only
+smoke-test volume since. `cost_usd`/`latency_ms`/`language_code` are already
+populated on every `call_llm()` invocation regardless of pipeline; the seven
+columns marked **pending migration apply** below are Phase 0 cost-instrumentation
+additions ([migrations/llm_calls_cost_instrumentation.sql](../../migrations/llm_calls_cost_instrumentation.sql),
+not yet applied) aimed specifically at making vocabulary-ladder generation cost
+attributable per sense and per call kind.
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | uuid | NO | gen_random_uuid() | PK |
+| `pipeline` | text | YES | | e.g. `vocab_ladder`, `test_gen`, `diagnostics` |
+| `task_name` | text | YES | | Should match `prompt_templates.task_name`; judges log under `judge_<name>`, not their own prompt's task_name (see [[algorithms/... llm-calls-task-name-namespace]] note) |
+| `template_version` | integer | YES | | `prompt_templates.version` when applicable |
+| `model` | text | YES | | The model actually served by the response (`response.model`) when the provider echoes it, else the requested slug. Claude CLI calls log `claude-cli:<model>` |
+| `temperature` | real | YES | | |
+| `seed` | integer | YES | | |
+| `prompt_hash` | bytea | YES | | sha256 of `system_prompt + '\n' + prompt`, hex-encoded on insert |
+| `raw_response` | text | YES | | Full response text/JSON |
+| `parsed_ok` | boolean | YES | | |
+| `schema_ok` | boolean | YES | | NULL when no Pydantic schema was supplied |
+| `judge_verdict` | text | YES | | Set by a *second* row judges write via `log_judge_verdict()`, not by the raw-call row itself |
+| `judge_confidence` | real | YES | | |
+| `latency_ms` | integer | YES | | Wall-clock time of the API round-trip |
+| `cost_usd` | numeric | YES | | `usage.cost` from OpenRouter (requires `extra_body={'usage':{'include': True}}`, only sent to OpenRouter clients). NULL — never fabricated — when the provider reports nothing (Ollama, Claude CLI, or a provider that omits usage accounting) |
+| `artifact_id` | uuid | YES | | Optional trace-back UUID (exercise_id, test_id, etc.); NOT the same axis as `sense_id` below |
+| `created_at` | timestamptz | YES | now() | |
+| `language_code` | text | YES | | Study-language tag (`zh`\|`en`\|`ja`); observability only, does not affect model resolution |
+| `prompt_tokens` | integer | YES | | **Pending migration apply.** `usage.prompt_tokens` |
+| `completion_tokens` | integer | YES | | **Pending migration apply.** `usage.completion_tokens` |
+| `cached_tokens` | integer | YES | | **Pending migration apply.** `usage.prompt_tokens_details.cached_tokens` — portion of the prompt served from a provider-side cache |
+| `reasoning_tokens` | integer | YES | | **Pending migration apply.** `usage.completion_tokens_details.reasoning_tokens`; NULL for non-reasoning models |
+| `sense_id` | integer | YES | | **Pending migration apply.** `dim_word_senses.id` this call generated/judged for. No FK (observability tag, not a referential relationship — a sense delete must not be blocked by call history). Threaded via a contextvar (`services.llm_service.generation_context`) set once per sense in `VocabAssetPipeline._generate_for_sense_impl`, so nested generator/judge calls — including those fanned out across `BatchModeThreadPoolExecutor` worker threads — populate it without each call site passing it explicitly |
+| `call_role` | text | YES | | **Pending migration apply.** CHECK-constrained to `primary`\|`retry`\|`json_repair`\|`repair`\|`salvage`. Defaults to `primary` when a caller doesn't specify one (see `services.llm_service.CALL_ROLE_*` constants) |
+| `generation_batch_id` | uuid | YES | | **Pending migration apply.** Matches `word_assets.generation_batch_id`. Same contextvar-fallback mechanism as `sense_id`. No FK |
+
+- **Primary Key:** `llm_calls_pkey (id)`
+- **Indexes (pre-migration):** none observed live
+- **Indexes (pending migration apply):** `idx_llm_calls_sense_id (sense_id)`, `idx_llm_calls_created_at (created_at)`
+- **Check constraints (pending migration apply):** `llm_calls_call_role_check` — `call_role IS NULL OR call_role IN ('primary','retry','json_repair','repair','salvage')`
+- **RLS:** Disabled. `anon`, `authenticated`, `service_role`, and `postgres` all hold INSERT/SELECT/UPDATE/DELETE grants — the pending migration's new columns need no additional grants
+- **Writer:** `services/llm_service.py::_log_llm_call()` is the sole writer for the raw-call row; `services/exercise_generation/judges/base.py::log_judge_verdict()` writes a second, narrower row (`pipeline`, `task_name`, `model`, `judge_verdict`, `judge_confidence` only) for the classified verdict, so a judge's raw call and its verdict are two rows, not one
+- **Degrade path:** `_log_llm_call()` inserts the new columns unconditionally; if the migration hasn't been applied yet in a given environment, `_insert_llm_call_row()` catches the resulting "unknown column" error, logs one WARNING per process, and retries the insert with just the pre-migration columns — so deploying this code ahead of the migration never drops a row, it just logs a thinner one until the migration lands
+- **Readers:** `scripts/run_generation_batch.py::spend_since()` (budget ceiling — sums `cost_usd` since a timestamp, no `pipeline`/`language_code` filter, see the ADR-pending note on the shared-across-languages ceiling caveat in [[decisions/]] if one is filed) and `_judge_verdicts_since()` (per-task accept/flag/reject counts for the chunk report)
+
+---
+
+### `flagged_content` — ARCHIVED & DROPPED 2026-09-22
+
+> Exported to `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
 AI-generated content flagged by safety checks.
 
 | Column | Type | Nullable | Default | Notes |

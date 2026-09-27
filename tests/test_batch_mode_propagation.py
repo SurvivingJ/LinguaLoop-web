@@ -204,6 +204,64 @@ def test_generate_batch_reraises_judge_unavailable():
     assert seen == [1]
 
 
+# ---------------------------------------------------------------------------
+# Contextvars (Phase 0 cost instrumentation) — same boundary, different flag
+# ---------------------------------------------------------------------------
+#
+# services.llm_service.generation_context binds sense_id/generation_batch_id
+# via contextvars so every call_llm() nested under
+# VocabAssetPipeline._generate_for_sense_impl logs them without every
+# generator file threading two extra parameters through. Contextvars, unlike
+# the thread-local batch_mode flag, propagate down a normal call stack for
+# free — but NOT into a plain ThreadPoolExecutor worker, for the same reason
+# batch_mode doesn't. BatchModeThreadPoolExecutor.submit was extended to also
+# capture contextvars.copy_context() at submit time, generically (it knows
+# nothing about llm_service's specific vars) — these tests pin that.
+
+def test_plain_executor_loses_contextvars():
+    """The bug this fix addresses, pinned for contextvars specifically."""
+    import services.llm_service as svc
+
+    with svc.generation_context(sense_id=42, generation_batch_id='batch-1'):
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            seen_sense_id = pool.submit(svc._ctx_sense_id.get).result()
+    assert seen_sense_id is None
+
+
+def test_batch_mode_executor_carries_contextvars():
+    import services.llm_service as svc
+
+    with svc.generation_context(sense_id=42, generation_batch_id='batch-1'):
+        with BatchModeThreadPoolExecutor(max_workers=2) as pool:
+            sense_id = pool.submit(svc._ctx_sense_id.get).result()
+            batch_id = pool.submit(svc._ctx_generation_batch_id.get).result()
+    assert sense_id == 42
+    assert batch_id == 'batch-1'
+
+
+def test_contextvars_do_not_leak_back_to_the_submitting_thread():
+    import services.llm_service as svc
+
+    with BatchModeThreadPoolExecutor(max_workers=2) as pool:
+        with svc.generation_context(sense_id=7):
+            pool.submit(lambda: None).result()
+        assert svc._ctx_sense_id.get() is None  # scope closed on this thread
+
+
+def test_contextvars_and_batch_mode_both_cross_the_same_submit():
+    """Both flags travel together through one submit — no interference."""
+    import services.llm_service as svc
+
+    with batch_mode(), svc.generation_context(sense_id=99):
+        with BatchModeThreadPoolExecutor(max_workers=2) as pool:
+            def _probe():
+                return is_batch_mode(), svc._ctx_sense_id.get()
+
+            batch_flag, sense_id = pool.submit(_probe).result()
+    assert batch_flag is True
+    assert sense_id == 99
+
+
 def test_generate_batch_still_absorbs_ordinary_failures():
     """Only judge outages abort. A bad sense is still just a failed sense."""
     from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline

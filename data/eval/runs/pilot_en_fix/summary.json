@@ -1,0 +1,256 @@
+{
+  "batch_id": "42ddcfe6-9424-4dba-858b-1287b0bf06a4",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "partial": 2
+  },
+  "run_wall_clock_s": 138.56200000000536,
+  "per_sense_wall_clock_s": {
+    "14010": 75.06299999999464,
+    "14024": 63.34399999999732
+  },
+  "assets_per_sense": {
+    "14010": 7,
+    "14024": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "14010": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "synonym_antonym_match": 1,
+        "word_family": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 4,
+        "4": 3,
+        "6": 2
+      }
+    },
+    "14024": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 1,
+        "9": 4,
+        "4": 4
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "cloze": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "word_family": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 9
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "cost_usd_total_observed": 0.28024540000000003,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 42,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.142322,
+      "avg_cost_usd": 0.0355805
+    },
+    {
+      "task_name": "ladder_word_family_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 3,
+      "total_cost_usd": 0.040438,
+      "avg_cost_usd": 0.013479333333333334
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.040336,
+      "avg_cost_usd": 0.010084
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 3,
+      "total_cost_usd": 0.025131999999999998,
+      "avg_cost_usd": 0.008377333333333332
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "anthropic/claude-sonnet-5",
+      "calls": 4,
+      "total_cost_usd": 0.01863,
+      "avg_cost_usd": 0.0046575
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.0044948,
+      "avg_cost_usd": 0.0022474
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 3,
+      "total_cost_usd": 0.0019194,
+      "avg_cost_usd": 0.0006397999999999999
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0015258999999999997,
+      "avg_cost_usd": 0.00038147499999999993
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0014344,
+      "avg_cost_usd": 0.0003586
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0013836,
+      "avg_cost_usd": 0.0003459
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 3,
+      "total_cost_usd": 0.0013258,
+      "avg_cost_usd": 0.00044193333333333336
+    },
+    {
+      "task_name": "judge_ladder_word_family",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 3,
+      "total_cost_usd": 0.00118,
+      "avg_cost_usd": 0.00039333333333333337
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0001235,
+      "avg_cost_usd": 0.0001235
+    }
+  ],
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14652
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14664
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '42ddcfe6-9424-4dba-858b-1287b0bf06a4'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n"
+}

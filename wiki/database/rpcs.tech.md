@@ -3,7 +3,7 @@ title: "RPC & Functions — Technical Specification"
 type: api-tech
 status: complete
 prose_page: ../database/rpcs.md
-last_updated: 2026-05-15
+last_updated: 2026-09-22
 dependencies:
   - "All tables in schema.tech.md"
   - "migrations/phase8_momentum_bands.sql — vocabulary ladder RPCs"
@@ -135,6 +135,9 @@ $function$
 
 ### `is_org_member(p_user_id uuid, p_org_id uuid): boolean`
 
+> **ARCHIVED 2026-09-21.** Never called; dropped with organizations. Code and DDL are in `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
+
 - **Security:** DEFINER
 - **Language:** SQL (STABLE)
 - **Description:** Checks whether a user belongs to a specific organization by querying `organization_members`.
@@ -156,6 +159,9 @@ $function$
 ---
 
 ### `get_org_role(p_user_id uuid, p_org_id uuid): text`
+
+> **ARCHIVED 2026-09-21.** Never called; dropped with organizations. Code and DDL are in `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
 
 - **Security:** DEFINER
 - **Language:** SQL (STABLE)
@@ -1603,6 +1609,9 @@ $function$
 
 ## Mystery System
 
+> **ARCHIVED 2026-09-21.** Both RPCs are dropped by the migration. Code and DDL are in `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
+
 ---
 
 ### `get_recommended_mysteries(p_user_id uuid, p_language_id integer): SETOF jsonb`
@@ -1961,6 +1970,9 @@ $function$
 ---
 
 ### `get_packs_with_user_selection(p_language_id integer, p_user_id uuid): TABLE(...)`
+
+> **ARCHIVED 2026-09-21.** Dropped with the language-packs archive. Code and DDL are in `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
 
 - **Security:** INVOKER
 - **Language:** SQL (STABLE)
@@ -2616,6 +2628,26 @@ Source: [migrations/add_irt_calibration_metadata.sql](../../migrations/add_irt_c
 
 ---
 
+## Tier Assignment (ADR-029)
+
+### `apply_jev_retier(p_rows jsonb): integer`
+
+- **Purpose:** atomically apply a jev re-tier to active tests.
+- **Arguments:** `p_rows` — array of `{id, new_tier, score, confidence, probabilities, model,
+  calibration}` (`calibration` defaults to `'default'`).
+- **Returns:** number of rows updated.
+- **Behaviour:** sets `target_age_tier`, `age_tier_score/confidence/probabilities/model/
+  calibration/assessed_at`; sets `difficulty` to `dim_complexity_tiers.difficulty_min` of the new
+  tier **only where the tier changed**. Touches active tests only; never ELO.
+- **Errors:** raises (rolling back the whole call) unless exactly `jsonb_array_length(p_rows)`
+  rows update.
+- **Auth:** `service_role` only (EXECUTE revoked from PUBLIC, anon, authenticated).
+- **Callers:** `scripts/retier_tests_with_jev.py --apply`, `scripts/rederive_tiers.py --apply`.
+- **Migrations:** `task820_apply_jev_retier.sql`, replaced by `task821_tier_calibration.sql`
+  (adds the calibration label). See [[features/test-tier-assignment.tech]].
+
+---
+
 ## Security Summary
 
 The following table lists all 48 application functions and their security model:
@@ -2701,3 +2733,4 @@ These functions execute with the **privileges of the function owner** (typically
 | `process_mystery_submission` | Multi-table transactional write |
 | `process_stripe_payment` | Financial transaction with row locking |
 | `process_test_submission` | Multi-table transactional write |
+| `apply_jev_retier` | Bulk tier update; service-role only, all-or-nothing |

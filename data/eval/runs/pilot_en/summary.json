@@ -1,0 +1,101 @@
+{
+  "batch_id": "2fd77f8e-952e-4707-abbd-19677158754a",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "partial": 2
+  },
+  "run_wall_clock_s": 105.43799999999464,
+  "per_sense_wall_clock_s": {
+    "14010": 49.625,
+    "14024": 55.25
+  },
+  "assets_per_sense": {
+    "14010": 7,
+    "14024": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 0,
+      "invalid": 2,
+      "invalid_rate": 1.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "14010": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14024": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    }
+  },
+  "judge_reject_counts": {},
+  "cost_usd_total_observed": 0,
+  "stopped_due_to_cost_cap": false,
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14652
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14664
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '2fd77f8e-952e-4707-abbd-19677158754a'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n"
+}

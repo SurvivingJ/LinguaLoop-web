@@ -203,7 +203,7 @@ Main entry point. Pipeline:
 
 #### Failure mode
 
-If pyopenjtalk raises (e.g., for a malformed input) the service logs a warning and returns `[]`. The caller in [test_service.py:save_test](../../services/test_service.py) wraps the call in its own try/except so a payload-generation failure does not block the test save (mirrors pinyin's graceful-degradation pattern).
+If pyopenjtalk raises (e.g., for a malformed input) the service logs a warning and returns `[]`. The caller in `TestGenerationOrchestrator._generate_test` ([orchestrator.py](../../services/test_generation/orchestrator.py); the old `TestService.save_test` was removed 2026-09-26) wraps the call in its own try/except so a payload-generation failure does not block the test save (mirrors pinyin's graceful-degradation pattern).
 
 ## Component Specification (UI)
 

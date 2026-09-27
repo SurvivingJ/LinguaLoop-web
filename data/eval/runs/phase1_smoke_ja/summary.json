@@ -1,0 +1,61 @@
+{
+  "batch_id": "32ba9473-8643-4786-b695-6f41a221ba37",
+  "requested_senses": 5,
+  "attempted_senses": 5,
+  "status_counts": {
+    "skipped": 5
+  },
+  "run_wall_clock_s": 1.1570000000065193,
+  "per_sense_wall_clock_s": {
+    "34998": 0.2960000000020955,
+    "34999": 0.14100000000325963,
+    "35001": 0.125,
+    "35009": 0.14100000000325963,
+    "35011": 0.125
+  },
+  "assets_per_sense": {
+    "34998": 0,
+    "34999": 0,
+    "35001": 0,
+    "35009": 0,
+    "35011": 0
+  },
+  "invalid_asset_rate_by_type": {},
+  "exercises_per_sense": {
+    "34998": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "34999": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "35001": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "35009": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "35011": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    }
+  },
+  "judge_reject_counts": {},
+  "cost_usd_total_observed": 0,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 0,
+  "llm_calls_cost_breakdown": [],
+  "unattributed_writes_count": 0,
+  "unattributed_writes_sample": [],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '32ba9473-8643-4786-b695-6f41a221ba37'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "senses_from": "data/eval/runs/baseline_ja"
+}

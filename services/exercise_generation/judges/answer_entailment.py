@@ -46,6 +46,24 @@ without the two-axis redesign TASK-719 owes the distractor judge.
 ``base.classify``; until it converts, judge_confidence is consistent per
 task_name but not globally.
 
+Backends (ENTAILMENT_JUDGE_BACKEND)
+-----------------------------------
+``llm``     the Likert judge above, unchanged. The rollback:
+            ``ENTAILMENT_JUDGE_BACKEND=llm``.
+``jev``     (default since 2026-09-27, TASK-835) ``typesafe/jev-1.13`` answers one yes/no question and returns
+            P(yes), mapped to the same accept/flag/reject verdict by per-language
+            cutoffs (``answer_entailment_jev``). If jev cannot answer, the LLM
+            judge runs instead; only if that also fails does the usual
+            ``safe_accept`` contract apply (raises ``JudgeUnavailable`` in
+            ``batch_mode()``, fails open when serving).
+``shadow``  the LLM verdict is returned; jev also runs and its verdict is logged
+            under ``judge_answer_entailment_shadow`` for offline comparison. jev
+            can never change the outcome or raise in this mode.
+
+The variable is read on every call, so it can be flipped without a restart. jev
+outcomes carry ``confidence=None`` and ``probability=P(yes)``: the probability
+must not share the 1-5 ``judge_confidence`` column with Likert ratings.
+
 Cutover safety
 --------------
 This code only works against a v3+ ``prompt_templates`` row. ``_is_pre_likert``
@@ -59,7 +77,9 @@ process that has already judged in that language.
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
@@ -68,11 +88,14 @@ from services.test_generation.schemas import (
     AnswerEntailmentVerdict,
     likert_to_verdict,
 )
+from . import answer_entailment_jev
 from .base import JudgeOutcome, accept_item, safe_accept, log_judge_verdict
 
 logger = logging.getLogger(__name__)
 
 _TASK_NAME = 'judge_answer_entailment'   # label in llm_calls (judge_ prefix)
+_SHADOW_TASK_NAME = 'judge_answer_entailment_shadow'  # kept apart so the live
+                                         # accept/flag/reject distribution stays clean
 _PT_NAME   = 'test_answer_entailment'    # task_name in prompt_templates
 _PIPELINE  = 'test_gen'
 
@@ -87,7 +110,36 @@ _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 # — see _is_pre_likert.
 _MIN_LIKERT_VERSION = 3
 
+# Measurement hook (TASK-833): when set, called as
+# ``observer(passage, question_text, answer, language_id, live_outcome, jev_verdict)``
+# after every successful shadow evaluation, so a shadow-window script can keep the
+# text of each comparison (llm_calls stores verdicts only). An observer that raises
+# is logged and ignored -- like the rest of shadow mode it cannot affect a batch.
+shadow_observer = None
+
+_BACKEND_ENV = 'ENTAILMENT_JUDGE_BACKEND'
+_BACKENDS = ('llm', 'jev', 'shadow')
+DEFAULT_BACKEND = 'jev'     # TASK-835: flipped from 'llm' on 2026-09-27 at the operator's
+                            # explicit instruction. Rollback: ENTAILMENT_JUDGE_BACKEND=llm
+
 _cfg_cache: dict[int, dict] = {}         # language_id → cfg dict
+
+
+def _backend() -> str:
+    """Active backend, read per call.
+
+    Unset or blank means ``DEFAULT_BACKEND``. An unrecognised value falls to
+    ``llm`` (loudly) rather than the default: a typo should land on the
+    long-proven judge, not on the newer one.
+    """
+    raw = os.environ.get(_BACKEND_ENV, '').strip().lower() or DEFAULT_BACKEND
+    if raw not in _BACKENDS:
+        logger.warning(
+            "answer_entailment: %s=%r is not one of %s; using 'llm'",
+            _BACKEND_ENV, raw, _BACKENDS,
+        )
+        return 'llm'
+    return raw
 
 
 def _is_pre_likert(version) -> bool:
@@ -122,6 +174,102 @@ def judge_answer_entailment(
     language_id: int,
 ) -> JudgeOutcome:
     """Run the answer-entailment judge and return a single JudgeOutcome.
+
+    Dispatches on ``ENTAILMENT_JUDGE_BACKEND`` (see the module docstring). On
+    any error the result is ``safe_accept()`` -- failure mode is "let it
+    through", not "block the whole pipeline" -- except inside ``batch_mode()``,
+    where ``safe_accept`` raises ``JudgeUnavailable`` instead.
+    """
+    backend = _backend()
+    if backend == 'jev':
+        try:
+            return _judge_jev(passage, question_text, answer, language_id)
+        except Exception as exc:  # noqa: BLE001 -- any jev failure -> LLM judge
+            logger.warning(
+                "answer_entailment: jev backend failed for lang=%d, "
+                "falling back to the LLM judge: %s", language_id, exc,
+            )
+    outcome = _judge_llm(db, passage, question_text, answer, language_id)
+    if backend == 'shadow':
+        _shadow_jev(passage, question_text, answer, language_id, outcome)
+    return outcome
+
+
+def _judge_jev(
+    passage: str, question_text: str, answer: str, language_id: int,
+) -> JudgeOutcome:
+    """The jev backend. Raises on any failure so the caller can fall back."""
+    jv = answer_entailment_jev.evaluate(
+        passage, question_text, answer, language_id,
+        task_name=_TASK_NAME, pipeline=_PIPELINE,
+    )
+    outcome = JudgeOutcome(
+        verdict=jv.verdict,
+        confidence=None,                 # never a probability in the 1-5 column
+        reason=jv.reason,
+        probability=jv.probability,
+        backend='jev',
+    )
+    log_judge_verdict(
+        task_name=_TASK_NAME, model=jv.model, verdict=outcome.verdict,
+        confidence=None, pipeline=_PIPELINE,
+    )
+    return outcome
+
+
+def _shadow_jev(
+    passage: str, question_text: str, answer: str, language_id: int,
+    live: JudgeOutcome,
+) -> None:
+    """Run jev alongside the authoritative LLM verdict and log both.
+
+    Never raises and never touches ``live``: a shadow that could fail a batch
+    would defeat the point of shadowing. The row's raw_response holds both
+    verdicts so the comparison is one query, no join.
+    """
+    try:
+        jv = answer_entailment_jev.evaluate(
+            passage, question_text, answer, language_id,
+            task_name=_SHADOW_TASK_NAME, pipeline=_PIPELINE,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "answer_entailment shadow: jev failed for lang=%d: %s", language_id, exc,
+        )
+        return
+    if shadow_observer is not None:
+        try:
+            shadow_observer(passage, question_text, answer, language_id, live, jv)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("answer_entailment shadow: observer failed: %s", exc)
+    try:
+        from services.llm_service import _log_llm_call
+        _log_llm_call(
+            pipeline=_PIPELINE, task_name=_SHADOW_TASK_NAME, template_version=None,
+            model=jv.model, temperature=None, seed=None, prompt_hash=None,
+            raw_response=json.dumps({
+                'p_yes': jv.probability,
+                'jev_verdict': jv.verdict,
+                'live_verdict': live.verdict,
+                'live_rating': live.confidence,
+            }),
+            parsed_ok=True, schema_ok=True,
+            judge_verdict=jv.verdict, judge_confidence=None,
+            latency_ms=None, artifact_id=None, cost_usd=None,
+            language_code=_LANG_ID_TO_CODE.get(language_id), provider='TypeSafe',
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("answer_entailment shadow: verdict logging failed: %s", exc)
+
+
+def _judge_llm(
+    db,
+    passage: str,
+    question_text: str,
+    answer: str,
+    language_id: int,
+) -> JudgeOutcome:
+    """The LLM (Likert) backend.
 
     On any error (missing template, LLM failure, schema validation error)
     returns ``safe_accept()`` and logs a warning — failure mode is "let it

@@ -47,39 +47,24 @@ Abstract base class that provides the shared run loop, stats tracking, progress 
 
 ---
 
-## batch_generate_tests.py (API Mode)
+## run_test_generation_cli.py
 
-> **Path:** `scripts/batch_generate_tests.py`
-> **Invocation:** `python scripts/batch_generate_tests.py`
-> **Requires:** Running Flask backend + JWT token
+> **Path:** `scripts/run_test_generation_cli.py`
+> **Invocation:** `python -m scripts.run_test_generation_cli --language zh --count 20`
+> **Requires:** Supabase service-role env + an LLM provider key. No running Flask backend and no JWT.
+> **Replaces:** `scripts/batch_generate_tests.py` (deleted 2026-09-27; it POSTed to the `/api/tests/generate_test` endpoint, removed 2026-09-26).
 
-### APITestGenerator (line 27)
+Drives `TestGenerationOrchestrator` directly. Each test's tier is assigned by jev from the finished passage, not inherited from the topic (`wiki/decisions/ADR-029-jev-tier-assignment.md`).
 
-Subclass of `BaseTestGenerator`. Generates tests by calling the Flask API endpoint `POST /api/tests/generate_test`.
-
-**Key details:**
-- Uses `requests.Session` with JWT `Authorization: Bearer` header (line 38-41)
-- Sends payload: `{language, difficulty, topic, style, tier}` (lines 47-53)
-- Timeout per request: 120 seconds (line 58)
-- Prints slug prefix and audio status on success (line 64-65)
-
-### Environment Variables
-
-| Variable | Default | Description |
+| Flag | Default | Description |
 |---|---|---|
-| `API_BASE_URL` | `http://localhost:5000` | Flask API base URL |
-| `BATCH_AUTH_TOKEN` | (required) | JWT token from browser DevTools |
-| `TEST_COUNT` | `250` | Number of tests to generate |
-| `START_FROM` | `0` | Resume index after interruption |
-
-### How to obtain a JWT token (from script help text, lines 97-102):
-1. Login to LinguaDojo via the web app
-2. Open browser DevTools > Network tab
-3. Look for the `/verify-otp` request
-4. Copy `jwt_token` from the response
-5. `export BATCH_AUTH_TOKEN='your_token'`
-
-Source: lines 1-134.
+| `--language` | (required) | `zh`, `en` or `ja` |
+| `--count` | `20` | Tests to generate, spread evenly across tiers |
+| `--type` | `listening` | `listening` or `reading` |
+| `--tier` | balanced 1-6 | Fix all tests at one target tier |
+| `--dry-run` | off | Log what would be generated; no DB writes or audio |
+| `--start-index` | `0` | Resume from this index after a failure |
+| `--delay` | `0` | Milliseconds between tests |
 
 ---
 
@@ -238,7 +223,7 @@ Source: lines 1-150.
 
 ### Source References
 - `scripts/base_generator.py` (lines 1-309)
-- `scripts/batch_generate_tests.py` (lines 1-134)
+- `scripts/run_test_generation_cli.py`
 - `scripts/batch_generate_to_json.py` (lines 1-308)
 - `scripts/upload_tests_to_supabase.py` (lines 1-146)
 - `scripts/json_to_csv.py` (lines 1-149)

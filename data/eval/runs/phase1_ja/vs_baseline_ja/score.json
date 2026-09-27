@@ -1,0 +1,2064 @@
+{
+  "lang": "ja",
+  "candidate": "data/eval/runs/phase1_ja",
+  "reference": "data/eval/runs/baseline_ja",
+  "reference_meta": {
+    "kind": "run_dir",
+    "path": "data/eval/runs/baseline_ja",
+    "summary": {
+      "batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "requested_senses": 30,
+      "attempted_senses": 30,
+      "status_counts": {
+        "partial": 10,
+        "success": 5,
+        "failed": 15
+      },
+      "run_wall_clock_s": 5189.156999999992,
+      "per_sense_wall_clock_s": {
+        "35127": 772.4839999999967,
+        "35341": 764.8439999999973,
+        "35293": 330.625,
+        "35419": 583.8440000000119,
+        "34998": 842.7969999999914,
+        "35227": 635.125,
+        "35001": 675.2350000000006,
+        "35009": 477.18799999999464,
+        "39187": 895.6870000000054,
+        "35147": 652.6410000000033,
+        "35111": 664.6720000000059,
+        "35017": 659.4690000000119,
+        "35211": 170.42200000000594,
+        "35311": 638.4850000000006,
+        "35615": 68.25,
+        "35331": 105.46899999999732,
+        "34999": 1.9220000000059372,
+        "38099": 0.8440000000118744,
+        "35011": 0.8430000000080327,
+        "36191": 1.264999999999418,
+        "35157": 0.9060000000026776,
+        "35033": 1.7810000000026776,
+        "53352": 0.7970000000059372,
+        "36181": 1.2660000000032596,
+        "35525": 0.8910000000032596,
+        "35055": 1.0939999999973224,
+        "39661": 0.8589999999967404,
+        "35093": 0.8439999999973224,
+        "35201": 1.2030000000086147,
+        "35039": 0.8430000000080327
+      },
+      "assets_per_sense": {
+        "35127": 6,
+        "35341": 6,
+        "35293": 7,
+        "35419": 7,
+        "34998": 7,
+        "35227": 3,
+        "35001": 7,
+        "35009": 7,
+        "39187": 6,
+        "35147": 7,
+        "35111": 7,
+        "35017": 7,
+        "35211": 0,
+        "35311": 6,
+        "35615": 3,
+        "35331": 3,
+        "34999": 0,
+        "38099": 0,
+        "35011": 0,
+        "36191": 0,
+        "35157": 0,
+        "35033": 0,
+        "53352": 0,
+        "36181": 0,
+        "35525": 0,
+        "35055": 0,
+        "39661": 0,
+        "35093": 0,
+        "35201": 0,
+        "35039": 0
+      },
+      "invalid_asset_rate_by_type": {
+        "prompt1_core": {
+          "valid": 15,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "prompt2_exercises_A": {
+          "valid": 12,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "prompt3_transforms_A": {
+          "valid": 12,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "llm_types_A": {
+          "valid": 15,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "prompt2_exercises_B": {
+          "valid": 11,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "llm_types_B": {
+          "valid": 15,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        },
+        "prompt3_transforms_B": {
+          "valid": 9,
+          "invalid": 0,
+          "invalid_rate": 0.0
+        }
+      },
+      "exercises_per_sense": {
+        "35127": {
+          "total": 15,
+          "by_type": {
+            "definition_match": 2,
+            "morphology_slot": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 1,
+            "phonetic_recognition": 1,
+            "cloze_completion": 1
+          },
+          "by_level": {
+            "2": 2,
+            "4": 3,
+            "6": 2,
+            "7": 2,
+            "9": 4,
+            "1": 1,
+            "3": 1
+          }
+        },
+        "35341": {
+          "total": 19,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "cloze_completion": 2,
+            "morphology_slot": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "semantic_discrimination": 1,
+            "synonym_antonym_match": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "3": 2,
+            "4": 4,
+            "7": 2,
+            "9": 4,
+            "6": 2
+          }
+        },
+        "35293": {
+          "total": 7,
+          "by_type": {
+            "definition_match": 2,
+            "cloze_completion": 1,
+            "spot_incorrect_sentence": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1
+          },
+          "by_level": {
+            "2": 2,
+            "3": 1,
+            "7": 2,
+            "1": 2
+          }
+        },
+        "35419": {
+          "total": 9,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "cloze_completion": 1,
+            "semantic_discrimination": 1,
+            "spot_incorrect_sentence": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "3": 1,
+            "6": 1,
+            "7": 2
+          }
+        },
+        "34998": {
+          "total": 17,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "cloze_completion": 1,
+            "semantic_discrimination": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "particle_selection": 2,
+            "synonym_antonym_match": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "3": 1,
+            "6": 3,
+            "9": 4,
+            "4": 4
+          }
+        },
+        "35227": {
+          "total": 18,
+          "by_type": {
+            "definition_match": 2,
+            "cloze_completion": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "particle_selection": 2,
+            "synonym_antonym_match": 2
+          },
+          "by_level": {
+            "2": 2,
+            "3": 2,
+            "6": 4,
+            "7": 2,
+            "9": 4,
+            "4": 4
+          }
+        },
+        "35001": {
+          "total": 14,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 3,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "particle_selection": 2
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "7": 2,
+            "9": 3,
+            "4": 4
+          }
+        },
+        "35009": {
+          "total": 8,
+          "by_type": {
+            "definition_match": 2,
+            "cloze_completion": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "phonetic_recognition": 1,
+            "spot_incorrect_sentence": 1
+          },
+          "by_level": {
+            "2": 2,
+            "3": 2,
+            "1": 3,
+            "7": 1
+          }
+        },
+        "39187": {
+          "total": 16,
+          "by_type": {
+            "definition_match": 2,
+            "cloze_completion": 1,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "phonetic_recognition": 1,
+            "semantic_discrimination": 1,
+            "synonym_antonym_match": 1
+          },
+          "by_level": {
+            "2": 2,
+            "3": 1,
+            "7": 2,
+            "9": 4,
+            "4": 2,
+            "1": 3,
+            "6": 2
+          }
+        },
+        "35147": {
+          "total": 18,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "morphology_slot": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "synonym_antonym_match": 2,
+            "semantic_discrimination": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "4": 4,
+            "7": 2,
+            "9": 4,
+            "6": 3
+          }
+        },
+        "35111": {
+          "total": 18,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "morphology_slot": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 1,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "reading_to_kanji": 1,
+            "particle_selection": 2,
+            "synonym_antonym_match": 1
+          },
+          "by_level": {
+            "1": 2,
+            "2": 2,
+            "4": 6,
+            "6": 3,
+            "7": 1,
+            "9": 4
+          }
+        },
+        "35017": {
+          "total": 19,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "morphology_slot": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "cloze_completion": 1,
+            "synonym_antonym_match": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "4": 4,
+            "6": 3,
+            "7": 2,
+            "9": 4,
+            "3": 1
+          }
+        },
+        "35211": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35311": {
+          "total": 18,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "morphology_slot": 2,
+            "semantic_discrimination": 1,
+            "spot_incorrect_sentence": 1,
+            "jumbled_sentence": 4,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1,
+            "synonym_antonym_match": 2,
+            "cloze_completion": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "4": 4,
+            "6": 3,
+            "7": 1,
+            "9": 4,
+            "3": 1
+          }
+        },
+        "35615": {
+          "total": 18,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "cloze_completion": 2,
+            "morphology_slot": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 2,
+            "jumbled_sentence": 3,
+            "cloze_typed": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "3": 2,
+            "4": 4,
+            "6": 2,
+            "7": 2,
+            "9": 3
+          }
+        },
+        "35331": {
+          "total": 11,
+          "by_type": {
+            "phonetic_recognition": 1,
+            "definition_match": 2,
+            "cloze_completion": 2,
+            "semantic_discrimination": 2,
+            "spot_incorrect_sentence": 2,
+            "kanji_to_reading": 1,
+            "reading_to_kanji": 1
+          },
+          "by_level": {
+            "1": 3,
+            "2": 2,
+            "3": 2,
+            "6": 2,
+            "7": 2
+          }
+        },
+        "34999": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "38099": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35011": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "36191": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35157": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35033": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "53352": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "36181": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35525": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35055": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "39661": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35093": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35201": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        },
+        "35039": {
+          "total": 0,
+          "by_type": {},
+          "by_level": {}
+        }
+      },
+      "judge_reject_counts": {
+        "sentence_validity": {
+          "ran": 44,
+          "rejected": 0,
+          "kept": 82
+        },
+        "l1_distractor": {
+          "ran": 13,
+          "rejected": 41,
+          "kept": 81
+        },
+        "cloze": {
+          "ran": 17,
+          "rejected": 0,
+          "kept": 0
+        },
+        "relation": {
+          "ran": 11,
+          "rejected": 0,
+          "kept": 33
+        },
+        "particle": {
+          "ran": 8,
+          "rejected": 0,
+          "kept": 24
+        }
+      },
+      "cost_usd_total_observed": 0.9376171599999998,
+      "stopped_due_to_cost_cap": false,
+      "llm_calls_observed_count": 292,
+      "llm_calls_cost_breakdown": [
+        {
+          "task_name": "vocab_prompt2_exercises",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 23,
+          "total_cost_usd": 0.19108544000000005,
+          "avg_cost_usd": 0.008308062608695654
+        },
+        {
+          "task_name": "judge_ladder_sentence_validity",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 50,
+          "total_cost_usd": 0.13639072000000005,
+          "avg_cost_usd": 0.002727814400000001
+        },
+        {
+          "task_name": "vocab_prompt1_core",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 15,
+          "total_cost_usd": 0.11512256,
+          "avg_cost_usd": 0.0076748373333333335
+        },
+        {
+          "task_name": "vocab_prompt3_transforms",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 24,
+          "total_cost_usd": 0.10801151999999999,
+          "avg_cost_usd": 0.004500479999999999
+        },
+        {
+          "task_name": "judge_ladder_p1_sentence",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 25,
+          "total_cost_usd": 0.08982111999999999,
+          "avg_cost_usd": 0.0035928448
+        },
+        {
+          "task_name": "judge_ladder_l1_distractor",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 13,
+          "total_cost_usd": 0.0529872,
+          "avg_cost_usd": 0.004075938461538461
+        },
+        {
+          "task_name": "judge_ladder_l1_distractor__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 13,
+          "total_cost_usd": 0.04808543999999999,
+          "avg_cost_usd": 0.0036988799999999994
+        },
+        {
+          "task_name": "vocab_prompt1_core_sentence_repair",
+          "call_role": "repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 12,
+          "total_cost_usd": 0.03427104,
+          "avg_cost_usd": 0.00285592
+        },
+        {
+          "task_name": "judge_ladder_relation",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 9,
+          "total_cost_usd": 0.022070720000000002,
+          "avg_cost_usd": 0.0024523022222222223
+        },
+        {
+          "task_name": "ladder_syn_ant_generation",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 7,
+          "total_cost_usd": 0.01832864,
+          "avg_cost_usd": 0.002618377142857143
+        },
+        {
+          "task_name": "judge_ladder_particle",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 6,
+          "total_cost_usd": 0.01798304,
+          "avg_cost_usd": 0.0029971733333333333
+        },
+        {
+          "task_name": "ladder_syn_ant_generation__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 15,
+          "total_cost_usd": 0.01642944,
+          "avg_cost_usd": 0.001095296
+        },
+        {
+          "task_name": "vocab_prompt1_core_repair",
+          "call_role": "repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 4,
+          "total_cost_usd": 0.013996479999999999,
+          "avg_cost_usd": 0.0034991199999999997
+        },
+        {
+          "task_name": "vocab_prompt1_core__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 1,
+          "total_cost_usd": 0.009810496,
+          "avg_cost_usd": 0.009810496
+        },
+        {
+          "task_name": "ladder_particle_selection_generation__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 17,
+          "total_cost_usd": 0.009472768,
+          "avg_cost_usd": 0.0005572216470588235
+        },
+        {
+          "task_name": "judge_ladder_relation__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 3,
+          "total_cost_usd": 0.009037439999999999,
+          "avg_cost_usd": 0.0030124799999999997
+        },
+        {
+          "task_name": "ladder_l4_morphology_generation",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 4,
+          "total_cost_usd": 0.00897248,
+          "avg_cost_usd": 0.00224312
+        },
+        {
+          "task_name": "ladder_l4_morphology_generation__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 11,
+          "total_cost_usd": 0.0072089599999999995,
+          "avg_cost_usd": 0.0006553599999999999
+        },
+        {
+          "task_name": "ladder_particle_selection_generation",
+          "call_role": "primary",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 3,
+          "total_cost_usd": 0.006280000000000001,
+          "avg_cost_usd": 0.0020933333333333338
+        },
+        {
+          "task_name": "ladder_particle_selection_generation",
+          "call_role": "retry",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 2,
+          "total_cost_usd": 0.00540416,
+          "avg_cost_usd": 0.00270208
+        },
+        {
+          "task_name": "ladder_l4_morphology_generation",
+          "call_role": "retry",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 2,
+          "total_cost_usd": 0.0047113599999999995,
+          "avg_cost_usd": 0.0023556799999999998
+        },
+        {
+          "task_name": "cloze_distractor_judge",
+          "call_role": "primary",
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "calls": 28,
+          "total_cost_usd": 0.00462708,
+          "avg_cost_usd": 0.00016525285714285716
+        },
+        {
+          "task_name": "vocab_prompt1_core_sentence_repair__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 2,
+          "total_cost_usd": 0.0039152,
+          "avg_cost_usd": 0.0019576
+        },
+        {
+          "task_name": "vocab_prompt2_exercises__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 1,
+          "total_cost_usd": 0.003593856,
+          "avg_cost_usd": 0.003593856
+        },
+        {
+          "task_name": "judge_ladder_particle__json_repair",
+          "call_role": "json_repair",
+          "model": "qwen/qwen3.7-plus",
+          "calls": 2,
+          "total_cost_usd": 0.0,
+          "avg_cost_usd": 0.0
+        }
+      ],
+      "unattributed_writes_count": 15,
+      "unattributed_writes_sample": [
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20763
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20869
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20845
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20909
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                24953
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20698
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20699
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20703
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20773
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                22799
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20755
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20707
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20854
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                21007
+              ],
+              {}
+            ]
+          ]
+        },
+        {
+          "table": "dim_vocabulary",
+          "verb": "update",
+          "filters": [
+            [
+              "eq",
+              [
+                "id",
+                20864
+              ],
+              {}
+            ]
+          ]
+        }
+      ],
+      "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'b546df83-eb6e-4cb8-ab49-29ed2d47b4ab'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n"
+    }
+  },
+  "coverage": {
+    "senses_compared": 30,
+    "senses_missing_from_candidate": [],
+    "reference_level_type_pairs": 12,
+    "expected_pairs_total": 132,
+    "present_pairs_total": 113,
+    "coverage_pct": 85.60606060606061,
+    "missing_levels_count": 6,
+    "missing_levels": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7
+    ],
+    "per_sense_missing": {
+      "34998": [
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ],
+      "35001": [
+        [
+          4,
+          "particle_selection"
+        ]
+      ],
+      "35009": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ]
+      ],
+      "35017": [
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ],
+      "35111": [
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ],
+      "35147": [
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ],
+      "35293": [
+        [
+          3,
+          "cloze_completion"
+        ]
+      ],
+      "35341": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ],
+      "35615": [
+        [
+          6,
+          "semantic_discrimination"
+        ]
+      ],
+      "39187": [
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ]
+      ]
+    }
+  },
+  "candidate_metrics": {
+    "invalid_asset_rate": {
+      "total_assets": 152,
+      "invalid_assets": 0,
+      "invalid_rate_pct": 0.0,
+      "by_asset_type": {
+        "prompt1_core": {
+          "total": 26,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_A": {
+          "total": 21,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_A": {
+          "total": 15,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_A": {
+          "total": 26,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_B": {
+          "total": 19,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_B": {
+          "total": 19,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_B": {
+          "total": 26,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        }
+      }
+    },
+    "judge_reject_rates": {
+      "l1_distractor": {
+        "total": 217,
+        "rejected": 86,
+        "reject_rate_pct": 39.63133640552996
+      },
+      "sentence_validity": {
+        "total": 135,
+        "rejected": 1,
+        "reject_rate_pct": 0.7407407407407407
+      },
+      "particle": {
+        "total": 33,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "relation": {
+        "total": 21,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      }
+    },
+    "l1_drop_rate": {
+      "l1_variants": 22,
+      "dropped": 0,
+      "drop_rate_pct": 0.0,
+      "min_surviving_distractors": 3
+    },
+    "cost": {
+      "senses_with_calls": 28,
+      "total_calls": 475,
+      "priced_calls": 471,
+      "total_cost_usd": 1.919494,
+      "cost_per_sense_mean": 0.068553,
+      "cost_per_sense_p50": 0.073114,
+      "cost_per_sense_p90": 0.08769,
+      "retries_per_sense_mean": 2.4286,
+      "per_stage_cost_share_pct": {
+        "vocab_prompt1_core": 12.26,
+        "judge_ladder_p1_sentence": 10.15,
+        "vocab_prompt1_core_sentence_repair": 4.19,
+        "ladder_particle_selection_generation": 2.0,
+        "vocab_prompt3_transforms": 12.55,
+        "vocab_prompt2_exercises": 19.99,
+        "judge_ladder_l1_distractor": 14.75,
+        "cloze_distractor_judge": 0.45,
+        "judge_ladder_sentence_validity": 14.37,
+        "judge_ladder_particle": 1.85,
+        "ladder_syn_ant_generation": 1.97,
+        "judge_ladder_relation": 1.52,
+        "ladder_l4_morphology_generation": 1.34,
+        "vocab_prompt1_core_repair": 1.6,
+        "judge_ladder_l1_distractor__json_repair": 0.48,
+        "judge_ladder_relation__json_repair": 0.15,
+        "vocab_prompt1_core_repair__json_repair": 0.38
+      }
+    },
+    "wall_clock": {
+      "senses_with_timings": 30,
+      "wall_clock_per_sense_mean_s": 510.32,
+      "wall_clock_per_sense_p50_s": 522.03,
+      "wall_clock_per_sense_p90_s": 664.23
+    }
+  },
+  "reference_metrics": {
+    "invalid_asset_rate": {
+      "total_assets": 89,
+      "invalid_assets": 0,
+      "invalid_rate_pct": 0.0,
+      "by_asset_type": {
+        "prompt1_core": {
+          "total": 15,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_A": {
+          "total": 12,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_A": {
+          "total": 12,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_A": {
+          "total": 15,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_B": {
+          "total": 11,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_B": {
+          "total": 9,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_B": {
+          "total": 15,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        }
+      }
+    },
+    "judge_reject_rates": {
+      "l1_distractor": {
+        "total": 122,
+        "rejected": 41,
+        "reject_rate_pct": 33.60655737704918
+      },
+      "sentence_validity": {
+        "total": 82,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "particle": {
+        "total": 24,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "relation": {
+        "total": 33,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      }
+    },
+    "l1_drop_rate": {
+      "l1_variants": 13,
+      "dropped": 0,
+      "drop_rate_pct": 0.0,
+      "min_surviving_distractors": 3
+    },
+    "cost": {
+      "senses_with_calls": 16,
+      "total_calls": 292,
+      "priced_calls": 259,
+      "total_cost_usd": 0.937617,
+      "cost_per_sense_mean": 0.058601,
+      "cost_per_sense_p50": 0.065306,
+      "cost_per_sense_p90": 0.0913,
+      "retries_per_sense_mean": 5.3125,
+      "per_stage_cost_share_pct": {
+        "vocab_prompt1_core": 12.28,
+        "judge_ladder_p1_sentence": 9.58,
+        "vocab_prompt1_core_sentence_repair__json_repair": 0.42,
+        "vocab_prompt3_transforms": 11.52,
+        "ladder_particle_selection_generation": 1.25,
+        "ladder_particle_selection_generation__json_repair": 1.01,
+        "vocab_prompt2_exercises": 20.38,
+        "ladder_syn_ant_generation__json_repair": 1.75,
+        "judge_ladder_l1_distractor": 5.65,
+        "cloze_distractor_judge": 0.49,
+        "judge_ladder_sentence_validity": 14.55,
+        "judge_ladder_particle": 1.92,
+        "judge_ladder_l1_distractor__json_repair": 5.13,
+        "judge_ladder_relation__json_repair": 0.96,
+        "vocab_prompt1_core_sentence_repair": 3.66,
+        "ladder_l4_morphology_generation__json_repair": 0.77,
+        "ladder_l4_morphology_generation": 1.46,
+        "judge_ladder_relation": 2.35,
+        "vocab_prompt1_core_repair": 1.49,
+        "ladder_syn_ant_generation": 1.95,
+        "vocab_prompt1_core__json_repair": 1.05,
+        "vocab_prompt2_exercises__json_repair": 0.38
+      }
+    },
+    "wall_clock": {
+      "senses_with_timings": 30,
+      "wall_clock_per_sense_mean_s": 298.42,
+      "wall_clock_per_sense_p50_s": 68.25,
+      "wall_clock_per_sense_p90_s": 764.84
+    }
+  },
+  "pairwise_summary": {
+    "total_pairs_in_key": 81,
+    "total_judged": 81,
+    "unmatched_verdicts": [],
+    "missing_verdicts": [],
+    "candidate_wins": 14,
+    "reference_wins": 14,
+    "ties": 53,
+    "win_rate_pct": 17.28,
+    "loss_rate_pct": 17.28,
+    "tie_rate_pct": 65.43,
+    "major_defect_rate_candidate": 16.05,
+    "major_defect_rate_reference": 16.05,
+    "per_sense": [
+      {
+        "sense_id": "34998",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both sides equivalent quality, no defects found."
+      },
+      {
+        "sense_id": "34998",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Definitions and distractors fine on both sides."
+      },
+      {
+        "sense_id": "34998",
+        "level": 3,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both cloze sentences natural with single defensible answer."
+      },
+      {
+        "sense_id": "34998",
+        "level": 4,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correct and natural; B has one fewer item shown (cosmetic)."
+      },
+      {
+        "sense_id": "34998",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both semantic-discrimination sets well-formed; A has one extra item type (cosmetic)."
+      },
+      {
+        "sense_id": "34998",
+        "level": 9,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "compound-word anchoring"
+        ],
+        "notes": "A's chunk 'ichi-ni' fuses the target word with the adjacent number, breaking anchoring."
+      },
+      {
+        "sense_id": "35001",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both phonetic distractor sets are legitimate one-mora-different real words."
+      },
+      {
+        "sense_id": "35001",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "A's cross-language distractor set is oddly fanciful in one entry but not misleading."
+      },
+      {
+        "sense_id": "35001",
+        "level": 4,
+        "outcome": "tie",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [
+          "also-correct distractor"
+        ],
+        "notes": "Both accept counters/derived words (dai/ko or dai/kikaishiki) that don't grammatically fit the noun slot, equally."
+      },
+      {
+        "sense_id": "35001",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both spot-the-error sets use correct, well-explained grammar points."
+      },
+      {
+        "sense_id": "35001",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both provide one fully rendered chunk set and one stub per pack; rendered ones are correctly anchored."
+      },
+      {
+        "sense_id": "35017",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both phonetic distractor sets are valid one-mora-different real words."
+      },
+      {
+        "sense_id": "35017",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and non-ambiguous on both sides."
+      },
+      {
+        "sense_id": "35017",
+        "level": 3,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both natural; B shows only one item vs A's two (cosmetic)."
+      },
+      {
+        "sense_id": "35017",
+        "level": 4,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "also-correct distractor",
+          "compound-word anchoring"
+        ],
+        "major_defects_reference": [
+          "also-correct distractor"
+        ],
+        "notes": "B's morphology_slot explanation references an unrelated pattern (tekita) that does not match the shown sentence."
+      },
+      {
+        "sense_id": "35017",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both spot-the-error items grammatically accurate and natural."
+      },
+      {
+        "sense_id": "35017",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both jumbled-sentence sets correctly ordered; minor chunk-boundary style differences only."
+      },
+      {
+        "sense_id": "35111",
+        "level": 1,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "A's distractor explanation misstates the reading of 'horu' (claims yo->e instead of yo->ho); A also lacks a reading_to_kanji item."
+      },
+      {
+        "sense_id": "35111",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and unambiguous on both sides."
+      },
+      {
+        "sense_id": "35111",
+        "level": 4,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [],
+        "notes": "B's two morphology_slot items give 'yori'/'yotte' as correct answers that contradict their own sentence templates (one even omits the actually-correct form from the options)."
+      },
+      {
+        "sense_id": "35111",
+        "level": 6,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B marks a standard idiomatic construction ('ni yoreba') as incorrect on shaky grounds and includes one word-salad distractor sentence."
+      },
+      {
+        "sense_id": "35111",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correct; A's sentences are more ornate/literary, B's simpler and more natural, roughly offsetting."
+      },
+      {
+        "sense_id": "35111",
+        "level": 9,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B's sentences are unnecessarily complex/jargon-heavy for the exercise, no outright errors though."
+      },
+      {
+        "sense_id": "35127",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both phonetic distractor sets legitimate one-mora-different real words."
+      },
+      {
+        "sense_id": "35127",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both unambiguous; B's English homophone-based distractor (naku/naku) is a nice touch but not required for parity."
+      },
+      {
+        "sense_id": "35127",
+        "level": 3,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both natural; B shows only one item vs A's two (cosmetic)."
+      },
+      {
+        "sense_id": "35127",
+        "level": 4,
+        "outcome": "tie",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [
+          "also-correct distractor"
+        ],
+        "notes": "Both packs' second morphology_slot item has no blank marker (identical to original_sentence) with an explanation mismatched to the content -- same bug on both sides."
+      },
+      {
+        "sense_id": "35127",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both semantic-discrimination and antonym items well-formed and correct."
+      },
+      {
+        "sense_id": "35127",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correct; B shows only one variant vs A's two (cosmetic)."
+      },
+      {
+        "sense_id": "35127",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both jumbled-sentence sets correctly ordered and anchored."
+      },
+      {
+        "sense_id": "35147",
+        "level": 1,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "also-correct distractor",
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [],
+        "notes": "A's kanji_to_reading and reading_to_kanji both mislabel 'ikimasu' as reading 'iku', and mark the real match ('iku') as a mere homophone distractor -- would mis-grade learners."
+      },
+      {
+        "sense_id": "35147",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and unambiguous on both sides."
+      },
+      {
+        "sense_id": "35147",
+        "level": 4,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [
+          "also-correct distractor"
+        ],
+        "notes": "B's morphology_slot item justifies its answer by referencing 'kinou' (yesterday), which appears nowhere in the shown sentence -- a fabricated rationale with a debatable single answer."
+      },
+      {
+        "sense_id": "35147",
+        "level": 6,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "A shows only one clean item; B offers three well-formed items (antonym x2, semantic-discrimination) with no errors, better coverage."
+      },
+      {
+        "sense_id": "35147",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both spot-the-error items accurate and natural."
+      },
+      {
+        "sense_id": "35147",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly ordered; A's target_word label ('ikenai') doesn't match the actual text (cosmetic metadata slip)."
+      },
+      {
+        "sense_id": "35227",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and unambiguous on both sides."
+      },
+      {
+        "sense_id": "35227",
+        "level": 3,
+        "outcome": "tie",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [
+          "also-correct distractor"
+        ],
+        "notes": "Both packs share one item with random unrelated-object distractors (eraser/spoon/typhoon) and an explanation mentioning 'manabu' that doesn't appear in the sentence."
+      },
+      {
+        "sense_id": "35227",
+        "level": 4,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correct, natural, with plausible accepted-answer variants."
+      },
+      {
+        "sense_id": "35227",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both semantic-discrimination and antonym sets well-formed and accurate."
+      },
+      {
+        "sense_id": "35227",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both spot-the-error items accurate and natural."
+      },
+      {
+        "sense_id": "35227",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both jumbled-sentence sets correctly ordered and anchored."
+      },
+      {
+        "sense_id": "35293",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Items are identical between packs."
+      },
+      {
+        "sense_id": "35293",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and unambiguous on both sides."
+      },
+      {
+        "sense_id": "35293",
+        "level": 7,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B's second item tests an unrelated location-particle error rather than a mistake involving the target adverb itself."
+      },
+      {
+        "sense_id": "35311",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both phonetic distractor sets legitimate one-mora-different real words (B's syllable_count metadata is off but not learner-facing)."
+      },
+      {
+        "sense_id": "35311",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Distractor definitions unrelated and unambiguous on both sides."
+      },
+      {
+        "sense_id": "35311",
+        "level": 3,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "compound-word anchoring"
+        ],
+        "notes": "A's only item tests 'kanou' solely inside the compound 'kaiketsu-kanou' (resolvable); B tests it as a standalone predicate."
+      },
+      {
+        "sense_id": "35311",
+        "level": 4,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [
+          "also-correct distractor"
+        ],
+        "major_defects_reference": [
+          "compound-word anchoring",
+          "also-correct distractor"
+        ],
+        "notes": "B tests 'kanou' inside the compound 'shukka-kanou' and its morphology_slot answer ('kanou-na') duplicates the 'na' already present in the template, producing a doubled-na error."
+      },
+      {
+        "sense_id": "35311",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both semantic-discrimination and antonym sets accurate and well-formed."
+      },
+      {
+        "sense_id": "35311",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly flag one grammatical error in 可能 usage; equally solid."
+      },
+      {
+        "sense_id": "35311",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both jumbled-sentence pairs use 可能 correctly and reconstruct cleanly."
+      },
+      {
+        "sense_id": "35331",
+        "level": 1,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "A's phonetic_recognition distractors include two homophones (御国/お国, both おくに), weakening the listening contrast versus B's three distinct one-mora variants."
+      },
+      {
+        "sense_id": "35331",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both definition_match sets are sound; nl.en blocks in both contain stray non-Japanese filler options but none are misleading."
+      },
+      {
+        "sense_id": "35331",
+        "level": 3,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "mismatched explanation text (both A cloze explanations describe a different example sentence than the one shown)"
+        ],
+        "notes": "A's explanations for both cloze items reference unrelated sentences, which would confuse a learner checking their reasoning."
+      },
+      {
+        "sense_id": "35331",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both provide clean single-error semantic_discrimination sets; A offers one extra variant but no quality gap."
+      },
+      {
+        "sense_id": "35331",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly flag one ungrammatical sentence each; A's stated rule about 特には is slightly overgeneralized but the item itself is unambiguous."
+      },
+      {
+        "sense_id": "35341",
+        "level": 1,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B omits the phonetic_recognition (L1) item entirely; A's version has three well-differentiated one-mora distractors."
+      },
+      {
+        "sense_id": "35341",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both definition sets are clean; nl.en blocks in both contain isolated foreign-language filler options but not misleading."
+      },
+      {
+        "sense_id": "35341",
+        "level": 3,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "also-correct distractor (必要 fits 信頼は友達に___なものです as well as 不可欠)",
+          "mismatched explanation text referencing a different sentence"
+        ],
+        "major_defects_reference": [],
+        "notes": "A's second cloze variant has a near-synonym distractor that is equally defensible and an explanation that doesn't match the shown sentence."
+      },
+      {
+        "sense_id": "35341",
+        "level": 4,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [
+          "cloze_typed accepted-answer list includes forms that are ungrammatical once spliced into this blank's context (generic list not customized per sentence)"
+        ],
+        "major_defects_reference": [
+          "cloze_typed accepted-answer list includes forms that are ungrammatical once spliced into this blank's context (generic list not customized per sentence)",
+          "morphology_slot variant B uses unrelated words (重要/必要) as distractors, both of which are also contextually plausible in 集中力が___だと思う"
+        ],
+        "notes": "B's morphology_slot items stay within clean same-word inflections; A's variant B substitutes near-synonyms that also fit."
+      },
+      {
+        "sense_id": "35341",
+        "level": 6,
+        "outcome": "reference_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both semantic_discrimination items are clean; B additionally includes a correct antonym-match exercise (不可欠 / 不要)."
+      },
+      {
+        "sense_id": "35341",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "All four spot_incorrect_sentence items correctly flag one error each; B's second item tests sentence-completeness rather than 不可欠-specific grammar, a minor anchoring softness."
+      },
+      {
+        "sense_id": "35341",
+        "level": 9,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both jumbled-sentence pairs are grammatical and correctly anchored; B's single-mora chunk 「に」 is an odd but not incorrect split."
+      },
+      {
+        "sense_id": "35419",
+        "level": 1,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B's phonetic_recognition distractor 矢盾 is of doubtful lexical validity versus A's three unambiguous real-word distractors."
+      },
+      {
+        "sense_id": "35419",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both definition sets are clean aside from the shared foreign-language nl.en artifact."
+      },
+      {
+        "sense_id": "35419",
+        "level": 3,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both use mild suddenly-vs-eventually distractors that are not truly also-correct given the archaic register; B offers two clean items versus A's one."
+      },
+      {
+        "sense_id": "35419",
+        "level": 6,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly single out one error among particle, conjugation, and word-order mistakes."
+      },
+      {
+        "sense_id": "35419",
+        "level": 7,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B repeats the same 覞てに extraneous-particle error across both of its items, reducing error-type diversity versus A's two distinct error types."
+      },
+      {
+        "sense_id": "35615",
+        "level": 1,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "B's phonetic_recognition distractor 複舷 is of doubtful lexical validity versus A's three clearly attested real-word distractors."
+      },
+      {
+        "sense_id": "35615",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both definition sets are sound; B's nl.en block has more severe language-mixing than A's but neither is misleading."
+      },
+      {
+        "sense_id": "35615",
+        "level": 3,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "cloze blank/answer mismatch: template '___て' plus correct_answer '複雑' yields ungrammatical '複雑て' (original sentence requires 複雑すぎて)"
+        ],
+        "notes": "B's second cloze item's answer does not actually complete the sentence grammatically; A's single item is clean."
+      },
+      {
+        "sense_id": "35615",
+        "level": 4,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "cloze_typed accepted-answer lists include forms ungrammatical in context (generic list bug)",
+          "morphology_slot variant B correct_answer '複雑に' is inconsistent with the template (already contains 'に' after the blank, producing a doubled にに / mismatch with original_sentence)"
+        ],
+        "major_defects_reference": [],
+        "notes": "B's items use precise single accepted answers matching each blank's context; A repeats the systemic generic-list bug and has an internally inconsistent morphology_slot answer."
+      },
+      {
+        "sense_id": "35615",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly identify one conjugation/particle error each; both reuse the same underlying test sentence for one item."
+      },
+      {
+        "sense_id": "35615",
+        "level": 9,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "jumbled_sentence variant A is missing its chunks/shuffled_chunks data (incomplete, non-functional exercise)"
+        ],
+        "notes": "A's variant A only has an original_sentence preview with no reconstruction data; B's two items are both complete."
+      },
+      {
+        "sense_id": "39187",
+        "level": 1,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both phonetic_recognition sets include a pair of same-reading distractors (A: 水カビ/ミズカビ; B: 水換え/水替え), an equivalent weakness on each side."
+      },
+      {
+        "sense_id": "39187",
+        "level": 2,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both definition sets are clean aside from the shared foreign-language nl.en artifact, more severe but not misleading in B."
+      },
+      {
+        "sense_id": "39187",
+        "level": 4,
+        "outcome": "candidate_win",
+        "major_defects_candidate": [],
+        "major_defects_reference": [
+          "cloze_typed accepted-answer list includes forms ungrammatical in this blank's context (e.g. '自らの'+'の価値' doubles の) — same systemic bug seen elsewhere"
+        ],
+        "notes": "B uses a single precise accepted answer per item matching each blank's context; A carries the recurring generic accepted-list bug."
+      },
+      {
+        "sense_id": "39187",
+        "level": 6,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "explanation is internally self-contradictory (claims 自ら is the object/目的語 but then gives a corrected form marking it with subject particle が; also gives two different 'correct' forms — with and without が — for the same construction)"
+        ],
+        "major_defects_reference": [],
+        "notes": "A's semantic_discrimination item plus valid antonym-match exercise are both clean and consistent."
+      },
+      {
+        "sense_id": "39187",
+        "level": 7,
+        "outcome": "tie",
+        "major_defects_candidate": [],
+        "major_defects_reference": [],
+        "notes": "Both correctly identify one particle/usage error each across two items, with sound explanations."
+      },
+      {
+        "sense_id": "39187",
+        "level": 9,
+        "outcome": "reference_win",
+        "major_defects_candidate": [
+          "jumbled_sentence variant B is missing its chunks/shuffled_chunks data (incomplete, non-functional exercise)"
+        ],
+        "major_defects_reference": [],
+        "notes": "B's variant B only shows an original_sentence preview with no reconstruction data; A's two items are both complete."
+      }
+    ]
+  },
+  "thresholds": {
+    "major_defect_margin_pp": 2.0,
+    "pairwise_loss_margin_pp": 10.0,
+    "coverage_min_pct": 95.0,
+    "invalid_asset_margin_pp": 3.0
+  },
+  "decision": {
+    "overall": "FAIL",
+    "failed_criteria": [
+      "c_coverage"
+    ],
+    "skipped_criteria": [],
+    "criteria": {
+      "a_major_defect_rate": {
+        "status": "PASS",
+        "candidate_pct": 16.05,
+        "reference_pct": 16.05,
+        "margin_pp": 2.0,
+        "source": "pairwise"
+      },
+      "b_pairwise_loss_minus_win": {
+        "status": "PASS",
+        "loss_minus_win_pp": 0.0,
+        "margin_pp": 10.0
+      },
+      "c_coverage": {
+        "status": "FAIL",
+        "coverage_pct": 85.61,
+        "min_pct": 95.0
+      },
+      "d_invalid_asset_rate": {
+        "status": "PASS",
+        "candidate_pct": 0.0,
+        "reference_pct": 0.0,
+        "margin_pp": 3.0
+      }
+    }
+  }
+}

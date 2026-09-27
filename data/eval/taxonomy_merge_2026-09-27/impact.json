@@ -1,0 +1,282 @@
+{
+  "per_language": {
+    "zh": {
+      "counts": {
+        "unambiguous": 55,
+        "needs_relabel": 4,
+        "unknown_subtype": 0,
+        "total_labels": 59
+      },
+      "by_subtype": {
+        "classifier": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 5
+        },
+        "aspect_marker": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 5
+        },
+        "word_order": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "omission": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "word_choice": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 10
+        },
+        "register": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "ba_construction": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "resultative_complement": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "topic_comment": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "de_particles": {
+          "kind": "split",
+          "bucket": "needs_relabel",
+          "n": 4
+        },
+        "directional_complement": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "adverbial_order": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "addition": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "cohesion_connective": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "orthography": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "bei_passive": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 1
+        }
+      },
+      "files": [
+        "tests/fixtures/dt_gold/zh.json",
+        "data/eval/jev_dt_2026-09-26/silver/zh_final3.json"
+      ]
+    },
+    "ja": {
+      "counts": {
+        "unambiguous": 53,
+        "needs_relabel": 3,
+        "unknown_subtype": 0,
+        "total_labels": 56
+      },
+      "by_subtype": {
+        "particle_wa_ga": {
+          "kind": "split",
+          "bucket": "needs_relabel",
+          "n": 3
+        },
+        "particle_case": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "particle_other": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "keigo_register": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "tense_aspect_ja": {
+          "kind": "merge",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "omission": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "word_order": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "word_choice": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 17
+        },
+        "register": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "verb_conjugation": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "topic_comment": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "cohesion_connective": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "addition": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "orthography": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 2
+        },
+        "collocation": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 1
+        }
+      },
+      "files": [
+        "tests/fixtures/dt_gold/ja.json",
+        "data/eval/jev_dt_2026-09-26/silver/ja_final3.json"
+      ]
+    },
+    "en": {
+      "counts": {
+        "unambiguous": 56,
+        "needs_relabel": 3,
+        "unknown_subtype": 0,
+        "total_labels": 59
+      },
+      "by_subtype": {
+        "article": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "preposition": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 6
+        },
+        "tense_aspect": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "subject_verb_agreement": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "omission": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "word_choice": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 14
+        },
+        "register": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "word_order": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "plural_number": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "pronoun_reference": {
+          "kind": "split",
+          "bucket": "needs_relabel",
+          "n": 3
+        },
+        "phrasal_verb": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 4
+        },
+        "cohesion_connective": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 3
+        },
+        "collocation": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 1
+        },
+        "orthography": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 1
+        },
+        "addition": {
+          "kind": "1:1",
+          "bucket": "unambiguous",
+          "n": 1
+        }
+      },
+      "files": [
+        "tests/fixtures/dt_gold/en.json",
+        "data/eval/jev_dt_2026-09-26/silver/en_final3.json"
+      ]
+    }
+  },
+  "totals": {
+    "unambiguous": 164,
+    "needs_relabel": 10,
+    "unknown_subtype": 0,
+    "total_labels": 174
+  }
+}

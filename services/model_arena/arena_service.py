@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Callable, Optional
 
 from services.llm_output_cleaner import clean_text, clean_json_response
-from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
+from services.categorical_maps import DIFFICULTY_TO_TIER
 from services.supabase_factory import get_supabase_admin
 
 from .models import (

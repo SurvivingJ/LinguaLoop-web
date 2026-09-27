@@ -1,15 +1,18 @@
 ---
 title: Language Packs
 type: feature
-status: in-progress
+status: deprecated
 tech_page: ./language-packs.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-09-22
 open_questions:
   - "Pack completion criteria — what defines 'finished'?"
   - "Can users study multiple packs concurrently, or one at a time?"
 ---
 
 # Language Packs
+
+> **ARCHIVED 2026-09-21.** No pack was ever created (all 6 tables empty). Pack services, style-pack exercise generators, /api/corpus/packs + /style-packs routes and the practice engine's pack cold-start intake were removed; ladder top-up now nominates from learner evidence only. The corpus itself is still live (the vocabulary ladder reads corpus_collocations). Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/language-packs-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+
 
 ## Purpose
 

@@ -1,0 +1,113 @@
+{
+  "sense_id": 35211,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T05:23:34.953343+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "Tier gate: sentence[5] 3 words above tier T1 (max 2): 一人ひとり (Zipf 3.16), 最大限 (Zipf 3.77), 引き上げる (Zipf 3.53)",
+    "Tier gate: sentence[6] 4 words above tier T1 (max 2): 炭素 (Zipf 3.73), 地質 (Zipf 3.39), 絶えず (Zipf 3.47), 保っ (Zipf 3.85)",
+    "Tier gate: sentence[9] 4 words above tier T1 (max 2): 時折 (Zipf 3.69), 天候 (Zipf 3.82), 力強く (Zipf 3.37), 茎 (Zipf 3.57)",
+    "P1 sentence[0] rejected (rating 1): 対象語欠落",
+    "P1 sentence[1] rejected (rating 1): 対象語欠落",
+    "P1 sentence[2] rejected (rating 1): 対象語欠落",
+    "P1 sentence[3] rejected (rating 1): 対象語欠落",
+    "P1 sentence[4] rejected (rating 1): 対象語欠落",
+    "P1 sentence[5] rejected (rating 1): 対象語欠落",
+    "P1 sentence[6] rejected (rating 1): 対象語欠落",
+    "P1 sentence[7] rejected (rating 1): 対象語欠落",
+    "P1 sentence[8] rejected (rating 1): 対象語欠落",
+    "P1 sentence[9] rejected (rating 1): 対象語欠落",
+    "P1 sentence judge: only 0 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.9113397598266602,
+    "p1_generate": 53.86191701889038,
+    "tier_gate": 17.754340410232544,
+    "p1_judge": 103.68035006523132
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00673088,
+      "prompt_tokens": 3062,
+      "completion_tokens": 4493,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3515,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 53502
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00340096,
+      "prompt_tokens": 772,
+      "completion_tokens": 2464,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2238,
+      "call_role": "repair",
+      "sense_id": 35211,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 17214
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027504,
+      "prompt_tokens": 935,
+      "completion_tokens": 1915,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1734,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 12585
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35211,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": null
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.01288224,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 6,
+    "repaired": 3,
+    "still_failing": 3
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 176.32800000000861,
+  "finished_at": "2026-09-27T05:26:31.269213+00:00"
+}

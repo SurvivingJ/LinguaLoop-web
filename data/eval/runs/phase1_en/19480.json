@@ -1,0 +1,1132 @@
+{
+  "sense_id": 19480,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:54:22.342348+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "[A] word_family generation failed",
+    "[B] word_family generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.14939451217651367,
+    "p1_generate": 3.6511754989624023,
+    "tier_gate": 0.0,
+    "p1_judge": 1.4220399856567383,
+    "collocate_grounding": 0.0,
+    "fan_out": 72.58522367477417
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈɛkwɪtəbli/",
+        "morphological_forms": [
+          {
+            "form": "equitable",
+            "label": "adjective"
+          },
+          {
+            "form": "equitability",
+            "label": "noun"
+          },
+          {
+            "form": "equity",
+            "label": "noun"
+          }
+        ],
+        "pronunciation": "eh-kwit-uh-bly",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19480
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "b853d1f5-11b1-4e74-88bf-d30db338f0d7",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "equitably",
+        "pronunciation": "eh-kwit-uh-bly",
+        "correct_definition": "In a way that is fair and just, giving equal treatment to everyone involved.",
+        "options": [
+          "In a way that is fair and just, giving equal treatment to everyone involved.",
+          "To find the exact position of something or someone.",
+          "to get something from a particular place or person",
+          "A widely held but false belief or idea."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8e669435-ed5c-4400-852a-2f15c6635ed4",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The chef chopped the onions equitably, ensuring every piece was exactly the same size.",
+            "is_correct": false
+          },
+          {
+            "text": "The sun shone equitably on the plants, giving each one the exact same amount of light.",
+            "is_correct": false
+          },
+          {
+            "text": "Resources should be divided equitably across all the different clubs at our school.",
+            "is_correct": true
+          },
+          {
+            "text": "She equitably tied her shoes so that both laces were perfectly symmetrical.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Equitably' refers to fairness and justice in human treatment or resource distribution, not the physical, geometric precision of chopping vegetables. Semantically inappropriate: 'Equitably' requires an agent capable of moral reasoning and intent; natural phenomena like the sun cannot act with a sense of justice or fairness. Pragmatically inappropriate: 'Equitably' describes fair treatment of people or distribution of resources, not the physical symmetry or aesthetic balance of tying shoelaces.",
+        "target_word": "equitably"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5a009c82-dec3-4ac3-8d3b-a8160ee211ae",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Friends can avoid arguments by deciding things equitably when they plan activities together."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b3853cd4-107b-4dfc-bcb3-c8bfb0ee025c",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "equitably",
+        "pronunciation": "eh-kwit-uh-bly",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Relating to a system of written symbols used to represent numbers, musical notes, or other information.",
+              "A man is a grown-up boy.",
+              "In a way that is fair and just, giving equal treatment to everyone involved.",
+              "Exact means correct in every detail, without any errors or differences."
+            ],
+            "correct_answer": "In a way that is fair and just, giving equal treatment to everyone involved."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7bee6899-4662-4702-914d-39de91e5ba6e",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Group members worked hard to distribute the project tasks ___ so that no one felt overwhelmed.",
+        "original_sentence": "Group members worked hard to distribute the project tasks equitably so that no one felt overwhelmed.",
+        "target_word": "equitably",
+        "word": "equitably",
+        "answer": {
+          "accepted": [
+            "equitably",
+            "equitable",
+            "equitability",
+            "equity"
+          ],
+          "accepted_normalized": [
+            "equitably",
+            "equitable",
+            "equitability",
+            "equity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8e2c53c4-258c-428b-936f-fdbfc9ec5412",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Friends can avoid arguments by deciding things equitably when they plan activities together.",
+        "chunks": [
+          "Friends",
+          "can avoid",
+          "arguments",
+          "by deciding things equitably when they plan activities together"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "can avoid",
+          "by deciding things equitably when they plan activities together",
+          "arguments",
+          "Friends"
+        ],
+        "target_word": "equitably",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7f966f6e-c50c-4dce-b3ff-dc4b6d74af58",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "equitably",
+        "relation": "antonym",
+        "options": [
+          "proportionally",
+          "adequately",
+          "unfairly",
+          "equally"
+        ],
+        "correct_answer": "unfairly",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "In a way that is fair and just, giving equal treatment to everyone involved.",
+            "explanation": "antonym: means in a way that is not fair or just to everyone involved"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "equally": 0.642758,
+            "adequately": 0.49351
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "638eddf6-e876-4858-a62e-56a3d9e5e22d",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The chef chopped the vegetables equitably so that they would cook at the exact same speed in the pan.",
+            "is_correct": false
+          },
+          {
+            "text": "She equitably tied her shoelaces before going for a long run in the park.",
+            "is_correct": false
+          },
+          {
+            "text": "The discussion leader ensured that all participants could speak equitably during the debate.",
+            "is_correct": true
+          },
+          {
+            "text": "The sun shone equitably on the flowers in the garden, helping them all grow tall.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Equitably' refers to moral fairness and justice among people, not the physical uniformity of chopped vegetables (which would be 'uniformly' or 'evenly'). Semantically inappropriate: Tying shoelaces is a physical action that does not involve treating multiple parties fairly or justly. Semantically inappropriate: Natural phenomena like sunlight cannot possess moral agency or distribute resources with a sense of justice; 'equally' would be the correct word here.",
+        "target_word": "equitably"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f09d896a-0927-461f-9c2b-ac4032b5067b",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The referee managed the game equitably, making sure neither team had an unfair advantage.",
+            "is_correct": true
+          },
+          {
+            "text": "The discussion leader ensured that all participants could speak equitably during the debate.",
+            "is_correct": true
+          },
+          {
+            "text": "Our class treasurer tried to spend the club funds equitably on supplies for everyone.",
+            "is_correct": true
+          },
+          {
+            "text": "The teacher shared equitably the prizes among all the students in the class.",
+            "is_correct": false,
+            "error_description": "The adverb 'equitably' is incorrectly placed between the transitive verb 'shared' and its direct object 'the prizes'. In English, adverbs should not separate a verb from its direct object; it should be placed after the object."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "69b8a216-55e0-4e9b-8d34-888beda20641",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Resources should be divided equitably across all the different clubs at our school."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "270c6301-1fd1-4f25-aa15-ee134af0689f",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Our class treasurer tried to spend the club funds ___ on supplies for everyone.",
+        "original_sentence": "Our class treasurer tried to spend the club funds equitably on supplies for everyone.",
+        "target_word": "equitably",
+        "word": "equitably",
+        "answer": {
+          "accepted": [
+            "equitably",
+            "equitable",
+            "equitability",
+            "equity"
+          ],
+          "accepted_normalized": [
+            "equitably",
+            "equitable",
+            "equitability",
+            "equity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d8eb9928-51ab-4651-ba1d-6aaedfcd6931",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Resources should be divided equitably across all the different clubs at our school.",
+        "chunks": [
+          "Resources",
+          "should be divided",
+          "equitably",
+          "across all the different clubs",
+          "at our school"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "equitably",
+          "should be divided",
+          "across all the different clubs",
+          "Resources",
+          "at our school"
+        ],
+        "target_word": "equitably",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f55de072-6325-4815-8fcd-2e64394d7bc1",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "equitably",
+        "relation": "antonym",
+        "options": [
+          "impartially",
+          "equally",
+          "reasonably",
+          "unfairly"
+        ],
+        "correct_answer": "unfairly",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "In a way that is fair and just, giving equal treatment to everyone involved.",
+            "explanation": "antonym: in a way that is not fair or just to everyone"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "equally": 0.642758
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19480,
+      "word_asset_id": "shadow-19480-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.002239,
+      "prompt_tokens": 1930,
+      "completion_tokens": 664,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3463
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006402,
+      "prompt_tokens": 684,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1348
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016304,
+      "prompt_tokens": 663,
+      "completion_tokens": 1108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 906,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 14580
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00223328,
+      "prompt_tokens": 663,
+      "completion_tokens": 1579,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1382,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 19691
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00477792,
+      "prompt_tokens": 1623,
+      "completion_tokens": 3327,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2592,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 24709
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00316576,
+      "prompt_tokens": 1181,
+      "completion_tokens": 2178,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2043,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 26747
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0038256,
+      "prompt_tokens": 1623,
+      "completion_tokens": 2583,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1877,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 32053
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00144224,
+      "prompt_tokens": 843,
+      "completion_tokens": 916,
+      "cached_tokens": 0,
+      "reasoning_tokens": 905,
+      "call_role": "retry",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 12625
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00467008,
+      "prompt_tokens": 1182,
+      "completion_tokens": 3353,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3234,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 41373
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003645,
+      "prompt_tokens": 415,
+      "completion_tokens": 96,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1104
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003288,
+      "prompt_tokens": 396,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1261
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004336,
+      "prompt_tokens": 512,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1315
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004393,
+      "prompt_tokens": 531,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1302
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000312,
+      "prompt_tokens": 415,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1064
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000306,
+      "prompt_tokens": 395,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 959
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003898,
+      "prompt_tokens": 516,
+      "completion_tokens": 94,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1018
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002081,
+      "prompt_tokens": 402,
+      "completion_tokens": 35,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 834
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004446,
+      "prompt_tokens": 532,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19480,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 974
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.02785118,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 88.98399999999674,
+  "finished_at": "2026-09-27T03:55:51.340949+00:00"
+}

@@ -1,0 +1,674 @@
+{
+  "sense_id": 35293,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T05:35:17.137706+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Level 1: expected 4-8 options, got 2",
+    "Prompt 2 variant B generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[7] flagged (rating 3): 語域：極めてと友達の不一致",
+    "P1 sentence[8] flagged (rating 3): 用法：極めて注意しては不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.629422664642334,
+    "p1_generate": 67.85341024398804,
+    "tier_gate": 0.019718647003173828,
+    "p1_judge": 35.32428288459778,
+    "collocate_grounding": 0.0,
+    "fan_out": 178.77070879936218
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[7] flagged (rating 3): 語域：極めてと友達の不一致",
+        "P1 sentence[8] flagged (rating 3): 用法：極めて注意しては不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/kiwamete/",
+        "pronunciation": "きわめて",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35293
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "e19d5467-f11d-478c-8b89-a7b366da133e",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "correct_definition": "状態や動作の度合いが、とても高いことを表す副詞。",
+        "options": [
+          "数量や程度が非常に大きいこと。",
+          "状態や動作の度合いが、とても高いことを表す副詞。",
+          "「本来」は、あるものが初めからそうであること、または当然そうあるべき状態を表す語です。",
+          "本物ではないこと。実際には存在しないことや、うそであること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1df257f3-31c8-4f6c-a9dd-1d1fec929353",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "かつては安定していた生態系のサイクルが、現代文明の経済活動によって歪められ、その修復は極めて困難な局面を迎えている。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担うう。",
+            "is_correct": false
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割が担う。",
+            "is_correct": false
+          },
+          {
+            "text": "担う役割を重要な極めてCCUSは、領域において炭素発生をゼロ化し得ない。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：他動詞「担う」の対象は「を」で示す。「が」は誤り。 活用：辞書形は「担う」であり、「担うう」は存在しない形。 語順：修飾関係が崩れ、係り受けが不明瞭になっている。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c72cd138-f792-44e4-9b17-d5c0727b9b2a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "こうした文脈下、人工知能アルゴリズムによるリアルタイムの習熟度分析を通じて学習者の認知特性に最適化された教材提示を可能にするアダプティブラーニングプラットフォームの導入は、教育学の観点から極めて示唆に富む。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入は、現代社会において極めてに重要な課題である。",
+            "is_correct": false,
+            "error_description": "副詞「極めて」の後に助詞「に」を付けるのは誤りです。副詞は助詞を介さずに直接形容詞や動詞を修飾します。"
+          },
+          {
+            "text": "その社会的意義は極めて大きい。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "ac90b0f9-7461-4d69-8b35-6ca152f2675a",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "polyester — a fiber chemically synthesized from petroleum, resistant to wrinkling and quick-drying, used in clothing",
+              "状態や動作の度合いが、とても高いことを表す副詞。",
+              "指や道具で、ものをこすってまぜること。",
+              "轮次 —— 表示顺序的词，尤指做某事的次序，或按顺序分配的角色"
+            ],
+            "correct_answer": "状態や動作の度合いが、とても高いことを表す副詞。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1e7ef883-bd66-42a8-9cdc-ef4f12926719",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "極めて",
+        "options": [
+          "ぎわめて",
+          "きわめで",
+          "きいわめて",
+          "きわめて"
+        ],
+        "correct_answer": "きわめて",
+        "word": "極めて",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "18b8ab0a-50e4-44ef-820b-295761981d78",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "きわめて",
+        "options": [
+          "極めて",
+          "分厚い",
+          "大好き",
+          "認める"
+        ],
+        "correct_answer": "極めて",
+        "word": "極めて",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "大好き": "component",
+          "分厚い": "component",
+          "認める": "frequency"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "83f0cc5c-df8c-4b68-b6b6-88c503926a44",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この問題は極めてに難しい。",
+            "is_correct": false,
+            "error_description": "助詞の混同。副詞「極めて」の後に格助詞「に」を誤って付加している。副詞は助詞を伴わずに直接形容詞を修飾する。"
+          },
+          {
+            "text": "極めて珍しい花が咲いている。",
+            "is_correct": true
+          },
+          {
+            "text": "極めて大切な友達です。",
+            "is_correct": true
+          },
+          {
+            "text": "この問題は極めて難しい。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0084832,
+      "prompt_tokens": 2874,
+      "completion_tokens": 5909,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4722,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 67633
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00434016,
+      "prompt_tokens": 843,
+      "completion_tokens": 3180,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2894,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 35158
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00441728,
+      "prompt_tokens": 1704,
+      "completion_tokens": 3025,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2896,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 36814
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00600896,
+      "prompt_tokens": 1690,
+      "completion_tokens": 4272,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4159,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 48623
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.011355136,
+      "prompt_tokens": 2764,
+      "completion_tokens": 8641,
+      "cached_tokens": 2304,
+      "reasoning_tokens": 7942,
+      "call_role": "retry",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 58802
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0084624,
+      "prompt_tokens": 781,
+      "completion_tokens": 6416,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6348,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 75636
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016136,
+      "prompt_tokens": 366,
+      "completion_tokens": 74,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2660
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00324832,
+      "prompt_tokens": 667,
+      "completion_tokens": 2371,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2297,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 27766
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019344,
+      "prompt_tokens": 529,
+      "completion_tokens": 1379,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1352,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 17184
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00262048,
+      "prompt_tokens": 781,
+      "completion_tokens": 1852,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1749,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 24589
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016108,
+      "prompt_tokens": 363,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2663
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00448416,
+      "prompt_tokens": 597,
+      "completion_tokens": 3354,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3281,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 46160
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006576,
+      "prompt_tokens": 523,
+      "completion_tokens": 383,
+      "cached_tokens": 0,
+      "reasoning_tokens": 356,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 5947
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.056334536000000004,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 488.5470000000205,
+  "finished_at": "2026-09-27T05:43:25.682358+00:00"
+}

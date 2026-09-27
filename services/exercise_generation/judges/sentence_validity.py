@@ -109,7 +109,13 @@ def judge_wrong_sentences(
             prompt,
             model=cfg['model'],
             temperature=0.0,
-            max_tokens=19000,
+            # TASK-812: was 19000 (never re-derived since it was first set).
+            # TASK-808's baseline (data/eval/runs/baseline_{en,ja}/*.json)
+            # shows this judge's own completion_tokens p99 at 5247 (n=94,
+            # max 5247) -- 16000 is >=3x that, leaving headroom for a larger
+            # multi-item batch than the baseline sampled, while still cutting
+            # the worst-case runaway-completion cost by ~16%.
+            max_tokens=16000,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

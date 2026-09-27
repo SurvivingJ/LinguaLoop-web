@@ -59,6 +59,30 @@ def build_text(lemma: str | None, definition: str | None) -> str:
     return lemma or definition
 
 
+#: dim_word_senses.embedding is halfvec(768) since 2026-09-22
+#: (migrations/shrink_sense_embeddings_halfvec768.sql). text-embedding-3-small
+#: is Matryoshka-trained: truncating to the first N dims and re-normalising is
+#: exactly what the API's ``dimensions=N`` returns, so this keeps new vectors
+#: identical in kind to the migrated ones. Topic/passage embeddings are NOT
+#: sense embeddings and stay 1536-d — do not change EmbeddingService globally.
+SENSE_EMBEDDING_DIMS = 768
+
+
+def sense_vector(vector: list[float] | None) -> list[float] | None:
+    """Truncate a 1536-d embedding to SENSE_EMBEDDING_DIMS and L2-normalise it.
+
+    Every writer of dim_word_senses.embedding must pass its vector through this;
+    the column rejects any other length.
+    """
+    if not vector:
+        return vector
+    head = list(vector[:SENSE_EMBEDDING_DIMS])
+    if len(head) != SENSE_EMBEDDING_DIMS:
+        raise ValueError(f'expected >= {SENSE_EMBEDDING_DIMS} dims, got {len(vector)}')
+    norm = sum(x * x for x in head) ** 0.5
+    return [x / norm for x in head] if norm else head
+
+
 def fetch_pending(db, language_id: int | None, force: bool) -> list[dict]:
     """Senses needing an embedding, paired with their lemma."""
     out: list[dict] = []
@@ -109,7 +133,7 @@ def embed_and_store(db, embedder, rows: list[dict], batch_size: int) -> dict:
                 continue
             try:
                 db.table('dim_word_senses').update(
-                    {'embedding': vector}).eq('id', row['id']).execute()
+                    {'embedding': sense_vector(vector)}).eq('id', row['id']).execute()
                 stats['embedded'] += 1
             except Exception as exc:
                 logger.error('failed to store embedding for sense %s: %s',

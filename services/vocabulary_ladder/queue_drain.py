@@ -253,23 +253,75 @@ def _finish(db, row_id: int, ok: bool, detail: dict) -> None:
         logger.warning('could not finish row %s: %s', row_id, exc)
 
 
+def _semantic_class_for_sense(db, sense_id: int) -> str | None:
+    """Ratified semantic_class for a sense, or None if it can't be resolved.
+
+    TASK-811 support: mapping ``missing_families`` to ladder levels needs the
+    sense's semantic_class (the capability matrix is keyed on
+    (language_id, semantic_class)), and ``_regenerate`` has no other reason to
+    fetch ``dim_vocabulary`` before running the pipeline.
+    """
+    try:
+        resp = (
+            db.table('dim_word_senses')
+            .select('dim_vocabulary(semantic_class)')
+            .eq('id', sense_id)
+            .single()
+            .execute()
+        )
+        vocab = (resp.data or {}).get('dim_vocabulary') or {}
+        return vocab.get('semantic_class')
+    except Exception as exc:
+        logger.warning('semantic_class lookup failed for sense %s: %s', sense_id, exc)
+        return None
+
+
 def _regenerate(db, row: dict) -> tuple[bool, dict]:
     """Re-run generation for one queued sense.
 
     Non-destructive ordering: the old exercises are deleted only *after* the
     new render has produced rows, so a failed regeneration leaves the learner
     with the content they had rather than with nothing.
+
+    TASK-811: a ``coverage_gap`` row carries ``detail['missing_families']``
+    (cognitive families, e.g. ``form_production``) — mapped to the ladder
+    levels that can close the gap via
+    :func:`services.vocabulary_ladder.config.families_to_levels`, so the
+    pipeline and the renderer only regenerate/re-judge those levels instead of
+    every active level for both variants. ``regen``/``subscribe_topup`` rows
+    (and a coverage-gap row whose families don't map to any known level) carry
+    no such hint and fall back to a full, unscoped regen — unchanged
+    behaviour.
     """
     from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline
+    from services.vocabulary_ladder.config import families_to_levels, normalize_semantic_class
     from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
 
     sense_id = row['sense_id']
     language_id = row['language_id']
+    reason = row.get('reason')
     detail = dict(row.get('detail') or {})
+
+    levels: set[int] | None = None
+    if reason == REASON_COVERAGE_GAP:
+        missing_families = detail.get('missing_families')
+        semantic_class = normalize_semantic_class(
+            _semantic_class_for_sense(db, sense_id))
+        mapped = families_to_levels(missing_families, semantic_class, language_id)
+        if mapped:
+            levels = mapped
+            detail['scoped_levels'] = sorted(levels)
+        else:
+            logger.info(
+                'queue_drain: could not map missing_families %s to a level '
+                'for sense %s — falling back to a full regen',
+                missing_families, sense_id,
+            )
 
     try:
         pipeline = VocabAssetPipeline(db)
-        result = pipeline.generate_for_sense(sense_id, language_id, force=True)
+        result = pipeline.generate_for_sense(
+            sense_id, language_id, force=True, levels=levels)
         detail['pipeline_status'] = result.get('status')
         if result.get('errors'):
             detail['pipeline_errors'] = result['errors'][:5]
@@ -277,7 +329,7 @@ def _regenerate(db, row: dict) -> tuple[bool, dict]:
             return False, detail
 
         renderer = LadderExerciseRenderer(db)
-        new_rows = renderer.build_rows(sense_id, language_id)
+        new_rows = renderer.build_rows(sense_id, language_id, levels=levels)
         detail['skips'] = [
             {'type': s.type_code, 'reason': s.reason}
             for s in getattr(renderer, 'last_skips', [])
@@ -286,10 +338,19 @@ def _regenerate(db, row: dict) -> tuple[bool, dict]:
             detail['error'] = 'render produced no rows'
             return False, detail
 
-        (db.table('exercises').delete()
-           .eq('word_sense_id', sense_id)
-           .not_.is_('word_asset_id', 'null')
-           .execute())
+        delete_query = (
+            db.table('exercises').delete()
+            .eq('word_sense_id', sense_id)
+            .not_.is_('word_asset_id', 'null')
+        )
+        if levels is not None:
+            # Scoped regen: only clear the levels being replaced. `new_rows`
+            # is already scoped to the same set (build_rows's own contract),
+            # so the delete and the insert cover exactly the same rows and
+            # every other level's exercises — and their `updated_at` — are
+            # left alone.
+            delete_query = delete_query.in_('ladder_level', sorted(levels))
+        delete_query.execute()
         db.table('exercises').insert(new_rows).execute()
         detail['rendered'] = len(new_rows)
 

@@ -1,0 +1,1446 @@
+{
+  "sense_id": 14010,
+  "language_id": 2,
+  "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+  "started_at": "2026-09-26T03:33:11.836433+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Missing level_4",
+    "[A] Missing level_8",
+    "[B] Missing level_4",
+    "[B] Missing level_8"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 3.031529188156128,
+    "p1_generate": 6.561062574386597,
+    "tier_gate": 0.0,
+    "p1_judge": 1.7148187160491943,
+    "collocate_grounding": 0.0,
+    "fan_out": 27.146095037460327
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_4",
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_4",
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈdɪfərənt/",
+        "morphological_forms": [
+          {
+            "form": "differ",
+            "label": "base verb"
+          },
+          {
+            "form": "differs",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "differed",
+            "label": "past tense / past participle"
+          },
+          {
+            "form": "differing",
+            "label": "present participle"
+          },
+          {
+            "form": "differently",
+            "label": "adverb"
+          }
+        ],
+        "pronunciation": "dif-fuh-ruhnt",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14010
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "5c7da7f0-9a38-45b7-9644-be742060dc4d",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "different",
+        "pronunciation": "dif-fuh-ruhnt",
+        "correct_definition": "Not the same as another or each other; unlike.",
+        "options": [
+          "A device or person that roasts food, especially coffee beans or meat.",
+          "Longer is used to say something continues for a greater amount of time than something else.",
+          "Not the same as another or each other; unlike.",
+          "The way in which you pronounce words or parts of words clearly and distinctly."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9ad1c6e7-3a57-4e4a-9b10-890671dce764",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "People see time in ___ ways.",
+        "original_sentence": "People see time in different ways.",
+        "correct_answer": "different",
+        "options": [
+          "different",
+          "difficult",
+          "similar",
+          "distant"
+        ],
+        "explanation": "Correct: matches the original sentence, describing how people perceive time in varied, unlike ways.",
+        "distractor_tags": {},
+        "word_definition": "Not the same as another or each other; unlike.",
+        "target_word": "different"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "d197cbaf-2151-486a-872c-6d1dad060b89",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The two songs sounded identical, yet they were different in every possible way.",
+            "is_correct": false
+          },
+          {
+            "text": "The twins were completely different because they looked exactly alike.",
+            "is_correct": false
+          },
+          {
+            "text": "He always eats the same breakfast, which is different every single day.",
+            "is_correct": false
+          },
+          {
+            "text": "Sometimes, this can lead to misunderstandings when people from different cultural backgrounds interact.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Contradiction: looking 'exactly alike' cannot logically result in being 'completely different'. Contradiction: eating 'the same breakfast' every day cannot also be 'different' every day. Contradiction: sounding 'identical' directly conflicts with being 'different in every possible way'.",
+        "target_word": "different"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b7a1154e-f7f9-4526-8f35-f09641dfcd10",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Across the world, different societies have always used stories."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "426a79a4-2d56-44a3-91e8-da2ab039f9e8",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "different",
+        "pronunciation": "dif-fuh-ruhnt",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A job or position that suits someone’s skills and interests perfectly.",
+              "Not the same as another or each other; unlike.",
+              "To stay in a place or delay action until something expected happens.",
+              "To recognize or show the difference between things."
+            ],
+            "correct_answer": "Not the same as another or each other; unlike."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9f2fd971-966c-4d3c-8d37-a93eec5a5b9c",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "This means how people in ___ places think.",
+        "original_sentence": "This means how people in different places think.",
+        "target_word": "different",
+        "word": "different",
+        "answer": {
+          "accepted": [
+            "different",
+            "differ",
+            "differs",
+            "differed",
+            "differing",
+            "differently"
+          ],
+          "accepted_normalized": [
+            "different",
+            "differ",
+            "differs",
+            "differed",
+            "differing",
+            "differently"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f1332670-32d9-491c-8fe9-e7684edef561",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Across the world, different societies have always used stories.",
+        "chunks": [
+          "Across the world",
+          "different societies",
+          "have used",
+          "always",
+          "stories"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "different societies",
+          "have used",
+          "stories",
+          "always",
+          "Across the world"
+        ],
+        "target_word": "different",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "92824561-b71e-43ca-ac06-55d83d1e778f",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "different",
+        "relation": "antonym",
+        "options": [
+          "varied",
+          "diverse",
+          "same",
+          "distinct"
+        ],
+        "correct_answer": "same",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Not the same as another or each other; unlike.",
+            "explanation": "antonym: being identical rather than unlike"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "diverse": 0.645045,
+            "distinct": 0.637925
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "9c634d91-2fba-46c9-8b52-ab83d4f2e838",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "differ",
+        "sentence_with_blank": "This means how people in ___ places think.",
+        "original_sentence": "This means how people in different places think.",
+        "required_pos": "adjective",
+        "options": [
+          "differal",
+          "differment",
+          "differous",
+          "different"
+        ],
+        "correct_answer": "different",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adjective meaning 'not the same'"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bb1359c7-4b08-4399-990e-cd84b3e756ff",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "different",
+        "pronunciation": "dif-fuh-ruhnt",
+        "ipa": "/ˈdɪfərənt/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "diffident",
+          "defiant",
+          "deferent",
+          "different"
+        ],
+        "correct_answer": "different",
+        "explanation": "Correct: this is the target word as naturally spoken and spelled.",
+        "distractor_explanations": {
+          "deferent": "Near-homophone: sounds almost identical to 'different' but means respectful or yielding, a different word.",
+          "diffident": "Minimal pair: swaps the middle sound for /d/ instead of /r/, meaning shy or lacking confidence.",
+          "defiant": "Rhymes closely with 'different' when heard quickly, but means openly resistant, a distinct word."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9b067ba5-b463-4dd6-ba25-b57f277c01d6",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "We can learn about ___ perspectives.",
+        "original_sentence": "We can learn about different perspectives.",
+        "correct_answer": "different",
+        "options": [
+          "afraid",
+          "expensive",
+          "different",
+          "curious"
+        ],
+        "explanation": "Correct: fits the sentence, meaning we can learn about perspectives that are not the same as each other.",
+        "distractor_tags": {},
+        "word_definition": "Not the same as another or each other; unlike.",
+        "target_word": "different"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "4e872526-f60f-42b2-8e79-f83fabbf4869",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He eats the same different breakfast every morning: eggs and toast.",
+            "is_correct": false
+          },
+          {
+            "text": "The underlying physics also dictates the behavior of air at different altitudes and speeds.",
+            "is_correct": true
+          },
+          {
+            "text": "The twins have different faces, so people always confuse them for each other.",
+            "is_correct": false
+          },
+          {
+            "text": "These two photos are different, even though they are exact copies of the same image.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Contradictory: if their faces are truly different, people should not confuse them; this misuses 'different' against the logic of the sentence. Contradictory: 'same' and 'different' cannot both describe an unchanging daily breakfast, making this usage nonsensical. Contradictory: exact copies of the same image cannot logically be called 'different', so the word is misapplied here.",
+        "target_word": "different"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5a59f521-b26b-4785-95b7-a32469c0c774",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Sometimes, this can lead to misunderstandings when people from different cultural backgrounds interact."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "8bf0d310-1418-48c0-8e41-0d7ffca29e89",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The beans travel for weeks, crossing many borders, to reach ___ countries.",
+        "original_sentence": "The beans travel for weeks, crossing many borders, to reach different countries.",
+        "target_word": "different",
+        "word": "different",
+        "answer": {
+          "accepted": [
+            "different",
+            "differ",
+            "differs",
+            "differed",
+            "differing",
+            "differently"
+          ],
+          "accepted_normalized": [
+            "different",
+            "differ",
+            "differs",
+            "differed",
+            "differing",
+            "differently"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4ea62c7f-c2c9-4ae8-8697-9918366b6562",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Sometimes, this can lead to misunderstandings when people from different cultural backgrounds interact.",
+        "chunks": [
+          "Sometimes",
+          "this can lead",
+          "to misunderstandings",
+          "when people from different cultural backgrounds interact"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "this can lead",
+          "when people from different cultural backgrounds interact",
+          "Sometimes",
+          "to misunderstandings"
+        ],
+        "target_word": "different",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "692008c3-23e6-43d4-837f-46ff2b025840",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "different",
+        "relation": "antonym",
+        "options": [
+          "unusual",
+          "distinct",
+          "diverse",
+          "identical"
+        ],
+        "correct_answer": "identical",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Not the same as another or each other; unlike.",
+            "explanation": "antonym: exactly the same as another, the opposite of unlike"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "diverse": 0.645045,
+            "distinct": 0.637925
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ef43922e-6b87-438c-a2b2-ec83a3c3e34a",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "differ",
+        "sentence_with_blank": "The beans travel for weeks, crossing many borders, to reach ___ countries.",
+        "original_sentence": "The beans travel for weeks, crossing many borders, to reach different countries.",
+        "required_pos": "adjective",
+        "options": [
+          "differous",
+          "differity",
+          "differment",
+          "different"
+        ],
+        "correct_answer": "different",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the correct adjective form meaning unlike or not the same"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14010,
+      "word_asset_id": "shadow-14010-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0020546,
+      "prompt_tokens": 2007,
+      "completion_tokens": 581,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 6400
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006261,
+      "prompt_tokens": 637,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1529
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.007746,
+      "prompt_tokens": 1573,
+      "completion_tokens": 460,
+      "cached_tokens": 0,
+      "reasoning_tokens": 356,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 8621
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.008,
+      "prompt_tokens": 920,
+      "completion_tokens": 616,
+      "cached_tokens": 0,
+      "reasoning_tokens": 445,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 8650
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.007806,
+      "prompt_tokens": 1213,
+      "completion_tokens": 538,
+      "cached_tokens": 0,
+      "reasoning_tokens": 523,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 9915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.00838,
+      "prompt_tokens": 1570,
+      "completion_tokens": 524,
+      "cached_tokens": 0,
+      "reasoning_tokens": 409,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 9984
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.01098,
+      "prompt_tokens": 925,
+      "completion_tokens": 913,
+      "cached_tokens": 0,
+      "reasoning_tokens": 769,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 12145
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.011136,
+      "prompt_tokens": 1198,
+      "completion_tokens": 874,
+      "cached_tokens": 0,
+      "reasoning_tokens": 859,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 12918
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.006782,
+      "prompt_tokens": 1111,
+      "completion_tokens": 456,
+      "cached_tokens": 0,
+      "reasoning_tokens": 243,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 6447
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.010062,
+      "prompt_tokens": 1096,
+      "completion_tokens": 787,
+      "cached_tokens": 0,
+      "reasoning_tokens": 596,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 11568
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.027632,
+      "prompt_tokens": 2171,
+      "completion_tokens": 2329,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1591,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 25383
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.029322,
+      "prompt_tokens": 2171,
+      "completion_tokens": 2498,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1778,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 27000
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003214,
+      "prompt_tokens": 413,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1256
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003058,
+      "prompt_tokens": 361,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1238
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003467,
+      "prompt_tokens": 464,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1260
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004472,
+      "prompt_tokens": 524,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1183
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004397,
+      "prompt_tokens": 499,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1409
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004011,
+      "prompt_tokens": 412,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1350
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003333,
+      "prompt_tokens": 361,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1173
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003907,
+      "prompt_tokens": 494,
+      "completion_tokens": 97,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1334
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004547,
+      "prompt_tokens": 524,
+      "completion_tokens": 119,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1342
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004222,
+      "prompt_tokens": 499,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14010,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1148
+    }
+  ],
+  "llm_calls_observed": 22,
+  "llm_cost_observed_usd": 0.1343895,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 65.42199999999139,
+  "finished_at": "2026-09-26T03:34:17.255184+00:00"
+}

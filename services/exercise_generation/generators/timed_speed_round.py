@@ -22,7 +22,6 @@ class TimedSpeedRoundGenerator(ExerciseGenerator):
 
     def generate_one(self, sentence_dict: dict, source_id: int) -> dict | None:
         fk_col = {
-            'grammar':     'grammar_pattern_id',
             'vocabulary':  'word_sense_id',
             'collocation': 'corpus_collocation_id',
         }.get(self.source_type)

@@ -1,0 +1,51 @@
+lang,v5_subtype,merged_type(s),mapping_kind,notes
+zh,omission,omission,1:1,
+zh,addition,addition,1:1,
+zh,word_choice,word_choice,1:1,
+zh,collocation,collocation,1:1,
+zh,word_order,word_order,1:1,"jev broadens definition (比-comparatives, PP placement) but id/scope survives"
+zh,register,register,1:1,
+zh,orthography,orthography,1:1,
+zh,cohesion_connective,cohesion_connective,1:1,
+zh,classifier,measure_word,1:1,rename only
+zh,aspect_marker,aspect_negation,merge,broadened to include 不/没 negation selection (jev zh.aspect_negation)
+zh,de_particles,de_particle,1:1,"REVISED 2026-09-27 (user decision): reverses the earlier split. ANY 的/地/得 misuse (的-for-得, 的-for-地, 地-for-的, etc.) is an error under v6 `de_particle` — the 的-for-地 carve-out is revoked. Mapping is now deterministic 1:1; no historical rows need relabelling out of de_particle."
+zh,ba_construction,ba_bei,merge,merges with bei_passive into one jev-aligned type
+zh,bei_passive,ba_bei,merge,merges with ba_construction into one jev-aligned type
+zh,resultative_complement,complement,merge,merges with directional_complement into jev's single `complement` type
+zh,directional_complement,complement,merge,merges with resultative_complement into jev's single `complement` type
+zh,adverbial_order,word_order,merge,folded into the general word_order type (jev has no standalone adverbial-order type)
+zh,topic_comment,topic_comment,1:1,retained verbatim; jev has no zh equivalent
+ja,omission,omission,1:1,
+ja,addition,addition,1:1,
+ja,word_choice,word_choice,1:1,
+ja,collocation,collocation,1:1,
+ja,word_order,word_order,1:1,retained verbatim; jev has no ja equivalent
+ja,register,register,1:1,
+ja,orthography,orthography,1:1,
+ja,cohesion_connective,cohesion_connective,1:1,
+ja,particle_wa_ga,wa_ga,split,"jev restricts to 3 structural rules (question-word subject, relative-clause subject, differing とき-clause subject). Ordinary main-clause は/が topic-vs-focus choice, previously taggable under this subtype, is NO LONGER an error. Historical rows need per-instance review."
+ja,particle_case,case_particle,1:1,rename only
+ja,particle_other,particle_other,1:1,retained verbatim; jev has no standalone equivalent
+ja,verb_conjugation,conjugation,1:1,rename only
+ja,tense_aspect_ja,tam,merge,"broadened to modality and relative-tense (前に/後で, まだ+negative) beyond v5's た/ている-only scope"
+ja,keigo_register,keigo,1:1,rename only; dimension stays fidelity per business-rules doc
+ja,counter_classifier,counter,1:1,rename only
+ja,script_choice,(none),dropped,jev: kana/kanji spelling choice for the SAME word is never an error. Historical rows need review — likely relabel to `orthography` (if the intended word is clear) or discard.
+ja,topic_comment,topic_comment,1:1,retained verbatim; jev has no ja equivalent
+ja,particle (historical_alias),wa_ga|case_particle|particle_other,split,pre-v5 undifferentiated `particle` rows must be triaged by hand into wa_ga / case_particle / particle_other; cannot be resolved automatically
+en,omission,omission,1:1,
+en,addition,addition,1:1,
+en,word_choice,word_choice,1:1,
+en,collocation,collocation,1:1,
+en,word_order,word_order,1:1,
+en,register,register,1:1,
+en,orthography,orthography,1:1,
+en,cohesion_connective,cohesion_connective,1:1,
+en,article,article_determiner,1:1,rename only
+en,preposition,preposition,1:1,
+en,tense_aspect,verb_form_tense,1:1,rename only
+en,subject_verb_agreement,agreement,1:1,rename only; jev broadens to attraction cases explicitly
+en,plural_number,plural_number,1:1,retained verbatim; jev has no standalone equivalent
+en,phrasal_verb,phrasal_verb,1:1,retained verbatim; jev only covers idiomatic phrasal verbs under the dropped target_in_idiom type
+en,pronoun_reference,pronoun,split,"jev's en.pronoun is narrower (case, which-for-person, local reflexive binding); v5's broader ambiguous-antecedent errors outside that scope have no home and need per-instance review"

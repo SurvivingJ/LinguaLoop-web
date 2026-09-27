@@ -1,0 +1,1511 @@
+{
+  "sense_id": 35147,
+  "language_id": 3,
+  "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+  "started_at": "2026-09-26T04:21:06.511966+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] particle_selection generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[1] rejected (rating 2): 「祝う」の搭配が誤り",
+    "P1 sentence[2] flagged (rating 3): 「活動へ行く」が不自然",
+    "P1 sentence[3] flagged (rating 3): 表現がやや不自然",
+    "P1 sentence[7] flagged (rating 3): 「選挙へ行く」が不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3187708854675293,
+    "p1_generate": 55.40123391151428,
+    "tier_gate": 0.0030477046966552734,
+    "p1_judge": 133.10607147216797,
+    "collocate_grounding": 0.0,
+    "fan_out": 172.73458003997803
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] rejected (rating 2): 「祝う」の搭配が誤り",
+        "P1 sentence[2] flagged (rating 3): 「活動へ行く」が不自然",
+        "P1 sentence[3] flagged (rating 3): 表現がやや不自然",
+        "P1 sentence[7] flagged (rating 3): 「選挙へ行く」が不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/iku/",
+        "morphological_forms": [
+          {
+            "form": "行った",
+            "label": "活用"
+          },
+          {
+            "form": "行って",
+            "label": "活用"
+          },
+          {
+            "form": "行ける",
+            "label": "活用"
+          },
+          {
+            "form": "行かない",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "いく",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35147
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "219a6ddf-0c65-4bdf-8664-b7348c447a69",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "pronunciation": "いく",
+        "ipa": "/iku/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "意氣",
+          "肉",
+          "軸",
+          "行く"
+        ],
+        "correct_answer": "行く",
+        "explanation": "正解です。「行く」は「ある場所から別の場所へ移動する。また、物事が進む。」という意味です。",
+        "distractor_explanations": {
+          "意氣": "「意氣」は「行く」と一モーラだけ異なる実在語です（2モーラ目: 「く」→「き」、一部の音の違い）。",
+          "肉": "「肉」は「行く」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「に」、一部の音の違い）。",
+          "軸": "「軸」は「行く」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「じ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "曲",
+            "異所",
+            "偉挙"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dfad81b0-8b2a-4e8e-b13a-ef2d8099b162",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "pronunciation": "いく",
+        "correct_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "options": [
+          "ある場所から別の場所へ移動する。また、物事が進む。",
+          "物事の善悪や価値について、自分の考えを決めること。",
+          "物事の動きや変化の方向性。特に、社会や時代の全体的な傾向や流れを指すことが多い。",
+          "時間をかけて発酵や乾燥などの処理を行い、価値や品質が向上した状態にすること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "994d67d2-760f-4241-8d62-ddaaaaabf5f6",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "来月、海外へ___友達を祝いました。",
+        "original_sentence": "来月、海外へ行く友達を祝いました。",
+        "correct_answer": "行く",
+        "base_form": "行く",
+        "form_label": "辞書形",
+        "options": [
+          "行きます",
+          "行く",
+          "行って",
+          "行った"
+        ],
+        "explanation": "「来月」という未来の出来事を修飾するため、辞書形が適切である。",
+        "word_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "target_word": "行く"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fcef900d-9cd7-4db0-b5ad-ebe7f67cd024",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "来月、海外へ行く友達を祝いました。",
+            "is_correct": true
+          },
+          {
+            "text": "私は来週、京都で行く予定です。",
+            "is_correct": false,
+            "error_description": "移動の目的地を表す助詞は「へ」または「に」を使います。「で」は動作の行われる場所を表すため、この文脈では不適切です。"
+          },
+          {
+            "text": "ボランティア活動へ行って、多くのことを学びました。",
+            "is_correct": true
+          },
+          {
+            "text": "私は来週、京都へ行く予定です。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1ea4ffa7-927e-4b8e-a35a-7f5ff3fa8278",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "これから行く場所が楽しみです。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "420705db-501c-4816-8040-9dceb16af291",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "pronunciation": "いく",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "茁壮成长 —— 婴儿或孩子健康顺利地迅速长大的样子",
+              "乐趣；期待的事；令人开心的事",
+              "ある場所から別の場所へ移動する。また、物事が進む。",
+              "English (language)"
+            ],
+            "correct_answer": "ある場所から別の場所へ移動する。また、物事が進む。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "40eaa8f2-15b1-4c2f-a0d9-287465d8f667",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "来月、海外へ___友達を祝いました。",
+        "original_sentence": "来月、海外へ行く友達を祝いました。",
+        "target_word": "行く",
+        "word": "行く",
+        "answer": {
+          "accepted": [
+            "行く",
+            "行った",
+            "行って",
+            "行ける",
+            "行かない"
+          ],
+          "accepted_normalized": [
+            "行く",
+            "行った",
+            "行って",
+            "行ける",
+            "行かない"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "26de4aea-50d7-4f7c-bf56-8996a02a84f0",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "これから行く場所が楽しみです。",
+        "chunks": [
+          "これから",
+          "行く場所が",
+          "楽しみです"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "行く場所が",
+          "楽しみです",
+          "これから"
+        ],
+        "target_word": "行く",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "501af18e-8929-4791-abed-d8e0833d5063",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "行く",
+        "options": [
+          "いくう",
+          "いぐ",
+          "いいく",
+          "いく"
+        ],
+        "correct_answer": "いく",
+        "word": "行く",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7efdd0e6-2bc5-4b77-a050-9957d7bcba81",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "いく",
+        "options": [
+          "幾",
+          "履行",
+          "行く",
+          "技術"
+        ],
+        "correct_answer": "行く",
+        "word": "行く",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "幾": "homophone",
+          "履行": "component",
+          "技術": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ab70da15-02d8-4968-99be-2a0e989ea8c2",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "relation": "antonym",
+        "options": [
+          "来る",
+          "走る",
+          "通る",
+          "入る"
+        ],
+        "correct_answer": "来る",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+            "explanation": "話し手の方へ移動する意であり、目標語の対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "走る": 0.624377,
+            "入る": 0.597014
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cae3a7f2-61dc-4954-aa76-d589bf1d1b7d",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "私たちは選挙へ___べきです。",
+        "original_sentence": "私たちは選挙へ行くべきです。",
+        "correct_answer": "行く",
+        "base_form": "行く",
+        "form_label": "辞書形（終止形）",
+        "options": [
+          "行く",
+          "行った",
+          "行かない",
+          "行って"
+        ],
+        "explanation": "助動詞「べき」は動詞の辞書形（終止形）に接続する",
+        "word_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "target_word": "行く"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5a735412-4daa-4ab9-83f8-a981abb77902",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私は今、京都へ行くています。",
+            "is_correct": false
+          },
+          {
+            "text": "私が行く時は一緒にどうですか。",
+            "is_correct": true
+          },
+          {
+            "text": "行く私が時は京都へ一緒にどうですか。",
+            "is_correct": false
+          },
+          {
+            "text": "私は来週、京都へ行くにしました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「行く」の後ろには名詞化するための「こと」が必要で、「に」を直接続けることはできません。正しくは「行くことにしました」です。 活用・アスペクトの誤り：「行く」の連用形は「行き」であり、「行くている」は誤りです。正しくは「行っている」または「行っています」です。 語順・係り受けの誤り：「私が行く時は」という節の語順が壊れており、文として成立していません。",
+        "target_word": "行く"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "465a53f1-9c0e-4341-9cd6-5fd74745bb9a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "駅まで歩いて行ってください。",
+            "is_correct": true
+          },
+          {
+            "text": "私が行く時は一緒にどうですか。",
+            "is_correct": true
+          },
+          {
+            "text": "私たちは選挙へ行くべきです。",
+            "is_correct": true
+          },
+          {
+            "text": "私は来週、京都へ行くです。",
+            "is_correct": false,
+            "error_description": "動詞の辞書形「行く」の後に直接「です」を続けることはできません。「行く予定です」や「行くつもりです」のように形式名詞を挟む必要があります。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "fa91c465-808b-4aa5-a610-4b2b789e27b6",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "この電車では学校へ行くことができません。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d57d07e7-a319-4aa7-a436-fc9e16d04531",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "私たちは選挙へ___べきです。",
+        "original_sentence": "私たちは選挙へ行くべきです。",
+        "target_word": "行く",
+        "word": "行く",
+        "answer": {
+          "accepted": [
+            "行く",
+            "行った",
+            "行って",
+            "行ける",
+            "行かない"
+          ],
+          "accepted_normalized": [
+            "行く",
+            "行った",
+            "行って",
+            "行ける",
+            "行かない"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "49d90958-8ede-49f4-a92f-f1efa7e2e398",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "この電車では学校へ行くことができません。",
+        "chunks": [
+          "この電車で",
+          "は",
+          "学校へ",
+          "行くことが",
+          "できません"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "この電車で",
+          "できません",
+          "行くことが",
+          "は",
+          "学校へ"
+        ],
+        "target_word": "行けない",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "46023c90-461c-46fa-bcca-440fa76c3c3f",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "relation": "antonym",
+        "options": [
+          "渡る",
+          "走る",
+          "来る",
+          "入る"
+        ],
+        "correct_answer": "来る",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+            "explanation": "目標語と同じく場所の移動を表すが、方向が逆であるため対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "入る": 0.597014,
+            "走る": 0.624377,
+            "渡る": 0.722798
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00625024,
+      "prompt_tokens": 2580,
+      "completion_tokens": 4238,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3394,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 54389
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00642528,
+      "prompt_tokens": 707,
+      "completion_tokens": 4843,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4647,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 67555
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181824,
+      "prompt_tokens": 330,
+      "completion_tokens": 1338,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1226,
+      "call_role": "repair",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 18807
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00465824,
+      "prompt_tokens": 677,
+      "completion_tokens": 3470,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3319,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 45931
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00106176,
+      "prompt_tokens": 978,
+      "completion_tokens": 585,
+      "cached_tokens": 0,
+      "reasoning_tokens": 574,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 9738
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00205728,
+      "prompt_tokens": 813,
+      "completion_tokens": 1404,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1233,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 22336
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00226976,
+      "prompt_tokens": 809,
+      "completion_tokens": 1571,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1357,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 23492
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00274656,
+      "prompt_tokens": 747,
+      "completion_tokens": 1959,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1753,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 29109
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00447968,
+      "prompt_tokens": 1619,
+      "completion_tokens": 3095,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2980,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 44554
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.01133056,
+      "prompt_tokens": 2640,
+      "completion_tokens": 8192,
+      "cached_tokens": 0,
+      "reasoning_tokens": 7516,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 61589
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0154176,
+      "prompt_tokens": 2640,
+      "completion_tokens": 11385,
+      "cached_tokens": 0,
+      "reasoning_tokens": 10688,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 77460
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00870752,
+      "prompt_tokens": 1619,
+      "completion_tokens": 6398,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6007,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 91272
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00236128,
+      "prompt_tokens": 787,
+      "completion_tokens": 1648,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1454,
+      "call_role": "json_repair",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 24062
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00505792,
+      "prompt_tokens": 818,
+      "completion_tokens": 3747,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3519,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 47818
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016552,
+      "prompt_tokens": 372,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 2812
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00385408,
+      "prompt_tokens": 656,
+      "completion_tokens": 2847,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2784,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 40626
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00153888,
+      "prompt_tokens": 521,
+      "completion_tokens": 1072,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1045,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 16185
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00218528,
+      "prompt_tokens": 625,
+      "completion_tokens": 1551,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1488,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 20044
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273344,
+      "prompt_tokens": 854,
+      "completion_tokens": 1922,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1624,
+      "call_role": "json_repair",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 16511
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016372,
+      "prompt_tokens": 367,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 5020
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00334336,
+      "prompt_tokens": 648,
+      "completion_tokens": 2450,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2343,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 35606
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0010832,
+      "prompt_tokens": 521,
+      "completion_tokens": 716,
+      "cached_tokens": 0,
+      "reasoning_tokens": 690,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 12345
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002112,
+      "prompt_tokens": 624,
+      "completion_tokens": 1494,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1428,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 20246
+    }
+  ],
+  "llm_calls_observed": 25,
+  "llm_cost_observed_usd": 0.09182140000000001,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 652.6410000000033,
+  "finished_at": "2026-09-26T04:31:59.149341+00:00"
+}

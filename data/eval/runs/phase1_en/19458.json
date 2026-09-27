@@ -1,0 +1,1205 @@
+{
+  "sense_id": 19458,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:53:22.049247+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.08899831771850586,
+    "p1_generate": 3.57204532623291,
+    "tier_gate": 0.0040132999420166016,
+    "p1_judge": 1.6451935768127441,
+    "collocate_grounding": 0.0,
+    "fan_out": 42.73285675048828
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌnʌnðəˈlɛs/",
+        "morphological_forms": [
+          {
+            "form": "nonetheless",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "nun-thuh-less",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19458
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "82ffa493-73ab-4061-98dc-cce1b980ed99",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nonetheless",
+        "pronunciation": "nun-thuh-less",
+        "correct_definition": "despite what has just been said; nevertheless",
+        "options": [
+          "A particular area of knowledge or skill that someone focuses on and becomes very good at.",
+          "despite what has just been said; nevertheless",
+          "A person who adapts something, especially a literary work, to a different form or audience.",
+          "A sonnet is a poem of 14 lines that often has a specific rhyme pattern and is about love or other feelings."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "45fca2d5-0d6a-4463-a293-c38859c495dd",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The weather was cold and rainy, but they went outside ___.",
+        "original_sentence": "The weather was cold and rainy, but they went outside nonetheless.",
+        "correct_answer": "nonetheless",
+        "options": [
+          "therefore",
+          "nonetheless",
+          "meanwhile",
+          "otherwise"
+        ],
+        "explanation": "Correct: 'nonetheless' correctly provides the contrasting adverbial meaning 'despite that' required by the context.",
+        "distractor_tags": {},
+        "word_definition": "despite what has just been said; nevertheless",
+        "target_word": "nonetheless"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "64ccaef3-f2cd-47ca-be93-245e436b8cd0",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The sun was shining brightly and the birds were singing, nonetheless the weather was absolutely perfect for a picnic.",
+            "is_correct": false
+          },
+          {
+            "text": "He knew the journey would be dangerous, yet he started his adventure nonetheless.",
+            "is_correct": true
+          },
+          {
+            "text": "She was extremely hungry, nonetheless she ate a massive three-course meal.",
+            "is_correct": false
+          },
+          {
+            "text": "He studied for weeks and felt fully prepared, nonetheless he passed the exam with a perfect score.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'nonetheless' signals a contrast or concession, but the second clause here is a logical continuation of the positive first clause. Semantically inappropriate: Eating a massive meal is a direct result of being hungry, not a contrasting action that defies the hunger. Pragmatically inappropriate: Passing the exam after studying is an expected outcome, so using a concessive adverb like 'nonetheless' creates a logical contradiction.",
+        "target_word": "nonetheless"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e2be38b8-4933-4731-831e-f6f135a41255",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The test was extremely difficult; nonetheless, most students passed it.",
+            "is_correct": true
+          },
+          {
+            "text": "The weather was cold and rainy, but they went outside nonetheless.",
+            "is_correct": true
+          },
+          {
+            "text": "The project was behind schedule, nonetheless the team managed to finish it on time.",
+            "is_correct": false,
+            "error_description": "'Nonetheless' is a conjunctive adverb and cannot join two independent clauses with only a comma; it requires a semicolon, a period, or a coordinating conjunction."
+          },
+          {
+            "text": "She had studied all night and felt tired, but she wrote the essay well nonetheless.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e092e5ee-d99d-4307-9c6f-fba551366ccc",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "The ticket was expensive, but she bought it nonetheless to see her favorite band."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7628d044-7177-4540-93dc-2fceb4e3c9fb",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nonetheless",
+        "pronunciation": "nun-thuh-less",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to be bothered or concerned about something.",
+              "despite what has just been said; nevertheless",
+              "A tapestry is a big piece of cloth with pictures or designs sewn onto it.",
+              "To cause something, like a fire or light, to stop burning or shining."
+            ],
+            "correct_answer": "despite what has just been said; nevertheless"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "058fc2d1-20a6-41d4-a5ea-55010a37bd2f",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "She had studied all night and felt tired, but she wrote the essay well ___.",
+        "original_sentence": "She had studied all night and felt tired, but she wrote the essay well nonetheless.",
+        "target_word": "nonetheless",
+        "word": "nonetheless",
+        "answer": {
+          "accepted": [
+            "nonetheless"
+          ],
+          "accepted_normalized": [
+            "nonetheless"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e722dec7-3f1d-4f4f-b562-62d2c68f5b8b",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The ticket was expensive, but she bought it nonetheless to see her favorite band.",
+        "chunks": [
+          "The ticket",
+          "was",
+          "expensive",
+          "but she bought it nonetheless to see her favorite band"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "was",
+          "The ticket",
+          "expensive",
+          "but she bought it nonetheless to see her favorite band"
+        ],
+        "target_word": "nonetheless",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "50c8e1d0-0d07-42eb-aba7-b3c66adc3daf",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nonetheless",
+        "relation": "antonym",
+        "options": [
+          "consequently",
+          "meanwhile",
+          "furthermore",
+          "otherwise"
+        ],
+        "correct_answer": "consequently",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "despite what has just been said; nevertheless",
+            "explanation": "antonym: signals logical result from what preceded rather than contrast with it"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "furthermore": 0.602881
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a9de7ffe-14d8-4d7d-b813-6d8d0b6337ac",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Although the team had lost several players to injuries, they played hard ___.",
+        "original_sentence": "Although the team had lost several players to injuries, they played hard nonetheless.",
+        "correct_answer": "nonetheless",
+        "options": [
+          "therefore",
+          "meanwhile",
+          "nonetheless",
+          "otherwise"
+        ],
+        "explanation": "Correct: 'nonetheless' is a conjunctive adverb meaning 'in spite of that', perfectly linking the team's injuries to their continued effort.",
+        "distractor_tags": {},
+        "word_definition": "despite what has just been said; nevertheless",
+        "target_word": "nonetheless"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7b089a19-4d02-40c5-9363-14050906bf84",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The museum was closing soon, and they tried to see the main exhibit nonetheless.",
+            "is_correct": true
+          },
+          {
+            "text": "The museum was closing soon, and they tried to see the main exhibit nonetheless since it was their first time visiting the city.",
+            "is_correct": false
+          },
+          {
+            "text": "The museum was closing soon, and they tried to see the main exhibit nonetheless because they had plenty of time to spare.",
+            "is_correct": false
+          },
+          {
+            "text": "The museum was closing soon, so they decided to leave immediately nonetheless to avoid the traffic.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'nonetheless' implies overcoming an obstacle or contrast, but having 'plenty of time' removes the contrast with the museum closing soon. Semantically inappropriate: 'nonetheless' means 'despite that', but leaving immediately is a direct logical consequence of the museum closing, not a contrasting action. Pragmatically inappropriate: 'since it was their first time' provides a reinforcing reason to see the exhibit, not a contrasting obstacle that 'nonetheless' requires to make sense.",
+        "target_word": "nonetheless"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a767e3e0-1587-4ec6-8f39-51d724756f94",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Although the team had lost several players to injuries, they played hard nonetheless.",
+            "is_correct": true
+          },
+          {
+            "text": "The museum was closing soon, and they tried to see the main exhibit nonetheless.",
+            "is_correct": true
+          },
+          {
+            "text": "The museum was closing soon, nonetheless they tried to see the main exhibit.",
+            "is_correct": false,
+            "error_description": "'Nonetheless' is a conjunctive adverb, not a coordinating conjunction, so it cannot join two independent clauses with only a comma. A semicolon or period is required before it when connecting two independent clauses."
+          },
+          {
+            "text": "The instructions were confusing, but he figured out how to build the model nonetheless.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "06b1d2aa-a1ed-4432-a09e-fd7273587147",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "He knew the journey would be dangerous, yet he started his adventure nonetheless."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d7414b01-6337-4c23-9c45-6ff191eeb4d0",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The instructions were confusing, but he figured out how to build the model ___.",
+        "original_sentence": "The instructions were confusing, but he figured out how to build the model nonetheless.",
+        "target_word": "nonetheless",
+        "word": "nonetheless",
+        "answer": {
+          "accepted": [
+            "nonetheless"
+          ],
+          "accepted_normalized": [
+            "nonetheless"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bdb5cc83-bd31-4b5a-a8d9-b7db5f003437",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "He knew the journey would be dangerous, yet he started his adventure nonetheless.",
+        "chunks": [
+          "He knew",
+          "the journey would be dangerous",
+          "yet he started his adventure nonetheless"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "yet he started his adventure nonetheless",
+          "the journey would be dangerous",
+          "He knew"
+        ],
+        "target_word": "nonetheless",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19458,
+      "word_asset_id": "shadow-19458-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0021541,
+      "prompt_tokens": 1897,
+      "completion_tokens": 634,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3425
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000577,
+      "prompt_tokens": 665,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1568
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157728,
+      "prompt_tokens": 653,
+      "completion_tokens": 1069,
+      "cached_tokens": 0,
+      "reasoning_tokens": 866,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 13808
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00207936,
+      "prompt_tokens": 654,
+      "completion_tokens": 1461,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1308,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 18585
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00280864,
+      "prompt_tokens": 1149,
+      "completion_tokens": 1907,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1783,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 23976
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00688736,
+      "prompt_tokens": 1607,
+      "completion_tokens": 4979,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4240,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 33870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00435392,
+      "prompt_tokens": 1146,
+      "completion_tokens": 3115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2985,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 37203
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00878304,
+      "prompt_tokens": 1607,
+      "completion_tokens": 6460,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5798,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 42598
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002733,
+      "prompt_tokens": 411,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 978
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003467,
+      "prompt_tokens": 389,
+      "completion_tokens": 92,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1115
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004318,
+      "prompt_tokens": 506,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1192
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001761,
+      "prompt_tokens": 387,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 862
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005191,
+      "prompt_tokens": 522,
+      "completion_tokens": 145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1231
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002914,
+      "prompt_tokens": 413,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1008
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002898,
+      "prompt_tokens": 391,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 834
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003921,
+      "prompt_tokens": 532,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 952
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001982,
+      "prompt_tokens": 394,
+      "completion_tokens": 32,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 838
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005066,
+      "prompt_tokens": 522,
+      "completion_tokens": 140,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19458,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1095
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.0326458,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 60.21799999999348,
+  "finished_at": "2026-09-27T03:54:22.267760+00:00"
+}

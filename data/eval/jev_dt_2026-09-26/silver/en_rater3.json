@@ -1,0 +1,314 @@
+[
+ {
+  "id": "en_silver_01",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "small->little is a same-register synonym; clean."
+ },
+ {
+  "id": "en_silver_02",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "wires->cables is a same-register synonym; clean."
+ },
+ {
+  "id": "en_silver_03",
+  "errors": [
+   {"learner_form": "sticks and adhesive", "corrected_form": "sticks and glue", "subtype": "word_choice", "severity": "minor"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'adhesive' is a formal/clinical register shift for a young-teen DIY text vs the casual 'glue'."
+ },
+ {
+  "id": "en_silver_04",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "much->far preserves meaning and register; clean."
+ },
+ {
+  "id": "en_silver_05",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "certain->specific is a same-register synonym; clean."
+ },
+ {
+  "id": "en_silver_06",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "series->sequence is a same-register synonym; clean."
+ },
+ {
+  "id": "en_silver_07",
+  "errors": [
+   {"learner_form": "is basic example", "corrected_form": "is a basic example", "subtype": "article", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "missing indefinite article before 'basic example'."
+ },
+ {
+  "id": "en_silver_08",
+  "errors": [
+   {"learner_form": "project is for electronics", "corrected_form": "project is about electronics", "subtype": "preposition", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'for' vs 'about' shifts topic-marking to purpose-marking; still recoverable."
+ },
+ {
+  "id": "en_silver_09",
+  "errors": [
+   {"learner_form": "You learned how to use", "corrected_form": "You learn how to use", "subtype": "tense_aspect", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "past tense breaks the present-tense instructional frame of the passage."
+ },
+ {
+  "id": "en_silver_10",
+  "errors": [
+   {"learner_form": "This are a good start", "corrected_form": "This is a good start", "subtype": "subject_verb_agreement", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "is->are agreement slip, same pattern as en_seed_04."
+ },
+ {
+  "id": "en_silver_11",
+  "errors": [
+   {"learner_form": "A fourth motor can open", "corrected_form": "A third motor can open", "subtype": "word_choice", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "third->fourth introduces a factual inconsistency (only three motors are described)."
+ },
+ {
+  "id": "en_silver_12",
+  "errors": [
+   {"learner_form": "pick at small things", "corrected_form": "pick up small things", "subtype": "phrasal_verb", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'pick at' (nibble/fidget) is a different phrasal verb from 'pick up' (lift)."
+ },
+ {
+  "id": "en_silver_13",
+  "errors": [
+   {"learner_form": "move him to a new spot", "corrected_form": "move them to a new spot", "subtype": "pronoun_reference", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'him' mismatches the plural antecedent 'small things', same pattern as en_seed_10."
+ },
+ {
+  "id": "en_silver_14",
+  "errors": [
+   {"learner_form": "tells the motors to move", "corrected_form": "tells the motors when to move", "subtype": "omission", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "dropped 'when' loses the timing content of the instruction."
+ },
+ {
+  "id": "en_silver_15",
+  "errors": [
+   {"learner_form": "also teaches everyone", "corrected_form": "teaches you", "subtype": "addition", "severity": "minor"},
+   {"learner_form": "teaches everyone about electronics", "corrected_form": "teaches you about electronics", "subtype": "word_choice", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "inserted 'also' plus a shift from direct address (you) to generic 'everyone'."
+ },
+ {
+  "id": "en_silver_16",
+  "errors": [
+   {"learner_form": "Arduino bored", "corrected_form": "Arduino board", "subtype": "orthography", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "spelling slip, intended word is clear from context."
+ },
+ {
+  "id": "en_silver_17",
+  "errors": [
+   {"learner_form": "It says the motors when to move", "corrected_form": "It tells the motors when to move", "subtype": "word_choice", "severity": "major"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'says' does not take this object+when-clause pattern; reads as a stumble, not just a synonym swap."
+ },
+ {
+  "id": "en_silver_18",
+  "errors": [
+   {"learner_form": "another motor you can tell to move", "corrected_form": "you can tell another motor to move", "subtype": "word_order", "severity": "major"}
+  ],
+  "naturalness": 2,
+  "range": 4,
+  "comment": "OSV-style reordering, same pattern as en_seed_08; reads as assembled rather than spoken."
+ },
+ {
+  "id": "en_silver_19",
+  "errors": [
+   {"learner_form": "teaches y'all about", "corrected_form": "teaches you about", "subtype": "register", "severity": "major"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "dialectal 'y'all' is a formality/register shift against the neutral instructional tone."
+ },
+ {
+  "id": "en_silver_20",
+  "errors": [
+   {"learner_form": "You cannot learn about", "corrected_form": "You can learn about", "subtype": "addition", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "inserted negation inverts the claim (can -> cannot)."
+ },
+ {
+  "id": "en_silver_21",
+  "errors": [
+   {"learner_form": "Another motor can't make it move", "corrected_form": "Another motor can make it move", "subtype": "addition", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "inserted negation inverts the claim about the motor's function."
+ },
+ {
+  "id": "en_silver_22",
+  "errors": [
+   {"learner_form": "move them from a new spot", "corrected_form": "move them to a new spot", "subtype": "preposition", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "to->from reverses source/destination of the movement."
+ },
+ {
+  "id": "en_silver_23",
+  "errors": [
+   {"learner_form": "make few things with it", "corrected_form": "make many things with it", "subtype": "word_choice", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "many->few reverses the claim about the Arduino's versatility."
+ },
+ {
+  "id": "en_silver_24",
+  "errors": [
+   {"learner_form": "The Arduino writes instructions for you", "corrected_form": "You write instructions for the Arduino", "subtype": "word_order", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "subject/object swap reverses who is doing the writing for whom."
+ },
+ {
+  "id": "en_silver_25",
+  "errors": [
+   {"learner_form": "build more complex robots first", "corrected_form": "build more complex robots later", "subtype": "word_choice", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "later->first reverses the intended learning progression (simple then complex)."
+ },
+ {
+  "id": "en_silver_26",
+  "errors": [
+   {"learner_form": "move motor 1 to 9 degrees", "corrected_form": "move motor 1 to 90 degrees", "subtype": "word_choice", "severity": "major"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "90->9 changes the numeric value by an order of magnitude; not misleading to the reader on its own but a large fidelity departure."
+ },
+ {
+  "id": "en_silver_27",
+  "errors": [
+   {"learner_form": "you can avoid simple sticks", "corrected_form": "you can use simple sticks", "subtype": "word_choice", "severity": "critical"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "use->avoid inverts the recommendation."
+ },
+ {
+  "id": "en_silver_28",
+  "errors": [
+   {"learner_form": "some servo engines", "corrected_form": "some servo motors", "subtype": "word_choice", "severity": "minor"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'servo engines' is not the standard term (and is inconsistent with 'motors' used one sentence later)."
+ },
+ {
+  "id": "en_silver_29",
+  "errors": [
+   {"learner_form": "But you can tell another motor", "corrected_form": "Then you can tell another motor", "subtype": "cohesion_connective", "severity": "minor"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'But' signals contrast where the sequence is additive, same pattern as en_seed_12."
+ },
+ {
+  "id": "en_silver_30",
+  "errors": [
+   {"learner_form": "Also, you need an Arduino board", "corrected_form": "First, you need an Arduino board", "subtype": "cohesion_connective", "severity": "minor"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'Also' loses the sequencing cue that 'First' provides."
+ },
+ {
+  "id": "en_silver_31",
+  "errors": [
+   {"learner_form": "open and close a thing", "corrected_form": "open and close a gripper", "subtype": "word_choice", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 2,
+  "comment": "specific term 'gripper' flattened to generic 'thing'."
+ },
+ {
+  "id": "en_silver_32",
+  "errors": [
+   {"learner_form": "involves simple stuff", "corrected_form": "involves simple commands", "subtype": "word_choice", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 2,
+  "comment": "specific term 'commands' flattened to generic 'stuff'."
+ },
+ {
+  "id": "en_silver_33",
+  "errors": [
+   {"learner_form": "is basic example", "corrected_form": "is a basic example", "subtype": "article", "severity": "minor"},
+   {"learner_form": "teaches about electronics", "corrected_form": "teaches you about electronics", "subtype": "omission", "severity": "major"},
+   {"learner_form": "You learned how to connect wires", "corrected_form": "You learn how to connect wires", "subtype": "tense_aspect", "severity": "major"},
+   {"learner_form": "You learns how motors work", "corrected_form": "You learn how motors work", "subtype": "subject_verb_agreement", "severity": "minor"}
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "four stacked grammar errors across the passage; each is individually recoverable but the density reads rough."
+ },
+ {
+  "id": "en_silver_34",
+  "errors": [
+   {"learner_form": "involves simple command", "corrected_form": "involves simple commands", "subtype": "plural_number", "severity": "minor"},
+   {"learner_form": "a certain spot, yo", "corrected_form": "a certain position", "subtype": "register", "severity": "major"},
+   {"learner_form": "another motor you can tell to move", "corrected_form": "you can tell another motor to move", "subtype": "word_order", "severity": "major"}
+  ],
+  "naturalness": 2,
+  "range": 4,
+  "comment": "the inserted slang tag 'yo' plus the OSV reordering make this read assembled rather than spoken."
+ },
+ {
+  "id": "en_silver_35",
+  "errors": [
+   {"learner_form": "The coding is expensive", "corrected_form": "The coding is important", "subtype": "word_choice", "severity": "critical"},
+   {"learner_form": "pick out small things", "corrected_form": "pick up small things", "subtype": "phrasal_verb", "severity": "minor"}
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "important->expensive substitutes an unrelated, misleading claim."
+ }
+]

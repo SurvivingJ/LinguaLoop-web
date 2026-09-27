@@ -11,7 +11,7 @@ runs the classify_kana_lemma judge (services/vocabulary/kana_homophone_judge.py)
 over every kana-only Japanese dim_vocabulary lemma, and additionally
 reports how many live rows reference each one (tests.vocab_sense_ids,
 questions.sense_ids, word_assets.sense_id, user_vocabulary_knowledge,
-user_flashcards, vocabulary_review_queue) so a human can weigh "is this
+user_flashcards) so a human can weigh "is this
 safe to delete" alongside "is this a real word".
 
 Usage:
@@ -42,7 +42,7 @@ _KANA_ONLY = re.compile(r'^[ぁ-ゟー]+$')  # hiragana + ー only
 def _reference_counts(db, sense_ids: list[int]) -> dict:
     if not sense_ids:
         return {'tests': 0, 'questions': 0, 'word_assets': 0,
-                'user_knowledge': 0, 'flashcards': 0, 'review_queue': 0}
+                'user_knowledge': 0, 'flashcards': 0}
 
     def count(table, col, op='overlap'):
         try:
@@ -63,7 +63,6 @@ def _reference_counts(db, sense_ids: list[int]) -> dict:
         'word_assets': count('word_assets', 'sense_id', op='in'),
         'user_knowledge': count('user_vocabulary_knowledge', 'sense_id', op='in'),
         'flashcards': count('user_flashcards', 'sense_id', op='in'),
-        'review_queue': count('vocabulary_review_queue', 'sense_id', op='in'),
     }
 
 

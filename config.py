@@ -119,13 +119,6 @@ class Config:
     # ==========================================================================
     # FEATURE FLAGS
     # ==========================================================================
-    # Listening Lab — speed-graded listening comprehension. Two-level gating:
-    # this env flag controls whether the API blueprint and web routes are
-    # registered at all (off = full 404), and each listening_lab_passages row
-    # has its own is_active boolean so an admin can roll passages out
-    # individually after QA.
-    LISTENING_LAB_ENABLED = os.environ.get('LISTENING_LAB_ENABLED', 'False').lower() == 'true'
-
     # Dual Translation — correction-style A/B (TASK-617). The Truscott–Ferris
     # debate (direct+metalinguistic vs indirect/flag-only written correction)
     # is unresolved, so correction style is A/B-tested, not hardcoded. Three

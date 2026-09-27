@@ -213,6 +213,15 @@ def _judge_candidates(
             prompt,
             model=model,
             temperature=0.0,
+            # TASK-812: this call had NO max_tokens cap at all -- a
+            # worst-case runaway/repeating completion was billed and
+            # latency'd in full, with no baseline data to derive an
+            # observed-distribution cap from (no collocation judge calls
+            # landed in TASK-808's baseline sample). 1500 matches the other
+            # short structured-JSON Likert judges' sizing (cloze, l1) and is
+            # pure downside removal -- it costs nothing on the well-behaved
+            # path, since max_tokens is a ceiling, not a target.
+            max_tokens=1500,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

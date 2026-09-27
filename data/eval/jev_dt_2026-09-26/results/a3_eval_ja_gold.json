@@ -1,0 +1,56 @@
+{
+  "lang": "ja",
+  "set": "gold",
+  "config": {
+    "tau": 0.5,
+    "tau_n": 0.9,
+    "tau_c": 0.85,
+    "variant": "S3_prior",
+    "cv_mean": 0.7902284583558193,
+    "cv_sd": 0.1822260223116118,
+    "n_folds": 5,
+    "full_qwk": {
+      "accuracy": 0.7142857142857142,
+      "fidelity": 0.9473684210526316,
+      "understandability": 1.0
+    },
+    "full_mean_qwk": 0.8872180451127819
+  },
+  "n_items": 30,
+  "bands": {
+    "accuracy": 0.4545454545454545,
+    "fidelity": 0.8297604035308953,
+    "understandability": 0.7115384615384616
+  },
+  "bands_ci95": {
+    "accuracy": [
+      0.014598540145985384,
+      0.7715736040609137
+    ],
+    "fidelity": [
+      0.4444444444444444,
+      0.96
+    ],
+    "understandability": [
+      0.0,
+      0.9253731343283582
+    ]
+  },
+  "mean_qwk": 0.6652814398716038,
+  "detection": {
+    "auc": 0.9850427350427351,
+    "precision": 1.0,
+    "recall": 0.5,
+    "f1": 0.6666666666666666,
+    "tp": 13,
+    "fp": 0,
+    "fn": 13,
+    "tn": 9
+  },
+  "subtype_accuracy": {
+    "top1": 0.6923076923076923,
+    "top3": 0.9230769230769231,
+    "n": 13
+  },
+  "severity_accuracy": 0.5384615384615384
+}

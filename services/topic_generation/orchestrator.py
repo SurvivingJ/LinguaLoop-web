@@ -198,9 +198,10 @@ class TopicGenerationOrchestrator:
                     # T3.1 — tier-fit gate. The Explorer ideates per tier, but
                     # nothing checked that the vocabulary it came back with is
                     # actually reachable at that tier; "we get difficult
-                    # vocabulary" is the symptom this targets. One call, about
-                    # this tier only — never a menu of six for the model to
-                    # fill in (see the judge's module docstring).
+                    # vocabulary" is the symptom this targets. One jev score call
+                    # places the topic on the tier scale; it is rejected when it
+                    # assesses harder than this tier (ADR-029). A jev failure
+                    # raises and aborts the run — no fail-open pass.
                     fit = self.tier_fit_judge.judge(
                         concept=candidate.concept,
                         distinctive_vocabulary=candidate.distinctive_vocabulary,

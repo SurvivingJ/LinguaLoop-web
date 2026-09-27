@@ -1,0 +1,438 @@
+{
+  "zh": {
+    "lang": "zh",
+    "A1": {
+      "baseline_all_jev": {
+        "accuracy": 0.0,
+        "fidelity": 0.45070422535211285,
+        "understandability": 0.0
+      },
+      "a_oracle_detection": {
+        "accuracy": 0.0,
+        "fidelity": 0.45070422535211285,
+        "understandability": 0.0
+      },
+      "b_oracle_subtype": {
+        "accuracy": 0.2857142857142857,
+        "fidelity": 0.5217391304347826,
+        "understandability": 0.0
+      },
+      "c_oracle_severity": {
+        "accuracy": 0.5283018867924527,
+        "fidelity": 0.8648648648648649,
+        "understandability": 0.9361702127659575
+      },
+      "all_oracle_ref": {
+        "accuracy": 1.0,
+        "fidelity": 0.972972972972973,
+        "understandability": 0.9361702127659575
+      },
+      "d_tau_sweep_all_oracle_except_detection_DIAGNOSTIC": {
+        "0.5": {
+          "accuracy": 0.8305084745762712,
+          "fidelity": 0.9174311926605505,
+          "understandability": 0.9361702127659575
+        },
+        "0.6": {
+          "accuracy": 0.736842105263158,
+          "fidelity": 0.9174311926605505,
+          "understandability": 0.9361702127659575
+        },
+        "0.7": {
+          "accuracy": 0.736842105263158,
+          "fidelity": 0.9174311926605505,
+          "understandability": 0.9361702127659575
+        },
+        "0.8": {
+          "accuracy": 0.6363636363636364,
+          "fidelity": 0.9174311926605505,
+          "understandability": 0.9361702127659575
+        },
+        "0.9": {
+          "accuracy": 0.5283018867924527,
+          "fidelity": 0.9174311926605505,
+          "understandability": 0.9361702127659575
+        }
+      },
+      "clean_false_positives": {
+        "n_clean_items": 10,
+        "false_positive_items": 0
+      },
+      "accuracy_confusion_gold_rows_pred_cols": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          0,
+          0,
+          21
+        ]
+      ]
+    },
+    "A2": {
+      "baseline_all_jev": {
+        "accuracy": -0.06617647058823528,
+        "fidelity": 0.4480234260614935,
+        "understandability": 0.37857142857142845
+      },
+      "a_oracle_detection": {
+        "accuracy": 0.07773851590105996,
+        "fidelity": 0.4480234260614935,
+        "understandability": 0.37857142857142845
+      },
+      "b_oracle_subtype": {
+        "accuracy": 0.2108843537414966,
+        "fidelity": 0.5203007518796993,
+        "understandability": 0.37857142857142845
+      },
+      "c_oracle_severity": {
+        "accuracy": 0.5245901639344261,
+        "fidelity": 0.919815668202765,
+        "understandability": 0.9359823399558499
+      },
+      "all_oracle_ref": {
+        "accuracy": 1.0,
+        "fidelity": 0.9728209934395502,
+        "understandability": 0.9359823399558499
+      },
+      "d_tau_sweep_all_oracle_except_detection_DIAGNOSTIC": {
+        "0.5": {
+          "accuracy": 0.8284023668639053,
+          "fidelity": 0.9728209934395502,
+          "understandability": 0.9359823399558499
+        },
+        "0.6": {
+          "accuracy": 0.8284023668639053,
+          "fidelity": 0.945179584120983,
+          "understandability": 0.9359823399558499
+        },
+        "0.7": {
+          "accuracy": 0.7339449541284404,
+          "fidelity": 0.945179584120983,
+          "understandability": 0.9359823399558499
+        },
+        "0.8": {
+          "accuracy": 0.7339449541284404,
+          "fidelity": 0.9170638703527169,
+          "understandability": 0.9359823399558499
+        },
+        "0.9": {
+          "accuracy": 0.7339449541284404,
+          "fidelity": 0.9170638703527169,
+          "understandability": 0.9359823399558499
+        }
+      },
+      "clean_false_positives": {
+        "n_clean_sentence_pairs": 9,
+        "false_positive_pairs": 0
+      },
+      "accuracy_confusion_gold_rows_pred_cols": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          0,
+          1,
+          19
+        ]
+      ],
+      "capped_max_confidence_error_per_item": {
+        "accuracy": 0.0,
+        "fidelity": 0.4480234260614935,
+        "understandability": 0.0
+      }
+    },
+    "subtype_dimension_routing": {
+      "A1": {
+        "n": 11,
+        "matrix": {
+          "accuracy": {
+            "accuracy": 4,
+            "fidelity": 2,
+            "naturalness": 1
+          },
+          "fidelity": {
+            "accuracy": 0,
+            "fidelity": 3,
+            "naturalness": 0
+          },
+          "naturalness": {
+            "accuracy": 1,
+            "fidelity": 0,
+            "naturalness": 0
+          }
+        }
+      },
+      "A2": {
+        "n": 15,
+        "matrix": {
+          "accuracy": {
+            "accuracy": 6,
+            "fidelity": 2,
+            "naturalness": 1
+          },
+          "fidelity": {
+            "accuracy": 0,
+            "fidelity": 5,
+            "naturalness": 0
+          },
+          "naturalness": {
+            "accuracy": 1,
+            "fidelity": 0,
+            "naturalness": 0
+          }
+        }
+      }
+    }
+  },
+  "ja": {
+    "lang": "ja",
+    "A1": {
+      "baseline_all_jev": {
+        "accuracy": 0.14893617021276584,
+        "fidelity": 0.5411764705882354,
+        "understandability": 0.0
+      },
+      "a_oracle_detection": {
+        "accuracy": 0.14893617021276584,
+        "fidelity": 0.5411764705882354,
+        "understandability": 0.0
+      },
+      "b_oracle_subtype": {
+        "accuracy": 0.14893617021276584,
+        "fidelity": 0.5411764705882354,
+        "understandability": 0.0
+      },
+      "c_oracle_severity": {
+        "accuracy": 0.4545454545454545,
+        "fidelity": 0.9016393442622951,
+        "understandability": 0.8170731707317074
+      },
+      "all_oracle_ref": {
+        "accuracy": 0.9180327868852459,
+        "fidelity": 0.9263502454991817,
+        "understandability": 0.8170731707317074
+      },
+      "d_tau_sweep_all_oracle_except_detection_DIAGNOSTIC": {
+        "0.5": {
+          "accuracy": 0.5283018867924527,
+          "fidelity": 0.9263502454991817,
+          "understandability": 0.8170731707317074
+        },
+        "0.6": {
+          "accuracy": 0.5283018867924527,
+          "fidelity": 0.876847290640394,
+          "understandability": 0.8170731707317074
+        },
+        "0.7": {
+          "accuracy": 0.4117647058823529,
+          "fidelity": 0.7524752475247525,
+          "understandability": 0.8170731707317074
+        },
+        "0.8": {
+          "accuracy": 0.2857142857142857,
+          "fidelity": 0.7524752475247525,
+          "understandability": 0.8170731707317074
+        },
+        "0.9": {
+          "accuracy": 0.0,
+          "fidelity": 0.0,
+          "understandability": 0.0
+        }
+      },
+      "clean_false_positives": {
+        "n_clean_items": 10,
+        "false_positive_items": 0
+      },
+      "accuracy_confusion_gold_rows_pred_cols": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          8
+        ],
+        [
+          0,
+          0,
+          0,
+          21
+        ]
+      ]
+    },
+    "A2": {
+      "baseline_all_jev": {
+        "accuracy": 0.1470588235294119,
+        "fidelity": 0.5745721271393642,
+        "understandability": 0.0
+      },
+      "a_oracle_detection": {
+        "accuracy": 0.1470588235294119,
+        "fidelity": 0.6105006105006106,
+        "understandability": 0.0
+      },
+      "b_oracle_subtype": {
+        "accuracy": 0.1470588235294119,
+        "fidelity": 0.5745721271393642,
+        "understandability": 0.0
+      },
+      "c_oracle_severity": {
+        "accuracy": 0.6329113924050632,
+        "fidelity": 0.9764419171405362,
+        "understandability": 0.963151207115629
+      },
+      "all_oracle_ref": {
+        "accuracy": 1.0,
+        "fidelity": 1.0,
+        "understandability": 1.0
+      },
+      "d_tau_sweep_all_oracle_except_detection_DIAGNOSTIC": {
+        "0.5": {
+          "accuracy": 0.7339449541284404,
+          "fidelity": 0.9764419171405362,
+          "understandability": 0.963151207115629
+        },
+        "0.6": {
+          "accuracy": 0.7339449541284404,
+          "fidelity": 0.9008547008547009,
+          "understandability": 0.885676741130092
+        },
+        "0.7": {
+          "accuracy": 0.6329113924050632,
+          "fidelity": 0.8759623609923011,
+          "understandability": 0.885676741130092
+        },
+        "0.8": {
+          "accuracy": 0.5245901639344261,
+          "fidelity": 0.8013698630136987,
+          "understandability": 0.885676741130092
+        },
+        "0.9": {
+          "accuracy": 0.2826855123674912,
+          "fidelity": 0.0369003690036902,
+          "understandability": 0.0
+        }
+      },
+      "clean_false_positives": {
+        "n_clean_sentence_pairs": 9,
+        "false_positive_pairs": 0
+      },
+      "accuracy_confusion_gold_rows_pred_cols": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          8
+        ],
+        [
+          0,
+          0,
+          0,
+          20
+        ]
+      ],
+      "capped_max_confidence_error_per_item": {
+        "accuracy": 0.1470588235294119,
+        "fidelity": 0.5385556915544676,
+        "understandability": 0.0
+      }
+    },
+    "subtype_dimension_routing": {
+      "A1": {
+        "n": 13,
+        "matrix": {
+          "accuracy": {
+            "accuracy": 5,
+            "fidelity": 0,
+            "naturalness": 0
+          },
+          "fidelity": {
+            "accuracy": 1,
+            "fidelity": 6,
+            "naturalness": 0
+          },
+          "naturalness": {
+            "accuracy": 0,
+            "fidelity": 1,
+            "naturalness": 0
+          }
+        }
+      },
+      "A2": {
+        "n": 20,
+        "matrix": {
+          "accuracy": {
+            "accuracy": 6,
+            "fidelity": 1,
+            "naturalness": 0
+          },
+          "fidelity": {
+            "accuracy": 0,
+            "fidelity": 12,
+            "naturalness": 0
+          },
+          "naturalness": {
+            "accuracy": 1,
+            "fidelity": 0,
+            "naturalness": 0
+          }
+        }
+      }
+    }
+  }
+}

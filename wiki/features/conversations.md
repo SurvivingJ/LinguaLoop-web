@@ -1,15 +1,18 @@
 ---
 title: Conversation Generation
 type: feature
-status: in-progress
+status: deprecated
 tech_page: ./conversations.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-09-22
 open_questions:
   - "Are conversations currently stored in a dedicated table or only as corpus_sources?"
   - "How are conversations linked back to Language Packs?"
 ---
 
 # Conversation Generation
+
+> **ARCHIVED 2026-09-21.** Code (routes/conversations.py, services/conversation_generation/, reader/list templates, seed + batch scripts, tests) was removed; categorical_maps.py moved to services/categorical_maps.py. The 6 tables, the 7,352 conversation-sourced exercises (no word_sense_id, so never servable) and 29 prompt_templates rows are exported in the zip. Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/conversations-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+
 
 ## Purpose
 

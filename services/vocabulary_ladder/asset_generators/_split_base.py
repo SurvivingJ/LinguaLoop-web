@@ -188,6 +188,9 @@ class SplitLevelGenerator:
                     task_name=self.TASK_NAME,
                     template_version=cfg['version'],
                     language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                    call_role='retry' if attempt > 1 else 'primary',
+                    sense_id=sense_id,
+                    allow_internal_repair=False,
                 )
             except Exception as exc:
                 last_errors = [f'LLM call failed: {exc}']

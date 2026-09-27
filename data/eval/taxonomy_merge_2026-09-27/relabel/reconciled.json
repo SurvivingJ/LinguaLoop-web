@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "items": 10,
+    "agreed_on_decision_and_type_blind": 8,
+    "agreed_fully_blind_incl_severity": 5,
+    "agreed_after_exchange": 8,
+    "escalated": 2,
+    "exchange_note": "One exchange per taxonomy.md §0.8 rule 11. Reviewer conceded severity on the three en items (minor -> major). Author and reviewer still disagree on the two gold zh 的-for-得 items, so they are escalated to the developer and not discarded, because they are user-adjudicated gold rows."
+  },
+  "gold_readme_finding": "Partly confirmed, but the author's conclusion does not follow from it. tests/fixtures/dt_gold/README.md (Provenance, 'Clean items') does describe clean items as differing 'only by acceptable variation (synonym, contraction, kana/kanji or 得/的 variant, optional comma)'. However, none of the 10 zh clean items contains a 得/的 difference (the diffs are 8 synonyms, 1 exact copy and 1 dropped comma). Meanwhile zh_seed_11 (note 'de-particle 得→的: 画得→画的') and zh_multi_02 both carry 画的很细致 -> 画得很细致 as de_particles/minor, and the README's adjudication table records ZH as 'Approved as presented' by the developer. So the README prose and the adjudicated data disagree. The item-level labels are the developer's signed-off ruling; the README line is generic boilerplate. It probably means 的/地, or it was never instantiated. Fix the README line either way once the escalation is decided.",
+  "items": [
+    {
+      "item_id": "zh_seed_11",
+      "author": "variant_ok (no type, no severity)",
+      "reviewer": "keep de_particle, minor",
+      "final": "ESCALATE",
+      "author_position": "的-for-得 is contested in taxonomy.md (C11 bars it as a positive), and the DT gold README lists '得/的 variant' as acceptable, so the item becomes clean.",
+      "reviewer_position": "v6 de_particle exempts only 的-for-地. taxonomy.md calls 的-for-得 'wrong in 规范 text', and the DT reference is 规范 text. C11 bars contested forms as positives AND as hard negatives, so it cannot justify variant_ok either. The developer adjudicated this exact item as a minor error.",
+      "exchange": "Author's strongest argument (the README clean-item convention) does not change the reviewer's mind: no clean item instantiates it, and the item-level adjudication outranks README boilerplate."
+    },
+    {
+      "item_id": "zh_multi_02",
+      "author": "variant_ok (the item drops to 2 errors)",
+      "reviewer": "keep de_particle, minor",
+      "final": "ESCALATE",
+      "author_position": "Same as zh_seed_11: contested 的-for-得 plus the README convention, so the error is removed.",
+      "reviewer_position": "Same as zh_seed_11: the error is in scope for v6 de_particle, C11 cuts both ways, and the developer already adjudicated it as minor.",
+      "exchange": "Same as zh_seed_11. No bands change under either outcome, because accuracy 3 is driven by the major complement error."
+    },
+    {
+      "item_id": "zh_silver_20",
+      "author": "variant_ok",
+      "reviewer": "variant_ok",
+      "final": "variant_ok (的-for-地 before a verb is on the zh.de_particle 'Not an error' list and is exempt in the v6 definition; the ba_bei error in this item stands)"
+    },
+    {
+      "item_id": "zh_silver_29",
+      "author": "keep de_particle, minor",
+      "reviewer": "keep de_particle, minor",
+      "final": "keep de_particle, minor. Both sides flag a definition gap: the v6 wording 'before a complement or adverbial' does not literally cover attributive 地-for-的. Widen it to 'wrong 的/得/地 choice', or fall back to orthography (the bands are identical)."
+    },
+    {
+      "item_id": "ja_seed_01",
+      "author": "keep wa_ga, major",
+      "reviewer": "keep wa_ga, major",
+      "final": "keep wa_ga, major (は marks a relative-clause subject: 部品はセットになったもの)"
+    },
+    {
+      "item_id": "ja_multi_01",
+      "author": "keep wa_ga, major",
+      "reviewer": "keep wa_ga, major",
+      "final": "keep wa_ga, major (same relative-clause error as ja_seed_01)"
+    },
+    {
+      "item_id": "ja_multi_05",
+      "author": "keep wa_ga, major",
+      "reviewer": "keep wa_ga, major",
+      "final": "keep wa_ga, major (私たちは作るもの is a relative-clause subject, rule 2)"
+    },
+    {
+      "item_id": "en_seed_10",
+      "author": "retype word_choice, major",
+      "reviewer": "retype word_choice, minor",
+      "final": "retype word_choice, major",
+      "exchange": "Author's strongest argument: the propositional content changes (the learner now moves the arm, not the objects), and the developer adjudicated this as major. The reviewer concedes that a referent shift affects meaning, which is MQM major. Band effect: accuracy 3->4, fidelity 4->3."
+    },
+    {
+      "item_id": "en_multi_03",
+      "author": "retype word_choice, major",
+      "reviewer": "retype word_choice, minor",
+      "final": "retype word_choice, major",
+      "exchange": "Same concession as en_seed_10. Band effect per the author: accuracy 3->4, fidelity 3->2."
+    },
+    {
+      "item_id": "en_silver_13",
+      "author": "retype word_choice, major",
+      "reviewer": "retype word_choice, minor",
+      "final": "retype word_choice, major",
+      "exchange": "Same concession: 'him' unanchors the referent, which is at least as severe as 'it'. Both sides note that v6 has no pronoun-antecedent agreement type (v5_to_merged.csv flags this); all three en items would move there if one is added."
+    }
+  ]
+}

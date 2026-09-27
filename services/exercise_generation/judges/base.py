@@ -64,6 +64,7 @@ of that one variant, which is quieter than the bug it replaced.
 
 from __future__ import annotations
 
+import contextvars
 import functools
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -112,12 +113,21 @@ class JudgeOutcome:
                 single-axis judge. TASK-720: this is what the review queue
                 records so a reviewer knows whether the judge was unsure about
                 the subject or about the confusion with the answer.
+    probability: a probability-scored backend's P(yes), for judges that have
+                one (answer entailment on the jev backend). ``confidence`` is
+                ``None`` for those outcomes -- a probability must never be
+                written into the 1-5 ``llm_calls.judge_confidence`` column, the
+                two-scales-in-one-column collision that migrations/
+                null_legacy_judge_confidence.sql erased 888 rows to clear.
+    backend:    which implementation produced the outcome ('llm' | 'jev').
     """
     verdict: Verdict
     confidence: float | None
     reason: str
     axes: dict[str, int | None] | None = None
     flag_axes: tuple[str, ...] = ()
+    probability: float | None = None
+    backend: str = 'llm'
 
 
 # ---------------------------------------------------------------------------
@@ -230,16 +240,31 @@ def bind_batch_mode(fn: Callable[..., _T]) -> Callable[..., _T]:
 
 
 class BatchModeThreadPoolExecutor(ThreadPoolExecutor):
-    """ThreadPoolExecutor whose workers inherit the submitter's batch mode.
+    """ThreadPoolExecutor whose workers inherit the submitter's batch mode
+    AND contextvars.
 
     Drop-in replacement anywhere a fail-closed batch fans work out to threads.
-    The snapshot is taken per ``submit`` on the calling thread, so a pool
-    constructed outside ``batch_mode()`` but submitted to from inside it still
-    fails closed — the flag follows the work, not the pool.
+    The batch-mode snapshot is taken per ``submit`` on the calling thread, so a
+    pool constructed outside ``batch_mode()`` but submitted to from inside it
+    still fails closed — the flag follows the work, not the pool.
+
+    Contextvars (Phase 0 cost instrumentation): ``contextvars.copy_context()``
+    is captured at submit time and the worker runs inside it, the same way
+    ``asyncio`` tasks inherit their creator's context — plain
+    ``ThreadPoolExecutor`` workers do not do this on their own. This is what
+    lets ``services.llm_service.generation_context(sense_id=..., ...)``,
+    entered once on the submitting thread in
+    ``VocabAssetPipeline._generate_for_sense_impl``, still be visible to
+    ``call_llm()`` when it actually runs on a pool thread for the P2/P3/
+    split-level/typed-generator fan-out. Generic on purpose: this executor
+    knows nothing about llm_service's specific contextvars, so any future
+    contextvar-based observability gets the same propagation for free.
     """
 
     def submit(self, fn, /, *args, **kwargs):
-        return super().submit(bind_batch_mode(fn), *args, **kwargs)
+        ctx = contextvars.copy_context()
+        bound = bind_batch_mode(fn)
+        return super().submit(ctx.run, bound, *args, **kwargs)
 
 
 def guard_fail_open(judge: str, reason: str) -> None:
@@ -323,7 +348,7 @@ def log_judge_verdict(
     task_name: str,
     model: str,
     verdict: str,
-    confidence: float,
+    confidence: float | None,
     pipeline: str = 'test_gen',
 ) -> None:
     """Best-effort: write a compact verdict row to llm_calls.

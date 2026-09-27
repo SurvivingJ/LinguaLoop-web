@@ -97,11 +97,13 @@ def get_exercises() -> ApiResponse:
                 sense_lookup[sid]['definition'] = gloss_row['definition']
 
         # Transform jumbled_sentence content at serve-time
-        from services.exercise_generation.language_processor import prepare_jumbled_content
+        from services.exercise_generation.language_processor import (
+            needs_jumbled_prep, prepare_jumbled_content,
+        )
         for ex in exercises:
             if not isinstance(ex.get('content'), dict):
                 continue
-            if ex.get('exercise_type') == 'jumbled_sentence' and 'chunks' not in ex['content']:
+            if ex.get('exercise_type') == 'jumbled_sentence' and needs_jumbled_prep(ex['content']):
                 try:
                     ex['content'] = prepare_jumbled_content(ex['content'], language_id)
                 except Exception as e:

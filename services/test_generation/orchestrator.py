@@ -54,6 +54,9 @@ from services.vocabulary.kana_homophone_judge import pick_homophone_sense
 from services.exercise_generation.judges.base import (
     JudgeUnavailable, batch_mode, BatchModeThreadPoolExecutor,
 )
+from services.jev_client import JevError
+from services import tier_classifier
+from services.tier_classifier import TierAssessment
 from services.timing import stage, log_stage_seconds
 
 logger = logging.getLogger(__name__)
@@ -190,6 +193,10 @@ class TestGenerationOrchestrator:
         self.question_generator = QuestionGenerator()
         self.question_validator = QuestionValidator()
         self.audio_synthesizer = AudioSynthesizer()
+
+        # Tier assignment (ADR-029): jev places the finished passage on the
+        # tier scale. Injectable so tests need no network.
+        self.classify_passage = tier_classifier.classify_passage
 
         # Initialize vocabulary pipeline (reuses existing OpenAI client)
         self.vocab_pipeline = VocabularyExtractionPipeline(
@@ -419,6 +426,17 @@ class TestGenerationOrchestrator:
             # aborts instead of shipping this test unjudged.
             raise
 
+        except JevError:
+            # Tier assignment failed after retries (ADR-029). There is no
+            # fallback tier, so this test must not be written; propagating
+            # marks the queue item *failed* (retryable) instead of completing
+            # it with zero tests.
+            logger.error(
+                "Tier assignment failed for queue item %s (topic tier %s); "
+                "no test written", item.id, tier_id,
+            )
+            raise
+
         except Exception as e:
             logger.error(
                 f"Failed to generate test at tier {tier_id}: {e}"
@@ -433,6 +451,10 @@ class TestGenerationOrchestrator:
         )
 
         return tests_generated
+
+    def _assess_tier(self, prose: str, language_code: str) -> TierAssessment:
+        """jev's tier for a finished passage (ADR-029). Raises JevError."""
+        return self.classify_passage(prose, language_code)
 
     def _generate_test(
         self,
@@ -450,8 +472,11 @@ class TestGenerationOrchestrator:
             topic: Topic details
             lang_config: Language configuration
             category_name: Category name
-            tier_id: dim_complexity_tiers.id (1-6) — the topic's mandatory
-                age tier, sole level axis (TASK-740).
+            tier_id: dim_complexity_tiers.id (1-6) — the *target* tier the
+                prose is written for (the topic's age tier, or the batch's
+                fixed tier). The tier that is stored, that seeds the ELO and
+                that picks the question mix is not this one: it is what jev
+                assigns to the finished passage (ADR-029).
             test_type: 'listening' or 'reading'
 
         Returns:
@@ -465,37 +490,14 @@ class TestGenerationOrchestrator:
         # actually going before picking what to parallelize.
         stage_seconds: dict[str, float] = {}
 
-        # Get tier config — raises if tier_id is unknown (no silent fallback,
-        # finding #4).
-        tier_config = self.db.get_tier_config(tier_id)
-        word_min, word_max = self.db.get_tier_word_count_range(tier_id)
-        tier_initial_elo = self.db.get_tier_initial_elo(tier_id)
-        complexity_tier = tier_config.tier_code
-
-        # Legacy numeric difficulty (tests.difficulty, 1-9): kept only as a
-        # representative label for prompt templates that still interpolate
-        # {difficulty}, the slug, and the legacy column consumed by readers
-        # out of scope for this pass (get_recommended_tests, dictation cap).
-        # It is derived one-way FROM the tier — nothing here resolves
-        # anything by looking difficulty back up.
-        legacy_difficulty = tier_config.difficulty_min
-
-        # Tier midpoint is the prior; difficulty_scorer refines this with
-        # passage-derived lexical complexity once prose is generated below.
-        initial_elo = tier_initial_elo
-        seeded_elo: Optional[int] = None
-
-        # Get question distribution
-        question_types = self.db.get_tier_question_distribution(tier_id)
-
-        # Generate slug
-        slug = self.db.generate_test_slug(
-            lang_config.language_code,
-            legacy_difficulty,
-            topic.concept_english
-        )
-
-        logger.debug(f"Test slug: {slug}")
+        # Target-tier config, used only to *write* the passage — raises if
+        # tier_id is unknown (no silent fallback, finding #4). Everything the
+        # test is stored as is re-resolved from the jev-assigned tier below.
+        target_tier_id = tier_id
+        target_config = self.db.get_tier_config(target_tier_id)
+        word_min, word_max = self.db.get_tier_word_count_range(target_tier_id)
+        target_complexity_tier = target_config.tier_code
+        target_difficulty = target_config.difficulty_min
 
         # Step 0: Translate topic to target language (skip for English)
         if self.topic_translator.should_translate(lang_config.language_code):
@@ -523,11 +525,11 @@ class TestGenerationOrchestrator:
                 topic_concept=translated_topic,  # Use translated topic
                 language_name=lang_config.language_name,
                 language_code=lang_config.language_code,
-                difficulty=legacy_difficulty,
+                difficulty=target_difficulty,
                 word_count_min=word_min,
                 word_count_max=word_max,
                 keywords=translated_keywords,  # Use translated keywords
-                complexity_tier=complexity_tier,
+                complexity_tier=target_complexity_tier,
                 prompt_template=prose_template,
                 model_override=lang_config.prose_model
             )
@@ -537,6 +539,13 @@ class TestGenerationOrchestrator:
         # Validation gate: prose length
         if not prose or len(prose.strip()) < 50:
             raise ValueError(f"Prose too short: {len(prose.strip()) if prose else 0} chars (min 50)")
+
+        # ADR-029: the passage's tier is what jev says it is, not the tier it
+        # was aimed at. A JevError (after retries) fails this test — no tier
+        # is guessed.
+        with stage('tier_assign', stage_seconds):
+            assessment = self._assess_tier(prose, lang_config.language_code)
+        tier_id = assessment.tier
 
         # TASK-740 Phase 5 (finding #3): reject a passage that duplicates or
         # near-duplicates an existing test at this same topic+tier. One
@@ -563,11 +572,11 @@ class TestGenerationOrchestrator:
                     topic_concept=translated_topic,
                     language_name=lang_config.language_name,
                     language_code=lang_config.language_code,
-                    difficulty=legacy_difficulty,
+                    difficulty=target_difficulty,
                     word_count_min=word_min,
                     word_count_max=word_max,
                     keywords=translated_keywords,
-                    complexity_tier=complexity_tier,
+                    complexity_tier=target_complexity_tier,
                     prompt_template=prose_template,
                     model_override=lang_config.prose_model,
                     extra_instruction=DEDUP_RETRY_NUDGE,
@@ -578,6 +587,10 @@ class TestGenerationOrchestrator:
                     f"Prose too short on dedup retry: "
                     f"{len(prose.strip()) if prose else 0} chars (min 50)"
                 )
+
+            with stage('tier_assign_retry', stage_seconds):
+                assessment = self._assess_tier(prose, lang_config.language_code)
+            tier_id = assessment.tier
 
             with stage('dedup_check_retry', stage_seconds):
                 dedup_result, passage_hash, passage_embedding = (
@@ -593,6 +606,41 @@ class TestGenerationOrchestrator:
                     "test generation for this queue item."
                 )
                 return False
+
+        # Everything below is keyed off the ASSIGNED tier.
+        tier_config = self.db.get_tier_config(tier_id)
+        tier_initial_elo = self.db.get_tier_initial_elo(tier_id)
+        complexity_tier = tier_config.tier_code
+
+        # Legacy numeric difficulty (tests.difficulty, 1-9): kept only as a
+        # representative label for prompt templates that still interpolate
+        # {difficulty}, the slug, and the legacy column consumed by readers
+        # out of scope for this pass (get_recommended_tests, dictation cap).
+        # It is derived one-way FROM the tier — nothing here resolves
+        # anything by looking difficulty back up.
+        legacy_difficulty = tier_config.difficulty_min
+
+        # Tier midpoint is the prior; difficulty_scorer refines this with
+        # passage-derived lexical complexity.
+        initial_elo = tier_initial_elo
+        seeded_elo: Optional[int] = None
+
+        question_types = self.db.get_tier_question_distribution(tier_id)
+
+        slug = self.db.generate_test_slug(
+            lang_config.language_code,
+            legacy_difficulty,
+            topic.concept_english
+        )
+        logger.debug(f"Test slug: {slug}")
+
+        if tier_id != target_tier_id:
+            logger.info(
+                "Tier assigned by jev: T%s (target was T%s, expected tier "
+                "%.2f, confidence %s)",
+                tier_id, target_tier_id, assessment.expected_tier,
+                assessment.confidence,
+            )
 
         # Difficulty scorer: refine tier midpoint with passage-derived lexical
         # complexity. Failure here must not block the test — fall back to the
@@ -792,6 +840,13 @@ class TestGenerationOrchestrator:
                 title=title,
                 seeded_elo=seeded_elo,
                 target_age_tier=tier_id,
+                age_tier_score=assessment.score,
+                age_tier_confidence=assessment.confidence,
+                age_tier_probabilities={
+                    f'T{t}': p for t, p in assessment.probabilities.items()
+                },
+                age_tier_model=assessment.model,
+                age_tier_calibration=assessment.calibration,
                 passage_hash=passage_hash,
                 passage_embedding=passage_embedding,
             )

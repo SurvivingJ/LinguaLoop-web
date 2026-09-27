@@ -1,0 +1,1241 @@
+{
+  "sense_id": 10110,
+  "language_id": 1,
+  "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+  "started_at": "2026-09-27T04:58:48.774993+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[6] flagged (rating 3): 语域：句式略生硬，口语感偏弱"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.2506425380706787,
+    "p1_generate": 76.26030492782593,
+    "tier_gate": 0.0,
+    "p1_judge": 103.09535789489746,
+    "collocate_grounding": 0.0,
+    "fan_out": 74.67231178283691
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[6] flagged (rating 3): 语域：句式略生硬，口语感偏弱"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kʰɤ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "可以",
+            "label": "复合"
+          },
+          {
+            "form": "可能",
+            "label": "复合"
+          },
+          {
+            "form": "可取",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "kě",
+        "register": "非正式（口语）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10110
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "93ca55b2-e98a-4ace-ac48-d0a1d3a2367e",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "ipa": "[kʰɤ˨˩˦]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "科",
+          "客",
+          "壳",
+          "可"
+        ],
+        "correct_answer": "可",
+        "explanation": "正确：'可'读第三声（kě），表示许可或可能，符合听到的语音。",
+        "distractor_explanations": {
+          "科": "声调错误：'科'读第一声（kē），指学科或类别，与目标词'可'（kě）声调不同，意义完全不同。",
+          "壳": "声调错误：'壳'读第二声（ké），指坚硬的外皮，与目标词'可'（kě）声调不同，意义完全不同。",
+          "客": "声调错误：'客'读第四声（kè），指客人，与目标词'可'（kě）声调不同，意义完全不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "ipa": "[kʰɤ˨˩˦]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "科",
+            "客",
+            "殼",
+            "可"
+          ],
+          "correct_answer": "可",
+          "explanation": "正確：'可'讀第三聲（kě），表示許可或可能，符合聽到的語音。",
+          "distractor_explanations": {
+            "科": "聲調錯誤：'科'讀第一聲（kē），指學科或類別，與目標詞'可'（kě）聲調不同，意義完全不同。",
+            "壳": "聲調錯誤：'殼'讀第二聲（ké），指堅硬的外皮，與目標詞'可'（kě）聲調不同，意義完全不同。",
+            "客": "聲調錯誤：'客'讀第四聲（kè），指客人，與目標詞'可'（kě）聲調不同，意義完全不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "51985692-f151-43ce-be3a-92178ccb6562",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "correct_definition": "表示许可或可能，常用于口语。",
+        "options": [
+          "土壤中水分的含量，通常用百分比表示。",
+          "仔细地看，检查评估。",
+          "明确承认或肯定某事，表示同意或认定。",
+          "表示许可或可能，常用于口语。"
+        ],
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "correct_definition": "表示許可或可能，常用於口語。",
+          "options": [
+            "土壤中水分的含量，通常用百分比表示。",
+            "仔細地看，檢查評估。",
+            "明確承認或肯定某事，表示同意或認定。",
+            "表示許可或可能，常用於口語。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "14a9c4e5-04f0-47bc-8f10-40aff9c842fb",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "去不去公园这事儿___去可不去，反正周末我在家待着也没别的事儿干。",
+        "original_sentence": "去不去公园这事儿可去可不去，反正周末我在家待着也没别的事儿干。",
+        "correct_answer": "可",
+        "options": [
+          "可",
+          "能",
+          "须",
+          "该"
+        ],
+        "explanation": "正确：'可'在'可V可不V'结构中表示许可或选择，符合句意。",
+        "distractor_tags": {},
+        "word_definition": "表示许可或可能，常用于口语。",
+        "target_word": "可",
+        "hant": {
+          "sentence_with_blank": "去不去公園這事兒___去可不去，反正週末我在家待著也沒別的事兒幹。",
+          "original_sentence": "去不去公園這事兒可去可不去，反正週末我在家待著也沒別的事兒幹。",
+          "correct_answer": "可",
+          "options": [
+            "可",
+            "能",
+            "須",
+            "該"
+          ],
+          "explanation": "正確：'可'在'可V可不V'結構中表示許可或選擇，符合句意。",
+          "distractor_tags": {},
+          "word_definition": "表示許可或可能，常用於口語。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "35b6b743-27e1-4c42-8cff-5f6f6d72d987",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这水烧开着可直接喝。",
+            "is_correct": false
+          },
+          {
+            "text": "这水烧开后可直接喝出来。",
+            "is_correct": false
+          },
+          {
+            "text": "这水烧开后可直接喝。",
+            "is_correct": true
+          },
+          {
+            "text": "这水可直接喝烧开后。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误：条件状语'烧开后'应放在情态动词'可'之前，说明在什么条件下可以喝，不能放在句末。 体标选用错误：'烧开'是瞬间完成动词，不能用表示状态持续的'着'，应改为'烧开后'或'烧开了'。 方向补语误用：'喝'的动作方向是进入体内，应使用'喝下去'或直接说'喝'，不能使用表示由内向外的'出来'。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這水燒開著可直接喝。",
+              "is_correct": false
+            },
+            {
+              "text": "這水燒開後可直接喝出來。",
+              "is_correct": false
+            },
+            {
+              "text": "這水燒開後可直接喝。",
+              "is_correct": true
+            },
+            {
+              "text": "這水可直接喝燒開後。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤：條件狀語'燒開後'應放在情態動詞'可'之前，說明在什麼條件下可以喝，不能放在句末。 體標選用錯誤：'燒開'是瞬間完成動詞，不能用表示狀態持續的'著'，應改為'燒開後'或'燒開了'。 方向補語誤用：'喝'的動作方向是進入體內，應使用'喝下去'或直接說'喝'，不能使用表示由內向外的'出來'。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "29e3ea97-80e1-4256-84de-20fcd3f5a588",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这周末的同学聚会你可去可不去，反正大家也就是随便吃个饭聊聊天，没那么多讲究，你要是觉得累就在家好好歇着。",
+            "is_correct": true
+          },
+          {
+            "text": "去不去公园这事儿可去可不去，反正周末我在家待着也没别的事儿干。",
+            "is_correct": true
+          },
+          {
+            "text": "这台旧电脑你修可不修，反正平时你也就上上网、看看视频，真要是彻底坏了直接换新的就行。",
+            "is_correct": false,
+            "error_description": "“可修可不修”是固定结构，表示“可以修也可以不修”，情态动词“可”必须放在动词“修”之前，不能放在动词之后。"
+          },
+          {
+            "text": "这台旧电脑你可修可不修，反正平时你也就上上网、看看视频，真要是彻底坏了直接换新的就行。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這週末的同學聚會你可去可不去，反正大家也就是隨便吃個飯聊聊天，沒那麼多講究，你要是覺得累就在家好好歇著。",
+              "is_correct": true
+            },
+            {
+              "text": "去不去公園這事兒可去可不去，反正週末我在家待著也沒別的事兒幹。",
+              "is_correct": true
+            },
+            {
+              "text": "這臺舊電腦你修可不修，反正平時你也就上上網、看看影片，真要是徹底壞了直接換新的就行。",
+              "is_correct": false,
+              "error_description": "“可修可不修”是固定結構，表示“可以修也可以不修”，情態動詞“可”必須放在動詞“修”之前，不能放在動詞之後。"
+            },
+            {
+              "text": "這臺舊電腦你可修可不修，反正平時你也就上上網、看看影片，真要是徹底壞了直接換新的就行。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c901fe37-915a-4c2b-86a8-6efea28e13df",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "周末我们可去公园，也可在家。",
+        "hant": {
+          "original_sentence": "週末我們可去公園，也可在家。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "205cc509-6907-4ea2-be39-e9e7704d94c6",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "decarbonization; reducing the amount of carbon something releases",
+              "指一个团队或组织的负责人，负责指挥和协调。",
+              "一个人或一件事限制住另一个人或事，不让它随便动。",
+              "表示许可或可能，常用于口语。"
+            ],
+            "correct_answer": "表示许可或可能，常用于口语。"
+          }
+        },
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "decarbonization; reducing the amount of carbon something releases",
+                "指一個團隊或組織的負責人，負責指揮和協調。",
+                "一個人或一件事限制住另一個人或事，不讓它隨便動。",
+                "表示許可或可能，常用於口語。"
+              ],
+              "correct_answer": "表示許可或可能，常用於口語。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f5ad72c2-48d1-4f34-b208-40285593815d",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可",
+        "options": [
+          "kē",
+          "kè",
+          "kě",
+          "ké"
+        ],
+        "correct_answer": "kě",
+        "word": "可",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "可",
+          "options": [
+            "kē",
+            "kè",
+            "kě",
+            "ké"
+          ],
+          "correct_answer": "kě",
+          "word": "可",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "cb769852-7515-4446-aec1-d5996c4c37d5",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "kě",
+        "options": [
+          "河",
+          "可",
+          "灯",
+          "打"
+        ],
+        "correct_answer": "可",
+        "word": "可",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "打": "component",
+          "河": "component",
+          "灯": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "kě",
+          "options": [
+            "河",
+            "可",
+            "燈",
+            "打"
+          ],
+          "correct_answer": "可",
+          "word": "可",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "打": "component",
+            "河": "component",
+            "灯": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4fddd18a-4a91-462b-9bcd-ccc5c0edf5ee",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "可",
+        "toneless_pinyin": "ke",
+        "full_pinyin": "kě",
+        "options": [
+          "3",
+          "4",
+          "2",
+          "1"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "可",
+          "toneless_pinyin": "ke",
+          "full_pinyin": "kě",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "1"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "bdf43927-128b-4ddd-926e-de8aca100935",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这旧纸___把桌子擦干净。",
+        "original_sentence": "这旧纸可把桌子擦干净。",
+        "correct_answer": "可",
+        "options": [
+          "敢",
+          "配",
+          "可",
+          "得"
+        ],
+        "explanation": "正确选项，“可”表示“可以用来”，符合旧纸擦桌子的语境。",
+        "distractor_tags": {},
+        "word_definition": "表示许可或可能，常用于口语。",
+        "target_word": "可",
+        "hant": {
+          "sentence_with_blank": "這舊紙___把桌子擦乾淨。",
+          "original_sentence": "這舊紙可把桌子擦乾淨。",
+          "correct_answer": "可",
+          "options": [
+            "敢",
+            "配",
+            "可",
+            "得"
+          ],
+          "explanation": "正確選項，“可”表示“可以用來”，符合舊紙擦桌子的語境。",
+          "distractor_tags": {},
+          "word_definition": "表示許可或可能，常用於口語。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "f5233f37-72fb-4e47-a2c1-7084979f1935",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这旧纸可把桌子擦干净。",
+            "is_correct": true
+          },
+          {
+            "text": "这礼物送给可小明。",
+            "is_correct": false,
+            "error_description": "情态动词“可”应该放在主要动词“送”之前，不能放在动词和宾语之间，属于语序错误。"
+          },
+          {
+            "text": "这件外套可穿着去爬山。",
+            "is_correct": true
+          },
+          {
+            "text": "这礼物可送给小明。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這舊紙可把桌子擦乾淨。",
+              "is_correct": true
+            },
+            {
+              "text": "這禮物送給可小明。",
+              "is_correct": false,
+              "error_description": "情態動詞“可”應該放在主要動詞“送”之前，不能放在動詞和賓語之間，屬於語序錯誤。"
+            },
+            {
+              "text": "這件外套可穿著去爬山。",
+              "is_correct": true
+            },
+            {
+              "text": "這禮物可送給小明。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "3510b1de-08a4-4bd6-a45a-b5020d5c5860",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "这水烧开后可直接喝。",
+        "hant": {
+          "original_sentence": "這水燒開後可直接喝。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00935904,
+      "prompt_tokens": 2495,
+      "completion_tokens": 6688,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5983,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 76006
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0039264,
+      "prompt_tokens": 682,
+      "completion_tokens": 2897,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2672,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 39163
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00520288,
+      "prompt_tokens": 307,
+      "completion_tokens": 3988,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3882,
+      "call_role": "repair",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 52880
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0012912,
+      "prompt_tokens": 607,
+      "completion_tokens": 857,
+      "cached_tokens": 0,
+      "reasoning_tokens": 776,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 10591
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027216,
+      "prompt_tokens": 1501,
+      "completion_tokens": 1751,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1601,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 20221
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00307936,
+      "prompt_tokens": 1503,
+      "completion_tokens": 2030,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1941,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25148
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00613792,
+      "prompt_tokens": 1697,
+      "completion_tokens": 4371,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3677,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 54157
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00853536,
+      "prompt_tokens": 1697,
+      "completion_tokens": 6244,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5617,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 74473
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00098496,
+      "prompt_tokens": 418,
+      "completion_tokens": 665,
+      "cached_tokens": 0,
+      "reasoning_tokens": 588,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 10486
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001662264,
+      "prompt_tokens": 406,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 1912
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0010048,
+      "prompt_tokens": 548,
+      "completion_tokens": 648,
+      "cached_tokens": 0,
+      "reasoning_tokens": 579,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 8884
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00073248,
+      "prompt_tokens": 453,
+      "completion_tokens": 459,
+      "cached_tokens": 0,
+      "reasoning_tokens": 435,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 6573
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00085696,
+      "prompt_tokens": 418,
+      "completion_tokens": 565,
+      "cached_tokens": 0,
+      "reasoning_tokens": 479,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 7553
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001695672,
+      "prompt_tokens": 395,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2221
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00243264,
+      "prompt_tokens": 542,
+      "completion_tokens": 1765,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1697,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25054
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00124,
+      "prompt_tokens": 423,
+      "completion_tokens": 863,
+      "cached_tokens": 0,
+      "reasoning_tokens": 839,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 12021
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.04784139359999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 332.4539999999979,
+  "finished_at": "2026-09-27T05:04:21.228192+00:00"
+}

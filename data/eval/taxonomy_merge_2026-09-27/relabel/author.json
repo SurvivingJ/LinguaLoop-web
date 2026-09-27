@@ -1,0 +1,409 @@
+[
+  {
+    "item_id": "zh_seed_11",
+    "lang": "zh",
+    "set": "gold",
+    "context": {
+      "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+      "reproduction": "猫咪的毛发画的很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+      "span_ref": [
+        5,
+        10
+      ],
+      "span_repro": [
+        5,
+        10
+      ]
+    },
+    "learner_form": "画的很细致",
+    "corrected_form": "画得很细致",
+    "v5_subtype": "de_particles",
+    "v5_severity": "minor",
+    "decision": "variant_ok",
+    "v6_type": null,
+    "severity": null,
+    "severity_change": "minor -> none (error removed)",
+    "bands_before": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none (single minor error already yields all bands 4); item kind single -> clean",
+    "other_errors_in_item": [],
+    "rationale": "的 written for the degree-complement marker 得 (画得很细致 -> 画的很细致). v6 de_particle keeps only 得/地 confusion and missing 得 (corruption rule §1.4: '得 removed, 得→地, 地→得'); 的-for-得 is listed as contested (frequent in casual native writing) and C11 bars contested forms from positives. The DT gold README also already lists '得/的 variant' as acceptable variation for clean items, so the current label contradicts the gold set's own convention. Strict jev reading (C11) would exclude the item from hard negatives too; for DT purposes the reproduction is acceptable, so the item becomes a clean/variant_ok item.",
+    "cited_rule": "data/eval/jev_grammar_2026-09-26/taxonomy.md §1.2 zh.de_particle 'Not an error': '的 in place of 得 (contested — exclude)'; §0.7 C11; tests/fixtures/dt_gold/README.md clean items: '得/的 variant' is acceptable variation"
+  },
+  {
+    "item_id": "zh_multi_02",
+    "lang": "zh",
+    "set": "gold",
+    "context": {
+      "reference": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变好。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+      "reproduction": "猫咪的毛发画的很细致，虽然只是一个普通的图案，但却栩栩如生，充满了生命力。我每次看到这个图案，都会觉得心情变。我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+      "span_ref": [
+        5,
+        10
+      ],
+      "span_repro": [
+        5,
+        10
+      ]
+    },
+    "learner_form": "画的很细致",
+    "corrected_form": "画得很细致",
+    "v5_subtype": "de_particles",
+    "v5_severity": "minor",
+    "decision": "variant_ok",
+    "v6_type": null,
+    "severity": null,
+    "severity_change": "minor -> none (error removed)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none (accuracy 3 is driven by the major resultative error); item drops from 3 to 2 errors",
+    "other_errors_in_item": [
+      {
+        "subtype": "word_choice",
+        "severity": "minor",
+        "learner_form": "普通的图案",
+        "corrected_form": "简单的图案"
+      },
+      {
+        "subtype": "resultative_complement",
+        "severity": "major",
+        "learner_form": "心情变",
+        "corrected_form": "心情变好"
+      }
+    ],
+    "rationale": "Same 画得->画的 edit as zh_seed_11 (的 for 得); same ruling. The other two errors (word_choice 普通/简单 minor, resultative 变/变好 major -> v6 complement) are unaffected.",
+    "cited_rule": "data/eval/jev_grammar_2026-09-26/taxonomy.md §1.2 zh.de_particle 'Not an error': '的 in place of 得 (contested — exclude)'; §0.7 C11; dt_gold/README.md '得/的 variant' acceptable"
+  },
+  {
+    "item_id": "zh_silver_20",
+    "lang": "zh",
+    "set": "silver",
+    "context": {
+      "reference": "捐献的器官会在手术中被小心地取出，并被迅速地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会将捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+      "reproduction": "捐献的器官会在手术中被小心的取出，并被迅速地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+      "span_ref": [
+        10,
+        16
+      ],
+      "span_repro": [
+        10,
+        16
+      ]
+    },
+    "learner_form": "被小心的取出",
+    "corrected_form": "被小心地取出",
+    "v5_subtype": "de_particles",
+    "v5_severity": "minor",
+    "decision": "variant_ok",
+    "v6_type": null,
+    "severity": null,
+    "severity_change": "minor -> none (error removed)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none (accuracy 3 is driven by the major ba error); item becomes effectively single-error",
+    "other_errors_in_item": [
+      {
+        "subtype": "ba_construction",
+        "severity": "major",
+        "learner_form": "捐献的健康器官移植",
+        "corrected_form": "将捐献的健康器官移植"
+      }
+    ],
+    "rationale": "Adverbial 地 written as 的 before a verb (被小心的取出). This is exactly the first, bolded 'Not an error' entry for zh.de_particle, and §1.4 forbids ever using 地→的 as a positive. The ba_construction error (dropped 将; v6 ba_bei) stands.",
+    "cited_rule": "data/eval/jev_grammar_2026-09-26/taxonomy.md §1.2 zh.de_particle 'Not an error': '的 in place of 地 before a verb (认真的讨论) ... Never use it as a positive'; §1.4 'Never corrupt 地 → 的'"
+  },
+  {
+    "item_id": "zh_silver_29",
+    "lang": "zh",
+    "set": "silver",
+    "context": {
+      "reference": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+      "reproduction": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我地朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+      "span_ref": [
+        32,
+        46
+      ],
+      "span_repro": [
+        32,
+        46
+      ]
+    },
+    "learner_form": "我地朋友们都夸我的T恤很可爱",
+    "corrected_form": "我的朋友们都夸我的T恤很可爱",
+    "v5_subtype": "de_particles",
+    "v5_severity": "minor",
+    "decision": "keep",
+    "v6_type": "de_particle",
+    "severity": "minor",
+    "severity_change": "none (minor)",
+    "bands_before": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none",
+    "other_errors_in_item": [],
+    "rationale": "Attributive 的 written as adverbial 地 before a noun (我地朋友们). Unlike 的-for-地, this direction is not on any 'Not an error' list and a textbook copy editor would correct it in standard written Mandarin. It is still a 的/地/得 structural-particle confusion, so de_particle is the right lesson. CAVEAT: v6 de_particle's wording ('before a complement or adverbial, or an obligatory 得 missing') does not literally cover the attributive slot, and §1.4's edit list omits 的→地; orthography (accuracy/minor) is the only other candidate and bands are identical either way. Also note 我地 is Cantonese written form for 我们 (V5 dialect reading), but the passage is Mandarin, so it is not rescued.",
+    "cited_rule": "merged_taxonomy.json zh.de_particle definition (G, accuracy, minor); taxonomy.md §0.8 rule 2 (textbook-correction test) and rule 4 (type fit)"
+  },
+  {
+    "item_id": "ja_seed_01",
+    "lang": "ja",
+    "set": "gold",
+    "context": {
+      "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+      "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要な部品はセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+      "span_ref": [
+        31,
+        37
+      ],
+      "span_repro": [
+        31,
+        37
+      ]
+    },
+    "learner_form": "部品はセット",
+    "corrected_form": "部品がセット",
+    "v5_subtype": "particle_wa_ga",
+    "v5_severity": "major",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "severity_change": "none (major, = v6 default)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none",
+    "other_errors_in_item": [],
+    "rationale": "必要な部品はセットになったもの: 部品 is the subject inside the relative clause [必要な部品がセットになった]もの. Structural rule 2 (relative-clause subject takes が/の, not は). Not a main-clause topic/focus choice, and no contrastive-は reading rescues it inside the modifier (V5).",
+    "cited_rule": "taxonomy.md §2.2 ja.wa_ga moderate example '私が作ったケーキ / *私は作ったケーキ' (relative-clause subject); merged_taxonomy.json ja.wa_ga definition"
+  },
+  {
+    "item_id": "ja_multi_01",
+    "lang": "ja",
+    "set": "gold",
+    "context": {
+      "reference": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の醍醐味ですね。",
+      "reproduction": "インターネットで「ロボットアーム キット」と検索すると、必要な部品はセットになったものも見つかります。組み立てる: 設計図に従って、部品を組み立てていきます。モーターをアームに取り付けたり、グリッパーを接続したりします。この作業が「電子工作」の面白さですね。",
+      "span_ref": [
+        31,
+        37
+      ],
+      "span_repro": [
+        31,
+        37
+      ]
+    },
+    "learner_form": "部品はセット",
+    "corrected_form": "部品がセット",
+    "v5_subtype": "particle_wa_ga",
+    "v5_severity": "major",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "severity_change": "none (major)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "none",
+    "other_errors_in_item": [
+      {
+        "subtype": "word_choice",
+        "severity": "minor",
+        "learner_form": "面白さですね",
+        "corrected_form": "醍醐味ですね"
+      }
+    ],
+    "rationale": "Same relative-clause-subject edit as ja_seed_01 (部品はセットになったもの). Structural rule 2. The word_choice error (醍醐味->面白さ) is unaffected.",
+    "cited_rule": "taxonomy.md §2.2 ja.wa_ga relative-clause rule; merged_taxonomy.json ja.wa_ga"
+  },
+  {
+    "item_id": "ja_multi_05",
+    "lang": "ja",
+    "set": "gold",
+    "context": {
+      "reference": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+      "reproduction": "私たちは作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感はマジ格別ですよ。どうやって作るの？このロボットアームを作るには、いくつかの部品が必要です。",
+      "span_ref": [
+        0,
+        9
+      ],
+      "span_repro": [
+        0,
+        9
+      ]
+    },
+    "learner_form": "私たちは作るものは",
+    "corrected_form": "私たちが作るものは",
+    "v5_subtype": "particle_wa_ga",
+    "v5_severity": "major",
+    "decision": "keep",
+    "v6_type": "wa_ga",
+    "severity": "major",
+    "severity_change": "none (major)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 3,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 3
+    },
+    "band_change": "none",
+    "other_errors_in_item": [
+      {
+        "subtype": "register",
+        "severity": "major",
+        "learner_form": "マジ格別ですよ",
+        "corrected_form": "格別ですよ"
+      }
+    ],
+    "rationale": "私たちは作るものは: 私たち is the subject of the relative clause [私たちが作る]もの, which is itself the main-clause topic (…ものは). Structural rule 2, matching the jev moderate example almost exactly (私が作ったケーキ). The main-clause ものは is untouched, so this is not a main-clause は/が choice. A reading '私たちは、作るものは…' (contrastive/double topic) is strained without a comma and was not the source's structure. The register error (マジ) is unaffected.",
+    "cited_rule": "taxonomy.md §2.2 ja.wa_ga relative-clause rule and moderate example; §2.5 V5 check"
+  },
+  {
+    "item_id": "en_seed_10",
+    "lang": "en",
+    "set": "gold",
+    "context": {
+      "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+      "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move it to a new spot.",
+      "span_ref": [
+        116,
+        139
+      ],
+      "span_repro": [
+        116,
+        137
+      ]
+    },
+    "learner_form": "move it to a new spot",
+    "corrected_form": "move them to a new spot",
+    "v5_subtype": "pronoun_reference",
+    "v5_severity": "major",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "major",
+    "severity_change": "none (major retained; note v6 word_choice default_severity is minor)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "YES: accuracy 3->4, fidelity 4->3 (dimension moves accuracy->fidelity)",
+    "other_errors_in_item": [],
+    "rationale": "them->it. Not a case error, reflexive-binding error, which-for-person or resumptive pronoun, so it falls outside v6 pronoun. It is also not ungrammatical standalone: 'it' has a plausible antecedent ('the arm'), so 'You can move it to a new spot' is well-formed (§0.8 rule 5 would reject it as a grammar positive). What changed is meaning: the learner now moves the arm, not the objects. That is a fidelity defect; word_choice (wrong lexical choice, fidelity) is the closest v6 home. Severity kept major (the propositional content changes) although word_choice's default is minor. agreement is subject-verb only; plural_number is noun morphology — neither fits.",
+    "cited_rule": "merged_taxonomy.json en.pronoun definition (case / local reflexive / which-for-person / resumptive) and en.word_choice definition; taxonomy.md §0.8 rules 4 and 5"
+  },
+  {
+    "item_id": "en_multi_03",
+    "lang": "en",
+    "set": "gold",
+    "context": {
+      "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+      "reproduction": "The coding is key. You write instructions for the Arduino. You can make the arm pick on small things. You can move it to a new spot.",
+      "span_ref": [
+        116,
+        139
+      ],
+      "span_repro": [
+        110,
+        131
+      ]
+    },
+    "learner_form": "move it to a new spot",
+    "corrected_form": "move them to a new spot",
+    "v5_subtype": "pronoun_reference",
+    "v5_severity": "major",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "major",
+    "severity_change": "none (major retained)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 3,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "YES: accuracy 3->4, fidelity 3->2 (fidelity now carries major + two minors)",
+    "other_errors_in_item": [
+      {
+        "subtype": "word_choice",
+        "severity": "minor",
+        "learner_form": "coding is key",
+        "corrected_form": "coding is important"
+      },
+      {
+        "subtype": "phrasal_verb",
+        "severity": "minor",
+        "learner_form": "arm pick on small",
+        "corrected_form": "arm pick up small"
+      }
+    ],
+    "rationale": "Same them->it edit as en_seed_10; same ruling (outside v6 pronoun scope; 'it' can grammatically refer to the arm; the defect is a meaning change -> fidelity word_choice). The word_choice (important->key) and phrasal_verb (pick up->pick on) errors are unaffected.",
+    "cited_rule": "merged_taxonomy.json en.pronoun and en.word_choice definitions; taxonomy.md §0.8 rules 4-5"
+  },
+  {
+    "item_id": "en_silver_13",
+    "lang": "en",
+    "set": "silver",
+    "context": {
+      "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+      "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move him to a new spot.",
+      "span_ref": [
+        108,
+        140
+      ],
+      "span_repro": [
+        108,
+        139
+      ]
+    },
+    "learner_form": "You can move him to a new spot.",
+    "corrected_form": "You can move them to a new spot.",
+    "v5_subtype": "pronoun_reference",
+    "v5_severity": "major",
+    "decision": "retype",
+    "v6_type": "word_choice",
+    "severity": "major",
+    "severity_change": "none (major retained)",
+    "bands_before": {
+      "accuracy": 3,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "band_change": "YES: accuracy 3->4, fidelity 4->3",
+    "other_errors_in_item": [],
+    "rationale": "them->him with no male/person antecedent in the passage. Not a case error, reflexive, which-for-person or resumptive pronoun, so outside v6 pronoun. It is a wrong lexical pronoun (number + animacy/gender) that breaks the link to 'small things' — a fidelity/meaning defect, closest v6 home word_choice. Not semantic_anomaly: moving 'him' is not an impossible event, just an unanchored referent. Severity major retained. Reviewer note: jev's en.B3 bucket question mentions pronouns 'referring to the right person', which a reviewer could read as supporting 'keep'; the type definition itself is narrower, so I retype.",
+    "cited_rule": "merged_taxonomy.json en.pronoun (narrow binding scope) and en.word_choice; taxonomy.md §3.2 en.pronoun type details; §0.8 rule 4"
+  }
+]

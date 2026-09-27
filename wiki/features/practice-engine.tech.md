@@ -3,7 +3,7 @@ title: Practice Engine — Technical Specification
 type: feature-tech
 status: planned
 prose_page: ./practice-engine.md
-last_updated: 2026-05-21
+last_updated: 2026-09-22
 dependencies:
   - "migrations/study_plans_v1/002_dim_practice_modes.sql — dim_practice_modes seed"
   - "migrations/study_plans_v1/007_alter_user_exercise_sessions_mode.sql — adds mode + target_minutes columns"
@@ -24,7 +24,7 @@ breaking_change_risk: medium
 
 The Practice Engine is a single SQL-RPC-driven surface with mode dispatch. All scoring, candidate-pool composition, fall-through logic, and time accounting live in `get_practice_session`. Python orchestrates only:
 - Mode resolution when `'auto'` is requested.
-- Cold-ladder auto-subscription from selected packs.
+- Ladder top-up from learner evidence. (Pack-based cold-start intake was removed 2026-09-21 with the language-packs archive — no pack was ever created, so it never fired; the pack pseudo-code below is historical.)
 - Gate / stress-test battery composition (delegated to existing `LadderService` methods).
 - Reporting per-session minutes to `record_session_progress`.
 

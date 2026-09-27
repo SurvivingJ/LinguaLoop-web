@@ -82,9 +82,7 @@ class _StubDB:
         supply:          sense_id -> number of active exercises.
         evidence:        rows the user_vocabulary_knowledge read returns.
         wrong_questions: list of (question_id, [sense_id, ...]) missed.
-        pack_sense_ids:  senses reachable through the pack bridge.
         already:         sense_ids already on the ladder.
-        pack_bridge_missing: raise undefined_table on the bridge read.
     """
 
     def __init__(
@@ -94,10 +92,7 @@ class _StubDB:
         supply=None,
         evidence=(),
         wrong_questions=(),
-        pack_sense_ids=(),
         already=(),
-        packs_selected=True,
-        pack_bridge_missing=False,
     ):
         self.eligible_count = eligible_count
         # Senses standing in for the existing eligible pool. By default every
@@ -113,10 +108,7 @@ class _StubDB:
         self.supply = dict(supply or {})
         self.evidence = list(evidence)
         self.wrong_questions = list(wrong_questions)
-        self.pack_sense_ids = list(pack_sense_ids)
         self.already = list(already)
-        self.packs_selected = packs_selected
-        self.pack_bridge_missing = pack_bridge_missing
         self.inserted = []
         self.supply_gate_calls = []
 
@@ -134,10 +126,7 @@ class _StubDB:
         return table
 
     def rpc(self, name, _args):
-        if name != 'get_packs_with_user_selection':
-            raise AssertionError('unexpected rpc: %s' % name)
-        data = [{'id': 1, 'is_selected': True}] if self.packs_selected else []
-        return _Query(lambda _q: _Response(data=data))
+        raise AssertionError('unexpected rpc: %s' % name)
 
     # -- per-table handlers --
 
@@ -179,15 +168,6 @@ class _StubDB:
             for sid in q.in_values.get('id', [])
         ])
 
-    def _h_pack_key_words(self, _q):
-        if self.pack_bridge_missing:
-            raise RuntimeError(
-                '{"code":"PGRST205","message":"Could not find the table '
-                "'public.pack_key_words' in the schema cache\"}"
-            )
-        return _Response(data=[{'sense_id': s} for s in self.pack_sense_ids])
-
-
 def _service(db):
     svc = PracticeSessionService.__new__(PracticeSessionService)
     svc.db = db
@@ -201,6 +181,11 @@ def _supply_for(sense_ids, n=LADDER_MIN_EXERCISES_PER_SENSE):
 def _top_up(**kwargs):
     db = _StubDB(**kwargs)
     return _service(db)._maybe_top_up_ladder('user-1', 1), db
+
+
+def _missed(sense_ids):
+    """Evidence rows that clearly qualify: each sense missed three times."""
+    return [_known(s, word_test_wrong=3) for s in sense_ids]
 
 
 def _known(sense_id, evidence_count=LADDER_EVIDENCE_MIN_COUNT, **over):
@@ -226,7 +211,7 @@ def test_empty_ladder_fills_up_to_the_per_call_cap():
     senses = list(range(1, 101))
     fresh, db = _top_up(
         eligible_count=0,
-        pack_sense_ids=senses,
+        evidence=_missed(senses),
         supply=_supply_for(senses),
     )
     assert len(fresh) == LADDER_TOPUP_MAX_PER_CALL
@@ -243,7 +228,7 @@ def test_partially_stalled_ladder_still_receives_words():
     senses = list(range(1, 101))
     fresh, db = _top_up(
         eligible_count=10,
-        pack_sense_ids=senses,
+        evidence=_missed(senses),
         supply=_supply_for(senses),
     )
     assert len(fresh) == 5, 'a non-empty ladder must still be topped up'
@@ -252,13 +237,13 @@ def test_partially_stalled_ladder_still_receives_words():
 
 def test_pool_at_floor_is_left_alone():
     """Top-up is a floor, not an unconditional drip — no runaway growth."""
-    fresh, db = _top_up(eligible_count=15, pack_sense_ids=range(1, 101))
+    fresh, db = _top_up(eligible_count=15, evidence=_missed(range(1, 101)))
     assert fresh == []
     assert db.inserted == []
 
 
 def test_pool_above_floor_is_left_alone():
-    fresh, _ = _top_up(eligible_count=40, pack_sense_ids=range(1, 101))
+    fresh, _ = _top_up(eligible_count=40, evidence=_missed(range(1, 101)))
     assert fresh == []
 
 
@@ -272,7 +257,7 @@ def test_deficit_arithmetic(eligible, expected):
     senses = list(range(1, 101))
     fresh, _ = _top_up(
         eligible_count=eligible,
-        pack_sense_ids=senses,
+        evidence=_missed(senses),
         supply=_supply_for(senses),
     )
     assert len(fresh) == expected
@@ -281,7 +266,7 @@ def test_deficit_arithmetic(eligible, expected):
 def test_already_subscribed_senses_are_not_reinserted():
     fresh, _ = _top_up(
         eligible_count=12,
-        pack_sense_ids=[1, 2, 3, 4, 5],
+        evidence=_missed([1, 2, 3, 4, 5]),
         supply=_supply_for([1, 2, 3, 4, 5]),
         already=[1, 2],
     )
@@ -289,8 +274,8 @@ def test_already_subscribed_senses_are_not_reinserted():
     assert len(fresh) == 3
 
 
-def test_no_selected_packs_and_no_evidence_returns_empty():
-    fresh, db = _top_up(eligible_count=0, packs_selected=False)
+def test_no_evidence_returns_empty():
+    fresh, db = _top_up(eligible_count=0)
     assert fresh == []
     assert db.inserted == []
 
@@ -303,7 +288,7 @@ def test_senses_without_exercises_are_never_subscribed():
     """THE DEAD END: 21 of 24 live subscriptions had zero exercises."""
     fresh, db = _top_up(
         eligible_count=0,
-        pack_sense_ids=[1, 2, 3, 4],
+        evidence=_missed([1, 2, 3, 4]),
         supply={1: 0, 2: 0, 3: 0, 4: 0},
     )
     assert fresh == []
@@ -313,7 +298,7 @@ def test_senses_without_exercises_are_never_subscribed():
 def test_supply_gate_admits_only_covered_senses():
     fresh, _ = _top_up(
         eligible_count=0,
-        pack_sense_ids=[1, 2, 3, 4],
+        evidence=_missed([1, 2, 3, 4]),
         supply={
             1: LADDER_MIN_EXERCISES_PER_SENSE,
             2: LADDER_MIN_EXERCISES_PER_SENSE - 1,   # one short
@@ -326,7 +311,7 @@ def test_supply_gate_admits_only_covered_senses():
 
 def test_supply_gate_fails_closed_when_the_lookup_breaks():
     """An unverifiable sense must not be admitted — that is the dead end."""
-    db = _StubDB(eligible_count=0, pack_sense_ids=[1, 2, 3])
+    db = _StubDB(eligible_count=0, evidence=_missed([1, 2, 3]))
 
     def _boom(_q):
         raise RuntimeError('connection reset')
@@ -340,36 +325,12 @@ def test_supply_gate_fails_closed_when_the_lookup_breaks():
 # 3. The evidence queue (T4.2)
 # ----------------------------------------------------------------------
 
-def test_evidence_queue_is_drained_before_packs():
-    """A learner who is testing gets their own missed words, not pack filler."""
-    fresh, _ = _top_up(
-        eligible_count=14,                      # deficit of 1
-        evidence=[_known(50, word_test_wrong=3)],
-        pack_sense_ids=[1, 2, 3],
-        supply=_supply_for([1, 2, 3, 50]),
-    )
-    assert fresh == [50]
-
-
-def test_packs_backfill_only_what_evidence_could_not_fill():
-    fresh, _ = _top_up(
-        eligible_count=12,                      # deficit of 3
-        evidence=[_known(50, word_test_wrong=3)],
-        pack_sense_ids=[1, 2, 3],
-        supply=_supply_for([1, 2, 3, 50]),
-    )
-    assert fresh[0] == 50, 'evidence first'
-    assert len(fresh) == 3
-    assert set(fresh[1:]) <= {1, 2, 3}
-
-
 def test_single_wrong_answer_does_not_subscribe():
     """One miss is a careless click or a bad distractor, not a knowledge gap."""
     fresh, _ = _top_up(
         eligible_count=14,
         evidence=[_known(50, evidence_count=1, p_known=0.9, word_test_wrong=1)],
         supply=_supply_for([50]),
-        packs_selected=False,
     )
     assert fresh == []
 
@@ -379,7 +340,6 @@ def test_confident_low_p_known_subscribes_on_thin_evidence():
         eligible_count=14,
         evidence=[_known(50, evidence_count=1, p_known=0.05)],
         supply=_supply_for([50]),
-        packs_selected=False,
     )
     assert fresh == [50]
 
@@ -390,7 +350,6 @@ def test_repeated_wrong_answers_qualify_without_a_knowledge_row():
         eligible_count=14,
         wrong_questions=[('q1', [77]), ('q2', [77])],
         supply=_supply_for([77]),
-        packs_selected=False,
     )
     assert fresh == [77]
 
@@ -400,7 +359,6 @@ def test_one_wrong_question_is_not_enough_without_a_knowledge_row():
         eligible_count=14,
         wrong_questions=[('q1', [77])],
         supply=_supply_for([77]),
-        packs_selected=False,
     )
     assert fresh == []
 
@@ -414,54 +372,12 @@ def test_evidence_is_ranked_by_wrong_count():
             _known(12, word_test_wrong=2),
         ],
         supply=_supply_for([10, 11, 12]),
-        packs_selected=False,
     )
     assert fresh == [11]
 
 
-def test_starved_evidence_falls_through_to_packs():
-    """The words the learner actually missed have no exercises — the live case."""
-    fresh, _ = _top_up(
-        eligible_count=14,
-        evidence=[_known(50, word_test_wrong=9)],
-        supply={50: 0, 1: LADDER_MIN_EXERCISES_PER_SENSE},
-        pack_sense_ids=[1],
-    )
-    assert fresh == [1]
-
-
 # ----------------------------------------------------------------------
-# 4. The pack bridge must be loud when it is missing (T4.5)
-# ----------------------------------------------------------------------
-
-def test_missing_pack_bridge_is_logged_as_an_error_not_swallowed(caplog):
-    """A bare `except: logger.warning` is how a table that never existed
-    stayed a silent no-op for the whole lifetime of pack-based intake."""
-    with caplog.at_level('ERROR', logger='services.practice_session_service'):
-        fresh, _ = _top_up(
-            eligible_count=0,
-            pack_bridge_missing=True,
-            packs_selected=True,
-        )
-    assert fresh == []
-    assert any(
-        'CONTENT PIPELINE FAULT' in r.getMessage() for r in caplog.records
-    ), 'a missing pack->sense bridge must surface as an ERROR'
-
-
-def test_missing_pack_bridge_does_not_block_the_evidence_queue():
-    """Queue A is the priority path; a broken Queue B must not disarm it."""
-    fresh, _ = _top_up(
-        eligible_count=14,
-        evidence=[_known(50, word_test_wrong=3)],
-        supply=_supply_for([50]),
-        pack_bridge_missing=True,
-    )
-    assert fresh == [50]
-
-
-# ----------------------------------------------------------------------
-# 5. Demand-driven generation (T4.3)
+# 4. Demand-driven generation (T4.3)
 # ----------------------------------------------------------------------
 
 def test_starved_nominations_are_queued_for_generation(monkeypatch):
@@ -484,7 +400,6 @@ def test_starved_nominations_are_queued_for_generation(monkeypatch):
             _known(51, word_test_wrong=8),
         ],
         supply={50: 0, 51: 0},
-        packs_selected=False,
     )
     assert {sid for sid, _ in queued} == {50, 51}
     assert all(r == queue_drain.REASON_SUBSCRIBE_TOPUP for _, r in queued)
@@ -504,7 +419,6 @@ def test_supplied_senses_are_not_queued_for_generation(monkeypatch):
         eligible_count=14,
         evidence=[_known(50, word_test_wrong=9)],
         supply=_supply_for([50]),
-        packs_selected=False,
     )
     assert fresh == [50]
     assert queued == []
@@ -527,7 +441,6 @@ def test_generation_requests_are_capped_per_call(monkeypatch):
         eligible_count=14,
         evidence=[_known(i, word_test_wrong=3) for i in range(100, 160)],
         supply={},
-        packs_selected=False,
     )
     assert len(queued) == DEMAND_GENERATION_MAX_PER_CALL
 
@@ -543,13 +456,12 @@ def test_a_broken_generation_queue_does_not_break_the_session(monkeypatch):
         eligible_count=14,
         evidence=[_known(50, word_test_wrong=9), _known(51)],
         supply={50: 0, 51: LADDER_MIN_EXERCISES_PER_SENSE},
-        packs_selected=False,
     )
     assert fresh == [51], 'a queue outage must not cost the servable sense'
 
 
 # ----------------------------------------------------------------------
-# 6. The pool floor counts servable rows, not rows
+# 5. The pool floor counts servable rows, not rows
 # ----------------------------------------------------------------------
 
 def test_unservable_subscriptions_do_not_hold_pool_slots():
@@ -560,7 +472,7 @@ def test_unservable_subscriptions_do_not_hold_pool_slots():
     fresh, _ = _top_up(
         eligible_count=24,
         eligible_supply={-1: 3, -2: 3, -3: 3},   # 3 servable of 24
-        pack_sense_ids=senses,
+        evidence=_missed(senses),
         supply=_supply_for(senses),
     )
     assert len(fresh) == LADDER_TOPUP_MAX_PER_CALL, (
@@ -569,7 +481,7 @@ def test_unservable_subscriptions_do_not_hold_pool_slots():
 
 
 def test_a_fully_servable_pool_at_the_floor_is_still_left_alone():
-    fresh, db = _top_up(eligible_count=15, pack_sense_ids=range(1, 101))
+    fresh, db = _top_up(eligible_count=15, evidence=_missed(range(1, 101)))
     assert fresh == []
     assert db.inserted == []
 
@@ -589,7 +501,7 @@ def test_unservable_subscriptions_are_queued_for_generation(monkeypatch):
     _top_up(
         eligible_count=5,
         eligible_supply={-1: 3},                 # 1 servable of 5
-        pack_sense_ids=[1],
+        evidence=_missed([1]),
         supply=_supply_for([1]),
     )
     assert set(queued) == {-2, -3, -4, -5}

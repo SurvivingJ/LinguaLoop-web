@@ -60,7 +60,7 @@ Every item was produced the same way, so provenance is uniform rather than per-r
   `reproduction[span_repro] == learner_form` and `reference[span_ref] == corrected_form`.
 - **Multi-error items: LLM-drafted + hand-adjudicated** naturalistic combinations (2–4 errors).
 - **Clean items:** faithful reproductions differing only by acceptable variation (synonym,
-  contraction, kana/kanji or 得/的 variant, optional comma). Expected: zero errors, all bands 4.
+  contraction, kana/kanji variant, optional comma). Expected: zero errors, all bands 4.
   They measure the grader's false-positive rate.
 
 ### Expected-band derivation

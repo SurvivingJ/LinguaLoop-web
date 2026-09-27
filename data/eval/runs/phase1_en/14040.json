@@ -1,0 +1,417 @@
+{
+  "sense_id": 14040,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:37:48.800611+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.30904626846313477,
+    "p1_generate": 3.732595205307007,
+    "tier_gate": 0.00099945068359375,
+    "p1_judge": 1.4138438701629639,
+    "collocate_grounding": 0.0,
+    "fan_out": 44.72712063789368
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈkɒnstəntli/",
+        "morphological_forms": [
+          {
+            "form": "constant",
+            "label": "base adjective"
+          },
+          {
+            "form": "constancy",
+            "label": "noun form"
+          }
+        ],
+        "pronunciation": "kon-stuhnt-lee",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14040
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "085ec3b3-474a-456f-a226-d424c5d6d2e8",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "pronunciation": "kon-stuhnt-lee",
+        "correct_definition": "Happening without stopping or very often.",
+        "options": [
+          "A way of behaving or doing something that is usual or traditional in a particular place or situation.",
+          "Happening without stopping or very often.",
+          "A hat is a covering for the head, often with a brim, worn for protection or fashion.",
+          "A scale is a device used to measure weight, or a system for measuring or comparing things."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f6a82de8-f65a-4dbb-a820-8b47631c8f95",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Technology is constantly evolving to meet the needs of modern users."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "13508b21-2847-4e68-b7d0-26cb1a6daac6",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "pronunciation": "kon-stuhnt-lee",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Something that is hard to understand or explain.",
+              "Happening without stopping or very often.",
+              "The land on the side of a hill, where plants can grow.",
+              "Something that is basic, essential, or necessary for something else."
+            ],
+            "correct_answer": "Happening without stopping or very often."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "c3bdf53d-d969-4af5-9d0e-b53103a3a4c7",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The demand for coffee means that this supply chain is ___ in motion.",
+        "original_sentence": "The demand for coffee means that this supply chain is constantly in motion.",
+        "target_word": "constantly",
+        "word": "constantly",
+        "answer": {
+          "accepted": [
+            "constantly",
+            "constant",
+            "constancy"
+          ],
+          "accepted_normalized": [
+            "constantly",
+            "constant",
+            "constancy"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1f270312-651c-4a5c-b585-77da74536ff2",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Technology is constantly evolving to meet the needs of modern users.",
+        "chunks": [
+          "Technology",
+          "is evolving",
+          "constantly",
+          "to meet the needs of modern users"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "constantly",
+          "to meet the needs of modern users",
+          "is evolving",
+          "Technology"
+        ],
+        "target_word": "constantly",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.002149,
+      "prompt_tokens": 1955,
+      "completion_tokens": 625,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3609
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006285,
+      "prompt_tokens": 645,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1325
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163648,
+      "prompt_tokens": 778,
+      "completion_tokens": 1084,
+      "cached_tokens": 0,
+      "reasoning_tokens": 870,
+      "call_role": "retry",
+      "sense_id": 14040,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 15021
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0021696,
+      "prompt_tokens": 780,
+      "completion_tokens": 1500,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1286,
+      "call_role": "retry",
+      "sense_id": 14040,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 19590
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.0065835799999999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 50.60899999999674,
+  "finished_at": "2026-09-27T03:38:39.416897+00:00"
+}

@@ -3,38 +3,26 @@
 import uuid
 import logging
 from services.exercise_generation.config import (
-    GRAMMAR_DISTRIBUTION, COLLOCATION_DISTRIBUTION,
-    CONVERSATION_DISTRIBUTION, STYLE_DISTRIBUTION, PHASE_MAP,
+    COLLOCATION_DISTRIBUTION, PHASE_MAP,
 )
 from services.exercise_generation.transcript_miner import get_sentence_pool
 from services.vocabulary_ladder.exercise_caps import (
     apply_caps, cap_key, count_existing, log_dropped,
 )
-from services.exercise_generation.generators.cloze             import ClozeGenerator
-from services.exercise_generation.generators.jumbled_sentence  import JumbledSentenceGenerator
-from services.exercise_generation.generators.translation       import TlNlTranslationGenerator, NlTlTranslationGenerator
 from services.exercise_generation.generators.flashcard         import FlashcardGenerator
-from services.exercise_generation.generators.spot_incorrect    import SpotIncorrectGenerator
-from services.exercise_generation.generators.semantic          import SemanticDiscrimGenerator, OddOneOutGenerator
 from services.exercise_generation.generators.collocation       import (
     CollocationGapFillGenerator, CollocationRepairGenerator, OddCollocationOutGenerator,
 )
 from services.exercise_generation.generators.verb_noun_match   import VerbNounMatchGenerator
-from services.exercise_generation.generators.context_spectrum  import ContextSpectrumGenerator
-from services.exercise_generation.generators.timed_speed_round import TimedSpeedRoundGenerator
-from services.exercise_generation.generators.style import (
-    StyleSentenceCompletionGenerator, StylePatternMatchGenerator,
-    StyleVoiceTransformGenerator, StyleTransitionFillGenerator,
-    StyleImitationGenerator,
-)
 
 logger = logging.getLogger(__name__)
 
 # TASK-512: this orchestrator no longer generates vocabulary exercises. The
 # vocabulary ladder (VocabAssetPipeline + LadderExerciseRenderer) is the sole
 # vocab generator — its output is judge-gated and carries word_asset_id, which
-# this pipeline's output never did. Grammar / collocation / conversation /
-# style remain here and are frozen: no new work lands in them.
+# this pipeline's output never did. Only the collocation source remains here
+# (frozen: no new work lands in it). The grammar, conversation and style sources
+# were archived 2026-09-21 with their features — see archive/modules/.
 _VOCAB_RETIRED_MSG = (
     "source_type='vocabulary' is retired from the legacy exercise pipeline "
     "(TASK-512). The vocabulary ladder is the sole vocab generator: call "
@@ -82,7 +70,7 @@ class ExerciseGenerationOrchestrator:
 
         Args:
             sentence_pool: If provided, skip Phase 1 (sentence mining) and
-                use this pool directly. Required for source_type='conversation'.
+                use this pool directly.
 
         Returns a summary dict with counts per exercise type.
         """
@@ -195,35 +183,18 @@ class ExerciseGenerationOrchestrator:
     def _get_distribution(self, source_type: str) -> dict[str, int]:
         if source_type == 'vocabulary':
             raise ValueError(_VOCAB_RETIRED_MSG)
-        return {
-            'grammar':      GRAMMAR_DISTRIBUTION,
-            'collocation':  COLLOCATION_DISTRIBUTION,
-            'conversation': CONVERSATION_DISTRIBUTION,
-            'style':        STYLE_DISTRIBUTION,
-        }[source_type]
+        if source_type != 'collocation':
+            raise ValueError(
+                f"Unsupported source_type {source_type!r}: only 'collocation' remains "
+                "(grammar/conversation/style archived 2026-09-21)."
+            )
+        return COLLOCATION_DISTRIBUTION
 
     def _build_generators(
         self, source_type: str, language_id: int, model: str
     ) -> dict[str, object]:
         """Instantiate all applicable generator classes for the given source_type."""
         kw = dict(db=self.db, language_id=language_id, model=model)
-
-        grammar_generators = {
-            'cloze_completion':        ClozeGenerator(**kw, source_type='grammar'),
-            'jumbled_sentence':        JumbledSentenceGenerator(**kw, source_type='grammar'),
-            'tl_nl_translation':       TlNlTranslationGenerator(**kw, source_type='grammar',
-                                           nl_language_code=self.nl_language_code),
-            'nl_tl_translation':       NlTlTranslationGenerator(**kw, source_type='grammar',
-                                           nl_language_code=self.nl_language_code),
-            'text_flashcard':          FlashcardGenerator(**kw, mode='text', source_type='grammar'),
-            'listening_flashcard':     FlashcardGenerator(**kw, mode='listening', source_type='grammar',
-                                           audio_synthesizer=self.audio_synthesizer),
-            'semantic_discrimination': SemanticDiscrimGenerator(**kw, source_type='grammar'),
-            'spot_incorrect_sentence': SpotIncorrectGenerator(**kw),
-            'odd_one_out':             OddOneOutGenerator(**kw, source_type='grammar'),
-            'context_spectrum':        ContextSpectrumGenerator(**kw),
-            'timed_speed_round':       TimedSpeedRoundGenerator(**kw),
-        }
 
         # No vocabulary_generators: the vocabulary ladder is the sole vocab
         # generator (TASK-512). See _VOCAB_RETIRED_MSG.
@@ -236,35 +207,12 @@ class ExerciseGenerationOrchestrator:
             'verb_noun_match':       VerbNounMatchGenerator(**kw),
         }
 
-        conversation_generators = {
-            'cloze_completion':        ClozeGenerator(**kw, source_type='conversation'),
-            'jumbled_sentence':        JumbledSentenceGenerator(**kw, source_type='conversation'),
-            'tl_nl_translation':       TlNlTranslationGenerator(**kw, source_type='conversation',
-                                           nl_language_code=self.nl_language_code),
-            'nl_tl_translation':       NlTlTranslationGenerator(**kw, source_type='conversation',
-                                           nl_language_code=self.nl_language_code),
-            'semantic_discrimination': SemanticDiscrimGenerator(**kw, source_type='conversation'),
-            'text_flashcard':          FlashcardGenerator(**kw, mode='text', source_type='conversation'),
-            'spot_incorrect_sentence': SpotIncorrectGenerator(**kw),
-        }
-
-        style_generators = {
-            'style_sentence_completion': StyleSentenceCompletionGenerator(**kw),
-            'style_pattern_match':       StylePatternMatchGenerator(**kw),
-            'style_voice_transform':     StyleVoiceTransformGenerator(**kw),
-            'style_transition_fill':     StyleTransitionFillGenerator(**kw),
-            'style_imitation':           StyleImitationGenerator(**kw),
-        }
-
         if source_type == 'vocabulary':
             raise ValueError(_VOCAB_RETIRED_MSG)
 
-        return {
-            'grammar':      grammar_generators,
-            'collocation':  collocation_generators,
-            'conversation': conversation_generators,
-            'style':        style_generators,
-        }[source_type]
+        if source_type != 'collocation':
+            raise ValueError(f"Unsupported source_type {source_type!r}")
+        return collocation_generators
 
     def _batch_insert(self, rows: list[dict]) -> None:
         if not rows:

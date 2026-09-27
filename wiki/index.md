@@ -1,5 +1,47 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-09-19 (**CSV EXERCISE AUTHORING BUILT** — TASK-795–799; see [[tasklist/csv-exercise-authoring.tasks]]. **VOCABULARY-AWARE TEST SELECTION IS ON.** The operator
+Last updated: 2026-09-27 (**JEV IS NOW THE DEFAULT ENTAILMENT JUDGE (TASK-835), operator-approved; `ENTAILMENT_JUDGE_BACKEND=llm` rolls back; LLM judge remains the automatic fallback; ADR-030 accepted.** Preceded by: SHADOW WINDOW + ADJUDICATED GOLD DONE — 216 shadow comparisons, 0 jev failures, jev never accepted what live rejected, p50 296 ms vs 1,336 ms; 300 items labelled by two blind *model* adjudicators (kappa 0.887): jev 1 confident error vs live 27 on the disagreement pool, both 0 on 214 agreeing items; cutoffs (0.30, 0.60) confirmed. Human confirmation and the default flip (TASK-835, the operator's call) remain. See [[evaluations/jev-entailment-shadow-and-adjudication-2026-09-27]]). Prior: 2026-09-26 (**JEV ENTAILMENT JUDGE BACKEND BUILT, DEFAULT STILL `llm`** — `ENTAILMENT_JUDGE_BACKEND=llm|jev|shadow`; jev's P(yes) maps to accept/flag/reject at reject<0.30 / accept≥0.60 in all three languages, chosen on 1,050 structurally-labelled items ($0.19); on zh the live judge is the weaker one (16/250 distractors accepted vs jev 0). jev failure falls back to the LLM judge; fail-closed batch behaviour preserved; 80 new tests. Gold is structural, human gold owed (TASK-834) before the default flips (TASK-835, blocked). See [[decisions/ADR-030-jev-entailment-judge-backend]], [[evaluations/jev-entailment-calibration-2026-09-26]], [[features/answer-entailment-judge.tech]]). Prior: 2026-09-27 (**EXERCISE GENERATION COST PHASE 1
+SCORED** — TASK-809/810/811/813 done (809 confirmed no-op — zh generation was already on qwen),
+TASK-812 In Progress (cache-token logging shipped, stable-prefix reorder deferred). en's
+calls-mean $/sense fell 73.4% on the same senses vs. baseline_en (claude-sonnet-5→qwen price
+routing on 5 tasks is most of the win); ja's rose 10.2% on the same completed senses because far
+more ja senses now complete at all (13.3% failure vs. baseline's 50%) — a reliability win that
+reads as a cost regression by this metric. zh got its first-ever run (30 senses) and is now the
+zh reference. New finding: qwen/qwen3.7-plus cannot fully disable reasoning and burns 85-90% of
+completion tokens as `reasoning_tokens` on the highest-cost tasks — now the largest identified
+remaining lever, unaddressed by any filed task. Blind pairwise packs generated (ja, en vs. their
+baselines) but not yet judged. See [[evaluations/exercise-gen-phase1-2026-09]],
+[[tasklist/exercise-gen-cost.tasks]], [[tasklist/master]], `wiki/log.md` 2026-09-27.) Prior:
+2026-09-26 (**EXERCISE GENERATION COST BASELINE FILED (TASK-808), zh gap open** —
+30-sense-per-language baseline run of the current, unmodified ladder pipeline against
+[[decisions/ADR-028-exercise-gen-cost-under-1c]]'s <$0.01/sense target. **Neither ja nor en
+clears it**: ja $0.031-0.059/sense (3.1-5.9×), en $0.101-0.108/sense (10.1-10.8×). **zh never
+ran** — `data/eval/runs/baseline_zh/` does not exist, only an unrelated 2-sense pilot is on
+disk; TASK-809 (zh→qwen) cannot be scored non-inferior against a baseline that was never taken.
+ja additionally FAILs coverage vs. the frozen reference (45.8% vs. 95% min — a 50% ja
+sense-failure rate at P1 generation, not a quality defect); en's `prompt3_transforms` asset
+type is 96.4% invalid, the single most actionable finding. **ADR-028 corrected**: zh generation
+is already 100% `qwen/qwen3.7-plus` (an untracked 2026-08-17 flip, predating this ADR) — it is
+**en**, not zh, split across providers (prompt2/prompt3/syn_ant/word_family/l4_morphology on
+claude-sonnet-5, prompt1_core + judges on gemini-3.5-flash-lite). A scorer-adapter bug in
+`scripts/score_exercise_gen_run.py` (real `exercise_rows` use `ladder_level`/`tags.variant`/
+`content`, not `level`/`variant`/`payload`) was silently zeroing ja's coverage score to 0.0%
+before the fix. Blind pairwise packs (ja vs. reference, unjudged) at
+`data/eval/runs/baseline_ja/pairwise_packs/`. TASK-804–808 marked Done (TASK-805's
+budget-ceiling-abort verification and the zh run remain open gaps, noted in the tasklist rather
+than silently closed). See [[evaluations/exercise-gen-baseline-2026-09]],
+[[tasklist/exercise-gen-cost.tasks]], [[tasklist/master]], `wiki/log.md` 2026-09-26.) | Pages: 154
+
+Prior: 2026-09-24 (**EXERCISE GENERATION COST TARGET FILED** — a four-agent analysis
+found ladder generation makes ~26 LLM calls/sense in en, ~14-16 in zh/ja, with cost unmeasured
+(`llm_calls.cost_usd` 100% NULL again — the same defect class closed once already, 2026-08-12).
+[[decisions/ADR-028-exercise-gen-cost-under-1c]] sets a target of <$0.01/sense measured against
+a frozen reference set, moves zh/ja **generation** onto the qwen family only (judges stay put —
+qwen has twice been the outlier judge model), and sequences the fix as call-collapse (~26 → ~4-5
+calls/sense) gated by a Phase 0 baseline. See [[tasklist/exercise-gen-cost.tasks]]
+(TASK-804–818: 3 In Progress, 7 Not Started — 5 of those DRAFT pending user review — 5 Blocked
+on the baseline) and `wiki/log.md` 2026-09-24.)
+
+Prior: 2026-09-21 (**CSV EXERCISE AUTHORING BUILT** — TASK-795–799; see [[tasklist/csv-exercise-authoring.tasks]]. **VOCABULARY-AWARE TEST SELECTION IS ON.** The operator
 raised `selection_tuning.vocab_weight` 0 → 1 on 2026-09-17, with `combine_mode`
 left at `'sum'`. Verified from the recommender's own output, not the settings
 row: 0 unlinked tests served in any zh type (7-9 of ten before), `elo_diff`
@@ -10,7 +52,7 @@ longer covers live traffic, but rollback is still one statement:
 `UPDATE selection_tuning SET value = 0 WHERE key = 'vocab_weight';` **What it
 bought, predicted:** the share of served tests inside the 5-25%-unknown band goes
 0.786 → 0.952. **What is still unmeasured:** whether that shows up in scores.
-See `wiki/log.md` 2026-09-17.)
+See `wiki/log.md` 2026-09-17.) | Pages: 150
 
 Prior: 2026-09-17 (**TASK-781 — the three selection arms are replayed, and
 the multiplicative one does not pay.** Share of served tests inside the 5-25%
@@ -84,6 +126,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[overview/project.tech]] — Tech stack, architecture, admin pipeline dashboard
 
 ## Features
+- [[features/test-tier-assignment]] — **NEW 2026-09-27**: a test's tier is measured from the finished passage by jev, converted with per-language tables (ja fitted, zh −0.25, en default); no fallback
+- [[features/test-tier-assignment.tech]] — Flow, `classify_passage` / `tier_from_score` / `call_jev` / `apply_jev_retier` specs, `tests.age_tier_*`, operations runbook (re-tier, re-derive, refit, reverse)
 - [[features/calibration]] — Standalone infinite-MCQ mode that measures vocabulary knowledge — **Phases 1-4** (distractors, engine, UI, readings mode, handoff to test selection); outputs a Zipf knowledge curve with its uncertainty, not a bare score. All four phases live (TASK-765 verified 2026-09-10); `/end` now hands definition-mode results to the guarded rating writer (TASK-752)
 - [[features/calibration.tech]] — Semantic + pronunciation distractor RPCs, per-language cosine bands, pair-keyed HNSW indexes, stratified sampling, and the **guess-aware logistic estimator** that removed the +0.24 Zipf bias (precision, not bias, is now the limit: sd 0.27 at 60 answers — propagate `ability_zipf_85_sd` into ADR-024)
 - [[features/vocabulary-aware-test-selection]] — Make test selection read the learner's vocabulary; fixes "ja is too hard" — **BUILT + LIVE, SWITCHED OFF 2026-09-10** (`vocab_weight = 0`)
@@ -94,6 +138,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/csv-exercise-authoring.tech]] — Stage 0 CSV export, stage 2b bridge (the level plan is a function of P1, so it cannot be exported up front), judge prompts captured from the real renderer, rubber-stamp gate, `llm_types` upload path
 - [[features/judge-eval-campaign]] — Repeatable multi-model judge screening (dataset + funnel + HTML report) — **PLANNED / DEFERRED 2026-08-17**
 - [[features/judge-eval-campaign.tech]] — Tiered funnel, pre-flight gate, metric modules, deferral rationale
+- [[features/answer-entailment-judge]] — **NEW 2026-09-26**: the judge that checks a generated question's marked answer against the passage; two interchangeable engines (Likert chat model, default; jev yes/no probability), fallback and shadow modes.
+- [[features/answer-entailment-judge.tech]] — Backend dispatch, `ENTAILMENT_JUDGE_BACKEND`, cutoffs `(0.30, 0.60)`, fail-open/closed contract, `jev_client`, telemetry rows and the shadow-comparison query.
 - [[features/practice-engine]] — Unified vocabulary practice surface (Acquisition + Maintenance modes; merges Exercises + Vocab Dojo) — **NEW 2026-05-21**
 - [[features/practice-engine.tech]] — get_practice_session RPC, unified-score SQL, candidate pools, parity tests
 - [[features/study-plans]] — Per-language weekly/daily orchestrator across Tests and Practice budgets — **NEW 2026-05-21**
@@ -102,8 +148,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/comprehension-tests.tech]] — Test engine technical spec (now plan-driven when STUDY_PLAN_ENABLED)
 - [[features/dictation]] — Listen + type the full transcript; per-word BKT signal
 - [[features/dictation.tech]] — Grader, RPC, replay K-multiplier, inline diff UI
-- [[features/language-packs]] — Corpus-first themed study bundles (current priority)
-- [[features/language-packs.tech]] — 7-stage pack generation pipeline
+- [[features/language-packs]] — Corpus-first themed study bundles (current priority) — **ARCHIVED 2026-09-21** (see `archive/modules/`)
+- [[features/language-packs.tech]] — 7-stage pack generation pipeline — **ARCHIVED 2026-09-21** (see `archive/modules/`)
 - [[features/exercises]] — **DEPRECATED 2026-05-21** — merged into [[features/practice-engine]] (legacy generation pipeline still canonical here)
 - [[features/exercises.tech]] — **DEPRECATED 2026-05-21** — session-time selection moved to practice-engine.tech
 - [[features/exercise-generation-prompts]] — Verbatim text of vocab pipeline Prompts 1/2/3
@@ -112,10 +158,10 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/vocabulary-knowledge.tech]] — BKT formula, transit parameter, decay model, inference mechanisms
 - [[features/flashcards]] — FSRS spaced-repetition review (now a Maintenance sub-type)
 - [[features/flashcards.tech]] — FSRS technical spec
-- [[features/mysteries]] — Murder mystery stories gated by comprehension
-- [[features/mysteries.tech]] — Mystery generation and serving
-- [[features/conversations]] — Simulated dialogue generation for corpus
-- [[features/conversations.tech]] — Two-step scenario generation (Matrix Builder + Expander)
+- [[features/mysteries]] — Murder mystery stories gated by comprehension — **ARCHIVED 2026-09-21** (see `archive/modules/`)
+- [[features/mysteries.tech]] — Mystery generation and serving — **ARCHIVED 2026-09-21** (see `archive/modules/`)
+- [[features/conversations]] — Simulated dialogue generation for corpus — **ARCHIVED 2026-09-21** (see `archive/modules/`)
+- [[features/conversations.tech]] — Two-step scenario generation (Matrix Builder + Expander) — **ARCHIVED 2026-09-21** (see `archive/modules/`)
 - [[features/corpus-analysis]] — NLP pipeline for collocation extraction
 - [[features/corpus-analysis.tech]] — Corpus analysis technical spec
 - [[features/token-economy]] — Token-based access and Stripe payments
@@ -203,8 +249,17 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-024-vocabulary-aware-test-selection]] — **PROPOSED 2026-09-08**: vocabulary coverage RANKS test candidates (never filters — 17-22% of en/zh tests are unlinked); untested senses get a Zipf prior, not a zero; difficulty stays ELO-mediated with a 2-tier safety rail; calibration seeds ratings under hard guards and `process_test_submission` is not touched
 - [[decisions/ADR-025-semantic-distractor-selection]] — Distractors must be semantically near and difficulty-matched: derived word-language column, 7 pair-keyed partial HNSW indexes (~200x faster than the 3-index design, measured), per-language-pair cosine floors, and the explicit limit that cosine cannot detect an also-correct synonym
 - [[decisions/ADR-026-lookahead-preteaching]] — **ACCEPTED 2026-09-19**: pre-teach from a *pool* of ten candidate tests (~10x cheaper per test unlocked than pinning one), to **Ring 2 cleared** (Ring 1 puts 36% of the ja catalogue in band, Ring 2 puts 98%, mastery adds nothing for 66% more time), least-known-first. Advisory ordering only — never a lock, because zh currently has **zero** ladder-drillable blocking words per test and a locking design would serve that learner nothing. Ships off; demand-first generation is the critical path
+- [[decisions/ADR-027-sense-embeddings-halfvec768-no-ann]] — **ACCEPTED + APPLIED 2026-09-22**: sense embeddings halfvec(768), HNSW dropped, exact scan; DB 1,098 → 252 MB; 90% top-100 neighbour overlap; thresholds re-baselined.
+- [[decisions/ADR-028-exercise-gen-cost-under-1c]] — **ACCEPTED 2026-09-24, corrected 2026-09-26**: target <$0.01/sense (measured, not estimated) via call collapse (~26 → ~4-5 calls/sense) plus caching/routing/reasoning-off; zh/ja **generation** moves to the qwen family only (judges excluded — evidence points the other way twice); Phase 0 (instrumentation, reference set, baseline) gates every later phase. **2026-09-26 correction:** the "current model assignment" was stale — zh generation is already 100% `qwen/qwen3.7-plus` (untracked 2026-08-17 flip); it is **en** that runs split (prompt2/prompt3/syn_ant/word_family/l4_morphology on claude-sonnet-5, prompt1_core + judges on gemini-3.5-flash-lite). See [[evaluations/exercise-gen-baseline-2026-09]].
+- [[decisions/ADR-029-jev-tier-assignment]] — **ACCEPTED 2026-09-26, ja + zh recalibrated 2026-09-27 (per-language score→tier tables fitted against blind two-reader gold: ja 38→57/59, zh 44→53/60; en measured, left on default)**: `typesafe/jev-1.13` score mode assigns every test's tier from the finished passage (native-language prompts, no fallback, fails loudly); all 305 active tests re-tiered (141 moved; backup `tests_tier_backup_20260926`); topic tier-fit judge also on jev. Spot check found ja one tier high and zh compressed (both fixed); en was fine on a random sample.
+- [[decisions/ADR-030-jev-entailment-judge-backend]] — **ACCEPTED 2026-09-27, default flipped to jev**: jev as a flag-gated backend for the answer-entailment judge, default `llm`; reject<0.30 / accept≥0.60; `confidence=None` + `probability` so a probability never shares the 1-5 column; jev failure → LLM fallback; shadow mode. Flip of the default is a separate, approval-gated step (TASK-835).
+- [[decisions/ADR-031-dt-taxonomy-v6-merge]] — **PROPOSED 2026-09-27**: merge DT v5 (translation-level types kept) with the jev_grammar taxonomy (finer grammar types, jev question buckets; ladder-only target_* dropped). zh 20 / ja 23 / en 20 types (incl. new `meaning_inversion`, fidelity/critical); new-type dimension/severity reviewed by Opus author/reviewer pairs (4 changes conceded); 8 of 10 split labels relabelled, 2 escalated (的-for-得); en `phrasal_verb` + ja `particle_other` ported to jev (addendum, B1/B9).
 
 ## Task Lists
+- [[tasklist/dt-taxonomy-v6.tasks]] — **NEW 2026-09-28, DRAFT awaiting review** (TASK-836–855): take DT taxonomy v6 ([[decisions/ADR-031-dt-taxonomy-v6-merge]]) live — inactive seed + `legacy_aliases`, glosses/templates, `DT_TAXONOMY_VERSION` pin, error-row version/variant columns, meaning_inversion + 的/地/得 prompt rules, deterministic `shared_translation` lookup, v6 gold fixtures, gate vs same-day v5 control, synthesis/cards normalisation, profile re-key, cutover [?] (needs ADR acceptance), optional jev question flow [?]
+- [[tasklist/jev-tier-assignment.tasks]] — **NEW 2026-09-27** (TASK-819–823, all done): jev tier assignment, re-tier, calibration, topic judge, legacy path removal; stale `scripts/batch_generate_tests.py` deleted 2026-09-27 (follow-up closed)
+- [[tasklist/exercise-gen-cost.tasks]] — **NEW 2026-09-24, Phase 0 DONE 2026-09-26, Phase 1 SCORED 2026-09-27** (TASK-804–818): implements [[decisions/ADR-028-exercise-gen-cost-under-1c]]. Phase 0 (TASK-804–808) instrumented `llm_calls`, built a frozen ≤50-sense/language reference set + scoring protocol, and ran the TASK-808 baseline — **ja/en complete, zh never ran** (no `data/eval/runs/baseline_zh/`); TASK-805's budget-ceiling-abort was never actually exercised (flagged, not silently closed). Result: [[evaluations/exercise-gen-baseline-2026-09]] — neither language clears <$0.01/sense (ja 3.1-5.9×, en 10.1-10.8× over), ja FAILs coverage vs. reference (45.8%, 50% sense-failure rate at P1), en's `prompt3_transforms` is 96.4% invalid. **Phase 1 (TASK-809–813) scored 2026-09-27: 809/810/811/813 Done, 812 In Progress** (cache-token logging shipped, stable-prefix reorder deferred). en's calls-mean $/sense fell 73.4% on the same senses (claude-sonnet-5→qwen routing); ja's rose 10.2% on the same completed senses (more senses now complete at all — reliability win, not cost win); zh got its first-ever run and is now the zh reference. qwen/qwen3.7-plus's un-suppressible reasoning-token volume (85-90% of completion tokens on top tasks) is the largest newly identified cost driver. See [[evaluations/exercise-gen-phase1-2026-09]]. Phase 2/3 (TASK-814–818) — A/B collapse, bundle generation, bundle judge, model bake-off, Batch API backfill — Phase 2 unblocked to Not Started (gated on a Phase 1 score, now available), Phase 3 stays `[?]` Blocked, user: do not do Phase 3.
+- [[tasklist/jev-entailment-judge.tasks]] — **NEW 2026-09-26** (TASK-830–835): jev entailment backend. 830 client, 831 flag-gated backend, 832 calibration, 833 shadow window, **835 default flipped to jev (2026-09-27)** done; 834 gold labelled by models, human confirmation of a 22-item sheet owed.
 - [[tasklist/calibration.tasks]] — Calibration (TASK-753–766): **done 13/14** (TASK-765 verified live 2026-09-10; only TASK-763 open — needs traffic). Originally: **done 12/14** — embeddings, semantic + pronunciation distractors, session engine, logistic ability estimator, UI, dictionary screen (817 bad senses blocklisted across all 3 languages for $1.33), and the `user_calibration_state` handoff to test selection. Open: **TASK-765** (apply the Phase 4 migration — the only thing between Calibration and selection), TASK-763 (cosine ceiling — needs live traffic)
 - [[tasklist/master]] — **Rebuilt 2026-07-13**: incomplete tasks only, cross-checked against the live codebase + Supabase (found Practice Engine Merger and Study Plans nearly fully shipped but unchecked — see the file's "Recently confirmed complete" section)
 - [[tasklist/vocabulary-aware-test-selection.tasks]] — **NEW 2026-09-08** (TASK-744–752): test selection ignores `user_vocabulary_knowledge` entirely. A live audit found the rating system compresses a **448-point** true ability spread (pitch accent ~1091 … dictation ~1539) into an **88-point** band, that 48/60 ja tests share one ELO across all 8 test types, and that the MC chance floor caps ELO's reach at ~190 points — so ELO *structurally cannot* close the gap. Adds a vocabulary coverage term, a calibration→ELO seed under guards, and a measurement harness. Start at TASK-744; TASK-751 (per-type ELO reseed) runs in parallel and is what actually fixes pitch accent
@@ -227,6 +282,38 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
 
 ## Evaluations
+- [[evaluations/exercise-gen-phase1-2026-09]] — **NEW 2026-09-27** (TASK-810–813): Phase 1 scored
+  against [[evaluations/exercise-gen-baseline-2026-09]] via `scripts/score_exercise_gen_run.py`.
+  en's calls-mean $/sense fell 73.4% on the same senses ($0.1083→$0.0289, 10.8x→2.9x over
+  target), driven by moving 5 tasks off claude-sonnet-5 onto qwen/qwen3.7-plus. ja's rose 10.2%
+  on the same completed senses ($0.0590→$0.0650) because far more ja senses now complete at all
+  (13.3% failure vs. baseline's 50%) — a reliability win, not a cost win. zh got its first-ever
+  run (30 senses, $0.0493/sense) and is now the zh reference. New finding: qwen/qwen3.7-plus
+  cannot fully disable reasoning and burns 85-90% of completion tokens as `reasoning_tokens` on
+  the highest-cost tasks — the largest identified remaining lever. `cached_tokens` logging
+  confirmed working (ja/zh non-zero, en zero on the same model — incidental, not the deliberate
+  TASK-812 reorder, which is deferred). Blind pairwise packs generated (ja, en vs. baselines),
+  not yet judged.
+- [[evaluations/jev-tier-calibration-2026-09-27]] — **NEW 2026-09-27**: blind two-reader gold sets (ja 59, zh 60, en 60); ja 38→52.5/59 cross-validated, zh 44→52.0/60, en nothing beats round-half-up
+- [[evaluations/jev-dt-tuning-2026-09-27]] — **NEW 2026-09-27**: jev tuned to grade DT by asking narrow per-sentence questions (error? which type? how severe? + 5 narrow checks) and deriving bands in Python via live `scoring.py`. Gold QWK: en accuracy .956 (was .095; live .778; with→without caught, 8/8 inversions critical); ja fid/und .830/.712 beat live .371/.332; zh acc/fid .412/.773 still below live. Error type right 69–95%. Pre-filter routes 33–37% of en/ja with 0 over-grades (zh 7%). Naturalness/range still fail. $0.058 total; ~$0.0002/item, 0.3 s. Next: shadow on real submissions.
+- [[evaluations/jev-entailment-shadow-and-adjudication-2026-09-27]] — **NEW 2026-09-27** (TASK-833/834): shadow window (42 passages, 216 entailment comparisons, 0 jev failures, jev stricter on all 8 disagreements) and 300 blind model-adjudicated items (kappa 0.887). Against those labels jev has 1 confident error, live 27 (disagreement-weighted); both 0 on 214 agreeing items. p50 296 ms vs 1,336 ms. Gaps: 70-76 not 300 judged questions/language, regeneration effect unmeasured, labellers are not human.
+- [[evaluations/jev-entailment-calibration-2026-09-26]] — **NEW 2026-09-26**: jev vs the live entailment judge on 1,050 structurally-labelled items ($0.19). Cutoffs reject<0.30 / accept≥0.60 for all three languages; confusion matrices per language; 83 disagreements read — zh live judge is the weaker (16 distractors accepted vs jev 0), ja "meaning in context" distractors are partly gold-label errors. Structural gold only.
+- [[evaluations/exercise-gen-baseline-2026-09]] — **NEW 2026-09-26** (TASK-808): Phase 0 baseline
+  for [[decisions/ADR-028-exercise-gen-cost-under-1c]] — 30 senses/language through the current,
+  unmodified ladder pipeline. **Neither ja nor en clears <$0.01/sense** (ja $0.031-0.059,
+  3.1-5.9×; en $0.101-0.108, 10.1-10.8×), **zh never ran** (no `data/eval/runs/baseline_zh/`,
+  only an unrelated 2-sense pilot). ja: 50% of senses hard-failed (dominant error `Prompt 1
+  generation failed`, 14x), which is also the entire cause of a coverage FAIL against the frozen
+  reference (45.8% vs. 95% min). en: 90% partial completion driven by a near-total missing
+  `level_8` (26x per variant); its `prompt3_transforms` asset type is **96.4% invalid** on both
+  variants, wasting 8.8% of combined spend. Top 5 cost drivers are all en/claude-sonnet-5 calls
+  (70.2% of combined $3.97 spend); ja's l1_distractor judge is the only judge with a non-trivial
+  reject rate (33.6%). Fixed 4 scorer-adapter bugs in `scripts/score_exercise_gen_run.py` along
+  the way (real `exercise_rows` use `ladder_level`/`tags.variant`/`content`, and `stage_seconds`
+  undercounts true wall clock by ~half) — a level-field bug was silently zeroing ja's coverage
+  score to 0.0% before the fix. Unjudged blind pairwise packs (ja vs. reference) filed at
+  `data/eval/runs/baseline_ja/pairwise_packs/`.
+- [[evaluations/jev-judge-feasibility-2026-09-26]] — **NEW 2026-09-26**: feasibility of `typesafe/jev-1.13` (OpenRouter's non-reasoning "decision model", $0.042/M input / $0 output, ~0.5s) as a judge. Best result: near-perfect entailment separation (AUC 0.97-1.00) and clean tier classification on unambiguous text — recommend replacing `tier_fit_judge`'s 6-call sequential walk with 1 call first. Weak spot: no reasoning trace, so it misses meaning-inverting errors that stay grammatically valid (e.g. "with it"→"without it" on EN DT grading, QWK 0.095 vs live 0.778); also doesn't reproduce the live distractor judge's specific calibration (kappa 0.06-0.15 vs incumbent) though it's not clearly wrong, just differently-scaled. 1-2 orders of magnitude cheaper than every incumbent judge (DT grading ~300x cheaper on ZH/JA). **Operational alert carried over: the shared OpenRouter account hit its hard credit limit during this investigation, blocking all OpenRouter calls (incl. production judges) until topped up.**
 - [[evaluations/preteach-variants-2026-09-19]] — **NEW 2026-09-19** (TASK-782): 27 pre-teaching variants simulated over the live catalogue across three axes (what to target / how deep / which words first). **The algorithm is solved and the content is not**: gated by today's inventory the best variant moves ja from 11.9% to 11.9% in band — zero — because 1.8 of the 17.5 words blocking an average test are drillable (zh: 0.0 on ladder levels). Lift the supply gate and the same algorithm reaches **98.3%**. Ring 1 only reaches 36%, mastery adds nothing for 66% more time; a 10-test cohort costs **1.7 words per test unlocked** against 17.8 for pinning one test; least-known-first wins at every bounded budget but on arithmetic that charges every word the same cost, so it is the one axis needing a live A/B. Also: **the outcome measure is endogenous** — the as-of Spearman is −0.584, recomputing it from *current* `p_known` on the same 21 attempts gives **+0.107**, the sign inverts, because `update_vocabulary_from_test` writes `p_known` from the very results being scored
 - [[evaluations/selection-three-arm-replay-2026-09-17]] — **NEW 2026-09-17** (TASK-781): the three selection arms replayed on live history — `vocab_weight` 0 vs `combine_mode` sum vs product. In-band share (5-25% unknown) over 210 ja top-10 slots: **0.786 → 0.952 → 0.938**. TASK-780's product arm is better on **0** of 21 attempts, worse on 3, and agrees with sum on 14 of 21 top-10 sets — the vocabulary term is the whole effect, the combination rule is noise on it. In zh it is actively harmful: it re-admits 2-5 of ten *unlinked* tests that sum had cleared, because `product = sum + e·v` charges least where the ELO gap is small, so "no vocabulary opinion, close in ELO" becomes a mild reward — the asymmetry §3.4's median was chosen to avoid. M5 holds in every arm; Spearman(unknown of the test taken, its score) = −0.584, reproducing −0.59, and it is arm-INDEPENDENT by construction. **Decision: `combine_mode` stays `'sum'`; `vocab_weight` is the only open switch**, on n=1 — exactly one user in the database has ever taken a test
 - [[evaluations/selection-replay-2026-09-10]] — **NEW 2026-09-10** (TASK-749): the vocabulary-aware ranker replayed over the 21 ja first attempts as of each timestamp, arm `vocab_weight` 0 vs 1, plus the M1-M5 baseline reproduced exactly (under the baseline's operative definitions). Weight 1 tightens served unknown-share around u* = 0.15 (in-band 77% → 93%, IQR 0.114 → 0.065) and shifts served difficulty from a d1/d6 mix to d6; unknown share of the taken test correlates with its score at Spearman −0.59 (n=13). zh is where it bites hardest: at weight 0, 8/10 served zh tests are unlinked. `vocab_weight` left at 0 pending the shadow window

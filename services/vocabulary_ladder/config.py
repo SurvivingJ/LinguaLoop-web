@@ -680,6 +680,40 @@ def active_levels_for_context(
     return [lv for lv in base if lv in supported]
 
 
+def families_to_levels(
+    families: list[str] | None,
+    semantic_class: str | None,
+    language_id: int,
+) -> set[int]:
+    """Ladder levels that carry any of the given cognitive families.
+
+    TASK-811 support: ``v_sense_family_coverage.missing_families`` names
+    ``EXERCISE_TYPE_FAMILY`` values (``form_production``, ``collocation``,
+    ...), not levels — this maps a coverage gap's family list back to the
+    ``exercises.ladder_level`` values that could close it, via the enabled
+    capability rows for ``(language_id, semantic_class)`` whose type belongs
+    to one of the wanted families. A family can span more than one level
+    (e.g. ``form_production`` is L4 for English morphology and L1 for ZH
+    ``hanzi_to_pinyin``-adjacent types), so this deliberately returns every
+    matching level rather than assuming a 1:1 mapping.
+
+    Returns an empty set when there is nothing to map (no families given, or
+    none match a known capability row) — callers must treat that as "cannot
+    scope this regen" and fall back to a full regen, not as "scope to
+    nothing", since an empty ``levels`` set passed down the line would regen
+    nothing at all.
+    """
+    if not families:
+        return set()
+    wanted = set(families)
+    return {
+        cap['ladder_level']
+        for cap in enabled_capabilities(language_id, semantic_class)
+        if cap['ladder_level'] is not None
+        and EXERCISE_TYPE_FAMILY.get(cap['type_code']) in wanted
+    }
+
+
 # Which capability type_code each Prompt-3 level asks the model to produce.
 # P3 is one LLM call covering L4/L7/L8, so gating it has to happen per *type*,
 # not per level: a level can legitimately survive on a capability this prompt

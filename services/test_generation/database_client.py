@@ -110,6 +110,15 @@ class GeneratedTest:
     # difficulty above is kept only for legacy readers; new inserts always set
     # this from the topic's mandatory target_age_tier.
     target_age_tier: Optional[int] = None
+    # ADR-029: jev's answer behind target_age_tier — raw 0-5 score, confidence,
+    # per-tier probabilities ({'T1': p, ...}) and the model snapshot that served
+    # it. Stored so a tier can be audited (or re-derived under a new mapping)
+    # without another call.
+    age_tier_score: Optional[float] = None
+    age_tier_confidence: Optional[float] = None
+    age_tier_probabilities: Optional[dict] = None
+    age_tier_model: Optional[str] = None
+    age_tier_calibration: Optional[str] = None  # which score->tier table
     # TASK-740 Phase 5: dedup fields, see services/test_generation/dedup.py.
     passage_hash: Optional[str] = None
     passage_embedding: Optional[List[float]] = None
@@ -794,6 +803,14 @@ class TestDatabaseClient:
 
         if test.target_age_tier is not None:
             data['target_age_tier'] = test.target_age_tier
+
+        if test.age_tier_score is not None:
+            data['age_tier_score'] = test.age_tier_score
+            data['age_tier_confidence'] = test.age_tier_confidence
+            data['age_tier_probabilities'] = test.age_tier_probabilities
+            data['age_tier_model'] = test.age_tier_model
+            data['age_tier_calibration'] = test.age_tier_calibration or 'default'
+            data['age_tier_assessed_at'] = datetime.now(timezone.utc).isoformat()
 
         # Add title if provided (NULL if not generated)
         if test.title:

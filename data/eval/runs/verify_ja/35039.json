@@ -1,0 +1,1446 @@
+{
+  "sense_id": 35039,
+  "language_id": 3,
+  "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+  "started_at": "2026-09-27T00:34:33.659696+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] Missing level_4",
+    "[B] particle_selection generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[4] rejected (rating 1): 非文法的",
+    "P1 sentence[5] rejected (rating 1): 非文法的",
+    "P1 sentence[6] rejected (rating 1): 非文法的"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.7260067462921143,
+    "p1_generate": 60.79327750205994,
+    "p1_repair": 51.98642325401306,
+    "tier_gate": 0.007676601409912109,
+    "p1_judge": 129.60970306396484,
+    "collocate_grounding": 0.0,
+    "fan_out": 107.55989098548889
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] rejected (rating 1): 非文法的",
+        "P1 sentence[5] rejected (rating 1): 非文法的",
+        "P1 sentence[6] rejected (rating 1): 非文法的"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/dekiru/",
+        "morphological_forms": [
+          {
+            "form": "できた",
+            "label": "活用"
+          },
+          {
+            "form": "できて",
+            "label": "活用"
+          },
+          {
+            "form": "できない",
+            "label": "活用"
+          },
+          {
+            "form": "出来るだけ",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "できる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35039
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "926035eb-529b-4334-8989-304d83cad420",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "出来る",
+        "pronunciation": "できる",
+        "ipa": "/dekiru/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "仕切る",
+          "出禁",
+          "煮切る",
+          "出来る"
+        ],
+        "correct_answer": "出来る",
+        "explanation": "正解です。「出来る」は「物事を行う能力があることや、それが実現できることを表します。」という意味です。",
+        "distractor_explanations": {
+          "煮切る": "「煮切る」は「出来る」と一モーラだけ異なる実在語です（1モーラ目: 「で」→「に」、一部の音の違い）。",
+          "仕切る": "「仕切る」は「出来る」と一モーラだけ異なる実在語です（1モーラ目: 「で」→「し」、一部の音の違い）。",
+          "出禁": "「出禁」は「出来る」と一モーラだけ異なる実在語です（3モーラ目: 「る」→「ん」、撥音「ん」の有無）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "l1_distractor_judge": {
+          "rejected": 7,
+          "kept": 3,
+          "rejected_items": [
+            "デブる",
+            "でぶる",
+            "出来た",
+            "熾きる",
+            "出歯る",
+            "竭きる",
+            "出来値"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "cdab9635-9250-49ef-ba73-0b55cfbbb08a",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "でき",
+        "pronunciation": "できる",
+        "correct_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "options": [
+          "集団の中での活気や闘志。また、ある行動を起こそうとする勢い。",
+          "物事を行う能力があることや、それが実現できることを表します。",
+          "火をつけて燃やすことで熱やエネルギーを生み出す物質。車や飛行機を動かすためのガソリンや軽油、灯油などの総称。",
+          "目的や状況に応じて、適切なものを選んで使うこと。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "13d51ff1-6843-4b87-886c-bbfbe8a21098",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "誰に何を求めているか分析し、適切な言葉で発信することで、小さくても確実なファンを獲得___ます。",
+        "original_sentence": "誰に何を求めているか分析し、適切な言葉で発信することで、小さくても確実なファンを獲得できます。",
+        "correct_answer": "でき",
+        "options": [
+          "でき",
+          "あげ",
+          "しまい",
+          "あて"
+        ],
+        "explanation": "正解です。「分析し、発信することで、ファンを獲得できます」という文脈で、可能性や能力を表す「でき」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "target_word": "でき"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "aabb300d-05c4-481c-a150-a715e2e1e307",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることが___ます。",
+        "original_sentence": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることができます。",
+        "correct_answer": "でき",
+        "base_form": "できる",
+        "form_label": "連用形",
+        "options": [
+          "できる",
+          "でき",
+          "できない",
+          "できた"
+        ],
+        "explanation": "「ます」に接続する連用形「でき」が適切です。",
+        "word_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "target_word": "でき"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "80575e25-bcf9-4707-926e-af1dfdcecc06",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "誰に何を求めているか分析し、適切な言葉で発信することで、小さくても確実なファンを獲得できます。",
+            "is_correct": true
+          },
+          {
+            "text": "一方で、農村経済全体を見ると、労働需要の質が変化するという社会経済的影響も無視できません。",
+            "is_correct": true
+          },
+          {
+            "text": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることができます。",
+            "is_correct": true
+          },
+          {
+            "text": "誰に何を求めているか分析し、適切な言葉で発信することで、小さくても確実なファンに獲得できます。",
+            "is_correct": false,
+            "error_description": "他動詞「獲得する」の目的語には格助詞「を」を用います。「に」は誤りです。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "bd4854ac-18ab-4937-9a4c-5327b84390f3",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "私にできますことは、お手伝いすることだけです。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "6451755c-6294-474a-a552-d4e1f9a8cab7",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることが___ます。",
+        "original_sentence": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることができます。",
+        "target_word": "でき",
+        "word": "でき",
+        "answer": {
+          "accepted": [
+            "でき",
+            "できた",
+            "できて",
+            "できない",
+            "出来るだけ"
+          ],
+          "accepted_normalized": [
+            "でき",
+            "できた",
+            "できて",
+            "できない",
+            "出来るだけ"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6c84fb84-7857-46a5-8352-8b3ba597d6ce",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "私にできますことは、お手伝いすることだけです。",
+        "chunks": [
+          "私に",
+          "できますことは",
+          "お手伝いすることだけ",
+          "です"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "です",
+          "私に",
+          "お手伝いすることだけ",
+          "できますことは"
+        ],
+        "target_word": "出来る",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fd96fc44-a137-40fa-8bdd-8fc26829f8b3",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ること___できます。",
+        "original_sentence": "ミニマリストの思想に基づき、必要な要素だけを残すことで、居住者はより穏やかな日常を送ることができます。",
+        "options": [
+          "に",
+          "を",
+          "で",
+          "が"
+        ],
+        "correct_answer": "が",
+        "target_word": "でき",
+        "error_tags": {
+          "を": "object_marking",
+          "に": "other",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "可能の表現「ことができる」において、可能の対象を主格として標示する。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "698d90b5-5edf-4973-ab76-402b96edb73b",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "でき",
+        "pronunciation": "できる",
+        "correct_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "options": [
+          "物事を行う能力があることや、それが実現できることを表します。",
+          "存在していた物が、使われたり、無くなったりして、もうない状態になること。",
+          "複数の州や国などが集まって作られた、一つの統一された国家や政治組織。",
+          "灯り。光や火などで周囲を明るくするもの。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f2006311-0050-4ced-ab9f-1b0feeb6bbc2",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "それができますかどうかは、今の私には分かりません。",
+        "original_sentence": "それができますかどうかは、今の私には分かりません。",
+        "correct_answer": "でき",
+        "options": [
+          "なり",
+          "し",
+          "でき",
+          "かわ"
+        ],
+        "explanation": "正解です。文脈に合致する対象語の正しい形です。",
+        "distractor_tags": {},
+        "word_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "target_word": "出来る"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "73440081-d623-42a9-94df-fbf983317796",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この漢字は、一人で読むことが___。",
+        "original_sentence": "この漢字は、一人で読むことができます。",
+        "correct_answer": "でき",
+        "base_form": "できる",
+        "form_label": "連用形",
+        "options": [
+          "でき",
+          "できた",
+          "できて",
+          "できない"
+        ],
+        "explanation": "「〜ができる」の主語に続く連用形（ます形の語幹に相当）。",
+        "word_definition": "物事を行う能力があることや、それが実現できることを表します。",
+        "target_word": "できます"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b25eb3c8-42b6-40b0-94e3-e75cb3d5677d",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この道具を使えば、簡単にできになります。",
+            "is_correct": false
+          },
+          {
+            "text": "簡単にこの道具を使えば、できます。",
+            "is_correct": false
+          },
+          {
+            "text": "この道具を使えば、簡単に出来ます。",
+            "is_correct": true
+          },
+          {
+            "text": "この道具を使えば、簡単にできました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「できる」はそれ自体で可能を表し、「できになる」とは言いません。「可能になる」または「できるようになる」が正しいです。 活用・アスペクトの誤り：条件を表す「使えば」に対して、過去の「できました」は不自然です。「できます」が適切です。 語順・係り受けの誤り：「簡単に」が文頭に来ると、「使う」にかかるのか「できる」にかかるのか不明瞭で不自然です。",
+        "target_word": "出来"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "681cb213-fe04-4480-a8ae-a7d6ceaa194f",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "今日は宿題ができませんかった。",
+            "is_correct": false,
+            "error_description": "活用：丁寧な否定過去は「できませんでした」または普通体「できなかった」。「できませんかった」は誤った混成形。"
+          },
+          {
+            "text": "この道具を使えば、簡単に出来ます。",
+            "is_correct": true
+          },
+          {
+            "text": "それができますかどうかは、今の私には分かりません。",
+            "is_correct": true
+          },
+          {
+            "text": "この漢字は、一人で読むことができます。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1f95f210-46d1-4b2f-a84e-0a0e801249a4",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "これにより、ムダを省きながら収量の「最適化」を図ることができます。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a97351a5-8cc9-437a-8622-0e6218c36e67",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この漢字は、一人で読むことが___。",
+        "original_sentence": "この漢字は、一人で読むことができます。",
+        "target_word": "できます",
+        "word": "でき",
+        "answer": {
+          "accepted": [
+            "できます"
+          ],
+          "accepted_normalized": [
+            "できます"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c7bb1288-5e5a-47fc-9224-7a614329dfea",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "これにより、ムダを省きながら収量の「最適化」を図ることができます。",
+        "chunks": [
+          "これにより",
+          "ムダを",
+          "省きながら",
+          "収量の最適化を",
+          "図ることが",
+          "できます"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "できます",
+          "ムダを",
+          "これにより",
+          "収量の最適化を",
+          "省きながら",
+          "図ることが"
+        ],
+        "target_word": "でき",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35039,
+      "word_asset_id": "shadow-35039-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 7,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "definition_match",
+      "reason": "lexicon unavailable — cannot source distractors"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "definition_match",
+      "reason": "lexicon unavailable — cannot source distractors"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00774656,
+      "prompt_tokens": 2780,
+      "completion_tokens": 5357,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4260,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 60032
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00684064,
+      "prompt_tokens": 1353,
+      "completion_tokens": 5006,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3745,
+      "call_role": "repair",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 51884
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00739936,
+      "prompt_tokens": 795,
+      "completion_tokens": 5582,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5384,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 62698
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00327488,
+      "prompt_tokens": 270,
+      "completion_tokens": 2491,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2411,
+      "call_role": "repair",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 28863
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00420672,
+      "prompt_tokens": 658,
+      "completion_tokens": 3122,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3068,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 37569
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00359136,
+      "prompt_tokens": 2723,
+      "completion_tokens": 2125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1392,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 17207
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00581856,
+      "prompt_tokens": 1727,
+      "completion_tokens": 4114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3977,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 47994
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00564576,
+      "prompt_tokens": 1703,
+      "completion_tokens": 3985,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3873,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 51406
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00257856,
+      "prompt_tokens": 826,
+      "completion_tokens": 1808,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1602,
+      "call_role": "retry",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 23509
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002734848,
+      "prompt_tokens": 1084,
+      "completion_tokens": 1968,
+      "cached_tokens": 512,
+      "reasoning_tokens": 1727,
+      "call_role": "retry",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 24924
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.01551456,
+      "prompt_tokens": 2723,
+      "completion_tokens": 11440,
+      "cached_tokens": 0,
+      "reasoning_tokens": 10794,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 71713
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026976,
+      "prompt_tokens": 758,
+      "completion_tokens": 1918,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1782,
+      "call_role": "retry",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 23317
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00281088,
+      "prompt_tokens": 748,
+      "completion_tokens": 2009,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1999,
+      "call_role": "retry",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 25192
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00392864,
+      "prompt_tokens": 825,
+      "completion_tokens": 2863,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2544,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 33369
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016764,
+      "prompt_tokens": 389,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 2003
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00313856,
+      "prompt_tokens": 668,
+      "completion_tokens": 2285,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2184,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 26243
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192864,
+      "prompt_tokens": 527,
+      "completion_tokens": 1375,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1349,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 15928
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00943296,
+      "prompt_tokens": 606,
+      "completion_tokens": 7218,
+      "cached_tokens": 0,
+      "reasoning_tokens": 7149,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 93319
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00263136,
+      "prompt_tokens": 627,
+      "completion_tokens": 1899,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1826,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 24514
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00646432,
+      "prompt_tokens": 821,
+      "completion_tokens": 4845,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4502,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 56990
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016466,
+      "prompt_tokens": 367,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 24764
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00854048,
+      "prompt_tokens": 637,
+      "completion_tokens": 6513,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6436,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 76469
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00123872,
+      "prompt_tokens": 507,
+      "completion_tokens": 841,
+      "cached_tokens": 0,
+      "reasoning_tokens": 816,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "9b551c41-d593-4277-8d2e-949d40275ea0",
+      "language_code": "ja",
+      "latency_ms": 11213
+    }
+  ],
+  "llm_calls_observed": 23,
+  "llm_cost_observed_usd": 0.10849626799999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 746.9219999999914,
+  "finished_at": "2026-09-27T00:47:00.625904+00:00"
+}

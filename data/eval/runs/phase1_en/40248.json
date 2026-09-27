@@ -1,0 +1,1178 @@
+{
+  "sense_id": 40248,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:58:42.114027+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.14280366897583008,
+    "p1_generate": 3.6842522621154785,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3052396774291992,
+    "collocate_grounding": 0.0,
+    "fan_out": 69.63393926620483
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌpiːs əv wɛstˈfeɪliə/",
+        "morphological_forms": [
+          {
+            "form": "Peace of Westphalia",
+            "label": "singular"
+          }
+        ],
+        "pronunciation": "pehs uhv west-FAY-lee-uh",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            40248
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "35a4c046-34cc-45f0-96c3-4dc5b88976a9",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Peace of Westphalia",
+        "pronunciation": "pehs uhv west-FAY-lee-uh",
+        "ipa": "/ˌpiːs əv wɛstˈfeɪliə/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "Peas of Westphalia",
+          "Peace of Westphalia",
+          "Pace of Westphalia",
+          "Piece of Westphalia"
+        ],
+        "correct_answer": "Peace of Westphalia",
+        "explanation": "Correct: the exact historical name of the 1648 treaty series.",
+        "distractor_explanations": {
+          "Piece of Westphalia": "homophone: 'Piece' sounds identical to 'Peace' but has a different spelling and meaning.",
+          "Peas of Westphalia": "homophone: 'Peas' sounds identical to 'Peace' but refers to a vegetable.",
+          "Pace of Westphalia": "near-homophone: 'Pace' /peɪs/ differs from 'Peace' /piːs/ by only one vowel phoneme."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9b308a35-3698-4a28-916d-4ee385689a36",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Peace of Westphalia",
+        "pronunciation": "pehs uhv west-FAY-lee-uh",
+        "correct_definition": "A big agreement that ended a war and said each country can make its own rules.",
+        "options": [
+          "A big agreement that ended a war and said each country can make its own rules.",
+          "relating to or used for measuring",
+          "able to be used more than once",
+          "To cut a material such as wood or stone into a shape or design, especially with a knife or chisel."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d20367db-6486-4f76-8d16-ae98228a7940",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "History students often discuss the ___ because it changed how countries govern themselves.",
+        "original_sentence": "History students often discuss the Peace of Westphalia because it changed how countries govern themselves.",
+        "correct_answer": "Peace of Westphalia",
+        "options": [
+          "school rules",
+          "Industrial Revolution",
+          "the handshake",
+          "Peace of Westphalia"
+        ],
+        "explanation": "Correct: the specific historical treaty that established the modern concept of national sovereignty.",
+        "distractor_tags": {},
+        "word_definition": "A big agreement that ended a war and said each country can make its own rules.",
+        "target_word": "Peace of Westphalia"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b0a18c92-c3df-479d-9d91-4faa1d4b1549",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "To resolve the argument over who gets the last slice of pizza, my roommates drafted the Peace of Westphalia.",
+            "is_correct": false
+          },
+          {
+            "text": "The Peace of Westphalia is a popular flavor of ice cream in European countries during the summer.",
+            "is_correct": false
+          },
+          {
+            "text": "We will sign the Peace of Westphalia tomorrow to finalize the construction permits for the new shopping mall.",
+            "is_correct": false
+          },
+          {
+            "text": "By signing the Peace of Westphalia, nations agreed to respect each other's independence.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: trivializes a major geopolitical treaty by applying it to a petty domestic squabble. Semantically inappropriate: incorrectly categorizes a historical treaty and political agreement as a physical dessert. Semantically and pragmatically inappropriate: uses a specific 17th-century treaty ending the Thirty Years' War as a standard modern zoning document.",
+        "target_word": "Peace of Westphalia"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "be3d1b7b-8bf4-4bda-b114-8b4530fec7f7",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The Peace of Westphalia, which it established state sovereignty, changed European politics.",
+            "is_correct": false,
+            "error_description": "The relative pronoun 'which' functions as the subject of the relative clause, so adding the pronoun 'it' creates a grammatical double subject error."
+          },
+          {
+            "text": "When teachers explained the Peace of Westphalia, we learned about sovereignty and local laws.",
+            "is_correct": true
+          },
+          {
+            "text": "Many historians believe the Peace of Westphalia created the modern idea of national borders.",
+            "is_correct": true
+          },
+          {
+            "text": "History students often discuss the Peace of Westphalia because it changed how countries govern themselves.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f8e3468f-36f5-4afb-9b07-c431196f0719",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Our class project focused on the Peace of Westphalia and its impact on European politics."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "457ba054-94c9-4ead-8d29-cb2c0b1ca4a1",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Peace of Westphalia",
+        "pronunciation": "pehs uhv west-FAY-lee-uh",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A big agreement that ended a war and said each country can make its own rules.",
+              "The process of using machines to do tasks that were previously done by people.",
+              "not happening often",
+              "To keep information in your mind so you can think about it later."
+            ],
+            "correct_answer": "A big agreement that ended a war and said each country can make its own rules."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "83c51147-3242-4eec-b542-fd42b2bdc544",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Many historians believe the ___ created the modern idea of national borders.",
+        "original_sentence": "Many historians believe the Peace of Westphalia created the modern idea of national borders.",
+        "target_word": "Peace of Westphalia",
+        "word": "Peace of Westphalia",
+        "answer": {
+          "accepted": [
+            "Peace of Westphalia"
+          ],
+          "accepted_normalized": [
+            "peace of westphalia"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b8d43a79-86c7-4248-b639-b21075804462",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Our class project focused on the Peace of Westphalia and its impact on European politics.",
+        "chunks": [
+          "Our class project",
+          "focused",
+          "on the Peace of Westphalia and its impact on European politics"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "focused",
+          "Our class project",
+          "on the Peace of Westphalia and its impact on European politics"
+        ],
+        "target_word": "Peace of Westphalia",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "3bba2145-d95e-4efc-b953-142d5ad8b45d",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Before the ___, outside powers often interfered in internal religious matters.",
+        "original_sentence": "Before the Peace of Westphalia, outside powers often interfered in internal religious matters.",
+        "correct_answer": "Peace of Westphalia",
+        "options": [
+          "armistice",
+          "Peace of Westphalia",
+          "peace deal",
+          "Treaty of Paris"
+        ],
+        "explanation": "Correct: This is the specific 1648 treaty that established state sovereignty and ended the Thirty Years' War, fitting the historical context perfectly.",
+        "distractor_tags": {},
+        "word_definition": "A big agreement that ended a war and said each country can make its own rules.",
+        "target_word": "Peace of Westphalia"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b5a967b2-5a81-4705-93e3-8bf6486e3b97",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The delegates will sign the Peace of Westphalia tomorrow to resolve the current international trade dispute.",
+            "is_correct": false
+          },
+          {
+            "text": "I added a pinch of salt and the Peace of Westphalia to the soup to enhance the flavor.",
+            "is_correct": false
+          },
+          {
+            "text": "They had already examined the Peace of Westphalia before starting the new unit on diplomacy.",
+            "is_correct": true
+          },
+          {
+            "text": "The two siblings agreed to the Peace of Westphalia to decide who would wash the dishes tonight.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: The Peace of Westphalia is a specific historical event from 1648, not a generic template that can be signed today to resolve modern trade disputes. Semantically inappropriate: The Peace of Westphalia is an abstract historical agreement, not a physical object or ingredient that can be added to food. Pragmatically inappropriate: Applying a major international geopolitical treaty to a trivial household chore is a severe context and scale mismatch.",
+        "target_word": "Peace of Westphalia"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f93af9f7-62ac-4968-8118-2a642fa7aeeb",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Many historians study Peace of Westphalia to understand the origins of modern sovereignty.",
+            "is_correct": false,
+            "error_description": "The specific historical event 'Peace of Westphalia' requires the definite article 'the' to be grammatically correct in this context."
+          },
+          {
+            "text": "They had already examined the Peace of Westphalia before starting the new unit on diplomacy.",
+            "is_correct": true
+          },
+          {
+            "text": "Before the Peace of Westphalia, outside powers often interfered in internal religious matters.",
+            "is_correct": true
+          },
+          {
+            "text": "People were studying the Peace of Westphalia while preparing for their history exams.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1f059936-33da-4adf-ae6e-41c24158e472",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "By signing the Peace of Westphalia, nations agreed to respect each other's independence."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1131cc38-ee0b-4e12-93ee-e1781e7a8a91",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "People were studying the ___ while preparing for their history exams.",
+        "original_sentence": "People were studying the Peace of Westphalia while preparing for their history exams.",
+        "target_word": "Peace of Westphalia",
+        "word": "Peace of Westphalia",
+        "answer": {
+          "accepted": [
+            "Peace of Westphalia"
+          ],
+          "accepted_normalized": [
+            "peace of westphalia"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f63f483c-4d9c-4653-95d4-b63345e4a10c",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "By signing the Peace of Westphalia, nations agreed to respect each other's independence.",
+        "chunks": [
+          "By signing the Peace of Westphalia",
+          "nations",
+          "agreed",
+          "to respect each other 's independence"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "agreed",
+          "nations",
+          "to respect each other 's independence",
+          "By signing the Peace of Westphalia"
+        ],
+        "target_word": "Peace of Westphalia",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 40248,
+      "word_asset_id": "shadow-40248-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0024186,
+      "prompt_tokens": 1937,
+      "completion_tokens": 735,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3554
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007102,
+      "prompt_tokens": 709,
+      "completion_tokens": 199,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00349696,
+      "prompt_tokens": 1232,
+      "completion_tokens": 2424,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2303,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 27393
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00368416,
+      "prompt_tokens": 1229,
+      "completion_tokens": 2571,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2455,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 29992
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00612032,
+      "prompt_tokens": 1678,
+      "completion_tokens": 4362,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3656,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 50516
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027376,
+      "prompt_tokens": 671,
+      "completion_tokens": 1971,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1805,
+      "call_role": "retry",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 24850
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00800576,
+      "prompt_tokens": 1678,
+      "completion_tokens": 5835,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5183,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 69436
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003606,
+      "prompt_tokens": 427,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 902
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003241,
+      "prompt_tokens": 397,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 854
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004534,
+      "prompt_tokens": 503,
+      "completion_tokens": 121,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1001
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001917,
+      "prompt_tokens": 389,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 738
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003281,
+      "prompt_tokens": 427,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003266,
+      "prompt_tokens": 397,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 944
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003485,
+      "prompt_tokens": 520,
+      "completion_tokens": 77,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 894
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001983,
+      "prompt_tokens": 386,
+      "completion_tokens": 33,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 740
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003533,
+      "prompt_tokens": 536,
+      "completion_tokens": 77,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 40248,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 966
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.0300582,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 83.93799999999464,
+  "finished_at": "2026-09-27T04:00:06.054062+00:00"
+}

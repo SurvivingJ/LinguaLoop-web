@@ -1,0 +1,1679 @@
+{
+  "sense_id": 19882,
+  "language_id": 1,
+  "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+  "started_at": "2026-09-27T05:38:32.245013+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): 逻辑瑕疵，说清楚不等于诚实"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3362727165222168,
+    "p1_generate": 53.36945986747742,
+    "tier_gate": 0.0,
+    "p1_judge": 36.961803913116455,
+    "collocate_grounding": 0.0,
+    "fan_out": 77.36007404327393
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): 逻辑瑕疵，说清楚不等于诚实"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ʈʂʰɤŋ˧˥ ʂɻ̩˧˥]",
+        "morphological_forms": [
+          {
+            "form": "誠實",
+            "label": "繁体"
+          },
+          {
+            "form": "诚实守信",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "chéng shí",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19882
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "f094317b-5139-4d19-8039-b985f9c84511",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "诚实",
+        "pronunciation": "chéng shí",
+        "correct_definition": "指言行与内心一致，不虚假。",
+        "options": [
+          "代替他人或团体表达意见、行使权利或办理事务的人或行为。",
+          "用意志和行动去战胜或解决困难、缺点等。",
+          "指言行与内心一致，不虚假。",
+          "表示范围非常小，强调不是别的。"
+        ],
+        "hant": {
+          "word": "誠實",
+          "pronunciation": "chéng shí",
+          "correct_definition": "指言行與內心一致，不虛假。",
+          "options": [
+            "代替他人或團體表達意見、行使權利或辦理事務的人或行為。",
+            "用意志和行動去戰勝或解決困難、缺點等。",
+            "指言行與內心一致，不虛假。",
+            "表示範圍非常小，強調不是別的。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "af476981-a67b-454e-81ee-e278432fdaba",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "诚实应该朋友之间，不能撒谎。",
+            "is_correct": false
+          },
+          {
+            "text": "朋友之间应该诚实着，不能撒谎。",
+            "is_correct": false
+          },
+          {
+            "text": "朋友之间应该诚实，不能撒谎。",
+            "is_correct": true
+          },
+          {
+            "text": "朋友之间应该诚实出来，不能撒谎。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标选用错误。'诚实'是性质形容词，表示稳定的内在品质，不能加动态助词'着'来表示动作或状态的持续。 语序错误。主语'朋友之间'应位于句首，能愿动词'应该'必须放在形容词'诚实'之前，原句主谓及能愿动词位置颠倒。 结果补语误用。'诚实'是表示内在品质的形容词，不能与趋向补语'出来'搭配表示显露，应使用'表现得诚实'等表达。",
+        "target_word": "诚实",
+        "hant": {
+          "sentences": [
+            {
+              "text": "誠實應該朋友之間，不能撒謊。",
+              "is_correct": false
+            },
+            {
+              "text": "朋友之間應該誠實著，不能撒謊。",
+              "is_correct": false
+            },
+            {
+              "text": "朋友之間應該誠實，不能撒謊。",
+              "is_correct": true
+            },
+            {
+              "text": "朋友之間應該誠實出來，不能撒謊。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標選用錯誤。'誠實'是性質形容詞，表示穩定的內在品質，不能加動態助詞'著'來表示動作或狀態的持續。 語序錯誤。主語'朋友之間'應位於句首，能願動詞'應該'必須放在形容詞'誠實'之前，原句主謂及能願動詞位置顛倒。 結果補語誤用。'誠實'是表示內在品質的形容詞，不能與趨向補語'出來'搭配表示顯露，應使用'表現得誠實'等表達。",
+          "target_word": "誠實"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "9f2103d5-0d7b-415d-bfe6-53ead9dc3021",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他说话诚实了，大家都很喜欢他。",
+            "is_correct": false,
+            "error_description": "“诚实”是形容词，表示人的品质，不能直接加动态助词“了”表示动作完成或状态变化。应去掉“了”。"
+          },
+          {
+            "text": "他说话诚实，大家都很喜欢他。",
+            "is_correct": true
+          },
+          {
+            "text": "那个诚实的孩子把钱包交给了警察。",
+            "is_correct": true
+          },
+          {
+            "text": "说清楚，才能让别人觉得你很诚实。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他說話誠實了，大家都很喜歡他。",
+              "is_correct": false,
+              "error_description": "“誠實”是形容詞，表示人的品質，不能直接加動態助詞“了”表示動作完成或狀態變化。應去掉“了”。"
+            },
+            {
+              "text": "他說話誠實，大家都很喜歡他。",
+              "is_correct": true
+            },
+            {
+              "text": "那個誠實的孩子把錢包交給了警察。",
+              "is_correct": true
+            },
+            {
+              "text": "說清楚，才能讓別人覺得你很誠實。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "74ffb4c8-07c1-4164-841b-85eca03c3bf4",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他表现得很诚实，主动承认了错误。",
+        "hant": {
+          "original_sentence": "他表現得很誠實，主動承認了錯誤。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b12b2eeb-541e-414f-9864-f7b7762c64ac",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "诚实",
+        "pronunciation": "chéng shí",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "东西慢慢变少或变坏。",
+              "new; just appeared or never used before",
+              "指言行与内心一致，不虚假。",
+              "texture"
+            ],
+            "correct_answer": "指言行与内心一致，不虚假。"
+          }
+        },
+        "hant": {
+          "word": "誠實",
+          "pronunciation": "chéng shí",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "東西慢慢變少或變壞。",
+                "new; just appeared or never used before",
+                "指言行與內心一致，不虛假。",
+                "texture"
+              ],
+              "correct_answer": "指言行與內心一致，不虛假。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "949736e6-7b7f-42fb-b502-9966818fbbac",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他说话___，大家都很喜欢他。",
+        "original_sentence": "他说话诚实，大家都很喜欢他。",
+        "target_word": "诚实",
+        "word": "诚实",
+        "answer": {
+          "accepted": [
+            "诚实",
+            "诚实守信"
+          ],
+          "accepted_normalized": [
+            "诚实",
+            "诚实守信"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他說話___，大家都很喜歡他。",
+          "original_sentence": "他說話誠實，大家都很喜歡他。",
+          "target_word": "誠實",
+          "word": "誠實",
+          "answer": {
+            "accepted": [
+              "誠實",
+              "誠實守信"
+            ],
+            "accepted_normalized": [
+              "誠實",
+              "誠實守信"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3ee98403-274f-4c1d-a47e-e413c6ed965b",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "他表现得很诚实，主动承认了错误。",
+        "chunks": [
+          "他",
+          "表现得很诚实",
+          "主动承认了错误"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "表现得很诚实",
+          "主动承认了错误",
+          "他"
+        ],
+        "target_word": "诚实",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "他表現得很誠實，主動承認了錯誤。",
+          "chunks": [
+            "他",
+            "表現得很誠實",
+            "主動承認了錯誤"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "表現得很誠實",
+            "主動承認了錯誤",
+            "他"
+          ],
+          "target_word": "誠實",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "e5986ff3-a903-4d4b-a0c3-6b8be953474c",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "诚实",
+        "options": [
+          "chéng shí",
+          "chéng shī",
+          "chéng shǐ",
+          "chēng shí"
+        ],
+        "correct_answer": "chéng shí",
+        "word": "诚实",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "誠實",
+          "options": [
+            "chéng shí",
+            "chéng shī",
+            "chéng shǐ",
+            "chēng shí"
+          ],
+          "correct_answer": "chéng shí",
+          "word": "誠實",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "021bb3eb-b4b5-4929-8999-cdc0078b66e5",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "chéng shí",
+        "options": [
+          "诚实",
+          "完成",
+          "实证",
+          "其实"
+        ],
+        "correct_answer": "诚实",
+        "word": "诚实",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "实证": "component",
+          "完成": "component",
+          "其实": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "chéng shí",
+          "options": [
+            "誠實",
+            "完成",
+            "實證",
+            "其實"
+          ],
+          "correct_answer": "誠實",
+          "word": "誠實",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "实证": "component",
+            "完成": "component",
+            "其实": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "674fa755-2ee1-4c52-95a2-fc4c94e2e326",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "诚实",
+        "toneless_pinyin": "cheng shi",
+        "full_pinyin": "chéng shí",
+        "options": [
+          "22",
+          "24",
+          "23",
+          "21"
+        ],
+        "correct_answer": "22",
+        "option_labels": {
+          "22": "rising (2) + rising (2)",
+          "24": "rising (2) + falling (4)",
+          "23": "rising (2) + dipping (3)",
+          "21": "rising (2) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "誠實",
+          "toneless_pinyin": "cheng shi",
+          "full_pinyin": "chéng shí",
+          "options": [
+            "22",
+            "24",
+            "23",
+            "21"
+          ],
+          "correct_answer": "22",
+          "option_labels": {
+            "22": "rising (2) + rising (2)",
+            "24": "rising (2) + falling (4)",
+            "23": "rising (2) + dipping (3)",
+            "21": "rising (2) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "df9af79d-bb0e-4da9-b7f4-0d224edbdfe1",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "诚实",
+        "relation": "antonym",
+        "options": [
+          "固执",
+          "骄傲",
+          "虚伪",
+          "狡猾"
+        ],
+        "correct_answer": "虚伪",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指言行与内心一致，不虚假。",
+            "explanation": "反义项：指言行与内心不一致，虚假不真实，与目标词构成反义关系"
+          }
+        },
+        "hant": {
+          "word": "誠實",
+          "relation": "antonym",
+          "options": [
+            "固執",
+            "驕傲",
+            "虛偽",
+            "狡猾"
+          ],
+          "correct_answer": "虛偽",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指言行與內心一致，不虛假。",
+              "explanation": "反義項：指言行與內心不一致，虛假不真實，與目標詞構成反義關係"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "96764ace-ece1-4e4b-80bf-a50612b3a3c0",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "我们都要学习___。",
+        "original_sentence": "我们都要学习诚实。",
+        "correct_answer": "诚实",
+        "options": [
+          "虚伪",
+          "诚实",
+          "帅",
+          "高大"
+        ],
+        "explanation": "正确。‘诚实’在此处作名词化形容词，表示一种不虚假的品质，符合‘学习’的宾语要求。",
+        "distractor_tags": {},
+        "word_definition": "指言行与内心一致，不虚假。",
+        "target_word": "诚实",
+        "hant": {
+          "sentence_with_blank": "我們都要學習___。",
+          "original_sentence": "我們都要學習誠實。",
+          "correct_answer": "誠實",
+          "options": [
+            "虛偽",
+            "誠實",
+            "帥",
+            "高大"
+          ],
+          "explanation": "正確。‘誠實’在此處作名詞化形容詞，表示一種不虛假的品質，符合‘學習’的賓語要求。",
+          "distractor_tags": {},
+          "word_definition": "指言行與內心一致，不虛假。",
+          "target_word": "誠實"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7975da60-9e3c-4b30-8b39-a133551662d0",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他诚实出来了，大家才相信你。",
+            "is_correct": false
+          },
+          {
+            "text": "做一个诚实的人，大家才会相信你。",
+            "is_correct": true
+          },
+          {
+            "text": "大家才会相信诚实做一个的人。",
+            "is_correct": false
+          },
+          {
+            "text": "他诚实着承认了错误。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标选用错误。‘诚实’是性质形容词，不能加动态助词‘着’来表示动作的持续或状态的进行。 语序错误。定语‘诚实’和中心语‘人’的位置颠倒，破坏了‘形容词+的+名词’的正常偏正结构。 方向/结果补语误用。‘诚实’是静态的性质形容词，不能带趋向补语‘出来’表示状态的变化或显露。",
+        "target_word": "诚实",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他誠實出來了，大家才相信你。",
+              "is_correct": false
+            },
+            {
+              "text": "做一個誠實的人，大家才會相信你。",
+              "is_correct": true
+            },
+            {
+              "text": "大家才會相信誠實做一個的人。",
+              "is_correct": false
+            },
+            {
+              "text": "他誠實著承認了錯誤。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標選用錯誤。‘誠實’是性質形容詞，不能加動態助詞‘著’來表示動作的持續或狀態的進行。 語序錯誤。定語‘誠實’和中心語‘人’的位置顛倒，破壞了‘形容詞+的+名詞’的正常偏正結構。 方向/結果補語誤用。‘誠實’是靜態的性質形容詞，不能帶趨向補語‘出來’表示狀態的變化或顯露。",
+          "target_word": "誠實"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d0c4ebd1-d4d8-4e91-809b-67c196614c99",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们都要学习了诚实。",
+            "is_correct": false,
+            "error_description": "错误类型为体标误用。动词“学习”后接表示抽象概念的词语作宾语时，不能使用动态助词“了”，正确写法应去掉“了”。"
+          },
+          {
+            "text": "我们都要学习诚实。",
+            "is_correct": true
+          },
+          {
+            "text": "老师教导我们要诚实。",
+            "is_correct": true
+          },
+          {
+            "text": "做一个诚实的人，大家才会相信你。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們都要學習了誠實。",
+              "is_correct": false,
+              "error_description": "錯誤型別為體標誤用。動詞“學習”後接表示抽象概念的詞語作賓語時，不能使用動態助詞“了”，正確寫法應去掉“了”。"
+            },
+            {
+              "text": "我們都要學習誠實。",
+              "is_correct": true
+            },
+            {
+              "text": "老師教導我們要誠實。",
+              "is_correct": true
+            },
+            {
+              "text": "做一個誠實的人，大家才會相信你。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "64f5f04f-220c-4825-b860-45a74a8fc627",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "朋友之间应该诚实，不能撒谎。",
+        "hant": {
+          "original_sentence": "朋友之間應該誠實，不能撒謊。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a2e94a3d-f7cd-4d03-a11f-ab87a89e7738",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "老师教导我们要___。",
+        "original_sentence": "老师教导我们要诚实。",
+        "target_word": "诚实",
+        "word": "诚实",
+        "answer": {
+          "accepted": [
+            "诚实",
+            "诚实守信"
+          ],
+          "accepted_normalized": [
+            "诚实",
+            "诚实守信"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "老師教導我們要___。",
+          "original_sentence": "老師教導我們要誠實。",
+          "target_word": "誠實",
+          "word": "誠實",
+          "answer": {
+            "accepted": [
+              "誠實",
+              "誠實守信"
+            ],
+            "accepted_normalized": [
+              "誠實",
+              "誠實守信"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "029c1dbc-3863-4b0c-8a1a-9e4c50716f3e",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "朋友之间应该诚实，不能撒谎。",
+        "chunks": [
+          "朋友之间",
+          "应该诚实",
+          "不能撒谎"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "应该诚实",
+          "不能撒谎",
+          "朋友之间"
+        ],
+        "target_word": "诚实",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "朋友之間應該誠實，不能撒謊。",
+          "chunks": [
+            "朋友之間",
+            "應該誠實",
+            "不能撒謊"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "應該誠實",
+            "不能撒謊",
+            "朋友之間"
+          ],
+          "target_word": "誠實",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "09647a1e-9c98-415c-8c85-5b15daec0c90",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "诚实",
+        "relation": "antonym",
+        "options": [
+          "虚伪",
+          "善良",
+          "勇敢",
+          "宽容"
+        ],
+        "correct_answer": "虚伪",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指言行与内心一致，不虚假。",
+            "explanation": "指表里不一、不真实，与“言行与内心一致”正好相反，构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "誠實",
+          "relation": "antonym",
+          "options": [
+            "虛偽",
+            "善良",
+            "勇敢",
+            "寬容"
+          ],
+          "correct_answer": "虛偽",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指言行與內心一致，不虛假。",
+              "explanation": "指表裡不一、不真實，與“言行與內心一致”正好相反，構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "勇敢": 0.476146
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19882,
+      "word_asset_id": "shadow-19882-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00690272,
+      "prompt_tokens": 2411,
+      "completion_tokens": 4790,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4145,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 53138
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00441664,
+      "prompt_tokens": 634,
+      "completion_tokens": 3292,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3022,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 36801
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00264928,
+      "prompt_tokens": 635,
+      "completion_tokens": 1911,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1742,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23686
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273376,
+      "prompt_tokens": 635,
+      "completion_tokens": 1977,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1753,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25143
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00366688,
+      "prompt_tokens": 1435,
+      "completion_tokens": 2506,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2399,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 30822
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00525952,
+      "prompt_tokens": 1436,
+      "completion_tokens": 3750,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3655,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 46631
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00701376,
+      "prompt_tokens": 1642,
+      "completion_tokens": 5069,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4362,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 60525
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00909888,
+      "prompt_tokens": 1642,
+      "completion_tokens": 6698,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6035,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 77165
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00256384,
+      "prompt_tokens": 420,
+      "completion_tokens": 1898,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1828,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23714
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001675098,
+      "prompt_tokens": 395,
+      "completion_tokens": 64,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2684
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00123136,
+      "prompt_tokens": 556,
+      "completion_tokens": 823,
+      "cached_tokens": 0,
+      "reasoning_tokens": 715,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 10367
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00081216,
+      "prompt_tokens": 526,
+      "completion_tokens": 503,
+      "cached_tokens": 0,
+      "reasoning_tokens": 476,
+      "call_role": "json_repair",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 7053
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0011072,
+      "prompt_tokens": 540,
+      "completion_tokens": 730,
+      "cached_tokens": 0,
+      "reasoning_tokens": 629,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 11466
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00395424,
+      "prompt_tokens": 421,
+      "completion_tokens": 2984,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2909,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 34553
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001623654,
+      "prompt_tokens": 391,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2336
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188992,
+      "prompt_tokens": 534,
+      "completion_tokens": 1343,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1270,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 17601
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00091584,
+      "prompt_tokens": 430,
+      "completion_tokens": 608,
+      "cached_tokens": 0,
+      "reasoning_tokens": 583,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 8722
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00096,
+      "prompt_tokens": 540,
+      "completion_tokens": 615,
+      "cached_tokens": 0,
+      "reasoning_tokens": 543,
+      "call_role": "primary",
+      "sense_id": 19882,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 8480
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.05550587520000001,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 313.9059999999881,
+  "finished_at": "2026-09-27T05:43:46.145865+00:00"
+}

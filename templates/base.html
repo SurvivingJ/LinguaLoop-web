@@ -304,15 +304,6 @@
                             Counters
                         </a>
                     </li>
-                    {% if config.LISTENING_LAB_ENABLED %}
-                    <li class="nav-item">
-                        <a href="{{ url_for('listening_lab_list') }}"
-                           class="nav-link {% if request.endpoint in ('listening_lab_list', 'listening_lab_page') %}active{% endif %}"
-                           data-i18n="common.nav.listening_lab">
-                            Listening Lab
-                        </a>
-                    </li>
-                    {% endif %}
                     <li class="nav-item">
                         <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#reportModal">
                             <i class="fas fa-flag"></i><span class="d-none d-lg-inline ms-1" data-i18n="common.nav.report">Report</span>
@@ -369,14 +360,6 @@
                                 Counters
                             </a>
                         </li>
-                        {% if config.LISTENING_LAB_ENABLED %}
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint in ('listening_lab_list', 'listening_lab_page') %}active{% endif %}"
-                               href="{{ url_for('listening_lab_list') }}" data-i18n="common.nav.listening_lab">
-                                Listening Lab
-                            </a>
-                        </li>
-                        {% endif %}
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">

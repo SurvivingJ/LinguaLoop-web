@@ -58,6 +58,10 @@ from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv()
 
+# This is a check of the LLM (Likert) path. jev is the default backend since
+# TASK-835, so pin it -- otherwise "NO RATING" would be reported for a healthy judge.
+os.environ["ENTAILMENT_JUDGE_BACKEND"] = "llm"
+
 from services.exercise_generation.judges.answer_entailment import (  # noqa: E402
     _MIN_LIKERT_VERSION,
     _load_cfg,

@@ -169,11 +169,12 @@ def get_word_exercises(sense_id: int) -> ApiResponse:
         assets = assets_resp.data or []
 
         # Prepare jumbled sentence content
-        from services.exercise_generation.language_processor import prepare_jumbled_content
+        from services.exercise_generation.language_processor import (
+            needs_jumbled_prep, prepare_jumbled_content,
+        )
         for ex in exercises:
             if (ex.get('exercise_type') == 'jumbled_sentence'
-                    and isinstance(ex.get('content'), dict)
-                    and 'chunks' not in ex['content']):
+                    and needs_jumbled_prep(ex.get('content'))):
                 try:
                     ex['content'] = prepare_jumbled_content(ex['content'], language_id)
                 except Exception:

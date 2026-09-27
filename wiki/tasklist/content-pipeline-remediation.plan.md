@@ -156,6 +156,11 @@ default path, for three reasons:
 - **T3.1 (S)** — Tier-fit validator judge: given a topic + its stamped tier,
   return pass/fail plus reason, judged on `distinctive_vocabulary` difficulty.
   One call per candidate, per tier, independently. **Not** a 6-tier fan-out.
+  > **Superseded 2026-09-27.** `TierFitJudge` no longer asks a chat model per
+  > (topic, tier). It makes one jev score call, a topic fits when its assessed
+  > tier ≤ its stamped tier, and a `JevError` propagates instead of failing
+  > open. See [[decisions/ADR-029-jev-tier-assignment]] and
+  > [[features/test-tier-assignment.tech]]. The design above is kept as history.
 - **T3.2 (XS)** — Make the Archivist novelty threshold tier-scaled
   (~0.82 at T1 → ~0.90 at T6). Cheapest, highest-value fix in this section.
 - **T3.3 (S)** — Targeted backfill for T3/T5 only, where coverage is thin.
@@ -504,6 +509,12 @@ that order** (the index cannot build over duplicates).
   `topics_rejected_tier_fit`. The six-tier fan-out is deliberately not built,
   for the three reasons in §3 plus the T3.3 measurement, which removes the
   coverage argument for it.
+  > **Superseded 2026-09-27.** `TierFitJudge` now uses one jev score call, fits
+  > when assessed tier ≤ stamped tier, and raises `JevError` rather than failing
+  > open. `best_tier` and `TIER_READERS` are deleted, and
+  > `scripts/backfill_topic_tiers.py --stamp-tiers` stamps the assessed tier.
+  > See [[decisions/ADR-029-jev-tier-assignment]] and
+  > [[features/test-tier-assignment.tech]].
 - **T3.3 / T3.4** `scripts/backfill_topic_tiers.py` — `--report` (run, output
   above), `--stamp-tiers` (T3.4), `--queue-tiers 3,5` (T3.3). Enqueues only;
   generation is left as a printed command because it costs money and hours.

@@ -1,0 +1,856 @@
+{
+  "sense_id": 35331,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T05:53:02.253103+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): やや不自然：読点の位置"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.46186280250549316,
+    "p1_generate": 63.30981397628784,
+    "tier_gate": 0.0010485649108886719,
+    "p1_judge": 147.41661834716797,
+    "collocate_grounding": 0.0,
+    "fan_out": 172.79578757286072
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): やや不自然：読点の位置"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/tokuni/",
+        "pronunciation": "とくに",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35331
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "1fce48d3-a781-4c67-aaff-1086a884fb7b",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "ipa": "/tokuni/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "特需",
+          "特に",
+          "得意",
+          "特殊"
+        ],
+        "correct_answer": "特に",
+        "explanation": "正解です。「特に」は「ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。」という意味です。",
+        "distractor_explanations": {
+          "特殊": "「特殊」は「特に」と一モーラだけ異なる実在語です（3モーラ目: 「に」→「しゅ」、一部の音の違い）。",
+          "得意": "「得意」は「特に」と一モーラだけ異なる実在語です（3モーラ目: 「に」→「い」、一部の音の違い）。",
+          "特需": "「特需」は「特に」と一モーラだけ異なる実在語です（3モーラ目: 「に」→「じゅ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 4,
+          "kept": 6,
+          "rejected_items": [
+            "トクホ",
+            "極似",
+            "特守",
+            "特亜"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5feb8a6c-06ea-4403-b741-4957cfc4b0fa",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "correct_definition": "ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。",
+        "options": [
+          "ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。",
+          "複数の物や事柄が、一部分または全体において、互いの上にのるように位置すること。また、複数の要素が同じ部分で一致すること。",
+          "眠いときや退屈なときに、無意識に口を大きく開けて息を吸い込む動作。",
+          "年齢が低い、大人になっていない状態。また、それに関係する様子。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7ae66ea4-9aca-49d3-9c51-7ebd308afcd4",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___、初期段階のスタートアップ資金調達を担う彼らの役割は、単なる資本の提供にとどまりません。",
+        "original_sentence": "特に、初期段階のスタートアップ資金調達を担う彼らの役割は、単なる資本の提供にとどまりません。",
+        "correct_answer": "特に",
+        "options": [
+          "わざわざ",
+          "まず",
+          "たまたま",
+          "特に"
+        ],
+        "explanation": "正解です。「特に」は、他の事柄と区別して強調する意味で使われます。",
+        "distractor_tags": {},
+        "word_definition": "ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "42b5a35e-6394-4c61-9241-1a5e1f9e9183",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私は特に数学の勉強が好きです。",
+            "is_correct": true
+          },
+          {
+            "text": "彼は他の科目と比べて、特に数学が得意です。",
+            "is_correct": true
+          },
+          {
+            "text": "特に、初期段階のスタートアップ資金調達を担う彼らの役割は、単なる資本の提供にとどまりません。",
+            "is_correct": true
+          },
+          {
+            "text": "私は特には数学の勉強が好きです。",
+            "is_correct": false,
+            "error_description": "副詞「特に」に助詞「は」を付けて「特には」とすることはできません。「特に」のままで使用します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e0cd7a45-6740-4d78-96b0-920293095f6b",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "考えや理論を、実際の行動や活動に移すこと。",
+              "ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。",
+              "负荷",
+              "道のことを言う言葉で、車や人が通る場所です。"
+            ],
+            "correct_answer": "ある事柄を、ほかの事柄と区別して強調するときに使う副詞です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "347b405e-78b5-4237-8344-f383a071dc49",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "特に",
+        "options": [
+          "とぐに",
+          "どくに",
+          "とうくに",
+          "とくに"
+        ],
+        "correct_answer": "とくに",
+        "word": "特に",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "88b0a40b-5021-4d0b-a026-15d9004c5d0b",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "とくに",
+        "options": [
+          "特別",
+          "特定",
+          "特に",
+          "特徴"
+        ],
+        "correct_answer": "特に",
+        "word": "特に",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "特別": "component",
+          "特徴": "component",
+          "特定": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b7e7aca9-e730-476f-9911-65cc60a79248",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "家族の中でも、特に母に私の進学を応援してくれています。",
+            "is_correct": false
+          },
+          {
+            "text": "特に、初期段階のスタートアップ資金調達を担う彼らの役割は、単なる資本の提供にとどまりません。",
+            "is_correct": true
+          },
+          {
+            "text": "家族の中でも、特に母が私の進学を応援するています。",
+            "is_correct": false
+          },
+          {
+            "text": "家族の中でも、母が私の進学を応援してくれています特に。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「母に」と「応援してくれています」の組み合わせが不自然です。「母が」が適切です。 活用の誤り：「応援する」の連用形「し」に「ています」が結びつくべきところ、「する」のままになっており誤りです。 語順の誤り：副詞「特に」は文頭または修飾する語の直前に置きます。文末に置くことはできません。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d60cedbd-1140-4238-82dd-379673f79e91",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "家族の中でも、特に母が私の進学を応援してくれています。",
+            "is_correct": true
+          },
+          {
+            "text": "彼は他の分野と比べて、特ににサッカーを打ち込んでいます。",
+            "is_correct": false,
+            "error_description": "「特に」は副詞であるため、後に助詞「に」を付けることはできません。「特にサッカーに」とするのが正しい用法です。"
+          },
+          {
+            "text": "彼は他の分野と比べて、特にサッカーに打ち込んでいます。",
+            "is_correct": true
+          },
+          {
+            "text": "今朝のニュースの中で、特に寒波に関する注意報が発令されました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 4,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00802272,
+      "prompt_tokens": 2639,
+      "completion_tokens": 5608,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4728,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 62629
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0063456,
+      "prompt_tokens": 746,
+      "completion_tokens": 4771,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4531,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 52060
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00454112,
+      "prompt_tokens": 403,
+      "completion_tokens": 3447,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3260,
+      "call_role": "repair",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 42125
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00596896,
+      "prompt_tokens": 757,
+      "completion_tokens": 4474,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4344,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 52444
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00393408,
+      "prompt_tokens": 1638,
+      "completion_tokens": 2664,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2561,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 34192
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00582656,
+      "prompt_tokens": 1636,
+      "completion_tokens": 4143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4028,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 54001
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.02062432,
+      "prompt_tokens": 2707,
+      "completion_tokens": 15436,
+      "cached_tokens": 0,
+      "reasoning_tokens": 14716,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 93997
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.008067776,
+      "prompt_tokens": 2707,
+      "completion_tokens": 6087,
+      "cached_tokens": 2304,
+      "reasoning_tokens": 5458,
+      "call_role": "retry",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 76940
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00604768,
+      "prompt_tokens": 819,
+      "completion_tokens": 4520,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4177,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 57647
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017188,
+      "prompt_tokens": 393,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2454
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00473248,
+      "prompt_tokens": 661,
+      "completion_tokens": 3532,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3464,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 47870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019424,
+      "prompt_tokens": 510,
+      "completion_tokens": 1390,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1362,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 21976
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00353504,
+      "prompt_tokens": 823,
+      "completion_tokens": 2556,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2204,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 31206
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.000166,
+      "prompt_tokens": 380,
+      "completion_tokens": 73,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 6961
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00358592,
+      "prompt_tokens": 642,
+      "completion_tokens": 2641,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2570,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 40179
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160896,
+      "prompt_tokens": 516,
+      "completion_tokens": 1128,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1103,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 14515
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.085121496,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 610.1560000000172,
+  "finished_at": "2026-09-27T06:03:12.412854+00:00"
+}

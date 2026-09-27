@@ -1,0 +1,108 @@
+{
+  "blind_judgements": [
+    {
+      "type": "complementation",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "A wrong complement form after a verb (to-inf / -ing / bare inf / that-clause) is a rule-of-form error in the L2 output, not a departure from the source's meaning, so it belongs to accuracy alongside preposition and subject_verb_agreement. In the modal case the meaning is fully recoverable and a T3 reader reads straight on, which matches v5's minor for the other dependent-form slips (article, preposition, SVA, plural_number). Severity does vary: the meaning-bearing pairs (stop to smoke / stop smoking, remember to lock / remember locking, forget doing / forget to do) change what happened and should be graded major per instance, arguably as fidelity.",
+      "example_errors": [
+        "My brother enjoys to play football after school. (enjoys playing)",
+        "Our teacher made us to write the story again. (made us write)",
+        "I am looking forward to see my grandmother this weekend. (to seeing)",
+        "Escalation case: 'He stopped to eat sweets' for source 'he gave up eating sweets' (meaning inverted -> major)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "lexical_form",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "The modal learner error is a wrong word-class member of the right family (success for successful, confident for confidently, happiness for happy): the lexeme choice is right, only the derivational form is wrong, which is a morphosyntactic accuracy defect rather than a meaning (fidelity) or idiomaticity (naturalness) one. The intended meaning is transparent, so minor is consistent with v5 precedent for form slips. Exceptions that change the proposition (I am boring for I am bored; economic vs economical) should be graded major per instance.",
+      "example_errors": [
+        "She was very success in her first job. (successful)",
+        "The children waited patient for the bus. (patiently)",
+        "The film was very interested. (interesting — borderline major: now says the film is curious)",
+        "Escalation case: 'I was so boring in class' for source 'I was bored' (says the opposite about the speaker -> major)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "semantic_anomaly",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "In a translation task, a grammatical sentence describing an impossible event means the learner has failed to carry the source meaning across (usually a wrong content word or swapped roles), so the penalty belongs on fidelity, not accuracy. It is more than minor: the reader stumbles immediately and has to reconstruct what was meant. It is modally major rather than critical because the absurdity is self-flagging, so the reader knows something is wrong and can often recover the intent; it rises to critical when the anomalous word lands on the passage's key event and the intent is unrecoverable.",
+      "example_errors": [
+        "She put the fridge in the milk. (roles swapped)",
+        "We listened to the photographs on the radio. (wrong verb/object pairing from a mistranslated verb)",
+        "The ice cream melted in the freezer. (source: in the sun)"
+      ],
+      "confidence": "high"
+    },
+    {
+      "type": "contradiction",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "A self-contradiction or wrong logical connective means the learner's English asserts a relation (cause, concession, sequence, kinship order) the source does not, which is a meaning-preservation failure, i.e. fidelity. Unlike v5 cohesion_connective (naturalness/minor: awkward but relation intact), this type is defined by the relation being wrong. Severity genuinely varies: where the contradiction inverts the proposition and a reader cannot tell which clause is true (because vs although; before vs after), it meets MQM critical, but the modal instance is a local clash the reader notices and can partly resolve from the rest of the passage, so major as default with per-instance escalation to critical.",
+      "example_errors": [
+        "Because the shop was closed, we bought some bread there. (source: open)",
+        "He has never been to Paris, but he lived there last year. (source: wants to go next year)",
+        "My older brother was born two years after me. (source: before)"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "comparison": [
+    {
+      "type": "complementation",
+      "draft": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "reviewer": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "verdict": "AGREE",
+      "argument": "Dependent-form slip with meaning intact; matches v5 preposition/SVA/plural_number (accuracy/minor). Note for grader guidance: meaning-bearing pairs (stop to do / stop doing, remember to / -ing) should escalate to major per instance."
+    },
+    {
+      "type": "lexical_form",
+      "draft": {
+        "dimension": "fidelity",
+        "default_severity": "minor"
+      },
+      "reviewer": {
+        "dimension": "accuracy",
+        "default_severity": "minor"
+      },
+      "verdict": "DISAGREE",
+      "argument": "The modal learner error (success/successful, confident/confidently, happiness/happy) picks the right lexeme and the right meaning but the wrong derivational form, i.e. a form defect; charging it to fidelity says the learner failed to carry the source meaning when they did not, and it puts it on the wrong side of plural_number (accuracy/minor), its nearest v5 neighbour. The jev class 'S' reflects the subtle economic/economical case, which is the exception; those meaning-changing instances (boring/bored) should be graded per instance, not set the dimension."
+    },
+    {
+      "type": "semantic_anomaly",
+      "draft": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "reviewer": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "verdict": "AGREE",
+      "argument": "Source meaning not carried across; absurdity is self-flagging so the reader knows something is wrong and can often recover intent -> major, not critical."
+    },
+    {
+      "type": "contradiction",
+      "draft": {
+        "dimension": "fidelity",
+        "default_severity": "critical"
+      },
+      "reviewer": {
+        "dimension": "fidelity",
+        "default_severity": "major"
+      },
+      "verdict": "DISAGREE (severity only; low-medium conviction)",
+      "argument": "A default should be the modal instance, and the modal learner contradiction in a multi-sentence T3 passage is a local clash (wrong connective, before/after) that the surrounding passage lets the reader partly resolve; a critical default (weight 25 vs fidelity band thresholds 1/6/15) drops fidelity to band 1 on a single slip and creates a 25x cliff against cohesion_connective (naturalness/minor), which the grader will confuse it with. It would be the only critical default in the whole taxonomy (zh/ja/en contradiction are the sole three); keep critical as a per-instance escalation for true polarity inversion (with -> without, open -> closed). Side note: the draft definition narrows the jev type to 'inverts the source's meaning' and drops the jev 'connective asserts the wrong relation' clause; if that narrowing is deliberate, critical becomes more defensible, but the wrong-relation connective case then needs an explicit home."
+    }
+  ]
+}

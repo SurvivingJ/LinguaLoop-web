@@ -253,7 +253,14 @@ def _judge(
             prompt,
             model=model,
             temperature=0.0,
-            max_tokens=8000,
+            # TASK-812: was 8000, shared by both callers of this function
+            # (ladder_relation_judge and ladder_word_family_judge). TASK-808's
+            # baseline shows relation's own completion_tokens p99 at 4210
+            # (n=43, max 4210) -- the longer of the two (word_family's p99 is
+            # 118) -- so 13000 (>=3x the larger p99) is sized to the actual
+            # shared caller, with headroom for a bigger candidate set than
+            # the baseline sampled.
+            max_tokens=13000,
             # Provider-enforced JSON: a judge that answers in prose fails open
             # and keeps every candidate, which is the expensive failure here.
             response_format='json_object',

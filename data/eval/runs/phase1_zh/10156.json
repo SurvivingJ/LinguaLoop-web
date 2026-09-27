@@ -1,0 +1,1490 @@
+{
+  "sense_id": 10156,
+  "language_id": 1,
+  "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+  "started_at": "2026-09-27T04:48:45.116721+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): 语域偏口语，不够正式",
+    "P1 sentence[5] flagged (rating 3): 语域偏口语，不够正式",
+    "P1 sentence[6] flagged (rating 3): 语域偏口语，不够正式",
+    "P1 sentence[7] flagged (rating 3): 语域偏口语，不够正式",
+    "P1 sentence[8] flagged (rating 3): 语域偏口语，不够正式",
+    "P1 sentence[9] flagged (rating 3): 语域偏口语，不够正式"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.1853337287902832,
+    "p1_generate": 56.46925973892212,
+    "tier_gate": 0.0010344982147216797,
+    "p1_judge": 33.70084309577942,
+    "collocate_grounding": 0.0,
+    "fan_out": 58.24170708656311
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): 语域偏口语，不够正式",
+        "P1 sentence[5] flagged (rating 3): 语域偏口语，不够正式",
+        "P1 sentence[6] flagged (rating 3): 语域偏口语，不够正式",
+        "P1 sentence[7] flagged (rating 3): 语域偏口语，不够正式",
+        "P1 sentence[8] flagged (rating 3): 语域偏口语，不够正式",
+        "P1 sentence[9] flagged (rating 3): 语域偏口语，不够正式"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕʰiɛn˧˥ su̯ɔ˨˩˦ ueɪ˥˩ joʊ˨˩˦]",
+        "pronunciation": "qián suǒ wèi yǒu",
+        "register": "正式（书面）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10156
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "737bc824-fc44-44f6-87b2-d58de4f0183c",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "前所未有",
+        "pronunciation": "qián suǒ wèi yǒu",
+        "correct_definition": "指过去从来没有发生过或出现过的。",
+        "options": [
+          "指过去从来没有发生过或出现过的。",
+          "表示事物数量的概念。",
+          "美学是一个哲学分支，探讨美、艺术以及审美体验的本质和规律。",
+          "使机器、系统等具备像人一样的判断、学习或自动化能力。"
+        ],
+        "hant": {
+          "word": "前所未有",
+          "pronunciation": "qián suǒ wèi yǒu",
+          "correct_definition": "指過去從來沒有發生過或出現過的。",
+          "options": [
+            "指過去從來沒有發生過或出現過的。",
+            "表示事物數量的概念。",
+            "美學是一個哲學分支，探討美、藝術以及審美體驗的本質和規律。",
+            "使機器、系統等具備像人一樣的判斷、學習或自動化能力。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b44bcf24-4f27-4f4e-8398-e9a5241c3f99",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "面对全球变暖加剧、降水模式日益不稳定的现实，现代水资源管理正面临___的挑战。",
+        "original_sentence": "面对全球变暖加剧、降水模式日益不稳定的现实，现代水资源管理正面临前所未有的挑战。",
+        "correct_answer": "前所未有",
+        "options": [
+          "空前绝后",
+          "闻所未闻",
+          "绝无仅有",
+          "前所未有"
+        ],
+        "explanation": "正确。“前所未有”指过去从来没有发生过，修饰“挑战”表示挑战的程度和性质是过去没有的，完全符合语境。",
+        "distractor_tags": {},
+        "word_definition": "指过去从来没有发生过或出现过的。",
+        "target_word": "前所未有",
+        "hant": {
+          "sentence_with_blank": "面對全球變暖加劇、降水模式日益不穩定的現實，現代水資源管理正面臨___的挑戰。",
+          "original_sentence": "面對全球變暖加劇、降水模式日益不穩定的現實，現代水資源管理正面臨前所未有的挑戰。",
+          "correct_answer": "前所未有",
+          "options": [
+            "空前絕後",
+            "聞所未聞",
+            "絕無僅有",
+            "前所未有"
+          ],
+          "explanation": "正確。“前所未有”指過去從來沒有發生過，修飾“挑戰”表示挑戰的程度和性質是過去沒有的，完全符合語境。",
+          "distractor_tags": {},
+          "word_definition": "指過去從來沒有發生過或出現過的。",
+          "target_word": "前所未有"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "bbed7664-9295-4ca6-9219-913c4b2167df",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更对地球脆弱的水资源系统施加了压力前所未有的。",
+            "is_correct": false
+          },
+          {
+            "text": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更前所未有的对地球脆弱的水资源系统施加了压力。",
+            "is_correct": false
+          },
+          {
+            "text": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更对地球脆弱的水资源系统施加了前所未有的压力。",
+            "is_correct": true
+          },
+          {
+            "text": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更对地球脆弱的水资源系统施加前所未有的了压力。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置/选用错误。动态助词“了”应放在动词“施加”之后或句末，不能插入在定语“前所未有”和中心语“压力”之间，破坏了定中结构。 语序错误。“前所未有”作为定语修饰“压力”时，必须放在中心语“压力”之前。放在句末导致动宾结构“施加了压力”被割裂，语序混乱。 语序错误。“前所未有”是形容词，不能直接放在介词结构或动词前作状语。应改为副词性结构“前所未有地”，或将其作为定语修饰“压力”。",
+        "target_word": "前所未有",
+        "hant": {
+          "sentences": [
+            {
+              "text": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更對地球脆弱的水資源系統施加了壓力前所未有的。",
+              "is_correct": false
+            },
+            {
+              "text": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更前所未有的對地球脆弱的水資源系統施加了壓力。",
+              "is_correct": false
+            },
+            {
+              "text": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更對地球脆弱的水資源系統施加了前所未有的壓力。",
+              "is_correct": true
+            },
+            {
+              "text": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更對地球脆弱的水資源系統施加前所未有的了壓力。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置/選用錯誤。動態助詞“了”應放在動詞“施加”之後或句末，不能插入在定語“前所未有”和中心語“壓力”之間，破壞了定中結構。 語序錯誤。“前所未有”作為定語修飾“壓力”時，必須放在中心語“壓力”之前。放在句末導致動賓結構“施加了壓力”被割裂，語序混亂。 語序錯誤。“前所未有”是形容詞，不能直接放在介詞結構或動詞前作狀語。應改為副詞性結構“前所未有地”，或將其作為定語修飾“壓力”。",
+          "target_word": "前所未有"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3ec2692d-da4c-4877-85e2-16c654ec2f3c",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "大家前所未有地热情参与班级聚会。",
+        "hant": {
+          "original_sentence": "大家前所未有地熱情參與班級聚會。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b82f88f2-68eb-4431-8a8c-dab7e10e1a9a",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "前所未有",
+        "pronunciation": "qián suǒ wèi yǒu",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to cause; to make something happen",
+              "指过去从来没有发生过或出现过的。",
+              "湿度",
+              "靭性；曲げても折れにくい性質、また困難にも負けない心"
+            ],
+            "correct_answer": "指过去从来没有发生过或出现过的。"
+          }
+        },
+        "hant": {
+          "word": "前所未有",
+          "pronunciation": "qián suǒ wèi yǒu",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "to cause; to make something happen",
+                "指過去從來沒有發生過或出現過的。",
+                "溼度",
+                "靭性；曲げても折れにくい性質、また困難にも負けない心"
+              ],
+              "correct_answer": "指過去從來沒有發生過或出現過的。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "59ae0f8d-62b4-4e73-9d35-b875330a6c74",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这一突破不仅大幅降低了书籍的制作成本，更使《圣经》等文本得以以___的速度和数量被复制，从而打破了教会对知识解释权的垄断。",
+        "original_sentence": "这一突破不仅大幅降低了书籍的制作成本，更使《圣经》等文本得以以前所未有的速度和数量被复制，从而打破了教会对知识解释权的垄断。",
+        "target_word": "前所未有",
+        "word": "前所未有",
+        "answer": {
+          "accepted": [
+            "前所未有"
+          ],
+          "accepted_normalized": [
+            "前所未有"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這一突破不僅大幅降低了書籍的製作成本，更使《聖經》等文本得以以___的速度和數量被複制，從而打破了教會對知識解釋權的壟斷。",
+          "original_sentence": "這一突破不僅大幅降低了書籍的製作成本，更使《聖經》等文本得以以前所未有的速度和數量被複制，從而打破了教會對知識解釋權的壟斷。",
+          "target_word": "前所未有",
+          "word": "前所未有",
+          "answer": {
+            "accepted": [
+              "前所未有"
+            ],
+            "accepted_normalized": [
+              "前所未有"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "aac9e299-9ed5-4003-b4c0-11c3ecd7e531",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "大家前所未有地热情参与班级聚会。",
+        "chunks": [
+          "大家前所未有",
+          "地热情",
+          "参与班级聚会"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "大家前所未有",
+          "参与班级聚会",
+          "地热情"
+        ],
+        "target_word": "前所未有",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "大家前所未有地熱情參與班級聚會。",
+          "chunks": [
+            "大家前所未有",
+            "地熱情",
+            "參與班級聚會"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "大家前所未有",
+            "參與班級聚會",
+            "地熱情"
+          ],
+          "target_word": "前所未有",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "cff7baec-3f22-4ce3-b6ad-8a912521b380",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "前所未有",
+        "options": [
+          "qiān suǒ wèi yǒu",
+          "qián suǒ wèi yǒu",
+          "qián suǒ wèi yōu",
+          "qián suō wèi yǒu"
+        ],
+        "correct_answer": "qián suǒ wèi yǒu",
+        "word": "前所未有",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "前所未有",
+          "options": [
+            "qiān suǒ wèi yǒu",
+            "qián suǒ wèi yǒu",
+            "qián suǒ wèi yōu",
+            "qián suō wèi yǒu"
+          ],
+          "correct_answer": "qián suǒ wèi yǒu",
+          "word": "前所未有",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "173fe341-5a3a-44da-817a-b704c89102cc",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "qián suǒ wèi yǒu",
+        "options": [
+          "不断创新",
+          "前所未有",
+          "很久以前",
+          "前沿技术"
+        ],
+        "correct_answer": "前所未有",
+        "word": "前所未有",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "不断创新": "component",
+          "很久以前": "component",
+          "前沿技术": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "qián suǒ wèi yǒu",
+          "options": [
+            "不斷創新",
+            "前所未有",
+            "很久以前",
+            "前沿技術"
+          ],
+          "correct_answer": "前所未有",
+          "word": "前所未有",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "不断创新": "component",
+            "很久以前": "component",
+            "前沿技术": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "10e4779e-2e71-468d-b581-e3d1e3f5648c",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "前所未有",
+        "toneless_pinyin": "qian suo wei you",
+        "full_pinyin": "qián suǒ wèi yǒu",
+        "options": [
+          "2342",
+          "2341",
+          "2344",
+          "2343"
+        ],
+        "correct_answer": "2343",
+        "option_labels": {
+          "2342": "rising (2) + dipping (3) + falling (4) + rising (2)",
+          "2341": "rising (2) + dipping (3) + falling (4) + high level (1)",
+          "2344": "rising (2) + dipping (3) + falling (4) + falling (4)",
+          "2343": "rising (2) + dipping (3) + falling (4) + dipping (3)"
+        },
+        "syllable_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "word": "前所未有",
+          "toneless_pinyin": "qian suo wei you",
+          "full_pinyin": "qián suǒ wèi yǒu",
+          "options": [
+            "2342",
+            "2341",
+            "2344",
+            "2343"
+          ],
+          "correct_answer": "2343",
+          "option_labels": {
+            "2342": "rising (2) + dipping (3) + falling (4) + rising (2)",
+            "2341": "rising (2) + dipping (3) + falling (4) + high level (1)",
+            "2344": "rising (2) + dipping (3) + falling (4) + falling (4)",
+            "2343": "rising (2) + dipping (3) + falling (4) + dipping (3)"
+          },
+          "syllable_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e184507b-0ecf-4689-95ea-8dd0445c495e",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "前所未有",
+        "relation": "antonym",
+        "options": [
+          "昙花一现",
+          "平淡无奇",
+          "史无前例",
+          "司空见惯"
+        ],
+        "correct_answer": "司空见惯",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指过去从来没有发生过或出现过的。",
+            "explanation": "反义项：指某事常见，不足为奇，与“前所未有”（以前从未有过）构成反义。"
+          }
+        },
+        "hant": {
+          "word": "前所未有",
+          "relation": "antonym",
+          "options": [
+            "曇花一現",
+            "平淡無奇",
+            "史無前例",
+            "司空見慣"
+          ],
+          "correct_answer": "司空見慣",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指過去從來沒有發生過或出現過的。",
+              "explanation": "反義項：指某事常見，不足為奇，與“前所未有”（以前從未有過）構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ea1aad77-8896-4ff8-a180-9138b38a8fe5",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这次活动的规模是前所未有的。",
+            "is_correct": true
+          },
+          {
+            "text": "这次活动的规模前所未有起来。",
+            "is_correct": false
+          },
+          {
+            "text": "这次活动的规模是前所未有过了。",
+            "is_correct": false
+          },
+          {
+            "text": "前所未有的这次活动的规模让我们震惊。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置/选用错误：“前所未有”本身已包含完成和过去的语义（“未有”），再叠加体标“过”和“了”导致体标冗余且位置不当。 语序错误：“前所未有”作定语时应紧挨着被修饰的中心语“规模”，即“这次活动前所未有的规模”，当前语序破坏了定中结构的紧密性。 方向/结果补语误用：“起来”表示动作或状态的开始与向上发展，而“前所未有”表示一种已经存在的极致状态，两者在体貌和语义上冲突，不能搭配。",
+        "target_word": "前所未有",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這次活動的規模是前所未有的。",
+              "is_correct": true
+            },
+            {
+              "text": "這次活動的規模前所未有起來。",
+              "is_correct": false
+            },
+            {
+              "text": "這次活動的規模是前所未有過了。",
+              "is_correct": false
+            },
+            {
+              "text": "前所未有的這次活動的規模讓我們震驚。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置/選用錯誤：“前所未有”本身已包含完成和過去的語義（“未有”），再疊加體標“過”和“了”導致體標冗餘且位置不當。 語序錯誤：“前所未有”作定語時應緊挨著被修飾的中心語“規模”，即“這次活動前所未有的規模”，當前語序破壞了定中結構的緊密性。 方向/結果補語誤用：“起來”表示動作或狀態的開始與向上發展，而“前所未有”表示一種已經存在的極致狀態，兩者在體貌和語義上衝突，不能搭配。",
+          "target_word": "前所未有"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cfd8cfba-dd6e-46f0-8f6d-3411d729c82f",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这次活动的规模是前所未有的。",
+            "is_correct": true
+          },
+          {
+            "text": "收到礼物时，我的开心是前所未有了。",
+            "is_correct": false,
+            "error_description": "体标选用错误。在‘是……的’结构中，句末应使用结构助词‘的’来强调状态，不能误用动态助词‘了’。"
+          },
+          {
+            "text": "收到礼物时，我的开心是前所未有的。",
+            "is_correct": true
+          },
+          {
+            "text": "看到惊喜，我的感动是前所未有的。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這次活動的規模是前所未有的。",
+              "is_correct": true
+            },
+            {
+              "text": "收到禮物時，我的開心是前所未有了。",
+              "is_correct": false,
+              "error_description": "體標選用錯誤。在‘是……的’結構中，句末應使用結構助詞‘的’來強調狀態，不能誤用動態助詞‘了’。"
+            },
+            {
+              "text": "收到禮物時，我的開心是前所未有的。",
+              "is_correct": true
+            },
+            {
+              "text": "看到驚喜，我的感動是前所未有的。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "5b78a5b1-0c34-4e53-825f-e8bded57f8c0",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更对地球脆弱的水资源系统施加了前所未有的压力。",
+        "hant": {
+          "original_sentence": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更對地球脆弱的水資源系統施加了前所未有的壓力。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fa0076af-237f-4daa-b80b-50ceea2e9eac",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "看到惊喜，我的感动是___的。",
+        "original_sentence": "看到惊喜，我的感动是前所未有的。",
+        "target_word": "前所未有",
+        "word": "前所未有",
+        "answer": {
+          "accepted": [
+            "前所未有"
+          ],
+          "accepted_normalized": [
+            "前所未有"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "看到驚喜，我的感動是___的。",
+          "original_sentence": "看到驚喜，我的感動是前所未有的。",
+          "target_word": "前所未有",
+          "word": "前所未有",
+          "answer": {
+            "accepted": [
+              "前所未有"
+            ],
+            "accepted_normalized": [
+              "前所未有"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "80e37e47-64fe-4c09-93e4-a1d53c03ebb2",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "在当代全球化经济图景中，快时尚产业的崛起不仅重塑了消费者的穿衣模式，更对地球脆弱的水资源系统施加了前所未有的压力。",
+        "chunks": [
+          "在当代全球化经济图景中",
+          "快时尚产业的崛起",
+          "不仅重塑了消费者的穿衣模式",
+          "更对地球",
+          "脆弱的水资源系统",
+          "施加了前所未有的压力"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "施加了前所未有的压力",
+          "不仅重塑了消费者的穿衣模式",
+          "快时尚产业的崛起",
+          "更对地球",
+          "脆弱的水资源系统",
+          "在当代全球化经济图景中"
+        ],
+        "target_word": "前所未有",
+        "chunk_count": 6,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "在當代全球化經濟圖景中，快時尚產業的崛起不僅重塑了消費者的穿衣模式，更對地球脆弱的水資源系統施加了前所未有的壓力。",
+          "chunks": [
+            "在當代全球化經濟圖景中",
+            "快時尚產業的崛起",
+            "不僅重塑了消費者的穿衣模式",
+            "更對地球",
+            "脆弱的水資源系統",
+            "施加了前所未有的壓力"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "shuffled_chunks": [
+            "施加了前所未有的壓力",
+            "不僅重塑了消費者的穿衣模式",
+            "快時尚產業的崛起",
+            "更對地球",
+            "脆弱的水資源系統",
+            "在當代全球化經濟圖景中"
+          ],
+          "target_word": "前所未有",
+          "chunk_count": 6
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10156,
+      "word_asset_id": "shadow-10156-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0073328,
+      "prompt_tokens": 2555,
+      "completion_tokens": 5090,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4363,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 56241
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00409728,
+      "prompt_tokens": 728,
+      "completion_tokens": 3019,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2726,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 33530
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00287552,
+      "prompt_tokens": 1522,
+      "completion_tokens": 1866,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1759,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 21408
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00276544,
+      "prompt_tokens": 658,
+      "completion_tokens": 1996,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1766,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0043952,
+      "prompt_tokens": 1519,
+      "completion_tokens": 3054,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2939,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 37440
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0060208,
+      "prompt_tokens": 1747,
+      "completion_tokens": 4267,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3491,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 50516
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00738784,
+      "prompt_tokens": 1747,
+      "completion_tokens": 5335,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4484,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 57986
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00114816,
+      "prompt_tokens": 424,
+      "completion_tokens": 791,
+      "cached_tokens": 0,
+      "reasoning_tokens": 698,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 9128
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001747152,
+      "prompt_tokens": 415,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2554
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00126752,
+      "prompt_tokens": 649,
+      "completion_tokens": 828,
+      "cached_tokens": 0,
+      "reasoning_tokens": 723,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 10080
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00265856,
+      "prompt_tokens": 548,
+      "completion_tokens": 1940,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1856,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25516
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0009216,
+      "prompt_tokens": 424,
+      "completion_tokens": 614,
+      "cached_tokens": 0,
+      "reasoning_tokens": 521,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 7015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001723977,
+      "prompt_tokens": 402,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2159
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00154976,
+      "prompt_tokens": 567,
+      "completion_tokens": 1069,
+      "cached_tokens": 0,
+      "reasoning_tokens": 991,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 12889
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00130496,
+      "prompt_tokens": 438,
+      "completion_tokens": 910,
+      "cached_tokens": 0,
+      "reasoning_tokens": 885,
+      "call_role": "primary",
+      "sense_id": 10156,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 11773
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.0440725529,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 232.125,
+  "finished_at": "2026-09-27T04:52:37.241822+00:00"
+}

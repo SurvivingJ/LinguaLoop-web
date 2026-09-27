@@ -1,0 +1,1317 @@
+{
+  "sense_id": 35227,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T05:26:31.555755+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] particle_selection generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): 義項：過程義で使用"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.5925111770629883,
+    "p1_generate": 76.50467419624329,
+    "tier_gate": 0.001882314682006836,
+    "p1_judge": 85.86550211906433,
+    "collocate_grounding": 0.0,
+    "fan_out": 194.2500069141388
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): 義項：過程義で使用"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pɯɾose.sɯ]",
+        "morphological_forms": [
+          {
+            "form": "プロセス化",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "ぷろせす",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35227
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0c95d80f-0e64-470a-9ef9-6991254a878f",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "プロセス",
+        "pronunciation": "ぷろせす",
+        "correct_definition": "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+        "options": [
+          "ポリエステルは、石油を原料として化学的に合成される繊維で、シワになりにくく、乾きやすい性質を持ちます。衣料品や様々な工業製品に広く用いられています。",
+          "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+          "視覚的に表現された図形や画像、またはコンピュータで扱われる画像全般を指す語。",
+          "人が座るための場所。座席。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "dce18ae2-4184-4e9a-94cb-1e24feaf420e",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要な___です。",
+        "original_sentence": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスです。",
+        "correct_answer": "プロセス",
+        "options": [
+          "プロセス",
+          "シンボル",
+          "アイデア",
+          "ルール"
+        ],
+        "explanation": "正解です。文脈に合う適切な名詞です。",
+        "distractor_tags": {},
+        "word_definition": "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+        "target_word": "プロセス"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c815edf3-26e4-421f-8826-2d8864c8da04",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスをだ。",
+            "is_correct": false
+          },
+          {
+            "text": "真実を解き明かすための静謐かつ論理的なプロセス、それこそが指紋分析の真髄と言えます。",
+            "is_correct": true
+          },
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスだ。",
+            "is_correct": false
+          },
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスについてだ。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "語域：基礎例文は「意味する重要なプロセスです」という丁寧な表現（語域）ですが、この文は「だ」という常体（だ・である調）になっており、文体の丁寧度が一致していません。 語順・係り受けの誤り：「〜を意味する重要なプロセスについてだ」とすると、文全体が「〜について（説明・言及する）」という主題提示の構造になり、「これは〜プロセスです」というイコールの関係が崩れて意味が通りません。 助詞の混同：「重要なプロセスをだ」とはなりません。名詞を提示して断定する場合は「が」または「は」を使い、「を」は目的語を作る格助詞なのでここでは誤りです。",
+        "target_word": "プロセス"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "bf3b7303-9034-47ce-9587-6ea446873f19",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスです。",
+            "is_correct": true
+          },
+          {
+            "text": "正しいプロセスに守ってください。",
+            "is_correct": false,
+            "error_description": "助詞の混同。「守る」の目的語を示すには「を」を使います。「に」は方向や着点を示す助詞であり、ここでは不適切です。"
+          },
+          {
+            "text": "この創造的プロセスこそが、行事の記憶を永続的なものへと変貌させ、参加者の帰属意識を強固なものへと昇華させるのです。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担います。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "bbba5443-9d4c-45c1-8104-d81751a8fd8b",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "正しいプロセスを守ってください。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "2a85af9b-1569-4aa7-b293-fef2526e1268",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "プロセス",
+        "pronunciation": "ぷろせす",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+              "何かを、中に取り込むこと。",
+              "学校の建物。校舎は、授業や活動が行われる建物です。",
+              "伙伴 —— 一起做同一件事、同属一个团体的人"
+            ],
+            "correct_answer": "ある目的を達成するために、順序立てて行われる一連の動作や操作。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "27b26782-f5be-424b-87a3-eeae8fcad5e2",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "再生可能エネルギーの導入加速にもかかわらず、製造___の性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担います。",
+        "original_sentence": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担います。",
+        "target_word": "プロセス",
+        "word": "プロセス",
+        "answer": {
+          "accepted": [
+            "プロセス",
+            "プロセス化"
+          ],
+          "accepted_normalized": [
+            "プロセス",
+            "プロセス化"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5510e90f-6392-4210-8b68-93cef7b20c34",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "正しいプロセスを守ってください。",
+        "chunks": [
+          "正しいプロセスを",
+          "守って",
+          "ください"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "ください",
+          "守って",
+          "正しいプロセスを"
+        ],
+        "target_word": "プロセス",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "de356f9a-2227-4b30-bd0b-28a64bbf547d",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___の結果が出ました。",
+        "original_sentence": "プロセスの結果が出ました。",
+        "correct_answer": "プロセス",
+        "options": [
+          "消しゴム",
+          "プロセス",
+          "スプーン",
+          "台風"
+        ],
+        "explanation": "「学ぶ」に続き、学習が進む一連の過程を表すので、意味・連語ともに自然に成立する。",
+        "distractor_tags": {},
+        "word_definition": "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+        "target_word": "プロセス"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1e6c47f8-3935-4a7a-a9f0-7966d165b59f",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この作業は、二羽のプロセスに分けられる。",
+            "is_correct": false
+          },
+          {
+            "text": "新しいプロセスが生まれました。",
+            "is_correct": true
+          },
+          {
+            "text": "このプロセスは、もう完成してある。",
+            "is_correct": false
+          },
+          {
+            "text": "プロセスが見直せば、時間を減らせる。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助数詞の誤り：作業の段階を数えるのに鳥用の「羽」は使えない。正しくは「二つのプロセス」や「二段階のプロセス」である。 助詞の混同：「見直す」の対象は「を」で示すべきで、「が」では対象が主語扱いになり不自然になる。正しくは「プロセスを見直せば」である。 活用・アスペクトの誤り：「〜てある」は他動詞にしか接続できず、自動詞「完成する」には使えない。正しくは「完成している」である。",
+        "target_word": "プロセス"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7cf84e7f-4b8a-4c00-8175-a685e5a06883",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "プロセスを経て成長します。",
+            "is_correct": true
+          },
+          {
+            "text": "プロセスの結果が出ました。",
+            "is_correct": true
+          },
+          {
+            "text": "新しいプロセスが生まれました。",
+            "is_correct": true
+          },
+          {
+            "text": "プロセスに経て成長します。",
+            "is_correct": false,
+            "error_description": "動詞「経る」は経過する過程を表す名詞を受けて助詞「を」をとります。「に」を使うのは誤りです。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "80b61137-3cc4-4955-b9a5-94f821b29f05",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "真実を解き明かすための静謐かつ論理的なプロセス、それこそが指紋分析の真髄と言えます。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "e81b9fb3-b262-4c4b-9a82-5a9ed90e7fed",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___を経て成長します。",
+        "original_sentence": "プロセスを経て成長します。",
+        "target_word": "プロセス",
+        "word": "プロセス",
+        "answer": {
+          "accepted": [
+            "プロセス",
+            "プロセス化"
+          ],
+          "accepted_normalized": [
+            "プロセス",
+            "プロセス化"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d514b79d-5bbe-4ceb-bc63-fab0fab74c8f",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "真実を解き明かすための静謐かつ論理的なプロセス、それこそが指紋分析の真髄と言えます。",
+        "chunks": [
+          "真実を",
+          "解き明かすための",
+          "静謐かつ論理的",
+          "なプロセスそれこそが",
+          "指紋分析の",
+          "真髄と言えます"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "なプロセスそれこそが",
+          "解き明かすための",
+          "静謐かつ論理的",
+          "指紋分析の",
+          "真実を",
+          "真髄と言えます"
+        ],
+        "target_word": "プロセス",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "5cc6e987-ae6a-4955-b916-e5987e9836df",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "プロセス___経て成長します。",
+        "original_sentence": "プロセスを経て成長します。",
+        "options": [
+          "を",
+          "が",
+          "で",
+          "に"
+        ],
+        "correct_answer": "を",
+        "target_word": "プロセス",
+        "error_tags": {
+          "が": "object_marking",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「経る」の直接目的語を標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "700969fa-1d98-44e7-91b4-08da1694bf0f",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "プロセス",
+        "relation": "antonym",
+        "options": [
+          "手法",
+          "結果",
+          "手順",
+          "作業"
+        ],
+        "correct_answer": "結果",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある目的を達成するために、順序立てて行われる一連の動作や操作。",
+            "explanation": "「過程」である目標語の語義に対し、その行き着く先である「結果」は対義関係にある。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "手順": 0.701192,
+            "手法": 0.654561,
+            "作業": 0.577455
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35227,
+      "word_asset_id": "shadow-35227-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0091952,
+      "prompt_tokens": 2759,
+      "completion_tokens": 6494,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5547,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 76261
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311264,
+      "prompt_tokens": 791,
+      "completion_tokens": 2234,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1949,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 23905
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00246528,
+      "prompt_tokens": 360,
+      "completion_tokens": 1836,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1681,
+      "call_role": "repair",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 19315
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00453024,
+      "prompt_tokens": 733,
+      "completion_tokens": 3356,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3245,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 42061
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0021232,
+      "prompt_tokens": 1003,
+      "completion_tokens": 1408,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1252,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 18447
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00316992,
+      "prompt_tokens": 1654,
+      "completion_tokens": 2063,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1961,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 25784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00722912,
+      "prompt_tokens": 2715,
+      "completion_tokens": 4969,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4370,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 35237
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00225056,
+      "prompt_tokens": 749,
+      "completion_tokens": 1571,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1399,
+      "call_role": "retry",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 19535
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.007696,
+      "prompt_tokens": 1654,
+      "completion_tokens": 5599,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5490,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 68283
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0013536,
+      "prompt_tokens": 778,
+      "completion_tokens": 863,
+      "cached_tokens": 0,
+      "reasoning_tokens": 761,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 11241
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017124,
+      "prompt_tokens": 389,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2541
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00266272,
+      "prompt_tokens": 729,
+      "completion_tokens": 1898,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1790,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 24317
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0012336,
+      "prompt_tokens": 519,
+      "completion_tokens": 834,
+      "cached_tokens": 0,
+      "reasoning_tokens": 806,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 12014
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026336,
+      "prompt_tokens": 778,
+      "completion_tokens": 1863,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1761,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 24557
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00015888,
+      "prompt_tokens": 368,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2033
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00308928,
+      "prompt_tokens": 662,
+      "completion_tokens": 2248,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2140,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 24189
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00149504,
+      "prompt_tokens": 512,
+      "completion_tokens": 1040,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1014,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 12672
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00422752,
+      "prompt_tokens": 587,
+      "completion_tokens": 3156,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3079,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 35846
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167488,
+      "prompt_tokens": 626,
+      "completion_tokens": 1152,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1083,
+      "call_role": "primary",
+      "sense_id": 35227,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 14306
+    }
+  ],
+  "llm_calls_observed": 19,
+  "llm_cost_observed_usd": 0.06047252,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 525.2179999999935,
+  "finished_at": "2026-09-27T05:35:16.772552+00:00"
+}

@@ -8,6 +8,17 @@ from types import SimpleNamespace
 from config import Config
 
 
+@pytest.fixture(autouse=True)
+def _entailment_backend_llm(monkeypatch):
+    """Pin the entailment judge to its LLM backend for the whole suite.
+
+    The production default is jev (TASK-835, 2026-09-27), which makes a real HTTP
+    call: the older judge tests patch ``call_llm`` and would otherwise reach the
+    network. ``tests/test_jev_entailment.py`` overrides this per test.
+    """
+    monkeypatch.setenv('ENTAILMENT_JUDGE_BACKEND', 'llm')
+
+
 # ---------------------------------------------------------------------------
 # Test configuration
 # ---------------------------------------------------------------------------
@@ -25,12 +36,6 @@ class TestConfig(Config):
     OPENAI_API_KEY = None
     STRIPE_SECRET_KEY = None
     R2_ACCESS_KEY_ID = None
-
-    # Feature flags — keep Listening Lab on by default so its route tests
-    # still see the registered blueprint and web routes. Tests that
-    # specifically exercise the disabled-flag path build their own app
-    # with this overridden to False.
-    LISTENING_LAB_ENABLED = True
 
 
 # ---------------------------------------------------------------------------

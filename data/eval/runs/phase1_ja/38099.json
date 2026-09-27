@@ -1,0 +1,1261 @@
+{
+  "sense_id": 38099,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T06:49:38.133544+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "[A] particle_selection generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "[B] particle_selection generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.7789556980133057,
+    "p1_generate": 63.469274282455444,
+    "tier_gate": 0.0,
+    "p1_judge": 92.11244988441467,
+    "collocate_grounding": 0.0,
+    "fan_out": 114.56554770469666
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɕoːka/",
+        "morphological_forms": [
+          {
+            "form": "昇華する",
+            "label": "派生"
+          },
+          {
+            "form": "昇華させる",
+            "label": "派生"
+          },
+          {
+            "form": "昇華される",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "しょうか",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            38099
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "846d1249-a5aa-49e7-8b35-2fbdf960faac",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "correct_definition": "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。",
+        "options": [
+          "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。",
+          "物事を最後までやり遂げて、完全な状態にすること。",
+          "周囲よりも温度が低い状態。特に、冷蔵庫や冷凍庫の中のような冷たい温度を指すことが多い。",
+          "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "aa38552f-2108-432f-9bbe-e574ff2ac765",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この一連の作業は、移ろいやすい自然の産物を、人間の手によって恒久の美へと___させる、高度な技術と美意識の結晶なのである。",
+        "original_sentence": "この一連の作業は、移ろいやすい自然の産物を、人間の手によって恒久の美へと昇華させる、高度な技術と美意識の結晶なのである。",
+        "correct_answer": "昇華",
+        "options": [
+          "昇華",
+          "変化",
+          "進化",
+          "発展"
+        ],
+        "explanation": "「確立へと昇華される」は高い段階への高まりを表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。",
+        "target_word": "昇華"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "cfd6833b-6e01-4f2f-933a-60c048a601d5",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "単なるエネルギー源に過ぎなかった穀物が、生命の維持と豊かな食体験を同時に叶える食文化へと昇華せれる。",
+            "is_correct": false
+          },
+          {
+            "text": "単なるエネルギー源に過ぎなかった穀物が、生命の維持と豊かな食体験を同時に叶える食文化へと昇華される。",
+            "is_correct": true
+          },
+          {
+            "text": "叶える食文化へと昇華される、生命の維持と豊かな食体験を同時に、穀物が。",
+            "is_correct": false
+          },
+          {
+            "text": "単なるエネルギー源に過ぎなかった穀物が、生命の維持と豊かな食体験を同時に叶える食文化が昇華される。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：結果を示す「へと」を「が」に置き換えるのは誤り。 活用：受身形は「される」であり、「せれる」は存在しない形。 語順：修飾関係が崩れ、係り受けが不明瞭になっている。",
+        "target_word": "昇華"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "bc1178f7-a275-4465-96b2-000b8981c76b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "生徒たちが繊維の纹理に想いを込め、独自のプロットを紡ぎ出すとき、それは単なる被服製作ではなく、記号的な自己主張の確立へと昇華されるのである。",
+            "is_correct": true
+          },
+          {
+            "text": "この創造的プロセスこそが、行事の記憶を永続的なものへと変貌させ、参加者の帰属意識を強固なものへが昇華させるのである。",
+            "is_correct": false,
+            "error_description": "助詞：結果を示す「へと」を「へが」に置き換えるのは誤り。"
+          },
+          {
+            "text": "この一連の作業は、移ろいやすい自然の産物を、人間の手によって恒久の美へと昇華させる、高度な技術と美意識の結晶なのである。",
+            "is_correct": true
+          },
+          {
+            "text": "この創造的プロセスこそが、行事の記憶を永続的なものへと変貌させ、参加者の帰属意識を強固なものへと昇華させるのである。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "9e090863-6238-4588-a367-e1fec85f4e50",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "個人の内に秘めた深い悲しみは、やがて普遍的な芸術作品へと昇華を遂げ、多くの人々の心に静かな感動を呼び起こすことになるのだ。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "e71aa3d7-e004-489a-a0eb-e1185f04e35f",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "fresh",
+              "細かいところまで気を配り、丁寧で思いやりのある様子。",
+              "何人 —— 询问一个人的身份、性质或立场的词，多用于「…是何人」的疑问句",
+              "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。"
+            ],
+            "correct_answer": "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "cec06741-134b-40d7-b00c-4f5bf141b7c3",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "生徒たちが繊維の纹理に想いを込め、独自のプロットを紡ぎ出すとき、それは単なる被服製作ではなく、記号的な自己主張の確立へと___されるのである。",
+        "original_sentence": "生徒たちが繊維の纹理に想いを込め、独自のプロットを紡ぎ出すとき、それは単なる被服製作ではなく、記号的な自己主張の確立へと昇華されるのである。",
+        "target_word": "昇華",
+        "word": "昇華",
+        "answer": {
+          "accepted": [
+            "昇華",
+            "昇華する",
+            "昇華させる",
+            "昇華される"
+          ],
+          "accepted_normalized": [
+            "昇華",
+            "昇華する",
+            "昇華させる",
+            "昇華される"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "753fce7a-3020-48e0-952b-6006c47a59d3",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "個人の内に秘めた深い悲しみは、やがて普遍的な芸術作品へと昇華を遂げ、多くの人々の心に静かな感動を呼び起こすことになるのだ。",
+        "chunks": [
+          "個人の内に",
+          "秘めた深い悲しみは",
+          "やがて普遍的な芸術作品へ",
+          "と昇華を遂げ多くの",
+          "人々の心に静かな感動を",
+          "呼び起こすことになるのだ"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "と昇華を遂げ多くの",
+          "秘めた深い悲しみは",
+          "やがて普遍的な芸術作品へ",
+          "人々の心に静かな感動を",
+          "呼び起こすことになるのだ",
+          "個人の内に"
+        ],
+        "target_word": "昇華",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "12f50dd9-b034-4c9a-a4b0-17f73df3af27",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "昇華",
+        "options": [
+          "しょうが",
+          "じょうか",
+          "しいょうか",
+          "しょうか"
+        ],
+        "correct_answer": "しょうか",
+        "word": "昇華",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ed8f07e9-2f96-4f19-be10-0e6378dce24a",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "しょうか",
+        "options": [
+          "上昇",
+          "飛躍",
+          "昇華",
+          "飛ぶ"
+        ],
+        "correct_answer": "昇華",
+        "word": "昇華",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "上昇": "component",
+          "飛ぶ": "component",
+          "飛躍": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b1ef86ec-826a-4fe7-9998-e7becd56f40a",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "ipa": "/ɕoːka/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "焦土",
+          "老化",
+          "象戯",
+          "昇華"
+        ],
+        "correct_answer": "昇華",
+        "explanation": "正解です。「昇華」は「ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。」という意味です。",
+        "distractor_explanations": {
+          "老化": "「老化」は「昇華」と一モーラだけ異なる実在語です（1モーラ目: 「しょ」→「ろ」、一部の音の違い）。",
+          "象戯": "「象戯」は「昇華」と一モーラだけ異なる実在語です（3モーラ目: 「か」→「ぎ」、一部の音の違い）。",
+          "焦土": "「焦土」は「昇華」と一モーラだけ異なる実在語です（3モーラ目: 「か」→「ど」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "小豆",
+            "おう歌",
+            "声符"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f55cb2a1-b776-4ac5-82e3-4735cb2f502e",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "想いは、歌へと昇華している。",
+            "is_correct": true
+          },
+          {
+            "text": "想いは、歌へと昇華したことがある。",
+            "is_correct": false
+          },
+          {
+            "text": "想いは、昇華している歌へと。",
+            "is_correct": false
+          },
+          {
+            "text": "想いは、歌で昇華している。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「で」は場所や手段を表します。変化の到達点を表すには「へと」や「に」を使う必要があります。 活用・アスペクトの誤り：「たことがある」は過去の経験を表します。現在の状態や継続的な変化には「ている」が適切です。 語順・係り受けの誤り：「昇華している」が直後の「歌」を修飾する形になり、「想い」が昇華するという本来の意味が壊れています。",
+        "target_word": "昇華"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2dc8f2b8-59ab-49e8-b30a-208027b28de4",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "単なるエネルギー源に過ぎなかった穀物が、生命の維持と豊かな食体験を同時に叶える食文化へと昇華される。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "762bffe1-1eac-4b81-9a4d-4ecede6a3e7a",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "怒りを、正義へと___できる。",
+        "original_sentence": "怒りを、正義へと昇華できる。",
+        "target_word": "昇華",
+        "word": "昇華",
+        "answer": {
+          "accepted": [
+            "昇華",
+            "昇華する",
+            "昇華させる",
+            "昇華される"
+          ],
+          "accepted_normalized": [
+            "昇華",
+            "昇華する",
+            "昇華させる",
+            "昇華される"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f23581e2-db39-42de-98c4-2abdb8d9c95e",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "単なるエネルギー源に過ぎなかった穀物が、生命の維持と豊かな食体験を同時に叶える食文化へと昇華される。",
+        "chunks": [
+          "単なるエネルギー源に",
+          "過ぎなかった穀物が",
+          "生命の維持と",
+          "豊かな食体験を同時に",
+          "叶える食文化へ",
+          "と昇華される"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "叶える食文化へ",
+          "生命の維持と",
+          "豊かな食体験を同時に",
+          "単なるエネルギー源に",
+          "過ぎなかった穀物が",
+          "と昇華される"
+        ],
+        "target_word": "昇華",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "65860ec8-3311-4444-b9c1-a3ed07ce97eb",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "relation": "antonym",
+        "options": [
+          "転換",
+          "停滞",
+          "堕落",
+          "進化"
+        ],
+        "correct_answer": "堕落",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある物事が、より高い段階や価値のある状態へと高まること。比喩的に、精神的な高まりを表すこともあります。",
+            "explanation": "価値や精神が低い状態へ落ちることを表し、高まることの対義となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "進化": 0.463392,
+            "転換": 0.485451
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0077568,
+      "prompt_tokens": 2916,
+      "completion_tokens": 5331,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4380,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 63000
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00548672,
+      "prompt_tokens": 894,
+      "completion_tokens": 4063,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3880,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 49036
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00286784,
+      "prompt_tokens": 274,
+      "completion_tokens": 2172,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2073,
+      "call_role": "repair",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 23460
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00233216,
+      "prompt_tokens": 700,
+      "completion_tokens": 1647,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1614,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 19117
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00692896,
+      "prompt_tokens": 1813,
+      "completion_tokens": 4960,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4258,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 62350
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00836928,
+      "prompt_tokens": 2846,
+      "completion_tokens": 5827,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5192,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 76582
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00285536,
+      "prompt_tokens": 767,
+      "completion_tokens": 2039,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1900,
+      "call_role": "retry",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 27039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00263872,
+      "prompt_tokens": 822,
+      "completion_tokens": 1856,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1639,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 22249
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017312,
+      "prompt_tokens": 402,
+      "completion_tokens": 71,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2700
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00676512,
+      "prompt_tokens": 645,
+      "completion_tokens": 5124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5012,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 28893
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00322848,
+      "prompt_tokens": 533,
+      "completion_tokens": 2389,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2349,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 27342
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0056176,
+      "prompt_tokens": 823,
+      "completion_tokens": 4183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3857,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 46521
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016432,
+      "prompt_tokens": 372,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2622
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00330368,
+      "prompt_tokens": 644,
+      "completion_tokens": 2420,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2310,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 27733
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00399488,
+      "prompt_tokens": 524,
+      "completion_tokens": 2990,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2966,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 36313
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00309728,
+      "prompt_tokens": 639,
+      "completion_tokens": 2260,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2191,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 30021
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.06558032,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 499.2190000000119,
+  "finished_at": "2026-09-27T06:57:57.356047+00:00"
+}

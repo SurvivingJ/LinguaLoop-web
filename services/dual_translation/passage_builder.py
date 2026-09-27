@@ -50,7 +50,7 @@ from typing import Callable, Optional
 
 import jaconv
 
-from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
+from services.categorical_maps import DIFFICULTY_TO_TIER
 from services.dual_translation.router import resolve_tier
 from services.model_arena.llm_runner import call_model_with_usage
 

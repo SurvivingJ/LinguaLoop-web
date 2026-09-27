@@ -1,0 +1,1457 @@
+{
+  "sense_id": 13929,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:19:11.171201+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] word_family generation failed",
+    "[B] word_family generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.3634002208709717,
+    "p1_generate": 2.8578054904937744,
+    "tier_gate": 0.0,
+    "p1_judge": 4.24413537979126,
+    "collocate_grounding": 0.0,
+    "fan_out": 74.74756336212158
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/wɜːrk/",
+        "morphological_forms": [
+          {
+            "form": "work",
+            "label": "base form"
+          },
+          {
+            "form": "works",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "worked",
+            "label": "past tense"
+          },
+          {
+            "form": "worked",
+            "label": "past participle"
+          },
+          {
+            "form": "working",
+            "label": "present participle"
+          }
+        ],
+        "pronunciation": "wurk",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13929
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "fac22232-83f9-4e2e-8e2d-6666e47e475d",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "work",
+        "pronunciation": "wurk",
+        "ipa": "/wɜːrk/",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "word",
+          "work",
+          "worm",
+          "were"
+        ],
+        "correct_answer": "work",
+        "explanation": "Correct: this is the target word pronounced /wɜːrk/.",
+        "distractor_explanations": {
+          "worm": "minimal pair: differs only in the final consonant sound /m/ instead of /k/.",
+          "word": "minimal pair: differs only in the final consonant sound /d/ instead of /k/.",
+          "were": "near-homophone: shares the /wɜːr/ vowel sound but lacks the final /k/ consonant."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "74fb5764-f3c4-4bd6-a826-256a0cb2aebc",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "work",
+        "pronunciation": "wurk",
+        "correct_definition": "To perform an activity or task, especially for pay or to achieve a result.",
+        "options": [
+          "A person who receives or entertains guests, or an organism that provides a home for another.",
+          "To perform an activity or task, especially for pay or to achieve a result.",
+          "feeling that you need to rest or sleep because you have been working, playing, or doing something for a long time",
+          "The part of the face that sticks out above the mouth, used for breathing and smelling."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bf22f5ac-0c4d-4009-a061-65ec6a61694e",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The engineers will ___ to move water from far away.",
+        "original_sentence": "The engineers will work to move water from far away.",
+        "correct_answer": "work",
+        "options": [
+          "bring",
+          "work",
+          "rest",
+          "schlep"
+        ],
+        "explanation": "Correct: fits the context of engineers performing physical or mental effort to achieve a result.",
+        "distractor_tags": {},
+        "word_definition": "To perform an activity or task, especially for pay or to achieve a result.",
+        "target_word": "work"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "2a6d663e-6ec8-4ee1-81bf-4894f08015a8",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Many men ___ on the construction.",
+        "original_sentence": "Many men worked on the construction.",
+        "correct_answer": "worked",
+        "base_form": "work",
+        "form_label": "past simple",
+        "options": [
+          "work",
+          "worked",
+          "works",
+          "working"
+        ],
+        "explanation": "past simple is required because the sentence describes a completed past action",
+        "word_definition": "To perform an activity or task, especially for pay or to achieve a result.",
+        "target_word": "worked"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b331dabc-0e25-4933-b27a-835fafa11f0a",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The sleeping baby worked loudly to finish the marathon.",
+            "is_correct": false
+          },
+          {
+            "text": "They had to work hard every single day.",
+            "is_correct": true
+          },
+          {
+            "text": "She worked incredibly hard to ensure she failed all her exams.",
+            "is_correct": false
+          },
+          {
+            "text": "The wooden chair worked all day to cook a delicious meal.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "semantic: inanimate objects like chairs cannot perform conscious tasks or cook. pragmatic: working hard implies striving for success, making the goal of failing exams a contradictory and inappropriate use of the word. semantic: a sleeping baby cannot exert physical effort or run a marathon, contradicting the definition of performing a task.",
+        "target_word": "work"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5651ddac-7f97-452c-84fa-09a25f0e6e55",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "They had to work for a very long time.",
+            "is_correct": true
+          },
+          {
+            "text": "The engineer work to move water from far away.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: the singular subject 'engineer' requires the third-person singular present tense verb 'works' instead of the base form 'work'."
+          },
+          {
+            "text": "Many men worked on the construction.",
+            "is_correct": true
+          },
+          {
+            "text": "The engineers will work to move water from far away.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1dce7582-bf8d-42cd-b1a1-0df334984641",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Then, the printer works in a special way."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "941a5cb4-525a-4291-b6c0-8765383f0e74",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "work",
+        "pronunciation": "wurk",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "relating to a dynasty, which is a series of rulers from the same family.",
+              "To take control of something or someone, or to record something.",
+              "relating to the way a society is organized and makes decisions.",
+              "To perform an activity or task, especially for pay or to achieve a result."
+            ],
+            "correct_answer": "To perform an activity or task, especially for pay or to achieve a result."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "e2490231-c511-4ea2-9a2f-3032a3cd5c01",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Many men ___ on the construction.",
+        "original_sentence": "Many men worked on the construction.",
+        "target_word": "worked",
+        "word": "work",
+        "answer": {
+          "accepted": [
+            "worked"
+          ],
+          "accepted_normalized": [
+            "worked"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c9b8e3f0-b153-4ad1-ad1a-85314d50e445",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Then, the printer works in a special way.",
+        "chunks": [
+          "Then",
+          "the printer",
+          "works",
+          "in a special way"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "Then",
+          "works",
+          "the printer",
+          "in a special way"
+        ],
+        "target_word": "works",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "40052aba-9d14-44ae-8b7b-9d2bb4938395",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "work",
+        "relation": "antonym",
+        "options": [
+          "strive",
+          "labor",
+          "perform",
+          "rest"
+        ],
+        "correct_answer": "rest",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "To perform an activity or task, especially for pay or to achieve a result.",
+            "explanation": "antonym: to cease activity and relax, the opposite of performing a task"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "labor": 0.652409,
+            "strive": 0.415778,
+            "perform": 0.678777
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "13092034-357c-4a00-a404-c3a14e53a922",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "This medical step gives many people a second chance at life because their bodies can ___ well again.",
+        "original_sentence": "This medical step gives many people a second chance at life because their bodies can work well again.",
+        "correct_answer": "work",
+        "options": [
+          "act",
+          "work",
+          "labor",
+          "build"
+        ],
+        "explanation": "Correct: naturally describes the body returning to a state of physiological functioning.",
+        "distractor_tags": {},
+        "word_definition": "To perform an activity or task, especially for pay or to achieve a result.",
+        "target_word": "work"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1815247a-6370-4b1d-9430-ad56d100d15e",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The crew must ___ hard.",
+        "original_sentence": "The crew must work hard.",
+        "correct_answer": "work",
+        "base_form": "work",
+        "form_label": "base form",
+        "options": [
+          "working",
+          "worked",
+          "work",
+          "works"
+        ],
+        "explanation": "base form is required after the modal verb 'must'",
+        "word_definition": "To perform an activity or task, especially for pay or to achieve a result.",
+        "target_word": "work"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "29d7750d-56c4-4b19-a0df-d0996e95c983",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The silent alarm works loudly to wake up the sleeping baby.",
+            "is_correct": false
+          },
+          {
+            "text": "We watch them work every single day.",
+            "is_correct": true
+          },
+          {
+            "text": "The textbook works in the backpack to teach the math lesson.",
+            "is_correct": false
+          },
+          {
+            "text": "The heavy rain works outside to dry the wet pavement.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: textbooks are inanimate objects and cannot perform the active task of teaching on their own. Semantically inappropriate: rain wets surfaces, so it contradicts the physical reality of drying the pavement. Pragmatically inappropriate: a 'silent' alarm by definition does not make loud noises, creating a logical contradiction.",
+        "target_word": "work"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e79778c6-0fdd-4af2-ba96-aa7d42a5175f",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The crew must work hard.",
+            "is_correct": true
+          },
+          {
+            "text": "This medical step gives many people a second chance at life because their bodies can work well again.",
+            "is_correct": true
+          },
+          {
+            "text": "He work very hard every day.",
+            "is_correct": false,
+            "error_description": "The subject 'He' is third-person singular, so the present tense verb must take the '-s' inflection ('works') rather than the base form ('work')."
+          },
+          {
+            "text": "We watch them work every single day.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "36142864-562a-40b7-8484-5ff23f5d2ad3",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "They had to work hard every single day."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "cd304b61-a602-4cfb-8f18-b87a632fc599",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The crew must ___ hard.",
+        "original_sentence": "The crew must work hard.",
+        "target_word": "work",
+        "word": "work",
+        "answer": {
+          "accepted": [
+            "work",
+            "works",
+            "worked",
+            "working"
+          ],
+          "accepted_normalized": [
+            "work",
+            "works",
+            "worked",
+            "working"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c50f1f3e-68de-414b-b762-02e294243cc0",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "They had to work hard every single day.",
+        "chunks": [
+          "They",
+          "had",
+          "to work hard every single day"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "to work hard every single day",
+          "had",
+          "They"
+        ],
+        "target_word": "work",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13929,
+      "word_asset_id": "shadow-13929-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0018812,
+      "prompt_tokens": 2154,
+      "completion_tokens": 494,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 2723
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0008532,
+      "prompt_tokens": 644,
+      "completion_tokens": 264,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1786
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003525,
+      "prompt_tokens": 350,
+      "completion_tokens": 99,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1222
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004344,
+      "prompt_tokens": 573,
+      "completion_tokens": 105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1034
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160416,
+      "prompt_tokens": 657,
+      "completion_tokens": 1089,
+      "cached_tokens": 0,
+      "reasoning_tokens": 898,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 15080
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0025728,
+      "prompt_tokens": 860,
+      "completion_tokens": 1795,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1614,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 21416
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00217472,
+      "prompt_tokens": 656,
+      "completion_tokens": 1535,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1322,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 21487
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00305216,
+      "prompt_tokens": 1166,
+      "completion_tokens": 2093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1984,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 26699
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00321952,
+      "prompt_tokens": 1181,
+      "completion_tokens": 2220,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2115,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 26811
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271776,
+      "prompt_tokens": 861,
+      "completion_tokens": 1908,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1714,
+      "call_role": "retry",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 22192
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0064992,
+      "prompt_tokens": 1582,
+      "completion_tokens": 4682,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4105,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 58530
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00694208,
+      "prompt_tokens": 1582,
+      "completion_tokens": 5028,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4445,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 62185
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003358,
+      "prompt_tokens": 411,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1144
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003639,
+      "prompt_tokens": 388,
+      "completion_tokens": 99,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1153
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004155,
+      "prompt_tokens": 460,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1190
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001743,
+      "prompt_tokens": 381,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 901
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000434,
+      "prompt_tokens": 530,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003883,
+      "prompt_tokens": 411,
+      "completion_tokens": 106,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1063
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003485,
+      "prompt_tokens": 395,
+      "completion_tokens": 92,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 954
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003964,
+      "prompt_tokens": 463,
+      "completion_tokens": 103,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1110
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000179,
+      "prompt_tokens": 380,
+      "completion_tokens": 26,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 837
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004365,
+      "prompt_tokens": 530,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13929,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1007
+    }
+  ],
+  "llm_calls_observed": 22,
+  "llm_cost_observed_usd": 0.03577589999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 97.03099999998813,
+  "finished_at": "2026-09-27T03:20:48.211600+00:00"
+}

@@ -1,0 +1,194 @@
+{
+  "reviewer": "independent second reviewer (taxonomy.md §0.8); did not author §8",
+  "date": "2026-09-27",
+  "reviewed": "data/eval/jev_grammar_2026-09-26/taxonomy_addendum_2026-09-27.md §8 (plural_number, topic_comment)",
+  "against": [
+    "data/eval/jev_grammar_2026-09-26/taxonomy.md (§0.3-0.10, §1-§4)",
+    "taxonomy_addendum_2026-09-27.md §6 (standards enforced by review 1) and §7",
+    "migrations/dt_taxonomy_v5_seed.sql (en plural_number; zh/ja topic_comment)"
+  ],
+  "items": [
+    {
+      "location": "§8 repair-slot test (the decisive test for all three types)",
+      "verdict": "fix",
+      "issue": "For en and zh the slot is distinctive. For ja it is not. `ja.tam`, `ja.conjugation`, `ja.keigo` and `ja.register` edits also act on the sentence-final predicate complex, so 'every repair acts on the predicate complex' does not separate topic_comment from those types. §8.3 needs the extra rows in its boundary table to do the separating, which breaks the 'one decisive test' promise that §6 demanded.",
+      "suggested_fix": "For ja, make the decisive test a topic-deletion test. Delete the whole closed-list は-phrase (私の趣味は / 昨日遅れた理由は). The item is topic_comment only if what remains is a fully correct sentence (本を読みます / 医者になりたいです / 電車が止まりました). tam, conjugation, keigo and register errors survive the deletion, so they fail the test. Keep the slot wording for en and zh."
+    },
+    {
+      "location": "§8.1 en constraint (a): number-showing verb",
+      "verdict": "fix",
+      "issue": "The rule does not say what happens in existential *there* clauses (*There are two brother in my class*). The verb agrees with the edited noun, but *There is two brother* is not a repair, so the item would be clean under the test. As written, an author may read (a) as banning these clauses or as allowing them.",
+      "suggested_fix": "Add one line: 'Existential *there* + be + N1 noun phrase is excluded' (safer, because *there's two…* is standard in speech and invites a second-defect reading). The alternative is to state that it is allowed. Pick one."
+    },
+    {
+      "location": "§8.1 N3 closed list (advice, information, furniture, equipment, luggage, baggage, homework, housework)",
+      "verdict": "fix",
+      "issue": "Most of the list is solid, but two members are weak. *equipments* is frequent in edited South Asian and African English and in EU technical text. *baggages* occurs in the figurative sense (*emotional baggages*). *advices* is a real count noun in commerce ('remittance advices', historical 'advices from London'). This does not break the moderate example, but an unconstrained N3 source could land in a context where the count sense is available.",
+      "suggested_fix": "Drop *equipment* and *baggage* from N3 and move *equipments*/*baggages* to the contested list. Add a constraint: N3 sources must use the noun in its ordinary sense ('guidance' for advice), never a commercial or figurative one. Keep the V9 check on every N3 item."
+    },
+    {
+      "location": "§8.1 obvious (two brothers -> two brother)",
+      "verdict": "pass",
+      "issue": "The source is fully correct. There is one deletion, it is wrong on first read, and the inverse edit restores the source. The only other repair (*a brother*) changes the meaning, so it does not count. The rating is agreed.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "§8.1 moderate (some useful advice -> some useful advices)",
+      "verdict": "pass",
+      "issue": "The ordinary 'guidance' sense is forced by *teacher gave me … useful*, so the commercial count sense cannot rescue it. *some* is number-neutral, so no determiner repair exists. Native agreement is certain. Moderate is agreed.",
+      "suggested_fix": "None. Run V9 as stated."
+    },
+    {
+      "location": "§8.1 subtle (one of the best players -> one of the best player)",
+      "verdict": "pass",
+      "issue": "Deleting *one of* to repair it changes the meaning, so the only same-meaning repair is on the noun. *is* agrees with *she*. The item passes a skim because the noun phrase is long. Subtle is agreed.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "§8.1 subtlety spread vs edit kind",
+      "verdict": "fix",
+      "issue": "Each edit kind maps to exactly one level in the examples: N1 = obvious, N3 = moderate, N2 = subtle. With the 4/3/3 mix, per-level recall would then just measure edit kind.",
+      "suggested_fix": "Require each edit kind at two or more levels, e.g. subtle N1 inside a long noun phrase (*both of her older sister*, *a few of the new student*) and obvious N2 in a short sentence (*He is one of my friend*)."
+    },
+    {
+      "location": "§8.1 boundary table (agreement, article_determiner, lexical_form)",
+      "verdict": "pass",
+      "issue": "The two hold-fixed tests for article_determiner are crisp. Numeral or count determiner + uncountable noun goes to article_determiner. The two-repair *The dogs barks* case is correctly declared invalid. Constraint (a) keeps agreement disjoint.",
+      "suggested_fix": "None. K8 correctly records the one-line change needed in taxonomy.md's article_determiner definition ('countability clash')."
+    },
+    {
+      "location": "§8.4 en.B4 membership and question",
+      "verdict": "pass",
+      "issue": "This gives 3 types, within the ≤3 cap. Polarity is yes = clean and every parenthetical example is correct. 'each noun' keeps agreement verb errors out of the clause. The rationale (B4 would answer 'no' on these items anyway) is sound, and it mirrors §3.1.",
+      "suggested_fix": "None. Test with and without the parenthetical per §0.9."
+    },
+    {
+      "location": "§8.4 cross-bucket: en.plural_number positives included in en.B1",
+      "verdict": "fix",
+      "issue": "This is asymmetric. article_determiner countability positives are excluded from B4 because B4 now mentions singular/plural. But taxonomy.md's en.article_determiner definition explicitly owns 'countability clash', and B1's question says 'other determiners', so a B1 rater can legitimately read N3 (*some advices*) as a countability problem in B1's territory. N1/N2 have no such risk.",
+      "suggested_fix": "Include N1/N2 positives in en.B1's cross-bucket set. Report N3 positives in en.B1 separately as a diagnostic, mirroring the B4 exclusion, at least until K8 lands in taxonomy.md."
+    },
+    {
+      "location": "§8.2 zh scope (Z1 authored; other patterns routing-only)",
+      "verdict": "pass",
+      "issue": "The dummy-它 + weather-verb pattern is not contested in 规范汉语. No standard grammar or corpus register treats 它下雨了 as acceptable, and there is no regional standard that licenses it. Routing the resumptive-它, indefinite-subject and 关于-topic patterns to routing-only is right: each one either has a native reading or collides with another type. So a scope that can be authored without contest does exist, but it is exactly one lexical pattern.",
+      "suggested_fix": "Add two exclusions to the corruption rules. (1) 它 must be the subject. Dummy-object 它 is correct (管它下不下雨, 由它下吧, 睡它一觉) and must never be a source or a positive; add it to 'Not an error'. (2) The topic before 它 must be non-referential (外面 or a time word). A named or demonstrative place topic (伦敦这座城市它经常下雨, 这个地方它…) gives a resumptive reading that is marginal or contested, so it fails V2/V5."
+    },
+    {
+      "location": "§8.2 obvious (下雨了 -> 它下雨了)",
+      "verdict": "fix",
+      "issue": "The error is valid and there is one edit. But 'obvious' in §0.4 means a learner at the sentence's own tier would probably notice. 它下雨了 is a word-for-word match of English 'It rained', so an English-L1 learner is the reader *least* likely to notice. It fits 'moderate': any native notices, an intermediate learner might not.",
+      "suggested_fix": "Relabel moderate."
+    },
+    {
+      "location": "§8.2 moderate (外面正在下雪 -> 外面它正在下雪)",
+      "verdict": "pass",
+      "issue": "外面 cannot be resumed by 它, and no context gives it a referent. The only repair is deleting 它. Moderate is agreed.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "§8.2 subtle (因为昨天下了一夜的雪 -> 因为昨天它下了一夜的雪)",
+      "verdict": "fix",
+      "issue": "This is not subtle. A stray 它 before 下雪 is noticed immediately by any native reader, however long the sentence is. Sentence length does not hide a salient pronoun. Two levels off would mean sending it back, but it is one level off (moderate), so relabel. The consequence is that Z1 produces only one subtlety level, and the §0.10 three-way split cannot be met.",
+      "suggested_fix": "Relabel moderate. State in §8.2 that zh.topic_comment is a single-level type, and record that as a known limitation, not a shortfall to fill."
+    },
+    {
+      "location": "§8.2 routing-only: 在北京是一个大城市",
+      "verdict": "fix",
+      "issue": "This is the only routing-only pattern with no reason given. It is not contested (it is plainly wrong). Its real problem is C7: the same-meaning repair deletes the preposition 在, which is arguably a zh.coverb repair as well as a subject-slot repair.",
+      "suggested_fix": "Add the reason: 'collides with zh.coverb (the repair deletes a preposition), so it is invalid under C7'."
+    },
+    {
+      "location": "§8.2 and §8.3 boundary rows for semantic_anomaly ('relabel it to topic_comment rather than reject it')",
+      "verdict": "fix",
+      "issue": "This reverses the §0.8 procedure. V1 rejects if the blind read finds a different error. V4 relabels an item *away* from the claimed type when it cleanly fits another type, and V11 discards on disagreement. An author-side rule telling the reviewer to relabel *into* the author's type is the 'arguing it in' that V11 forbids.",
+      "suggested_fix": "Replace both rows with: 'If a blind reviewer reads the item as semantic_anomaly, discard it (V1/V11). A type whose items are often read as anomaly needs its examples reworked (V11 >30% flag).'"
+    },
+    {
+      "location": "§8.4 zh.B4 question",
+      "verdict": "fix",
+      "issue": "Polarity is right (yes = clean). Two problems. (1) The parenthetical gives the classifier the exact authored rule (说天气时不用“它”作主语), so recall with the parenthetical would measure reading the prompt. (2) Without it, 「主语用法」 is vague and invites 'no' on subjectless sentences (pro-drop, 下雨了) and on topicalized sentences, which are the type's own variant_ok items.",
+      "suggested_fix": "Use 「句中的词语搭配和主语是否都符合汉语母语者的习惯？（省略主语、把话题放在句首都是正常的。）」. Make the protective note the default parenthetical, and test the 它 example only as an ablation."
+    },
+    {
+      "location": "§8.4 zh cross-bucket negatives",
+      "verdict": "fix",
+      "issue": "Only the outbound direction (zh.topic_comment → B1/B3) is decided. The inbound direction is missing. zh.connective's subject-placement positive (不但他会唱歌，而且会跳舞) and any zh.word_order positive that moves the subject invite a legitimate 'no' on 「主语」 in zh.B4. zh.B7 is not decided either: 它下雨了 'makes sense', so the true answer there is yes.",
+      "suggested_fix": "Exclude subject-placement connective and word_order positives from zh.B4's cross-bucket set and report them as a diagnostic. Include zh.topic_comment positives in zh.B7's set (true answer yes)."
+    },
+    {
+      "location": "§8.4 zh sizing (15 Z1 positives) and hard negatives",
+      "verdict": "fix",
+      "issue": "The author rejected a 1-type bucket because 'thirty positives of one insertion pattern would teach the classifier to spot 它'. Fifteen positives of the same pattern have the same defect at half the size. It also halves collocation, which §0.5 says carries the real zh defect mass, to fund a pattern rated 'low' frequency.",
+      "suggested_fix": "Cap Z1 at about 8 positives, all moderate, and keep collocation at about 22. Pair every Z1 positive with a variant_ok that contains 它 with a real in-sentence antecedent *and* a weather verb in the same sentence (那只猫很可爱，它从来不怕下雨). Do not use a resumptive 它 right after a fronted topic (那只猫它…, 这场雨它…), which is contested. This way spotting 它 alone scores at chance. If the shortfall rule forces it under 6, make zh.topic_comment routing-only in jev."
+    },
+    {
+      "location": "§8.3 ja scope (J1a/J1b 主述のねじれ; は-insertion errors routing-only)",
+      "verdict": "pass",
+      "issue": "An authorable scope that is not contested does exist. 私の夢は～なりたいです and その理由は～しました are the two textbook examples of 文のねじれ in 作文指導 and 校閲, and every edited-register editor corrects them. Natives produce them in speech, but taxonomy.md already accepts that profile as a positive: ja.keigo subtle, お帰りしました, 'very common even among natives, but wrong'. Making expletive and doubled は-topics routing-only is correct, given the wa_ga rule.",
+      "suggested_fix": "Cite the ja.keigo precedent explicitly in §8.3, so V2 reviewers apply the same standard."
+    },
+    {
+      "location": "§8.3 corruption/verification: 'V2/V5: ねじれ occurs in native speech … Reject any item whose only rescue is \"people say this in conversation\"'",
+      "verdict": "fix",
+      "issue": "As written, this literally says to *reject the item*, which would discard the whole type. It also contradicts V2 in the other direction, since V2 rejects 'it's colloquial' items. It is the single most important instruction for this type, and it is ambiguous.",
+      "suggested_fix": "Rewrite: 'ねじれ, like ja.keigo お～する for a superior, is common in native speech but is corrected in edited text. The V2 test is whether a learner-textbook editor would correct it, and for J1a/J1b the answer is yes. The \"people say this in conversation\" argument does not rescue a J1 item. Any *other* rescue (a reading in which the sentence is correct) still means reject.'"
+    },
+    {
+      "location": "§8.3 C2 slot definition (predicate complex replaced)",
+      "verdict": "fix",
+      "issue": "読むことです → 読みます changes three morphemes (the verb stem, こと deleted, です → ます). Review 1 held §6 to single-slot edits. This edit is legitimate only under C2's 'replace one … constituent' clause, and §8.3 does not cite that clause. It also means J1 edits can never meet C9's 'one morpheme' subtle criterion.",
+      "suggested_fix": "State explicitly that J1 is a one-constituent replacement under C2 (the predicate complex is one constituent). Add that J1 therefore cannot produce §0.4 'subtle' items."
+    },
+    {
+      "location": "§8.3 obvious (趣味は本を読むことです -> 趣味は本を読みます)",
+      "verdict": "pass",
+      "issue": "With 私の in place, the 'as for hobbies' うなぎ-style rescue is blocked, and the topic-deletion test gives 本を読みます (correct). It is wrong on first read to any native. The rating is agreed.",
+      "suggested_fix": "Keep 私の in all 趣味 items. Bare 趣味は本を読みます is closer to a loose-topic reading."
+    },
+    {
+      "location": "§8.3 moderate (夢は医者になることです -> 夢は医者になりたいです)",
+      "verdict": "pass",
+      "issue": "This is the canonical ねじれ. 私は…なりたいです needs two slots, as the addendum notes, so that repair is excluded. Moderate is agreed: any native editor flags it at once, and learners miss it.",
+      "suggested_fix": "None."
+    },
+    {
+      "location": "§8.3 subtle (遅れた理由は、電車が止まったからです -> …電車が止まりました)",
+      "verdict": "fix",
+      "issue": "The error is valid, but the rating is not subtle. The edit is multi-morpheme (からです deleted, た → ました), and §0.4/C9 require a one-morpheme edit for subtle. Topic–predicate distance is a real difficulty cue, but taxonomy.md does not list it as one for subtle. The comma after 理由は also invites the spoken 'the reason being: …' reading, which is the most likely source of a V2 dissent.",
+      "suggested_fix": "Relabel moderate. Prefer sources with no comma after 理由は. If distance-based subtlety is wanted, add it to §0.4 as an explicit exception first. Do not introduce it type-locally."
+    },
+    {
+      "location": "§8.3 boundary row ja.clause_linkage (person-topic substitution test)",
+      "verdict": "fix",
+      "issue": "The test does not work on the authored J1b example. Substituting 私は gives 私は、電車が止まりました, which is not clearly correct. So the test would fail to classify the addendum's own subtle item as topic_comment.",
+      "suggested_fix": "Replace it with the topic-deletion test (see the first item). 電車が止まりました is correct, so the item is topic_comment. clause_linkage items keep two clauses joined by a connector, and the edit swaps the connector. J1b removes the closing から and has no clause joined after it."
+    },
+    {
+      "location": "§8.3 'Not an error' list",
+      "verdict": "fix",
+      "issue": "Two correct frames that authors will meet in sources are missing. 原因は～ことです is fully correct (only 理由は～ことだ is listed). 目的は～ためです is common in edited text and doubtful only on redundancy grounds.",
+      "suggested_fix": "Add 原因は～ことです to 'Not an error'. Add 目的は～ためです to contested (C11), so that it is used neither as a source frame nor as variant_ok."
+    },
+    {
+      "location": "§8.4 ja.B3 membership and question",
+      "verdict": "fix",
+      "issue": "Membership is fine: 3 types, and clause_linkage is the nearest neighbour, in the same bucket. Polarity is right. But the parenthetical quotes the J1 repairs verbatim (「私の夢は医者になることです」「遅れた理由は電車が止まったからです」), which is the same prompt-leak as in zh.B4.",
+      "suggested_fix": "Shorten the clause to 「そして「～は」で示した主題と文末の述語がきちんと対応しているか」. Test the quoted examples only as an ablation."
+    },
+    {
+      "location": "§8.4 ja cross-bucket negatives",
+      "verdict": "fix",
+      "issue": "Only the ja.topic_comment → B1/B2/B7 direction is decided. Inbound, ja.contradiction positives with a は-topic (兄は私より三歳年下です) invite a legitimate 'no' on 「主題と文末の述語が対応しているか」, because the predicate does not fit the topic. ja.B4 and ja.B8 are not decided for topic_comment positives; the true answer is yes in both (word choice and politeness are unchanged).",
+      "suggested_fix": "Exclude は-topic ja.contradiction and ja.semantic_anomaly positives from ja.B3's cross-bucket set and report them as a diagnostic. Include ja.topic_comment positives in ja.B4 and ja.B8, and say so."
+    },
+    {
+      "location": "§8.5 DT v6 mapping",
+      "verdict": "pass",
+      "issue": "Keeping the DT fields and filling jev_bucket with `split` is consistent with §4/K5. The divergences are stated. One addition would help: zh Z1 (expletive 它) is a *subject-prominence* calque, the reverse of the 'topic-structure over-transfer' in the v5 gloss.",
+      "suggested_fix": "Optional. Add that note to the zh row, so relabellers do not expect jev's zh.topic_comment to cover v5's central case."
+    }
+  ],
+  "counts": {"pass": 11, "fix": 19, "reject": 0},
+  "overall": "No rejects. en.plural_number: approve after fixes, all minor (N3 list hygiene, existential-there rule, edit kind vs subtlety confound, N3 reported separately in en.B1). The examples and boundaries are sound. zh.topic_comment: approve after fixes, but narrowly. An authorable scope that is not contested exists only as Z1 (dummy-subject 它 + weather verb), and 它下雨了 is not contested in 规范汉语. But it is one lexical pattern at one subtlety level (the obvious and subtle items are both moderate), and the zh.B4 parenthetical gives away the answer. Author it as a capped diagnostic slice (~8 positives, every one paired with a 它-with-antecedent variant_ok), or make it routing-only in jev if the source shortfall pushes it under ~6. Everything else in v5's zh topic_comment stays DT-only. ja.topic_comment: approve after fixes. J1a/J1b are the canonical 作文指導 ねじれ; native speakers produce them in speech but editors correct them, the same profile taxonomy.md already accepts for ja.keigo お帰りしました. The fixes that matter: rewrite the ambiguous V2/V5 note, which literally says to reject every item; replace the slot test and the person-topic test with a topic-deletion test; relabel the subtle item moderate (the edit is multi-morpheme); remove the prompt leak from the ja.B3 question; and decide the inbound contradiction → B3 cross-bucket negatives. Sourcing (P1 sentences with a closed-list topic head) is likely to be the binding constraint, as the author says. Semantic_anomaly 'relabel into topic_comment' rows in both zh and ja must be replaced with discard-per-V1/V11."
+}

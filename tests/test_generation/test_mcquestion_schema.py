@@ -158,13 +158,22 @@ def test_distractor_types_absent_is_allowed():
 # ---------------------------------------------------------------------------
 
 def _stub_seq(parsed_outputs):
-    """Build a stub _make_one_call that yields parsed_outputs in order."""
+    """Build a stub _make_one_call that yields parsed_outputs in order.
+
+    Returns ``svc._CallResult`` (Phase 0 cost instrumentation replaced the old
+    growing positional tuple with a dataclass — see llm_service.py) so this
+    stub matches call_llm's real internal contract rather than a stale shape.
+    """
     it = iter(parsed_outputs)
 
     def stub(**kw):
         parsed = next(it)
-        # (parsed, raw_content, parsed_ok, latency_ms, cost_usd)
-        return parsed, repr(parsed), True, 42, 0.0001
+        return svc._CallResult(
+            parsed=parsed, raw_content=repr(parsed), parsed_ok=True,
+            latency_ms=42, cost_usd=0.0001, prompt_tokens=None,
+            completion_tokens=None, cached_tokens=None, reasoning_tokens=None,
+            actual_model=None,
+        )
     return stub
 
 

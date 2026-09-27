@@ -1,0 +1,71 @@
+{
+  "sense_id": 15328,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:50:30.194861+00:00",
+  "status": "failed",
+  "errors": [
+    "Sentence 7: target_word 'away' is not a whole-word match in text (substring inside another word does not count)"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.5485491752624512,
+    "p1_generate": 3.4061543941497803,
+    "p1_repair": 4.040954828262329
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": false,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": [
+        "Sentence 7: target_word 'away' is not a whole-word match in text (substring inside another word does not count)"
+      ],
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0020777,
+      "prompt_tokens": 1959,
+      "completion_tokens": 596,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3280
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0021529,
+      "prompt_tokens": 868,
+      "completion_tokens": 757,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 15328,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3987
+    }
+  ],
+  "llm_calls_observed": 2,
+  "llm_cost_observed_usd": 0.0042306,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": null,
+  "collocate_grounding": null,
+  "wall_clock_s": 8.110000000015134,
+  "finished_at": "2026-09-27T03:50:38.296140+00:00"
+}

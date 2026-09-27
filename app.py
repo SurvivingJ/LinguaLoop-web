@@ -36,9 +36,6 @@ from routes.exercises import exercises_bp
 from routes.corpus import corpus_bp
 from routes.users import users_bp
 from routes.payments import payments_bp
-from routes.mystery import mystery_bp
-from routes.listening_lab import listening_lab_bp
-from routes.conversations import conversations_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
@@ -476,10 +473,6 @@ def _register_blueprints(app):
     app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
-    app.register_blueprint(mystery_bp, url_prefix='/api/mystery')
-    if app.config.get('LISTENING_LAB_ENABLED'):
-        app.register_blueprint(listening_lab_bp, url_prefix='/api/listening-lab')
-    app.register_blueprint(conversations_bp, url_prefix='/api/conversations')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
     app.register_blueprint(calibration_bp, url_prefix='/api/calibration')
@@ -614,27 +607,6 @@ def _register_web_routes(app):
         wiki/tasklist/word-list-import.plan.md)."""
         return render_template('word_list.html')
 
-    @app.route('/mysteries')
-    def mysteries():
-        """Render mystery list page"""
-        return render_template('mystery_list.html')
-
-    @app.route('/mystery/<slug>')
-    def mystery_page(slug):
-        """Render mystery playing page"""
-        return render_template('mystery.html')
-
-    if app.config.get('LISTENING_LAB_ENABLED'):
-        @app.route('/listening-lab')
-        def listening_lab_list():
-            """Render listening lab passage list page"""
-            return render_template('listening_lab_list.html')
-
-        @app.route('/listening-lab/<slug>')
-        def listening_lab_page(slug):
-            """Render listening lab player page"""
-            return render_template('listening_lab.html')
-
     @app.route('/calibration')
     def calibration_page():
         """Render the standalone vocabulary calibration mode."""
@@ -664,16 +636,6 @@ def _register_web_routes(app):
     def admin_vocab_preview():
         """Render admin vocabulary preview page"""
         return render_template('admin_vocab_preview.html')
-
-    @app.route('/conversations')
-    def conversations():
-        """Render conversation list page"""
-        return render_template('conversation_list.html')
-
-    @app.route('/conversation/<conversation_id>')
-    def conversation_reader(conversation_id):
-        """Render conversation reader page"""
-        return render_template('conversation_reader.html')
 
     @app.route('/logout')
     def logout():

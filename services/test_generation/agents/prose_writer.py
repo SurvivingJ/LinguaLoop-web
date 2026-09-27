@@ -10,7 +10,7 @@ from typing import Optional
 
 from services.llm_service import call_llm, get_client
 from services.llm_output_cleaner import clean_text
-from services.conversation_generation.categorical_maps import DIFFICULTY_TO_TIER
+from services.categorical_maps import DIFFICULTY_TO_TIER
 
 from ..config import get_test_gen_config
 

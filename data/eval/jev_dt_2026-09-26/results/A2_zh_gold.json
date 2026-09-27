@@ -1,0 +1,62 @@
+{
+  "arm": "A2",
+  "lang": "zh",
+  "set": "gold",
+  "tau": 0.5,
+  "severity_fn": "major_minor",
+  "n_items": 29,
+  "n_sentence_pairs_scored": 32,
+  "bands": {
+    "accuracy": {
+      "n": 29,
+      "qwk": -0.06617647058823528,
+      "qwk_ci95": [
+        -0.18927444794952697,
+        0.0
+      ],
+      "exact": 0.6551724137931034
+    },
+    "fidelity": {
+      "n": 29,
+      "qwk": 0.4480234260614935,
+      "qwk_ci95": [
+        -0.09022556390977465,
+        0.5896226415094339
+      ],
+      "exact": 0.7586206896551724
+    },
+    "understandability": {
+      "n": 29,
+      "qwk": 0.37857142857142845,
+      "qwk_ci95": [
+        0.0,
+        1.0
+      ],
+      "exact": 0.896551724137931
+    }
+  },
+  "error_detection": {
+    "auc": 0.5507246376811594,
+    "precision": 0.26666666666666666,
+    "recall": 0.4444444444444444,
+    "f1": 0.33333333333333337,
+    "tp": 4,
+    "fp": 11,
+    "fn": 5,
+    "tn": 12
+  },
+  "subtype_accuracy": {
+    "top1": 0.25,
+    "top3": 0.75,
+    "n": 4
+  },
+  "meaning_changed_auc": 0.9071428571428571,
+  "cost_latency": {
+    "n_calls": 32,
+    "n_skipped": 80,
+    "total_cost_usd": 0.002462628,
+    "mean_cost_per_call": 7.6957125e-05,
+    "mean_latency_s": 0.32706249999955617,
+    "p95_latency_s": 0.625
+  }
+}

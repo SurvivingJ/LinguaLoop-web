@@ -1,0 +1,760 @@
+{
+  "sense_id": 35331,
+  "language_id": 3,
+  "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+  "started_at": "2026-09-26T04:57:45.706943+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[5] rejected (rating 2): 義項：詳しくとの混同"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.21598100662231445,
+    "p1_generate": 45.016395807266235,
+    "tier_gate": 0.015648365020751953,
+    "p1_judge": 45.790003538131714,
+    "collocate_grounding": 0.0,
+    "fan_out": 0.9873898029327393
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[5] rejected (rating 2): 義項：詳しくとの混同"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/tokuni/",
+        "pronunciation": "とくに",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35331
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "ce875cd9-c9d5-4644-aa9a-79e830405e59",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "ipa": "/tokuni/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "御国",
+          "時に",
+          "お国",
+          "特に"
+        ],
+        "correct_answer": "特に",
+        "explanation": "正解です。「特に」は「ほかのことと分けて、あることを強調するときに使います。」という意味です。",
+        "distractor_explanations": {
+          "御国": "「御国」は「特に」と一モーラだけ異なる実在語です（1モーラ目: 「と」→「お」、一部の音の違い）。",
+          "時に": "「時に」は「特に」と一モーラだけ異なる実在語です（2モーラ目: 「く」→「き」、一部の音の違い）。",
+          "お国": "「お国」は「特に」と一モーラだけ異なる実在語です（1モーラ目: 「と」→「お」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "acbba310-8e2d-4c02-b3ad-b71b7f91de99",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "correct_definition": "ほかのことと分けて、あることを強調するときに使います。",
+        "options": [
+          "植物を植えたり育てたりして、地面を緑色で覆うこと。環境改善や景観向上のために行われる。",
+          "ある地域や環境で、生物とその周囲の環境が相互に影響し合い、一つのまとまりとして機能するシステム。また、ビジネスやテクノロジーの分野でも、関係する要素が連携して全体を形作る仕組みを指す。",
+          "人々が共同生活を営む集団。また、その組織や仕組み。",
+          "ほかのことと分けて、あることを強調するときに使います。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a071a9af-87f9-4932-8c40-6e4c96d40c75",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___好きな食べ物は何ですか。",
+        "original_sentence": "特に好きな食べ物は何ですか。",
+        "correct_answer": "特に",
+        "options": [
+          "ときどき",
+          "特に",
+          "そろそろ",
+          "たまたま"
+        ],
+        "explanation": "正解。「特に」は、資本の提供だけでなく、それにとどまらない点を取り立てて強調する副詞です。",
+        "distractor_tags": {},
+        "word_definition": "ほかのことと分けて、あることを強調するときに使います。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "fa446357-db8d-426f-93c6-d1cb5f7ec71e",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "今日は特に寒くですね。",
+            "is_correct": false
+          },
+          {
+            "text": "今日に特に寒いですね。",
+            "is_correct": false
+          },
+          {
+            "text": "特に今日はですね寒い。",
+            "is_correct": false
+          },
+          {
+            "text": "特に、今日は早く寝ます。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞の混同です。「今日は」と主題を示すところを「今日に」とすると、時を表す「に」と「寒い」がうまくつながらず不自然です。 活用の誤りです。「ですね」の前は「寒い」のままにするので、連用形の「寒く」は使えません。 語順・係り受けの誤りです。「ですね」が述語の「寒い」の前に割り込み、文の組み立てが壊れています。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "96bff8b7-0d60-46c5-9f85-098acdceb655",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "特に大切な友達です。",
+            "is_correct": true
+          },
+          {
+            "text": "特に好きな食べ物は何ですか。",
+            "is_correct": true
+          },
+          {
+            "text": "特に注意して歩いてください。",
+            "is_correct": true
+          },
+          {
+            "text": "今日は寒い特にですね。",
+            "is_correct": false,
+            "error_description": "語順の誤り。副詞「特に」は修飾する語の前に置くので、「寒い特に」ではなく「特に寒い」が正しい。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "6af22cf8-9ffd-4a37-ad12-f4c0a20ddf39",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "特に",
+        "pronunciation": "とくに",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "报纸 —— 每天发行、报道社会事件与信息的印刷品",
+              "ほかのことと分けて、あることを強調するときに使います。",
+              "目に見えない小さな生き物で、食べ物を腐らせるものもある。",
+              "a procedure; steps — the staged method or order used to do something"
+            ],
+            "correct_answer": "ほかのことと分けて、あることを強調するときに使います。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bd13d9f2-005c-4f0f-a3c5-2690983b676f",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "特に",
+        "options": [
+          "とぐに",
+          "どくに",
+          "とうくに",
+          "とくに"
+        ],
+        "correct_answer": "とくに",
+        "word": "特に",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ded82391-84fd-4d1d-8662-4e08e23aa30c",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "とくに",
+        "options": [
+          "特別",
+          "特定",
+          "特に",
+          "特徴"
+        ],
+        "correct_answer": "特に",
+        "word": "特に",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "特別": "component",
+          "特徴": "component",
+          "特定": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a6e9993c-ada6-4adf-a3d9-1fbc662460d4",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___急いでいるわけではありません。",
+        "original_sentence": "特に急いでいるわけではありません。",
+        "correct_answer": "特に",
+        "options": [
+          "ぜひ",
+          "特に",
+          "そろそろ",
+          "もっと"
+        ],
+        "explanation": "正解。「特に予定がありません」は、これといった予定がないことを表す決まった言い方です。",
+        "distractor_tags": {},
+        "word_definition": "ほかのことと分けて、あることを強調するときに使います。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "bee8a504-7dd5-438d-a8c0-64ed0b06c12c",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "週末は特に、海が行きたいです。",
+            "is_correct": false
+          },
+          {
+            "text": "特に決まりはありません。",
+            "is_correct": true
+          },
+          {
+            "text": "週末は海に行きたい特にです。",
+            "is_correct": false
+          },
+          {
+            "text": "週末は特に、海に行きたいでした。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同です。「行く」は自動詞で向かう先は「に」で示すため、「海が行きたい」では海が行くことになり成り立ちません。 活用・アスペクトの誤りです。「行きたい」の後ろに「でした」は付かず、過去なら「行きたかったです」とします。 語順・係り受けの誤りです。「特に」は強調する語句の前に置く副詞で、文末で名詞のように「です」を付けるのは不自然です。",
+        "target_word": "特に"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "bc281890-b4bb-4d32-9f7f-182dcf20d674",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "今日は特にの用事がありません。",
+            "is_correct": false,
+            "error_description": "助詞の誤り。「特に」は副詞なので、「の」を付けて名詞を修飾することはできない。「特に用事が」が正しい。"
+          },
+          {
+            "text": "特に急いでいるわけではありません。",
+            "is_correct": true
+          },
+          {
+            "text": "特に意見はありません。",
+            "is_correct": true
+          },
+          {
+            "text": "特に決まりはありません。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35331,
+      "word_asset_id": "shadow-35331-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00549696,
+      "prompt_tokens": 2602,
+      "completion_tokens": 3644,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2981,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 44748
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00487936,
+      "prompt_tokens": 680,
+      "completion_tokens": 3642,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3379,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 45261
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00015884,
+      "prompt_tokens": 369,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 4898
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016056,
+      "prompt_tokens": 366,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35331,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 6025
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.010695720000000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 105.46899999999732,
+  "finished_at": "2026-09-26T04:59:31.187702+00:00"
+}

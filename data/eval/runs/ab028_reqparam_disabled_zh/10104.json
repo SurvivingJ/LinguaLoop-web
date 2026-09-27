@@ -1,0 +1,1715 @@
+{
+  "sense_id": 10104,
+  "language_id": 1,
+  "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+  "started_at": "2026-09-27T21:30:02.450933+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.37287139892578125,
+    "p1_generate": 12.232238054275513,
+    "tier_gate": 0.011578083038330078,
+    "p1_judge": 6.790884733200073,
+    "collocate_grounding": 0.0,
+    "fan_out": 15.552455186843872
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[piɛn˥˩]",
+        "morphological_forms": [
+          {
+            "form": "就",
+            "label": "复合"
+          },
+          {
+            "form": "方便",
+            "label": "复合"
+          },
+          {
+            "form": "便利",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "biàn",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10104
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "c7bb6288-9ca8-41e4-ae6c-82220cfe1fbb",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "便",
+        "pronunciation": "biàn",
+        "ipa": "[piɛn˥˩]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "变",
+          "便",
+          "辩",
+          "遍"
+        ],
+        "correct_answer": "便",
+        "explanation": "正确。读音为 biàn，第四声。",
+        "distractor_explanations": {
+          "变": "错误。读音为 biàn，但意思是“改变”，与目标词意义不同。",
+          "遍": "错误。读音为 biàn，但意思是“次”或“全面”，常作量词或形容词。",
+          "辩": "错误。读音为 biàn，但意思是“辩论”或“辩解”，与目标词意义不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "便",
+          "pronunciation": "biàn",
+          "ipa": "[piɛn˥˩]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "變",
+            "便",
+            "辯",
+            "遍"
+          ],
+          "correct_answer": "便",
+          "explanation": "正確。讀音為 biàn，第四聲。",
+          "distractor_explanations": {
+            "变": "錯誤。讀音為 biàn，但意思是“改變”，與目標詞意義不同。",
+            "遍": "錯誤。讀音為 biàn，但意思是“次”或“全面”，常作量詞或形容詞。",
+            "辩": "錯誤。讀音為 biàn，但意思是“辯論”或“辯解”，與目標詞意義不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9e2e73a4-8ad6-41dc-8994-7eb89a977b46",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "便",
+        "pronunciation": "biàn",
+        "correct_definition": "表示做某事不费力气或时间很短",
+        "options": [
+          "指事物内部或底部较深的部分，也比喻抽象事物中不易察觉的方面。",
+          "指物质（如有机物或岩石）经过地质作用转变为矿物或矿物集合体的过程。",
+          "表示做某事不费力气或时间很短",
+          "表示不让做某事；不准使用。"
+        ],
+        "hant": {
+          "word": "便",
+          "pronunciation": "biàn",
+          "correct_definition": "表示做某事不費力氣或時間很短",
+          "options": [
+            "指事物內部或底部較深的部分，也比喻抽象事物中不易察覺的方面。",
+            "指物質（如有機物或岩石）經過地質作用轉變為礦物或礦物集合體的過程。",
+            "表示做某事不費力氣或時間很短",
+            "表示不讓做某事；不準使用。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "56195868-f8dc-42cd-b166-ae3da3347712",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这道题很简单，我一会儿___做完了。",
+        "original_sentence": "这道题很简单，我一会儿便做完了。",
+        "correct_answer": "便",
+        "options": [
+          "便",
+          "才",
+          "却",
+          "已"
+        ],
+        "explanation": "正确。“便”在此处表示动作发生得快或容易，符合“题目简单”的语境。",
+        "distractor_tags": {},
+        "word_definition": "表示做某事不费力气或时间很短",
+        "target_word": "便",
+        "hant": {
+          "sentence_with_blank": "這道題很簡單，我一會兒___做完了。",
+          "original_sentence": "這道題很簡單，我一會兒便做完了。",
+          "correct_answer": "便",
+          "options": [
+            "便",
+            "才",
+            "卻",
+            "已"
+          ],
+          "explanation": "正確。“便”在此處表示動作發生得快或容易，符合“題目簡單”的語境。",
+          "distractor_tags": {},
+          "word_definition": "表示做某事不費力氣或時間很短",
+          "target_word": "便"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ae54caaf-8800-4231-b465-67c8969dbcc5",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "雨停后，我们去公园便散步了。",
+            "is_correct": false
+          },
+          {
+            "text": "雨停后，我们便正在去公园散步了。",
+            "is_correct": false
+          },
+          {
+            "text": "便雨停后，我们去公园散步了。",
+            "is_correct": false
+          },
+          {
+            "text": "雨停后，我们便去公园散步了。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置错误：“便”表示动作随即发生，通常不与表示进行体的“正在”连用，语意冲突。 语序错误：“便”作为副词，应紧贴谓语动词之前，不能放在时间状语“雨停后”之前。 语序错误：“便”应修饰主要动词“去”，放在“散步”前导致句子结构破碎，语义重心偏移。",
+        "target_word": "便",
+        "hant": {
+          "sentences": [
+            {
+              "text": "雨停後，我們去公園便散步了。",
+              "is_correct": false
+            },
+            {
+              "text": "雨停後，我們便正在去公園散步了。",
+              "is_correct": false
+            },
+            {
+              "text": "便雨停後，我們去公園散步了。",
+              "is_correct": false
+            },
+            {
+              "text": "雨停後，我們便去公園散步了。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置錯誤：“便”表示動作隨即發生，通常不與表示進行體的“正在”連用，語意衝突。 語序錯誤：“便”作為副詞，應緊貼謂語動詞之前，不能放在時間狀語“雨停後”之前。 語序錯誤：“便”應修飾主要動詞“去”，放在“散步”前導致句子結構破碎，語義重心偏移。",
+          "target_word": "便"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c1f35bb2-27c0-473f-8107-d370a4ba2936",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他轻轻一按，门便开了。",
+        "hant": {
+          "original_sentence": "他輕輕一按，門便開了。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "df893c28-3b77-4fce-9b34-686d2d1c54ac",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "便",
+        "pronunciation": "biàn",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "用一些符号来代表信息，就像用密码写东西。",
+              "インスタントメッセージ",
+              "表示做某事不费力气或时间很短",
+              "経緯；地球儀の横と縦の線で、場所を見つける助けになるもの"
+            ],
+            "correct_answer": "表示做某事不费力气或时间很短"
+          }
+        },
+        "hant": {
+          "word": "便",
+          "pronunciation": "biàn",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "用一些符號來代表資訊，就像用密碼寫東西。",
+                "インスタントメッセージ",
+                "表示做某事不費力氣或時間很短",
+                "経緯；地球儀の橫と縦の線で、場所を見つける助けになるもの"
+              ],
+              "correct_answer": "表示做某事不費力氣或時間很短"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "141d848f-a889-43a5-9a94-a5bd46aabf41",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他跑得很快，不一会儿___到了学校。",
+        "original_sentence": "他跑得很快，不一会儿便到了学校。",
+        "target_word": "便",
+        "word": "便",
+        "answer": {
+          "accepted": [
+            "便",
+            "就",
+            "方便",
+            "便利"
+          ],
+          "accepted_normalized": [
+            "便",
+            "就",
+            "方便",
+            "便利"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他跑得很快，不一會兒___到了學校。",
+          "original_sentence": "他跑得很快，不一會兒便到了學校。",
+          "target_word": "便",
+          "word": "便",
+          "answer": {
+            "accepted": [
+              "便",
+              "就",
+              "方便",
+              "便利"
+            ],
+            "accepted_normalized": [
+              "便",
+              "就",
+              "方便",
+              "便利"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8fa552be-ba66-4b9a-abc3-49c2bebf823b",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "他轻轻一按，门便开了。",
+        "chunks": [
+          "他",
+          "轻轻一",
+          "按",
+          "门",
+          "便开了"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "按",
+          "便开了",
+          "他",
+          "轻轻一",
+          "门"
+        ],
+        "target_word": "便",
+        "chunk_count": 5,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "他輕輕一按，門便開了。",
+          "chunks": [
+            "他",
+            "輕輕一",
+            "按",
+            "門",
+            "便開了"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "shuffled_chunks": [
+            "按",
+            "便開了",
+            "他",
+            "輕輕一",
+            "門"
+          ],
+          "target_word": "便",
+          "chunk_count": 5
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7b5926ef-f572-4614-94a2-279dee9ef13b",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "便",
+        "options": [
+          "biǎn",
+          "biàn",
+          "bián",
+          "biān"
+        ],
+        "correct_answer": "biàn",
+        "word": "便",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "便",
+          "options": [
+            "biǎn",
+            "biàn",
+            "bián",
+            "biān"
+          ],
+          "correct_answer": "biàn",
+          "word": "便",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7ae276c9-8d39-4e59-ade5-def5ab270de6",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "biàn",
+        "options": [
+          "更",
+          "便",
+          "做",
+          "使"
+        ],
+        "correct_answer": "便",
+        "word": "便",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "做": "component",
+          "更": "component",
+          "使": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "biàn",
+          "options": [
+            "更",
+            "便",
+            "做",
+            "使"
+          ],
+          "correct_answer": "便",
+          "word": "便",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "做": "component",
+            "更": "component",
+            "使": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3f5acd36-107c-4b74-af16-15cfdc7491ad",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "便",
+        "toneless_pinyin": "bian",
+        "full_pinyin": "biàn",
+        "options": [
+          "1",
+          "3",
+          "4",
+          "2"
+        ],
+        "correct_answer": "4",
+        "option_labels": {
+          "1": "high level (1)",
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "便",
+          "toneless_pinyin": "bian",
+          "full_pinyin": "biàn",
+          "options": [
+            "1",
+            "3",
+            "4",
+            "2"
+          ],
+          "correct_answer": "4",
+          "option_labels": {
+            "1": "high level (1)",
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "29375521-1fe0-4e83-8284-85771afa34c7",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "便",
+        "relation": "antonym",
+        "options": [
+          "已",
+          "才",
+          "就",
+          "即"
+        ],
+        "correct_answer": "才",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "表示做某事不费力气或时间很短",
+            "explanation": "反义：表示动作发生得晚、慢或困难，与“便”表示的轻易、快速相对。"
+          }
+        },
+        "hant": {
+          "word": "便",
+          "relation": "antonym",
+          "options": [
+            "已",
+            "才",
+            "就",
+            "即"
+          ],
+          "correct_answer": "才",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "表示做某事不費力氣或時間很短",
+              "explanation": "反義：表示動作發生得晚、慢或困難，與“便”表示的輕易、快速相對。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "就": 0.477144,
+            "即": 0.487283,
+            "已": 0.514201
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "4b60a1f7-d565-4eef-b8cf-9be90a427a22",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "听到这个消息，他___高兴地跳了起来。",
+        "original_sentence": "听到这个消息，他便高兴地跳了起来。",
+        "correct_answer": "便",
+        "options": [
+          "还",
+          "刚",
+          "才",
+          "便"
+        ],
+        "explanation": "正确。表示动作紧接着发生，强调时间短、反应快。",
+        "distractor_tags": {},
+        "word_definition": "表示做某事不费力气或时间很短",
+        "target_word": "便",
+        "hant": {
+          "sentence_with_blank": "聽到這個訊息，他___高興地跳了起來。",
+          "original_sentence": "聽到這個訊息，他便高興地跳了起來。",
+          "correct_answer": "便",
+          "options": [
+            "還",
+            "剛",
+            "才",
+            "便"
+          ],
+          "explanation": "正確。表示動作緊接著發生，強調時間短、反應快。",
+          "distractor_tags": {},
+          "word_definition": "表示做某事不費力氣或時間很短",
+          "target_word": "便"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b70ab2fe-389e-487f-ad5c-c54908597ec4",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他把作业写完后，便去睡觉了。",
+            "is_correct": true
+          },
+          {
+            "text": "他写便完了作业去睡觉。",
+            "is_correct": false
+          },
+          {
+            "text": "他把作业写完后，便正在去睡觉。",
+            "is_correct": false
+          },
+          {
+            "text": "他把作业写完便了去睡觉。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误：动态助词'了'应紧跟在动词'写完'之后表示完成，即'写完了'，放在'便'之后破坏了句法结构。 语序错误：副词'便'不能插入动补结构'写完'中间，也不能直接修饰结果补语'完'，应位于主语后或连词后，修饰整个谓语部分。 体貌错误：'便'表示动作紧接着发生，通常指向一个具体的、瞬间或短时的动作起点；而'正在'表示进行态，两者在时体上冲突，不能说'便正在'。",
+        "target_word": "便",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他把作業寫完後，便去睡覺了。",
+              "is_correct": true
+            },
+            {
+              "text": "他寫便完了作業去睡覺。",
+              "is_correct": false
+            },
+            {
+              "text": "他把作業寫完後，便正在去睡覺。",
+              "is_correct": false
+            },
+            {
+              "text": "他把作業寫完便了去睡覺。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤：動態助詞'了'應緊跟在動詞'寫完'之後表示完成，即'寫完了'，放在'便'之後破壞了句法結構。 語序錯誤：副詞'便'不能插入動補結構'寫完'中間，也不能直接修飾結果補語'完'，應位於主語後或連詞後，修飾整個謂語部分。 體貌錯誤：'便'表示動作緊接著發生，通常指向一個具體的、瞬間或短時的動作起點；而'正在'表示進行態，兩者在時體上衝突，不能說'便正在'。",
+          "target_word": "便"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "他便把作业写完后去睡觉。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2845bc59-6aa4-4fc7-8804-1edbc8b075de",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "雨停后，我们便去公园散步了。",
+        "hant": {
+          "original_sentence": "雨停後，我們便去公園散步了。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "3d3eb8e0-f1cd-4f47-9e9f-87ca46cfe0d5",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这种药很有效，吃下去病___好了。",
+        "original_sentence": "这种药很有效，吃下去病便好了。",
+        "target_word": "便",
+        "word": "便",
+        "answer": {
+          "accepted": [
+            "便",
+            "就",
+            "方便",
+            "便利"
+          ],
+          "accepted_normalized": [
+            "便",
+            "就",
+            "方便",
+            "便利"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這種藥很有效，吃下去病___好了。",
+          "original_sentence": "這種藥很有效，吃下去病便好了。",
+          "target_word": "便",
+          "word": "便",
+          "answer": {
+            "accepted": [
+              "便",
+              "就",
+              "方便",
+              "便利"
+            ],
+            "accepted_normalized": [
+              "便",
+              "就",
+              "方便",
+              "便利"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "068c05e5-d822-445d-92e6-75285e7a0836",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "雨停后，我们便去公园散步了。",
+        "chunks": [
+          "雨",
+          "停后",
+          "我们",
+          "便去公园散步了"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "停后",
+          "便去公园散步了",
+          "雨",
+          "我们"
+        ],
+        "target_word": "便",
+        "chunk_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "雨停後，我們便去公園散步了。",
+          "chunks": [
+            "雨",
+            "停後",
+            "我們",
+            "便去公園散步了"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "shuffled_chunks": [
+            "停後",
+            "便去公園散步了",
+            "雨",
+            "我們"
+          ],
+          "target_word": "便",
+          "chunk_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "56aefa08-ee11-4089-99cc-e16c06cacab5",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "便",
+        "relation": "antonym",
+        "options": [
+          "已",
+          "即",
+          "才",
+          "就"
+        ],
+        "correct_answer": "才",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "表示做某事不费力气或时间很短",
+            "explanation": "反义：表示动作发生得晚、慢或费力，与“便”表示的轻易、快速相对"
+          }
+        },
+        "hant": {
+          "word": "便",
+          "relation": "antonym",
+          "options": [
+            "已",
+            "即",
+            "才",
+            "就"
+          ],
+          "correct_answer": "才",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "表示做某事不費力氣或時間很短",
+              "explanation": "反義：表示動作發生得晚、慢或費力，與“便”表示的輕易、快速相對"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "就": 0.477144,
+            "即": 0.487283,
+            "已": 0.514201
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10104,
+      "word_asset_id": "shadow-10104-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 1,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161952,
+      "prompt_tokens": 2413,
+      "completion_tokens": 662,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 12055
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046848,
+      "prompt_tokens": 652,
+      "completion_tokens": 203,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 4245
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00011424,
+      "prompt_tokens": 221,
+      "completion_tokens": 34,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1222
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021184,
+      "prompt_tokens": 542,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1136
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006624,
+      "prompt_tokens": 1470,
+      "completion_tokens": 150,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 3592
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00043616,
+      "prompt_tokens": 639,
+      "completion_tokens": 181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 3977
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00044672,
+      "prompt_tokens": 640,
+      "completion_tokens": 189,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 4092
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00089824,
+      "prompt_tokens": 1471,
+      "completion_tokens": 334,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 6885
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00130848,
+      "prompt_tokens": 1665,
+      "completion_tokens": 606,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 12212
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158496,
+      "prompt_tokens": 1665,
+      "completion_tokens": 822,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 15424
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022272,
+      "prompt_tokens": 420,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 2233
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002496,
+      "prompt_tokens": 540,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1835
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00023744,
+      "prompt_tokens": 658,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1191
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025184,
+      "prompt_tokens": 543,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1892
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022272,
+      "prompt_tokens": 420,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 2257
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00035424,
+      "prompt_tokens": 751,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 2376
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00017984,
+      "prompt_tokens": 478,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 1200
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024928,
+      "prompt_tokens": 543,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10104,
+      "generation_batch_id": "8cb715dd-6acf-427c-af57-3d073e1b4476",
+      "language_code": "zh",
+      "latency_ms": 2054
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.009718719999999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 51.905999999988126,
+  "finished_at": "2026-09-27T21:30:54.345118+00:00"
+}

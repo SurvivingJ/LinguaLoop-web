@@ -1,0 +1,492 @@
+[
+ {
+  "id": "en_silver_01",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "small->little: acceptable synonym, no error."
+ },
+ {
+  "id": "en_silver_02",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "wires->cables: acceptable synonym, no error."
+ },
+ {
+  "id": "en_silver_03",
+  "errors": [],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "glue->adhesive: synonym, meaning preserved, but slightly stilted register for a kid-level DIY sentence; not flagged as an error, naturalness nudged down."
+ },
+ {
+  "id": "en_silver_04",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "how much->how far: acceptable paraphrase, both read naturally as degree/distance of motor movement."
+ },
+ {
+  "id": "en_silver_05",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "certain->specific: acceptable synonym, no error."
+ },
+ {
+  "id": "en_silver_06",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "series->sequence: acceptable synonym, no error."
+ },
+ {
+  "id": "en_silver_07",
+  "errors": [
+   {
+    "learner_form": "This is basic example",
+    "corrected_form": "This is a basic example",
+    "subtype": "article",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "dropped article 'a'."
+ },
+ {
+  "id": "en_silver_08",
+  "errors": [
+   {
+    "learner_form": "project is for electronics",
+    "corrected_form": "project is about electronics",
+    "subtype": "preposition",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "about->for subtly shifts topic to purpose; still readable."
+ },
+ {
+  "id": "en_silver_09",
+  "errors": [
+   {
+    "learner_form": "You learned how to use",
+    "corrected_form": "You learn how to use",
+    "subtype": "tense_aspect",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "present->past tense shift, clearly wrong for the generic-instruction register of the passage."
+ },
+ {
+  "id": "en_silver_10",
+  "errors": [
+   {
+    "learner_form": "This are a good start",
+    "corrected_form": "This is a good start",
+    "subtype": "subject_verb_agreement",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "is->are agreement error."
+ },
+ {
+  "id": "en_silver_11",
+  "errors": [
+   {
+    "learner_form": "A fourth motor can open",
+    "corrected_form": "A third motor can open",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "third->fourth breaks the motor count sequence (skips from 'another' to 'fourth'), a clear factual slip."
+ },
+ {
+  "id": "en_silver_12",
+  "errors": [
+   {
+    "learner_form": "pick at small things",
+    "corrected_form": "pick up small things",
+    "subtype": "phrasal_verb",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "wrong particle; meaning close but changed."
+ },
+ {
+  "id": "en_silver_13",
+  "errors": [
+   {
+    "learner_form": "move him to a new spot",
+    "corrected_form": "move them to a new spot",
+    "subtype": "pronoun_reference",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "them->him: wrong number/gender, no sensible antecedent for 'him', clearly wrong but the intended meaning is recoverable."
+ },
+ {
+  "id": "en_silver_14",
+  "errors": [
+   {
+    "learner_form": "It tells the motors to move.",
+    "corrected_form": "It tells the motors when to move.",
+    "subtype": "omission",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'when' dropped, loses the timing/coordination sense that the next sentence ('how much to move') pairs with."
+ },
+ {
+  "id": "en_silver_15",
+  "errors": [
+   {
+    "learner_form": "project also teaches",
+    "corrected_form": "project teaches",
+    "subtype": "addition",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "teaches everyone about",
+    "corrected_form": "teaches you about",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'also' inserted redundantly; 'you'->'everyone' shifts addressee from the reader to a general audience."
+ },
+ {
+  "id": "en_silver_16",
+  "errors": [
+   {
+    "learner_form": "Arduino bored",
+    "corrected_form": "Arduino board",
+    "subtype": "orthography",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "homophone typo, obviously a slip, still readable."
+ },
+ {
+  "id": "en_silver_17",
+  "errors": [
+   {
+    "learner_form": "It says the motors when to move",
+    "corrected_form": "It tells the motors when to move",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "'says' does not take this object/complement structure ('says the motors when...'); reads as clearly wrong/ungrammatical to a native speaker, not just a lexical nuance."
+ },
+ {
+  "id": "en_silver_18",
+  "errors": [
+   {
+    "learner_form": "Then another motor you can tell to move.",
+    "corrected_form": "Then you can tell another motor to move.",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "OSV scrambling, ungrammatical word order but meaning recoverable."
+ },
+ {
+  "id": "en_silver_19",
+  "errors": [
+   {
+    "learner_form": "teaches y'all about",
+    "corrected_form": "teaches you about",
+    "subtype": "register",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "dialectal/informal 'y'all' clashes with the neutral instructional register of the rest of the passage."
+ },
+ {
+  "id": "en_silver_20",
+  "errors": [
+   {
+    "learner_form": "You cannot learn about robotics",
+    "corrected_form": "You can learn about robotics",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "can->cannot inverts the sentence's meaning entirely."
+ },
+ {
+  "id": "en_silver_21",
+  "errors": [
+   {
+    "learner_form": "Another motor can't make it move",
+    "corrected_form": "Another motor can make it move",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "can->can't inverts capability claim."
+ },
+ {
+  "id": "en_silver_22",
+  "errors": [
+   {
+    "learner_form": "move them from a new spot",
+    "corrected_form": "move them to a new spot",
+    "subtype": "preposition",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "to->from reverses the direction of the action (destination becomes origin)."
+ },
+ {
+  "id": "en_silver_23",
+  "errors": [
+   {
+    "learner_form": "make few things with it",
+    "corrected_form": "make many things with it",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "many->few is a quantity inversion, opposite claim."
+ },
+ {
+  "id": "en_silver_24",
+  "errors": [
+   {
+    "learner_form": "The Arduino writes instructions for you.",
+    "corrected_form": "You write instructions for the Arduino.",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "agent and recipient are swapped, reversing who does the instructing."
+ },
+ {
+  "id": "en_silver_25",
+  "errors": [
+   {
+    "learner_form": "build more complex robots first",
+    "corrected_form": "build more complex robots later",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "later->first reverses the intended progression from simple to complex."
+ },
+ {
+  "id": "en_silver_26",
+  "errors": [
+   {
+    "learner_form": "move motor 1 to 9 degrees",
+    "corrected_form": "move motor 1 to 90 degrees",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "90->9 changes the illustrative example's number; the example sentence stays fully grammatical and its teaching point (syntax of the command) is intact."
+ },
+ {
+  "id": "en_silver_27",
+  "errors": [
+   {
+    "learner_form": "you can avoid simple sticks and glue",
+    "corrected_form": "you can use simple sticks and glue",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "use->avoid reverses the advice given."
+ },
+ {
+  "id": "en_silver_28",
+  "errors": [
+   {
+    "learner_form": "some servo engines",
+    "corrected_form": "some servo motors",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'servo engines' is not a real term (servos are motors, not engines); a small factual/terminology slip, still understandable."
+ },
+ {
+  "id": "en_silver_29",
+  "errors": [
+   {
+    "learner_form": "But you can tell another motor",
+    "corrected_form": "Then you can tell another motor",
+    "subtype": "cohesion_connective",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "Then->But swaps a sequencing connective for a contrastive one with no real contrast present."
+ },
+ {
+  "id": "en_silver_30",
+  "errors": [
+   {
+    "learner_form": "Also, you need an Arduino board",
+    "corrected_form": "First, you need an Arduino board",
+    "subtype": "cohesion_connective",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "First->Also loses the ordinal/sequencing signal that opens the list of parts needed."
+ },
+ {
+  "id": "en_silver_31",
+  "errors": [
+   {
+    "learner_form": "open and close a thing",
+    "corrected_form": "open and close a gripper",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 2,
+  "comment": "gripper->thing flattens a specific, meaningful technical term into a vague generic word, losing real information about the robot part."
+ },
+ {
+  "id": "en_silver_32",
+  "errors": [
+   {
+    "learner_form": "coding involves simple stuff",
+    "corrected_form": "coding involves simple commands",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 2,
+  "comment": "commands->stuff flattens the specific programming term into a vague generic word."
+ },
+ {
+  "id": "en_silver_33",
+  "errors": [
+   {
+    "learner_form": "This is basic example",
+    "corrected_form": "This is a basic example",
+    "subtype": "article",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "This DIY project teaches about electronics.",
+    "corrected_form": "This DIY project teaches you about electronics.",
+    "subtype": "omission",
+    "severity": "major"
+   },
+   {
+    "learner_form": "You learned how to connect wires.",
+    "corrected_form": "You learn how to connect wires.",
+    "subtype": "tense_aspect",
+    "severity": "major"
+   },
+   {
+    "learner_form": "You learns how motors work.",
+    "corrected_form": "You learn how motors work.",
+    "subtype": "subject_verb_agreement",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "four independent grammar slips stacked in one short passage: dropped article, dropped object 'you', wrong tense, wrong agreement."
+ },
+ {
+  "id": "en_silver_34",
+  "errors": [
+   {
+    "learner_form": "simple command",
+    "corrected_form": "simple commands",
+    "subtype": "plural_number",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "a certain spot, yo",
+    "corrected_form": "a certain position",
+    "subtype": "register",
+    "severity": "major"
+   },
+   {
+    "learner_form": "Then another motor you can tell to move.",
+    "corrected_form": "Then you can tell another motor to move.",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "plural dropped on 'command'; 'position'->'spot' alone is an acceptable synonym so not flagged, but the appended slang tag ', yo' is a jarring register break; final sentence scrambled to OSV order."
+ },
+ {
+  "id": "en_silver_35",
+  "errors": [
+   {
+    "learner_form": "The coding is expensive.",
+    "corrected_form": "The coding is important.",
+    "subtype": "word_choice",
+    "severity": "major"
+   },
+   {
+    "learner_form": "pick out small things",
+    "corrected_form": "pick up small things",
+    "subtype": "phrasal_verb",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "important->expensive substitutes an unrelated attribute, clearly wrong; pick up->pick out is a minor wrong-particle phrasal-verb slip."
+ }
+]

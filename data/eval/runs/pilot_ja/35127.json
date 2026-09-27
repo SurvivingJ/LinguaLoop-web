@@ -1,0 +1,1076 @@
+{
+  "sense_id": 35127,
+  "language_id": 3,
+  "generation_batch_id": "e7c68d35-029b-4c4b-86ad-a3ec844b15b7",
+  "started_at": "2026-09-26T02:25:03.990957+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] synonym_antonym_match generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 6.257020711898804,
+    "p1_generate": 103.1226658821106,
+    "p1_repair": 37.736857652664185,
+    "tier_gate": 0.0,
+    "p1_judge": 184.24599146842957,
+    "collocate_grounding": 0.0,
+    "fan_out": 138.53463435173035
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/nai/",
+        "morphological_forms": [
+          {
+            "form": "なく",
+            "label": "活用"
+          },
+          {
+            "form": "ないで",
+            "label": "活用"
+          },
+          {
+            "form": "なければ",
+            "label": "活用"
+          },
+          {
+            "form": "なかった",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "ない",
+        "register": "plain"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35127
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0c107837-404d-4ce3-bd4a-02c9ac39c8ee",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "無い",
+        "pronunciation": "ない",
+        "ipa": "nai",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "画意",
+          "梨",
+          "無い",
+          "成り"
+        ],
+        "correct_answer": "無い",
+        "explanation": "正解です。「無い」は「存在しないこと。何かがそこにないこと。」という意味です。",
+        "distractor_explanations": {
+          "成り": "「成り」は「無い」と一モーラだけ異なる実在語です（2モーラ目: 「い」→「り」、一部の音の違い）。",
+          "梨": "「梨」は「無い」と一モーラだけ異なる実在語です（2モーラ目: 「い」→「し」、一部の音の違い）。",
+          "画意": "「画意」は「無い」と一モーラだけ異なる実在語です（1モーラ目: 「な」→「が」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "星",
+            "刑",
+            "私"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 1
+    },
+    {
+      "id": "0c9266fa-d920-4a94-97ac-be056ff87a94",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なく",
+        "pronunciation": "ない",
+        "correct_definition": "存在しないこと。何かがそこにないこと。",
+        "options": [
+          "他の会社の株や事業を、お金を払って自分のものにすること。",
+          "仮定の条件を示す接続詞。現実とは異なる事柄を仮定したり、可能性が低いことを想定したりする際に用いる。",
+          "存在しないこと。何かがそこにないこと。",
+          "物事が始まる最初の日。特に、学校や仕事など、新しい生活の始まりの日を指す。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 2
+    },
+    {
+      "id": "ff864d16-009a-4ea4-85ff-ff5610bfe8f4",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "単なる物置きでは___、創造性を刺激する空間にしたいと考えたのだ。",
+        "original_sentence": "単なる物置きではなく、創造性を刺激する空間にしたいと考えたのだ。",
+        "correct_answer": "なく",
+        "options": [
+          "なく",
+          "よく",
+          "少なく",
+          "悪く"
+        ],
+        "explanation": "「ではなく」は存在の否定を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "存在しないこと。何かがそこにないこと。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 3
+    },
+    {
+      "id": "bf793663-04f7-4bac-975b-4b16031e0316",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "これは幼い頃のような単なるお絵描きでは___。",
+        "original_sentence": "これは幼い頃のような単なるお絵描きではない。",
+        "correct_answer": "ない",
+        "base_form": "無い",
+        "form_label": "終止形（では〜の形）",
+        "options": [
+          "無ければ",
+          "無かった",
+          "ない",
+          "無くて"
+        ],
+        "explanation": "「ではない」は存在の否定を表す終止形。",
+        "word_definition": "存在しないこと。何かがそこにないこと。",
+        "target_word": "ない"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 4
+    },
+    {
+      "id": "10c088de-9a76-496b-9d45-24bb162ed7a1",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "答えが無いて困った。",
+            "is_correct": false
+          },
+          {
+            "text": "色は単なる装飾ではなく、記号論の観点から特定のメッセージを伝える記号として機能するのだ。",
+            "is_correct": true
+          },
+          {
+            "text": "今日は時間を無い。",
+            "is_correct": false
+          },
+          {
+            "text": "無い今日は時間が。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：存在を表す「ない」の主体は「が」で示す。「を」は誤り。 活用：て形は「無くて」であり、「無いて」は存在しない活用形。 語順：述語は文末に置く。文頭に置くのは日本語の語順に反する。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 6
+    },
+    {
+      "id": "bb8d00b6-cf5e-4ec6-bc62-50d40f615490",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "これは幼い頃のような単なるお絵描きではない。",
+            "is_correct": true
+          },
+          {
+            "text": "単なる物置きではなく、創造性を刺激する空間にしたいと考えたのだ。",
+            "is_correct": true
+          },
+          {
+            "text": "このTシャツは、単なるグッズではなく、彼らのルーツへの敬意を形にしたものです。",
+            "is_correct": true
+          },
+          {
+            "text": "単なる物置きでは無いく、創造性を刺激する空間にしたいと考えたのだ。",
+            "is_correct": false,
+            "error_description": "活用：形容詞の連用形は「なく」であり、「無いく」という形は存在しない。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 7
+    },
+    {
+      "id": "db01b3d4-fa98-4324-bfbc-8ecc0aa34433",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスだ。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 9
+    },
+    {
+      "id": "b9816cad-b5c2-4e5e-b991-d2691f134208",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なく",
+        "pronunciation": "ない",
+        "tier": "T6",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "あることが起こるときのこと。",
+              "六 —— 数字6，比五多一的数",
+              "存在しないこと。何かがそこにないこと。",
+              "学习 —— 学新的知识或反复练习"
+            ],
+            "correct_answer": "存在しないこと。何かがそこにないこと。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 2
+    },
+    {
+      "id": "33869ebb-8b69-41e0-b337-d71ba7ac6951",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "これは幼い頃のような単なるお絵描きでは___。",
+        "original_sentence": "これは幼い頃のような単なるお絵描きではない。",
+        "target_word": "ない",
+        "word": "なく",
+        "answer": {
+          "accepted": [
+            "ない"
+          ],
+          "accepted_normalized": [
+            "ない"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 4
+    },
+    {
+      "id": "cb5cf5e9-e54c-4932-8a6b-43c4bad7f78e",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスだ。",
+        "chunks": [
+          "これは事業の",
+          "終了では",
+          "なく資本の循環と",
+          "新たな創造へ",
+          "の移行を",
+          "意味する重要なプロセスだ"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "終了では",
+          "新たな創造へ",
+          "これは事業の",
+          "の移行を",
+          "なく資本の循環と",
+          "意味する重要なプロセスだ"
+        ],
+        "target_word": "なく",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 9
+    },
+    {
+      "id": "b3954951-7a6a-4db6-a58e-e9df023de126",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "企業は、単純な作業だけで___、創造性や対人スキルを求められる役割へ従業員をシフトさせなければならない。",
+        "original_sentence": "企業は、単純な作業だけでなく、創造性や対人スキルを求められる役割へ従業員をシフトさせなければならない。",
+        "correct_answer": "なく",
+        "options": [
+          "なく",
+          "多く",
+          "悪く",
+          "早く"
+        ],
+        "explanation": "「だけでなく」は存在の否定を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "存在しないこと。何かがそこにないこと。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 3
+    },
+    {
+      "id": "988ce2c7-01bb-41d8-bffa-f5e0f54b7efd",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "彼女の人生におけるこの学校の初日は、単なる物理的な場所の移動を意味するものでは___。",
+        "original_sentence": "彼女の人生におけるこの学校の初日は、単なる物理的な場所の移動を意味するものではない。",
+        "correct_answer": "ない",
+        "base_form": "無い",
+        "form_label": "終止形（では〜の形）",
+        "options": [
+          "無くて",
+          "無かった",
+          "ない",
+          "無ければ"
+        ],
+        "explanation": "「ではない」は存在の否定を表す終止形。",
+        "word_definition": "存在しないこと。何かがそこにないこと。",
+        "target_word": "ない"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 4
+    },
+    {
+      "id": "2a08b279-3571-4244-8742-813578075cd4",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "ではない、これは幼い頃のような単なるお絵描き。",
+            "is_correct": false
+          },
+          {
+            "text": "答えが無くて困った。",
+            "is_correct": true
+          },
+          {
+            "text": "これは幼い頃のような単なるお絵描きでは無くだ。",
+            "is_correct": false
+          },
+          {
+            "text": "今日は時間に無い。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：存在を表す「ない」の主体は「が」で示す。「に」は誤り。 活用：連用形「なく」に「だ」を続けるのは誤り。「ではない」を使う。 語順：述語を文頭に置くのは日本語の語順に反する。",
+        "target_word": "無くて"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 6
+    },
+    {
+      "id": "cae23e95-48b2-4f7e-8ad4-d4fed5dbc927",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "企業は、単純な作業だけでなく、創造性や対人スキルを求められる役割へ従業員をシフトさせなければならない。",
+            "is_correct": true
+          },
+          {
+            "text": "彼女の人生におけるこの学校の初日は、単なる物理的な場所の移動を意味するものではない。",
+            "is_correct": true
+          },
+          {
+            "text": "今日は時間を無い。",
+            "is_correct": false,
+            "error_description": "助詞：存在を表す「ない」の主体は「が」で示す。「を」は誤り。"
+          },
+          {
+            "text": "答えが無くて困った。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 7
+    },
+    {
+      "id": "2e6c730e-bf57-4da1-ad6f-9a56a6caa64f",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "色は単なる装飾ではなく、記号論の観点から特定のメッセージを伝える記号として機能するのだ。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 9
+    },
+    {
+      "id": "d43c9973-59b6-45f7-bd2d-85df1dcd85b7",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "彼女の人生におけるこの学校の初日は、単なる物理的な場所の移動を意味するものでは___。",
+        "original_sentence": "彼女の人生におけるこの学校の初日は、単なる物理的な場所の移動を意味するものではない。",
+        "target_word": "ない",
+        "word": "なく",
+        "answer": {
+          "accepted": [
+            "ない"
+          ],
+          "accepted_normalized": [
+            "ない"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 4
+    },
+    {
+      "id": "a8dd9644-ac43-4aa9-ac4f-610be537a214",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "色は単なる装飾ではなく、記号論の観点から特定のメッセージを伝える記号として機能するのだ。",
+        "chunks": [
+          "色は単なる装飾では",
+          "なく記号論の",
+          "観点から特定の",
+          "メッセージを",
+          "伝える記号と",
+          "して機能するのだ"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "伝える記号と",
+          "観点から特定の",
+          "メッセージを",
+          "なく記号論の",
+          "色は単なる装飾では",
+          "して機能するのだ"
+        ],
+        "target_word": "なく",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T6",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": 520,
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "lemma contains no kanji — reading is trivial"
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "reason": "lemma contains no kanji — nothing to choose"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls_observed": 0,
+  "llm_cost_observed_usd": 0,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 805.7660000000033,
+  "finished_at": "2026-09-26T02:38:29.756082+00:00"
+}

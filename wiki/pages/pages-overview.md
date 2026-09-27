@@ -2,7 +2,7 @@
 title: UI Pages Overview
 type: page
 status: complete
-last_updated: 2026-08-07
+last_updated: 2026-09-22
 open_questions: []
 ---
 
@@ -34,14 +34,14 @@ All public pages are registered in `_register_web_routes()` ([app.py:301](../../
 | `/classifier-drill` | `classifier_drill.html` | Chinese classifier (量词) infinite drill, MC + Typed | Calls `/api/classifier-drill/*` |
 | `/dual-translation` | `dual_translation.html` | L1→L2 back-translation practice + graded feedback | Calls `/api/dual-translation/next` + `/submit` |
 | `/dual-translation/profile` | `dual_translation_profile.html` | Ranked error-profile dashboard | Calls `/api/dual-translation/profile` |
-| `/listening-lab`, `/listening-lab/<slug>` | `listening_lab_list.html`, `listening_lab.html` | Listening Lab (feature-flagged — registered only when enabled) | |
+| ~~`/listening-lab`, `/listening-lab/<slug>`~~ **(removed 2026-09-21 — archived)** | `listening_lab_list.html`, `listening_lab.html` | Listening Lab (feature-flagged — registered only when enabled) | |
 | `/profile` | `profile.html` | ELO summary, token balance, history | Calls `/api/users/elo` + `/api/users/tokens` + `/api/tests/history` |
 | `/flashcards` | `flashcards.html` | FSRS review session | Calls `/api/flashcards/due` + `/api/flashcards/review` |
 | ~~`/exercises`~~ | — | **RETIRED 2026-07-14 (TASK-220)** — route + `exercises.html` deleted; practice now lives in the `/session` runner | `/api/exercises/session` 302s to `/api/practice/session` |
-| `/mysteries` | `mystery_list.html` | Browse available mysteries | Calls `/api/mystery/` + `/api/mystery/recommended` |
-| `/mystery/<slug>` | `mystery.html` | Play a 5-scene mystery | Calls `/api/mystery/<slug>`, `/scene/<n>`, `/scene/<n>/submit`, `/submit` |
-| `/conversations` | `conversation_list.html` | Browse generated conversations | Calls `/api/conversations/` |
-| `/conversation/<id>` | `conversation_reader.html` | Read a single conversation with full turns | Calls `/api/conversations/<id>` |
+| ~~`/mysteries`~~ **(removed 2026-09-21 — archived)** | `mystery_list.html` | Browse available mysteries | Calls `/api/mystery/` + `/api/mystery/recommended` |
+| ~~`/mystery/<slug>`~~ **(removed 2026-09-21 — archived)** | `mystery.html` | Play a 5-scene mystery | Calls `/api/mystery/<slug>`, `/scene/<n>`, `/scene/<n>/submit`, `/submit` |
+| ~~`/conversations`~~ **(removed 2026-09-21 — archived)** | `conversation_list.html` | Browse generated conversations | Calls `/api/conversations/` |
+| ~~`/conversation/<id>`~~ **(removed 2026-09-21 — archived)** | `conversation_reader.html` | Read a single conversation with full turns | Calls `/api/conversations/<id>` |
 | ~~`/vocab-dojo`~~ | — | **RETIRED 2026-07-14 (TASK-220)** — route + `vocab_dojo.html` deleted; ladder/gates/stress-test are served by the unified Practice player | `/api/vocab-dojo/session` 302s to `/api/practice/session?mode=acquisition` |
 | `/admin/vocab-preview` | `admin_vocab_preview.html` | Per-word exercise spot-check UI | Calls `/api/admin/vocab/word/<sense_id>/preview` |
 | `/logout` | (302 → `/login`) | Frontend clears tokens; server-side just redirects | |
@@ -52,7 +52,7 @@ Available only when the local admin variant is running. Not registered in produc
 
 | Route | Template | Purpose |
 |-------|----------|---------|
-| `/admin` | `admin_dashboard.html` | Pipeline dashboard — 10 tabs (corpus, topics, tests, exercises, style, conversations, mysteries, pinyin, full pipeline, vocab generate, L1 audio backfill, IRT calibration) plus a Model Arena tab |
+| `/admin` | `admin_dashboard.html` | Pipeline dashboard — tabs (corpus, topics, tests, exercises, style, pinyin, full pipeline, vocab generate, L1 audio backfill, IRT calibration) plus a Model Arena tab |
 
 ## Shared Template
 
@@ -63,7 +63,7 @@ Available only when the local admin variant is running. Not registered in produc
 - **No SPA framework.** Each page is loaded as a full HTML render; client-side JS uses `fetch()` to talk to `/api/*` endpoints.
 - **Auth state** is held in localStorage via the Supabase Auth JS client (`@supabase/supabase-js`). The JWT is included on every API call as `Authorization: Bearer <token>`.
 - **i18n** lives in `static/i18n/` — JSON dictionaries per locale. The `window.LINGUADOJO` global exposes the current locale and a `t(key)` helper.
-- **Audio** for listening tests, mysteries, and L1 vocab exercises is served from `audio.linguadojo.com` (Cloudflare R2). The frontend constructs `audio_url` from the slug if not pre-computed.
+- **Audio** for listening tests and L1 vocab exercises is served from `audio.linguadojo.com` (Cloudflare R2). The frontend constructs `audio_url` from the slug if not pre-computed.
 - **Admin dashboard** consumes SSE streams from `/admin/api/task-status/<task_id>` to render live progress.
 
 ## Static Assets

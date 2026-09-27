@@ -584,8 +584,15 @@ const ExRenderers = (function () {
   }
 
   function renderJumbled(ex, c, w) {
-    const correctOrder = c.correct_ordering;
     const chunks = c.chunks;
+    // Stored rows that were never chunked server-side have no `chunks`; say so
+    // instead of throwing on `chunks.length`.
+    if (!Array.isArray(chunks) || chunks.length === 0)
+      throw new Error('jumbled_sentence content has no chunks (not prepared server-side)');
+    // `chunks` is stored in answer order, so a missing ordering is the identity.
+    const correctOrder = Array.isArray(c.correct_ordering)
+      ? c.correct_ordering
+      : chunks.map((_, i) => i);
     const placed = [];
     const initialBankOrder = shuffleArr([...Array(chunks.length).keys()]);
 

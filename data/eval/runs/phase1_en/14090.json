@@ -1,0 +1,377 @@
+{
+  "sense_id": 14090,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:38:39.474497+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.27396059036254883,
+    "p1_generate": 3.907195806503296,
+    "tier_gate": 0.0,
+    "p1_judge": 1.6747629642486572,
+    "collocate_grounding": 0.0,
+    "fan_out": 54.79809927940369
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌmʌltiˈfæsɪtɪd/",
+        "morphological_forms": [
+          {
+            "form": "multifaceted",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "multi-faceted",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14090
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a44d8298-86c1-4241-b85b-e0701f557f7c",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "multifaceted",
+        "pronunciation": "multi-faceted",
+        "correct_definition": "Having many different aspects, features, or elements.",
+        "options": [
+          "A separate section or part of a larger structure, often used for display or control.",
+          "Of considerable or relatively great size, extent, or capacity.",
+          "A log is a thick piece of wood from a tree, or a record of events or data.",
+          "Having many different aspects, features, or elements."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "17b7b3b9-bb22-4269-aa52-738ca0addb30",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "The historical novel offered a multifaceted view of the revolution through the eyes of various citizens."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "02406fe5-c44a-44ef-a3d6-dbb8da4ce674",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "multifaceted",
+        "pronunciation": "multi-faceted",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "feeling weary or uninterested, possibly leading to a physical reaction.",
+              "A standard or principle by which something is judged or decided.",
+              "The quality of having a plain, uncluttered, or uncomplicated visual appearance.",
+              "Having many different aspects, features, or elements."
+            ],
+            "correct_answer": "Having many different aspects, features, or elements."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "91a12aa4-578f-442f-8652-da359c5b5232",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Choosing a career path can be a ___ decision because students must balance their personal interests with future job stability.",
+        "original_sentence": "Choosing a career path can be a multifaceted decision because students must balance their personal interests with future job stability.",
+        "target_word": "multifaceted",
+        "word": "multifaceted",
+        "answer": {
+          "accepted": [
+            "multifaceted"
+          ],
+          "accepted_normalized": [
+            "multifaceted"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7722dbf6-1d54-4721-9c24-952b3907ab3b",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The historical novel offered a multifaceted view of the revolution through the eyes of various citizens.",
+        "chunks": [
+          "The historical novel",
+          "offered",
+          "a multifaceted view of the revolution",
+          "through the eyes of various citizens"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "The historical novel",
+          "through the eyes of various citizens",
+          "a multifaceted view of the revolution",
+          "offered"
+        ],
+        "target_word": "multifaceted",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023796,
+      "prompt_tokens": 1932,
+      "completion_tokens": 720,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3771
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006065,
+      "prompt_tokens": 705,
+      "completion_tokens": 158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1575
+    }
+  ],
+  "llm_calls_observed": 2,
+  "llm_cost_observed_usd": 0.0029861,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 61.421000000002095,
+  "finished_at": "2026-09-27T03:39:40.895081+00:00"
+}

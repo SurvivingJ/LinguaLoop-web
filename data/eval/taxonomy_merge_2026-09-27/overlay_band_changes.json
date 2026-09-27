@@ -1,0 +1,433 @@
+{
+  "method": "scripts/dt_gold_seed_helper.derive_bands(offline=True) with V5_DIMENSION swapped per language for merged_taxonomy.json dimensions; range/naturalness taken from expected_bands",
+  "v5_baseline_mismatches": [
+    "en_silver_24"
+  ],
+  "v5_baseline_note": "en_silver_24 already fails derive_bands under v5: its note says MEANING INVERSION (agent swap, 'The Arduino writes instructions for you') but expected_errors is empty, so the derived understandability is 4 vs expected 2. Not an overlay entry (no labelled error); needs a meaning_inversion/critical error record added upstream.",
+  "count": 12,
+  "changes": [
+    {
+      "item_id": "zh_silver_11",
+      "set": "silver",
+      "lang": "zh",
+      "expected_bands": {
+        "accuracy": 3,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 1,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          3,
+          4
+        ],
+        "understandability": [
+          4,
+          2
+        ],
+        "fidelity": [
+          4,
+          1
+        ]
+      },
+      "v6_errors": [
+        [
+          "meaning_inversion",
+          "critical"
+        ]
+      ]
+    },
+    {
+      "item_id": "zh_silver_18",
+      "set": "silver",
+      "lang": "zh",
+      "expected_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 1,
+        "range": 2,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 2,
+        "naturalness": 4
+      },
+      "changed": {
+        "understandability": [
+          2,
+          4
+        ],
+        "fidelity": [
+          1,
+          3
+        ]
+      },
+      "v6_errors": [
+        [
+          "omission",
+          "major"
+        ]
+      ]
+    },
+    {
+      "item_id": "zh_silver_37",
+      "set": "silver",
+      "lang": "zh",
+      "expected_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 3,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          4,
+          3
+        ],
+        "fidelity": [
+          3,
+          4
+        ]
+      },
+      "v6_errors": [
+        [
+          "ba_bei",
+          "major"
+        ]
+      ]
+    },
+    {
+      "item_id": "ja_silver_19",
+      "set": "silver",
+      "lang": "ja",
+      "expected_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 1,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "understandability": [
+          2,
+          4
+        ],
+        "fidelity": [
+          1,
+          4
+        ]
+      },
+      "v6_errors": [
+        [
+          "addition",
+          "minor"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_seed_10",
+      "set": "gold",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 3,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          3,
+          4
+        ],
+        "fidelity": [
+          4,
+          3
+        ]
+      },
+      "v6_errors": [
+        [
+          "word_choice",
+          "major"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_seed_15",
+      "set": "gold",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 1,
+        "understandability": 2,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 1,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          1,
+          4
+        ],
+        "fidelity": [
+          4,
+          1
+        ]
+      },
+      "v6_errors": [
+        [
+          "meaning_inversion",
+          "critical"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_multi_03",
+      "set": "gold",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 3,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 2,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          3,
+          4
+        ],
+        "fidelity": [
+          3,
+          2
+        ]
+      },
+      "v6_errors": [
+        [
+          "word_choice",
+          "minor"
+        ],
+        [
+          "phrasal_verb",
+          "minor"
+        ],
+        [
+          "word_choice",
+          "major"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_multi_04",
+      "set": "gold",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 1,
+        "understandability": 1,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 3
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 1,
+        "fidelity": 1,
+        "range": 4,
+        "naturalness": 3
+      },
+      "changed": {
+        "accuracy": [
+          1,
+          4
+        ],
+        "fidelity": [
+          3,
+          1
+        ]
+      },
+      "v6_errors": [
+        [
+          "register",
+          "major"
+        ],
+        [
+          "meaning_inversion",
+          "critical"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_silver_13",
+      "set": "silver",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 3,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          3,
+          4
+        ],
+        "fidelity": [
+          4,
+          3
+        ]
+      },
+      "v6_errors": [
+        [
+          "word_choice",
+          "major"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_silver_17",
+      "set": "silver",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 3,
+        "range": 4,
+        "naturalness": 3
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 3
+      },
+      "changed": {
+        "fidelity": [
+          3,
+          4
+        ]
+      },
+      "v6_errors": [
+        [
+          "word_choice",
+          "minor"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_silver_22",
+      "set": "silver",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 1,
+        "understandability": 2,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 1,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "accuracy": [
+          1,
+          4
+        ],
+        "fidelity": [
+          4,
+          1
+        ]
+      },
+      "v6_errors": [
+        [
+          "meaning_inversion",
+          "critical"
+        ]
+      ]
+    },
+    {
+      "item_id": "en_silver_24",
+      "set": "silver",
+      "lang": "en",
+      "expected_bands": {
+        "accuracy": 4,
+        "understandability": 2,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "v6_bands": {
+        "accuracy": 4,
+        "understandability": 4,
+        "fidelity": 4,
+        "range": 4,
+        "naturalness": 4
+      },
+      "changed": {
+        "understandability": [
+          2,
+          4
+        ]
+      },
+      "v6_errors": []
+    }
+  ]
+}

@@ -85,7 +85,12 @@ def judge_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
-            max_tokens=4750,
+            # TASK-812: was 4750. TASK-808's baseline shows this judge's
+            # completion_tokens p99 at 122 (n=70, max 122) -- a short
+            # structured Likert-per-candidate response. 1000 is >=8x that,
+            # generous insurance against a legitimately longer multi-item
+            # batch, while cutting the worst-case runaway cost ~5x.
+            max_tokens=1000,
             response_format='json',
             provider='openrouter',
             pipeline=_PIPELINE,

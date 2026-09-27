@@ -9,7 +9,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['static/js/**'],
-      exclude: ['static/js/admin-dashboard.js', 'static/js/listening_lab.js'],
+      exclude: ['static/js/admin-dashboard.js'],
     },
   },
 });

@@ -54,6 +54,7 @@ from services.test_generation.orchestrator import (
     BatchConfig,
     TestGenerationOrchestrator,
 )
+from services.tier_classifier import TierAssessment
 from services.test_generation.schemas import (
     AnswerEntailmentVerdict,
     DistractorPlausibilityVerdict,
@@ -371,6 +372,13 @@ def _orchestrator(question_generator=None):
     )
     orch.audio_synthesizer = MagicMock()
     orch.vocab_pipeline = MagicMock()
+    # ADR-029: tier assignment is a jev call; this file is about judging, so
+    # hand back the fixture's own tier (T4) instead of reaching the network.
+    orch.classify_passage = lambda _text, _lang: TierAssessment(
+        tier=4, expected_tier=4.0, score=3.0, confidence=0.9,
+        probabilities={t: 0.0 for t in range(1, 7)}, model='test-jev',
+        cost_usd=None,
+    )
     orch._run_id = None
     return orch
 

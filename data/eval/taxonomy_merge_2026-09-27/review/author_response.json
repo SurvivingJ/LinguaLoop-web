@@ -1,0 +1,52 @@
+{
+  "author": "ADR-031 taxonomy author (one exchange, per jev taxonomy §0.8)",
+  "date": "2026-09-27",
+  "note": "No new evidence beyond review/{zh,ja,en}_review.json. merged_taxonomy.json and ADR-031 are NOT edited by this response — that is a separate follow-up step for the coordinator/maintainer to apply.",
+  "responses": [
+    {
+      "item": "ja kanji_choice",
+      "draft": {"dimension": "fidelity", "default_severity": "minor"},
+      "reviewer": {"dimension": "accuracy", "default_severity": "minor"},
+      "verdict": "CONCEDE",
+      "argument": "The reviewer's consistency argument wins: in the modal instance (合う for 会う, 熱い for weather 暑い) the learner selected the right word and the right meaning, and failed only at its written form. That is structurally identical to orthography and the dropped script_choice, both of which I already set to accuracy/minor. Charging it to fidelity — especially on ja's raised 0.30 fidelity weight — penalizes a correct meaning transfer as if the meaning were wrong, which contradicts my own placement of orthography. jev's 'S' class describes how the corruption was authored for the single-sentence classifier, not what the error costs in a translation, so it isn't binding on `dimension` here. Reclassify kanji_choice as accuracy/minor."
+    },
+    {
+      "item": "en lexical_form",
+      "draft": {"dimension": "fidelity", "default_severity": "minor"},
+      "reviewer": {"dimension": "accuracy", "default_severity": "minor"},
+      "verdict": "CONCEDE",
+      "argument": "Same structural point as kanji_choice: the modal case (success/successful, confident/confidently) is the right lexeme and the right meaning in the wrong derivational form — a form defect, not a meaning defect. The reviewer's nearest-neighbour test (plural_number, accuracy/minor, is v5's closest analogue for 'right lexeme, wrong grammatical form') is more on-point than my S-class reasoning. Reclassify lexical_form as accuracy/minor, with the reviewer's noted exception (economic/economical, boring/bored) escalated per instance rather than setting the default."
+    },
+    {
+      "item": "zh connective",
+      "draft": {"dimension": "accuracy", "default_severity": "minor"},
+      "reviewer": {"dimension": "accuracy", "default_severity": "major"},
+      "verdict": "CONCEDE",
+      "argument": "I'm persuaded by cross-language consistency, not just the business-rule re-reading test in isolation: I already accepted ja's `clause_linkage` (the structurally closest analogue — a hard grammatical constraint on how clauses connect) as accuracy/major, on the reasoning that it's stricter than cohesion_connective's naturalness/minor. zh `connective`'s paired-conjunction rule (只要…才 changes a sufficient-condition claim to a necessary-condition one) is the same kind of hard structural constraint, not a lexical flow choice. Setting it to minor while its ja counterpart is major is an inconsistency in the draft, not a considered distinction. Reclassify connective as accuracy/major."
+    },
+    {
+      "item": "contradiction (zh/ja/en)",
+      "draft": {"dimension": "fidelity", "default_severity": "critical"},
+      "reviewer": {"dimension": "fidelity", "default_severity": "major"},
+      "verdict": "CONCEDE (on the single-type default) — but see split proposal below",
+      "argument": "All three reviewers independently converge on the same two points, which is stronger than any one of their individual arguments: (1) v5 has never defaulted a subtype to critical, and severity_weights 1/5/25 make a critical default a one-instance cliff to band 1 — too blunt for the modal case, which is a local, self-flagging clash (a kinship/time-word slip) the reader notices and the surrounding passage lets them partly resolve; (2) my draft definition silently widened jev's actual scope (sentence-internal self-contradiction only) to also cover 'inverts the source's meaning', and that widening is what smuggled a critical-caliber case (a dropped negation, a polarity flip) into a type whose modal instances don't deserve it. I did not intend to weaken the type — I intended to give the taxonomy a home for the canonical 'with -> without' failure, which the business-rules doc explicitly names as the critical-severity example, and jev's own `contradiction` type was the closest fit at hand. But conflating it with self-contradiction was a definitional error, not a defensible design choice, so I concede the single-type default to major.",
+      "intended_definition": "`contradiction` was meant to cover two distinct things under one id: (a) sentence-internal logical/self-contradiction, detectable from the translation text alone, matching jev's actual scope (a time clash, a relational impossibility, a kinship-order clash); and (b) any place where the translation asserts the reverse of the reference's meaning (a dropped negation, an antonym substitution, a reversed direction/quantity) — which is not always self-evident from the translation alone but is reliably catchable by the DT grader because it always has the reference passage to compare against, unlike jev's single-sentence-only classifier.",
+      "accept_split": true,
+      "split_proposal": {
+        "contradiction": {
+          "scope": "Sentence-internal logical/self-contradiction, matching jev's actual definition (§1.2/§2.2/§3.2 `contradiction` entries) — a time clash, a relational impossibility (kinship order, cause/effect), detectable from the translation text alone without consulting the reference.",
+          "dimension": "fidelity",
+          "default_severity": "major",
+          "rationale": "Matches all three reviewers' consensus: self-flagging, locally recoverable, consistent with v5's minor/major-only precedent."
+        },
+        "meaning_inversion": {
+          "scope": "The translation's core claim is the logical/directional/quantitative reverse of the reference's (polarity flip via a dropped or added negation, an antonym substitution, a reversed direction, a flipped quantity or comparison) — detected by comparing translation to reference, not necessarily visible from the translation alone.",
+          "dimension": "fidelity",
+          "default_severity": "critical",
+          "rationale": "This is the case the business-rules doc's 'critical = meaning breaks or inverts' test actually describes, and the one case in the whole taxonomy that plausibly warrants a critical default: it is silent (the sentence reads fine on its own) and reverses truth-value relative to the source, which is qualitatively worse than a self-flagging internal clash.",
+          "boundary_rule_needed": "Must not double-fire with omission (a dropped negation is arguably 'omission' too) or word_choice (an antonym substitution is arguably 'wrong word'). Proposed precedence: tag meaning_inversion only when the missing/wrong/moved element specifically negates or reverses the source's core propositional claim; otherwise tag omission/word_choice as usual. This same boundary issue was flagged independently by the zh and en reviewers and needs to be written into the v6 gloss/grader instructions regardless of which reviewer's wording is adopted."
+        }
+      }
+    }
+  ]
+}

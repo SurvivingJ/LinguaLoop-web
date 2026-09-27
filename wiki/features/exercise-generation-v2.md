@@ -67,7 +67,7 @@ Serving, scheduling, mastery, and difficulty calibration are **already solved an
 
 **`dim_vocabulary`** (7,461: ZH 3,890 / EN 3,571 / JA 0) — `id, language_id, lemma, phrase_type, component_lemmas[], part_of_speech (98%), frequency_rank (real, ~90%), level_tag, semantic_class (≈0%)`. **No script-variant column** (Traditional Chinese groundwork added in P0.9), no reading/tone fields (readings live on senses, sparsely).
 
-**`dim_word_senses`** (17,556: ZH 8,084 / EN 9,472 / JA 0) — `vocab_id, definition_language_id, definition, pronunciation (≈0%), ipa_pronunciation (≈0%), example_sentence, usage_notes, sense_rank, usage_frequency, semantic_category (≈0%), morphological_forms jsonb (≈0%), definition_level, is_validated, gen_confidence`. Per-sense tracking is canonical (ADR-002). `definition_language_id` already exists — the hook multi-nl support will hang from.
+**`dim_word_senses`** (17,556: ZH 8,084 / EN 9,472 / JA 0) — `vocab_id, definition_language_id, definition, pronunciation (≈0%), ipa_pronunciation (≈0%), example_sentence, sense_rank, morphological_forms jsonb (≈0%), definition_level, is_validated, gen_confidence`. Per-sense tracking is canonical (ADR-002). (`usage_notes`, `usage_frequency`, `semantic_category`, `validated_by` were never populated and were dropped 2026-09-21.) `definition_language_id` already exists — the hook multi-nl support will hang from.
 
 **`exercises`** (11,256) — JSONB `content`, `exercise_source_type` enum with exactly-one-FK check, `ladder_level`, `tags` (judge verdicts, variant), IRT columns, `is_active`. RLS disabled (content table, deliberate). ZH: 2,266 vocab + 117 conversation; EN: 1,620 vocab + 7,235 conversation; ladder-linked: 80.
 

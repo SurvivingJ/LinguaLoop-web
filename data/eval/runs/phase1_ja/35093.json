@@ -1,0 +1,1354 @@
+{
+  "sense_id": 35093,
+  "language_id": 3,
+  "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+  "started_at": "2026-09-27T04:28:56.981034+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Level 1: expected 4-8 options, got 2",
+    "[A] synonym_antonym_match generation failed",
+    "[B] Level 1: expected 4-8 options, got 2",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.8957467079162598,
+    "p1_generate": 76.85091614723206,
+    "tier_gate": 0.0,
+    "p1_judge": 77.96677803993225,
+    "collocate_grounding": 0.0,
+    "fan_out": 118.78428220748901
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[gʲidʑutsɯ]",
+        "morphological_forms": [
+          {
+            "form": "技術者",
+            "label": "派生"
+          },
+          {
+            "form": "技術的",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "ぎじゅつ",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35093
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "41eb6539-beba-4245-92f1-ed27a52cbbf0",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "技術",
+        "pronunciation": "ぎじゅつ",
+        "ipa": "[gʲidʑutsɯ]",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "武術",
+          "技術",
+          "著述",
+          "邪術"
+        ],
+        "correct_answer": "技術",
+        "explanation": "正解です。「技術」は「物を作ったり処理したりする、専門的な方法や能力。」という意味です。",
+        "distractor_explanations": {
+          "武術": "「武術」は「技術」と一モーラだけ異なる実在語です（1モーラ目: 「ぎ」→「ぶ」、一部の音の違い）。",
+          "邪術": "「邪術」は「技術」と一モーラだけ異なる実在語です（1モーラ目: 「ぎ」→「じゃ」、一部の音の違い）。",
+          "著述": "「著述」は「技術」と一モーラだけ異なる実在語です（1モーラ目: 「ぎ」→「ちょ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 5,
+          "kept": 5,
+          "rejected_items": [
+            "偽物",
+            "ガジュツ",
+            "既述",
+            "偽筆",
+            "主述"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9d6a2c68-0320-4ef6-b9f3-53ac025829c3",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "技術",
+        "pronunciation": "ぎじゅつ",
+        "correct_definition": "物を作ったり処理したりする、専門的な方法や能力。",
+        "options": [
+          "人間と一緒に暮らすことが多い、哺乳類の動物。吠える声やしっぽを振る行動が特徴。",
+          "物を作ったり処理したりする、専門的な方法や能力。",
+          "物事を引っ張って進めること。特に、先頭に立って全体を動かすこと。",
+          "物事の内容や意味を、わかるように述べること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "14e4fb65-0e66-430f-be73-668acd6cfffc",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "センサー等を用いた___は、収量の安定化により収益性を向上させます。",
+        "original_sentence": "センサー等を用いた技術は、収量の安定化により収益性を向上させます。",
+        "correct_answer": "技術",
+        "options": [
+          "資格",
+          "技術",
+          "知識",
+          "経験"
+        ],
+        "explanation": "「解析技術」は専門的な方法を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "物を作ったり処理したりする、専門的な方法や能力。",
+        "target_word": "技術"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "51086178-667b-41d6-a74d-d724be45b9fd",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私は新しい技術を学んでいます。",
+            "is_correct": true
+          },
+          {
+            "text": "近年、センサーやデータ解析の技術を活用した「精密農業」が注目されています。",
+            "is_correct": true
+          },
+          {
+            "text": "センサー等を用いた技術は、収量の安定化により収益性を向上させます。",
+            "is_correct": true
+          },
+          {
+            "text": "私は新しい技術が学んでいます。",
+            "is_correct": false,
+            "error_description": "助詞の混同（を／が）：他動詞『学ぶ』の目的語には助詞『を』を使います。『が』を使うと『技術』が動作主として解釈され、文脈に合いません。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "787f675b-9e76-44b6-ae57-f9152621a03a",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "技術が進歩して生活が便利になりました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "48a51c8c-bca1-429d-9781-d211b458acf9",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "技術",
+        "pronunciation": "ぎじゅつ",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "物を作ったり処理したりする、専門的な方法や能力。",
+              "points",
+              "あるものをこえて、もっと上にいくこと。",
+              "periodic; regular — happening repeatedly at set intervals, and that state"
+            ],
+            "correct_answer": "物を作ったり処理したりする、専門的な方法や能力。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "0cd75c2a-8421-40d1-aa56-bd6764d9452f",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "近年、センサーやデータ解析の___を活用した「精密農業」が注目されています。",
+        "original_sentence": "近年、センサーやデータ解析の技術を活用した「精密農業」が注目されています。",
+        "target_word": "技術",
+        "word": "技術",
+        "answer": {
+          "accepted": [
+            "技術",
+            "技術者",
+            "技術的"
+          ],
+          "accepted_normalized": [
+            "技術",
+            "技術者",
+            "技術的"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "be3a6d64-250c-49b5-ae0e-46272b55cf43",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "技術が進歩して生活が便利になりました。",
+        "chunks": [
+          "技術が",
+          "進歩して",
+          "生活が",
+          "便利になりました"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "便利になりました",
+          "技術が",
+          "生活が",
+          "進歩して"
+        ],
+        "target_word": "技術",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "bf503e84-aa4f-4a22-93bc-91586308c9da",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "技術",
+        "options": [
+          "ぎじゅづ",
+          "ぎしゅつ",
+          "ぎじゅつ",
+          "きじゅつ"
+        ],
+        "correct_answer": "ぎじゅつ",
+        "word": "技術",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "43616cd9-6a1f-4ea1-a4c2-7484bc08f8f1",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ぎじゅつ",
+        "options": [
+          "技術",
+          "衝撃",
+          "芸術",
+          "美術"
+        ],
+        "correct_answer": "技術",
+        "word": "技術",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "衝撃": "component",
+          "芸術": "component",
+          "美術": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "40264e2d-1d79-4fc3-86b4-2e21afb802fd",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "近年、センサーやデータ解析の技術___活用した「精密農業」が注目されています。",
+        "original_sentence": "近年、センサーやデータ解析の技術を活用した「精密農業」が注目されています。",
+        "options": [
+          "を",
+          "が",
+          "で",
+          "に"
+        ],
+        "correct_answer": "を",
+        "target_word": "技術",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「活用する」の直接目的語を標示する。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "57367ec9-aeac-4fcd-80b1-ecede559c0ff",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "料理の___を磨くことは楽しいです。",
+        "original_sentence": "料理の技術を磨くことは楽しいです。",
+        "correct_answer": "技術",
+        "options": [
+          "経験",
+          "技術",
+          "知識",
+          "資格"
+        ],
+        "explanation": "「技術を研究する」は専門的な方法を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "物を作ったり処理したりする、専門的な方法や能力。",
+        "target_word": "技術"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "26433219-6d6f-45f4-80a4-005eb5bc5502",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "料理の技術を磨くことに楽しいです。",
+            "is_correct": false,
+            "error_description": "助詞の混同の誤りです。名詞節を主題として提示し、それについて述述する場合は「ことは」を使います。「ことに」は方向や結果などを表す際に使われます。"
+          },
+          {
+            "text": "料理の技術を磨くことは楽しいです。",
+            "is_correct": true
+          },
+          {
+            "text": "日本はロボットを作る技術が高いです。",
+            "is_correct": true
+          },
+          {
+            "text": "最新の技術を使ってロボットを作りました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c7da455e-bf41-49df-939f-dda66824121f",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "彼の技術は本当に素晴らしいです。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1464b7e5-4adf-425e-8fe5-bb8d7fb58b8f",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "最新の___を使ってロボットを作りました。",
+        "original_sentence": "最新の技術を使ってロボットを作りました。",
+        "target_word": "技術",
+        "word": "技術",
+        "answer": {
+          "accepted": [
+            "技術",
+            "技術者",
+            "技術的"
+          ],
+          "accepted_normalized": [
+            "技術",
+            "技術者",
+            "技術的"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d1170884-7746-440a-b751-c4789903ab91",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "彼の技術は本当に素晴らしいです。",
+        "chunks": [
+          "彼の",
+          "技術は",
+          "本当に",
+          "素晴らしいです"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "素晴らしいです",
+          "彼の",
+          "技術は",
+          "本当に"
+        ],
+        "target_word": "技術",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "986072c6-a4d2-4286-bbbb-d54f1adfb234",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "最新の技術___使ってロボットを作りました。",
+        "original_sentence": "最新の技術を使ってロボットを作りました。",
+        "options": [
+          "が",
+          "に",
+          "で",
+          "を"
+        ],
+        "correct_answer": "を",
+        "target_word": "技術",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "で": "instrument",
+          "に": "location_vs_target"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「使う」の直接目的語を標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35093,
+      "word_asset_id": "shadow-35093-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 5,
+      "kept": 5
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00942528,
+      "prompt_tokens": 2694,
+      "completion_tokens": 6690,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5920,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 76264
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00642624,
+      "prompt_tokens": 730,
+      "completion_tokens": 4838,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4674,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 58154
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00133504,
+      "prompt_tokens": 232,
+      "completion_tokens": 985,
+      "cached_tokens": 0,
+      "reasoning_tokens": 929,
+      "call_role": "repair",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 12814
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00085632,
+      "prompt_tokens": 636,
+      "completion_tokens": 510,
+      "cached_tokens": 0,
+      "reasoning_tokens": 477,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 6637
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0029296,
+      "prompt_tokens": 1023,
+      "completion_tokens": 2033,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1866,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 27469
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00371776,
+      "prompt_tokens": 1614,
+      "completion_tokens": 2501,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2379,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 32204
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00712288,
+      "prompt_tokens": 2655,
+      "completion_tokens": 4901,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4322,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 33663
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00401184,
+      "prompt_tokens": 1617,
+      "completion_tokens": 2730,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2609,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 34230
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00283552,
+      "prompt_tokens": 1049,
+      "completion_tokens": 1953,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1716,
+      "call_role": "retry",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 28641
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0109296,
+      "prompt_tokens": 2655,
+      "completion_tokens": 7875,
+      "cached_tokens": 0,
+      "reasoning_tokens": 7335,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 93902
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00476352,
+      "prompt_tokens": 822,
+      "completion_tokens": 3516,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3190,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 42433
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017248,
+      "prompt_tokens": 388,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 2476
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00361888,
+      "prompt_tokens": 585,
+      "completion_tokens": 2681,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2608,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 32582
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00087008,
+      "prompt_tokens": 531,
+      "completion_tokens": 547,
+      "cached_tokens": 0,
+      "reasoning_tokens": 521,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 7398
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00299232,
+      "prompt_tokens": 599,
+      "completion_tokens": 2188,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2117,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 30978
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00411392,
+      "prompt_tokens": 824,
+      "completion_tokens": 3008,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2756,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 36051
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016988,
+      "prompt_tokens": 373,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 7401
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00290208,
+      "prompt_tokens": 593,
+      "completion_tokens": 2119,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2040,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 28133
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015664,
+      "prompt_tokens": 527,
+      "completion_tokens": 1092,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1068,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 14610
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00364416,
+      "prompt_tokens": 588,
+      "completion_tokens": 2700,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2630,
+      "call_role": "primary",
+      "sense_id": 35093,
+      "generation_batch_id": "1e53a13f-5c0c-4bb5-9d15-6b54af954048",
+      "language_code": "ja",
+      "latency_ms": 35943
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.07440379999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 518.0460000000021,
+  "finished_at": "2026-09-27T04:37:35.030174+00:00"
+}

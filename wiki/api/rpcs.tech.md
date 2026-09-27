@@ -3,7 +3,7 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-05-13 (vocab browser mirror added to admin_local)
+last_updated: 2026-09-22
 dependencies:
   - "Flask Blueprints (15 in `routes/`)"
   - "Supabase JWT middleware (`middleware/auth.py`)"
@@ -118,7 +118,7 @@ OTP-based passwordless auth. Calls into `auth_bp.auth_service` (an [`AuthService
 
 ## `/api/tests` — [routes/tests.py](../../routes/tests.py)
 
-The comprehension-test surface: list, fetch, submit, generate. Most non-trivial logic delegates to [TestService](../../services/test_service.py) and the `process_test_submission` Postgres RPC.
+The comprehension-test surface: list, fetch, submit. (`/generate_test` and `/custom_test` were removed 2026-09-26 — they could not save; tests are created only by the batch orchestrator, see [[features/test-tier-assignment.tech]].) Most non-trivial logic delegates to [TestService](../../services/test_service.py) and the `process_test_submission` Postgres RPC.
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
@@ -131,8 +131,6 @@ The comprehension-test surface: list, fetch, submit, generate. Most non-trivial 
 | GET | `/test/<identifier>` | none ⚠ | Test + questions + ratings (slug or UUID) |
 | GET | `/history` | `@jwt_required` | Paged user attempt history |
 | POST | `/moderate` | `@jwt_required` | OpenAI content moderation passthrough |
-| POST | `/generate_test` | `@jwt_required` | Trigger custom test generation pipeline (token-charged) |
-| POST | `/custom_test` | `@jwt_required` | Variant of generate_test with user-supplied transcript |
 | POST | `/<slug>/submit` | `@jwt_required` | MC test submission — full grading + ELO + BKT pipeline |
 | POST | `/<slug>/submit-pinyin` | `@jwt_required` | Pinyin tone trainer submission |
 
@@ -218,6 +216,9 @@ The `/api/vocabulary/extract` endpoint lives on `app.py` core, not this blueprin
 
 ## `/api/corpus` — [routes/corpus.py](../../routes/corpus.py)
 
+> **ARCHIVED 2026-09-21.** Only the pack endpoints (`/packs`, `/packs/<id>/select`, `/style-packs*`) were removed; ingest and style analysis remain live. Code and DDL are in `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
+
 Mixed user + admin surface.
 
 | Method | Path | Auth | Body / Query | Notes |
@@ -235,6 +236,9 @@ Mixed user + admin surface.
 
 ## `/api/mystery` — [routes/mystery.py](../../routes/mystery.py)
 
+> **ARCHIVED 2026-09-21.** Blueprint removed from app.py. Code and DDL are in `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
+
 Five-scene comprehension series. All `@jwt_required`.
 
 | Method | Path | Query / Body | Notes |
@@ -251,6 +255,9 @@ Five-scene comprehension series. All `@jwt_required`.
 ---
 
 ## `/api/conversations` — [routes/conversations.py](../../routes/conversations.py)
+
+> **ARCHIVED 2026-09-21.** Blueprint removed from app.py. Code and DDL are in `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
+
 
 | Method | Path | Auth | Query | Notes |
 |---|---|---|---|---|

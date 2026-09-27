@@ -1,0 +1,1050 @@
+{
+  "sense_id": 14033,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:35:52.827103+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "[A] word_family generation failed",
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] Missing level_4"
+  ],
+  "warnings": [
+    "P1 sentence[7] flagged (rating 3): contains comparative form 'smaller' instead of base word"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.40085816383361816,
+    "p1_generate": 2.663569688796997,
+    "tier_gate": 0.0,
+    "p1_judge": 1.7211482524871826,
+    "collocate_grounding": 0.0,
+    "fan_out": 100.80148220062256
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[7] flagged (rating 3): contains comparative form 'smaller' instead of base word"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/smɔːl/",
+        "morphological_forms": [
+          {
+            "form": "small",
+            "label": "positive"
+          },
+          {
+            "form": "smaller",
+            "label": "comparative"
+          },
+          {
+            "form": "smallest",
+            "label": "superlative"
+          }
+        ],
+        "pronunciation": "smawl",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14033
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "4c2379b1-7569-49d8-9878-15ebcff4597b",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "small ",
+        "pronunciation": "smawl",
+        "correct_definition": "Of a size that is less than average.",
+        "options": [
+          "Of a size that is less than average.",
+          "The act of making something less in amount, size, or degree.",
+          "Free from tension or anxiety; not strict or formal.",
+          "To bring or hand over something to another person."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7fe55f15-b575-429b-9fd8-d7d129f592f0",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Every night, the ___child goes to bed early.",
+        "original_sentence": "Every night, the small child goes to bed early.",
+        "correct_answer": "small",
+        "options": [
+          "small",
+          "fast",
+          "loud",
+          "heavy"
+        ],
+        "explanation": "Correct: 'small' correctly describes the size of the child, fitting the context of going to bed early.",
+        "distractor_tags": {},
+        "word_definition": "Of a size that is less than average.",
+        "target_word": "small "
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "440fe128-129f-4101-91bc-9983014f0237",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The small ocean stretched out for thousands of miles.",
+            "is_correct": false
+          },
+          {
+            "text": "The small giant towered over the rest of the basketball team.",
+            "is_correct": false
+          },
+          {
+            "text": "Small animals can hide.",
+            "is_correct": true
+          },
+          {
+            "text": "The small elephant easily lifted the heavy car with its trunk.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: an elephant described as 'small' would not realistically possess the physical strength to lift a heavy car. Semantically inappropriate: an ocean is inherently massive; describing it as 'small' contradicts the fundamental definition of the word. Semantically inappropriate: 'small' and 'giant' are direct antonyms in the context of physical size, creating a logical contradiction.",
+        "target_word": "Small "
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ad597165-5602-4d64-ad5d-95fbfc1fbb5d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "It is made of small parts."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ac3b4147-59fe-4d02-b02a-f2fdf56c2d66",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "small ",
+        "pronunciation": "smawl",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A specific action or strategy planned to achieve a particular goal.",
+              "To look at something and decide what it is like or how good it is.",
+              "To express disagreement with an opinion, group, or authority, often in a formal or public way.",
+              "Of a size that is less than average."
+            ],
+            "correct_answer": "Of a size that is less than average."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "2d86d8be-92aa-42c3-9766-82d6fd71beb8",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The parent turns on a ___ yellow lamp.",
+        "original_sentence": "The parent turns on a small yellow lamp.",
+        "target_word": "small",
+        "word": "small ",
+        "answer": {
+          "accepted": [
+            "small",
+            "smaller",
+            "smallest"
+          ],
+          "accepted_normalized": [
+            "small",
+            "smaller",
+            "smallest"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "090777d8-91ad-4b46-a676-a80c933f3dbf",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "It is made of small parts.",
+        "chunks": [
+          "It",
+          "is made",
+          "of small parts"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "of small parts",
+          "is made",
+          "It"
+        ],
+        "target_word": "Small ",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1e8bc65c-637d-44d6-89d2-d7836f3cec1b",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "small",
+        "pronunciation": "smawl",
+        "ipa": "/smɔːl/",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "smell",
+          "small",
+          "shawl",
+          "smile"
+        ],
+        "correct_answer": "small",
+        "explanation": "correct word: the exact target word heard in the audio.",
+        "distractor_explanations": {
+          "smell": "minimal pair: differs only in the vowel sound /ɔː/ vs /ɛ/.",
+          "smile": "minimal pair: differs only in the vowel sound /ɔː/ vs /aɪ/.",
+          "shawl": "rhyme: shares the same /ɔːl/ ending and syllable count but starts with a different consonant cluster /ʃ/ vs /sm/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "239a466d-a376-43e7-808d-04602499c86c",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He had a ___wooden toy horse.",
+        "original_sentence": "He had a small wooden toy horse.",
+        "correct_answer": "small",
+        "options": [
+          "small",
+          "colossal",
+          "minuscule",
+          "loud"
+        ],
+        "explanation": "correct word: fits the context of describing the physical size of a toy horse.",
+        "distractor_tags": {},
+        "word_definition": "Of a size that is less than average.",
+        "target_word": "small "
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ee6252f0-8fb3-4df6-bd0b-eaa91a899e1c",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The small ocean covers more than seventy percent of the Earth's surface.",
+            "is_correct": false
+          },
+          {
+            "text": "The small skyscraper towered over the city at over a thousand feet tall.",
+            "is_correct": false
+          },
+          {
+            "text": "He ate a small feast consisting of fifty different dishes.",
+            "is_correct": false
+          },
+          {
+            "text": "They built small walls.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "semantic: an ocean is by definition a vast body of water, making 'small' semantically contradictory. pragmatic: a feast implies a large, abundant meal, which pragmatically contradicts the modifier 'small'. pragmatic: a skyscraper is inherently a very tall and large building, making 'small' pragmatically inappropriate.",
+        "target_word": "small "
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1d814585-6a0a-4b87-a0e6-8a4436f6bb98",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Small animals can hide."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f3c66276-4126-4bdb-8596-62830b75bb48",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "This final stage can happen in large factories or ___, local roasteries.",
+        "original_sentence": "This final stage can happen in large factories or smaller, local roasteries.",
+        "target_word": "smaller",
+        "word": "small ",
+        "answer": {
+          "accepted": [
+            "smaller"
+          ],
+          "accepted_normalized": [
+            "smaller"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "sentence chunks into 0 pieces (min 3) — too short to jumble"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0017038,
+      "prompt_tokens": 2096,
+      "completion_tokens": 430,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 2499
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006518,
+      "prompt_tokens": 606,
+      "completion_tokens": 188,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1639
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00301088,
+      "prompt_tokens": 1105,
+      "completion_tokens": 2076,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1965,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 24690
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002976,
+      "prompt_tokens": 1096,
+      "completion_tokens": 2051,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1953,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 26686
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0079216,
+      "prompt_tokens": 1543,
+      "completion_tokens": 5803,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5194,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 36150
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001656,
+      "prompt_tokens": 643,
+      "completion_tokens": 1133,
+      "cached_tokens": 0,
+      "reasoning_tokens": 939,
+      "call_role": "retry",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 16089
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00208096,
+      "prompt_tokens": 643,
+      "completion_tokens": 1465,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1319,
+      "call_role": "retry",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 18986
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.007128,
+      "prompt_tokens": 1543,
+      "completion_tokens": 5183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4569,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 60563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00229536,
+      "prompt_tokens": 797,
+      "completion_tokens": 1594,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1584,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 21433
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003258,
+      "prompt_tokens": 411,
+      "completion_tokens": 81,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1247
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003236,
+      "prompt_tokens": 387,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1143
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002887,
+      "prompt_tokens": 479,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1169
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003385,
+      "prompt_tokens": 520,
+      "completion_tokens": 73,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003558,
+      "prompt_tokens": 411,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1156
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003202,
+      "prompt_tokens": 384,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 961
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004263,
+      "prompt_tokens": 471,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1126
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003535,
+      "prompt_tokens": 520,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1118
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.0321568,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 115.84400000001187,
+  "finished_at": "2026-09-27T03:37:48.673192+00:00"
+}

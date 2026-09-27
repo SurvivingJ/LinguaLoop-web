@@ -1,0 +1,61 @@
+{
+  "sense_id": 34999,
+  "language_id": 3,
+  "generation_batch_id": "f5e71b56-a4bb-49fe-8f5c-bbdd3f552bef",
+  "started_at": "2026-09-27T21:53:48.479363+00:00",
+  "status": "failed",
+  "errors": [
+    "Sentence 6: target_word '一' is not a whole-word match in text (substring inside another word does not count)"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 2.2491202354431152,
+    "p1_generate": 17.196117401123047,
+    "p1_repair": 19.747289180755615
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00191328,
+      "prompt_tokens": 2655,
+      "completion_tokens": 831,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "f5e71b56-a4bb-49fe-8f5c-bbdd3f552bef",
+      "language_code": "ja",
+      "latency_ms": 15989
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177984,
+      "prompt_tokens": 1190,
+      "completion_tokens": 1093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 34999,
+      "generation_batch_id": "f5e71b56-a4bb-49fe-8f5c-bbdd3f552bef",
+      "language_code": "ja",
+      "latency_ms": 19619
+    }
+  ],
+  "llm_calls_observed": 2,
+  "llm_cost_observed_usd": 0.0036931200000000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": null,
+  "collocate_grounding": null,
+  "wall_clock_s": 39.875,
+  "finished_at": "2026-09-27T21:54:28.361894+00:00"
+}

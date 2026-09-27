@@ -18,17 +18,17 @@ What the split removed from this module
   and now lives with L8, where returning None skips one level rather than
   editing a shared level list.
 
-What deliberately stayed
-------------------------
-The JSON salvage path. L7 is a single level now, so a malformed response no
-longer risks taking two others down with it — but the salvage is cheap, already
-proven against this model, and still turns "lost the level" into "recovered
-the level" often enough to keep.
+What TASK-810 removed
+----------------------
+The text-mode JSON salvage call that used to fire after a second strict-JSON
+failure. It was an unscoped, unbounded third real LLM call per generation
+step (ADR-028's "≤2 calls per step" rule) — a malformed response now just
+loses the L7 level, matching every other generator's failure contract,
+instead of paying for a speculative recovery call.
 """
 
 import json
 import logging
-import re
 
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
@@ -145,11 +145,11 @@ class TransformAssetGenerator:
     ) -> dict | None:
         """Single LLM call, retry once if any active level is missing or call fails.
 
-        On total JSON-parse failure we make a salvage attempt in 'text' mode and
-        try to extract the top-level level keys independently — Sonnet
-        sometimes drops a comma deep inside an array, which kills strict JSON
-        parsing for the entire response. Salvage means at worst we lose the
-        broken level, not the whole call.
+        TASK-810 removed the text-mode salvage call that used to run after a
+        second strict-JSON failure (it was an unscoped, unbounded third real
+        call). A total failure now returns None, the same failure contract
+        every other generator in this pipeline uses — forcing a level loss
+        instead of guessing at malformed output.
         """
         for attempt in (1, 2):
             try:
@@ -164,6 +164,9 @@ class TransformAssetGenerator:
                     task_name=TASK_NAME,
                     template_version=cfg.get('version'),
                     language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                    call_role='retry' if attempt > 1 else 'primary',
+                    sense_id=sense_id,
+                    allow_internal_repair=False,
                 )
             except Exception as e:
                 logger.warning(
@@ -172,17 +175,9 @@ class TransformAssetGenerator:
                 )
                 if attempt == 2:
                     logger.error(
-                        "Prompt 3 strict-JSON failed twice for sense %s — attempting salvage",
+                        "Prompt 3 gave up for sense %s after 2 attempts (salvage removed, TASK-810)",
                         sense_id,
                     )
-                    salvaged = self._salvage_from_text(prompt_text, cfg, p3_active, sense_id)
-                    if salvaged:
-                        logger.warning(
-                            "Prompt 3 salvaged levels %s for sense %s (partial response)",
-                            sorted(salvaged.keys()), sense_id,
-                        )
-                        return salvaged
-                    logger.error("Prompt 3 salvage produced nothing for sense %s", sense_id)
                     return None
                 continue
 
@@ -201,50 +196,6 @@ class TransformAssetGenerator:
                 )
                 return raw
         return None
-
-    def _salvage_from_text(
-        self, prompt_text: str, cfg: dict, p3_active: list[int], sense_id: int,
-    ) -> dict | None:
-        """Last-ditch salvage when strict JSON parsing fails.
-
-        Asks the LLM for the same response in plain text mode, then uses
-        json.JSONDecoder.raw_decode to peel off each top-level level key
-        independently.
-        """
-        try:
-            text = call_llm(
-                prompt_text,
-                model=cfg['model'],
-                provider=cfg['provider'],
-                temperature=0.4,
-                max_tokens=8192,
-                response_format='text',
-                pipeline=_PIPELINE,
-                task_name=f'{TASK_NAME}_salvage',
-                template_version=cfg.get('version'),
-                language_code=_LANG_ID_TO_CODE.get(self.language_id),
-            )
-        except Exception as e:
-            logger.error("Prompt 3 salvage call failed for sense %s: %s", sense_id, e)
-            return None
-
-        if not isinstance(text, str) or not text.strip():
-            return None
-
-        decoder = json.JSONDecoder()
-        salvaged: dict = {}
-        for level in p3_active:
-            key = str(level)
-            # Search for "<key>": (with optional whitespace) anywhere in the body.
-            pattern = re.compile(rf'"{re.escape(key)}"\s*:\s*')
-            for m in pattern.finditer(text):
-                try:
-                    value, _ = decoder.raw_decode(text, m.end())
-                except json.JSONDecodeError:
-                    continue
-                salvaged[key] = value
-                break  # first successful parse wins
-        return salvaged or None
 
     def _build_prompt(
         self, core_asset: dict, active_levels: list[int],

@@ -1,0 +1,122 @@
+{
+  "sense_id": 10103,
+  "language_id": 1,
+  "generation_batch_id": "c4bc9b0b-e5d0-48da-bbb0-633f0d5bb78c",
+  "started_at": "2026-09-27T21:51:42.270418+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[2] rejected (rating 2): 整词：'早'为语素非整词",
+    "P1 sentence[3] rejected (rating 2): 整词：'早点'为合成词",
+    "P1 sentence[6] rejected (rating 2): 整词：'早饭'为合成词",
+    "P1 sentence[8] rejected (rating 2): 整词：'早起'为合成词",
+    "P1 sentence[9] rejected (rating 2): 整词：'早点'为合成词",
+    "P1 sentence judge: only 5 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.0180997848510742,
+    "p1_generate": 12.561030626296997,
+    "tier_gate": 0.0,
+    "p1_judge": 9.657238721847534
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "P1 sentence judge: too few acceptable sentences after repair"
+      ],
+      "validation_warnings": [
+        "P1 sentence[2] rejected (rating 2): 整词：'早'为语素非整词",
+        "P1 sentence[3] rejected (rating 2): 整词：'早点'为合成词",
+        "P1 sentence[6] rejected (rating 2): 整词：'早饭'为合成词",
+        "P1 sentence[8] rejected (rating 2): 整词：'早起'为合成词",
+        "P1 sentence[9] rejected (rating 2): 整词：'早点'为合成词",
+        "P1 sentence judge: only 5 acceptable sentences (< 6) after repair — asset blocked."
+      ]
+    }
+  ],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159264,
+      "prompt_tokens": 2397,
+      "completion_tokens": 645,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "c4bc9b0b-e5d0-48da-bbb0-633f0d5bb78c",
+      "language_code": "zh",
+      "latency_ms": 12349
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046464,
+      "prompt_tokens": 612,
+      "completion_tokens": 210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "c4bc9b0b-e5d0-48da-bbb0-633f0d5bb78c",
+      "language_code": "zh",
+      "latency_ms": 4587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001712,
+      "prompt_tokens": 299,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10103,
+      "generation_batch_id": "c4bc9b0b-e5d0-48da-bbb0-633f0d5bb78c",
+      "language_code": "zh",
+      "latency_ms": 1875
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00033088,
+      "prompt_tokens": 562,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "c4bc9b0b-e5d0-48da-bbb0-633f0d5bb78c",
+      "language_code": "zh",
+      "latency_ms": 2884
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.0025593599999999997,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 23.453000000008615,
+  "finished_at": "2026-09-27T21:52:05.733300+00:00"
+}

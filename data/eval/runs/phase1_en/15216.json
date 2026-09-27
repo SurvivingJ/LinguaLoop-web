@@ -1,0 +1,1304 @@
+{
+  "sense_id": 15216,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:48:59.108772+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "[A] word_family generation failed",
+    "[B] word_family generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[2] flagged (rating 3): slightly awkward personal attribution of the adjective",
+    "P1 sentence[5] flagged (rating 3): awkward prepositional usage of 'strictly monochronic about'",
+    "P1 sentence[6] flagged (rating 3): conflates task scheduling with general sequential habits"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.37688493728637695,
+    "p1_generate": 3.9186148643493652,
+    "tier_gate": 0.0,
+    "p1_judge": 1.662163257598877,
+    "collocate_grounding": 0.0,
+    "fan_out": 73.49251365661621
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] flagged (rating 3): slightly awkward personal attribution of the adjective",
+        "P1 sentence[5] flagged (rating 3): awkward prepositional usage of 'strictly monochronic about'",
+        "P1 sentence[6] flagged (rating 3): conflates task scheduling with general sequential habits"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌmɒnəˈkrɒnɪk/",
+        "morphological_forms": [
+          {
+            "form": "monochronic",
+            "label": "base form"
+          },
+          {
+            "form": "monochronically",
+            "label": "adverb"
+          },
+          {
+            "form": "monochronicity",
+            "label": "noun"
+          }
+        ],
+        "pronunciation": "mon-uh-KRON-ik",
+        "register": "technical"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            15216
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0907a735-012d-4a24-a1a6-54f30ebad1c8",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "monochronic",
+        "pronunciation": "mon-uh-KRON-ik",
+        "correct_definition": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+        "options": [
+          "Accountable means being responsible for your actions and expected to explain them when asked.",
+          "Characterized by constant change, activity, or progress.",
+          "The act of controlling and making use of something, especially a natural resource or power.",
+          "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b82ab514-efcf-46bd-9aac-2f29fe5b435e",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "People in ___ cultures usually prefer to focus on one single task at a time.",
+        "original_sentence": "People in monochronic cultures usually prefer to focus on one single task at a time.",
+        "correct_answer": "monochronic",
+        "options": [
+          "synchronous",
+          "monochronic",
+          "punctual",
+          "chronological"
+        ],
+        "explanation": "Correct answer: fits the context of a cultural preference for single-tasking.",
+        "distractor_tags": {},
+        "word_definition": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+        "target_word": "monochronic"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c5dba136-0d76-47cf-b31e-07013df6f9b1",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The artist used a monochronic palette of only blue and white shades to paint the landscape.",
+            "is_correct": false
+          },
+          {
+            "text": "The choir sang in a beautiful monochronic harmony that filled the cathedral.",
+            "is_correct": false
+          },
+          {
+            "text": "Teachers often encourage students to maintain a monochronic approach while studying for exams.",
+            "is_correct": true
+          },
+          {
+            "text": "Because he is highly monochronic, he loves juggling five different projects at the exact same time.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "semantic: incorrectly uses the word to describe color (monochromatic) rather than time management. semantic: incorrectly uses the word to describe sound or music (monophonic) rather than time management. pragmatic: contradicts the definition of the word, as a monochronic person would not juggle multiple projects simultaneously.",
+        "target_word": "monochronic"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "380dc76f-536e-441f-990f-fbaa95ab1aa7",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "They were raised in a society that is strictly monochronic about business meetings."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "18744a06-0a70-4804-8923-7dffe22af4a8",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "monochronic",
+        "pronunciation": "mon-uh-KRON-ik",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A product or raw material that can be bought and sold.",
+              "a specific historical period of 100 years, often used to denote a particular era.",
+              "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+              "The ability of something to be pressed into a smaller size."
+            ],
+            "correct_answer": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "31271760-c73f-47a8-83ca-58811d427f90",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "She found it difficult to adapt to a ___ schedule when she started her new job.",
+        "original_sentence": "She found it difficult to adapt to a monochronic schedule when she started her new job.",
+        "target_word": "monochronic",
+        "word": "monochronic",
+        "answer": {
+          "accepted": [
+            "monochronic",
+            "monochronically",
+            "monochronicity"
+          ],
+          "accepted_normalized": [
+            "monochronic",
+            "monochronically",
+            "monochronicity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c6c766b8-944c-4e8b-98c6-f5c0d419616d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "They were raised in a society that is strictly monochronic about business meetings.",
+        "chunks": [
+          "They",
+          "were raised",
+          "in a society that is strictly monochronic about business meetings"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "in a society that is strictly monochronic about business meetings",
+          "They",
+          "were raised"
+        ],
+        "target_word": "monochronic",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "abd84720-7bd4-4a3d-bd6c-137773932caf",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "monochronic",
+        "relation": "antonym",
+        "options": [
+          "diachronic",
+          "polychronic",
+          "chronic",
+          "synchronous"
+        ],
+        "correct_answer": "polychronic",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+            "explanation": "antonym: describes handling multiple tasks simultaneously rather than one at a time"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e5a2ecf3-35d8-4624-9897-4b25a7ab57ef",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "monochronic",
+        "pronunciation": "mon-uh-KRON-ik",
+        "ipa": "/ˌmɒnəˈkrɒnɪk/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "monochromic",
+          "monoclinic",
+          "monotonic",
+          "monochronic"
+        ],
+        "correct_answer": "monochronic",
+        "explanation": "Correct answer: the exact target word.",
+        "distractor_explanations": {
+          "monochromic": "near-homophone: differs only in the vowel sound of the stressed syllable (/ɒ/ vs /əʊ/).",
+          "monotonic": "rhyme: same stress and syllable count, but the stressed consonant cluster is /t/ instead of /kr/.",
+          "monoclinic": "rhyme: same stress and syllable count, but the stressed consonant cluster is /kl/ instead of /kr/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a2d06f8b-e5f6-49d2-b6c8-39202718804c",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "My friend is so ___ that she always completes her homework before starting any leisure activities.",
+        "original_sentence": "My friend is so monochronic that she always completes her homework before starting any leisure activities.",
+        "correct_answer": "monochronic",
+        "options": [
+          "spontaneous",
+          "ongoing",
+          "chronological",
+          "monochronic"
+        ],
+        "explanation": "Correct answer: fits the context of focusing on one task at a time before moving to the next.",
+        "distractor_tags": {},
+        "word_definition": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+        "target_word": "monochronic"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "2afbf234-9849-471a-8aff-8090b415a125",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The artist used a monochronic palette of blues and grays to paint the gloomy landscape.",
+            "is_correct": false
+          },
+          {
+            "text": "The company operates in a very monochronic manner, emphasizing strict deadlines and punctuality.",
+            "is_correct": true
+          },
+          {
+            "text": "The doctor diagnosed the patient with a monochronic infection that affected only one lung.",
+            "is_correct": false
+          },
+          {
+            "text": "Because the soup was monochronic, it lacked any distinct flavors or spices.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrectly uses the word to describe colors (monochromatic) rather than time management. Incorrectly uses the word to describe taste or lack of variety (monotonous) rather than scheduling. Incorrectly uses the word in a medical context to describe a disease (monoclonal) rather than a cultural or personal time style.",
+        "target_word": "monochronic"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d86a2e9d-625e-4817-8a43-f4b9dc03b06d",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "My friend is so monochronic that she always completes her homework before starting any leisure activities.",
+            "is_correct": true
+          },
+          {
+            "text": "She organizes her study materials very monochronic to ensure she doesn't get distracted.",
+            "is_correct": false,
+            "error_description": "The adjective 'monochronic' is incorrectly used to modify the verb 'organizes'. It should be replaced with the adverb 'monochronically'."
+          },
+          {
+            "text": "The company operates in a very monochronic manner, emphasizing strict deadlines and punctuality.",
+            "is_correct": true
+          },
+          {
+            "text": "While working on the group presentation, we realized our communication styles were less monochronic than expected.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "bc135503-63d9-4e47-ba3a-0088a1651a72",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Teachers often encourage students to maintain a monochronic approach while studying for exams."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "969ccdc4-9cfe-44a3-9610-eebf58c712e0",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "While working on the group presentation, we realized our communication styles were less ___ than expected.",
+        "original_sentence": "While working on the group presentation, we realized our communication styles were less monochronic than expected.",
+        "target_word": "monochronic",
+        "word": "monochronic",
+        "answer": {
+          "accepted": [
+            "monochronic",
+            "monochronically",
+            "monochronicity"
+          ],
+          "accepted_normalized": [
+            "monochronic",
+            "monochronically",
+            "monochronicity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fa83e872-f0fb-4de4-b130-a84f310e5637",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Teachers often encourage students to maintain a monochronic approach while studying for exams.",
+        "chunks": [
+          "Teachers",
+          "often",
+          "encourage",
+          "students",
+          "to maintain a monochronic approach while studying for exams"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "to maintain a monochronic approach while studying for exams",
+          "students",
+          "Teachers",
+          "often",
+          "encourage"
+        ],
+        "target_word": "monochronic",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "71b8a409-084b-49ff-b983-1999c7110e02",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "monochronic",
+        "relation": "antonym",
+        "options": [
+          "polychronic",
+          "diachronic",
+          "anachronistic",
+          "synchronous"
+        ],
+        "correct_answer": "polychronic",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Monochronic describes a way of managing time where you focus on one task or event at a time, following a schedule.",
+            "explanation": "antonym: describes a time management style of handling multiple tasks simultaneously rather than one at a time"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15216,
+      "word_asset_id": "shadow-15216-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023598,
+      "prompt_tokens": 1966,
+      "completion_tokens": 708,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3687
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007087,
+      "prompt_tokens": 704,
+      "completion_tokens": 199,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1533
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00140448,
+      "prompt_tokens": 861,
+      "completion_tokens": 882,
+      "cached_tokens": 0,
+      "reasoning_tokens": 871,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 13126
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163648,
+      "prompt_tokens": 674,
+      "completion_tokens": 1110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 893,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 15106
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00222208,
+      "prompt_tokens": 672,
+      "completion_tokens": 1568,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1372,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 22345
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00339456,
+      "prompt_tokens": 1228,
+      "completion_tokens": 2345,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2219,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 30044
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0041536,
+      "prompt_tokens": 1228,
+      "completion_tokens": 2938,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2810,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 37376
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00679936,
+      "prompt_tokens": 1664,
+      "completion_tokens": 4896,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4279,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 56363
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00656256,
+      "prompt_tokens": 1664,
+      "completion_tokens": 4711,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4081,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 56560
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003142,
+      "prompt_tokens": 414,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1033
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003679,
+      "prompt_tokens": 393,
+      "completion_tokens": 100,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1112
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003187,
+      "prompt_tokens": 479,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1324
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004504,
+      "prompt_tokens": 543,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1300
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004117,
+      "prompt_tokens": 414,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1205
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003432,
+      "prompt_tokens": 394,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1072
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003793,
+      "prompt_tokens": 481,
+      "completion_tokens": 94,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1059
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002039,
+      "prompt_tokens": 388,
+      "completion_tokens": 35,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 867
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004585,
+      "prompt_tokens": 545,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15216,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1178
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.032489420000000005,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 91.01599999997416,
+  "finished_at": "2026-09-27T03:50:30.137145+00:00"
+}

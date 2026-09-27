@@ -1,0 +1,129 @@
+{
+  "reviewer": "independent second-party reviewer (ja), blind to drafted values at time of judgement",
+  "date": "2026-09-27",
+  "sources_read_before_judgement": [
+    "data/eval/jev_grammar_2026-09-26/taxonomy.md (sec 0.8, sec 2.2 ja type details)",
+    "migrations/dt_taxonomy_v5_seed.sql (subtype_meta)",
+    "wiki/business-rules/translation-error-taxonomy.md",
+    "services/dual_translation/scoring.py"
+  ],
+  "precedent_notes": "v5 subtype_meta never uses critical as a default_severity (minor/major only); severity_weights 1/5/25 make a critical default a one-error band cliff. Closest analogues: verb_conjugation / tense_aspect_ja / particle_case = accuracy/major; zh de_particles, particle_other, counter_classifier = accuracy/minor; orthography, script_choice = accuracy/minor; word_choice = fidelity/minor; cohesion_connective = naturalness/minor; omission = fidelity/major. In DT the source passage is assumed coherent, so meaning-level defects in the learner's ja output are divergences from the source (fidelity), not target-language form errors.",
+  "judgements": [
+    {
+      "type": "transitivity_voice",
+      "dimension": "accuracy",
+      "default_severity": "major",
+      "rationale": "A 自他 or voice error is a target-language form rule, the same family as verb_conjugation and tense_aspect_ja (accuracy/major in v5). ドアが閉めました or 電気をついて are immediately wrong to a native reader even though the event is recoverable. Voice errors that swap agent and patient (先生に褒めました for 褒められました) invert who did what and can reach critical per instance, but the modal learner error is a 自他 pair slip that is recoverable, so major.",
+      "example_errors": [
+        "ドアが閉めました。 (for ドアが閉まりました — transitive verb with patient-が, no agent)",
+        "窓を開きました／電気をついてください (intransitive verb with を / in a request)",
+        "先生に褒めました。 (for 褒められました — missing passive inverts agent; escalate to critical)"
+      ],
+      "confidence": "high"
+    },
+    {
+      "type": "modification",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "い/な/の linkage slips (大きいの犬, 静かの部屋, 病気な友達) are pure form errors with the meaning fully transparent; they are the direct analogue of zh de_particles, which v5 sets accuracy/minor. A reader reads on without re-reading. The rarer misplaced-modifier case (a relative clause attached to the wrong head) can change reference and would be major per instance, but it is not the modal case for tier-3 learners.",
+      "example_errors": [
+        "大きいの犬がいます。 (i-adjective with spurious の)",
+        "静かの部屋で勉強します。 (na-adjective with の)",
+        "病気な友達のお見舞い (noun treated as na-adjective)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "clause_linkage",
+      "dimension": "accuracy",
+      "default_severity": "major",
+      "rationale": "The defining rules (と/ば-conditional cannot take a request, ために needs a volitional verb, のに is concessive) are target-language grammar constraints, so accuracy rather than cohesion_connective's naturalness; this type is stricter than cohesion (the not-an-error list already excludes から/ので and が/けど swaps). A native reader clearly stumbles on 駅に着くと、電話してください, and a のに/ので swap misstates the logical relation between clauses, which is more than a minor slip. A のに/ので swap that reverses the source's causal claim can be critical per instance.",
+      "example_errors": [
+        "駅に着くと、電話してください。 (と-conditional with a request; needs たら)",
+        "日本語が話せるために、毎日練習しています。 (ために with non-volitional potential; needs ように)",
+        "雨が降っているのに、傘を持っていきます。 (concessive where source is causal)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "kanji_choice",
+      "dimension": "accuracy",
+      "default_severity": "minor",
+      "rationale": "Choosing the wrong kanji among homophones is a written-form error: the reading is right and context nearly always disambiguates, matching orthography and script_choice (accuracy/minor). 友達に合いました or 今日は熱いです is noticed but does not make the reader re-read. Pairs whose wrong member produces a different, plausible meaning (感心 vs 関心, 以外 vs 意外) can be major per instance, but for tier-3 learners the modal case is an 異字同訓 slip like 会う/合う or 暑い/熱い.",
+      "example_errors": [
+        "駅で友達に合いました。 (合う for 会う)",
+        "今日はとても熱いです。 (熱い for weather 暑い)",
+        "体重を計ります／測ります confusion (量る/測る/計る set)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "semantic_anomaly",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "In DT the source is coherent, so an impossible or absurd event in the learner's ja is a mistranslation of a content word or role (冷蔵庫でパンを焼いた for オーブン), a divergence from the source rather than a form error, so fidelity. The result is clearly wrong to a native reader and the intended meaning is only partly recoverable; the anomaly flags itself and so does not silently mislead, which keeps it below critical. It overlaps word_choice (fidelity/minor), so the grader needs a precedence rule: tag anomaly only when the wrong word yields an impossible event, not merely an imprecise one.",
+      "example_errors": [
+        "冷蔵庫でパンを焼きました。 (wrong location noun makes the event impossible)",
+        "魚が木に登っています。 (wrong agent noun)",
+        "氷が溶けて、固くなりました。 (wrong result predicate)"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "type": "contradiction",
+      "dimension": "fidelity",
+      "default_severity": "major",
+      "rationale": "A self-contradiction in the output means one proposition was inverted relative to the source (a dropped negation, an antonym, 兄 with 年下), so it is a meaning-transfer failure: fidelity. Many instances are genuinely critical (the reader cannot tell which half the source meant), but the contradiction is self-flagging rather than silently misleading, v5 has never used a critical default, and a 25-point default would put one slip at band 1. So major is the default, with instance-level escalation to critical when the inverted proposition is the passage's main claim.",
+      "example_errors": [
+        "兄は私より三歳年下です。 (kinship clash)",
+        "お腹がいっぱいなので、もっと食べたいです。 (cause contradicts result, e.g. dropped negation)",
+        "一度も日本に行ったことがないが、去年は東京に住んでいた。 (time/experience clash)"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "comparison": [
+    {
+      "type": "transitivity_voice",
+      "draft": "accuracy/major",
+      "reviewer": "accuracy/major",
+      "verdict": "AGREE",
+      "argument": "Same family as conjugation/tam (accuracy/major); cloze_suitable=true is also right, since 自他 pairs are a closed set."
+    },
+    {
+      "type": "modification",
+      "draft": "accuracy/minor",
+      "reviewer": "accuracy/minor",
+      "verdict": "AGREE",
+      "argument": "The direct analogue of zh de_particles (accuracy/minor): the meaning is fully transparent. A misplaced relative-clause head is the exception and can be escalated per instance."
+    },
+    {
+      "type": "clause_linkage",
+      "draft": "accuracy/major",
+      "reviewer": "accuracy/major",
+      "verdict": "AGREE",
+      "argument": "These are hard grammatical constraints (と + request, ために + non-volitional), unlike cohesion_connective's naturalness/minor. Boundary note: the grader must keep から/ので and が/けど swaps out of this type (they are in the jev not-an-error list), or it will over-fire."
+    },
+    {
+      "type": "kanji_choice",
+      "draft": "fidelity/minor",
+      "reviewer": "accuracy/minor",
+      "verdict": "DISAGREE",
+      "argument": "The learner chose the right word (the reading and the intended meaning match the source) and failed only at its written form, so charging fidelity counts a correct meaning transfer as a meaning error, on ja's raised fidelity weight (0.30). It also puts 合う-for-会う on a different dimension from a miswritten kanji (orthography, accuracy/minor) and from the dropped script_choice (accuracy/minor). Fidelity applies only when the wrong kanji yields a different plausible word (関心/感心, 意外/以外), and the grader can escalate those per instance. The jev class 'S' describes how the error is built in the single-sentence eval, not what it costs in translation."
+    },
+    {
+      "type": "semantic_anomaly",
+      "draft": "fidelity/major",
+      "reviewer": "fidelity/major",
+      "verdict": "AGREE",
+      "argument": "In DT the source is coherent, so an absurd event is a mistranslation and the reader sees it clearly. It needs a precedence rule against word_choice (fidelity/minor): use anomaly only when the wrong word makes the event impossible, or the same slip is scored 1 or 5 depending on the tag."
+    },
+    {
+      "type": "contradiction",
+      "draft": "fidelity/critical",
+      "reviewer": "fidelity/major",
+      "verdict": "DISAGREE",
+      "argument": "The jev type is self-contradiction. That flags itself: the reader can see something is wrong, so it does not mislead silently. With severity_weights 1/5/25, a critical default puts one kinship or time slip (兄...年下) at band 1 of fidelity, and no v5 subtype has ever defaulted to critical. The draft also widened the definition to 'or inverts the source's meaning'. That swallows silent inversions (a dropped ない) which overlap omission and word_choice. Those really are critical, but they should be escalated per instance under their own type, not made the default of a type imported for self-contradiction. If the widened definition is kept on purpose, critical becomes defensible. In that case, record the scope change in the ADR and add a precedence rule against omission."
+    }
+  ]
+}

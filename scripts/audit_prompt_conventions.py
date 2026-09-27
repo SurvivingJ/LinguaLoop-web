@@ -23,7 +23,7 @@ Read-only. Writes nothing, calls no model.
        hatch) while P1/P2 maps are 1-based.
 
     3. AGE TIERS, NOT CEFR — ``VALID_TIERS = T1..T6`` replaced CEFR A1-C2
-       project-wide (``services/conversation_generation/categorical_maps.py``,
+       project-wide (``services/categorical_maps.py``,
        which still carries ``CEFR_TO_TIER`` purely as a migration map). A live
        prompt that instructs a model in CEFR bands is off-convention. HSK/JLPT
        mentions are reported separately: they are national exam scales, not the

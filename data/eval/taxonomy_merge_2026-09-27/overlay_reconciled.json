@@ -1,0 +1,1573 @@
+{
+ "protocol": "jev taxonomy.md §0.8 — blind reviewer, one exchange per disagreement",
+ "date": "2026-09-27",
+ "agreement_blind": {
+  "type": "57/61",
+  "severity": "55/61",
+  "explanation_variant": "20/26 (both word_choice)"
+ },
+ "disagreements": 13,
+ "conceded_by_reviewer": 4,
+ "escalated": 9,
+ "entries": [
+  {
+   "item_id": "zh_seed_06",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "感到很轻松",
+   "corrected_form": "感到很放松",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 轻松 and 放松 share the gloss 'relaxed'; 轻松 means light/easy, not the unwound state needed.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "轻松/放松 near-synonyms; 轻松 slightly off for emotional relaxation",
+   "final": "ESCALATE",
+   "author_position": "Author: 轻松/放松 share gloss 'relaxed'; 轻松 is light/easy, not the unwound state -> wrong_sense.",
+   "reviewer_position": "Reviewer: wrong_sense = the learner's word HAS a sense that fits the general form but a different sense of the SAME word was needed (polysemy, e.g. 最初, 仕事). A different lexeme that merely shares an L1 gloss is a near-synonym = wrong_word; the v6 definition says 'real word with the right general form, used in a different dictionary sense'. 轻松 is itself used correctly in a 'relaxed' sense here."
+  },
+  {
+   "item_id": "zh_seed_11",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "画的很细致",
+   "corrected_form": "画得很细致",
+   "author_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "author_note": "User decision 2026-09-27: ALL 的/地/得 misuse is an error (de_particle); overrides reconciled.json (was ESCALATE). Severity kept from source label (minor). 的-for-得 before a degree complement.",
+   "reviewer_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "的-for-得; all 的/地/得 misuse is de_particle",
+   "final": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_seed_12",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "颜色很浅",
+   "corrected_form": "颜色很正",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 浅 (pale) is a different word from 正 (true/pure colour); no shared sense.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "浅 (light) vs 正 (true colour): different attribute, not an antonym, real content change",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_seed_13",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "看起来非常伤心",
+   "corrected_form": "看起来非常开心",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Antonym substitution 伤心 (sad) for 开心 (happy) reverses the evaluative polarity of the core claim. word_choice -> meaning_inversion.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "伤心 vs 开心 antonym flips polarity of the claim",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_multi_02",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "画的很细致",
+   "corrected_form": "画得很细致",
+   "author_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "author_note": "User decision 2026-09-27: ALL 的/地/得 misuse is an error (de_particle); overrides reconciled.json (was ESCALATE). Severity kept from source label (minor). 的-for-得 before a degree complement.",
+   "reviewer_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "的-for-得",
+   "final": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_multi_02",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 1,
+   "learner_form": "普通的图案",
+   "corrected_form": "简单的图案",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 普通 and 简单 share the gloss 'plain'; 普通 means ordinary, not simple in design.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "普通 vs 简单 near-synonym, small nuance loss",
+   "final": "ESCALATE",
+   "author_position": "Author: 普通/简单 share gloss 'plain'; 普通 means ordinary -> wrong_sense.",
+   "reviewer_position": "Reviewer: wrong_sense = the learner's word HAS a sense that fits the general form but a different sense of the SAME word was needed (polysemy, e.g. 最初, 仕事). A different lexeme that merely shares an L1 gloss is a near-synonym = wrong_word; the v6 definition says 'real word with the right general form, used in a different dictionary sense'."
+  },
+  {
+   "item_id": "zh_multi_03",
+   "set": "gold",
+   "lang": "zh",
+   "error_index": 1,
+   "learner_form": "看起来非常伤心",
+   "corrected_form": "看起来非常开心",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Same 伤心/开心 antonym reversal as zh_seed_13.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "伤心 vs 开心 antonym",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_07",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "不会在手术中被小心地取出",
+   "corrected_form": "会在手术中被小心地取出",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Added 不 negates the proposition (organs are NOT removed). Surface is an addition, effect is a polarity flip.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "added 不 flips polarity (by effect, not addition)",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_08",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "它是那种很贵的牌子",
+   "corrected_form": "它不是那种很贵的牌子",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Dropped 不 flips polarity (it IS an expensive brand). Surface is an omission, effect is a polarity flip.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "dropped 不 flips polarity (by effect, not omission)",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_09",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "也让我联想到一点关于快乐和友谊的东西",
+   "corrected_form": "也让我联想到很多关于快乐和友谊的东西",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "一点 (a little) for 很多 (a lot): quantity weakened, not reversed — the claim that the pattern evokes happiness/friendship still holds. Analogous to many->some, so NOT meaning_inversion. | variant: 一点 is a different quantity word from 很多, not a sense confusion.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "很多->一点 is a large->small degree reversal (like many->few), not many->some; borderline",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "Reviewer concedes: 一点 'a little' is positive-existential like 'some' (cf. 很少 'little' in zh_silver_10); the claim still holds, so this is many->some, not an inversion. Final word_choice/major/wrong_word."
+  },
+  {
+   "item_id": "zh_silver_10",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "陪伴我度过了很少快乐的时光",
+   "corrected_form": "陪伴我度过了很多快乐的时光",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "很少 (very few) for 很多 (very many): scalar antonym, quantity reversed.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "很多->很少 quantity reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_11",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "运送出需要进行移植手术的医院",
+   "corrected_form": "运送到需要进行移植手术的医院",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "运送出 (transport OUT of) for 运送到 (transport TO) the hospital reverses direction of movement. Source directional_complement/major; severity raised to critical per meaning_inversion default.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "运送出 (out of) vs 运送到 (to) reverses direction; surface form is complement but label by effect",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_12",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "在等待名单中寻找最合适的捐献者",
+   "corrected_form": "在等待名单中寻找最合适的受者",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "捐献者 (donor) for 受者 (recipient): searching the waiting list for a donor swaps the recipient role.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "捐献者 vs 受者 swaps donor/recipient role",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_17",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "但却很好看",
+   "corrected_form": "但却栩栩如生，充满了生命力",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 很好看 (pretty) replaces 栩栩如生 (lifelike) with a different, vaguer word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "很好看 replaces 栩栩如生/充满生命力: different, vaguer meaning plus lost clause; substitution not bare deletion",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_18",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "会看情况",
+   "corrected_form": "会根据患者的身体状况、血型以及配型情况",
+   "author_call": {
+    "v6_type": "omission",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "会看情况 drops the matching criteria (condition, blood type, tissue match): content lost, nothing reversed, so omission not meaning_inversion. Severity critical kept from source.",
+   "reviewer_call": {
+    "v6_type": "omission",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "vague 看情况 drops the three criteria; content lost, nothing reversed, so major not critical",
+   "final": "ESCALATE",
+   "author_position": "Author: omission, severity critical kept from source.",
+   "reviewer_position": "Reviewer: nothing is reversed; critical (weight 25) should be reserved for inversion-grade effects. Content loss of three criteria = MQM major."
+  },
+  {
+   "item_id": "zh_silver_20",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "被小心的取出",
+   "corrected_form": "被小心地取出",
+   "author_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "author_note": "User decision 2026-09-27: ALL 的/地/得 misuse is an error (de_particle); overrides reconciled.json (was variant_ok). Severity kept from source label (minor). 的-for-地 before a verb; v6 de_particle definition must drop its 的-for-地 exemption.",
+   "reviewer_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "的-for-地",
+   "final": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_29",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "我地朋友们都夸我的T恤很可爱",
+   "corrected_form": "我的朋友们都夸我的T恤很可爱",
+   "author_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "author_note": "User decision 2026-09-27: ALL 的/地/得 misuse is an error (de_particle); overrides reconciled.json (agreed keep). Severity kept from source label (minor). Attributive 地-for-的; covered once the definition reads 'wrong 的/得/地 choice'.",
+   "reviewer_call": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "地-for-的",
+   "final": {
+    "v6_type": "de_particle",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "zh_silver_37",
+   "set": "silver",
+   "lang": "zh",
+   "error_index": 0,
+   "learner_form": "都会把心情变好",
+   "corrected_form": "都会觉得心情变好",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 把…变好 swaps in a different verb frame for 觉得; not a sense confusion of one lexeme.",
+   "reviewer_call": {
+    "v6_type": "ba_bei",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "把心情变好: 把 with non-disposal intransitive result where 觉得 needed; structural",
+   "final": "ESCALATE",
+   "author_position": "Author: 把…变好 swaps a different verb frame for 觉得, not a lexeme confusion; keep CSV word_choice/major/wrong_word.",
+   "reviewer_position": "Reviewer: 把 with the non-disposal intransitive result 变好 is exactly v6 ba_bei ('把 with a non-disposal verb'); a construction error, not a lexical choice. ba_bei/major."
+  },
+  {
+   "item_id": "ja_seed_01",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "部品はセット",
+   "corrected_form": "部品がセット",
+   "author_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "author_note": "reconciled.json: keep wa_ga major — は marks a relative-clause subject (部品はセットになったもの), jev rule 2.",
+   "reviewer_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "は for subject inside relative clause (部品がセットになったもの)",
+   "final": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_seed_08",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "物を持つための",
+   "corrected_form": "物を掴むための",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 持つ and 掴む share the gloss 'hold'; 持つ is hold/carry, not grip/grasp.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "持つ vs 掴む: hold vs grasp, near-synonym",
+   "final": "ESCALATE",
+   "author_position": "Author: 持つ/掴む share gloss 'hold'; 持つ is hold/carry -> wrong_sense.",
+   "reviewer_position": "Reviewer: wrong_sense = the learner's word HAS a sense that fits the general form but a different sense of the SAME word was needed (polysemy, e.g. 最初, 仕事). A different lexeme that merely shares an L1 gloss is a near-synonym = wrong_word; the v6 definition says 'real word with the right general form, used in a different dictionary sense'. 持つ is used in its normal hold sense; the needed meaning belongs to a different verb."
+  },
+  {
+   "item_id": "ja_seed_14",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "一番難しいところ",
+   "corrected_form": "一番面白いところ",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 難しい (difficult) for 面白い (interesting): different word, not antonyms.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "難しい vs 面白い: different evaluation, not an antonym pair, so not inversion",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_seed_15",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "もっと簡単な",
+   "corrected_form": "もっと複雑な",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "簡単 (simple) for 複雑 (complex): antonym, degree reversed.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "簡単 vs 複雑 antonym reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_01",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "部品はセット",
+   "corrected_form": "部品がセット",
+   "author_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "author_note": "reconciled.json: keep wa_ga major — same relative-clause subject error as ja_seed_01.",
+   "reviewer_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "relative-clause subject は->が",
+   "final": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_01",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 1,
+   "learner_form": "面白さですね",
+   "corrected_form": "醍醐味ですね",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 面白さ (fun) is a vaguer different word for 醍醐味 (the real pleasure).",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "面白さ vs 醍醐味: flatter near-synonym",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_02",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "最初、アーム",
+   "corrected_form": "まず、アーム",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 最初 and まず share the gloss 'first'; 最初 is 'at the beginning', not the enumerative 'first of all'.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "reviewer_reason": "最初 used in its \"initially\" sense where enumerative まず (\"first of all\") is needed",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_03",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "一番難しいところ",
+   "corrected_form": "一番面白いところ",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: Same 難しい/面白い substitution as ja_seed_14.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "same as ja_seed_14",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_04",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "もっと簡単な",
+   "corrected_form": "もっと複雑な",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Same 簡単/複雑 antonym reversal as ja_seed_15.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "簡単 vs 複雑 antonym",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_04",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 1,
+   "learner_form": "部品の仕事を学び",
+   "corrected_form": "部品の役割を学び",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 仕事 and 役割 share the gloss 'job/function'; 仕事 is work/employment, not a component's role.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "reviewer_reason": "仕事 (job/work) used for a part's function/role (役割) — right general idea, wrong sense",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_04",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 2,
+   "learner_form": "手が動かすことの",
+   "corrected_form": "手を動かすことの",
+   "author_call": {
+    "v6_type": "case_particle",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "author_note": "手が動かす for 手を動かす could be read as agent/patient swap, but the result is ill-formed (transitive 動かす with no object) rather than a coherent reversed proposition; the 'moving your hands' claim survives. Kept case_particle.",
+   "reviewer_call": {
+    "v6_type": "case_particle",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "transitive 動かす needs を for its object, not が",
+   "final": {
+    "v6_type": "case_particle",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_multi_05",
+   "set": "gold",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "私たちは作るものは",
+   "corrected_form": "私たちが作るものは",
+   "author_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "author_note": "reconciled.json: keep wa_ga major — 私たちは作るもの is a relative-clause subject, jev rule 2.",
+   "reviewer_call": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "relative-clause subject は->が",
+   "final": {
+    "v6_type": "wa_ga",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_18",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "不要です",
+   "corrected_form": "必要です",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "不要 (unnecessary) for 必要 (necessary): negated antonym, polarity flip.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "不要 vs 必要 polarity reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_19",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "うまく掴めないか",
+   "corrected_form": "うまく掴めるか",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Added negation 掴めないか for 掴めるか flips the polarity of the tested proposition.",
+   "reviewer_call": {
+    "v6_type": "addition",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "〜ないか確認 in a whether-check is truth-conditionally ~equivalent; embedded-question polarity does not flip the core claim, so NOT inversion",
+   "final": "ESCALATE",
+   "author_position": "Author: added negation 掴めないか flips polarity of the tested proposition -> meaning_inversion/critical by effect.",
+   "reviewer_position": "Reviewer: the negation sits inside an embedded whether-check; 'check whether it can(not) grip' is truth-conditionally the same act and 〜ないか確認 is idiomatic Japanese. Core claim not reversed -> addition/minor (arguably not an error)."
+  },
+  {
+   "item_id": "ja_silver_20",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "たくさんの部品",
+   "corrected_form": "いくつかの部品",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "たくさん (many) for いくつか (some/several): degree change, not a reversal — the user's many->some example. NOT meaning_inversion. | variant: たくさん for いくつか: different quantity word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "たくさん->いくつか is many->some: degree change without reversal (explicitly not inversion)",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "Reviewer concedes severity major: a quantity misstatement is a propositional-content change (consistent with conceding zh_silver_09 at major). Final word_choice/major/wrong_word."
+  },
+  {
+   "item_id": "ja_silver_21",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "モーターを動かすための「アーム」",
+   "corrected_form": "アームを動かすための「モーター」",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Arm-to-move-the-motor for motor-to-move-the-arm: agent/patient swap.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "motor/arm swapped: agent/patient reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_22",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "もしうまく動く場合は",
+   "corrected_form": "もしうまく動かない場合は",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Dropped negation (動く for 動かない) flips the condition's polarity.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "dropped ない flips polarity of the condition",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_23",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "皆さんのアイデアとは関係なく",
+   "corrected_form": "皆さんのアイデア次第で",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "関係なく (regardless of) for 次第で (depending on): denies the dependency the reference asserts.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "関係なく (regardless) vs 次第で (depending on) reverses the dependency claim",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_28",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "アームの先にある",
+   "corrected_form": "アームの指先にあたる",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 先にある (at the tip) for 指先にあたる (corresponds to the fingertip): different expression.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "先にある vs 指先にあたる: loses the fingertip analogy, meaning mostly kept",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "ja_silver_24",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "達成感は高いですよ",
+   "corrected_form": "達成感は格別ですよ",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 高い for 格別: different word (and odd collocation with 達成感).",
+   "reviewer_call": {
+    "v6_type": "collocation",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "達成感は高い: individually fine words, unnatural pairing (格別 idiomatic)",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "Reviewer concedes: 達成感が高い is attested, so 'individually fine but unnatural combination' is weak; the loss is 格別's intensity. Final word_choice/minor/wrong_word."
+  },
+  {
+   "item_id": "ja_silver_27",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "しかし、「プログラミング」を学ぶ",
+   "corrected_form": "そして、「プログラミング」を学ぶ",
+   "author_call": {
+    "v6_type": "cohesion_connective",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "author_note": "しかし (however) for そして (and): wrong logical relation, but the propositions themselves are not reversed; not meaning_inversion. Arguably v6 `contradiction` (wrong connective relation); kept cohesion_connective per CSV pending ADR-031 boundary rule.",
+   "reviewer_call": {
+    "v6_type": "cohesion_connective",
+    "v6_severity": "minor",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "しかし (contrast) where そして (addition) needed; claims themselves intact",
+   "final": {
+    "v6_type": "cohesion_connective",
+    "v6_severity": "major",
+    "explanation_variant": null
+   },
+   "resolution": "Reviewer concedes major: しかし asserts a contrast where addition is meant, misleading the logical relation (en v6 even treats wrong-relation connectives as contradiction/major). Final cohesion_connective/major."
+  },
+  {
+   "item_id": "ja_silver_29",
+   "set": "silver",
+   "lang": "ja",
+   "error_index": 0,
+   "learner_form": "わかるようになります",
+   "corrected_form": "理解する手助けになります",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: わかるようになる for 理解する手助けになる: different predicate, loses 'helps'.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "わかるようになる overclaims vs 理解する手助けになる; degree shift, not reversal",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_seed_06",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "a nice DIY project",
+   "corrected_form": "a fun DIY project",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'nice' for 'fun': different word, loses the specific meaning.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "nice vs fun near-synonym",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_seed_10",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "move it to a new spot",
+   "corrected_form": "move them to a new spot",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "reconciled.json: pronoun_reference split — antecedent-number error (it for them) is outside v6 `pronoun`; retyped word_choice, severity major (referent shift). | variant: 'it' for 'them': wrong pronoun form (number), not a sense confusion.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "it vs them: referent number mismatch shifts referent (per ADR-031: pronoun_reference->word_choice/major)",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_seed_14",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "This is like a foot",
+   "corrected_form": "This is like a hand",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'foot' for 'hand': different word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "foot vs hand: wrong referent, content change, not an antonym",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_seed_15",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "many things without it",
+   "corrected_form": "many things with it",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "'without' for 'with' reverses polarity; user's canonical example. preposition -> meaning_inversion.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "with->without polarity reversal (ADR example)",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_multi_03",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "coding is key",
+   "corrected_form": "coding is important",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 'key' and 'important' share a sense, but predicative 'is key' is the idiomatic sense of key and marked here as the wrong sense for the reference's neutral 'important'. Borderline.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "\"key\" vs \"important\": acceptable near-synonym, at most minor",
+   "final": "ESCALATE",
+   "author_position": "Author: predicative 'is key' is the idiomatic sense, wrong for neutral 'important' -> wrong_sense (author flags borderline).",
+   "reviewer_position": "Reviewer: 'key' = 'crucial' is a correct sense in this context; at most a near-synonym/register nuance -> wrong_word."
+  },
+  {
+   "item_id": "en_multi_03",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 2,
+   "learner_form": "move it to a new spot",
+   "corrected_form": "move them to a new spot",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "reconciled.json: same as en_seed_10 (it for them), word_choice major. | variant: 'it' for 'them': wrong pronoun form (number).",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "same as en_seed_10",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_multi_04",
+   "set": "gold",
+   "lang": "en",
+   "error_index": 1,
+   "learner_form": "many things without it",
+   "corrected_form": "many things with it",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Same with/without reversal as en_seed_15.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "with->without",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_11",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "A fourth motor can open and close a gripper.",
+   "corrected_form": "A third motor can open and close a gripper.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "'fourth' for 'third': wrong ordinal, a factual mismatch but not a polarity/direction/scalar reversal. NOT meaning_inversion. | variant: 'fourth' for 'third': different word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "fourth vs third: wrong ordinal, content error but not a reversal",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_13",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You can move him to a new spot.",
+   "corrected_form": "You can move them to a new spot.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "reconciled.json: 'him' for 'them' unanchors the referent; word_choice major. | variant: 'him' for 'them': wrong pronoun form (person/number).",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "him vs them: referent shift (ADR-031 retype)",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_15",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "This DIY project also teaches everyone about electronics.",
+   "corrected_form": "This DIY project teaches you about electronics.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'everyone' for 'you' (plus inserted 'also'): different word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "\"also teaches everyone\" vs \"teaches you\": generic-you misrendered, minor content drift",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_17",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "It says the motors when to move.",
+   "corrected_form": "It tells the motors when to move.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 'say' and 'tell' share the L1 gloss (告诉/言う); 'say' lacks the tell-someone-to-do sense.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "say vs tell: say cannot take an indirect object; meaning still clear",
+   "final": "ESCALATE",
+   "author_position": "Author: say/tell share L1 gloss (告诉/言う); 'say' lacks the tell-someone sense -> wrong_sense; severity major kept from source.",
+   "reviewer_position": "Reviewer: a word lacking the needed sense is wrong_word, not wrong_sense (no sense of 'say' fits); meaning fully recoverable, so minor not major."
+  },
+  {
+   "item_id": "en_silver_20",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You cannot learn about robotics and electronics.",
+   "corrected_form": "You can learn about robotics and electronics.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Added negation 'cannot' flips polarity. Surface addition, effect polarity flip.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "cannot vs can: added negation flips polarity",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_21",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "Another motor can't make it move left and right.",
+   "corrected_form": "Another motor can make it move left and right.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "Added negation 'can't' flips polarity.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "can't vs can",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_22",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You can move them from a new spot.",
+   "corrected_form": "You can move them to a new spot.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "'from' for 'to' reverses direction of movement. preposition -> meaning_inversion.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "from vs to reverses direction",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_23",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You can make few things with it.",
+   "corrected_form": "You can make many things with it.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "'few' for 'many': scalar antonym, quantity reversed (not a mere many->some weakening).",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "few vs many quantity reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_25",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You can build more complex robots first.",
+   "corrected_form": "You can build more complex robots later.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "'first' for 'later' reverses temporal order (antonym on the before/after axis). Borderline: could be read as word_choice, but the ordering claim is inverted.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "first vs later reverses temporal order relative to reference; not self-contradictory so not contradiction; borderline",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_27",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "Or you can avoid simple sticks and glue.",
+   "corrected_form": "Or you can use simple sticks and glue.",
+   "author_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "author_note": "'avoid' for 'use': antonym, the recommended action is reversed.",
+   "reviewer_call": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "reviewer_reason": "avoid vs use: antonymic polarity reversal",
+   "final": {
+    "v6_type": "meaning_inversion",
+    "v6_severity": "critical",
+    "explanation_variant": null
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_28",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "You also need some servo engines.",
+   "corrected_form": "You also need some servo motors.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_sense"
+   },
+   "author_note": "variant: 'engine' and 'motor' share the L1 gloss (马达/发动机/モーター); 'engine' is the combustion sense, not a servo.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "engine does not denote an electric servo motor; wrong word (L1 transfer), not a sense issue",
+   "final": "ESCALATE",
+   "author_position": "Author: engine/motor share L1 gloss (马达/发动机/モーター); 'engine' is the combustion sense -> wrong_sense.",
+   "reviewer_position": "Reviewer: wrong_sense = the learner's word HAS a sense that fits the general form but a different sense of the SAME word was needed (polysemy, e.g. 最初, 仕事). A different lexeme that merely shares an L1 gloss is a near-synonym = wrong_word; the v6 definition says 'real word with the right general form, used in a different dictionary sense'. 'engine' has no electric-servo sense, so it is a word that doesn't fit."
+  },
+  {
+   "item_id": "en_silver_31",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "A third motor can open and close a thing.",
+   "corrected_form": "A third motor can open and close a gripper.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'thing' for 'gripper': vague different word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "\"thing\" vague for gripper; content thinned",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_32",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "The coding involves simple stuff.",
+   "corrected_form": "The coding involves simple commands.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'stuff' for 'commands': vague different word.",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "\"stuff\" vague/informal for commands",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "minor",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  },
+  {
+   "item_id": "en_silver_35",
+   "set": "silver",
+   "lang": "en",
+   "error_index": 0,
+   "learner_form": "The coding is expensive.",
+   "corrected_form": "The coding is important.",
+   "author_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "author_note": "variant: 'expensive' for 'important': different word (likely 贵/重 confusion, but no shared English sense).",
+   "reviewer_call": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "reviewer_reason": "expensive vs important: different predicate, real content change, not reversal",
+   "final": {
+    "v6_type": "word_choice",
+    "v6_severity": "major",
+    "explanation_variant": "wrong_word"
+   },
+   "resolution": "agreed blind"
+  }
+ ]
+}

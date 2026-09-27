@@ -1,0 +1,1326 @@
+{
+  "sense_id": 13946,
+  "language_id": 2,
+  "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+  "started_at": "2026-09-27T00:24:09.078560+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.856842279434204,
+    "p1_generate": 3.055650472640991,
+    "tier_gate": 0.015207529067993164,
+    "p1_judge": 1.5870633125305176,
+    "collocate_grounding": 0.0,
+    "fan_out": 76.41450572013855
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/fɑːr əˈweɪ/",
+        "morphological_forms": [
+          {
+            "form": "far away",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "fahr uh-way",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13946
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "627e0404-e15d-49f4-8075-07f7552f222a",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "far away",
+        "pronunciation": "fahr uh-way",
+        "correct_definition": "at a great distance; a long way off",
+        "options": [
+          "To be carried along by air or water, or to move slowly in a direction without a clear purpose.",
+          "A mite is a tiny arachnid, often too small to see without a microscope.",
+          "The practice of growing crops and raising livestock for food and other products.",
+          "at a great distance; a long way off"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ccaa15a0-1473-498d-887b-d0eb15f4550d",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The beans come from ___.",
+        "original_sentence": "The beans come from far away.",
+        "correct_answer": "far away",
+        "options": [
+          "quickly",
+          "nearby",
+          "always",
+          "far away"
+        ],
+        "explanation": "Correct: fits the context of the beans originating from a great distance.",
+        "distractor_tags": {},
+        "word_definition": "at a great distance; a long way off",
+        "target_word": "far away"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "0299a5ca-edab-4779-8da9-5f214c13c5e1",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She stared into the dark night, dreaming of places far away.",
+            "is_correct": true
+          },
+          {
+            "text": "She whispered the secret far away so everyone in the room could hear it clearly.",
+            "is_correct": false
+          },
+          {
+            "text": "The tiny ant walked far away across the small leaf in just two seconds.",
+            "is_correct": false
+          },
+          {
+            "text": "He kept his keys far away in his own pocket so he wouldn't lose them.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: whispering is done to be quiet, which contradicts the goal of being heard clearly by everyone nearby. Semantically inappropriate: a pocket is immediately on one's person, making it impossible for something inside it to be 'at a great distance'. Semantically inappropriate: a single leaf is a very small physical space, so an ant cannot traverse a 'great distance' or be 'a long way off' while on it.",
+        "target_word": "far away"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c0dd6023-5e1d-4e00-ba38-f339f606d851",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "My uncle lives in a far away village.",
+            "is_correct": false,
+            "error_description": "The adverbial phrase 'far away' should not be placed directly before a noun. It must follow the noun it modifies, or the compound adjective 'faraway' should be used instead."
+          },
+          {
+            "text": "My best friend moved far away last summer.",
+            "is_correct": true
+          },
+          {
+            "text": "The beans come from far away.",
+            "is_correct": true
+          },
+          {
+            "text": "We could see the mountains standing far away on the horizon.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "fc59a56e-0e7b-4299-a495-7fd3b1a2de09",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Birds migrate far away when the winter weather gets cold."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "4bb05103-b253-4263-a114-164b4d773cae",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "far away",
+        "pronunciation": "fahr uh-way",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A state of being able to do something with little effort or difficulty; something that is useful or helpful.",
+              "at a great distance; a long way off",
+              "To put food in your mouth and swallow it.",
+              "The length of time that someone has lived or that something has existed."
+            ],
+            "correct_answer": "at a great distance; a long way off"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "655bce10-2192-499a-a2e6-6b192841f76d",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "My best friend moved ___ last summer.",
+        "original_sentence": "My best friend moved far away last summer.",
+        "target_word": "far away",
+        "word": "far away",
+        "answer": {
+          "accepted": [
+            "far away"
+          ],
+          "accepted_normalized": [
+            "far away"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4ea01216-bf0f-484a-9c4a-98a60cc2ca60",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Birds migrate far away when the winter weather gets cold.",
+        "chunks": [
+          "Birds",
+          "migrate",
+          "far away",
+          "when the winter weather gets cold"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "when the winter weather gets cold",
+          "far away",
+          "Birds",
+          "migrate"
+        ],
+        "target_word": "far away",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d62cd453-4399-4ea4-a56c-7230b6a7c8da",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "far away",
+        "relation": "antonym",
+        "options": [
+          "elsewhere",
+          "nearby",
+          "abroad",
+          "overhead"
+        ],
+        "correct_answer": "nearby",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "at a great distance; a long way off",
+            "explanation": "antonym: at a short distance, the direct opposite of at a great distance"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b431c4af-d29c-43bd-a0eb-9a0feb3f6a1a",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "far away",
+        "pronunciation": "fahr uh-way",
+        "ipa": "/fɑːr əˈweɪ/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "for a way",
+          "bar away",
+          "far away",
+          "car away"
+        ],
+        "correct_answer": "far away",
+        "explanation": "Correct. This is the exact target phrase you heard.",
+        "distractor_explanations": {
+          "for a way": "near-homophone phrase: 'for' sounds similar to 'far' in connected speech, resulting in a different meaning.",
+          "car away": "minimal pair phrase: 'car' differs from 'far' only in the initial consonant sound /k/ versus /f/.",
+          "bar away": "minimal pair phrase: 'bar' differs from 'far' only in the initial consonant sound /b/ versus /f/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7ca2f573-a790-4c4a-8d6a-d752b6acaa79",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Is your new school ___ from your house?",
+        "original_sentence": "Is your new school far away from your house?",
+        "correct_answer": "far away",
+        "options": [
+          "recently",
+          "far away",
+          "inside",
+          "abroad"
+        ],
+        "explanation": "Correct. It correctly expresses spatial distance in relation to the house.",
+        "distractor_tags": {},
+        "word_definition": "at a great distance; a long way off",
+        "target_word": "far away"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "fc6c918a-b364-4016-ace0-699785128574",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She held the delicate glass far away by gripping it tightly in her own hands.",
+            "is_correct": false
+          },
+          {
+            "text": "Please pass me the salt, it is sitting far away on the table right in front of you.",
+            "is_correct": false
+          },
+          {
+            "text": "The microscopic bacteria traveled far away in just a single nanometer.",
+            "is_correct": false
+          },
+          {
+            "text": "Don't wander too far away while we are in the crowded park.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate because an object right in front of someone is by definition close, not at a great distance. Semantically inappropriate because a nanometer is an infinitesimally small distance, which directly contradicts the meaning of 'far away'. Pragmatically inappropriate because gripping something in one's own hands means it is close to the body, contradicting the idea of it being 'far away'.",
+        "target_word": "far away"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "70a815fd-a372-4bb1-86a6-5206293c77ca",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Don't wander too far away while we are in the crowded park.",
+            "is_correct": true
+          },
+          {
+            "text": "Is your new school far away from your house?",
+            "is_correct": true
+          },
+          {
+            "text": "They traveled far away to explore different cultures and traditions.",
+            "is_correct": true
+          },
+          {
+            "text": "He lives far away me.",
+            "is_correct": false,
+            "error_description": "The adverbial phrase 'far away' requires the preposition 'from' to connect it to the reference point. Omitting the preposition results in a structural error."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1fd8cf25-987d-4252-8578-a73c362284d5",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "She stared into the dark night, dreaming of places far away."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7bdf2bc3-0d73-4bb5-9c9f-e684cea4065a",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "They traveled ___ to explore different cultures and traditions.",
+        "original_sentence": "They traveled far away to explore different cultures and traditions.",
+        "target_word": "far away",
+        "word": "far away",
+        "answer": {
+          "accepted": [
+            "far away"
+          ],
+          "accepted_normalized": [
+            "far away"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1918a0ee-d123-4a5a-a352-a42a2a6f9eaa",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "She stared into the dark night, dreaming of places far away.",
+        "chunks": [
+          "She stared",
+          "into the dark night",
+          "dreaming of places far away"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "She stared",
+          "dreaming of places far away",
+          "into the dark night"
+        ],
+        "target_word": "far away",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "56db278c-19ef-4998-a55d-b4214fd8ca71",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "far away",
+        "relation": "antonym",
+        "options": [
+          "abroad",
+          "nearby",
+          "ahead",
+          "elsewhere"
+        ],
+        "correct_answer": "nearby",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "at a great distance; a long way off",
+            "explanation": "antonym: means at a short distance, the opposite of far away"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "ahead": 0.409609
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13946,
+      "word_asset_id": "shadow-13946-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.001731,
+      "prompt_tokens": 1920,
+      "completion_tokens": 462,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 2752
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006893,
+      "prompt_tokens": 631,
+      "completion_tokens": 200,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1246
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00156576,
+      "prompt_tokens": 657,
+      "completion_tokens": 1059,
+      "cached_tokens": 0,
+      "reasoning_tokens": 858,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 13289
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00180288,
+      "prompt_tokens": 658,
+      "completion_tokens": 1244,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1059,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 15797
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00330784,
+      "prompt_tokens": 1105,
+      "completion_tokens": 2308,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2203,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 26340
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00630048,
+      "prompt_tokens": 1569,
+      "completion_tokens": 4530,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3852,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 29324
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00461088,
+      "prompt_tokens": 1105,
+      "completion_tokens": 3326,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3213,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 37038
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00912288,
+      "prompt_tokens": 1569,
+      "completion_tokens": 6735,
+      "cached_tokens": 0,
+      "reasoning_tokens": 6100,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 76071
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003376,
+      "prompt_tokens": 417,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1223
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003424,
+      "prompt_tokens": 383,
+      "completion_tokens": 91,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 882
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000369,
+      "prompt_tokens": 505,
+      "completion_tokens": 87,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 877
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002086,
+      "prompt_tokens": 387,
+      "completion_tokens": 37,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 841
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005322,
+      "prompt_tokens": 524,
+      "completion_tokens": 150,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1134
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003648,
+      "prompt_tokens": 416,
+      "completion_tokens": 96,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 935
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003658,
+      "prompt_tokens": 386,
+      "completion_tokens": 100,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1079
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003907,
+      "prompt_tokens": 494,
+      "completion_tokens": 97,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1144
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001784,
+      "prompt_tokens": 378,
+      "completion_tokens": 26,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 740
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004322,
+      "prompt_tokens": 524,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13946,
+      "generation_batch_id": "3dbb6060-849f-47db-9d96-8db8a26a5444",
+      "language_code": "en",
+      "latency_ms": 1024
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.03265272,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 104.23399999999674,
+  "finished_at": "2026-09-27T00:25:53.308413+00:00"
+}

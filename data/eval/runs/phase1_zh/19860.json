@@ -1,0 +1,1528 @@
+{
+  "sense_id": 19860,
+  "language_id": 1,
+  "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+  "started_at": "2026-09-27T03:28:23.145981+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.2189621925354004,
+    "p1_generate": 41.557111978530884,
+    "tier_gate": 0.0010437965393066406,
+    "p1_judge": 668.3700234889984,
+    "collocate_grounding": 0.0,
+    "fan_out": 106.55162978172302
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[luan˥˩]",
+        "morphological_forms": [
+          {
+            "form": "亂",
+            "label": "繁体"
+          },
+          {
+            "form": "混乱",
+            "label": "复合"
+          },
+          {
+            "form": "凌乱",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "luàn",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19860
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "d864d8ec-17ba-4d19-a0c2-8cf5fdec07e0",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "乱",
+        "pronunciation": "luàn",
+        "ipa": "[luan˥˩]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "峦",
+          "卵",
+          "乱",
+          "栾"
+        ],
+        "correct_answer": "乱",
+        "explanation": "正确。'乱'读作 luàn，表示没有条理、秩序或混乱的状态。",
+        "distractor_explanations": {
+          "峦": "错误。'峦'读作 luán（第二声），指连绵的山，与'乱'声调不同，意义也不同。",
+          "卵": "错误。'卵'读作 luǎn（第三声），指蛋或动物的卵，与'乱'声调不同，意义完全不同。",
+          "栾": "错误。'栾'读作 luān（第一声），多用于树木名或姓氏，与'乱'声调不同，意义无关。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "亂",
+          "pronunciation": "luàn",
+          "ipa": "[luan˥˩]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "巒",
+            "卵",
+            "亂",
+            "欒"
+          ],
+          "correct_answer": "亂",
+          "explanation": "正確。'亂'讀作 luàn，表示沒有條理、秩序或混亂的狀態。",
+          "distractor_explanations": {
+            "峦": "錯誤。'巒'讀作 luán（第二聲），指連綿的山，與'亂'聲調不同，意義也不同。",
+            "卵": "錯誤。'卵'讀作 luǎn（第三聲），指蛋或動物的卵，與'亂'聲調不同，意義完全不同。",
+            "栾": "錯誤。'欒'讀作 luān（第一聲），多用於樹木名或姓氏，與'亂'聲調不同，意義無關。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3d6da32e-6da0-40b3-ab41-13cb3f8a2e00",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "乱",
+        "pronunciation": "luàn",
+        "correct_definition": "指事物没有条理、秩序或混乱的状态。",
+        "options": [
+          "清除杂质，使物体或环境变得纯净、清洁。",
+          "指事物没有条理、秩序或混乱的状态。",
+          "由酸和丁醇反应生成的酯类化合物。",
+          "指能够追溯到某个时间、来源或原因的。"
+        ],
+        "hant": {
+          "word": "亂",
+          "pronunciation": "luàn",
+          "correct_definition": "指事物沒有條理、秩序或混亂的狀態。",
+          "options": [
+            "清除雜質，使物體或環境變得純淨、清潔。",
+            "指事物沒有條理、秩序或混亂的狀態。",
+            "由酸和丁醇反應生成的酯類化合物。",
+            "指能夠追溯到某個時間、來源或原因的。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "2fa7f1a6-d73f-4946-93b1-293760d44e5b",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他提出了一个很乱的观点。",
+            "is_correct": true
+          },
+          {
+            "text": "他提出了一个很乱着的观点。",
+            "is_correct": false
+          },
+          {
+            "text": "他提出了很乱的一个观点。",
+            "is_correct": false
+          },
+          {
+            "text": "他提出了一张很乱的观点。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误。'观点'应使用量词'个'，不能使用用于纸张或扁平物体的'张'。 体标选用错误。'乱'是性质形容词，前面已有程度副词'很'，后面不能加动态助词'着'来表示动作的持续。 语序错误。在汉语中，形容词定语'很乱'通常应放在数量词'一个'之后，即'一个很乱的观点'，放在数量词之前不符合常规语序。",
+        "target_word": "乱",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他提出了一個很亂的觀點。",
+              "is_correct": true
+            },
+            {
+              "text": "他提出了一個很亂著的觀點。",
+              "is_correct": false
+            },
+            {
+              "text": "他提出了很亂的一個觀點。",
+              "is_correct": false
+            },
+            {
+              "text": "他提出了一張很亂的觀點。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤。'觀點'應使用量詞'個'，不能使用用於紙張或扁平物體的'張'。 體標選用錯誤。'亂'是性質形容詞，前面已有程度副詞'很'，後面不能加動態助詞'著'來表示動作的持續。 語序錯誤。在漢語中，形容詞定語'很亂'通常應放在數量詞'一個'之後，即'一個很亂的觀點'，放在數量詞之前不符合常規語序。",
+          "target_word": "亂"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c10ed1e4-5a5c-4fc0-a51d-c0447e0af61e",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "这个消息把她的思绪弄乱了。",
+        "hant": {
+          "original_sentence": "這個訊息把她的思緒弄亂了。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "8e6c689b-5d0d-4420-9e76-afeddaf2afe5",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "乱",
+        "pronunciation": "luàn",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to ask a question; to raise something you want to know",
+              "叫做，名称是。",
+              "指事物没有条理、秩序或混乱的状态。",
+              "食糧生産量；畑からどれだけ収穫できたか"
+            ],
+            "correct_answer": "指事物没有条理、秩序或混乱的状态。"
+          }
+        },
+        "hant": {
+          "word": "亂",
+          "pronunciation": "luàn",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "to ask a question; to raise something you want to know",
+                "叫做，名稱是。",
+                "指事物沒有條理、秩序或混亂的狀態。",
+                "食糧生産量；畑からどれだけ収穫できたか"
+              ],
+              "correct_answer": "指事物沒有條理、秩序或混亂的狀態。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "772cf1f8-a218-4f91-84a4-835a336c6cfa",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他看着___的书桌，妈妈很生气。",
+        "original_sentence": "他看着乱的书桌，妈妈很生气。",
+        "target_word": "乱",
+        "word": "乱",
+        "answer": {
+          "accepted": [
+            "乱",
+            "混乱",
+            "凌乱"
+          ],
+          "accepted_normalized": [
+            "乱",
+            "混乱",
+            "凌乱"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他看著___的書桌，媽媽很生氣。",
+          "original_sentence": "他看著亂的書桌，媽媽很生氣。",
+          "target_word": "亂",
+          "word": "亂",
+          "answer": {
+            "accepted": [
+              "亂",
+              "混亂",
+              "凌亂"
+            ],
+            "accepted_normalized": [
+              "亂",
+              "混亂",
+              "凌亂"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e801f4b8-c20c-4cbb-bd04-68e316f61001",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "这个消息把她的思绪弄乱了。",
+        "chunks": [
+          "这个消息",
+          "把她的思绪",
+          "弄乱了"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "把她的思绪",
+          "弄乱了",
+          "这个消息"
+        ],
+        "target_word": "乱",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "這個訊息把她的思緒弄亂了。",
+          "chunks": [
+            "這個訊息",
+            "把她的思緒",
+            "弄亂了"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "把她的思緒",
+            "弄亂了",
+            "這個訊息"
+          ],
+          "target_word": "亂",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1817950a-4daf-4721-81ce-0d5d6875a226",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "乱",
+        "options": [
+          "luán",
+          "luǎn",
+          "luān",
+          "luàn"
+        ],
+        "correct_answer": "luàn",
+        "word": "乱",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "亂",
+          "options": [
+            "luán",
+            "luǎn",
+            "luān",
+            "luàn"
+          ],
+          "correct_answer": "luàn",
+          "word": "亂",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b66e2555-2d02-4cd1-8ec0-dde3f864fd6f",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "luàn",
+        "options": [
+          "乱",
+          "话",
+          "蜜",
+          "故"
+        ],
+        "correct_answer": "乱",
+        "word": "乱",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "话": "component",
+          "故": "frequency",
+          "蜜": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "luàn",
+          "options": [
+            "亂",
+            "話",
+            "蜜",
+            "故"
+          ],
+          "correct_answer": "亂",
+          "word": "亂",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "话": "component",
+            "故": "frequency",
+            "蜜": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "946ca345-cc8a-4637-888a-7a74993ac61f",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "乱",
+        "toneless_pinyin": "luan",
+        "full_pinyin": "luàn",
+        "options": [
+          "3",
+          "4",
+          "2",
+          "1"
+        ],
+        "correct_answer": "4",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "亂",
+          "toneless_pinyin": "luan",
+          "full_pinyin": "luàn",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "1"
+          ],
+          "correct_answer": "4",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "aee4921f-9bdd-4082-b6f6-5fca135b5094",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "乱",
+        "relation": "antonym",
+        "options": [
+          "整齐",
+          "详细",
+          "复杂",
+          "模糊"
+        ],
+        "correct_answer": "整齐",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指事物没有条理、秩序或混乱的状态。",
+            "explanation": "反义项：指事物有秩序、有条理的状态，与目标词构成反义"
+          }
+        },
+        "hant": {
+          "word": "亂",
+          "relation": "antonym",
+          "options": [
+            "整齊",
+            "詳細",
+            "複雜",
+            "模糊"
+          ],
+          "correct_answer": "整齊",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指事物沒有條理、秩序或混亂的狀態。",
+              "explanation": "反義項：指事物有秩序、有條理的狀態，與目標詞構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "模糊": 0.503244,
+            "复杂": 0.522902
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cfe31943-1db4-49f5-8d7a-4572ac6fd456",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这篇文章的逻辑太乱了。",
+            "is_correct": true
+          },
+          {
+            "text": "大家七嘴八舌，把会场搞乱了。",
+            "is_correct": true
+          },
+          {
+            "text": "他把弄乱了房间，妈妈很生气。",
+            "is_correct": false,
+            "error_description": "“把”字句中，宾语应放在“把”字之后、动词之前，不能放在动补结构之后。"
+          },
+          {
+            "text": "聚会结束后，现场变得很乱。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這篇文章的邏輯太亂了。",
+              "is_correct": true
+            },
+            {
+              "text": "大家七嘴八舌，把會場搞亂了。",
+              "is_correct": true
+            },
+            {
+              "text": "他把弄亂了房間，媽媽很生氣。",
+              "is_correct": false,
+              "error_description": "“把”字句中，賓語應放在“把”字之後、動詞之前，不能放在動補結構之後。"
+            },
+            {
+              "text": "聚會結束後，現場變得很亂。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "842eab49-7b7a-4f98-8383-0856d2b1082c",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他提出了一个很乱的观点。",
+        "hant": {
+          "original_sentence": "他提出了一個很亂的觀點。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7219738b-dd56-4a90-9074-7746f365019a",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这篇文章的逻辑太___了。",
+        "original_sentence": "这篇文章的逻辑太乱了。",
+        "target_word": "乱",
+        "word": "乱",
+        "answer": {
+          "accepted": [
+            "乱",
+            "混乱",
+            "凌乱"
+          ],
+          "accepted_normalized": [
+            "乱",
+            "混乱",
+            "凌乱"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這篇文章的邏輯太___了。",
+          "original_sentence": "這篇文章的邏輯太亂了。",
+          "target_word": "亂",
+          "word": "亂",
+          "answer": {
+            "accepted": [
+              "亂",
+              "混亂",
+              "凌亂"
+            ],
+            "accepted_normalized": [
+              "亂",
+              "混亂",
+              "凌亂"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4ad44c89-5df4-4875-803e-4075bf10b917",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "他提出了一个很乱的观点。",
+        "chunks": [
+          "他",
+          "提出了一个",
+          "很乱的观点"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "提出了一个",
+          "他",
+          "很乱的观点"
+        ],
+        "target_word": "乱",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "他提出了一個很亂的觀點。",
+          "chunks": [
+            "他",
+            "提出了一個",
+            "很亂的觀點"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "提出了一個",
+            "他",
+            "很亂的觀點"
+          ],
+          "target_word": "亂",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ad3dc5de-59c5-4d9c-802b-f33d743caed4",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "乱",
+        "relation": "antonym",
+        "options": [
+          "单调",
+          "安静",
+          "整齐",
+          "干净"
+        ],
+        "correct_answer": "整齐",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指事物没有条理、秩序或混乱的状态。",
+            "explanation": "同义项：指事物有秩序、有条理，与“乱”构成反义关系"
+          }
+        },
+        "hant": {
+          "word": "亂",
+          "relation": "antonym",
+          "options": [
+            "單調",
+            "安靜",
+            "整齊",
+            "乾淨"
+          ],
+          "correct_answer": "整齊",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指事物沒有條理、秩序或混亂的狀態。",
+              "explanation": "同義項：指事物有秩序、有條理，與“亂”構成反義關係"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "干净": 0.536305,
+            "安静": 0.484958
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19860,
+      "word_asset_id": "shadow-19860-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 4
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00534304,
+      "prompt_tokens": 2413,
+      "completion_tokens": 3571,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2923,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 41365
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00317312,
+      "prompt_tokens": 1452,
+      "completion_tokens": 2116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2014,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 26680
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00318464,
+      "prompt_tokens": 1452,
+      "completion_tokens": 2125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2016,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 27538
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00265856,
+      "prompt_tokens": 632,
+      "completion_tokens": 1919,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1723,
+      "call_role": "retry",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25356
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00256672,
+      "prompt_tokens": 633,
+      "completion_tokens": 1847,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1640,
+      "call_role": "retry",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 24068
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00598272,
+      "prompt_tokens": 1648,
+      "completion_tokens": 4262,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3574,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 52467
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.007667968,
+      "prompt_tokens": 1648,
+      "completion_tokens": 5809,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 5110,
+      "call_role": "retry",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 39272
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00084832,
+      "prompt_tokens": 419,
+      "completion_tokens": 558,
+      "cached_tokens": 0,
+      "reasoning_tokens": 445,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 7138
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001657098,
+      "prompt_tokens": 396,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 3037
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016384,
+      "prompt_tokens": 548,
+      "completion_tokens": 1143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1033,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 17746
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0023184,
+      "prompt_tokens": 541,
+      "completion_tokens": 1676,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1574,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 22588
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0013664,
+      "prompt_tokens": 418,
+      "completion_tokens": 963,
+      "cached_tokens": 0,
+      "reasoning_tokens": 850,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 14134
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001775493,
+      "prompt_tokens": 438,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2072
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00212192,
+      "prompt_tokens": 691,
+      "completion_tokens": 1485,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1413,
+      "call_role": "json_repair",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 19160
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157408,
+      "prompt_tokens": 423,
+      "completion_tokens": 1124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1100,
+      "call_role": "primary",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 15046
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 19860,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": null
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.040787547099999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 1154.2660000000033,
+  "finished_at": "2026-09-27T03:47:37.408025+00:00"
+}

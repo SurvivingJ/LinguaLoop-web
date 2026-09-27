@@ -10,7 +10,7 @@ commit on the way there can silently reintroduce a difficulty-keyed fallback
 or a second copy of the tier bands.
 
 Scope: only `services.test_generation` (test/question generation + ELO
-seeding). `services.conversation_generation.categorical_maps` and
+seeding). `services.categorical_maps` and
 `services.dictation.cap` keep their own difficulty->tier maps for now — they
 read the legacy `tests.difficulty` column for historical rows and are out of
 scope for this pass (see test_difficulty_to_tier_matches_db.py, which still

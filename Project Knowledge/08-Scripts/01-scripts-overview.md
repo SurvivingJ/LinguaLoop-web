@@ -10,7 +10,7 @@ All scripts live under `scripts/` and serve one of three roles: **cron-job entry
 | `run_topic_generation.py` | Cron entry point -- generates new topics via LLM with embedding-based dedup | No (direct Supabase) | No (service role) | Yes | `TOPIC_DAILY_QUOTA`, `TOPIC_SIMILARITY_THRESHOLD`, `TOPIC_DRY_RUN`, `TOPIC_LOG_LEVEL` |
 | `run_topic_import.py` | CLI tool -- imports topics from a JSON file into the topic generation system | No (direct Supabase) | No (service role) | Yes (unless `--dry-run`) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `base_generator.py` | Shared ABC and config for batch scripts -- not run directly | N/A | N/A | N/A | N/A |
-| `batch_generate_tests.py` | Batch generate tests via Flask API (requires running backend) | **Yes** | **Yes** (JWT) | Yes (via API) | `API_BASE_URL`, `BATCH_AUTH_TOKEN`, `TEST_COUNT`, `START_FROM` |
+| `run_test_generation_cli.py` | CLI -- generate N tests for one language directly through `TestGenerationOrchestrator` (prose + questions + audio; jev assigns each test's tier, see `wiki/features/test-tier-assignment.tech.md`) | No (direct Supabase) | No (service role) | Yes | `TEST_GEN_LOG_LEVEL` |
 | `batch_generate_to_json.py` | Batch generate tests locally to JSON file -- no DB needed | No | No | No | `USE_OPENROUTER`, `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `TEST_COUNT`, `START_FROM` |
 | `upload_tests_to_supabase.py` | Upload a JSON file of generated tests into Supabase | No (direct Supabase) | No (service role) | Yes | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEN_USER_ID` |
 | `json_to_csv.py` | Convert generated-tests JSON into two CSVs (`tests.csv`, `questions.csv`) for Supabase Dashboard import | No | No | No | None |
@@ -30,7 +30,7 @@ python -m scripts.run_topic_generation
 python -m scripts.run_topic_import --file data/topics.json --dry-run
 
 # Batch utilities (run as plain scripts)
-python scripts/batch_generate_tests.py
+python -m scripts.run_test_generation_cli --language zh --count 20 --dry-run
 python scripts/batch_generate_to_json.py
 python scripts/upload_tests_to_supabase.py generated_tests_20251209.json
 python scripts/json_to_csv.py generated_tests_20251209.json
@@ -61,7 +61,7 @@ python scripts/backfill_test_skill_ratings.py --dry-run
 - `scripts/run_topic_generation.py` (lines 1-117)
 - `scripts/run_topic_import.py` (lines 1-233)
 - `scripts/base_generator.py` (lines 1-309)
-- `scripts/batch_generate_tests.py` (lines 1-134)
+- `scripts/run_test_generation_cli.py`
 - `scripts/batch_generate_to_json.py` (lines 1-308)
 - `scripts/upload_tests_to_supabase.py` (lines 1-146)
 - `scripts/json_to_csv.py` (lines 1-149)

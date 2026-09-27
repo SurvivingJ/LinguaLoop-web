@@ -642,14 +642,21 @@ The `distractor_types` array uses null for the correct choice's slot.
             language_id=language_id,
         )
         if ae.verdict == 'reject':
+            # ``confidence`` is the 1-5 Likert rating on the llm backend and
+            # None on jev, whose score is ``probability`` (P(yes), 0-1).
             logger.info(
-                "Judge rejected %s answer (conf=%.2f): %s",
-                type_code, ae.confidence, ae.reason,
+                "Judge rejected %s answer (%s=%s): %s",
+                type_code,
+                'p_yes' if ae.probability is not None else 'rating',
+                ae.probability if ae.probability is not None else ae.confidence,
+                ae.reason,
             )
             return None, {
                 'type_code': type_code,
                 'stage': 'answer_entailment',
                 'confidence': ae.confidence,
+                'probability': ae.probability,
+                'backend': ae.backend,
                 'reason': ae.reason,
             }
 
@@ -696,6 +703,8 @@ The `distractor_types` array uses null for the correct choice's slot.
         if ae.verdict == 'flag':
             judge_flags['answer_entailment'] = {
                 'confidence': ae.confidence,
+                'probability': ae.probability,
+                'backend': ae.backend,
                 'reason': ae.reason,
             }
         flagged_dp = [

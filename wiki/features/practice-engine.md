@@ -3,7 +3,7 @@ title: Practice Engine
 type: feature
 status: planned
 tech_page: ./practice-engine.tech.md
-last_updated: 2026-05-21
+last_updated: 2026-09-22
 open_questions:
   - "Should grammar/style items (sense_id IS NULL) be reachable in V1 via a 'Browse drills' surface, or only via the language-pack flow?"
 ---
@@ -73,7 +73,7 @@ If the pool empties before `target_minutes` is reached, the engine falls through
 ## Constraints & Edge Cases
 
 - **V1 excludes exercises with `sense_id IS NULL`** (grammar / style / non-sense-linked collocation items) from both candidate pools. See [[decisions/ADR-012-grammar-items-excluded-v1]]. V2 will recover them via a sense bridge table.
-- **Cold ladder** (new user, 0 subscribed senses) — auto-subscribe from selected packs; if no packs, fall through to Maintenance; if still empty, return empty session with `no_content` reason.
+- **Cold ladder** (new user, 0 subscribed senses) — top-up nominates only from the learner's own evidence (missed words); the pack fallback was archived 2026-09-21, so a learner with no test history gets no top-up and falls through to Maintenance; if still empty, return empty session with `no_content` reason.
 - **Cold IRT** — exercises with `irt_n_attempts < 20` use the calibrated default `irt_discrimination = 1.0, irt_difficulty = 0.0`; the IRT term still computes, just with the default parameters.
 - **Cold FSRS** — senses with no `user_flashcards` row contribute `fsrs_urgency = 0` (and aren't in the Maintenance pool anyway). Acquisition draws them from the ladder.
 - **Time-budget overshoot** — the engine stops at the first item whose accumulated `expected_seconds` would exceed `target_minutes · 60`. It will not pad a partially-completed gate battery; the next session continues from the same word.

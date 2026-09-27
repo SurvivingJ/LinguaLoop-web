@@ -6,9 +6,9 @@ Two related gaps, both measured live on 2026-08-31.
 T3.4 — 43 of 183 topics carry no ``target_age_tier``. They come from the import
 path, which has no tier concept at all, so nothing ever stamped them. Untiered
 topics are invisible to the tier-keyed question distribution and to the
-tier-scaled novelty threshold. ``--stamp-tiers`` walks them through the
-TierFitJudge, asking each tier independently, ascending, and stamps the lowest
-tier whose reader can actually reach the topic's distinctive vocabulary.
+tier-scaled novelty threshold. ``--stamp-tiers`` asks jev (ADR-029) to place
+each on the tier scale from its concept and distinctive vocabulary, and stamps
+the tier it returns.
 
 T3.3 — tests cluster at tiers 1/2/4/6 (71/61/92/80) while T3 and T5 have **one
 test each**, a legacy artefact of ``target_difficulties = [1,3,6,9]``. The
@@ -44,17 +44,16 @@ load_dotenv()
 from services.supabase_factory import (  # noqa: E402
     SupabaseFactory, get_supabase_admin,
 )
+from services.jev_client import JevError  # noqa: E402
+from services.tier_classifier import N_TIERS  # noqa: E402
 from services.topic_generation.agents import TierFitJudge  # noqa: E402
-from services.topic_generation.agents.tier_fit_judge import (  # noqa: E402
-    TIER_READERS,
-)
 
 logging.basicConfig(
     level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
 )
 logger = logging.getLogger('backfill_topic_tiers')
 
-ALL_TIERS = tuple(sorted(TIER_READERS))
+ALL_TIERS = tuple(range(1, N_TIERS + 1))
 
 
 # ----------------------------------------------------------------------
@@ -118,18 +117,15 @@ def stamp_tiers(db, limit: int, dry_run: bool) -> None:
 
     for topic in topics:
         concept = topic.get('concept_english') or ''
-        tier, verdicts = judge.best_tier(
-            concept=concept,
-            distinctive_vocabulary=topic.get('distinctive_vocabulary'),
-            candidate_tiers=ALL_TIERS,
-        )
-        if tier is None:
-            unjudged = sum(1 for _, v in verdicts if not v.judged)
-            logger.warning(
-                'no tier fits %r (%d of %d verdicts were fail-open, so the '
-                'topic is left untiered rather than guessed)',
-                concept[:50], unjudged, len(verdicts),
-            )
+        try:
+            tier = judge.assess(
+                concept=concept,
+                distinctive_vocabulary=topic.get('distinctive_vocabulary'),
+            ).tier
+        except JevError as exc:
+            # No fallback tier: the topic stays untiered and is retried on the
+            # next run, rather than being stamped with a guess.
+            logger.error('jev could not assess %r: %s', concept[:50], exc)
             skipped += 1
             continue
 

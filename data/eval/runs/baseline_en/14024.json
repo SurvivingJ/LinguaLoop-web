@@ -1,0 +1,1096 @@
+{
+  "sense_id": 14024,
+  "language_id": 2,
+  "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+  "started_at": "2026-09-26T03:33:11.836433+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Missing level_8",
+    "[B] Missing level_8"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 2.4302117824554443,
+    "p1_generate": 4.136532545089722,
+    "tier_gate": 0.001968860626220703,
+    "p1_judge": 4.588814735412598,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.566351652145386
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "anthropic/claude-sonnet-5",
+      "validation_errors": [
+        "Missing level_8"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈnʌti/",
+        "morphological_forms": [
+          {
+            "form": "nutty",
+            "label": "positive"
+          },
+          {
+            "form": "nuttier",
+            "label": "comparative"
+          },
+          {
+            "form": "nuttiest",
+            "label": "superlative"
+          },
+          {
+            "form": "nuttily",
+            "label": "adverb"
+          },
+          {
+            "form": "nuttiness",
+            "label": "noun"
+          }
+        ],
+        "pronunciation": "NUH-tee",
+        "register": "informal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14024
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "1ef25f8a-10e3-4a77-b757-226f5da5633f",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nutty",
+        "pronunciation": "NUH-tee",
+        "correct_definition": "If you say something is nutty, you mean it is crazy, eccentric, or insane.",
+        "options": [
+          "Openness is the quality of being honest, transparent, and willing to consider different ideas or experiences.",
+          "If you say something is nutty, you mean it is crazy, eccentric, or insane.",
+          "In a way that is very noticeable, sudden, or exciting.",
+          "A relationship between two different kinds of living things that helps both of them."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4b3b6e8c-72b3-4c87-a4cc-168b031c3068",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "My uncle came up with some ___ plan to build a spaceship out of old lawnmowers.",
+        "original_sentence": "My uncle came up with some nutty plan to build a spaceship out of old lawnmowers.",
+        "correct_answer": "nutty",
+        "options": [
+          "punctual",
+          "spicy",
+          "formal",
+          "nutty"
+        ],
+        "explanation": "Correct: matches the sentence, describing the uncle's crazy/eccentric plan.",
+        "distractor_tags": {},
+        "word_definition": "If you say something is nutty, you mean it is crazy, eccentric, or insane.",
+        "target_word": "nutty"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "da57d622-3b36-410c-9406-8fe946fe9526",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "The movie featured a nutty scientist who invented a machine to talk to animals."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "3e42bc41-eea7-4a95-82ad-9f3de3c027e2",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nutty",
+        "pronunciation": "NUH-tee",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "To spread out means to move or be distributed over a larger area.",
+              "to finish or make something whole",
+              "making something more complex or having more parts",
+              "If you say something is nutty, you mean it is crazy, eccentric, or insane."
+            ],
+            "correct_answer": "If you say something is nutty, you mean it is crazy, eccentric, or insane."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "c73318c7-4c42-42b2-af6e-f0f4e8ff6b1b",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "He had some really ___ ideas about building a flying bicycle in his garage.",
+        "original_sentence": "He had some really nutty ideas about building a flying bicycle in his garage.",
+        "target_word": "nutty",
+        "word": "nutty",
+        "answer": {
+          "accepted": [
+            "nutty",
+            "nuttier",
+            "nuttiest",
+            "nuttily",
+            "nuttiness"
+          ],
+          "accepted_normalized": [
+            "nutty",
+            "nuttier",
+            "nuttiest",
+            "nuttily",
+            "nuttiness"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "de7ba8dd-105a-49a6-8638-2cfca3a6129e",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The movie featured a nutty scientist who invented a machine to talk to animals.",
+        "chunks": [
+          "The movie",
+          "featured",
+          "a nutty scientist who invented a machine to talk to animals"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "The movie",
+          "a nutty scientist who invented a machine to talk to animals",
+          "featured"
+        ],
+        "target_word": "nutty",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d3c2261b-8397-4548-b475-af7028a47c54",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "nut",
+        "sentence_with_blank": "He had some really ___ ideas about building a flying bicycle in his garage.",
+        "original_sentence": "He had some really nutty ideas about building a flying bicycle in his garage.",
+        "required_pos": "adjective",
+        "options": [
+          "nutty",
+          "nuttal",
+          "nuttic",
+          "nuttous"
+        ],
+        "correct_answer": "nutty",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the base adjective form fits attributively before the noun"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "2e266d56-acb8-41d5-97d9-d1b454a66a8a",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nutty",
+        "pronunciation": "NUH-tee",
+        "ipa": "/ˈnʌti/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "putty",
+          "nutty",
+          "nitty",
+          "knotty"
+        ],
+        "correct_answer": "nutty",
+        "explanation": "This is the target word, correctly spelled as it would be pronounced /ˈnʌti/.",
+        "distractor_explanations": {
+          "knotty": "near-homophone: very close in sound, differing mainly in the vowel (/ɒ/ vs /ʌ/), but means 'full of knots'.",
+          "nitty": "minimal pair: differs only in the vowel sound (/ɪ/ vs /ʌ/), as in the phrase 'nitty-gritty'.",
+          "putty": "rhymes with the target but starts with a different consonant (/p/ vs /n/); means a soft moldable substance."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f683c050-5480-4f09-91e1-e7710647591e",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Everyone laughed at his ___ suggestion during the student council meeting.",
+        "original_sentence": "Everyone laughed at his nutty suggestion during the student council meeting.",
+        "correct_answer": "nutty",
+        "options": [
+          "polite",
+          "quiet",
+          "expensive",
+          "nutty"
+        ],
+        "explanation": "Correct: matches the sentence exactly, describing an idea that seems crazy or eccentric enough to be laughed at.",
+        "distractor_tags": {},
+        "word_definition": "If you say something is nutty, you mean it is crazy, eccentric, or insane.",
+        "target_word": "nutty"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "38f75464-4874-45ce-8948-3528dcfd8e41",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "That sounds like a nutty scheme that could never possibly work in real life."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b015870e-806e-4d1b-82cc-633a57005806",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "It seems a bit ___ to wear a winter coat during the middle of summer.",
+        "original_sentence": "It seems a bit nutty to wear a winter coat during the middle of summer.",
+        "target_word": "nutty",
+        "word": "nutty",
+        "answer": {
+          "accepted": [
+            "nutty",
+            "nuttier",
+            "nuttiest",
+            "nuttily",
+            "nuttiness"
+          ],
+          "accepted_normalized": [
+            "nutty",
+            "nuttier",
+            "nuttiest",
+            "nuttily",
+            "nuttiness"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fdb333c1-9d93-46b4-8d0e-dc4ba9775880",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "That sounds like a nutty scheme that could never possibly work in real life.",
+        "chunks": [
+          "That",
+          "sounds",
+          "like a nutty scheme that could never possibly work in real life"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "like a nutty scheme that could never possibly work in real life",
+          "That",
+          "sounds"
+        ],
+        "target_word": "nutty",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14024,
+      "word_asset_id": "shadow-14024-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "word_family": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0025152,
+      "prompt_tokens": 1834,
+      "completion_tokens": 786,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 3873
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0008631,
+      "prompt_tokens": 677,
+      "completion_tokens": 264,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1570
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001288,
+      "prompt_tokens": 196,
+      "completion_tokens": 28,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001932,
+      "prompt_tokens": 519,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 877
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.004414,
+      "prompt_tokens": 1242,
+      "completion_tokens": 193,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 3935
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.005352,
+      "prompt_tokens": 1241,
+      "completion_tokens": 287,
+      "cached_tokens": 0,
+      "reasoning_tokens": 79,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 4664
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.0082,
+      "prompt_tokens": 1685,
+      "completion_tokens": 483,
+      "cached_tokens": 0,
+      "reasoning_tokens": 349,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 7998
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.00792,
+      "prompt_tokens": 1685,
+      "completion_tokens": 455,
+      "cached_tokens": 0,
+      "reasoning_tokens": 321,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 8365
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.00828,
+      "prompt_tokens": 940,
+      "completion_tokens": 640,
+      "cached_tokens": 0,
+      "reasoning_tokens": 444,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 8417
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.012328,
+      "prompt_tokens": 1139,
+      "completion_tokens": 1005,
+      "cached_tokens": 0,
+      "reasoning_tokens": 805,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 13210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.030386,
+      "prompt_tokens": 2283,
+      "completion_tokens": 2582,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1863,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 28256
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "anthropic/claude-sonnet-5",
+      "cost_usd": 0.034466,
+      "prompt_tokens": 2283,
+      "completion_tokens": 2990,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2237,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 31385
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003286,
+      "prompt_tokens": 412,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003169,
+      "prompt_tokens": 373,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1197
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003921,
+      "prompt_tokens": 482,
+      "completion_tokens": 99,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1404
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003481,
+      "prompt_tokens": 527,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1171
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004175,
+      "prompt_tokens": 500,
+      "completion_tokens": 107,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1235
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003436,
+      "prompt_tokens": 412,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1131
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003323,
+      "prompt_tokens": 366,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1241
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004541,
+      "prompt_tokens": 472,
+      "completion_tokens": 125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14024,
+      "generation_batch_id": "9350a943-c5a2-42c0-98b2-6505f710f4a7",
+      "language_code": "en",
+      "latency_ms": 1298
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.11797949999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 62.375,
+  "finished_at": "2026-09-26T03:34:14.208887+00:00"
+}

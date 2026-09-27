@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-09-20
+last_updated: 2026-09-28
 ---
 
 # Master Task List
@@ -19,12 +19,62 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 18 |
-| In Progress (`[~]`) | 8 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 8 |
+| Not Started | 39 |
+| In Progress (`[~]`) | 10 |
+| Blocked / Deferred / Awaiting decision (numbered tasks) | 12 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 177 |
+| Done (cumulative, not listed here) | 191 |
+
+*2026-09-28 (DT taxonomy v6 filed — DRAFT, awaiting user review):* TASK-836–855 added from
+[[decisions/ADR-031-dt-taxonomy-v6-merge]] — see [[tasklist/dt-taxonomy-v6.tasks]]. +18 Not Started,
++2 Blocked (TASK-853 cutover: needs ADR-031 accepted + gate GO + operator approval; TASK-855 optional
+jev question flow). Counts: Not Started 21→39, Blocked 10→12.
+
+*2026-09-27 (exercise-gen-cost Phase 1 scored):* TASK-809/810/811/813 **done** (809 confirmed
+no-op), TASK-812 → In Progress (cache-token logging shipped, stable-prefix reorder deferred). See
+[[evaluations/exercise-gen-phase1-2026-09]]. Counts: Not Started 26→21, In Progress 9→10, Done
+187→191.
+
+*2026-09-27 (jev entailment judge, later):* **TASK-835 done — the default is now `jev`**, at the
+operator's explicit instruction; `ENTAILMENT_JUDGE_BACKEND=llm` rolls back. Blocked 11→10, Done 186→187.
+
+*2026-09-27 (jev entailment judge):* TASK-833 (shadow window) **done** — 216 comparisons, 0 jev
+failures, jev p50 296 ms vs 1,336 ms; two gaps (70-76 not 300 judged questions per language; regeneration
+effect unmeasured). TASK-834 → In Progress: 300 items labelled by two blind **model** adjudicators
+(kappa 0.887), cutoffs confirmed; human confirmation of a 22-item sheet owed. TASK-835 (flip default)
+stays Blocked — the operator's call (an in-session flip was reverted after the permission guard refused
+it). See [[evaluations/jev-entailment-shadow-and-adjudication-2026-09-27]]. Counts: Not Started 28→26,
+In Progress 8→9, Done 185→186.
+
+*2026-09-26 (jev entailment judge):* **jev backend for the answer-entailment judge built,
+default unchanged (`llm`).** +3 Done (TASK-830 client, TASK-831 backend + flag, TASK-832
+calibration), +2 Not Started (TASK-833 shadow window, TASK-834 human gold), +1 Blocked
+(TASK-835 flip default — needs approval). See [[tasklist/jev-entailment-judge.tasks]],
+[[decisions/ADR-030-jev-entailment-judge-backend]],
+[[evaluations/jev-entailment-calibration-2026-09-26]].
+
+*2026-09-24:* **Exercise Generation Cost Reduction filed**
+([[tasklist/exercise-gen-cost.tasks]], [[decisions/ADR-028-exercise-gen-cost-under-1c]]).
++3 In Progress (TASK-804–806, instrumentation + budget-ceiling verification + reference set),
++7 Not Started (TASK-807–813; TASK-809–813 are explicitly DRAFT pending user review), +5
+Blocked (TASK-814–818, gated on the Phase 0 baseline). Target: <$0.01/sense via call collapse
+(~26 calls/sense in en today, ~14-16 zh/ja); zh/ja **generation** moves to the qwen family only
+(judges stay as-is — qwen has repeatedly been the outlier judge model, see
+[[evaluations/distractor-judge-language-divergence-2026-08-16]] and
+[[evaluations/entailment-judge-model-ab-2026-08-17]]).
+
+*2026-09-27:* **jev tier assignment shipped** (TASK-819–823, all Done — nothing outstanding here; see [[tasklist/jev-tier-assignment.tasks]] and [[decisions/ADR-029-jev-tier-assignment]]). TASK-819–829 are reserved for this feature; the entailment judge uses TASK-830–835.
+
+*2026-09-26:* User approved TASK-809–813 (Phase 1) — draft status removed. TASK-814–816
+(Phase 2, call/judge bundling) unblocked `[?]`→`[ ]` Not Started, gated on the Phase 0 baseline
+(TASK-808) and a Phase 1 non-inferiority score. TASK-817/818 (Phase 3) remain `[?]` Blocked —
+**user: do not do Phase 3.** Verification against live `prompt_templates` found TASK-809's
+target state (zh/ja generation on qwen) is **already live** — see
+[[tasklist/exercise-gen-cost.implementation-plan]] and the TASK-809 note in
+[[tasklist/exercise-gen-cost.tasks]]. Per-task implementation plans (file:line anchors,
+function signatures, test lists, risks) for TASK-809–816 are filed at
+[[tasklist/exercise-gen-cost.implementation-plan]].
 
 *2026-09-10:* the two new sections below (Vocabulary-Aware Test Selection,
 Calibration) were never entered here when filed. Counts now include them:
@@ -848,6 +898,101 @@ typed upload path; 21 unit tests).
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-802 | tooling | ESLint parses `static/js/session/**` as script (`npm run check` exit 1) | [ ] Not Started (hook-blocked for agents) | XS | — |
+
+### Exercise Generation Cost Reduction (new 2026-09-24)
+
+Full spec: [[tasklist/exercise-gen-cost.tasks]] · ADR:
+[[decisions/ADR-028-exercise-gen-cost-under-1c]]. A 2026-09-24 four-agent analysis found
+ladder generation makes ~26 LLM calls/sense in en, ~14-16 in zh/ja, and cost is unmeasured
+(`llm_calls.cost_usd` is 100% NULL again — same defect class as 2026-08-12). Target: every
+exercise for one sense costs < $0.01, measured, at quality non-inferior to a frozen reference
+set. Phase 0 (TASK-804–808) gates all later phases.
+
+**2026-09-26: Phase 0 (TASK-804–808) done**, with one real gap: **zh's baseline never ran**
+(`data/eval/runs/baseline_zh/` does not exist — only ja and en completed). Result:
+[[evaluations/exercise-gen-baseline-2026-09]] — neither language clears the <$0.01/sense target
+(ja 3.1-5.9×, en 10.1-10.8× over), and ja additionally FAILs the coverage gate vs. the frozen
+reference (45.8% vs. 95% min), driven by a 50% ja sense-failure rate at P1 generation, not an
+exercise-quality problem. en's `prompt3_transforms` asset type is 96.4% invalid — the single
+most actionable finding, independent of cost. See the tasklist file for full closure notes per
+task, including a scorer-adapter bug fixed in `scripts/score_exercise_gen_run.py` along the way
+and an open TASK-805 verification gap (budget-ceiling abort was never actually exercised).
+Completed rows removed from this table; see [[tasklist/exercise-gen-cost.tasks]] for their full
+history. TASK-809 (zh→qwen) is unblocked on dependencies but is largely moot per the ADR-028
+2026-09-26 correction (zh generation is already 100% qwen/qwen3.7-plus).
+
+**2026-09-27: Phase 1 (TASK-809–813) scored, see
+[[evaluations/exercise-gen-phase1-2026-09]].** TASK-809 (no-op, confirmed), TASK-810, TASK-811,
+and TASK-813 done; rows removed from this table. TASK-812 is In Progress (cache-token logging
+shipped and confirmed non-zero on real qwen calls; the stable-prefix reorder itself is deferred).
+en's calls-mean $/sense fell 73.4% on the same senses vs. baseline_en; ja's rose 10.2% on the
+same completed senses (more senses now complete at all, which is a reliability win but reads as
+a cost regression). zh got its first-ever run and is now the zh reference set going forward.
+Open question (b) partially answered: OpenRouter prompt caching does engage for qwen calls
+without any reorder (ja 18,304 cached tokens, zh 4,992) but not reliably (en: 0 on the same
+model) — and a new, larger finding surfaced: qwen/qwen3.7-plus reasoning-token volume
+(85-90% of completion tokens on the highest-cost tasks) is now the largest identified remaining
+cost driver, not yet addressed by any filed task.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-812 | exercise-gen-cost | Stable-prefix ordering + cache-token logging + judge `max_tokens` caps | [~] In Progress — cache-token logging done 2026-09-27, reorder deferred | M | TASK-804 |
+| TASK-814 | exercise-gen-cost | Collapse A/B variant doubling (13 of 18 sites) | [ ] Not Started — gated on baseline + Phase 1 score | L | TASK-808 |
+| TASK-815 | exercise-gen-cost | Bundle generation call (P2+P3+L4+typed) | [ ] Not Started — gated on baseline + Phase 1 score | XL | TASK-814 |
+| TASK-816 | exercise-gen-cost | Bundle judge call (7 render judges → 1; P1 sentence judge stays separate) | [ ] Not Started — gated on baseline + Phase 1 score | L | TASK-815 |
+| TASK-817 | exercise-gen-cost | Model bake-off — qwen arms zh/ja, any-model arms en | [?] Blocked — Phase 3, user: do not do Phase 3 | M | 806, 807 |
+| TASK-818 | exercise-gen-cost | Batch API backfill (OpenRouter Batch, ~50% off, 24h SLA) | [?] Blocked — Phase 3, user: do not do Phase 3 | M | 809, 815 |
+
+**Open questions carried from the ADR:** (a) whether the qwen-only rule extends to zh/ja
+*judges* (current evidence says no — qwen has been the outlier judge model twice); (b) whether
+OpenRouter's prompt caching / Batch API cover the qwen models — **partially answered
+2026-09-27:** prompt caching does engage for qwen without any deliberate reorder (ja: 18,304
+cached tokens in the Phase 1 run; zh: 4,992) but is not reliable (en: 0 cached tokens on the same
+model/tasks) — see [[evaluations/exercise-gen-phase1-2026-09]] §5; Batch API coverage still
+unknown; (c) how to attribute Claude-Code-subagent generation cost, currently $0-logged; (d)
+**new 2026-09-27:** qwen/qwen3.7-plus reasoning cannot be fully disabled and burns 85-90% of
+completion tokens as `reasoning_tokens` on the highest-volume tasks — now the largest identified
+remaining cost driver, unaddressed by any filed task.
+
+### jev Answer-Entailment Judge (new 2026-09-26)
+
+Full spec: [[tasklist/jev-entailment-judge.tasks]] · ADR:
+[[decisions/ADR-030-jev-entailment-judge-backend]]. TASK-830–833 and TASK-835 done (client, flag-gated
+backend with LLM fallback and shadow mode, cutoff calibration, shadow window, default flipped to `jev`). Production behaviour is
+unchanged until `ENTAILMENT_JUDGE_BACKEND` is set.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-834 | answer-entailment-judge | Human confirmation of the entailment gold (22-item sheet; model-adjudicated 300 done) | [~] | S | — |
+
+### DT Taxonomy v6 (new 2026-09-28, DRAFT — awaiting user review)
+
+Full spec: [[tasklist/dt-taxonomy-v6.tasks]] · ADR: [[decisions/ADR-031-dt-taxonomy-v6-merge]] (proposed).
+Critical path 837 → 838 → 845 → 846 → 850 → 853 → 854 (joined by 841 → 849 and 836/842 → 851 → 852).
+Native review (839/840) runs in parallel and does not gate cutover (v5 precedent, ADR-019).
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-836 | dt-taxonomy-v6 | Live DT data inventory (read-only) | [ ] | XS | — |
+| TASK-837 | dt-taxonomy-v6 | v6 taxonomy builder + inactive seed migration (pairs, subtype_meta, aliases) | [ ] | M | — |
+| TASK-838 | dt-taxonomy-v6 | Author v6 glosses, Rule templates, word_choice variant templates (AI draft) | [ ] | L | TASK-837 |
+| TASK-839 | dt-taxonomy-v6 | Native-speaker review — zh strings + type judgements | [ ] | M | TASK-838 |
+| TASK-840 | dt-taxonomy-v6 | Native-speaker review — ja strings + type judgements | [ ] | M | TASK-838 |
+| TASK-841 | dt-taxonomy-v6 | Taxonomy version pin (`DT_TAXONOMY_VERSION`) + alias-aware resolution | [ ] | M | TASK-837 |
+| TASK-842 | dt-taxonomy-v6 | Schema: taxonomy_version / explanation_variant / remap columns | [ ] | S | TASK-836 |
+| TASK-843 | dt-taxonomy-v6 | meaning_inversion by-effect precedence in Detector/Verifier prompts | [ ] | M | TASK-837 |
+| TASK-844 | dt-taxonomy-v6 | zh 的/地/得 rule in zh prompts | [ ] | S | TASK-843 |
+| TASK-845 | dt-taxonomy-v6 | explanation_variant: grader output + deterministic resolver | [ ] | L | TASK-838, TASK-841, TASK-842 |
+| TASK-846 | dt-taxonomy-v6 | Variant-aware Rule templates + explainer context | [ ] | S | TASK-845 |
+| TASK-847 | dt-taxonomy-v6 | Promote v6 overlay into v6 gold/silver fixtures + seed helper | [ ] | M | TASK-837 |
+| TASK-848 | dt-taxonomy-v6 | Add narrow wrong_sense gold items (coverage gap) | [ ] | S | TASK-847 |
+| TASK-849 | dt-taxonomy-v6 | Eval harness: `--taxonomy-file`, `--fixture-set`, v6 metrics | [ ] | M | TASK-841, TASK-847 |
+| TASK-850 | dt-taxonomy-v6 | Acceptance gate: v6 vs same-day v5 control | [ ] | M | TASK-843, TASK-844, TASK-846, TASK-849 |
+| TASK-851 | dt-taxonomy-v6 | Nightly synthesis + cards v6-aware (mixed-version windows) | [ ] | M | TASK-841, TASK-842 |
+| TASK-852 | dt-taxonomy-v6 | Re-key profile history + cards to v6 (snapshot + rollback) | [ ] | M | TASK-836, TASK-842, TASK-851 |
+| TASK-853 | dt-taxonomy-v6 | Cutover: activate v6 (runbook, activation + rollback SQL) | [?] | S | TASK-850, TASK-852; ADR-031 acceptance; operator approval |
+| TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week) | [ ] | S | TASK-853 |
+| TASK-855 | dt-taxonomy-v6 | (Optional) jev bucket question flow for DT grading | [?] | XL | TASK-853; jev porting of `pending` buckets; new ADR |
 
 ### Language Packs (existing — unchanged)
 

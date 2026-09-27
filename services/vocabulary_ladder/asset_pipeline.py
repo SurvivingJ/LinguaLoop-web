@@ -20,6 +20,7 @@ from uuid import uuid4
 from services.exercise_generation.judges.base import (
     BatchModeThreadPoolExecutor, JudgeUnavailable,
 )
+from services.llm_service import generation_context
 from services.supabase_factory import get_supabase_admin
 from services.timing import stage, log_stage_seconds
 from services.vocabulary.sense_quarantine import is_quarantined
@@ -29,6 +30,7 @@ from services.vocabulary_ladder.config import (
     SENTENCE_SOURCE_MINED, SPLIT_LEVEL_TASKS,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
     L7_CORRECT_INDICES_A, L7_CORRECT_INDICES_B,
+    PROMPT2_LEVELS, PROMPT3_MONOLITH_LEVELS,
 )
 from services.vocabulary_ladder.asset_generators.prompt1_core import CoreAssetGenerator
 from services.vocabulary_ladder.asset_generators.prompt2_exercises import ExerciseAssetGenerator
@@ -40,12 +42,22 @@ from services.vocabulary_ladder.collocation_grounding import (
     GROUNDING_ASSERTED, GROUNDING_CORPUS, CollocationGrounder, ground_core_asset,
 )
 from services.vocabulary_ladder.validators import VocabAssetValidator
+from services.vocabulary_ladder.bundle.flags import bundle_authoritative, bundle_enabled
+from services.vocabulary_ladder.bundle.generator import BundleGenerator
 
 logger = logging.getLogger(__name__)
 
 # language_id → llm_calls/generation_stage_timings.language_code. Same
 # hardcoded map used by the asset_generators — see prompt1_core.py.
 _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+# TASK-811: sentinel for "this prompt was never submitted because none of its
+# levels were in the caller's `levels` scope" — distinct from `None`, which
+# means "the future ran and produced nothing usable". Step 4 below reads this
+# to skip validate/store silently (leaving whatever asset already exists
+# untouched) instead of recording a spurious generation-failure error for a
+# level nobody asked to regenerate this run.
+_SKIPPED = object()
 
 
 class VocabAssetPipeline:
@@ -61,6 +73,7 @@ class VocabAssetPipeline:
         language_id: int,
         force: bool = False,
         batch_id: str | None = None,
+        levels: set[int] | None = None,
     ) -> dict:
         """Generate all assets for a single word sense.
 
@@ -70,9 +83,33 @@ class VocabAssetPipeline:
         in test_generation.orchestrator. ``batch_id`` doubles as
         generation_stage_timings.run_id, so a whole ladder batch's wall clock
         can be summed by run_id without a time-window guess.
+
+        Also binds ``sense_id``/``batch_id`` into
+        ``services.llm_service.generation_context`` for the duration of the
+        impl call, so every ``call_llm()`` nested underneath — P1 on this
+        thread, and P2/P3/split-level/typed generation fanned out to worker
+        threads via ``BatchModeThreadPoolExecutor`` — logs them on its
+        llm_calls row without every generator file needing to pass them
+        through explicitly (Phase 0 cost instrumentation).
+
+        Args:
+            levels: TASK-811 level-scoped regen. When given, P1 still always
+                regenerates (it is the shared foundation every other level
+                reads from — there is no cheaper partial-P1), but the P2/P3/
+                split-level/typed futures are only submitted when they own at
+                least one level in this set. "Level scoped" here means
+                "prompt scoped to the levels that need it" — a P2 call that
+                owns even one requested level still asks for every P2 level
+                on this sense in the same call, because P2 is one LLM call
+                covering several levels at once (see prompt2_exercises.py).
+                ``None`` (default) is a full, unscoped regen — unchanged
+                behaviour.
         """
         batch_id = batch_id or str(uuid4())
-        result = self._generate_for_sense_impl(sense_id, language_id, force, batch_id)
+        with generation_context(sense_id=sense_id, generation_batch_id=batch_id):
+            result = self._generate_for_sense_impl(
+                sense_id, language_id, force, batch_id, levels=levels,
+            )
         log_stage_seconds(
             result.get('stage_seconds') or {},
             pipeline='vocab_ladder',
@@ -88,6 +125,7 @@ class VocabAssetPipeline:
         language_id: int,
         force: bool,
         batch_id: str,
+        levels: set[int] | None = None,
     ) -> dict:
         """Generate all assets for a single word sense.
 
@@ -101,6 +139,7 @@ class VocabAssetPipeline:
             force: If True, regenerate even if assets exist.
             batch_id: Batch UUID (str) for tracking — always set by the
                 ``generate_for_sense`` wrapper before this runs.
+            levels: TASK-811 level-scoped regen — see ``generate_for_sense``.
 
         Returns:
             {'sense_id': int, 'status': 'success'|'partial'|'failed', 'errors': [...]}
@@ -297,78 +336,162 @@ class VocabAssetPipeline:
             },
         }
 
-        variant_results = {}
-        # BatchModeThreadPoolExecutor, not the bare one: batch mode is
-        # thread-local, so plain pool threads judged fail-*open* for the whole
-        # of P2/P3 and the split/typed levels — only P1, which runs on this
-        # thread, was ever genuinely fail-closed. See judges/base.py.
-        #
-        # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
-        # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
-        # of those queued behind the rest every sense — a small but free
-        # latency win to remove, since each future is independently CPU/IO
-        # light on this thread (the wait is all downstream LLM latency).
-        with stage('fan_out', stage_seconds), \
-                BatchModeThreadPoolExecutor(max_workers=12) as pool:
-            futures = {}
-            for variant_key, cfg in variants.items():
-                # Submit P2 variant
-                futures[pool.submit(
-                    p2_gen.generate, sense_id, core_asset, active_levels,
-                    cfg['sentence_assignments'],
-                )] = ('p2', variant_key)
-                # Submit P3 variant. semantic_class + capability_context turn
-                # on per-type gating inside the generator (TASK-514/B5) so P3
-                # only asks for spot-incorrect when an enabled capability row
-                # for that *type* can actually fire.
-                futures[pool.submit(
-                    p3_gen.generate, sense_id, core_asset, active_levels,
-                    cfg['sentence_assignments'], cfg['l7_correct_indices'],
-                    None, semantic_class, capability_context,
-                )] = ('p3', variant_key)
-                # Submit the split levels. Already gated by p3_expected_levels,
-                # so each generator only has to decide whether *this sense*
-                # gives it a usable sentence.
-                for level in split_levels:
-                    futures[pool.submit(
-                        split_gens[level].generate, sense_id, core_asset,
-                        cfg['sentence_assignments'],
-                    )] = (f'l{level}', variant_key)
-                # Type-registered LLM generators (TASK-522 syn/ant +
-                # word_family, TASK-527 particle_selection). One future per
-                # variant rather than per type: they share a driver that
-                # already walks the capability matrix, and the matrix decides
-                # which of them apply to this word.
-                futures[pool.submit(
-                    typed_llm.generate_all,
-                    self.db, language_id, sense_id, core_asset, semantic_class,
-                    cfg['sentence_assignments'], capability_context,
-                )] = ('typed', variant_key)
+        # TASK-811: level-scoped regen. Decide ONCE (not per variant) which of
+        # P2 / the P3 monolith / each split level / each typed generator owns
+        # at least one requested level — a prompt that owns none of `levels`
+        # is never submitted at all, so its future never fires an LLM call
+        # (this is the actual cost saving; the per-level filtering in
+        # exercise_renderer.build_rows only stops the *render+judge* half).
+        # `levels is None` (the default, and every existing caller) keeps
+        # every prompt in scope — unchanged behaviour.
+        want_p2 = levels is None or bool(levels & PROMPT2_LEVELS)
+        want_p3 = levels is None or bool(levels & PROMPT3_MONOLITH_LEVELS)
+        split_levels_wanted = (
+            split_levels if levels is None
+            else [lv for lv in split_levels if lv in levels]
+        )
+        if levels is None:
+            typed_wanted_codes = None  # no filter — every applicable type, as today
+        else:
+            typed_caps = typed_llm.applicable_types(
+                language_id, semantic_class, capability_context)
+            typed_wanted_codes = {
+                cap['type_code'] for cap in typed_caps
+                if cap.get('ladder_level') in levels
+            }
+        want_typed = levels is None or bool(typed_wanted_codes)
 
-            for future in as_completed(futures):
-                prompt_type, variant_key = futures[future]
-                try:
-                    asset = future.result()
-                    variant_results[(prompt_type, variant_key)] = asset
-                except JudgeUnavailable:
-                    # A judge outage during a batch aborts the batch. Letting
-                    # this fall into the generic handler below would downgrade
-                    # a loud stop into "variant failed, carry on" — quieter
-                    # than the fail-open bug it replaced.
-                    raise
-                except Exception as e:
-                    logger.error("Variant %s_%s failed for sense %s: %s",
-                                 prompt_type, variant_key, sense_id, e)
-                    variant_results[(prompt_type, variant_key)] = None
+        variant_results = {}
+
+        # ADR-028 Phase 2 (TASK-815): bundle-mode call collapse. Only ever
+        # attempted on a full, unscoped regen (`levels is None`) — TASK-811
+        # level-scoped regen and the bundle collapse don't compose (a scoped
+        # regen wants to skip whole prompt families; the bundle call would
+        # have to ask for them anyway to produce anything at all), so a
+        # scoped regen always uses the legacy per-generator fan-out below,
+        # regardless of the flag.
+        bundle_attempted = levels is None and bundle_enabled()
+        bundle_result = None
+        if bundle_attempted:
+            bundle_gen = BundleGenerator(self.db, language_id)
+            bundle_result = bundle_gen.generate_bundle(
+                sense_id=sense_id,
+                core_asset=core_asset,
+                active_levels=active_levels,
+                semantic_class=semantic_class,
+                capability_context=capability_context,
+                p3_expected_levels=p3_expected_levels,
+                split_levels_wanted=split_levels_wanted,
+                typed_wanted_codes=None,  # unscoped regen -> every applicable type
+                variants=variants,
+                l7_correct_indices={
+                    vk: cfg['l7_correct_indices'] for vk, cfg in variants.items()
+                },
+            )
+            logger.info(
+                "Bundle generation for sense %s: ok=%s fallback_calls=%s",
+                sense_id, bundle_result.ok, bundle_result.fallback_calls,
+            )
+            if bundle_authoritative():
+                variant_results.update(bundle_result.to_variant_results())
+            # else: VOCAB_LADDER_BUNDLE_MODE=shadow — bundle_result is logged
+            # above (and should be persisted to a shadow-comparison sink by
+            # whoever wires TASK-807's protocol) but NOT stored/served; the
+            # legacy fan-out below still runs and its output remains
+            # authoritative.
+
+        if not (bundle_attempted and bundle_authoritative()):
+            # BatchModeThreadPoolExecutor, not the bare one: batch mode is
+            # thread-local, so plain pool threads judged fail-*open* for the whole
+            # of P2/P3 and the split/typed levels — only P1, which runs on this
+            # thread, was ever genuinely fail-closed. See judges/base.py.
+            #
+            # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
+            # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
+            # of those queued behind the rest every sense — a small but free
+            # latency win to remove, since each future is independently CPU/IO
+            # light on this thread (the wait is all downstream LLM latency).
+            with stage('fan_out', stage_seconds), \
+                    BatchModeThreadPoolExecutor(max_workers=12) as pool:
+                futures = {}
+                for variant_key, cfg in variants.items():
+                    # Submit P2 variant
+                    if want_p2:
+                        futures[pool.submit(
+                            p2_gen.generate, sense_id, core_asset, active_levels,
+                            cfg['sentence_assignments'],
+                        )] = ('p2', variant_key)
+                    else:
+                        variant_results[('p2', variant_key)] = _SKIPPED
+                    # Submit P3 variant. semantic_class + capability_context turn
+                    # on per-type gating inside the generator (TASK-514/B5) so P3
+                    # only asks for spot-incorrect when an enabled capability row
+                    # for that *type* can actually fire.
+                    if want_p3:
+                        futures[pool.submit(
+                            p3_gen.generate, sense_id, core_asset, active_levels,
+                            cfg['sentence_assignments'], cfg['l7_correct_indices'],
+                            None, semantic_class, capability_context,
+                        )] = ('p3', variant_key)
+                    else:
+                        variant_results[('p3', variant_key)] = _SKIPPED
+                    # Submit the split levels. Already gated by p3_expected_levels,
+                    # so each generator only has to decide whether *this sense*
+                    # gives it a usable sentence.
+                    for level in split_levels:
+                        if level in split_levels_wanted:
+                            futures[pool.submit(
+                                split_gens[level].generate, sense_id, core_asset,
+                                cfg['sentence_assignments'],
+                            )] = (f'l{level}', variant_key)
+                        else:
+                            variant_results[(f'l{level}', variant_key)] = _SKIPPED
+                    # Type-registered LLM generators (TASK-522 syn/ant +
+                    # word_family, TASK-527 particle_selection). One future per
+                    # variant rather than per type: they share a driver that
+                    # already walks the capability matrix, and the matrix decides
+                    # which of them apply to this word. `typed_wanted_codes`
+                    # narrows that further to the requested levels (TASK-811).
+                    if want_typed:
+                        futures[pool.submit(
+                            typed_llm.generate_all,
+                            self.db, language_id, sense_id, core_asset, semantic_class,
+                            cfg['sentence_assignments'], capability_context,
+                            typed_wanted_codes,
+                        )] = ('typed', variant_key)
+                    else:
+                        variant_results[('typed', variant_key)] = _SKIPPED
+
+                for future in as_completed(futures):
+                    prompt_type, variant_key = futures[future]
+                    try:
+                        asset = future.result()
+                        variant_results[(prompt_type, variant_key)] = asset
+                    except JudgeUnavailable:
+                        # A judge outage during a batch aborts the batch. Letting
+                        # this fall into the generic handler below would downgrade
+                        # a loud stop into "variant failed, carry on" — quieter
+                        # than the fail-open bug it replaced.
+                        raise
+                    except Exception as e:
+                        logger.error("Variant %s_%s failed for sense %s: %s",
+                                     prompt_type, variant_key, sense_id, e)
+                        variant_results[(prompt_type, variant_key)] = None
 
         # Step 4: Validate and store each variant
         for variant_key in ('A', 'B'):
-            # P2 variant
+            # P2 variant. `_SKIPPED` (TASK-811: no requested level is P2's)
+            # means leave whatever asset already exists untouched — no error,
+            # no store. P2 is atomic (one call covers every active P2 level),
+            # so a non-skipped run always covers the full set, same as before
+            # this parameter existed.
             p2_asset = variant_results.get(('p2', variant_key))
-            asset_type = f'prompt2_exercises_{variant_key}'
-            if p2_asset is None:
+            if p2_asset is _SKIPPED:
+                pass
+            elif p2_asset is None:
                 result['errors'].append(f'Prompt 2 variant {variant_key} generation failed')
             else:
+                asset_type = f'prompt2_exercises_{variant_key}'
                 p2_valid, p2_errors = self.validator.validate_prompt2(p2_asset, active_levels)
                 self._store_asset(sense_id, language_id, asset_type, p2_asset,
                                   p2_gen.model, batch_id, is_valid=p2_valid,
@@ -383,43 +506,84 @@ class VocabAssetPipeline:
             # so the split is invisible downstream (and A/B behaviour is
             # unchanged). Each contributor reports its own failure, because
             # "morphology failed" and "spot-incorrect failed" are now genuinely
-            # different events with different fixes.
+            # different events with different fixes. A `_SKIPPED` contributor
+            # (TASK-811: that level wasn't requested) is neither an error nor
+            # a merge source — when scoped, the merge starts from whatever is
+            # already stored for this asset_type, so an untouched level's
+            # content survives the upsert instead of being dropped.
+            p3_asset_type = f'prompt3_transforms_{variant_key}'
+            p3_asset: dict | None = (
+                self._fetch_existing_asset_content(sense_id, p3_asset_type)
+                if levels is not None else None
+            )
+            any_p3_source_ran = False
+            # Split levels whose generator returned `{}` -- a clean runtime
+            # skip (no usable sentence / no collocate / model declined), not a
+            # failure -- and so must not be expected by the validator below.
+            # `p3_expected_levels` is a static, per-word-type capability-matrix
+            # decision (see prompt3_levels_for_context, computed before any
+            # sentence exists); L5 gets the equivalent runtime check applied
+            # *before* that decision (the PMI gate above), but L4/L8's own
+            # gate (SplitLevelGenerator._sentence_index) can only run after P1
+            # has produced sentences, so it cannot inform p3_expected_levels
+            # up front. Without this, an entirely healthy asset that simply
+            # has no word/sentence pair to hang L8 on reads back as "Missing
+            # level_8" and gets marked invalid -- which is what drove
+            # prompt3_transforms's very high invalid rate (almost every EN
+            # sense hits this for L8).
+            runtime_skipped_levels: set[int] = set()
             p3_sources = [('P3', variant_results.get(('p3', variant_key)))]
             for level in split_levels:
                 p3_sources.append(
                     (f'L{level}', variant_results.get((f'l{level}', variant_key)))
                 )
 
-            p3_asset: dict | None = None
             for label, fragment in p3_sources:
+                if fragment is _SKIPPED:
+                    continue
+                any_p3_source_ran = True
                 if fragment is None:
                     result['errors'].append(
                         f'Prompt 3 ({label}) variant {variant_key} generation failed'
                     )
                     continue
+                if fragment == {} and label != 'P3':
+                    runtime_skipped_levels.add(int(label[1:]))
+                    continue
                 p3_asset = {**(p3_asset or {}), **fragment}
 
-            if p3_asset is not None:
-                asset_type = f'prompt3_transforms_{variant_key}'
+            if any_p3_source_ran and p3_asset is not None:
+                effective_expected_levels = [
+                    lv for lv in p3_expected_levels if lv not in runtime_skipped_levels
+                ]
                 p3_valid, p3_errors = self.validator.validate_prompt3(
-                    p3_asset, p3_expected_levels)
-                self._store_asset(sense_id, language_id, asset_type, p3_asset,
+                    p3_asset, effective_expected_levels)
+                self._store_asset(sense_id, language_id, p3_asset_type, p3_asset,
                                   p3_gen.model, batch_id, is_valid=p3_valid,
                                   validation_errors=p3_errors if not p3_valid else None)
                 if not p3_valid:
                     result['errors'].extend(
                         [f'[{variant_key}] {e}' for e in p3_errors])
 
-            # Type-registered LLM variant. Stored even when empty so the
-            # renderer can tell "no applicable types for this word" (an empty
-            # asset) from "generation never ran" (no asset at all).
+            # Type-registered LLM variant. `_SKIPPED` leaves the existing
+            # llm_types_X asset untouched. Otherwise stored even when empty so
+            # the renderer can tell "no applicable types for this word" (an
+            # empty asset) from "generation never ran" (no asset at all).
+            # When scoped, the freshly-generated fragments are merged onto the
+            # existing stored ones so an untouched type's content survives.
             typed_result = variant_results.get(('typed', variant_key))
-            if typed_result is None:
+            if typed_result is _SKIPPED:
+                pass
+            elif typed_result is None:
                 result['errors'].append(
                     f'Typed LLM generators variant {variant_key} failed'
                 )
             else:
                 fragments, typed_failures = typed_result
+                if levels is not None:
+                    existing = self._fetch_existing_asset_content(
+                        sense_id, f'llm_types_{variant_key}')
+                    fragments = {**existing, **fragments}
                 self._store_asset(
                     sense_id, language_id, f'llm_types_{variant_key}', fragments,
                     'per-type (see prompt_templates)', batch_id,
@@ -863,6 +1027,38 @@ class VocabAssetPipeline:
             return has_p1 and has_p2 and has_p3
         except Exception:
             return False
+
+    def _fetch_existing_asset_content(self, sense_id: int, asset_type: str) -> dict:
+        """Current stored content for one word_asset row, or ``{}`` if absent.
+
+        TASK-811 support: a level-scoped regen only asks for a subset of what
+        a merged asset type actually holds — ``prompt3_transforms_X`` merges
+        the P3 monolith (L7) with the L4/L8 split generators, and
+        ``llm_types_X`` merges every typed generator's fragment. Starting a
+        scoped merge from the existing stored content (instead of from empty)
+        means an untouched level/type is never dropped from the row by the
+        upsert. Fails soft — an unreadable row degrades to "merge from
+        nothing", which loses untouched content on that one regen rather than
+        blocking it.
+        """
+        try:
+            resp = (
+                self.db.table('word_assets')
+                .select('content')
+                .eq('sense_id', sense_id)
+                .eq('asset_type', asset_type)
+                .eq('is_valid', True)
+                .limit(1)
+                .execute()
+            )
+            rows = resp.data or []
+            return (rows[0].get('content') or {}) if rows else {}
+        except Exception as exc:
+            logger.warning(
+                'Could not fetch existing %s for sense %s (scoped regen merge): %s',
+                asset_type, sense_id, exc,
+            )
+            return {}
 
     def _store_asset(
         self,

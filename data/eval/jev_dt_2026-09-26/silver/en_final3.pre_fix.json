@@ -1,0 +1,1104 @@
+[
+ {
+  "id": "en_silver_01",
+  "kind": "clean",
+  "source_passage_id": 9,
+  "note": "synonym small->little (different variation than gold's clean set on this passage)",
+  "reference": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a small computer.",
+  "reproduction": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a little computer.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_02",
+  "kind": "clean",
+  "source_passage_id": 10,
+  "note": "synonym wires->cables",
+  "reference": "It helps control things. You also need some servo motors. These motors make the arm move. You will need wires to connect everything.",
+  "reproduction": "It helps control things. You also need some servo motors. These motors make the arm move. You will need cables to connect everything.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_03",
+  "kind": "clean",
+  "source_passage_id": 11,
+  "note": "synonym glue->adhesive",
+  "reference": "A 3D printer can make the arm parts. Or you can use simple sticks and glue. You will also need to learn some coding. The code tells the Arduino what to do.",
+  "reproduction": "A 3D printer can make the arm parts. Or you can use simple sticks and adhesive. You will also need to learn some coding. The code tells the Arduino what to do.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_04",
+  "kind": "clean",
+  "source_passage_id": 12,
+  "note": "paraphrase how much->how far (amount of movement, meaning-preserving in context)",
+  "reference": "It tells the motors when to move. It tells them how much to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "reproduction": "It tells the motors when to move. It tells them how far to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_05",
+  "kind": "clean",
+  "source_passage_id": 16,
+  "note": "synonym certain->specific",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a specific position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_06",
+  "kind": "clean",
+  "source_passage_id": 17,
+  "note": "synonym series->sequence",
+  "reference": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "reproduction": "This makes the arm do a sequence of actions. This is a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_07",
+  "kind": "single",
+  "source_passage_id": 15,
+  "note": "article: 'a' dropped (a basic example->basic example)",
+  "reference": "This is a basic example of robotics. This DIY project teaches you about electronics. You learn how to connect wires. You learn how motors work.",
+  "reproduction": "This is basic example of robotics. This DIY project teaches you about electronics. You learn how to connect wires. You learn how motors work.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     34
+    ],
+    "span_ref": [
+     0,
+     36
+    ],
+    "subtype": "article",
+    "subtype_v5_target": "article",
+    "severity_v2": "minor",
+    "learner_form": "This is basic example of robotics.",
+    "corrected_form": "This is a basic example of robotics."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_08",
+  "kind": "single",
+  "source_passage_id": 17,
+  "note": "preposition: about->for (this project is about->is for)",
+  "reference": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "reproduction": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots later. This project is for electronics and coding.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     128,
+     171
+    ],
+    "span_ref": [
+     128,
+     173
+    ],
+    "subtype": "preposition",
+    "subtype_v5_target": "preposition",
+    "severity_v2": "minor",
+    "learner_form": "This project is for electronics and coding.",
+    "corrected_form": "This project is about electronics and coding."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_09",
+  "kind": "single",
+  "source_passage_id": 16,
+  "note": "tense/aspect: learn->learned (You learn how to use an Arduino->You learned)",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learned how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     34
+    ],
+    "span_ref": [
+     0,
+     32
+    ],
+    "subtype": "tense_aspect",
+    "subtype_v5_target": "tense_aspect",
+    "severity_v2": "major",
+    "learner_form": "You learned how to use an Arduino.",
+    "corrected_form": "You learn how to use an Arduino."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 3,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_10",
+  "kind": "single",
+  "source_passage_id": 17,
+  "note": "subject-verb agreement: is->are (short-word/large-distance pair per README fuzzy-match caveat)",
+  "reference": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "reproduction": "This makes the arm do a series of actions. This are a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     43,
+     87
+    ],
+    "span_ref": [
+     43,
+     86
+    ],
+    "subtype": "subject_verb_agreement",
+    "subtype_v5_target": "subject_verb_agreement",
+    "severity_v2": "minor",
+    "learner_form": "This are a good start for learning robotics.",
+    "corrected_form": "This is a good start for learning robotics."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_11",
+  "kind": "single",
+  "source_passage_id": 13,
+  "note": "plural/number: third->fourth (ordinal count changed; -s suffix pairs collapse under Tier-0 fuzzy match per README)",
+  "reference": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+  "reproduction": "One motor can make the arm go up and down. Another motor can make it move left and right. A fourth motor can open and close a gripper. This is like a hand.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     90,
+     134
+    ],
+    "span_ref": [
+     90,
+     133
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "major",
+    "learner_form": "A fourth motor can open and close a gripper.",
+    "corrected_form": "A third motor can open and close a gripper."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_12",
+  "kind": "single",
+  "source_passage_id": 14,
+  "note": "phrasal verb: pick up->pick at (wrong particle)",
+  "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+  "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick at small things. You can move them to a new spot.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     65,
+     107
+    ],
+    "span_ref": [
+     65,
+     107
+    ],
+    "subtype": "phrasal_verb",
+    "subtype_v5_target": "phrasal_verb",
+    "severity_v2": "minor",
+    "learner_form": "You can make the arm pick at small things.",
+    "corrected_form": "You can make the arm pick up small things."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_13",
+  "kind": "single",
+  "source_passage_id": 14,
+  "note": "pronoun reference: them->him (wrong pronoun, no plausible referent)",
+  "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+  "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move him to a new spot.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     108,
+     139
+    ],
+    "span_ref": [
+     108,
+     140
+    ],
+    "subtype": "pronoun_reference",
+    "subtype_v5_target": "pronoun_reference",
+    "severity_v2": "major",
+    "learner_form": "You can move him to a new spot.",
+    "corrected_form": "You can move them to a new spot."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 3,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_14",
+  "kind": "single",
+  "source_passage_id": 12,
+  "note": "omission: 'when' dropped (It tells the motors when to move->It tells the motors to move)",
+  "reference": "It tells the motors when to move. It tells them how much to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "reproduction": "It tells the motors to move. It tells them how much to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     28
+    ],
+    "span_ref": [
+     0,
+     33
+    ],
+    "subtype": "omission",
+    "subtype_v5_target": "omission",
+    "severity_v2": "major",
+    "learner_form": "It tells the motors to move.",
+    "corrected_form": "It tells the motors when to move."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_15",
+  "kind": "single",
+  "source_passage_id": 15,
+  "note": "addition: 'also...everyone' inserted/substituted, broadening the claim beyond the reference's stated audience (a pure word-insertion alone is invisible to the Tier-0 dictation-accuracy check, since inserted tokens are display-only and never enter word_total -- so the edit is paired with a real word replacement: you->everyone)",
+  "reference": "This is a basic example of robotics. This DIY project teaches you about electronics. You learn how to connect wires. You learn how motors work.",
+  "reproduction": "This is a basic example of robotics. This DIY project also teaches everyone about electronics. You learn how to connect wires. You learn how motors work.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     37,
+     94
+    ],
+    "span_ref": [
+     37,
+     84
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "minor",
+    "learner_form": "This DIY project also teaches everyone about electronics.",
+    "corrected_form": "This DIY project teaches you about electronics."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_16",
+  "kind": "single",
+  "source_passage_id": 9,
+  "note": "orthography: board->bored (homophone-adjacent misspelling; distance-1 same-length pairs like computer->computor collapse under Tier-0 fuzzy match per README, so this uses a 2-substitution pair)",
+  "reference": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a small computer.",
+  "reproduction": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino bored. This is a small computer.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     109,
+     142
+    ],
+    "span_ref": [
+     109,
+     142
+    ],
+    "subtype": "orthography",
+    "subtype_v5_target": "orthography",
+    "severity_v2": "minor",
+    "learner_form": "First, you need an Arduino bored.",
+    "corrected_form": "First, you need an Arduino board."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_17",
+  "kind": "single",
+  "source_passage_id": 12,
+  "note": "collocation: tells->says (non-idiomatic verb-object pairing)",
+  "reference": "It tells the motors when to move. It tells them how much to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "reproduction": "It says the motors when to move. It tells them how much to move. This is how you make the robot arm work. Let's think about how the arm moves.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     32
+    ],
+    "span_ref": [
+     0,
+     33
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "major",
+    "learner_form": "It says the motors when to move.",
+    "corrected_form": "It tells the motors when to move."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_18",
+  "kind": "single",
+  "source_passage_id": 16,
+  "note": "word order: scrambled (Then you can tell another motor to move->Then another motor you can tell to move)",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then another motor you can tell to move.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     172,
+     212
+    ],
+    "span_ref": [
+     172,
+     212
+    ],
+    "subtype": "word_order",
+    "subtype_v5_target": "word_order",
+    "severity_v2": "major",
+    "learner_form": "Then another motor you can tell to move.",
+    "corrected_form": "Then you can tell another motor to move."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 3,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_19",
+  "kind": "single",
+  "source_passage_id": 15,
+  "note": "register: informal 'y'all' inserted (regional slang shift)",
+  "reference": "This is a basic example of robotics. This DIY project teaches you about electronics. You learn how to connect wires. You learn how motors work.",
+  "reproduction": "This is a basic example of robotics. This DIY project teaches y'all about electronics. You learn how to connect wires. You learn how motors work.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     37,
+     86
+    ],
+    "span_ref": [
+     37,
+     84
+    ],
+    "subtype": "register",
+    "subtype_v5_target": "register",
+    "severity_v2": "major",
+    "learner_form": "This DIY project teaches y'all about electronics.",
+    "corrected_form": "This DIY project teaches you about electronics."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_20",
+  "kind": "single",
+  "source_passage_id": 9,
+  "note": "MEANING INVERSION - negation added: can->cannot (learner claims the opposite capability)",
+  "reference": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a small computer.",
+  "reproduction": "Building a simple robot arm with Arduino is a fun DIY project. You cannot learn about robotics and electronics. First, you need an Arduino board. This is a small computer.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     63,
+     111
+    ],
+    "span_ref": [
+     63,
+     108
+    ],
+    "subtype": "addition",
+    "subtype_v5_target": "addition",
+    "severity_v2": "critical",
+    "learner_form": "You cannot learn about robotics and electronics.",
+    "corrected_form": "You can learn about robotics and electronics."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_21",
+  "kind": "single",
+  "source_passage_id": 13,
+  "note": "MEANING INVERSION - negation added: can->can't",
+  "reference": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+  "reproduction": "One motor can make the arm go up and down. Another motor can't make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     43,
+     91
+    ],
+    "span_ref": [
+     43,
+     89
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "critical",
+    "learner_form": "Another motor can't make it move left and right.",
+    "corrected_form": "Another motor can make it move left and right."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_22",
+  "kind": "single",
+  "source_passage_id": 14,
+  "note": "MEANING INVERSION - preposition flip: to->from (priority failure family, direction reversed)",
+  "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+  "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them from a new spot.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     108,
+     142
+    ],
+    "span_ref": [
+     108,
+     140
+    ],
+    "subtype": "preposition",
+    "subtype_v5_target": "preposition",
+    "severity_v2": "critical",
+    "learner_form": "You can move them from a new spot.",
+    "corrected_form": "You can move them to a new spot."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 1,
+   "understandability": 2,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_23",
+  "kind": "single",
+  "source_passage_id": 18,
+  "note": "MEANING INVERSION - quantity flip: many->few (opposite ends of the quantity spectrum)",
+  "reference": "It's a great way to learn by doing. The Arduino is a powerful tool for DIY projects. You can make many things with it. This robot arm is just one idea.",
+  "reproduction": "It's a great way to learn by doing. The Arduino is a powerful tool for DIY projects. You can make few things with it. This robot arm is just one idea.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     85,
+     117
+    ],
+    "span_ref": [
+     85,
+     118
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "critical",
+    "learner_form": "You can make few things with it.",
+    "corrected_form": "You can make many things with it."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_24",
+  "kind": "single",
+  "source_passage_id": 14,
+  "note": "MEANING INVERSION - agent swap: subject/object of 'write instructions' reversed",
+  "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+  "reproduction": "The coding is important. The Arduino writes instructions for you. You can make the arm pick up small things. You can move them to a new spot.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_25",
+  "kind": "single",
+  "source_passage_id": 17,
+  "note": "MEANING INVERSION - temporal flip: later->first (sequencing reversed, before/after family)",
+  "reference": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots later. This project is about electronics and coding.",
+  "reproduction": "This makes the arm do a series of actions. This is a good start for learning robotics. You can build more complex robots first. This project is about electronics and coding.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     87,
+     127
+    ],
+    "span_ref": [
+     87,
+     127
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "critical",
+    "learner_form": "You can build more complex robots first.",
+    "corrected_form": "You can build more complex robots later."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_26",
+  "kind": "single",
+  "source_passage_id": 16,
+  "note": "MEANING INVERSION - quantity change inside a quoted example: 90->9 degrees (drastically different value)",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 9 degrees.\" Then you can tell another motor to move.",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_27",
+  "kind": "single",
+  "source_passage_id": 11,
+  "note": "MEANING INVERSION - use->avoid (recommendation reversed)",
+  "reference": "A 3D printer can make the arm parts. Or you can use simple sticks and glue. You will also need to learn some coding. The code tells the Arduino what to do.",
+  "reproduction": "A 3D printer can make the arm parts. Or you can avoid simple sticks and glue. You will also need to learn some coding. The code tells the Arduino what to do.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     37,
+     77
+    ],
+    "span_ref": [
+     37,
+     75
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "critical",
+    "learner_form": "Or you can avoid simple sticks and glue.",
+    "corrected_form": "Or you can use simple sticks and glue."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_28",
+  "kind": "single",
+  "source_passage_id": 10,
+  "note": "NATURALNESS - collocation: servo motors->servo engines (non-idiomatic pairing); naturalness lowered, not accuracy/fidelity",
+  "reference": "It helps control things. You also need some servo motors. These motors make the arm move. You will need wires to connect everything.",
+  "reproduction": "It helps control things. You also need some servo engines. These motors make the arm move. You will need wires to connect everything.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     25,
+     58
+    ],
+    "span_ref": [
+     25,
+     57
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "minor",
+    "learner_form": "You also need some servo engines.",
+    "corrected_form": "You also need some servo motors."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_29",
+  "kind": "single",
+  "source_passage_id": 16,
+  "note": "NATURALNESS - cohesion/connective: Then->But (existing connective swapped for a wrong one, implying a contrast where the reference intended simple sequence; a pure inserted connective would be invisible to the Tier-0 dictation-accuracy check, so an existing discourse marker is replaced instead)",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" But you can tell another motor to move.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     172,
+     211
+    ],
+    "span_ref": [
+     172,
+     212
+    ],
+    "subtype": "cohesion_connective",
+    "subtype_v5_target": "cohesion_connective",
+    "severity_v2": "minor",
+    "learner_form": "But you can tell another motor to move.",
+    "corrected_form": "Then you can tell another motor to move."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_30",
+  "kind": "single",
+  "source_passage_id": 9,
+  "note": "NATURALNESS - cohesion/connective: First->Also (existing sequence marker swapped for an additive one, illogical since this is in fact the first step mentioned)",
+  "reference": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a small computer.",
+  "reproduction": "Building a simple robot arm with Arduino is a fun DIY project. You can learn about robotics and electronics. Also, you need an Arduino board. This is a small computer.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     109,
+     141
+    ],
+    "span_ref": [
+     109,
+     142
+    ],
+    "subtype": "cohesion_connective",
+    "subtype_v5_target": "cohesion_connective",
+    "severity_v2": "minor",
+    "learner_form": "Also, you need an Arduino board.",
+    "corrected_form": "First, you need an Arduino board."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_31",
+  "kind": "single",
+  "source_passage_id": 13,
+  "note": "RANGE - flattening: gripper->thing (specific vocabulary replaced by a generic word); range lowered to 3, naturalness unaffected",
+  "reference": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+  "reproduction": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a thing. This is like a hand.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     90,
+     131
+    ],
+    "span_ref": [
+     90,
+     133
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "minor",
+    "learner_form": "A third motor can open and close a thing.",
+    "corrected_form": "A third motor can open and close a gripper."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 2,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_32",
+  "kind": "single",
+  "source_passage_id": 16,
+  "note": "RANGE + NATURALNESS - flattening: commands->stuff (generic, informal substitute); range lowered to 2, naturalness lowered to 3",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple stuff. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     33,
+     66
+    ],
+    "span_ref": [
+     33,
+     69
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "minor",
+    "learner_form": "The coding involves simple stuff.",
+    "corrected_form": "The coding involves simple commands."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 2,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_33",
+  "kind": "multi",
+  "source_passage_id": 15,
+  "note": "article 'a' dropped (min) + omission 'you' dropped (maj) + tense learn->learned (maj) + s-v agreement learn->learns (min)",
+  "reference": "This is a basic example of robotics. This DIY project teaches you about electronics. You learn how to connect wires. You learn how motors work.",
+  "reproduction": "This is basic example of robotics. This DIY project teaches about electronics. You learned how to connect wires. You learns how motors work.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     34
+    ],
+    "span_ref": [
+     0,
+     36
+    ],
+    "subtype": "article",
+    "subtype_v5_target": "article",
+    "severity_v2": "minor",
+    "learner_form": "This is basic example of robotics.",
+    "corrected_form": "This is a basic example of robotics."
+   },
+   {
+    "span_repro": [
+     35,
+     78
+    ],
+    "span_ref": [
+     37,
+     84
+    ],
+    "subtype": "omission",
+    "subtype_v5_target": "omission",
+    "severity_v2": "major",
+    "learner_form": "This DIY project teaches about electronics.",
+    "corrected_form": "This DIY project teaches you about electronics."
+   },
+   {
+    "span_repro": [
+     79,
+     112
+    ],
+    "span_ref": [
+     85,
+     116
+    ],
+    "subtype": "tense_aspect",
+    "subtype_v5_target": "tense_aspect",
+    "severity_v2": "major",
+    "learner_form": "You learned how to connect wires.",
+    "corrected_form": "You learn how to connect wires."
+   },
+   {
+    "span_repro": [
+     113,
+     140
+    ],
+    "span_ref": [
+     117,
+     143
+    ],
+    "subtype": "subject_verb_agreement",
+    "subtype_v5_target": "subject_verb_agreement",
+    "severity_v2": "minor",
+    "learner_form": "You learns how motors work.",
+    "corrected_form": "You learn how motors work."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 2,
+   "understandability": 3,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_34",
+  "kind": "multi",
+  "source_passage_id": 16,
+  "note": "plural commands->command (min) + word order scrambled (maj) + register informal slang (maj)",
+  "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+  "reproduction": "You learn how to use an Arduino. The coding involves simple command. You tell the Arduino to set a motor to a certain spot, yo. For example, \"move motor 1 to 90 degrees.\" Then another motor you can tell to move.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     33,
+     68
+    ],
+    "span_ref": [
+     33,
+     69
+    ],
+    "subtype": "plural_number",
+    "subtype_v5_target": "plural_number",
+    "severity_v2": "minor",
+    "learner_form": "The coding involves simple command.",
+    "corrected_form": "The coding involves simple commands."
+   },
+   {
+    "span_repro": [
+     171,
+     211
+    ],
+    "span_ref": [
+     172,
+     212
+    ],
+    "subtype": "word_order",
+    "subtype_v5_target": "word_order",
+    "severity_v2": "major",
+    "learner_form": "Then another motor you can tell to move.",
+    "corrected_form": "Then you can tell another motor to move."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 3,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ },
+ {
+  "id": "en_silver_35",
+  "kind": "multi",
+  "source_passage_id": 14,
+  "note": "phrasal verb pick up->pick out (min) + word choice important->expensive (maj)",
+  "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+  "reproduction": "The coding is expensive. You write instructions for the Arduino. You can make the arm pick out small things. You can move them to a new spot.",
+  "expected_errors": [
+   {
+    "span_repro": [
+     0,
+     24
+    ],
+    "span_ref": [
+     0,
+     24
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "major",
+    "learner_form": "The coding is expensive.",
+    "corrected_form": "The coding is important."
+   },
+   {
+    "span_repro": [
+     65,
+     108
+    ],
+    "span_ref": [
+     65,
+     107
+    ],
+    "subtype": "phrasal_verb",
+    "subtype_v5_target": "phrasal_verb",
+    "severity_v2": "minor",
+    "learner_form": "You can make the arm pick out small things.",
+    "corrected_form": "You can make the arm pick up small things."
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_majority3"
+ }
+]

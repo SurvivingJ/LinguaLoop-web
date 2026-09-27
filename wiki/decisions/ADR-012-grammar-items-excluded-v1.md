@@ -52,3 +52,11 @@ V2 recovers them via the `exercises ↔ senses` bridge: a grammar exercise that 
 - [[algorithms/practice-unified-score.tech]] — Term definitions assume `sense_id IS NOT NULL`.
 - [[decisions/ADR-007-merge-exercises-vocab-dojo]] — Parent decision that this constrains.
 - [[features/corpus-analysis]] — Where the V2 bridge table will originate.
+
+## Update 2026-09-21
+
+The grammar and style sources this ADR excluded were never populated (0 grammar patterns, 0
+style-pack items) and were **archived** — see `archive/modules/grammar-patterns-2026-09-21.zip`
+and `archive/modules/language-packs-2026-09-21.zip`. `exercises.grammar_pattern_id` and
+`exercises.style_pack_item_id` were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22).
+The only non-sense-linked source left is the frozen legacy collocation generator (10 rows).

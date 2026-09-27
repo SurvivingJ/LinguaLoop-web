@@ -71,26 +71,9 @@ REQUIRED_FIELDS_BY_TYPE: dict[str, list[str]] = {
                                   'form_label', 'options'],
 }
 
-# --- Distribution targets per grammar pattern --------------------------------
-
-GRAMMAR_DISTRIBUTION: dict[str, int] = {
-    'cloze_completion':        150,
-    'jumbled_sentence':        120,
-    'tl_nl_translation':        80,
-    'nl_tl_translation':        60,
-    'collocation_gap_fill':     80,
-    'text_flashcard':           80,
-    'listening_flashcard':      80,
-    'semantic_discrimination':  60,
-    'collocation_repair':       50,
-    'spot_incorrect_sentence':  40,
-    'spot_incorrect_part':      30,
-    'timed_speed_round':        50,
-    'odd_one_out':              40,
-    'context_spectrum':         30,
-    'odd_collocation_out':      30,
-    'verb_noun_match':          20,
-}
+# --- Distribution targets per source ---------------------------------------
+# (GRAMMAR / CONVERSATION / STYLE distributions archived 2026-09-21 with their
+# features — see archive/modules/.)
 
 # VOCABULARY_DISTRIBUTION removed by TASK-512. This pipeline no longer
 # generates vocabulary exercises at all — the vocabulary ladder owns them end
@@ -105,31 +88,13 @@ COLLOCATION_DISTRIBUTION: dict[str, int] = {
     'verb_noun_match':       1,
 }
 
-STYLE_DISTRIBUTION: dict[str, int] = {
-    'style_sentence_completion': 5,
-    'style_pattern_match':       3,
-    'style_voice_transform':     3,
-    'style_transition_fill':     3,
-    'style_imitation':           2,
-}
-
-CONVERSATION_DISTRIBUTION: dict[str, int] = {
-    'cloze_completion':        10,
-    'jumbled_sentence':         8,
-    'tl_nl_translation':        6,
-    'nl_tl_translation':        5,
-    'semantic_discrimination':  4,
-    'text_flashcard':           5,
-    'spot_incorrect_sentence':  3,
-}
-
 # --- Sentence pool thresholds ------------------------------------------------
 MIN_TRANSCRIPT_SENTENCES: int = 80
 DEFAULT_SENTENCE_TARGET:  int = 200
 LLM_BATCH_SIZE:           int = 25
 
 # --- Tier -> IRT difficulty seed ----------------------------------------------
-from services.conversation_generation.categorical_maps import TIER_TO_IRT
+from services.categorical_maps import TIER_TO_IRT
 
 # --- Grammar pattern heuristics (for transcript mining) ---------------------
 PATTERN_HEURISTICS: dict[str, str] = {

@@ -551,7 +551,7 @@ class SenseGenerator:
         # sense generation must stay importable in environments (tests, offline
         # CLI runs) that never embed anything.
         try:
-            from scripts.backfill_sense_embeddings import build_text
+            from scripts.backfill_sense_embeddings import build_text, sense_vector
             from services.topic_generation.agents.embedder import EmbeddingService
         except Exception as exc:
             logger.debug("embed-on-create unavailable: %s", exc)
@@ -579,7 +579,7 @@ class SenseGenerator:
                 continue
             try:
                 self._db.table('dim_word_senses').update(
-                    {'embedding': vector}).eq('id', sense_id).execute()
+                    {'embedding': sense_vector(vector)}).eq('id', sense_id).execute()
                 self._bump('embeddings_written')
             except Exception as exc:
                 logger.warning("  %s: could not store embedding for sense %s: %s",

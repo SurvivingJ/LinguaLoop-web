@@ -1,0 +1,95 @@
+{
+  "sense_id": 35009,
+  "language_id": 3,
+  "generation_batch_id": "dacd418b-ee36-4966-b059-60498843c296",
+  "started_at": "2026-09-26T08:57:17.408817+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 1): 義項誤り（比況の助動詞）",
+    "P1 sentence[1] rejected (rating 1): 義項誤り（副詞的用法）",
+    "P1 sentence[2] rejected (rating 1): 義項誤り（比況の助動詞）",
+    "P1 sentence[3] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[4] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[5] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[6] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[7] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[8] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence[9] rejected (rating 1): 対象語欠落（「さま」を使用）",
+    "P1 sentence judge: only 0 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.6840202808380127,
+    "p1_generate": 97.0871171951294,
+    "tier_gate": 0.0,
+    "p1_judge": 207.64207005500793
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0089856,
+      "prompt_tokens": 2704,
+      "completion_tokens": 6344,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5537,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "dacd418b-ee36-4966-b059-60498843c296",
+      "language_code": "ja",
+      "latency_ms": 96478
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00759808,
+      "prompt_tokens": 744,
+      "completion_tokens": 5750,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5502,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "dacd418b-ee36-4966-b059-60498843c296",
+      "language_code": "ja",
+      "latency_ms": 79723
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35009,
+      "generation_batch_id": "dacd418b-ee36-4966-b059-60498843c296",
+      "language_code": "ja",
+      "latency_ms": null
+    }
+  ],
+  "llm_calls_observed": 3,
+  "llm_cost_observed_usd": 0.01658368,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 305.5939999999973,
+  "finished_at": "2026-09-26T09:02:23.006096+00:00"
+}

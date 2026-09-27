@@ -1,0 +1,425 @@
+[
+ {
+  "id": "ja_silver_01",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "掴む→つかむ kanji/kana variant, acceptable (matches ja_clean_02 pattern)."
+ },
+ {
+  "id": "ja_silver_02",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "揃えます→そろえます kanji/kana variant, acceptable."
+ },
+ {
+  "id": "ja_silver_03",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "分かりやすい→わかりやすい kanji/kana variant, acceptable."
+ },
+ {
+  "id": "ja_silver_04",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "うまく→ちゃんと synonym preserving meaning/register, acceptable."
+ },
+ {
+  "id": "ja_silver_05",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "皆さん→みなさん kanji/kana variant, acceptable."
+ },
+ {
+  "id": "ja_silver_06",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "挑戦して→チャレンジして synonym (native word vs. common loanword), register-neutral for this genre, acceptable."
+ },
+ {
+  "id": "ja_silver_07",
+  "errors": [
+   {
+    "learner_form": "醍醐味です",
+    "corrected_form": "醍醐味ですね",
+    "subtype": "particle_other",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Sentence-final ね dropped; loses a warmth/agreement-seeking nuance but not acceptable-variation listed. Single minor accuracy-dim error stays under threshold for all formula bands."
+ },
+ {
+  "id": "ja_silver_08",
+  "errors": [
+   {
+    "learner_form": "することは可能です",
+    "corrected_form": "することも可能です",
+    "subtype": "particle_other",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "も (additive listing) replaced by は (topic/contrast); subtle discourse-nuance shift, analogous to gold ja_seed_03 や→と (minor)."
+ },
+ {
+  "id": "ja_silver_09",
+  "errors": [
+   {
+    "learner_form": "考えました",
+    "corrected_form": "考えます",
+    "subtype": "tense_aspect_ja",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Present/habitual instructional verb shifted to past, breaking the how-to guide's tense consistency."
+ },
+ {
+  "id": "ja_silver_10",
+  "errors": [
+   {
+    "learner_form": "テストしてみました",
+    "corrected_form": "テストしてみましょう",
+    "subtype": "tense_aspect_ja",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Volitional suggestion (let's test) turned into a past-tense report, changing the instructional frame."
+ },
+ {
+  "id": "ja_silver_11",
+  "errors": [
+   {
+    "learner_form": "設計図を簡単な描きましょう",
+    "corrected_form": "簡単な設計図を描きましょう",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "な-adjective 簡単な displaced to directly precede the verb, which it cannot grammatically modify; forces rereading."
+ },
+ {
+  "id": "ja_silver_12",
+  "errors": [
+   {
+    "learner_form": "力を掴む調整できる",
+    "corrected_form": "掴む力を調整できる",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Object/modifier order scrambled ('grip the force' vs. 'adjust the gripping force'); garbled, forces rereading."
+ },
+ {
+  "id": "ja_silver_13",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "学ぶ→学べる (dictionary vs. potential form) is a natural, near-synonymous paraphrase before 機会, not an error."
+ },
+ {
+  "id": "ja_silver_14",
+  "errors": [
+   {
+    "learner_form": "描きしょう",
+    "corrected_form": "描きましょう",
+    "subtype": "orthography",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Dropped mora typo (描きましょう→描きしょう); intended word is clear."
+ },
+ {
+  "id": "ja_silver_15",
+  "errors": [
+   {
+    "learner_form": "ロボットアームどんどん進化",
+    "corrected_form": "ロボットアームはどんどん進化",
+    "subtype": "topic_comment",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "Topic marker は dropped, same pattern as gold ja_seed_11; naturalness lowered per the naturalness-dimension rule."
+ },
+ {
+  "id": "ja_silver_16",
+  "errors": [
+   {
+    "learner_form": "ロボットアーム私たちの指示通りに",
+    "corrected_form": "ロボットアームは私たちの指示通りに",
+    "subtype": "topic_comment",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "Topic marker は dropped, same pattern as ja_silver_15/gold ja_seed_11."
+ },
+ {
+  "id": "ja_silver_17",
+  "errors": [
+   {
+    "learner_form": "接続したりする",
+    "corrected_form": "接続したりします",
+    "subtype": "keigo_register",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "です/ます politeness dropped to plain form mid-passage. Matches gold ja_seed_04 (です→だ) exactly: fidelity drops, naturalness stays 4 by direct precedent."
+ },
+ {
+  "id": "ja_silver_18",
+  "errors": [
+   {
+    "learner_form": "部品が不要です",
+    "corrected_form": "部品が必要です",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "必要→不要 inverts the claim (needed→not needed); meaning-inverting, critical."
+ },
+ {
+  "id": "ja_silver_19",
+  "errors": [
+   {
+    "learner_form": "掴めないか",
+    "corrected_form": "掴めるか",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Negation inserted, reversing the check being described (can grip→cannot grip); meaning-inverting, critical."
+ },
+ {
+  "id": "ja_silver_20",
+  "errors": [
+   {
+    "learner_form": "たくさんの部品",
+    "corrected_form": "いくつかの部品",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Quantifier changed (a few→a lot), a factual departure a careful reader would flag but not an outright inversion."
+ },
+ {
+  "id": "ja_silver_21",
+  "errors": [
+   {
+    "learner_form": "モーターを動かすための「アーム」",
+    "corrected_form": "アームを動かすための「モーター」",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Definitions of アーム and モーター swapped, reversing which part moves which; meaning-inverting, critical."
+ },
+ {
+  "id": "ja_silver_22",
+  "errors": [
+   {
+    "learner_form": "うまく動く場合は",
+    "corrected_form": "うまく動かない場合は",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Negation dropped, reversing the troubleshooting condition (doesn't work→works); meaning-inverting, critical."
+ },
+ {
+  "id": "ja_silver_23",
+  "errors": [
+   {
+    "learner_form": "アイデアとは関係なく",
+    "corrected_form": "アイデア次第で",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "'Depending on your ideas' flipped to 'regardless of your ideas'; meaning-inverting, critical."
+ },
+ {
+  "id": "ja_silver_24",
+  "errors": [
+   {
+    "learner_form": "達成感は高い",
+    "corrected_form": "達成感は格別",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 3,
+  "comment": "格別 (exceptional/special) flattened to the plainer 高い (high); meaning roughly survives but range narrows versus the reference's more vivid word choice."
+ },
+ {
+  "id": "ja_silver_25",
+  "errors": [
+   {
+    "learner_form": "力が育てられます",
+    "corrected_form": "力が養われます",
+    "subtype": "collocation",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "力を養う is the set collocation here; 力を育てる is individually fine words but an unnatural pairing in this idiom slot. Naturalness lowered per the collocation rule."
+ },
+ {
+  "id": "ja_silver_26",
+  "errors": [
+   {
+    "learner_form": "だから、これらの部品",
+    "corrected_form": "そして、これらの部品",
+    "subtype": "cohesion_connective",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "そして (additive) replaced with だから (causal), implying an unwarranted causal link to the prior sentence."
+ },
+ {
+  "id": "ja_silver_27",
+  "errors": [
+   {
+    "learner_form": "しかし、「プログラミング」",
+    "corrected_form": "そして、「プログラミング」",
+    "subtype": "cohesion_connective",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "しかし introduces a contrast that does not exist in the passage (nothing contradicts the prior sentence); more jarring than ja_silver_26 but still a single instance, so naturalness lands at 3 rather than 2."
+ },
+ {
+  "id": "ja_silver_28",
+  "errors": [
+   {
+    "learner_form": "アームの先にある",
+    "corrected_form": "アームの指先にあたる",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 3,
+  "comment": "指先 (fingertip) generalized to 先 (tip/end), losing specificity; meaning survives but the reference's more precise word choice is flattened."
+ },
+ {
+  "id": "ja_silver_29",
+  "errors": [
+   {
+    "learner_form": "わかるようになります",
+    "corrected_form": "理解する手助けになります",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 3,
+  "comment": "Reference's elaborate '(助ける)手助けになります' construction collapsed to the plainer 'わかるようになります'; meaning is preserved but the reference's structural variety is flattened."
+ },
+ {
+  "id": "ja_silver_30",
+  "errors": [
+   {
+    "learner_form": "見つかるよ",
+    "corrected_form": "見つかります",
+    "subtype": "keigo_register",
+    "severity": "major"
+   },
+   {
+    "learner_form": "部品を組み立てていきます。部品を組み立てていきます。",
+    "corrected_form": "部品を組み立てていきます。",
+    "subtype": "addition",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Casual よ ending breaks the polite register, plus a duplicated sentence (redundant repetition)."
+ },
+ {
+  "id": "ja_silver_31",
+  "errors": [
+   {
+    "learner_form": "掴かむ",
+    "corrected_form": "掴む",
+    "subtype": "orthography",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "テストしてみよう",
+    "corrected_form": "テストしてみましょう",
+    "subtype": "keigo_register",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "A stray-kana typo plus a です/ます→plain volitional register downgrade at the end."
+ },
+ {
+  "id": "ja_silver_32",
+  "errors": [
+   {
+    "learner_form": "動す",
+    "corrected_form": "動かす",
+    "subtype": "orthography",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "養われるよ",
+    "corrected_form": "養われます",
+    "subtype": "keigo_register",
+    "severity": "major"
+   },
+   {
+    "learner_form": "さらに面白く、さらに面白くするには？",
+    "corrected_form": "さらに面白くするには？",
+    "subtype": "addition",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "Typo (動す), casual よ register downgrade, and a duplicated final clause, all independent minor/major defects."
+ }
+]

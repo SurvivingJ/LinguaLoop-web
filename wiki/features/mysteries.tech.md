@@ -1,9 +1,9 @@
 ---
 title: Mysteries — Technical Specification
 type: feature-tech
-status: in-progress
+status: deprecated
 prose_page: ./mysteries.md
-last_updated: 2026-04-10
+last_updated: 2026-09-22
 dependencies:
   - "services/mystery_generation/"
   - "services/mystery_service.py"
@@ -13,6 +13,9 @@ breaking_change_risk: low
 ---
 
 # Mysteries — Technical Specification
+
+> **ARCHIVED 2026-09-21.** Code (routes/mystery.py, services/mystery_service.py, services/mystery_generation/, both templates), the admin tab, CSS and i18n keys were removed from the codebase; the 6 tables, 2 RPCs and 16 prompt_templates rows are exported in the zip. Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/mysteries-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+
 
 ## Architecture Overview
 

@@ -1,0 +1,515 @@
+[
+ {
+  "id": "zh_silver_01",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "去世->离世 synonym, acceptable variation"
+ },
+ {
+  "id": "zh_silver_02",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "许多->很多 synonym, acceptable variation"
+ },
+ {
+  "id": "zh_silver_03",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "迅速->很快 synonym, acceptable variation (cf. gold precedent for single synonym swaps)"
+ },
+ {
+  "id": "zh_silver_04",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "体现了->展现了 synonym, acceptable variation"
+ },
+ {
+  "id": "zh_silver_05",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "觉得->感到 synonym, acceptable variation"
+ },
+ {
+  "id": "zh_silver_06",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "总是能->总能 elision of 是, acceptable variation"
+ },
+ {
+  "id": "zh_silver_07",
+  "errors": [
+   {
+    "learner_form": "不会在手术中被小心地取出",
+    "corrected_form": "会在手术中被小心地取出",
+    "subtype": "addition",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "inserted negation 不会 fully inverts meaning (organs described as NOT being carefully removed)"
+ },
+ {
+  "id": "zh_silver_08",
+  "errors": [
+   {
+    "learner_form": "它是那种很贵的牌子",
+    "corrected_form": "它不是那种很贵的牌子",
+    "subtype": "omission",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "dropped 不 inverts meaning (shirt becomes an expensive brand, contradicting the whole passage)"
+ },
+ {
+  "id": "zh_silver_09",
+  "errors": [
+   {
+    "learner_form": "联想到一点关于快乐和友谊",
+    "corrected_form": "联想到很多关于快乐和友谊",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "很多->一点 large degree change, not full inversion"
+ },
+ {
+  "id": "zh_silver_10",
+  "errors": [
+   {
+    "learner_form": "陪伴我度过了很少快乐的时光",
+    "corrected_form": "陪伴我度过了很多快乐的时光",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "很多->很少 inverts the sentiment of the passage (nostalgic happy memories become scarce)"
+ },
+ {
+  "id": "zh_silver_11",
+  "errors": [
+   {
+    "learner_form": "运送出需要进行移植手术的医院",
+    "corrected_form": "运送到需要进行移植手术的医院",
+    "subtype": "directional_complement",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "到->出 reverses the direction/target of transport, logically confusing"
+ },
+ {
+  "id": "zh_silver_12",
+  "errors": [
+   {
+    "learner_form": "寻找最合适的捐献者",
+    "corrected_form": "寻找最合适的受者",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "受者->捐献者 swaps recipient/donor roles, factually wrong but locally recoverable from context"
+ },
+ {
+  "id": "zh_silver_13",
+  "errors": [
+   {
+    "learner_form": "好像在瞪着我",
+    "corrected_form": "好像在看着我",
+    "subtype": "word_choice",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "看着->瞪着 inverts the friendly tone established for the smiling cat"
+ },
+ {
+  "id": "zh_silver_14",
+  "errors": [
+   {
+    "learner_form": "真心对我好处的人",
+    "corrected_form": "真心对我好的人",
+    "subtype": "orthography",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "好->好处 stray extra character breaks grammaticality but intended word is clear"
+ },
+ {
+  "id": "zh_silver_15",
+  "errors": [
+   {
+    "learner_form": "当一个人不幸去世，他的身体器官功能良好时",
+    "corrected_form": "当一个人不幸去世，但他的身体器官功能良好时",
+    "subtype": "cohesion_connective",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "但 (contrastive connective) dropped"
+ },
+ {
+  "id": "zh_silver_16",
+  "errors": [
+   {
+    "learner_form": "被小心地取出，被迅速地运送到",
+    "corrected_form": "被小心地取出，并被迅速地运送到",
+    "subtype": "cohesion_connective",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "并 (connective) dropped between clauses"
+ },
+ {
+  "id": "zh_silver_17",
+  "errors": [
+   {
+    "learner_form": "但却很好看",
+    "corrected_form": "但却栩栩如生，充满了生命力",
+    "subtype": "word_choice",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 4,
+  "range": 2,
+  "comment": "vivid idiom 栩栩如生充满了生命力 flattened to generic 很好看; major fidelity loss and clear range flattening"
+ },
+ {
+  "id": "zh_silver_18",
+  "errors": [
+   {
+    "learner_form": "医疗系统会看情况，在等待名单中寻找",
+    "corrected_form": "医疗系统会根据患者的身体状况、血型以及配型情况，在等待名单中寻找",
+    "subtype": "omission",
+    "severity": "critical"
+   }
+  ],
+  "naturalness": 3,
+  "range": 2,
+  "comment": "drops all three matching criteria (身体状况/血型/配型) replaced by vague 看情况; severe content loss and register drop (casual filler in formal medical text) plus range flattening"
+ },
+ {
+  "id": "zh_silver_19",
+  "errors": [
+   {
+    "learner_form": "会在手术中小心地取出",
+    "corrected_form": "会在手术中被小心地取出",
+    "subtype": "bei_passive",
+    "severity": "major"
+   },
+   {
+    "learner_form": "正常工做",
+    "corrected_form": "正常工作",
+    "subtype": "orthography",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "被 (passive marker) dropped; separate typo 工做/工作"
+ },
+ {
+  "id": "zh_silver_20",
+  "errors": [
+   {
+    "learner_form": "被小心的取出",
+    "corrected_form": "被小心地取出",
+    "subtype": "de_particles",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "医生会捐献的健康器官移植到",
+    "corrected_form": "医生会将捐献的健康器官移植到",
+    "subtype": "ba_construction",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "地/的 confusion; 将 (disposal marker) dropped making the clause ungrammatical"
+ },
+ {
+  "id": "zh_silver_21",
+  "errors": [
+   {
+    "learner_form": "这件T恤我喜欢，不仅仅是因为",
+    "corrected_form": "我喜欢这件T恤，不仅仅是因为",
+    "subtype": "word_order",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "本人记得第一次穿",
+    "corrected_form": "我记得第一次穿",
+    "subtype": "register",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "object-fronting reads slightly stilted before 不仅仅是因为; 本人 is a jarring bureaucratic register clash in a casual reminiscence"
+ },
+ {
+  "id": "zh_silver_22",
+  "errors": [
+   {
+    "learner_form": "替换功能衰竭的器官",
+    "corrected_form": "替换掉功能衰竭的器官",
+    "subtype": "resultative_complement",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "受者移植手术后需要接受",
+    "corrected_form": "移植手术后，受者需要接受",
+    "subtype": "adverbial_order",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "掉 (resultative complement) dropped; temporal clause 移植手术后 repositioned mid-sentence"
+ },
+ {
+  "id": "zh_silver_23",
+  "errors": [
+   {
+    "learner_form": "是一只复杂但充满希望的医疗流程",
+    "corrected_form": "是一个复杂但充满希望的医疗流程",
+    "subtype": "classifier",
+    "severity": "minor"
+   },
+   {
+    "learner_form": "是否适合过捐献",
+    "corrected_form": "是否适合捐献",
+    "subtype": "aspect_marker",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "wrong classifier 只 for 流程; spurious experiential aspect 过 inserted, confusing tense/meaning"
+ },
+ {
+  "id": "zh_silver_24",
+  "errors": [
+   {
+    "learner_form": "立即捐献过程就会开始",
+    "corrected_form": "捐献过程就会立即开始",
+    "subtype": "adverbial_order",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "立即 misplaced to sentence-initial position, still grammatical but less idiomatic"
+ },
+ {
+  "id": "zh_silver_25",
+  "errors": [
+   {
+    "learner_form": "都体现了生命的延续和人道的关怀，从捐献者的决定到受者的康复",
+    "corrected_form": "从捐献者的决定到受者的康复，都体现了生命的延续和人道的关怀",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "从...到... clause moved from modifying 流程 to trailing the sentence, changing its attachment and reading flow"
+ },
+ {
+  "id": "zh_silver_26",
+  "errors": [],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "好好 (manner adverb) dropped; optional intensifier, meaning and grammar intact, treated as acceptable variation"
+ },
+ {
+  "id": "zh_silver_27",
+  "errors": [
+   {
+    "learner_form": "那只微笑的小猫，这件T恤的图案，也让我联想到",
+    "corrected_form": "这件T恤的图案，那只微笑的小猫，也让我联想到",
+    "subtype": "word_order",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "order of the appositive pair reversed, mildly less natural"
+ },
+ {
+  "id": "zh_silver_28",
+  "errors": [
+   {
+    "learner_form": "又据称在和我说话",
+    "corrected_form": "又好像在和我说话",
+    "subtype": "register",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 2,
+  "range": 4,
+  "comment": "据称 (formal/reportative 'allegedly') is a severe register clash in a whimsical description of a cat's expression"
+ },
+ {
+  "id": "zh_silver_29",
+  "errors": [
+   {
+    "learner_form": "我地朋友们都夸",
+    "corrected_form": "我的朋友们都夸",
+    "subtype": "de_particles",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "的/地 confusion (possessive marker written as adverbial marker)"
+ },
+ {
+  "id": "zh_silver_30",
+  "errors": [
+   {
+    "learner_form": "也不会退色",
+    "corrected_form": "也不会褪色",
+    "subtype": "orthography",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "褪色 written as 退色; common colloquial substitution but not the standard written form"
+ },
+ {
+  "id": "zh_silver_31",
+  "errors": [
+   {
+    "learner_form": "不像那些应该被精心搭配好的衣服",
+    "corrected_form": "不像那些需要精心搭配的衣服",
+    "subtype": "addition",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 2,
+  "range": 4,
+  "comment": "应该被...好 added, producing verbose, translated-sounding phrasing"
+ },
+ {
+  "id": "zh_silver_32",
+  "errors": [
+   {
+    "learner_form": "它代表的其实是舒适、快乐和珍贵的回忆",
+    "corrected_form": "它代表着舒适、快乐和珍贵的回忆",
+    "subtype": "addition",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "其实 added, introducing an unwarranted corrective/contrastive nuance not in the reference"
+ },
+ {
+  "id": "zh_silver_33",
+  "errors": [
+   {
+    "learner_form": "移植患者体内",
+    "corrected_form": "移植到患者体内",
+    "subtype": "directional_complement",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "到 dropped, leaving 移植患者体内 ungrammatical/ambiguous"
+ },
+ {
+  "id": "zh_silver_34",
+  "errors": [
+   {
+    "learner_form": "有一个图画小小的、很可爱的",
+    "corrected_form": "有一个小小的、很可爱的图画",
+    "subtype": "word_order",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 2,
+  "range": 4,
+  "comment": "noun 图画 moved before its own modifiers, breaking standard attributive order, requires rereading"
+ },
+ {
+  "id": "zh_silver_35",
+  "errors": [
+   {
+    "learner_form": "这个T恤是蓝色的",
+    "corrected_form": "这件T恤是蓝色的",
+    "subtype": "classifier",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "个 used instead of 件 for T恤"
+ },
+ {
+  "id": "zh_silver_36",
+  "errors": [
+   {
+    "learner_form": "都体现过生命的延续",
+    "corrected_form": "都体现了生命的延续",
+    "subtype": "aspect_marker",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 4,
+  "range": 4,
+  "comment": "了->过 aspect marker misuse (matches gold zh_seed_03 pattern)"
+ },
+ {
+  "id": "zh_silver_37",
+  "errors": [
+   {
+    "learner_form": "都会把心情变好",
+    "corrected_form": "都会觉得心情变好",
+    "subtype": "word_choice",
+    "severity": "minor"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "觉得 (feel) replaced by a 把-causative construction; grammatical but shifts from involuntary feeling to deliberate causation"
+ },
+ {
+  "id": "zh_silver_38",
+  "errors": [
+   {
+    "learner_form": "一旦找匹配的受者",
+    "corrected_form": "一旦找到匹配的受者",
+    "subtype": "resultative_complement",
+    "severity": "major"
+   }
+  ],
+  "naturalness": 3,
+  "range": 4,
+  "comment": "到 (resultative, 'successfully') dropped from 找到; weakens the logical link to the following 'process begins immediately'"
+ }
+]

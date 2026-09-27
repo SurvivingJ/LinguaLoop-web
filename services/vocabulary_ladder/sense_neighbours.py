@@ -30,9 +30,12 @@ from dataclasses import dataclass
 logger = logging.getLogger(__name__)
 
 #: A foil below this cosine is unrelated — not a distractor, just a filler.
-BAND_MIN = 0.35
+#: 0.35 was set on 1536-d vectors; +0.015 is the measured shift at this point
+#: from the 2026-09-22 move to 768-d truncated embeddings (n=3,009 pairs).
+BAND_MIN = 0.365
 #: A foil above this cosine is a near-duplicate of the target sense, and is
-#: very likely an also-correct answer.
+#: very likely an also-correct answer. Left unchanged by the 768-d move: the
+#: measured shift up here was +0.007 on a small sample (n=7), within noise.
 BAND_MAX = 0.88
 
 #: The RPC installed by the TASK-521 migration.

@@ -1,0 +1,1103 @@
+{
+  "sense_id": 35615,
+  "language_id": 3,
+  "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+  "started_at": "2026-09-26T04:57:45.706943+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "Tier gate: sentence[5] contains vocabulary far above tier T2: ほどき (Zipf 2.09)"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.602869987487793,
+    "p1_generate": 44.680572748184204,
+    "p1_repair": 18.304591178894043,
+    "tier_gate": 0.26954078674316406,
+    "p1_judge": 0.2657663822174072,
+    "collocate_grounding": 0.0,
+    "fan_out": 1.0872116088867188
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Tier gate: sentence[5] contains vocabulary far above tier T2: ほどき (Zipf 2.09)"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/fukuzatsu/",
+        "morphological_forms": [
+          {
+            "form": "複雑な",
+            "label": "活用"
+          },
+          {
+            "form": "複雑に",
+            "label": "活用"
+          },
+          {
+            "form": "複雑だ",
+            "label": "活用"
+          },
+          {
+            "form": "複雑で",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "ふくざつ",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35615
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "2e32e62c-9837-405b-896b-23770b650fce",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "ipa": "/fukuzatsu/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "複舌",
+          "錯雑",
+          "複雑",
+          "複座機"
+        ],
+        "correct_answer": "複雑",
+        "explanation": "正解です。「複雑」は「多くの要素がからみ合って、簡単に理解したり処理したりできない様子。」という意味です。",
+        "distractor_explanations": {
+          "錯雑": "「錯雑」は「複雑」と一モーラだけ異なる実在語です（1モーラ目: 「ふ」→「さ」、一部の音の違い）。",
+          "複座機": "「複座機」は「複雑」と一モーラだけ異なる実在語です（4モーラ目: 「つ」→「き」、一部の音の違い）。",
+          "複舌": "「複舌」は「複雑」と一モーラだけ異なる実在語です（3モーラ目: 「ざ」→「ぜ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 7,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d59a2f9f-8e18-4f3f-88c1-4ac8a9752bee",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "correct_definition": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+        "options": [
+          "人間が目的を持って意識的に身体や知能を使って行う活動。特に、経済的な価値を生み出すための仕事。",
+          "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+          "位置や状態を変える。動作をする。",
+          "同じ動作や言葉を、もう一度行うこと。または、同じことを何度も言うこと。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "da9669e4-25b7-4d8d-acd0-608b45257b17",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この問題はとても___です。",
+        "original_sentence": "この問題はとても複雑です。",
+        "correct_answer": "複雑",
+        "options": [
+          "静か",
+          "複雑",
+          "親切",
+          "元気"
+        ],
+        "explanation": "「この問題は複雑だ」は、問題が多くの要素からみ合って理解しにくいという意味で自然に成り立つ。",
+        "distractor_tags": {},
+        "word_definition": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+        "target_word": "複雑"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "5b73d045-094f-4941-acf3-c33839753be8",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___気持ちで学校に行きました。",
+        "original_sentence": "複雑な気持ちで学校に行きました。",
+        "correct_answer": "複雑",
+        "base_form": "複雑",
+        "form_label": "語幹（「で」に続く形）",
+        "options": [
+          "複雑",
+          "複雑さ",
+          "複雑な",
+          "複雑に"
+        ],
+        "explanation": "形状詞の語幹で、後ろの「で」（だ・で）に直接つながり、「通路が複雑で」と述語になる",
+        "word_definition": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+        "target_word": "複雑な"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "0b8fd4bd-403f-4a4e-b760-ca162e00332b",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "道で迷ってしまった複雑な。",
+            "is_correct": false
+          },
+          {
+            "text": "複雑な問題を解くのは大変です。",
+            "is_correct": true
+          },
+          {
+            "text": "複雑な道を迷ってしまった。",
+            "is_correct": false
+          },
+          {
+            "text": "昨日、複雑な道で迷ってしまう。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「道に迷う」が正しい結びつきで、「道を迷う」は不自然である。「に」を「を」に取り違えている。 活用・アスペクトの誤り：「昨日」という過去の時を表す語があるのに、述語が非過去の「迷ってしまう」になっていて時制が合わない。 語順・係り受けの誤り：修飾する「複雑な」が文末に残り、かかる名詞がないため係り受けが壊れている。",
+        "target_word": "複雑な"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "9aa85c32-3159-423f-aa1f-356fbfd2e3e0",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "複雑な気持ちで学校に行きました。",
+            "is_correct": true
+          },
+          {
+            "text": "この問題はとても複雑です。",
+            "is_correct": true
+          },
+          {
+            "text": "機械の構造は複雑すぎてわかりません。",
+            "is_correct": true
+          },
+          {
+            "text": "複雑の話は苦手だ。",
+            "is_correct": false,
+            "error_description": "助詞・活用の誤り。形状詞「複雑」が名詞を修飾するときは「の」ではなく「な」を使い、「複雑な話」が正しい形です。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "5cddef2b-85c2-4862-b0fb-0635e99fbc37",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "複雑にからみ合った糸をほどきました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "398e03f2-7c2e-4320-9a83-af3b058d8f2c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "ものを はさんで もつ どうぐです。",
+              "打磨 —— 摩擦刀具或工具的表面，使其更锋利或更有光泽",
+              "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+              "发电 —— 产生电能这一行为或过程"
+            ],
+            "correct_answer": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7d211935-e157-4674-b5b3-6b55c8a2a726",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___気持ちで学校に行きました。",
+        "original_sentence": "複雑な気持ちで学校に行きました。",
+        "target_word": "複雑な",
+        "word": "複雑",
+        "answer": {
+          "accepted": [
+            "複雑な"
+          ],
+          "accepted_normalized": [
+            "複雑な"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6b4e1dd6-a9c1-4c44-bffe-eda1d9c0dfc2",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "複雑",
+        "options": [
+          "ふくさつ",
+          "ふくざづ",
+          "ふぐざつ",
+          "ふくざつ"
+        ],
+        "correct_answer": "ふくざつ",
+        "word": "複雑",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ef1f0869-f452-4b7c-9d3b-ede6dac08d10",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ふくざつ",
+        "options": [
+          "複雑",
+          "混雑",
+          "複合",
+          "雑誌"
+        ],
+        "correct_answer": "複雑",
+        "word": "複雑",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "雑誌": "component",
+          "複合": "component",
+          "混雑": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7107eb96-8c8a-4da9-b561-fc9be9ed867b",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この地図は___て道がわかりません。",
+        "original_sentence": "この地図は複雑すぎて道がわかりません。",
+        "correct_answer": "複雑",
+        "options": [
+          "親切",
+          "元気",
+          "複雑",
+          "丈夫"
+        ],
+        "explanation": "「複雑すぎて説明できない」は、要素が多くからみ合っていて説明しきれないという意味で自然である。",
+        "distractor_tags": {},
+        "word_definition": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+        "target_word": "複雑すぎ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "30440ab4-6a4b-4c89-8678-89548dd89f53",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___ルールを覚えるのは大変です。",
+        "original_sentence": "複雑なルールを覚えるのは大変です。",
+        "correct_answer": "複雑",
+        "base_form": "複雑",
+        "form_label": "語幹（「な」に続く形）",
+        "options": [
+          "複雑",
+          "複雑な",
+          "複雑さ",
+          "複雑に"
+        ],
+        "explanation": "形状詞の語幹に「な」が付いて「複雑な話」と連体修飾になる",
+        "word_definition": "多くの要素がからみ合って、簡単に理解したり処理したりできない様子。",
+        "target_word": "複雑な"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bd6ec755-9bd6-45e1-82a4-79ff97ed966a",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の複雑は話で、よく分からなかった。",
+            "is_correct": false
+          },
+          {
+            "text": "彼の話は複雑だったで、よく分からなかった。",
+            "is_correct": false
+          },
+          {
+            "text": "複雑な計算は電卓を使ってください。",
+            "is_correct": true
+          },
+          {
+            "text": "彼の話を複雑で、よく分からなかった。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：形状詞「複雑」の主語を示すのは「が」または「は」で、「を」は使えない。「彼の話が複雑で」が正しい。 活用・アスペクトの誤り：理由をつなぐ「で」の前に過去形「だった」を置くことはできない。「複雑で」または「複雑だったので」が正しい。 語順・係り受けの誤り：「複雑」と「話」の位置が入れ替わり、「彼の話は複雑で」というまとまりが壊れている。",
+        "target_word": "複雑な"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8b72698f-507b-490e-b611-61ea72fcb930",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "複雑な計算は電卓を使ってください。",
+            "is_correct": true
+          },
+          {
+            "text": "複雑なルールを覚えるのは大変です。",
+            "is_correct": true
+          },
+          {
+            "text": "この地図は複雑すぎて道がわかりません。",
+            "is_correct": true
+          },
+          {
+            "text": "この規則は複雑くて、覚えにくい。",
+            "is_correct": false,
+            "error_description": "活用の誤り。「複雑」は形状詞（ナ形容詞）なので、い形容詞のように「くて」とは言わず、「複雑で」と接続します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d8e61358-cbda-459f-b5ac-979df3396c19",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "複雑な問題を解くのは大変です。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1fc97217-103e-4ebe-b66e-52fff50b0511",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___ルールを覚えるのは大変です。",
+        "original_sentence": "複雑なルールを覚えるのは大変です。",
+        "target_word": "複雑な",
+        "word": "複雑",
+        "answer": {
+          "accepted": [
+            "複雑な"
+          ],
+          "accepted_normalized": [
+            "複雑な"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a1c7ef5e-3dbc-4f03-b2ac-3384b818bb1e",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "複雑な問題を解くのは大変です。",
+        "chunks": [
+          "複雑な問題を",
+          "解くの",
+          "は",
+          "大変です"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "大変です",
+          "解くの",
+          "は",
+          "複雑な問題を"
+        ],
+        "target_word": "複雑な",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "sentence chunks into 0 pieces (min 3) — too short to jumble"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00570176,
+      "prompt_tokens": 2582,
+      "completion_tokens": 3809,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2862,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 44317
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00275232,
+      "prompt_tokens": 1241,
+      "completion_tokens": 1840,
+      "cached_tokens": 0,
+      "reasoning_tokens": 734,
+      "call_role": "repair",
+      "sense_id": 35615,
+      "generation_batch_id": "b546df83-eb6e-4cb8-ab49-29ed2d47b4ab",
+      "language_code": "ja",
+      "latency_ms": 18120
+    }
+  ],
+  "llm_calls_observed": 2,
+  "llm_cost_observed_usd": 0.00845408,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 0,
+    "still_failing": 1
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 68.25,
+  "finished_at": "2026-09-26T04:58:53.968517+00:00"
+}

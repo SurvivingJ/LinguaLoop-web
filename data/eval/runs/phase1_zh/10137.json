@@ -1,0 +1,1717 @@
+{
+  "sense_id": 10137,
+  "language_id": 1,
+  "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+  "started_at": "2026-09-27T06:05:27.066993+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[5] rejected (rating 2): 义项错误，实为夹或压平",
+    "P1 sentence[9] flagged (rating 3): 语义：主语不明，干花是施事还是受事"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.14777421951293945,
+    "p1_generate": 69.29473090171814,
+    "tier_gate": 0.01156473159790039,
+    "p1_judge": 68.09113001823425,
+    "collocate_grounding": 0.0,
+    "fan_out": 165.62088561058044
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[5] rejected (rating 2): 义项错误，实为夹或压平",
+        "P1 sentence[9] flagged (rating 3): 语义：主语不明，干花是施事还是受事"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ja˥ in˥˩]",
+        "morphological_forms": [
+          {
+            "form": "壓印",
+            "label": "繁体"
+          },
+          {
+            "form": "压印了",
+            "label": "体标"
+          },
+          {
+            "form": "压印过",
+            "label": "体标"
+          },
+          {
+            "form": "压印着",
+            "label": "体标"
+          },
+          {
+            "form": "压印机",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "yā yìn",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10137
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "82d46045-e1a0-4eee-885c-af1f14f14974",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "压印",
+        "pronunciation": "yā yìn",
+        "correct_definition": "通过施加压力使物体表面留下痕迹或图案。",
+        "options": [
+          "公平性指事物在处理或分配过程中，不偏袒任何一方，公正平等的特性。",
+          "用权力或力量要求别人按照自己的意思去做。",
+          "表示动作或状态的持续，或表示补充、增加。",
+          "通过施加压力使物体表面留下痕迹或图案。"
+        ],
+        "hant": {
+          "word": "壓印",
+          "pronunciation": "yā yìn",
+          "correct_definition": "通過施加壓力使物體表面留下痕跡或圖案。",
+          "options": [
+            "公平性指事物在處理或分配過程中，不偏袒任何一方，公正平等的特性。",
+            "用權力或力量要求別人按照自己的意思去做。",
+            "表示動作或狀態的持續，或表示補充、增加。",
+            "通過施加壓力使物體表面留下痕跡或圖案。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "56dca259-aac4-4f54-a3d8-7e51fa7d7097",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "他所改良的金属活字印刷系统，通过螺旋装置在纸张表面___出清晰的文字，结合油性墨水与精确铸造技术，实现了复制的标准化与高效率生产。",
+        "original_sentence": "他所改良的金属活字印刷系统，通过螺旋装置在纸张表面压印出清晰的文字，结合油性墨水与精确铸造技术，实现了复制的标准化与高效率生产。",
+        "correct_answer": "压印",
+        "options": [
+          "压印",
+          "烙印",
+          "盖",
+          "描绘"
+        ],
+        "explanation": "正确选项。符合句中通过机械装置施加压力在纸张上留下文字痕迹的语境。",
+        "distractor_tags": {},
+        "word_definition": "通过施加压力使物体表面留下痕迹或图案。",
+        "target_word": "压印",
+        "hant": {
+          "sentence_with_blank": "他所改良的金屬活字印刷系統，通過螺旋裝置在紙張表面___出清晰的文字，結合油性墨水與精確鑄造技術，實現了複製的標準化與高效率生產。",
+          "original_sentence": "他所改良的金屬活字印刷系統，通過螺旋裝置在紙張表面壓印出清晰的文字，結合油性墨水與精確鑄造技術，實現了複製的標準化與高效率生產。",
+          "correct_answer": "壓印",
+          "options": [
+            "壓印",
+            "烙印",
+            "蓋",
+            "描繪"
+          ],
+          "explanation": "正確選項。符合句中通過機械裝置施加壓力在紙張上留下文字痕跡的語境。",
+          "distractor_tags": {},
+          "word_definition": "通過施加壓力使物體表面留下痕跡或圖案。",
+          "target_word": "壓印"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "e7d3e5eb-f259-4695-b903-305df471e7f9",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们把花瓣压印起在画布上呢。",
+            "is_correct": false
+          },
+          {
+            "text": "我们正把花瓣压印了画布上呢。",
+            "is_correct": false
+          },
+          {
+            "text": "我们正把花瓣压印在画布上呢。",
+            "is_correct": true
+          },
+          {
+            "text": "我们正压印把花瓣在画布上呢。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标错误。进行体标记“正……呢”与完成体标记“了”冲突，且“了”后直接接处所名词不符合语法，应为“压印在”。 语序错误。“把”字及其宾语“花瓣”被错误放置于动词之后，破坏了“把+宾语+动词+补语”的正确句法结构。 方向/结果补语误用。结果补语“起”表示动作开始或物体向上，与处所补语“在画布上”表示的附着状态语义冲突，应直接使用“压印在”。",
+        "target_word": "压印",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們把花瓣壓印起在畫布上呢。",
+              "is_correct": false
+            },
+            {
+              "text": "我們正把花瓣壓印了畫布上呢。",
+              "is_correct": false
+            },
+            {
+              "text": "我們正把花瓣壓印在畫布上呢。",
+              "is_correct": true
+            },
+            {
+              "text": "我們正壓印把花瓣在畫布上呢。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標錯誤。進行體標記“正……呢”與完成體標記“了”衝突，且“了”後直接接處所名詞不符合語法，應為“壓印在”。 語序錯誤。“把”字及其賓語“花瓣”被錯誤放置於動詞之後，破壞了“把+賓語+動詞+補語”的正確句法結構。 方向/結果補語誤用。結果補語“起”表示動作開始或物體向上，與處所補語“在畫布上”表示的附著狀態語義衝突，應直接使用“壓印在”。",
+          "target_word": "壓印"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "9344039e-ca50-429a-8291-f80dbbb8b5fc",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我把树叶压印在纸上，送给好朋友。",
+            "is_correct": true
+          },
+          {
+            "text": "他所改良的金属活字印刷系统，通过螺旋装置在纸张表面压印出清晰的文字，结合油性墨水与精确铸造技术，实现了复制的标准化与高效率生产。",
+            "is_correct": true
+          },
+          {
+            "text": "她在书签上压印过很多漂亮的图案。",
+            "is_correct": true
+          },
+          {
+            "text": "我把树叶压印了纸上，送给好朋友。",
+            "is_correct": false,
+            "error_description": "在“把”字句中，动词后接处所补语时，必须使用介词“在”引出地点，不能省略“在”。正确写法是“压印在纸上”。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "我把樹葉壓印在紙上，送給好朋友。",
+              "is_correct": true
+            },
+            {
+              "text": "他所改良的金屬活字印刷系統，通過螺旋裝置在紙張表面壓印出清晰的文字，結合油性墨水與精確鑄造技術，實現了複製的標準化與高效率生產。",
+              "is_correct": true
+            },
+            {
+              "text": "她在書籤上壓印過很多漂亮的圖案。",
+              "is_correct": true
+            },
+            {
+              "text": "我把樹葉壓印了紙上，送給好朋友。",
+              "is_correct": false,
+              "error_description": "在“把”字句中，動詞後接處所補語時，必須使用介詞“在”引出地點，不能省略“在”。正確寫法是“壓印在紙上”。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "321a8cbf-ed35-4357-945a-f8c0f2836815",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "妹妹把树叶压印在日记本里了。",
+        "hant": {
+          "original_sentence": "妹妹把樹葉壓印在日記本里了。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f511a5ca-e7b8-4789-b5d8-90a421302b92",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "压印",
+        "pronunciation": "yā yìn",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "对某事物的初步设想或构思。",
+              "通过施加压力使物体表面留下痕迹或图案。",
+              "汚染物質",
+              "全世界；地球上のすべての場所"
+            ],
+            "correct_answer": "通过施加压力使物体表面留下痕迹或图案。"
+          }
+        },
+        "hant": {
+          "word": "壓印",
+          "pronunciation": "yā yìn",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "對某事物的初步設想或構思。",
+                "通過施加壓力使物體表面留下痕跡或圖案。",
+                "汚染物質",
+                "全世界；地球上のすべての場所"
+              ],
+              "correct_answer": "通過施加壓力使物體表面留下痕跡或圖案。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5ed3640e-a43f-4f90-b8a0-80db25924e03",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "我把树叶___在纸上，送给好朋友。",
+        "original_sentence": "我把树叶压印在纸上，送给好朋友。",
+        "target_word": "压印",
+        "word": "压印",
+        "answer": {
+          "accepted": [
+            "压印",
+            "压印了",
+            "压印过",
+            "压印着",
+            "压印机"
+          ],
+          "accepted_normalized": [
+            "压印",
+            "压印了",
+            "压印过",
+            "压印着",
+            "压印机"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "我把樹葉___在紙上，送給好朋友。",
+          "original_sentence": "我把樹葉壓印在紙上，送給好朋友。",
+          "target_word": "壓印",
+          "word": "壓印",
+          "answer": {
+            "accepted": [
+              "壓印",
+              "壓印了",
+              "壓印過",
+              "壓印著",
+              "壓印機"
+            ],
+            "accepted_normalized": [
+              "壓印",
+              "壓印了",
+              "壓印過",
+              "壓印著",
+              "壓印機"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ffca4138-be7d-425c-af17-db7e1c5e1ccd",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "妹妹把树叶压印在日记本里了。",
+        "chunks": [
+          "妹妹",
+          "把树叶压印",
+          "在日记本里了"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "在日记本里了",
+          "把树叶压印",
+          "妹妹"
+        ],
+        "target_word": "压印",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "妹妹把樹葉壓印在日記本里了。",
+          "chunks": [
+            "妹妹",
+            "把樹葉壓印",
+            "在日記本里了"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "在日記本里了",
+            "把樹葉壓印",
+            "妹妹"
+          ],
+          "target_word": "壓印",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "5b5d6824-4102-4310-a78c-857fd3e51aa8",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "压印",
+        "options": [
+          "yā yìn",
+          "yā yīn",
+          "yá yìn",
+          "yā yín"
+        ],
+        "correct_answer": "yā yìn",
+        "word": "压印",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "壓印",
+          "options": [
+            "yā yìn",
+            "yā yīn",
+            "yá yìn",
+            "yā yín"
+          ],
+          "correct_answer": "yā yìn",
+          "word": "壓印",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "cdb14f79-7009-4a52-8740-05b60d71b4d3",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "yā yìn",
+        "options": [
+          "压力",
+          "压电",
+          "压印",
+          "压缩"
+        ],
+        "correct_answer": "压印",
+        "word": "压印",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "压力": "component",
+          "压缩": "component",
+          "压电": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "yā yìn",
+          "options": [
+            "壓力",
+            "壓電",
+            "壓印",
+            "壓縮"
+          ],
+          "correct_answer": "壓印",
+          "word": "壓印",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "压力": "component",
+            "压缩": "component",
+            "压电": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f38998bc-7d5d-437d-bade-17e80ea5e80d",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "压印",
+        "toneless_pinyin": "ya yin",
+        "full_pinyin": "yā yìn",
+        "options": [
+          "12",
+          "13",
+          "11",
+          "14"
+        ],
+        "correct_answer": "14",
+        "option_labels": {
+          "12": "high level (1) + rising (2)",
+          "13": "high level (1) + dipping (3)",
+          "11": "high level (1) + high level (1)",
+          "14": "high level (1) + falling (4)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "壓印",
+          "toneless_pinyin": "ya yin",
+          "full_pinyin": "yā yìn",
+          "options": [
+            "12",
+            "13",
+            "11",
+            "14"
+          ],
+          "correct_answer": "14",
+          "option_labels": {
+            "12": "high level (1) + rising (2)",
+            "13": "high level (1) + dipping (3)",
+            "11": "high level (1) + high level (1)",
+            "14": "high level (1) + falling (4)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dec1a8b6-d473-4560-b2cd-3a4acc0f0d6e",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "你___的图案真好看，我很喜欢。",
+        "original_sentence": "你压印的图案真好看，我很喜欢。",
+        "correct_answer": "压印",
+        "options": [
+          "压印",
+          "测量",
+          "撕裂",
+          "销毁"
+        ],
+        "explanation": "正确。压印指通过压力留下痕迹，符合语境中制作出好看图案的动作。",
+        "distractor_tags": {},
+        "word_definition": "通过施加压力使物体表面留下痕迹或图案。",
+        "target_word": "压印",
+        "hant": {
+          "sentence_with_blank": "你___的圖案真好看，我很喜歡。",
+          "original_sentence": "你壓印的圖案真好看，我很喜歡。",
+          "correct_answer": "壓印",
+          "options": [
+            "壓印",
+            "測量",
+            "撕裂",
+            "銷燬"
+          ],
+          "explanation": "正確。壓印指通過壓力留下痕跡，符合語境中製作出好看圖案的動作。",
+          "distractor_tags": {},
+          "word_definition": "通過施加壓力使物體表面留下痕跡或圖案。",
+          "target_word": "壓印"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "054de189-a95d-4311-93ec-2e7811745626",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "在手工纸上干花压印真美。",
+            "is_correct": false
+          },
+          {
+            "text": "干花压印在手工纸上真美。",
+            "is_correct": true
+          },
+          {
+            "text": "干花压印起在手工纸上真美。",
+            "is_correct": false
+          },
+          {
+            "text": "干花压印过在手工纸上真美。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标选用与语序错误。“过”表示过去的经历，与当前欣赏的语境不符，且“过”应放在“在手工纸上”之后。 语序错误。处所状语“在手工纸上”放在句首时，主语“干花”应紧跟其后，原句破坏了正常的语序结构。 方向/结果补语误用。“起”表示向上或开始，而此处表示施加压力使痕迹附着于纸面，应使用表示附着的补语，且“起在”搭配不当。",
+        "target_word": "压印",
+        "hant": {
+          "sentences": [
+            {
+              "text": "在手工紙上乾花壓印真美。",
+              "is_correct": false
+            },
+            {
+              "text": "乾花壓印在手工紙上真美。",
+              "is_correct": true
+            },
+            {
+              "text": "乾花壓印起在手工紙上真美。",
+              "is_correct": false
+            },
+            {
+              "text": "乾花壓印過在手工紙上真美。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標選用與語序錯誤。“過”表示過去的經歷，與當前欣賞的語境不符，且“過”應放在“在手工紙上”之後。 語序錯誤。處所狀語“在手工紙上”放在句首時，主語“乾花”應緊跟其後，原句破壞了正常的語序結構。 方向/結果補語誤用。“起”表示向上或開始，而此處表示施加壓力使痕跡附著於紙面，應使用表示附著的補語，且“起在”搭配不當。",
+          "target_word": "壓印"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "49311320-37ad-4af8-aad0-2dd2af114d5a",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他压印名字在信封上了。",
+            "is_correct": false,
+            "error_description": "语序错误。动词后接“在+处所”作补语时，宾语需借助“把”字提前，或将处所状语置于动词前，不能直接采用“动词+宾语+在+处所”的结构。"
+          },
+          {
+            "text": "你压印的图案真好看，我很喜欢。",
+            "is_correct": true
+          },
+          {
+            "text": "干花压印在手工纸上真美。",
+            "is_correct": true
+          },
+          {
+            "text": "他把名字压印在信封上了。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他壓印名字在信封上了。",
+              "is_correct": false,
+              "error_description": "語序錯誤。動詞後接“在+處所”作補語時，賓語需藉助“把”字提前，或將處所狀語置於動詞前，不能直接採用“動詞+賓語+在+處所”的結構。"
+            },
+            {
+              "text": "你壓印的圖案真好看，我很喜歡。",
+              "is_correct": true
+            },
+            {
+              "text": "乾花壓印在手工紙上真美。",
+              "is_correct": true
+            },
+            {
+              "text": "他把名字壓印在信封上了。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "dd034177-91de-418a-933b-eb8452a571f5",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "我们正把花瓣压印在画布上呢。",
+        "hant": {
+          "original_sentence": "我們正把花瓣壓印在畫布上呢。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ad3006e1-9c0e-408e-b7ac-d4283e4116a2",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他把名字___在信封上了。",
+        "original_sentence": "他把名字压印在信封上了。",
+        "target_word": "压印",
+        "word": "压印",
+        "answer": {
+          "accepted": [
+            "压印",
+            "压印了",
+            "压印过",
+            "压印着",
+            "压印机"
+          ],
+          "accepted_normalized": [
+            "压印",
+            "压印了",
+            "压印过",
+            "压印着",
+            "压印机"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他把名字___在信封上了。",
+          "original_sentence": "他把名字壓印在信封上了。",
+          "target_word": "壓印",
+          "word": "壓印",
+          "answer": {
+            "accepted": [
+              "壓印",
+              "壓印了",
+              "壓印過",
+              "壓印著",
+              "壓印機"
+            ],
+            "accepted_normalized": [
+              "壓印",
+              "壓印了",
+              "壓印過",
+              "壓印著",
+              "壓印機"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9b51ce1d-d34a-4877-9028-20cba3a564c8",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "我们正把花瓣压印在画布上呢。",
+        "chunks": [
+          "我们",
+          "正",
+          "把花瓣压印",
+          "在画布上呢"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "我们",
+          "在画布上呢",
+          "正",
+          "把花瓣压印"
+        ],
+        "target_word": "压印",
+        "chunk_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "我們正把花瓣壓印在畫布上呢。",
+          "chunks": [
+            "我們",
+            "正",
+            "把花瓣壓印",
+            "在畫布上呢"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "shuffled_chunks": [
+            "我們",
+            "在畫布上呢",
+            "正",
+            "把花瓣壓印"
+          ],
+          "target_word": "壓印",
+          "chunk_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "acdc7d48-455e-4260-acb9-8edadb2641a4",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "压印",
+        "relation": "antonym",
+        "options": [
+          "压制",
+          "抹平",
+          "雕刻",
+          "拓印"
+        ],
+        "correct_answer": "抹平",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "通过施加压力使物体表面留下痕迹或图案。",
+            "explanation": "反义：压印是施压留下痕迹，抹平是消除痕迹使表面恢复平坦"
+          }
+        },
+        "hant": {
+          "word": "壓印",
+          "relation": "antonym",
+          "options": [
+            "壓制",
+            "抹平",
+            "雕刻",
+            "拓印"
+          ],
+          "correct_answer": "抹平",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "通過施加壓力使物體表面留下痕跡或圖案。",
+              "explanation": "反義：壓印是施壓留下痕跡，抹平是消除痕跡使表面恢復平坦"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10137,
+      "word_asset_id": "shadow-10137-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00827904,
+      "prompt_tokens": 2444,
+      "completion_tokens": 5857,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5096,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 69032
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00262496,
+      "prompt_tokens": 679,
+      "completion_tokens": 1881,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1665,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23119
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181152,
+      "prompt_tokens": 285,
+      "completion_tokens": 1344,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1262,
+      "call_role": "repair",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 15254
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00304608,
+      "prompt_tokens": 587,
+      "completion_tokens": 2233,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2143,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 29128
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311584,
+      "prompt_tokens": 1549,
+      "completion_tokens": 2047,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1921,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23909
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00441312,
+      "prompt_tokens": 1551,
+      "completion_tokens": 3060,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2941,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 33950
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00251296,
+      "prompt_tokens": 641,
+      "completion_tokens": 1803,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1663,
+      "call_role": "retry",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 23707
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00752576,
+      "prompt_tokens": 1706,
+      "completion_tokens": 5453,
+      "cached_tokens": 0,
+      "reasoning_tokens": 4745,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 65070
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.008338048,
+      "prompt_tokens": 1706,
+      "completion_tokens": 6318,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 5652,
+      "call_role": "retry",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 74328
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00400448,
+      "prompt_tokens": 422,
+      "completion_tokens": 3023,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2946,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 35969
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001739457,
+      "prompt_tokens": 424,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 2811
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196512,
+      "prompt_tokens": 581,
+      "completion_tokens": 1390,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1308,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 15576
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00067456,
+      "prompt_tokens": 524,
+      "completion_tokens": 396,
+      "cached_tokens": 0,
+      "reasoning_tokens": 369,
+      "call_role": "json_repair",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 5057
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0013408,
+      "prompt_tokens": 422,
+      "completion_tokens": 942,
+      "cached_tokens": 0,
+      "reasoning_tokens": 827,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 11328
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017656,
+      "prompt_tokens": 396,
+      "completion_tokens": 56,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 3630
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175392,
+      "prompt_tokens": 569,
+      "completion_tokens": 1228,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1157,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 15524
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0008928,
+      "prompt_tokens": 450,
+      "completion_tokens": 585,
+      "cached_tokens": 0,
+      "reasoning_tokens": 561,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 8037
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00268576,
+      "prompt_tokens": 545,
+      "completion_tokens": 1962,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1894,
+      "call_role": "primary",
+      "sense_id": 10137,
+      "generation_batch_id": "d02dcb81-be99-4228-906a-2dc293d6ecac",
+      "language_code": "zh",
+      "latency_ms": 25166
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.0553352737,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 437.7820000000065,
+  "finished_at": "2026-09-27T06:12:44.858000+00:00"
+}

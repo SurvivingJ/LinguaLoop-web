@@ -1,0 +1,1333 @@
+{
+  "sense_id": 14015,
+  "language_id": 2,
+  "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+  "started_at": "2026-09-27T03:30:33.945329+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 3 (L4) variant A generation failed",
+    "[A] Missing level_4",
+    "Prompt 3 (L4) variant B generation failed",
+    "[B] Missing level_4"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.14366507530212402,
+    "p1_generate": 3.5772147178649902,
+    "tier_gate": 0.0,
+    "p1_judge": 1.5897362232208252,
+    "collocate_grounding": 0.0,
+    "fan_out": 72.48030018806458
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_4"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "ˈroʊstɪŋ",
+        "morphological_forms": [
+          {
+            "form": "roast",
+            "label": "base form"
+          },
+          {
+            "form": "roasts",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "roasted",
+            "label": "past tense / past participle"
+          },
+          {
+            "form": "roasting",
+            "label": "present participle / gerund"
+          }
+        ],
+        "pronunciation": "ROHST-ing",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14015
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6a26bc19-ad8d-4df4-a8ce-a36b7b7bfcae",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Roasting",
+        "pronunciation": "ROHST-ing",
+        "correct_definition": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+        "options": [
+          "All people born and living at about the same time, regarded collectively.",
+          "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+          "A part or element of a larger whole, especially one that is essential or characteristic.",
+          "Extremely loud, like the sound of thunder."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "c5176da8-e412-42b0-b66f-7dff281542a3",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___ is a critical step that develops the distinct flavors and aromas we associate with coffee.",
+        "original_sentence": "Roasting is a critical step that develops the distinct flavors and aromas we associate with coffee.",
+        "correct_answer": "Roasting",
+        "options": [
+          "Harvesting",
+          "Frying",
+          "Planting",
+          "Roasting"
+        ],
+        "explanation": "Correct completion. It is the noun/gerund referring to the dry-heat cooking method that develops coffee flavors.",
+        "distractor_tags": {},
+        "word_definition": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+        "target_word": "Roasting"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1d3fee16-795d-442b-a475-fbe5b8cf6d2e",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "They spent the afternoon roasting marshmallows over the backyard fire pit.",
+            "is_correct": true
+          },
+          {
+            "text": "The mechanic spent the afternoon roasting the motor oil to make the engine run smoother.",
+            "is_correct": false
+          },
+          {
+            "text": "The students were roasting the chalk on their desks to get ready for the math test.",
+            "is_correct": false
+          },
+          {
+            "text": "She was roasting the ice cubes in the oven to prepare a cold beverage.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'roasting' specifically refers to cooking food with dry heat, not heating mechanical fluids. Semantically inappropriate: ice cubes melt when exposed to heat and cannot be 'roasted' like solid food. Pragmatically inappropriate: chalk is an inanimate mineral tool, not a food item that can be cooked or roasted.",
+        "target_word": "roasting"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "99af01d1-f0e3-4145-82c9-30e04bae94f8",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "We smelled the wonderful aromas of roasting chicken coming from the kitchen."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7db90a68-31bc-49d1-98ec-a98eec9fc661",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Roasting",
+        "pronunciation": "ROHST-ing",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to be bigger or more than something",
+              "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+              "Having or showing the knowledge, ability, or training to do something well.",
+              "to spoil or reduce the quality or effectiveness of something."
+            ],
+            "correct_answer": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "df4adc7d-16c8-40da-ad0e-967b5e50ca2c",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "We smelled the wonderful aromas of roasting chicken coming from the kitchen.",
+        "chunks": [
+          "We",
+          "smelled",
+          "the wonderful aromas of roasting chicken coming from the kitchen"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "the wonderful aromas of roasting chicken coming from the kitchen",
+          "We",
+          "smelled"
+        ],
+        "target_word": "roasting",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b0c9489c-dbae-4955-b3fd-118875902bcf",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Roasting",
+        "relation": "antonym",
+        "options": [
+          "frying",
+          "grilling",
+          "boiling",
+          "baking"
+        ],
+        "correct_answer": "boiling",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+            "explanation": "antonym: a cooking method using moist heat, contrasting with the dry heat of roasting"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "baking": 0.597857
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1f5b84f8-aeb9-47e0-8f0d-e404c8819b90",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "roast",
+        "sentence_with_blank": "Different roasting techniques can bring out chocolatey, nutty, or fruity notes.",
+        "original_sentence": "Different roasting techniques can bring out chocolatey, nutty, or fruity notes.",
+        "required_pos": "noun",
+        "options": [
+          "roasting",
+          "roastation",
+          "roastment",
+          "roastive"
+        ],
+        "correct_answer": "roasting",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established gerund functioning as a noun modifier for techniques"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "35743c9e-85ae-440a-ad16-0c408126e52a",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "roasting",
+        "pronunciation": "ROHST-ing",
+        "ipa": "ˈroʊstɪŋ",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "roasting",
+          "resting",
+          "boasting",
+          "rusting"
+        ],
+        "correct_answer": "roasting",
+        "explanation": "Correct: This is the target word pronounced /ˈroʊstɪŋ/.",
+        "distractor_explanations": {
+          "boasting": "Rhyme: Shares the same /oʊstɪŋ/ ending sound but starts with a different consonant /b/ instead of /r/.",
+          "rusting": "Minimal pair: Differs only in the vowel sound, using /ʌ/ (as in 'cup') instead of the /oʊ/ diphthong.",
+          "resting": "Minimal pair: Differs only in the vowel sound, using /ɛ/ (as in 'bed') instead of the /oʊ/ diphthong."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2dedd8b7-d256-4a21-9a4b-c69913a31919",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Before making soup, he tried ___ the tomatoes to deepen their flavor.",
+        "original_sentence": "Before making soup, he tried roasting the tomatoes to deepen their flavor.",
+        "correct_answer": "roasting",
+        "options": [
+          "roasting",
+          "peeling",
+          "eating",
+          "boiling"
+        ],
+        "explanation": "Correct: 'Roasting' is the exact gerund form required by the sentence to describe the cooking method applied to the tomatoes.",
+        "distractor_tags": {},
+        "word_definition": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+        "target_word": "roasting"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c54236b7-11f6-4bbf-abcb-948e48382c39",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The roasting of the documents in the fireplace ensured that the secret information was completely destroyed.",
+            "is_correct": false
+          },
+          {
+            "text": "The loud roasting of the thunderstorm kept the children awake throughout the entire night.",
+            "is_correct": false
+          },
+          {
+            "text": "Dark roasting gives the coffee beans a bold and slightly bitter taste.",
+            "is_correct": true
+          },
+          {
+            "text": "She spent the entire afternoon roasting the heavy winter blankets to keep them warm for the bed.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Roasting' specifically refers to cooking with dry heat; 'burning' or 'incinerating' is the correct term for destroying documents. Semantically inappropriate: 'Roasting' applies to food items undergoing a chemical change via heat, not to inanimate objects like blankets which would simply catch fire. Semantically inappropriate: 'Roasting' denotes a cooking method or intense physical heat, whereas the correct auditory word for a storm is 'roaring'.",
+        "target_word": "roasting"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c3d6ea2a-f724-4a30-bf45-b437998bbd3d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "They spent the afternoon roasting marshmallows over the backyard fire pit."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "911a7a87-47f2-4e9c-ad73-786485cb1b77",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The secret to this recipe is the careful ___ of the green coffee beans.",
+        "original_sentence": "The secret to this recipe is the careful roasting of the green coffee beans.",
+        "target_word": "roasting",
+        "word": "Roasting",
+        "answer": {
+          "accepted": [
+            "roasting",
+            "roast",
+            "roasts",
+            "roasted"
+          ],
+          "accepted_normalized": [
+            "roasting",
+            "roast",
+            "roasts",
+            "roasted"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9d5925ba-4687-4c20-a590-976d8972e554",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "They spent the afternoon roasting marshmallows over the backyard fire pit.",
+        "chunks": [
+          "They spent",
+          "the afternoon roasting marshmallows",
+          "over the backyard fire pit"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "They spent",
+          "over the backyard fire pit",
+          "the afternoon roasting marshmallows"
+        ],
+        "target_word": "roasting",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "8b46f68c-44fb-4b43-9a2b-a080293b9717",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "Roasting",
+        "relation": "antonym",
+        "options": [
+          "grilling",
+          "frying",
+          "baking",
+          "boiling"
+        ],
+        "correct_answer": "boiling",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Roasting is a cooking method that uses dry heat, either in an oven or over an open flame.",
+            "explanation": "antonym: a moist-heat cooking method contrasting with the dry heat of roasting"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "baking": 0.597857
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "04f4ee53-44ab-4ae9-8fc8-df769545800d",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "roast",
+        "sentence_with_blank": "The secret to this recipe is the careful ___ of the green coffee beans.",
+        "original_sentence": "The secret to this recipe is the careful roasting of the green coffee beans.",
+        "required_pos": "noun",
+        "options": [
+          "roasture",
+          "roastation",
+          "roastment",
+          "roasting"
+        ],
+        "correct_answer": "roasting",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established gerund functioning as a noun after the adjective"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14015,
+      "word_asset_id": "shadow-14015-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'Roasting' does not occur in its own sentence"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0022465,
+      "prompt_tokens": 2005,
+      "completion_tokens": 658,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 3431
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006366,
+      "prompt_tokens": 672,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1503
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183552,
+      "prompt_tokens": 668,
+      "completion_tokens": 1267,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1058,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 16409
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00259552,
+      "prompt_tokens": 667,
+      "completion_tokens": 1861,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1655,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 23087
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00341088,
+      "prompt_tokens": 1207,
+      "completion_tokens": 2363,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2243,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 27734
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00627424,
+      "prompt_tokens": 1627,
+      "completion_tokens": 4495,
+      "cached_tokens": 0,
+      "reasoning_tokens": 3768,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 31046
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00391008,
+      "prompt_tokens": 1207,
+      "completion_tokens": 2753,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2651,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 32972
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00216896,
+      "prompt_tokens": 838,
+      "completion_tokens": 1485,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1260,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 18728
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00267424,
+      "prompt_tokens": 837,
+      "completion_tokens": 1880,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1662,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 23420
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00843232,
+      "prompt_tokens": 1627,
+      "completion_tokens": 6181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 5549,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 72296
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003467,
+      "prompt_tokens": 414,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1298
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003235,
+      "prompt_tokens": 395,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1048
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000374,
+      "prompt_tokens": 480,
+      "completion_tokens": 92,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1093
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003708,
+      "prompt_tokens": 536,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1007
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004225,
+      "prompt_tokens": 500,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1492
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003458,
+      "prompt_tokens": 411,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1115
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000337,
+      "prompt_tokens": 390,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1227
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004583,
+      "prompt_tokens": 511,
+      "completion_tokens": 122,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1358
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004408,
+      "prompt_tokens": 536,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1137
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000335,
+      "prompt_tokens": 500,
+      "completion_tokens": 74,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14015,
+      "generation_batch_id": "e5ec4973-f4d0-48a0-aaa4-9b6f97492fdd",
+      "language_code": "en",
+      "latency_ms": 1181
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.037939259999999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 91.125,
+  "finished_at": "2026-09-27T03:32:05.061286+00:00"
+}

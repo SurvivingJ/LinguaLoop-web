@@ -73,6 +73,8 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
         'schema_version': 2,
         'original_sentence': text,
         'chunks': chunks,
+        # `chunks` is in answer order; the renderer grades against this.
+        'correct_ordering': list(range(len(chunks))),
         'shuffled_chunks': shuffled,
         'target_word': get_sentence_target(sentence),
         'chunk_count': len(chunks),

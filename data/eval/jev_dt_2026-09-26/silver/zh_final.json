@@ -1,0 +1,348 @@
+[
+ {
+  "id": "zh_silver_01",
+  "kind": "clean",
+  "source_passage_id": 31,
+  "note": "clean: synonym 去世->离世. Passage 31 (organ-donation, age tier 6) is NOT a gold passage.",
+  "reference": "器官捐献与移植是一个复杂但充满希望的医疗流程。当一个人不幸去世，但他的身体器官功能良好时，他的家人可以选择捐献这些器官。这个决定需要经过一个严格的医疗流程。首先，医生会评估捐献者是否适合捐献，以及哪些器官可以捐献。",
+  "reproduction": "器官捐献与移植是一个复杂但充满希望的医疗流程。当一个人不幸离世，但他的身体器官功能良好时，他的家人可以选择捐献这些器官。这个决定需要经过一个严格的医疗流程。首先，医生会评估捐献者是否适合捐献，以及哪些器官可以捐献。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_02",
+  "kind": "clean",
+  "source_passage_id": 32,
+  "note": "clean: synonym 许多->很多. Passage 32 is NOT a gold passage.",
+  "reference": "如果条件符合，这些信息会被记录下来。与此同时，有许多患者正等待着器官移植来挽救生命。医疗系统会根据患者的身体状况、血型以及配型情况，在等待名单中寻找最合适的受者。一旦找到匹配的受者，捐献过程就会立即开始。",
+  "reproduction": "如果条件符合，这些信息会被记录下来。与此同时，有很多患者正等待着器官移植来挽救生命。医疗系统会根据患者的身体状况、血型以及配型情况，在等待名单中寻找最合适的受者。一旦找到匹配的受者，捐献过程就会立即开始。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_03",
+  "kind": "clean",
+  "source_passage_id": 33,
+  "note": "clean: adverb form 迅速地->很快地. Passage 33 is NOT a gold passage.",
+  "reference": "捐献的器官会在手术中被小心地取出，并被迅速地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会将捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+  "reproduction": "捐献的器官会在手术中被小心地取出，并被很快地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会将捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_04",
+  "kind": "clean",
+  "source_passage_id": 34,
+  "note": "clean: synonym 体现->展现. Passage 34 is NOT a gold passage.",
+  "reference": "整个器官捐献与移植的流程，从捐献者的决定到受者的康复，都体现了生命的延续和人道的关怀。这个过程需要多方协作，包括捐献者家属、医疗团队、患者以及社会的支持。",
+  "reproduction": "整个器官捐献与移植的流程，从捐献者的决定到受者的康复，都展现了生命的延续和人道的关怀。这个过程需要多方协作，包括捐献者家属、医疗团队、患者以及社会的支持。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_05",
+  "kind": "clean",
+  "source_passage_id": 5,
+  "note": "clean: synonym 觉得->感到. Passage 5 IS a gold passage (id 5) but this is a different perturbation than any gold zh_*_05-family item (gold's passage-5 items perturb other spans/subtypes; none touch 觉得/感到).",
+  "reference": "它让我感到很放松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+  "reproduction": "它让我感到很放松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我感到很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_06",
+  "kind": "clean",
+  "source_passage_id": 6,
+  "note": "clean: adverb contraction 总是能->总能. Passage 6 IS a gold passage (id 6); gold's items on this passage target different spans/subtypes.",
+  "reference": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+  "reproduction": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+  "expected_errors": [],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_07",
+  "kind": "single",
+  "source_passage_id": 33,
+  "note": "meaning-inversion: addition of negation 不 reverses whether the organ is carefully removed at all. Passage 33 is NOT a gold passage.",
+  "reference": "捐献的器官会在手术中被小心地取出，并被迅速地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会将捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+  "reproduction": "捐献的器官不会在手术中被小心地取出，并被迅速地运送到需要进行移植手术的医院。移植手术本身也是一个精密的医疗过程，由经验丰富的外科医生团队执行。医生会将捐献的健康器官移植到患者体内，替换掉功能衰竭的器官。移植手术后，受者需要接受长期的医疗护理和药物治疗，以确保新器官能够正常工作，并防止身体排斥它。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     5,
+     17
+    ],
+    "span_ref": [
+     5,
+     16
+    ],
+    "subtype": "addition",
+    "subtype_v5_target": "addition",
+    "severity_v2": "critical",
+    "learner_form": "不会在手术中被小心地取出",
+    "corrected_form": "会在手术中被小心地取出"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_08",
+  "kind": "single",
+  "source_passage_id": 1,
+  "note": "meaning-inversion: omission of negation 不 turns 'not an expensive brand' into 'an expensive brand'. Passage 1 IS a gold passage; gold's zh_clean_01 on this passage only swaps 非常->十分 and never touches this negation.",
+  "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     18,
+     27
+    ],
+    "span_ref": [
+     18,
+     28
+    ],
+    "subtype": "omission",
+    "subtype_v5_target": "omission",
+    "severity_v2": "critical",
+    "learner_form": "它是那种很贵的牌子",
+    "corrected_form": "它不是那种很贵的牌子"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_09",
+  "kind": "single",
+  "source_passage_id": 6,
+  "note": "meaning-inversion: quantity flip 很多->一点 (many -> a little) reverses the extent of the sentiment. Passage 6 IS a gold passage; different span than any gold item on it.",
+  "reference": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+  "reproduction": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。这件T恤的图案，那只微笑的小猫，也让我联想到一点关于快乐和友谊的东西。小猫的笑容是那么纯真，那么有感染力。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     112,
+     130
+    ],
+    "span_ref": [
+     112,
+     130
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "major",
+    "learner_form": "也让我联想到一点关于快乐和友谊的东西",
+    "corrected_form": "也让我联想到很多关于快乐和友谊的东西"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 3,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_10",
+  "kind": "single",
+  "source_passage_id": 4,
+  "note": "meaning-inversion: quantity flip 很多->很少 (many happy times -> very few) inverts the sentiment of the sentence. Passage 4 IS a gold passage; different span than gold's items on it.",
+  "reference": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+  "reproduction": "那天，我跑来跑去，和小猫图案一样开心。我还记得有一次，在学校里，我的朋友们都夸我的T恤很可爱，我们一起分享了喜欢的卡通人物。这件T恤就像一个老朋友，陪伴我度过了很少快乐的时光。有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     74,
+     87
+    ],
+    "span_ref": [
+     74,
+     87
+    ],
+    "subtype": "word_choice",
+    "subtype_v5_target": "word_choice",
+    "severity_v2": "critical",
+    "learner_form": "陪伴我度过了很少快乐的时光",
+    "corrected_form": "陪伴我度过了很多快乐的时光"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 2,
+   "fidelity": 1,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_15",
+  "kind": "single",
+  "source_passage_id": 31,
+  "note": "naturalness=3: dropping the connective 但 (但他的身体器官功能良好时 -> 他的身体器官功能良好时) removes the contrastive link between 'died unexpectedly' and 'organs still healthy', leaving the sentence readable but less cohesive -- one non-native turn of phrase = naturalness 3. Passage 31 is NOT a gold passage.",
+  "reference": "器官捐献与移植是一个复杂但充满希望的医疗流程。当一个人不幸去世，但他的身体器官功能良好时，他的家人可以选择捐献这些器官。这个决定需要经过一个严格的医疗流程。首先，医生会评估捐献者是否适合捐献，以及哪些器官可以捐献。",
+  "reproduction": "器官捐献与移植是一个复杂但充满希望的医疗流程。当一个人不幸去世，他的身体器官功能良好时，他的家人可以选择捐献这些器官。这个决定需要经过一个严格的医疗流程。首先，医生会评估捐献者是否适合捐献，以及哪些器官可以捐献。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     32,
+     43
+    ],
+    "span_ref": [
+     32,
+     44
+    ],
+    "subtype": "cohesion_connective",
+    "subtype_v5_target": "cohesion_connective",
+    "severity_v2": "minor",
+    "learner_form": "他的身体器官功能良好时",
+    "corrected_form": "但他的身体器官功能良好时"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 3
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_30",
+  "kind": "single",
+  "source_passage_id": 1,
+  "note": "orthography: 褪色 (fade/discolor) miswritten with a near-homophone typo 退色 (退 vs 褪, same pronunciation tuì, wrong character but the intended word is clear). Passage 1 IS a gold passage, different span.",
+  "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会退色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     71,
+     76
+    ],
+    "span_ref": [
+     71,
+     76
+    ],
+    "subtype": "orthography",
+    "subtype_v5_target": "orthography",
+    "severity_v2": "minor",
+    "learner_form": "也不会退色",
+    "corrected_form": "也不会褪色"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ },
+ {
+  "id": "zh_silver_35",
+  "kind": "single",
+  "source_passage_id": 1,
+  "note": "classifier (2nd occurrence): 这件T恤 (件, the clothing classifier) -> 这个T恤 (个, the generic catch-all) -- a textbook classifier-agreement error (defaulting to 个 instead of the noun's own measure word). Passage 1 IS a gold passage, different span than gold's or this set's other items on it.",
+  "reference": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "reproduction": "我最喜欢的T恤是一件非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这个T恤是蓝色的，颜色很正，洗了很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+  "expected_errors": [
+   {
+    "span_repro": [
+     52,
+     60
+    ],
+    "span_ref": [
+     52,
+     60
+    ],
+    "subtype": "classifier",
+    "subtype_v5_target": "classifier",
+    "severity_v2": "minor",
+    "learner_form": "这个T恤是蓝色的",
+    "corrected_form": "这件T恤是蓝色的"
+   }
+  ],
+  "expected_bands": {
+   "accuracy": 4,
+   "understandability": 4,
+   "fidelity": 4,
+   "range": 4,
+   "naturalness": 4
+  },
+  "label_source": "silver_agreed",
+  "review_subtype_match": "exact"
+ }
+]

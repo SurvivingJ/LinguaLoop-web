@@ -22,8 +22,9 @@ Modes:
 
 This service:
   1. Wraps the RPC for `/api/practice/session` handlers.
-  2. Implements cold-ladder auto-subscription from selected packs (R4.9)
-     before calling the RPC, since the RPC itself cannot know about packs.
+  2. Implements ladder top-up (R4.9) from the learner's own evidence before
+     calling the RPC. (Pack-based intake was archived 2026-09-21 with the
+     language-packs feature — archive/modules/language-packs-2026-09-21.zip.)
   3. Records attempts via record_attempt_with_updates — same logic as
      legacy ExerciseSessionService but with an added session_mode parameter
      that propagates to record_session_progress for weekly counter updates.
@@ -92,12 +93,6 @@ EVIDENCE_ROW_LIMIT = 2000
 WRONG_ANSWER_ROW_LIMIT = 5000
 LADDER_SUBSCRIBED_ROW_LIMIT = 5000
 
-# T4.4 — the pack -> sense bridge. `collocation_packs` maps packs to
-# *collocations* (via pack_collocations), not to senses; a pack->sense bridge
-# was never built, and the name below was referenced by intake code against a
-# table that did not exist. Created by
-# migrations/task741_pack_key_words_bridge.sql.
-PACK_SENSE_BRIDGE_TABLE = 'pack_key_words'
 
 # T4.3 — how many starved nominations one session request may queue for
 # exercise generation. At ~3% exercise coverage of tested senses an unbounded
@@ -116,19 +111,6 @@ PRACTICE_ATTEMPT_MAX_SECONDS = 300      # 5 minutes
 # Final fallback when the item carries no expected_seconds estimate — matches
 # the seed default in get_practice_session (COALESCE(..., 45)).
 DEFAULT_EXPECTED_SECONDS = 45
-
-# PostgREST / Postgres signals for "that relation does not exist", as opposed
-# to a transient failure. PGRST205 is PostgREST's schema-cache miss; 42P01 is
-# Postgres' undefined_table. Used to make a missing pack bridge loud instead
-# of letting it read as an empty pack.
-_MISSING_RELATION_MARKERS = ('PGRST205', '42P01', 'does not exist')
-
-
-def _is_missing_relation(exc: Exception) -> bool:
-    """True when ``exc`` looks like "that table isn't there", not "it failed"."""
-    text = str(exc)
-    return any(marker in text for marker in _MISSING_RELATION_MARKERS)
-
 
 class PracticeSessionService:
     """Unified Practice surface. Wraps get_practice_session + attempt recording."""
@@ -166,9 +148,9 @@ class PracticeSessionService:
           When acquisition is possible and the user's eligible ladder pool is
           below target_active_pool(daily_minutes), subscribe enough senses to
           reach that floor, capped at LADDER_TOPUP_MAX_PER_CALL per call.
-          Nominations come from evidence first (words the learner has missed)
-          and from selected packs only as cold-start backfill, and every
-          nomination must clear the supply gate — see _maybe_top_up_ladder.
+          Nominations come from evidence (words the learner has missed), and
+          every nomination must clear the supply gate — see
+          _maybe_top_up_ladder.
 
         Session floor (T4.6):
           A session shorter than PRACTICE_SESSION_MIN_ITEMS is topped up from
@@ -251,6 +233,11 @@ class PracticeSessionService:
                 'script-variant selection failed (non-fatal) for user=%s lang=%s: %s',
                 user_id, language_id, e,
             )
+
+        # Most stored jumbled_sentence rows hold only `original_sentence`; the
+        # renderer needs `chunks` + `correct_ordering`. Runs after the script
+        # swap so a Traditional learner is chunked on the text they will see.
+        self._prepare_jumbled_items(payload.get('items'), language_id)
 
         # TASK-618: interleave due Dual-Translation error-remediation cards into
         # the session as a separate, non-sense-linked stream — capped so it never
@@ -354,6 +341,29 @@ class PracticeSessionService:
             len(backfill), user_id, language_id,
             len(items), len(payload['items']), PRACTICE_SESSION_MIN_ITEMS,
         )
+
+    @staticmethod
+    def _prepare_jumbled_items(items, language_id: int) -> None:
+        """Fill in jumbled_sentence chunks/ordering, in place, per item.
+
+        One item that cannot be prepared is logged and left alone rather than
+        failing the whole session.
+        """
+        from services.exercise_generation.language_processor import (
+            needs_jumbled_prep, prepare_jumbled_content,
+        )
+        for item in items or []:
+            if item.get('exercise_type') != 'jumbled_sentence':
+                continue
+            if not needs_jumbled_prep(item.get('content')):
+                continue
+            try:
+                item['content'] = prepare_jumbled_content(item['content'], language_id)
+            except Exception as e:
+                logger.error(
+                    'Failed to prepare jumbled content for exercise %s: %s',
+                    item.get('exercise_id'), e,
+                )
 
     def _apply_script_variant(
         self, payload: Dict[str, Any], user_id: str, language_id: int,
@@ -469,7 +479,7 @@ class PracticeSessionService:
         exercise = (
             self.db.table('exercises')
             .select(
-                'id, exercise_type, word_sense_id, grammar_pattern_id, '
+                'id, exercise_type, word_sense_id, '
                 'corpus_collocation_id, attempt_count, correct_count, language_id'
             )
             .eq('id', exercise_id)
@@ -663,16 +673,15 @@ class PracticeSessionService:
 
         Returns the list of newly-subscribed sense_ids (may be empty).
 
-        Two nomination queues, drained in order, both behind one supply gate:
+        One nomination queue, behind the supply gate:
 
-          Queue A — evidence (priority). Senses the learner has demonstrably
-            not learnt, read from ``user_vocabulary_knowledge`` and from the
-            questions they answered incorrectly. Both signals are already
-            recorded; nothing new needs collecting.
-          Queue B — packs (backfill). Only reached when the evidence queue
-            cannot fill the pool: a brand-new learner with no test history, or
-            one who has cleared Queue A. This is the only remaining reason to
-            keep packs in the intake path.
+          Evidence. Senses the learner has demonstrably not learnt, read from
+            ``user_vocabulary_knowledge`` and from the questions they answered
+            incorrectly. Both signals are already recorded; nothing new needs
+            collecting. (A second queue — cold-start backfill from selected
+            language packs — was archived 2026-09-21 with the packs feature; no
+            pack was ever created, so it never fired. A brand-new learner with
+            no test history therefore gets no top-up until they have evidence.)
 
         The supply gate sits between nomination and subscription: a sense is
         admitted only if it already carries at least
@@ -706,15 +715,7 @@ class PracticeSessionService:
         fresh = self._nominate_from_evidence(
             user_id, language_id, want, subscribed
         )
-        source = 'evidence' if fresh else 'none'
-        if len(fresh) < want:
-            pack_fresh = self._nominate_from_packs(
-                user_id, language_id, want - len(fresh),
-                subscribed | set(fresh),
-            )
-            if pack_fresh:
-                source = 'evidence+packs' if fresh else 'packs'
-                fresh.extend(pack_fresh)
+        source = 'evidence'
 
         if not fresh:
             return []
@@ -1101,93 +1102,6 @@ class PracticeSessionService:
                 if rank is not None:
                     out[row['id']] = float(rank)
         return out
-
-    # -- Queue B: packs, cold start only (T4.4 / T4.5) -----------------
-
-    def _nominate_from_packs(
-        self, user_id: str, language_id: int, want: int, exclude: set,
-    ) -> List[int]:
-        """Cold-start backfill from the learner's selected packs.
-
-        Demoted from "the entire intake mechanism" to a fallback reached only
-        when the evidence queue could not fill the pool. Still behind the same
-        supply gate.
-        """
-        if want <= 0:
-            return []
-        try:
-            packs_resp = self.db.rpc('get_packs_with_user_selection', {
-                'p_language_id': language_id,
-                'p_user_id':     user_id,
-            }).execute()
-        except Exception as e:
-            logger.warning('get_packs_with_user_selection failed: %s', e)
-            return []
-        selected_pack_ids = [
-            row['id'] for row in (packs_resp.data or [])
-            if row.get('is_selected')
-        ]
-        if not selected_pack_ids:
-            return []
-
-        try:
-            candidate_resp = (
-                self.db.table(PACK_SENSE_BRIDGE_TABLE)
-                .select('sense_id')
-                .in_('pack_id', selected_pack_ids)
-                .limit(max(want * NOMINATION_OVERFETCH, want) * 5)
-                .execute()
-            )
-        except Exception as e:
-            # A missing bridge is a schema fault, not an empty result. This
-            # used to be a bare `logger.warning` inside a broad except, which
-            # is how a bridge table that was never built stayed a silent no-op
-            # for the entire lifetime of pack-based intake. Distinguish the two
-            # and make the schema fault loud.
-            if _is_missing_relation(e):
-                logger.error(
-                    'CONTENT PIPELINE FAULT: pack->sense bridge %r does not '
-                    'exist, so pack-based ladder intake cannot run at all. '
-                    'Apply migrations/task741_pack_key_words_bridge.sql and '
-                    'seed it. (selected packs: %s)',
-                    PACK_SENSE_BRIDGE_TABLE, selected_pack_ids,
-                )
-            else:
-                logger.error(
-                    'pack->sense bridge query on %r failed: %s',
-                    PACK_SENSE_BRIDGE_TABLE, e,
-                )
-            return []
-
-        candidate_sense_ids = [
-            sid for sid in {
-                row['sense_id'] for row in (candidate_resp.data or [])
-                if row.get('sense_id') is not None
-            }
-            if sid not in exclude
-        ]
-        if not candidate_sense_ids:
-            logger.info(
-                'pack intake: %d selected pack(s) for user=%s lang=%s yielded '
-                'no unsubscribed senses', len(selected_pack_ids),
-                user_id, language_id,
-            )
-            return []
-
-        supplied = self._senses_with_supply(candidate_sense_ids, language_id)
-        if not supplied:
-            logger.info(
-                'pack intake: none of %d pack sense(s) for user=%s lang=%s '
-                'has %d+ active exercises; nothing admitted',
-                len(candidate_sense_ids), user_id, language_id,
-                LADDER_MIN_EXERCISES_PER_SENSE,
-            )
-            return []
-
-        frequency = self._sense_frequency(list(supplied))
-        return sorted(
-            supplied, key=lambda s: frequency.get(s, 0.0), reverse=True
-        )[:want]
 
     # -- subscription --------------------------------------------------
 

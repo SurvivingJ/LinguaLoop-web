@@ -78,7 +78,15 @@ def judge_l1_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
-            max_tokens=4500,
+            # TASK-812: was 4500. TASK-808's baseline shows this judge's own
+            # completion_tokens p99 at 4458 (n=55, max 4458) -- right up
+            # against the old cap, and the presence of __json_repair rows for
+            # this same task_name (avg 2911, max 4230) is consistent with
+            # some primary responses being truncated mid-JSON at 4500 and
+            # then re-asked. 14000 (>=3x p99) removes that truncation risk
+            # instead of tightening a cap that was already too close to the
+            # real distribution.
+            max_tokens=14000,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,
